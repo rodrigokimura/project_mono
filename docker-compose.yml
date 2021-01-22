@@ -1,0 +1,26 @@
+version: "3.8"
+   
+services:
+  # db:
+  #   image: mariadb
+  #   restart: always
+  #   environment:
+  #     - MYSQL_DATABASE=mariadb
+  #     - MYSQL_ROOT_PASSWORD=
+
+  mono:
+    image: mono
+
+    stdin_open: true
+    tty: true
+
+    build: .
+    env_file:
+      - .env
+    # command: bash -c "sleep 30s && python manage.py migrate && python manage.py loaddata data.json && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./mono:/code
+    ports:
+      - "8888:8000"
+    # depends_on:
+    #   - db
