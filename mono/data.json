@@ -1,0 +1,20 @@
+[
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$216000$L6intcjN1y55$JAv2T8quWSEBcUguZGJr5xHhl1nQeIQD5ACohUCg590=",
+    "last_login": null,
+    "is_superuser": true,
+    "username": "rodrigo.kimura",
+    "first_name": "Rodrigo Eiti",
+    "last_name": "Kimura",
+    "email": "rodrigoeitikimura@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2021-01-22T13:24:05.702Z",
+    "groups": [],
+    "user_permissions": []
+  }
+}
+]
