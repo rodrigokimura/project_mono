@@ -17,8 +17,10 @@ RUN pip install -r requirements.txt
 
 COPY ./mono /code/
 
-# RUN ["chmod", "+x", "./entrypoint.sh"]
+COPY ./entrypoint.sh /code/
+
+RUN ["chmod", "+x", "./entrypoint.sh"]
 
 EXPOSE 8000
 
-# CMD ["/bin/bash", "./entrypoint.sh"]
+CMD ["/bin/bash", "./entrypoint.sh"]

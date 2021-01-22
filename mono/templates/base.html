@@ -1,0 +1,72 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+
+  <link rel="stylesheet" type="text/css" href="{% static 'css/semantic.min.css' %}">
+  <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
+  <script src="{% static 'js/semantic.min.js' %}"></script>
+  <script src="{% static 'js/global.js' %}"></script>
+  <script src="{% static 'js/pace.min.js' %}"></script>
+  {% comment %} <style>
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      border-radius: 5px;
+      background-color: rgba(0, 0, 0, 0);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      border-radius: 5px;
+      background-color: grey;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .pace {
+      -webkit-pointer-events: none;
+      pointer-events: none;
+
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      user-select: none;
+    }
+
+    .pace-inactive {
+      display: none;
+    }
+
+    .pace .pace-progress {
+      background: #29d;
+      position: fixed;
+      z-index: 2000;
+      top: 0;
+      right: 100%;
+      width: 100%;
+      height: 2px;
+    }
+  </style> {% endcomment %}
+  {% block head %}{% endblock head %}
+</head>
+
+<body>
+  {% block body_block %}
+  {% endblock %}
+  {% block task_manager %}
+  {% endblock %}
+  {% block no_login %}
+  {% endblock %}
+</body>
+
+
+</html>

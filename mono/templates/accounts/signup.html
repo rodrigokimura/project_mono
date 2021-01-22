@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+
+{% block no_login %}
+<style>
+.custom-file-input ~ .custom-file-label::after {
+    content: "Carregar";
+}
+</style>
+
+<div class="container">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row justify-content-center">
+            <div class="card shadow" style="width: 36rem;">
+                <img src="{% static "images/card_login.jpg" %}" class="card-img-top" alt="card">
+                <div class="card-body">
+                    <h3 class="card-title">Crie sua conta</h3>
+                    <p class="card-text">Crie uma conta para utilizar o sistema</p>
+                    {% bootstrap_field uform.username show_label=False placeholder='Digite aqui o seu usuário' addon_before="Usuário" addon_before_class='input-group-text' %}
+                    {% bootstrap_field uform.email show_label=False placeholder='Digite aqui o seu e-mail' addon_before="E-mail" addon_before_class='input-group-text' %}
+                    {% bootstrap_field uform.password1 show_label=False placeholder='Digite aqui a sua senha' addon_before="Senha" addon_before_class='input-group-text' %}
+                    {% bootstrap_field uform.password2 show_label=False placeholder='Digite aqui a sua senha' addon_before="Confirmação" addon_before_class='input-group-text' %}
+
+                    {% bootstrap_field pform.phone show_label=False placeholder='Telefone' addon_before="Telefone" addon_before_class='input-group-text' %}
+                    {% bootstrap_field pform.gender show_label=False placeholder='Gênero' addon_before="Gênero" addon_before_class='input-group-text' %}
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroupFileAddon01">Avatar</span>
+                        </div>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" 
+                            id="{{ pform.avatar.id_for_label }}" 
+                            name="{{ pform.avatar.html_name }}" 
+                            accept="image/*"
+                            aria-describedby="inputGroupFileAddon01">
+                            <label class="custom-file-label" for="{{ pform.avatar.id_for_label }}">Escolha o arquivo.</label>
+                        </div>
+                    </div>  
+                    
+                    {% comment %} {{ pform.avatar.as_p show_label=True }} {% endcomment %}
+                    {% comment %} <label for="{{ pform.avatar }}">Email subject:</label> {% endcomment %}
+                    {% comment %} {{ pform.avatar }} {% endcomment %}
+
+                    <button type="submit" class="btn btn-primary btn-lg">Continuar</button>
+                </div>
+                <div class="card-footer text-muted">
+                    <p><a href='#' class="card-link">Esqueci minha senha.</a></p>
+                    <a href="{% url 'accounts:signup' %}" class="card-link">Criar uma conta.</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    document.querySelector('.custom-file-input').addEventListener('change',function(e){
+        var fileList = document.getElementById("{{ pform.avatar.id_for_label }}").files
+        var label = document.querySelector('.custom-file-label')
+        
+        if (fileList.length === 0) {
+            label.innerText = "Nenhum arquivo selecionado."
+        } else {
+            var fileName = fileList[0].name;
+            label.innerText = fileName
+        }
+    })
+</script>
+{% endblock %}
