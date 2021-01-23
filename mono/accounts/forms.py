@@ -3,10 +3,12 @@ from django.contrib.auth import forms as auth_forms
 from django.contrib.auth.models import User, Group
 from . import models
 from django import forms
-
-
+from django.db.models.signals import post_save
+# from PIL import get
 
 class UserCreateForm(auth_forms.UserCreationForm):
+    error_css_class = 'error'
+
     class Meta:
         fields = ("username", "email", "password1", "password2")
         model = get_user_model()
@@ -14,9 +16,11 @@ class UserCreateForm(auth_forms.UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["username"].label = "Display name"
+        self.fields['username'].widget.attrs.update({'placeholder': 'Username'})
         self.fields["email"].label = "Email address"
-
-    from django.db.models.signals import post_save
+        self.fields['email'].widget.attrs.update({'placeholder': 'Email address'})
+        self.fields['password1'].widget.attrs.update({'placeholder': 'Password'})
+        self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm password'})
     
     def add_user_to_public_group(sender, instance, created, **kwargs):
         """Post-create user signal that adds the user to everyone group."""
@@ -29,6 +33,15 @@ class UserCreateForm(auth_forms.UserCreationForm):
     post_save.connect(add_user_to_public_group, sender=User)
 
 class UserProfileForm(forms.ModelForm):
+    error_css_class = 'error'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['phone'].widget.attrs.update({'placeholder': 'Phone'})
+        self.fields['gender'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['avatar'].widget.attrs.update({'placeholder': 'Avatar'})
+
+
     class Meta:
         model = models.UserProfile
         fields = (

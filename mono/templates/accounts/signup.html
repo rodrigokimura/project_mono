@@ -1,7 +1,5 @@
 {% extends "base.html" %}
-{% comment %} {% load bootstrap4 %} {% endcomment %}
 {% load static %}
-
 
 {% block head %}
     <style type="text/css">
@@ -20,112 +18,65 @@
     </style>
 {% endblock head %}
 
-
 {% block body %}
 <div class="ui middle aligned center centered grid">
     <div class="column">
         <h2 class="ui teal image header"></h2>
-        <form class="ui large form" method="POST">
+        <form class="ui large form {% if uform.errors or pform.errors %}error{% endif %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="ui stacked segment">
 
-                <div class="field">
-                    <div class="ui left icon input">
-                        <i class="user icon"></i>
-                        {{uform.username}}
-                    </div>
-                </div>
+                {% include "_form_field.html" with field=uform.username icon="user" %}
+                {% include "_form_field.html" with field=uform.email icon="envelope" %}
+                {% include "_form_field.html" with field=uform.password1 icon="lock" %}
+                {% include "_form_field.html" with field=uform.password2 icon="lock" %}
+                {% include "_form_field.html" with field=pform.phone icon="phone" %}
 
                 <div class="field">
-                    <div class="ui left icon input">
-                        <i class="lock icon"></i>
-                        {{uform.email}}
-                    </div>
+                    {{pform.gender}}
                 </div>
-                <div class="field">
-                    <div class="ui left icon input">
-                        <i class="lock icon"></i>
-                        {{uform.password1}}
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="ui left icon input">
-                        <i class="lock icon"></i>
-                        {{uform.password2}}
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="ui left icon input">
-                        <i class="lock icon"></i>
-                        {{pform.phone}}
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="ui left icon input">
-                        <i class="lock icon"></i>
-                        {{pform.gender}}
-                    </div>
-                </div>
+
+                {% include "_form_field.html" with field=pform.avatar icon="file image" %}
 
                 <button type="submit" class="ui fluid large teal submit button">Continuar</button>
                 <div class="ui error message"></div>
             </div>
         </form>
-        <div class="ui message">Teste</div>
+
+            {% comment %} TODO: TROCAR PARA NON FIELD ERRORS {% endcomment %}
+            {% for field in uform %}
+                {% if field.errors %}
+                    <div class="ui error message">
+
+                    {% for error in field.errors %}
+                        {{ error }}
+                    {% endfor %}
+
+                    </div>
+                {% endif %}
+            {% endfor %}
+            
+            {% for field in pform %}
+                {% if field.errors %}
+                    <div class="ui error message">
+
+                    {% for error in field.errors %}
+                        {{ error }}
+                    {% endfor %}
+
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+
+        <div class="ui message">
+        <a href="{%url 'accounts:login'%}">Log in</a>
+        </div>
     </div>
 </div>
-{% endblock body %}
 
-
-
-
-<div class="container">
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="row justify-content-center">
-            <div class="card shadow" style="width: 36rem;">
-                <img src="{% static "images/card_login.jpg" %}" class="card-img-top" alt="card">
-                <div class="card-body">
-                    <h3 class="card-title">Crie sua conta</h3>
-                    <p class="card-text">Crie uma conta para utilizar o sistema</p>
-                    {% bootstrap_field uform.username show_label=False placeholder='Digite aqui o seu usuário' addon_before="Usuário" addon_before_class='input-group-text' %}
-                    {% bootstrap_field uform.email show_label=False placeholder='Digite aqui o seu e-mail' addon_before="E-mail" addon_before_class='input-group-text' %}
-                    {% bootstrap_field uform.password1 show_label=False placeholder='Digite aqui a sua senha' addon_before="Senha" addon_before_class='input-group-text' %}
-                    {% bootstrap_field uform.password2 show_label=False placeholder='Digite aqui a sua senha' addon_before="Confirmação" addon_before_class='input-group-text' %}
-
-                    {% bootstrap_field pform.phone show_label=False placeholder='Telefone' addon_before="Telefone" addon_before_class='input-group-text' %}
-                    {% bootstrap_field pform.gender show_label=False placeholder='Gênero' addon_before="Gênero" addon_before_class='input-group-text' %}
-
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="inputGroupFileAddon01">Avatar</span>
-                        </div>
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" 
-                            id="{{ pform.avatar.id_for_label }}" 
-                            name="{{ pform.avatar.html_name }}" 
-                            accept="image/*"
-                            aria-describedby="inputGroupFileAddon01">
-                            <label class="custom-file-label" for="{{ pform.avatar.id_for_label }}">Escolha o arquivo.</label>
-                        </div>
-                    </div>  
-                    
-                    {% comment %} {{ pform.avatar.as_p show_label=True }} {% endcomment %}
-                    {% comment %} <label for="{{ pform.avatar }}">Email subject:</label> {% endcomment %}
-                    {% comment %} {{ pform.avatar }} {% endcomment %}
-
-                    <button type="submit" class="btn btn-primary btn-lg">Continuar</button>
-                </div>
-                <div class="card-footer text-muted">
-                    <p><a href='#' class="card-link">Esqueci minha senha.</a></p>
-                    <a href="{% url 'accounts:signup' %}" class="card-link">Criar uma conta.</a>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
 <script>
-    document.querySelector('.custom-file-input').addEventListener('change',function(e){
+    {% comment %} document.querySelector('.custom-file-input').addEventListener('change',function(e){
         var fileList = document.getElementById("{{ pform.avatar.id_for_label }}").files
         var label = document.querySelector('.custom-file-label')
         
@@ -135,6 +86,11 @@
             var fileName = fileList[0].name;
             label.innerText = fileName
         }
-    })
+    }); {% endcomment %}
+    $(document).ready(
+        function() {
+            $('select.dropdown').dropdown();
+        }
+    );
 </script>
-{% endblock %}
+{% endblock body %}

@@ -1,7 +1,5 @@
 {% extends "base.html" %}
-{% comment %} {% load bootstrap4 %} {% endcomment %}
 {% load static %}
-
 
 {% block head %}
     <style type="text/css">
@@ -26,8 +24,15 @@
     <div class="column">
         <h2 class="ui teal image header"></h2>
         <form class="ui large form" method="POST">
-            {% csrf_token %}
+                
+                
             <div class="ui stacked segment">
+                {% csrf_token %}
+
+                {% for hidden_field in form.hidden_fields %}
+                    {{ hidden_field }}
+                {% endfor %}
+
                 <div class="field">
                     <div class="ui left icon input">
                         <i class="user icon"></i>
@@ -41,10 +46,18 @@
                     </div>
                 </div>
                 <button type="submit" class="ui fluid large teal submit button">Continuar</button>
-                <div class="ui error message"></div>
             </div>
         </form>
-        <div class="ui message">Teste</div>
+            {% if form.non_field_errors %}
+                <div class="ui error message">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+                </div>
+            {% endif %}
+        <div class="ui message">
+        <a href="{% url 'accounts:signup' %}">Signup</a>
+        </div>
     </div>
 </div>
 {% endblock body %}

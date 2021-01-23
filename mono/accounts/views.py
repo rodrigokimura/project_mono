@@ -20,6 +20,11 @@ def sign_up(request):
             profile = pform.save(commit = False)
             profile.user = user
             profile.save()
+        else:
+            for field in uform.errors:
+                uform[field].field.widget.attrs.update({'class': 'field error'})
+            for field in pform.errors:
+                pform[field].field.widget.attrs.update({'class': 'field error'})
     elif request.method == "GET":
         uform = forms.UserCreateForm()
         pform = forms.UserProfileForm()

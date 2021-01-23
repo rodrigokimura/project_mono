@@ -4,6 +4,9 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 APP_VERSION = "0.0.1"
 
+CRISPY_TEMPLATE_PACK = 'semantic-ui'
+CRISPY_ALLOWED_TEMPLATE_PACKS = ('semantic-ui')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -12,6 +15,8 @@ SECRET_KEY = os.environ['APP_SECRET']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ['APP_ENV'] == 'DEV'
+CSRF_COOKIE_SECURE = os.environ['APP_ENV'] == 'PRD'
+SESSION_COOKIE_SECURE = os.environ['APP_ENV'] == 'PRD'
 
 ALLOWED_HOSTS = []
 
@@ -119,5 +124,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
+
 LOGIN_REDIRECT_URL = '/' # URL redirecting after a successful authentication
