@@ -4,9 +4,6 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 APP_VERSION = "0.0.1"
 
-CRISPY_TEMPLATE_PACK = 'semantic-ui'
-CRISPY_ALLOWED_TEMPLATE_PACKS = ('semantic-ui')
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -32,10 +29,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'healthcheck',
-    'accounts',
-    'messenger',
-    'homepage',
     'shared',
+    'accounts',
+    'homepage',
+    'project_manager',
+    'messenger',
 ]
 
 MIDDLEWARE = [
