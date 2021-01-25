@@ -8,6 +8,7 @@ urlpatterns = [
     path('', include('homepage.urls')),
     path('accounts/', include('accounts.urls')),
     path('messenger/', include('messenger.urls')),
+    path('pm/', include('project_manager.urls')),
     path('hc/', include('healthcheck.urls')),
 ]
 
