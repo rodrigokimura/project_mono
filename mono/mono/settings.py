@@ -21,7 +21,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    # 'django.contrib.admin',
     'mono.apps.MyAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -34,6 +33,7 @@ INSTALLED_APPS = [
     'homepage',
     'project_manager',
     'messenger',
+    'finance',
 ]
 
 MIDDLEWARE = [
