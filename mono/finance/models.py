@@ -15,6 +15,14 @@ class TransactionModel(models.Model):
     class Meta:
         abstract = True
 
-class Project(TransactionModel):
+class Expense(TransactionModel):
     deadline = models.DateTimeField()
     assigned_to = models.ManyToManyField(User, related_name="assigned_projects")
+
+class Income(TransactionModel):
+    deadline = models.DateTimeField()
+    assigned_to = models.ManyToManyField(User, related_name="assigned_projects")
+
+class Family(models.Model):
+    deadline = models.DateTimeField()
+    name = models.CharField(verbose_name="Nome", max_length=50)
