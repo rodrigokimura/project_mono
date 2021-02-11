@@ -20,6 +20,7 @@ class Transaction(models.Model):
     value = models.FloatField()
     type = models.CharField(max_length=3, choices=TRANSACTION_TYPES, default=EXPENSE)
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True)
+    account = models.ForeignKey('Account', on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
     def __str__(self) -> str:
         return self.description
@@ -47,3 +48,7 @@ class Group(models.Model):
     member = models.ManyToManyField(User)
     def __str__(self) -> str:
         return self.name
+        
+class Account(models.Model): 
+    name = models.CharField(max_length=50)
+    
