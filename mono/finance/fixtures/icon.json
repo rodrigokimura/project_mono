@@ -1,0 +1,107 @@
+[
+{
+  "model": "finance.icon",
+  "pk": 1,
+  "fields": {
+    "markup": "heartbeat"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 2,
+  "fields": {
+    "markup": "beer"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 3,
+  "fields": {
+    "markup": "coffee"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 4,
+  "fields": {
+    "markup": "bath"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 5,
+  "fields": {
+    "markup": "bed"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 6,
+  "fields": {
+    "markup": "bicycle"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 7,
+  "fields": {
+    "markup": "book"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 8,
+  "fields": {
+    "markup": "car"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 9,
+  "fields": {
+    "markup": "gamepad"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 10,
+  "fields": {
+    "markup": "graduation cap"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 11,
+  "fields": {
+    "markup": "home"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 12,
+  "fields": {
+    "markup": "money bill alternate outline"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 13,
+  "fields": {
+    "markup": "plug"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 14,
+  "fields": {
+    "markup": "utensils"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 15,
+  "fields": {
+    "markup": "wrench"
+  }
+}
+]

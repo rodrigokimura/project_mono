@@ -1,0 +1,38 @@
+[
+{
+  "model": "finance.category",
+  "pk": 1,
+  "fields": {
+    "name": "Health",
+    "description": "",
+    "created_by": 1,
+    "created_at": "2021-02-11T00:53:16.942Z",
+    "icon": 1,
+    "active": true
+  }
+},
+{
+  "model": "finance.category",
+  "pk": 2,
+  "fields": {
+    "name": "Transportation",
+    "description": "",
+    "created_by": 1,
+    "created_at": "2021-02-11T00:53:41.993Z",
+    "icon": 8,
+    "active": true
+  }
+},
+{
+  "model": "finance.category",
+  "pk": 3,
+  "fields": {
+    "name": "Food",
+    "description": "",
+    "created_by": 1,
+    "created_at": "2021-02-11T00:53:59.500Z",
+    "icon": 14,
+    "active": true
+  }
+}
+]
