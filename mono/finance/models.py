@@ -51,4 +51,6 @@ class Group(models.Model):
         
 class Account(models.Model): 
     name = models.CharField(max_length=50)
-    
+    belongs_to = models.ForeignKey(User, on_delete=models.CASCADE)
+    def __str__(self) -> str:
+        return self.name
