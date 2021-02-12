@@ -8,7 +8,7 @@ APP_VERSION = "0.0.1"
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if os.environ('APP_ENV') == 'DEV': 
+if os.environ['APP_ENV'] == 'DEV': 
     SECRET_KEY = 'devkeyprojectmono'
 else: 
     SECRET_KEY = os.environ['APP_SECRET']
@@ -71,7 +71,7 @@ WSGI_APPLICATION = '_mono.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-if os.environ('APP_ENV') == 'DEV':
+if os.environ['APP_ENV'] == 'DEV':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
