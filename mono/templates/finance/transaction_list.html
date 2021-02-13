@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="pusher">
+  <div class="ui container">
+    <div class="ui vertical stripe segment">
+      <div class="ui middle aligned stackable grid container">
+        <div class="row">
+          <div class="eight wide column">
+            <form class="ui form" method="GET" id="filter">
+              <div class="field">
+                <label>Category</label>
+                <select name="category" id="category" class="ui dropdown">
+                  {% if not request.GET.category %}
+                    <option value="">Select a category</option>
+                  {% endif %}
+                  {% for c in categories %}
+                  {% if c.id|stringformat:"i"  == request.GET.category %}
+                  <option selected value="{{ c.id }}">
+                    <i class="{{ c.icon }} icon"></i>{{ c.name }}
+                  </option>
+                  {% else %}
+                  <option value="{{ c.id }}">
+                    <i class="{{ c.icon }} icon"></i>{{ c.name }}
+                  </option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+              <button class="ui button" type="submit" form="filter">Filter</button>
+              <a class="ui button" href="{% url 'finance:transactions' %}">Clear</a>
+            </form>
+          </div>
+        </div>
+        <div class="row">
+          <div class="eight wide column">
+            <h3 class="ui header">
+              Transactions
+            </h3>
+            {% if object_list %}
+            <table class="ui celled table unstackable">
+              <thead>
+                <tr><th>Description</th>
+                <th>Category</th>
+                <th>Value</th>
+              </tr></thead>
+              <tbody>
+                {% for transaction in object_list %}
+                <tr>
+                  <td data-label="Name">{{ transaction.description }}</td>
+                  <td data-label="Age"><i class="{{ transaction.category.icon }} icon"></i>{{ transaction.category }}</td>
+                  <td data-label="Job">{{ transaction.value }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+              <li>No transactions yet.</li>
+            {% endif %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="eight wide column">
+            <button class="ui button">Add transaction</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $('.ui.dropdown').dropdown();
+</script>
+
+{% endblock %}
+
