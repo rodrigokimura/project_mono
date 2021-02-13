@@ -7,9 +7,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('homepage.urls')),
     path('accounts/', include('accounts.urls')),
-    path('project_manager/', include('messenger.urls')),
+    path('ms/', include('messenger.urls')),
     path('pm/', include('project_manager.urls')),
     path('hc/', include('healthcheck.urls')),
+    path('fn/', include('finance.urls')),
 ]
 
 if settings.DEBUG :
