@@ -1,7 +1,10 @@
 from django.shortcuts import render, get_object_or_404
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
+from django.urls import reverse_lazy
 from django.utils import timezone
+from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 
 # Create your views here.
 
@@ -53,3 +56,39 @@ class TransactionListView(ListView):
         context['now'] = timezone.now()
         context['categories'] = Category.objects.all()
         return context
+        
+
+class TransactionCreateView(SuccessMessageMixin, CreateView): 
+    model = Transaction 
+    success_url = reverse_lazy('finance:transactions')
+    success_message = "%(description)s was created successfully"
+    fields = [
+      'description',
+      'category',
+      'created_by',
+      'value',
+      'account',
+      'category',
+    ]
+
+class TransactionUpdateView(SuccessMessageMixin, UpdateView): 
+    model = Transaction 
+    success_url = reverse_lazy('finance:transactions')
+    success_message = "%(description)s was updated successfully"
+    fields = [
+      'description',
+      'category',
+      'created_by',
+      'value',
+      'account',
+      'category',
+    ]
+  
+class TransactionDeleteView(SuccessMessageMixin, DeleteView):
+    model = Transaction
+    success_url = reverse_lazy('finance:transactions')
+    success_message = "Transaction was deleted successfully"
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(TransactionDeleteView, self).delete(request, *args, **kwargs)

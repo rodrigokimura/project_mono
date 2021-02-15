@@ -1,17 +1,42 @@
 {% extends "base.html" %}
 
 {% block body %}
-<div class="ui container">
-    
-  <form method="post" class="ui form">{% csrf_token %}
-  
-    {% csrf_token %} 
-    
-    {{form.as_p}}
-    
-    <input class="ui button" type="submit" value="Save">
-    
-  </form>
 
+<div class="pusher">
+  <div class="ui container">
+    <div class="ui vertical stripe segment">
+      <div class="ui middle aligned stackable grid container">
+        <div class="row">
+          <div class="eight wide column">
+            <div class="ui container">
+              <form method="post" class="ui form" id="transaction_form">
+                {% csrf_token %}
+                {{form.as_p}}
+                <div class="ui buttons">
+                  <button class="ui button primary" type="submit" form="transaction_form">
+                    Save
+                  </button>
+                  <div class="or"></div>
+                  {% if object %}
+                  <a class="ui button red" href="{% url 'finance:transaction_delete' pk=object.pk %}">
+                    Delete
+                  </a>
+                  <div class="or"></div>
+                  {% endif %}
+                  <a class="ui button" href="{% url 'finance:transactions' %}">
+                    Cancel
+                  </a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+  
+<script>
+  $('.ui.dropdown').dropdown();
+</script>
 {% endblock %}

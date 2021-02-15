@@ -8,6 +8,14 @@
       <div class="ui middle aligned stackable grid container">
         <div class="row">
           <div class="eight wide column">
+            {% if messages %}
+              {% for message in messages %}
+              <div class="ui {{ message.tags }} message">
+                <i class="close icon"></i>
+                {{ message }}
+              </div>
+              {% endfor %}
+            {% endif %}
             <form class="ui form" method="GET" id="filter">
               <div class="field">
                 <label>Category</label>
@@ -28,16 +36,18 @@
                   {% endfor %}
                 </select>
               </div>
-              <button class="ui button" type="submit" form="filter">Filter</button>
-              <a class="ui button" href="{% url 'finance:transactions' %}">Clear</a>
+              <div class="ui buttons">
+                <button class="ui button primary" type="submit" form="filter">Filter</button>
+                <a class="ui button" href="{% url 'finance:transactions' %}">Clear</a>
+              </div>
             </form>
           </div>
         </div>
+        <div class="ui horizontal divider">
+          <i class="table icon"></i> Transactions
+        </div>
         <div class="row">
           <div class="eight wide column">
-            <h3 class="ui header">
-              Transactions
-            </h3>
             {% if object_list %}
             <table class="ui celled table unstackable">
               <thead>
@@ -48,9 +58,13 @@
               <tbody>
                 {% for transaction in object_list %}
                 <tr>
-                  <td data-label="Name">{{ transaction.description }}</td>
-                  <td data-label="Age"><i class="{{ transaction.category.icon }} icon"></i>{{ transaction.category }}</td>
-                  <td data-label="Job">{{ transaction.value }}</td>
+                  <td data-label="Description">
+                    <a href="{% url 'finance:transaction_update' pk=transaction.pk %}">
+                      {{ transaction.description }}
+                    </a>
+                  </td>
+                  <td data-label="Category"><i class="{{ transaction.category.icon }} icon"></i>{{ transaction.category }}</td>
+                  <td data-label="Value">{{ transaction.value }}</td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -62,7 +76,7 @@
         </div>
         <div class="row">
           <div class="eight wide column">
-            <button class="ui button">Add transaction</button>
+            <a class="ui button primary" href="{% url "finance:transaction_create" %}">Add transaction</a>
           </div>
         </div>
       </div>
@@ -72,6 +86,11 @@
 
 <script>
   $('.ui.dropdown').dropdown();
+  $('.message .close').click(function() {
+    $(this)
+      .closest('.message')
+      .transition('fade');
+  });
 </script>
 
 {% endblock %}
