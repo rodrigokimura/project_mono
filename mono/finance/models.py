@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models.enums import Choices
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -17,7 +18,8 @@ class Transaction(models.Model):
     description = models.CharField(max_length=50, null=False, blank=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    value = models.FloatField()
+    timestamp = models.DateTimeField(default=timezone.now)
+    ammount = models.FloatField()
     type = models.CharField(max_length=3, choices=TRANSACTION_TYPES, default=EXPENSE)
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True)
     account = models.ForeignKey('Account', on_delete=models.CASCADE)

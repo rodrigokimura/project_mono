@@ -3,81 +3,123 @@
 {% block body %}
 
 <div class="pusher">
-  <div class="ui container">
-    <div class="ui vertical stripe segment">
-      <div class="ui middle aligned stackable grid container">
-        <div class="row">
-          <div class="eight wide column">
-            {% if messages %}
-              {% for message in messages %}
-              <div class="ui {{ message.tags }} message">
-                <i class="close icon"></i>
-                {{ message }}
-              </div>
-              {% endfor %}
-            {% endif %}
-            <form class="ui form" method="GET" id="filter">
-              <div class="field">
-                <label>Category</label>
-                <select name="category" id="category" class="ui dropdown">
-                  {% if not request.GET.category %}
-                    <option value="">Select a category</option>
-                  {% endif %}
-                  {% for c in categories %}
-                  {% if c.id|stringformat:"i"  == request.GET.category %}
-                  <option selected value="{{ c.id }}">
-                    <i class="{{ c.icon }} icon"></i>{{ c.name }}
-                  </option>
-                  {% else %}
-                  <option value="{{ c.id }}">
-                    <i class="{{ c.icon }} icon"></i>{{ c.name }}
-                  </option>
-                  {% endif %}
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="ui buttons">
-                <button class="ui button primary" type="submit" form="filter">Filter</button>
-                <a class="ui button" href="{% url 'finance:transactions' %}">Clear</a>
-              </div>
-            </form>
+  <div class="ui vertical stripe segment">
+    <div class="ui middle aligned grid container">
+      
+      <div class="row">
+        <div class="eight wide column">
+          {% if messages %}
+          {% for message in messages %}
+          <div class="ui {{ message.tags }} message">
+            <i class="close icon"></i>
+            {{ message }}
           </div>
-        </div>
-        <div class="ui horizontal divider">
-          <i class="table icon"></i> Transactions
-        </div>
-        <div class="row">
-          <div class="eight wide column">
-            {% if object_list %}
-            <table class="ui celled table unstackable">
-              <thead>
-                <tr><th>Description</th>
-                <th>Category</th>
-                <th>Value</th>
-              </tr></thead>
-              <tbody>
-                {% for transaction in object_list %}
-                <tr>
-                  <td data-label="Description">
-                    <a href="{% url 'finance:transaction_update' pk=transaction.pk %}">
-                      {{ transaction.description }}
-                    </a>
-                  </td>
-                  <td data-label="Category"><i class="{{ transaction.category.icon }} icon"></i>{{ transaction.category }}</td>
-                  <td data-label="Value">{{ transaction.value }}</td>
-                </tr>
+          {% endfor %}
+          {% endif %}
+          <form class="ui form" method="GET" id="filter">
+            <div class="field">
+              <label>Category</label>
+              <select name="category" id="category" class="ui dropdown">
+                {% if not request.GET.category %}
+                <option value="">Select a category</option>
+                {% endif %}
+                {% for c in categories %}
+                {% if c.id|stringformat:"i"  == request.GET.category %}
+                <option selected value="{{ c.id }}">
+                  <i class="{{ c.icon }} icon"></i>{{ c.name }}
+                </option>
+                {% else %}
+                <option value="{{ c.id }}">
+                  <i class="{{ c.icon }} icon"></i>{{ c.name }}
+                </option>
+                {% endif %}
                 {% endfor %}
-              </tbody>
-            </table>
-            {% else %}
-              <li>No transactions yet.</li>
-            {% endif %}
-          </div>
+              </select>
+            </div>
+            <div class="ui buttons">
+              <button class="ui button primary" type="submit" form="filter">Filter</button>
+              <a class="ui button" href="{% url 'finance:transactions' %}">Clear</a>
+            </div>
+          </form>
         </div>
-        <div class="row">
-          <div class="eight wide column">
-            <a class="ui button primary" href="{% url "finance:transaction_create" %}">Add transaction</a>
+      </div>
+      <div class="ui horizontal divider">
+        <i class="table icon"></i> Transactions
+      </div>
+
+      <div class="row">
+        <div class="eight wide column">
+          {% if object_list %}
+          <table class="ui celled table unstackable">
+            <thead>
+              <tr><th>Description</th>
+                <th>Category</th>
+                <th>Ammount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for transaction in object_list %}
+              <tr>
+                <td data-label="Description">
+                  <a href="{% url 'finance:transaction_update' pk=transaction.pk %}">
+                    {{ transaction.description }}
+                  </a>
+                </td>
+                <td data-label="Category"><i class="{{ transaction.category.icon }} icon"></i>{{ transaction.category }}</td>
+                <td data-label="Ammount">{{ transaction.type }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <li>No transactions yet.</li>
+          {% endif %}
+        </div>
+      </div>
+      
+      
+      
+      
+      
+      {% if object_list %}
+      <div class="row">
+        <div class="ui internally celled grid segment">
+        {% for transaction in object_list %}
+          {% ifchanged transaction.timestamp.date %}
+          <div class="row">
+            <div class="eight wide column">
+              {{ transaction.timestamp.date|date:"d/m" }}
+            </div>
+            <div class="four wide column">
+              20
+            </div>
+            <div class="four wide column">
+              10
+            </div>
           </div>
+          {% endifchanged %}
+          <div class="row">
+            <div class="six wide column">
+              <a href="{% url 'finance:transaction_update' pk=transaction.pk %}">
+                {{ transaction.category }}
+              </a>
+            </div>
+            <div class="six wide column">
+              {{ transaction.account }}
+            </div>
+            <div class="four wide column">
+              {{ transaction.ammount }}
+            </div>
+          </div>
+        {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      
+
+      <div class="row">
+        <div class="eight wide column">
+          <a class="ui button primary" href="{% url "finance:transaction_create" %}">Add transaction</a>
         </div>
       </div>
     </div>
@@ -88,10 +130,9 @@
   $('.ui.dropdown').dropdown();
   $('.message .close').click(function() {
     $(this)
-      .closest('.message')
-      .transition('fade');
+    .closest('.message')
+    .transition('fade');
   });
 </script>
 
 {% endblock %}
-

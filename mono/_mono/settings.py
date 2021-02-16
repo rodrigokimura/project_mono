@@ -20,7 +20,6 @@ SESSION_COOKIE_SECURE = os.environ['APP_ENV'] == 'PRD'
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 INSTALLED_APPS = [
     '_mono.apps.MyAdminConfig',
@@ -29,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
     'healthcheck',
     'shared',
     'accounts',
@@ -46,7 +46,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+
+SHOW_TOOLBAR_CALLBACK = False
+SHOW_COLLAPSED = True
 
 ROOT_URLCONF = '_mono.urls'
 TEMPLATES = [
