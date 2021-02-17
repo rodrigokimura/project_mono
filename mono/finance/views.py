@@ -5,10 +5,12 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Q
+from django.db.models.functions import Coalesce
 
 # Create your views here.
 
-from .models import Transaction, Category 
+from .models import Transaction, Category, Account
 from .forms import TransactionForm
 from django.db.models.functions import TruncDay
 from django.db.models import Sum
@@ -19,7 +21,7 @@ def index(request):
 def transaction_detail(request, transaction_id):
     transaction = get_object_or_404(Transaction, pk=transaction_id)
     return render(request, 'finance/transaction_detail.html', {'transaction': transaction})
-    
+
 class TransactionListView(ListView):
     model = Transaction
     paginate_by = 100
@@ -27,21 +29,41 @@ class TransactionListView(ListView):
     def get_queryset(self):
         category = self.request.GET.get('category', None)
         qs = Transaction.objects.all()
+        qs = qs.annotate(date=TruncDay('timestamp'))
+        qs = qs.order_by('-timestamp')
+        
         if category not in [None, ""]:
             qs = qs.filter(category=category)
-        return qs.annotate(date=TruncDay('timestamp')).order_by('-timestamp')
+            
+        return qs
         
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['now'] = timezone.now()
         context['categories'] = Category.objects.all()
-        dates = self.get_queryset().annotate(date=TruncDay('timestamp')).values('date').annotate(total_ammount=Sum('ammount')).order_by('date')
-        #dates = [d.timestamp.date() for d in self.get_queryset()]
-        #distinct_dates = list(set(dates))
-        #context['dates'] = distinct_dates
-        context['dates'] = dates
-        return context
+        qs = self.get_queryset()
+        qs = qs.annotate(date=TruncDay('timestamp')).values('date')
+        qs = qs.annotate(
+            total_expense=Coalesce(
+                Sum(
+                  'ammount', 
+                  filter=Q(type='EXP')
+                ), 0
+            )
+        )
+        qs = qs.annotate(
+            total_income=Coalesce(
+                Sum(
+                    'ammount', 
+                    filter=Q(type='INC')
+                ), 0
+            )
+        )
+        qs = qs.order_by('-date')
         
+        context['dates'] = qs
+        
+        return context
 
 class TransactionCreateView(SuccessMessageMixin, CreateView): 
     model = Transaction 
@@ -63,3 +85,7 @@ class TransactionDeleteView(SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(TransactionDeleteView, self).delete(request, *args, **kwargs)
+        
+
+class AccountListView(ListView):
+    model = Account

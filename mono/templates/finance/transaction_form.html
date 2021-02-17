@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "finance/base.html" %}
 {% load static %}
 
 {% block head %}
@@ -62,6 +62,5 @@
     .siblings().removeClass('active')
     $('input[name=type]').val($(el).data('value'));
   }
-  
 </script>
 {% endblock %}

@@ -1,0 +1,47 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+
+  <link rel="stylesheet" type="text/css" href="{% static 'css/semantic.min.css' %}">
+  <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
+  <script src="{% static 'js/semantic.min.js' %}"></script>
+  <script src="{% static 'js/global.js' %}"></script>
+  <script src="{% static 'js/pace.min.js' %}"></script>
+  <style type="text/css" media="all">
+    .pusher {padding-top: 3em}
+  </style>
+  {% block head %}{% endblock head %}
+</head>
+
+<body class="pushable">
+  
+  <div class="ui vertical inverted sidebar menu left">
+    <a class="item" href="{% url 'finance:accounts' %}">Accounts</a>
+    <a class="item" href="{% url 'finance:transactions' %}">Transactions</a>
+  </div>
+  
+  <div class="pusher">
+    <div class="ui fixed menu">
+      <a class="toc item">
+        <i class="sidebar icon"></i>
+      </a>
+    </div>
+    
+    {% block body %}
+    {% endblock body %}
+    
+  </div>
+</body>
+<script>
+  $('.sidebar.icon').click(()=>{
+    $('.ui.sidebar').sidebar('toggle');
+  });
+</script>
+
+</html>
