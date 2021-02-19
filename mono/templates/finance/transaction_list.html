@@ -1,19 +1,11 @@
 {% extends "finance/base.html" %}
 
 {% block head %}
-<style>
-  .expense {color: #db2828}
-  .income {color: #b5cc18}
-  .muted {color: #656667}
-  a.muted {color: #656667}
-</style>
 {% endblock head %}
 
 {% block body %}
-
-<div class="ui vertical stripe segment">
-  <div class="ui grid container">
-    
+<div class="ui container" style="margin-bottom: 1em;">
+  <div class="ui grid">
     <div class="row">
       <div class="column">
         <form class="ui form" method="GET" id="filter">
@@ -43,66 +35,138 @@
         </form>
       </div>
     </div>
-    
-    <div class="ui horizontal divider">
-      <i class="table icon"></i> Transactions
-    </div>
+  </div>
+  
+  <div class="ui horizontal divider">
+    <i class="table icon"></i> Transactions
+  </div>
 
-    {% if object_list %}
-    {% for date in dates %}
-    <div class="row">
-      <table class="ui unstackable single line fixed table">
-        <thead>
-        <tr>
-          <th colspan=3>
-            {{ date.date|date:"d/m" }}
-          </th>
-          <th>
-            <p class="income">
-              {{ date.total_income }}
-            </p>
-          </th>
-          <th>
-            <p class="expense">
-              {{ date.total_expense }}
-            </p>
-          </th>
+  {% comment %}
+  {% if object_list %}
+  {% for date in dates %}
+  <div class="row">
+    <table class="ui unstackable single line fixed table">
+      <thead>
+      <tr>
+        <th colspan=3>
+          {{ date.date|date:"d/m" }}
+        </th>
+        <th>
+          <p class="income">
+            {{ date.total_income }}
+          </p>
+        </th>
+        <th>
+          <p class="expense">
+            {{ date.total_expense }}
+          </p>
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+        {% for transaction in object_list %}
+        <tr class="muted">
+        {% if transaction.date == date.date %}
+          <td colspan=2>
+            <a class="muted" href="{% url 'finance:transaction_update' pk=transaction.pk %}">
+            <i class="{{ transaction.category.icon }} icon"></i>
+              {{ transaction.category }}
+            </a>
+          </td>
+          <td colspan=2>
+            {{ transaction.account }}
+          </td>
+          <td 
+            {% if transaction.type == 'INC' %}
+            class="income"
+            {% elif transaction.type == 'EXP' %}
+            class="expense"
+            {% endif %}
+            >
+            {{ transaction.ammount }}
+          </td>
+        {% endif %}
         </tr>
-        </thead>
-        <tbody>
-          {% for transaction in object_list %}
-          <tr class="muted">
-          {% if transaction.date == date.date %}
-            <td colspan=2>
-              <a class="muted" href="{% url 'finance:transaction_update' pk=transaction.pk %}">
-              <i class="{{ transaction.category.icon }} icon"></i>
-                {{ transaction.category }}
-              </a>
-            </td>
-            <td colspan=2>
-              {{ transaction.account }}
-            </td>
-            <td 
-              {% if transaction.type == 'INC' %}
-              class="income"
-              {% elif transaction.type == 'EXP' %}
-              class="expense"
-              {% endif %}
-              >
-              {{ transaction.ammount }}
-            </td>
-          {% endif %}
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% endfor %}
-    {% endif %}
-    
-    <div class="row">
-        <a class="ui fluid button primary" href="{% url "finance:transaction_create" %}">Add transaction</a>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endfor %}
+  {% endif %}
+  {% endcomment %}
+
+  {% if object_list %}
+  {% for date in dates %}
+  <div class="row" style="margin-bottom: 1em;">
+    <div class="ui segments">
+      <div class="ui secondary grey segment">
+        <div class="ui grid">
+          <div class="eight wide column">
+            {{ date.date|date:"d/m" }}
+          </div>
+          <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+            <span class="ui green text">
+              <strong>
+                {{ date.total_income }}
+              </strong>
+            </span>
+          </div>
+          <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+            <span class="ui red text">
+              <strong>
+                {{ date.total_expense }}
+              </strong>
+            </span>
+          </div>
+        </div>
       </div>
+      
+      {% for transaction in object_list %}
+      {% if transaction.date == date.date %}
+      <div class="ui segment" 
+        onclick="window.location.href='{% url 'finance:transaction_update' pk=transaction.pk %}';"
+        style="padding: 1px 1em;">
+        <div class="ui grid">
+          <div class="six wide column">
+            <span class="ui small text">
+              {% if transaction.category %}
+              <i class="{{ transaction.category.icon }} icon"></i>
+              {{ transaction.category }}
+              {% else %}
+              <i class="unlink icon"></i>
+              No category
+              {% endif %}
+            </span>
+            <br>
+            <span class="ui tiny text">
+              {{ transaction.description }}
+            </span>
+          </div>
+          <div class="six wide column" style="display:flex; align-items:center;">
+            {{ transaction.account }}
+          </div>
+          <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+            <span
+            {% if transaction.type == 'INC' %}
+            class="ui green text"
+            {% elif transaction.type == 'EXP' %}
+            class="ui red text"
+            {% endif %}
+            >
+            {{ transaction.ammount }}
+            </span>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+  
+  <div class="row">
+      <a class="ui fluid button primary" href="{% url "finance:transaction_create" %}">Add transaction</a>
     </div>
   </div>
 </div>

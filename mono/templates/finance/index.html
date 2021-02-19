@@ -16,13 +16,19 @@
       <h2>Do whatever you want when you want to.</h2>
       {% if user.is_authenticated %}
       <div class="ui text container">
-        <a class="ui huge button" href="{% url 'finance:logout' %}">Sign out <i class="right arrow icon"></i></a>
+        <a class="ui huge right labeled icon button" href="{% url 'finance:logout' %}">
+          <i class="power off icon"></i>
+          Sign out
+        </a>
       </div>
       {% else %}
       <div class="ui text container">
       <div class="ui buttons">
-        <a class="ui huge button" href="{% url 'finance:login' %}">Log in <i class="right arrow icon"></i></a>
-        <a class="ui huge primary button" href="{% url 'finance:signup' %}">Sign Up <i class="right arrow icon"></i></a>
+        <a class="ui big right labeled icon button" href="{% url 'finance:login' %}">
+          Log in
+          <i class="sign in alternate icon"></i>
+        </a>
+        <a class="ui big primary right labeled icon button" href="{% url 'finance:signup' %}">Sign Up<i class="right arrow icon"></i></a>
       </div>
       </div>
       {% endif %}

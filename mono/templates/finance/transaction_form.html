@@ -21,13 +21,14 @@
                 <a class="ui button" data-value="EXP" onclick="selectType(this)">Expense</a>
               </div>
               {{ form.as_p }}
-              <div class="fluid ui big buttons">
+              <div class="fluid ui buttons">
                 <button class="ui button primary" type="submit" form="transaction_form">
                   Save
                 </button>
                 <div class="or"></div>
                 {% if object %}
                 <a class="ui button red" href="{% url 'finance:transaction_delete' pk=object.pk %}">
+                  <i class="trash icon"></i>
                   Delete
                 </a>
                 <div class="or"></div>
