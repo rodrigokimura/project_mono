@@ -111,13 +111,13 @@ class AccountListView(LoginRequiredMixin, ListView):
 class AccountDetailView(LoginRequiredMixin, DetailView):
     model = Account
 
-class AccountCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView): 
+class AccountCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
     model = Account
     form_class = AccountForm
     success_url = reverse_lazy('finance:accounts')
     success_message = "%(name)s was created successfully"
 
-class AccountUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView): 
+class AccountUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView): 
     model = Account 
     form_class = AccountForm
     success_url = reverse_lazy('finance:accounts')

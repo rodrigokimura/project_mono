@@ -20,7 +20,6 @@ urlpatterns = [
     path("account/<int:pk>/detail/", views.AccountDetailView.as_view(), name='account_detail'),
     path("account/<int:pk>/delete/", views.AccountDeleteView.as_view(), name='account_delete'),
     path("accounts/", views.AccountListView.as_view(), name='accounts'),
-    # path("group/<int:pk>", views.GroupDetailView.as_view(), name='group_detail'),
     
     path("group/", views.GroupCreateView.as_view(), name='group_create'),
     path("group/<int:pk>", views.GroupUpdateView.as_view(), name='group_update'),

@@ -5,20 +5,35 @@ from django.contrib.auth import get_user_model, forms as auth_forms
 
 class AccountForm(forms.ModelForm):
     error_css_class = 'error'
+    current_balance = forms.FloatField(required=False)
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'placeholder': 'Description'})
         self.fields['belongs_to'].widget.attrs.update({'placeholder': 'Ammount'})
-        self.fields['initial_balance'].widget.attrs.update({'placeholder': 'Initial balance'})
         self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
-      
+        self.fields['initial_balance'].widget.attrs.update({'placeholder': 'Initial balance'})
+        if self.instance.pk is None:
+            self.fields['current_balance'].widget = forms.HiddenInput()
+        else:
+            self.fields['current_balance'].widget.attrs.update({'value': self.instance.current_balance})
+            
+        print(type(self.instance.pk))
+        
+    def save(self, *args, **kwargs): 
+        account = self.instance
+        current_balance = self.cleaned_data['current_balance']
+        if current_balance is not None:
+            account.adjust_balance(current_balance, self.request.user)
+        return super(AccountForm, self).save(*args, **kwargs)
+        
     class Meta:
         model = Account
         fields = '__all__'
         exclude = []
         widgets = {
-            'type': forms.HiddenInput()
+            # 'type': forms.HiddenInput()
             # 'timestamp':forms.Select,
         }
 
@@ -79,7 +94,6 @@ class CategoryForm(forms.ModelForm):
         category = self.instance
         category.created_by = self.request.user
         category.save()
-        
         return super(CategoryForm, self).save(*args, **kwargs)
         
 class UserForm(auth_forms.UserCreationForm):

@@ -78,8 +78,8 @@ class Group(models.Model):
 class Account(models.Model): 
     name = models.CharField(max_length=50)
     belongs_to = models.ForeignKey(User, on_delete=models.CASCADE)
-    initial_balance = models.FloatField(default=0)
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
+    initial_balance = models.FloatField(default=0)
     
     @property
     def has_group(self):
@@ -102,9 +102,12 @@ class Account(models.Model):
         diff = target - self.current_balance
         if diff < 0:
             type = "EXP"
-        else:
+        elif diff > 0:
             type = "INC"
+        else:
+            return
         transaction = Transaction(ammount=abs(diff))
+        transaction.type = type
         transaction.description = "Balance adjustment"
         transaction.account = self
         transaction.created_by = user
