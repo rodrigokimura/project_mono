@@ -14,38 +14,27 @@
 <div class="ui vertical stripe segment">
   <div class="ui grid container">
     
-    {% for account in object_list %}
+    {% for category in object_list %}
     <div class="row">
       <table class="ui unstackable single line fixed table">
         <thead>
         <tr>
           <th>
-            <a href="{% url 'finance:account_update' pk=account.pk %}">{{ account.name }}</a>
+            <a href="{% url 'finance:category_update' pk=category.pk %}">{{ category.name }}</a>
           </th>
           <th class="right aligned">
-            {% with account.current_balance as b %}
-            <p 
-              {% if b > 0 %}
-              class="income"
-              {% elif b == 0 %}
-              class="income"
-              {% else %}
-              class="expense"
-              {% endif %}
-              >
-              {{ b }}
+            <p>{{ category.name }}</p>
             </p>
-            {% endwith %}
           </th>
         </tr>
         </thead>
         <tbody>
           <tr class="muted">
             <td>
-              Total transactions
+              Additional info
             </td>
             <td class="right aligned">
-              {{ account.total_transactions }}
+              
             </td>
           </tr>
         </tbody>
@@ -55,7 +44,7 @@
 
     
     <div class="row">
-        <a class="ui fluid button primary" href="{% url "finance:account_create" %}">Add account</a>
+        <a class="ui fluid button primary" href="{% url "finance:category_create" %}">Add category</a>
     </div>
   </div>
 </div>

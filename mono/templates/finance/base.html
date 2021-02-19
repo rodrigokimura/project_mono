@@ -14,7 +14,6 @@
   <script src="{% static 'js/global.js' %}"></script>
   <script src="{% static 'js/pace.min.js' %}"></script>
   <style type="text/css" media="all">
-    .pusher {padding-top: 3em}
   </style>
   {% block head %}{% endblock head %}
 </head>
@@ -22,16 +21,35 @@
 <body class="pushable">
   
   <div class="ui vertical inverted sidebar menu left">
+    <a class="item" href="{% url 'finance:index' %}">Home</a>
     <a class="item" href="{% url 'finance:accounts' %}">Accounts</a>
     <a class="item" href="{% url 'finance:transactions' %}">Transactions</a>
+    <a class="item" href="{% url 'finance:groups' %}">Groups</a>
+    <a class="item" href="{% url 'finance:categories' %}">Categories</a>
   </div>
   
   <div class="pusher">
-    <div class="ui fixed menu">
+    <div class="ui menu">
       <a class="toc item">
         <i class="sidebar icon"></i>
       </a>
     </div>
+    
+    {% if messages %}
+    
+      <div class="ui grid container">
+        <div class="row">
+          <div class="column">
+            {% for message in messages %}
+            <div class="ui {{ message.tags }} message">
+              <i class="close icon"></i>
+              {{ message }}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
     
     {% block body %}
     {% endblock body %}

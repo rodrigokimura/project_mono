@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from django.urls import reverse_lazy
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 APP_VERSION = "0.0.1"
@@ -138,4 +139,5 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
 
-LOGIN_REDIRECT_URL = '/' # URL redirecting after a successful authentication
+LOGIN_REDIRECT_URL = reverse_lazy('finance:index')
+LOGIN_URL = reverse_lazy('finance:login')
