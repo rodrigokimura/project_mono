@@ -41,68 +41,27 @@
     <i class="table icon"></i> Transactions
   </div>
 
-  {% comment %}
-  {% if object_list %}
-  {% for date in dates %}
-  <div class="row">
-    <table class="ui unstackable single line fixed table">
-      <thead>
-      <tr>
-        <th colspan=3>
-          {{ date.date|date:"d/m" }}
-        </th>
-        <th>
-          <p class="income">
-            {{ date.total_income }}
-          </p>
-        </th>
-        <th>
-          <p class="expense">
-            {{ date.total_expense }}
-          </p>
-        </th>
-      </tr>
-      </thead>
-      <tbody>
-        {% for transaction in object_list %}
-        <tr class="muted">
-        {% if transaction.date == date.date %}
-          <td colspan=2>
-            <a class="muted" href="{% url 'finance:transaction_update' pk=transaction.pk %}">
-            <i class="{{ transaction.category.icon }} icon"></i>
-              {{ transaction.category }}
-            </a>
-          </td>
-          <td colspan=2>
-            {{ transaction.account }}
-          </td>
-          <td 
-            {% if transaction.type == 'INC' %}
-            class="income"
-            {% elif transaction.type == 'EXP' %}
-            class="expense"
-            {% endif %}
-            >
-            {{ transaction.ammount }}
-          </td>
-        {% endif %}
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% endfor %}
-  {% endif %}
-  {% endcomment %}
-
   {% if object_list %}
   {% for date in dates %}
   <div class="row" style="margin-bottom: 1em;">
     <div class="ui segments">
-      <div class="ui secondary grey segment">
+      <div class="ui secondary grey segment" style="padding: .5em 1em;">
         <div class="ui grid">
           <div class="eight wide column">
-            {{ date.date|date:"d/m" }}
+            <div style="display:flex; flex-flow: row nowrap;">
+              <div style="flex: 0 0 auto;margin-right:.1em;">
+                <span class="ui big text">{{ date.date|date:"d" }}</span>
+              </div>
+              <div style="flex: 0 0 auto; display:flex; flex-flow: column nowrap; 
+                margin-top:-.25em;">
+                <div style="flex: 0 0 auto;">
+                  <span class="ui small text">{{ date.date|date:"b" }}</span>
+                </div>
+                <div style="flex: 0 0 auto; margin-top: -.5em;">
+                  <span class="ui small text">{{ date.date|date:"Y" }}</span>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
             <span class="ui green text">
@@ -123,11 +82,9 @@
       
       {% for transaction in object_list %}
       {% if transaction.date == date.date %}
-      <div class="ui segment" 
-        onclick="window.location.href='{% url 'finance:transaction_update' pk=transaction.pk %}';"
-        style="padding: 1px 1em;">
+      <div class="ui segment" style="padding: .5em 1em;">
         <div class="ui grid">
-          <div class="six wide column">
+          <div class="eight wide column">
             <span class="ui small text">
               {% if transaction.category %}
               <i class="{{ transaction.category.icon }} icon"></i>
@@ -142,19 +99,21 @@
               {{ transaction.description }}
             </span>
           </div>
-          <div class="six wide column" style="display:flex; align-items:center;">
+          <div class="four wide column" style="display:flex; align-items:center;">
             {{ transaction.account }}
           </div>
           <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
-            <span
-            {% if transaction.type == 'INC' %}
-            class="ui green text"
-            {% elif transaction.type == 'EXP' %}
-            class="ui red text"
-            {% endif %}
-            >
-            {{ transaction.ammount }}
-            </span>
+            <a href="{% url 'finance:transaction_update' pk=transaction.pk %}">
+              <span
+                {% if transaction.type == 'INC' %}
+                class="ui green text"
+                {% elif transaction.type == 'EXP' %}
+                class="ui red text"
+                {% endif %}
+                >
+                  {{ transaction.ammount }}
+              </span>
+            </a>
           </div>
         </div>
       </div>

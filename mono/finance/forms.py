@@ -2,6 +2,25 @@ from django import forms
 from django.contrib.admin.widgets import AdminDateWidget
 from .models import Transaction, Group, Category, Account
 from django.contrib.auth import get_user_model, forms as auth_forms
+from django.forms.widgets import Widget
+from django.template import loader
+from django.utils.safestring import mark_safe
+
+
+class CalendarWidget(Widget):
+  
+    template_name = 'ui_calendar.html'
+
+    def get_context(self, name, value, attrs=None):
+        return {'widget': {
+            'name': name,
+            'value': value,
+        }}
+
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = loader.get_template(self.template_name).render(context)
+        return mark_safe(template)
 
 class AccountForm(forms.ModelForm):
     error_css_class = 'error'
@@ -32,32 +51,28 @@ class AccountForm(forms.ModelForm):
         model = Account
         fields = '__all__'
         exclude = []
-        widgets = {
-            # 'type': forms.HiddenInput()
-            # 'timestamp':forms.Select,
-        }
+        widgets = {}
 
 class TransactionForm(forms.ModelForm):
     error_css_class = 'error'
     localized_fields = ['timestamp']
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
         self.fields['description'].widget.attrs.update({'placeholder': 'Description'})
         self.fields['ammount'].widget.attrs.update({'placeholder': 'Ammount'})
         self.fields['category'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['created_by'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['category'].queryset = Category.objects.filter(created_by=self.request.user)
         self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
-        # self.fields['type'].widget.attrs.update({'type': 'hidden'})
-        self.fields['timestamp'].widget.attrs.update({'type': 'number'})
 
     class Meta:
         model = Transaction
         fields = '__all__'
-        exclude = ['created_at']
+        exclude = ['created_by']
         widgets = {
-            'type': forms.HiddenInput()
-            # 'timestamp':forms.Select,
+            'type': forms.HiddenInput(),
+            'timestamp':CalendarWidget()
         }
 
 class GroupForm(forms.ModelForm):

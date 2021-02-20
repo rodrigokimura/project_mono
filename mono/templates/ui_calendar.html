@@ -1,0 +1,28 @@
+<div class="ui calendar">
+  <div class="ui input left icon">
+    <i class="calendar icon"></i>
+    <input 
+      id="{{ widget.attrs.id }}" 
+      type="text" 
+      name="{{ widget.name }}" 
+      placeholder="{{ widget.name|title }}"
+      value="{{ widget.value|date:'n/d/Y h:i A' }}"
+      >
+  </div>
+</div>
+<script type="text/javascript" charset="utf-8">
+  $('.ui.calendar').calendar(
+    {
+      today:true,
+      ampm:false,
+      formatInput:true,
+      formatter: {
+        date: function (date, settings) {
+          if (!date) return '';
+          return date.toLocaleDateString('en-US');
+        }
+      }
+    }
+    
+  );
+</script>

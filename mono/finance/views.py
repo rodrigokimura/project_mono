@@ -83,13 +83,13 @@ class TransactionListView(LoginRequiredMixin, ListView):
         
         return context
 
-class TransactionCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView): 
+class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
     model = Transaction 
     form_class = TransactionForm
     success_url = reverse_lazy('finance:transactions')
     success_message = "%(description)s was created successfully"
 
-class TransactionUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView): 
+class TransactionUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView): 
     model = Transaction 
     form_class = TransactionForm
     success_url = reverse_lazy('finance:transactions')

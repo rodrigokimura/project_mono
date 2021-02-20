@@ -20,6 +20,7 @@
                 <a class="ui button" data-value="INC" onclick="selectType(this)">Income</a>
                 <a class="ui button" data-value="EXP" onclick="selectType(this)">Expense</a>
               </div>
+              
               {{ form.as_p }}
               <div class="fluid ui buttons">
                 <button class="ui button primary" type="submit" form="transaction_form">
@@ -47,11 +48,6 @@
   
 <script>
   $('.ui.dropdown').dropdown();
-  $('input[name=timestamp]').datetimepicker(
-    {
-      inline:false,
-      format: 'Y-m-d H:i'
-    });
       
   {% if object %}
   $('[data-value={{ object.type }}').addClass('active');
