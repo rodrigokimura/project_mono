@@ -11,7 +11,7 @@
           <div class="ui container">
             <form method="post" class="ui form" id="account_form">
               {% csrf_token %}
-              {{ form.as_p }}
+              {% include "_form.html" with form=form %}
               <div class="fluid ui big buttons">
                 <button class="ui button primary" type="submit" form="account_form">
                   Save
@@ -36,6 +36,6 @@
 </div>
   
 <script>
-  $('.ui.dropdown').dropdown();
+  $('*.ui.dropdown').dropdown();
 </script>
 {% endblock %}

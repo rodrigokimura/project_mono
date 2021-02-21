@@ -1,0 +1,21 @@
+<div class="ui selection dropdown">
+  <input type="hidden" id="{{ widget.attrs.id }}" name="{{ widget.name }}">
+  <div class="text"></div>
+  <i class="dropdown icon"></i>
+</div>
+<script type="text/javascript" charset="utf-8">
+    $('.ui.dropdown').dropdown({
+        values: [ 
+            {% for category in category_list %}
+            { 
+                name: '{{ category.name }}', 
+                value: '{{ category.id }}',
+                icon: '{{ category.icon.markup }}',
+                {% if category.id == widget.value %}
+                selected: true
+                {% endif %}
+            }, 
+            {% endfor %}
+        ]
+    })
+</script>

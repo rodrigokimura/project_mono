@@ -20,8 +20,7 @@
                 <a class="ui button" data-value="INC" onclick="selectType(this)">Income</a>
                 <a class="ui button" data-value="EXP" onclick="selectType(this)">Expense</a>
               </div>
-              
-              {{ form.as_p }}
+              {% include "_form.html" with form=form %}
               <div class="fluid ui buttons">
                 <button class="ui button primary" type="submit" form="transaction_form">
                   Save

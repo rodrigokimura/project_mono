@@ -1,22 +1,63 @@
 from django import forms
 from django.contrib.admin.widgets import AdminDateWidget
-from .models import Transaction, Group, Category, Account
 from django.contrib.auth import get_user_model, forms as auth_forms
 from django.forms.widgets import Widget
 from django.template import loader
 from django.utils.safestring import mark_safe
+from .models import Transaction, Group, Category, Account, Icon
 
 
 class CalendarWidget(Widget):
-  
     template_name = 'ui_calendar.html'
-
     def get_context(self, name, value, attrs=None):
         return {'widget': {
             'name': name,
             'value': value,
         }}
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = loader.get_template(self.template_name).render(context)
+        return mark_safe(template)
 
+class IconWidget(Widget):
+    template_name = 'ui_icon.html'
+    def get_context(self, name, value, attrs=None):
+        return {
+            'widget': {
+                'name': name,
+                'value': value,
+            },
+            'icon_list': Icon.objects.all()
+        }
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = loader.get_template(self.template_name).render(context)
+        return mark_safe(template)
+        
+class CategoryWidget(Widget):
+    template_name = 'ui_category.html'
+    def get_context(self, name, value, attrs=None):
+        return {
+            'widget': {
+                'name': name,
+                'value': value,
+            },
+            'category_list': self.queryset
+        }
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = loader.get_template(self.template_name).render(context)
+        return mark_safe(template)
+        
+class ToggleWidget(Widget):
+    template_name = 'ui_toggle.html'
+    def get_context(self, name, value, attrs=None):
+        return {
+            'widget': {
+                'name': name,
+                'value': value,
+            },
+        }
     def render(self, name, value, attrs=None, renderer=None):
         context = self.get_context(name, value, attrs)
         template = loader.get_template(self.template_name).render(context)
@@ -31,6 +72,7 @@ class AccountForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'placeholder': 'Description'})
         self.fields['belongs_to'].widget.attrs.update({'placeholder': 'Ammount'})
+        self.fields['belongs_to'].widget.attrs.update({'class': 'ui dropdown'})
         self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
         self.fields['initial_balance'].widget.attrs.update({'placeholder': 'Initial balance'})
         if self.instance.pk is None:
@@ -62,8 +104,7 @@ class TransactionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['description'].widget.attrs.update({'placeholder': 'Description'})
         self.fields['ammount'].widget.attrs.update({'placeholder': 'Ammount'})
-        self.fields['category'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['category'].queryset = Category.objects.filter(created_by=self.request.user)
+        self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user)
         self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
 
     class Meta:
@@ -71,9 +112,16 @@ class TransactionForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['created_by']
         widgets = {
-            'type': forms.HiddenInput(),
-            'timestamp':CalendarWidget()
+            'type': forms.HiddenInput,
+            'category': CategoryWidget,
+            'timestamp': CalendarWidget,
+            'active': ToggleWidget,
         }
+    def save(self, *args, **kwargs): 
+        category = self.instance
+        category.created_by = self.request.user
+        category.save()
+        return super(TransactionForm, self).save(*args, **kwargs)
 
 class GroupForm(forms.ModelForm):
     error_css_class = 'error'
@@ -81,6 +129,7 @@ class GroupForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'placeholder': 'Name'})
+        self.fields['members'].widget.attrs.update({'class': 'ui dropdown'})
 
     class Meta:
         model = Group
@@ -97,13 +146,18 @@ class CategoryForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['created_by']
         widgets = {
-            # 'timestamp':forms.Select,
+            'icon':IconWidget,
+            'active':ToggleWidget
         }
     
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'placeholder': 'Name'})
+        self.fields['description'].widget.attrs.update({'rows': 3})
+        self.fields['description'].widget.attrs.update({'placeholder': 'Description'})
+        self.fields['type'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
         
     def save(self, *args, **kwargs): 
         category = self.instance

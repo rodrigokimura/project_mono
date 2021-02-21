@@ -11,7 +11,7 @@
           <div class="ui container">
             <form method="post" class="ui form" id="group_form">
               {% csrf_token %}
-              {{ form.as_p }}
+              {% include "_form.html" with form=form %}
               <div class="fluid ui big buttons">
                 <button class="ui button primary" type="submit" form="group_form">
                   Save
@@ -37,21 +37,5 @@
   
 <script>
   $('.ui.dropdown').dropdown();
-  $('input[name=timestamp]').datetimepicker(
-    {
-      inline:false,
-      format: 'Y-m-d H:i'
-    });
-      
-  {% if object %}
-  $('[data-value={{ object.type }}').addClass('active');
-  $('input[name=type]').val('{{ object.type}}');
-  {% endif %}
-  
-  let selectType = el => {
-    $(el).addClass('active')
-    .siblings().removeClass('active')
-    $('input[name=type]').val($(el).data('value'));
-  }
 </script>
 {% endblock %}
