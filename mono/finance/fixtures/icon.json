@@ -103,5 +103,124 @@
   "fields": {
     "markup": "wrench"
   }
+},
+{
+  "model": "finance.icon",
+  "pk": 16,
+  "fields": {
+    "markup": "bell"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 17,
+  "fields": {
+    "markup": "exclamation"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 18,
+  "fields": {
+    "markup": "cart"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 19,
+  "fields": {
+    "markup": "university"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 20,
+  "fields": {
+    "markup": "chart bar"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 21,
+  "fields": {
+    "markup": "birthday cake"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 22,
+  "fields": {
+    "markup": "plane"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 23,
+  "fields": {
+    "markup": "globe"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 24,
+  "fields": {
+    "markup": "tasks"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 25,
+  "fields": {
+    "markup": "tag"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 26,
+  "fields": {
+    "markup": "tags"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 27,
+  "fields": {
+    "markup": "gift"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 28,
+  "fields": {
+    "markup": "mobile alternate"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 29,
+  "fields": {
+    "markup": "tv"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 30,
+  "fields": {
+    "markup": "credit card"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 31,
+  "fields": {
+    "markup": "suitcase"
+  }
+},
+{
+  "model": "finance.icon",
+  "pk": 32,
+  "fields": {
+    "markup": "shopping basket"
+  }
 }
 ]

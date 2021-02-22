@@ -170,6 +170,10 @@ class IconForm(forms.ModelForm):
         fields = '__all__'
         exclude = []
         widgets = {}
+    def save(self, *args, **kwargs):
+        icon = self.instance
+        icon.markup = icon.markup.lower()
+        return super(IconForm, self).save(*args, **kwargs)
         
 class UserForm(auth_forms.UserCreationForm):
     
