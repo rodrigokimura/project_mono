@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q, Sum
@@ -23,7 +24,7 @@ class PassRequestToFormViewMixin:
 class HomePageView(TemplateView):
     template_name = "finance/index.html"
         
-class SignUp(SuccessMessageMixin, CreateView):
+class SignUp(SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
     form_class = UserForm
     template_name = "finance/signup.html"
     success_url = reverse_lazy('finance:index')
@@ -31,6 +32,7 @@ class SignUp(SuccessMessageMixin, CreateView):
     
     def save(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
+        login(self.request, self.get_user())
         return super(SignUp, self).save(request, *args, **kwargs)
 
 class Login(LoginView):

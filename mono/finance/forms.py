@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.admin.widgets import AdminDateWidget
-from django.contrib.auth import get_user_model, forms as auth_forms
+from django.contrib.auth import login, authenticate, get_user_model, forms as auth_forms
 from django.forms.widgets import Widget
 from django.template import loader
 from django.utils.safestring import mark_safe
@@ -185,6 +185,7 @@ class UserForm(auth_forms.UserCreationForm):
         model = get_user_model()
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
         self.fields["username"].label = "Display name"
         self.fields['username'].widget.attrs.update({'placeholder': 'Username'})
@@ -192,6 +193,17 @@ class UserForm(auth_forms.UserCreationForm):
         self.fields['email'].widget.attrs.update({'placeholder': 'Email address'})
         self.fields['password1'].widget.attrs.update({'placeholder': 'Password'})
         self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm password'})
+        
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+        if commit:
+            auth_user = authenticate(
+                username=self.cleaned_data['username'], 
+                password=self.cleaned_data['password1']
+            )
+            login(self.request, auth_user)
+
+        return user
     
     def initial_setup(sender, instance, created, **kwargs):
         if created:
@@ -199,8 +211,17 @@ class UserForm(auth_forms.UserCreationForm):
                 instance.groups.add(Group.objects.get(name='Cliente'))
             except Group.DoesNotExist:
                 pass
-              
-            account = Account.objects.create(name="Wallet", belongs_to=instance)
-            account = Account.objects.create(name="Bank", belongs_to=instance)
+            
+            # Initial accounts
+            Account.objects.create(name="Wallet", belongs_to=instance)
+            Account.objects.create(name="Bank", belongs_to=instance)
+            
+            #Initial categories
+            Category.objects.create(
+                name="Health",
+                type="EXP",
+                created_by=instance,
+                icon=Icon.objects.get(markup="heartbeat")
+            )
     
     post_save.connect(initial_setup, sender=User)
