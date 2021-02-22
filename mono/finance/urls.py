@@ -30,5 +30,10 @@ urlpatterns = [
     path("category/<int:pk>", views.CategoryUpdateView.as_view(), name='category_update'),
     path("category/<int:pk>/delete/", views.CategoryDeleteView.as_view(), name='category_delete'),
     path("categories/", views.CategoryListView.as_view(), name='categories'),
+  
+    path("icon/", views.IconCreateView.as_view(), name='icon_create'),
+    path("icon/<int:pk>", views.IconUpdateView.as_view(), name='icon_update'),
+    path("icon/<int:pk>/delete/", views.IconDeleteView.as_view(), name='icon_delete'),
+    path("icons/", views.IconListView.as_view(), name='icons'),
 
 ]

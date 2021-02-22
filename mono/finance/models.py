@@ -33,6 +33,8 @@ class Transaction(models.Model):
         
     def __str__(self) -> str:
         return self.description
+        
+    
 
 class Icon(models.Model):
     markup = models.CharField(max_length=50, unique=True)

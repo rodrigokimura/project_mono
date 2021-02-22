@@ -4,11 +4,11 @@ from django.contrib.auth import get_user_model, forms as auth_forms
 from django.forms.widgets import Widget
 from django.template import loader
 from django.utils.safestring import mark_safe
+from django.db.models.signals import post_save
 from .models import Transaction, Group, Category, Account, Icon
 
-
 class CalendarWidget(Widget):
-    template_name = 'ui_calendar.html'
+    template_name = 'widgets/ui_calendar.html'
     def get_context(self, name, value, attrs=None):
         return {'widget': {
             'name': name,
@@ -20,7 +20,7 @@ class CalendarWidget(Widget):
         return mark_safe(template)
 
 class IconWidget(Widget):
-    template_name = 'ui_icon.html'
+    template_name = 'widgets/ui_icon.html'
     def get_context(self, name, value, attrs=None):
         return {
             'widget': {
@@ -35,7 +35,7 @@ class IconWidget(Widget):
         return mark_safe(template)
         
 class CategoryWidget(Widget):
-    template_name = 'ui_category.html'
+    template_name = 'widgets/ui_category.html'
     def get_context(self, name, value, attrs=None):
         return {
             'widget': {
@@ -50,7 +50,7 @@ class CategoryWidget(Widget):
         return mark_safe(template)
         
 class ToggleWidget(Widget):
-    template_name = 'ui_toggle.html'
+    template_name = 'widgets/ui_toggle.html'
     def get_context(self, name, value, attrs=None):
         return {
             'widget': {
@@ -71,19 +71,16 @@ class AccountForm(forms.ModelForm):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'placeholder': 'Description'})
-        self.fields['belongs_to'].widget.attrs.update({'placeholder': 'Ammount'})
-        self.fields['belongs_to'].widget.attrs.update({'class': 'ui dropdown'})
         self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
         self.fields['initial_balance'].widget.attrs.update({'placeholder': 'Initial balance'})
         if self.instance.pk is None:
             self.fields['current_balance'].widget = forms.HiddenInput()
         else:
             self.fields['current_balance'].widget.attrs.update({'value': self.instance.current_balance})
-            
-        print(type(self.instance.pk))
         
     def save(self, *args, **kwargs): 
         account = self.instance
+        account.belongs_to = self.request.user
         current_balance = self.cleaned_data['current_balance']
         if current_balance is not None:
             account.adjust_balance(current_balance, self.request.user)
@@ -92,7 +89,7 @@ class AccountForm(forms.ModelForm):
     class Meta:
         model = Account
         fields = '__all__'
-        exclude = []
+        exclude = ['belongs_to']
         widgets = {}
 
 class TransactionForm(forms.ModelForm):
@@ -165,7 +162,18 @@ class CategoryForm(forms.ModelForm):
         category.save()
         return super(CategoryForm, self).save(*args, **kwargs)
         
+        
+class IconForm(forms.ModelForm):
+    error_css_class = 'error'
+    class Meta:
+        model = Icon
+        fields = '__all__'
+        exclude = []
+        widgets = {}
+        
 class UserForm(auth_forms.UserCreationForm):
+    
+    User = get_user_model()
     error_css_class = 'error'
 
     class Meta:
@@ -181,12 +189,14 @@ class UserForm(auth_forms.UserCreationForm):
         self.fields['password1'].widget.attrs.update({'placeholder': 'Password'})
         self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm password'})
     
-    def add_user_to_public_group(sender, instance, created, **kwargs):
-        """Post-create user signal that adds the user to everyone group."""
-        try:
-            if created:
+    def initial_setup(sender, instance, created, **kwargs):
+        if created:
+            try:
                 instance.groups.add(Group.objects.get(name='Cliente'))
-        except Group.DoesNotExist:
-            pass
-
-    #post_save.connect(add_user_to_public_group, sender=User)
+            except Group.DoesNotExist:
+                pass
+              
+            account = Account.objects.create(name="Wallet", belongs_to=instance)
+            account = Account.objects.create(name="Bank", belongs_to=instance)
+    
+    post_save.connect(initial_setup, sender=User)

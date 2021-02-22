@@ -1,46 +1,96 @@
 {% extends "finance/base.html" %}
 
 {% block head %}
-<style>
-  .expense {color: #db2828}
-  .income {color: #b5cc18}
-  .muted {color: #656667}
-  a.muted {color: #656667}
-</style>
 {% endblock head %}
 
 {% block body %}
 
-<div class="ui vertical stripe segment">
-  <div class="ui grid container">
-    
-    {% for category in object_list %}
-    <div class="row">
-      <table class="ui unstackable single line fixed table">
-        <thead>
-        <tr>
-          <th>
-            <a href="{% url 'finance:category_update' pk=category.pk %}">{{ category.name }}</a>
-          </th>
-          <th class="right aligned">
-            <p>{{ category.name }}</p>
-            </p>
-          </th>
-        </tr>
-        </thead>
-        <tbody>
-          <tr class="muted">
-            <td>
-              Additional info
-            </td>
-            <td class="right aligned">
-              
-            </td>
-          </tr>
-        </tbody>
-      </table>
+<div class="ui container">
+
+  <div class="row" style="margin-bottom: 1em;">
+    <div class="ui segments">
+      <div class="ui secondary grey segment" style="padding: .5em 1em;">
+        <div class="ui grid">
+          <div class="eight wide column">
+            Expense
+          </div>
+        </div>
+      </div>
+      
+      {% for category in object_list %}
+      {% if category.type == 'EXP' %}
+      <div class="ui segment" style="padding: .5em 1em;">
+        <div class="ui grid">
+          <div class="six wide column">
+            <a href="{% url 'finance:category_update' pk=category.pk %}">
+              <span class="ui text">
+                <i class="{{ category.icon }} icon"></i>
+                {{ category.name }}
+              </span>
+            </a>
+          </div>
+          <div class="five wide column" style="display:flex; align-items:center;">
+            <span class="ui small text">
+              {{ category.description }}
+            </span>
+          </div>
+          <div class="five wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+            <a href="">
+              <span>
+                {% if category.group %}
+                {{ category.group }}
+                {% endif %}
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
     </div>
-    {% endfor %}
+    
+    <div class="ui segments">
+      <div class="ui secondary grey segment" style="padding: .5em 1em;">
+        <div class="ui grid">
+          <div class="eight wide column">
+            Income
+          </div>
+        </div>
+      </div>
+      
+      {% for category in object_list %}
+      {% if category.type == 'INC' %}
+      <div class="ui segment" style="padding: .5em 1em;">
+        <div class="ui grid">
+          <div class="six wide column">
+            <a href="{% url 'finance:category_update' pk=category.pk %}">
+              <span class="ui text">
+                <i class="{{ category.icon }} icon"></i>
+                {{ category.name }}
+              </span>
+            </a>
+          </div>
+          <div class="five wide column" style="display:flex; align-items:center;">
+            <span class="ui small text">
+              {{ category.description }}
+            </span>
+          </div>
+          <div class="five wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+            <a href="">
+              <span>
+                {% if category.group %}
+                {{ category.group }}
+                {% endif %}
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+    
 
     
     <div class="row">

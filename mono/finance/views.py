@@ -8,11 +8,11 @@ from django.utils import timezone
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce, TruncDay
-from .models import Transaction, Category, Account, Group, Category
-from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm
+from .models import Transaction, Category, Account, Group, Category, Icon
+from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm
 
 class PassRequestToFormViewMixin:
     def get_form_kwargs(self):
@@ -103,10 +103,13 @@ class TransactionDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView)
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(TransactionDeleteView, self).delete(request, *args, **kwargs)
-        
 
 class AccountListView(LoginRequiredMixin, ListView):
     model = Account
+    
+    def get_queryset(self):
+        qs = Account.objects.filter(belongs_to=self.request.user)
+        return qs
     
 class AccountDetailView(LoginRequiredMixin, DetailView):
     model = Account
@@ -194,3 +197,44 @@ class CategoryDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         else:
             messages.warning(self.request, "Standard categories cannot be deleted.")
             return redirect('finance:categories')
+        
+
+class IconListView(UserPassesTestMixin, ListView):
+    model = Icon
+    
+    def test_func(self):
+        return self.request.user.is_superuser
+    
+    def get_queryset(self):
+        qs = Icon.objects.all()
+        return qs
+
+class IconCreateView(UserPassesTestMixin, SuccessMessageMixin, CreateView): 
+    model = Icon
+    form_class = IconForm
+    success_url = reverse_lazy('finance:icons')
+    success_message = "%(markup)s was created successfully"
+
+    def test_func(self):
+        return self.request.user.is_superuser
+    
+class IconUpdateView(UserPassesTestMixin, SuccessMessageMixin, UpdateView): 
+    model = Icon
+    form_class = IconForm
+    success_url = reverse_lazy('finance:icons')
+    success_message = "%(markup)s was updated successfully"
+    
+    def test_func(self):
+        return self.request.user.is_superuser
+    
+class IconDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    model = Icon
+    success_url = reverse_lazy('finance:icons')
+    success_message = "Icon was deleted successfully"
+
+    def test_func(self):
+        return self.request.user.is_superuser
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(IconDeleteView, self).delete(request, *args, **kwargs)
