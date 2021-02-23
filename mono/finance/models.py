@@ -33,8 +33,6 @@ class Transaction(models.Model):
         
     def __str__(self) -> str:
         return self.description
-        
-    
 
 class Icon(models.Model):
     markup = models.CharField(max_length=50, unique=True)
@@ -121,3 +119,44 @@ class Account(models.Model):
         
     def __str__(self) -> str:
         return self.name
+
+WEEKLY = 'W'
+MONTHLY = 'M'
+YEARLY = 'Y'
+GOAL_FREQUENCY = [
+    (WEEKLY, 'Weekly'),
+    (MONTHLY, 'Monthly'),
+    (YEARLY, 'Yearly'),
+]
+
+OPEN = 'O'
+PENDING = 'P'
+CLOSED = 'C'
+BUDGET_STATUS = [
+    (OPEN, 'Open'),
+    (PENDING, 'Pending'),
+    (CLOSED, 'Closed'),
+]
+
+CONSTANT = 'C'
+LINEAR = 'L'
+PROGRESSION_MODES = [
+    (CONSTANT, 'Constant'),
+    (LINEAR, 'Linear'),
+]
+
+class Goal(models.Model):
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    start_date = models.DateField(default=timezone.now)
+    target_date = models.DateField()
+    target_ammount = models.FloatField()
+    group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
+    progression_mode = models.CharField(max_length=1, choices=PROGRESSION_MODES, default=CONSTANT)
+    frequency = models.CharField(max_length=1, choices=GOAL_FREQUENCY, default=MONTHLY, editable=False)
+
+class Budget(models.Model):
+    goal = models.FloatField()
+    period = models.IntegerField()
+    status = models.CharField(max_length=1, choices=BUDGET_STATUS, default=OPEN, editable=False)
+    

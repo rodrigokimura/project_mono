@@ -102,6 +102,7 @@ class TransactionForm(forms.ModelForm):
         self.fields['description'].widget.attrs.update({'placeholder': 'Description'})
         self.fields['ammount'].widget.attrs.update({'placeholder': 'Ammount'})
         self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user)
+        self.fields['account'].queryset = Account.objects.filter(belongs_to=self.request.user)
         self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
 
     class Meta:
@@ -206,6 +207,18 @@ class UserForm(auth_forms.UserCreationForm):
         return user
     
     def initial_setup(sender, instance, created, **kwargs):
+      
+        INITIAL_CATEGORIES = [
+            ['Health', 'EXP', 'heartbeat'], 
+            ['Shopping', 'EXP', 'cart'], 
+            ['Education', 'EXP', 'university'],
+            ['Transportation', 'EXP', 'car'],
+            ['Trips', 'EXP', 'plane'],
+            ['Leisure', 'EXP', 'gamepad'],
+            ['Groceries', 'EXP', 'shopping basket'],
+            ['Salary', 'INC', 'money bill alternate outline'],
+        ]
+        
         if created:
             try:
                 instance.groups.add(Group.objects.get(name='Cliente'))
@@ -217,11 +230,12 @@ class UserForm(auth_forms.UserCreationForm):
             Account.objects.create(name="Bank", belongs_to=instance)
             
             #Initial categories
-            Category.objects.create(
-                name="Health",
-                type="EXP",
-                created_by=instance,
-                icon=Icon.objects.get(markup="heartbeat")
-            )
+            for category in INITIAL_CATEGORIES:
+                Category.objects.create(
+                    name=category[0],
+                    type=category[1],
+                    created_by=instance,
+                    icon=Icon.objects.get(markup=category[2])
+                )
     
     post_save.connect(initial_setup, sender=User)

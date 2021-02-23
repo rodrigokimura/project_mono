@@ -21,7 +21,7 @@
       {% if category.type == 'EXP' %}
       <div class="ui segment" style="padding: .5em 1em;">
         <div class="ui grid">
-          <div class="six wide column">
+          <div class="eight wide column">
             <a href="{% url 'finance:category_update' pk=category.pk %}">
               <span class="ui text">
                 <i class="{{ category.icon }} icon"></i>
@@ -29,12 +29,14 @@
               </span>
             </a>
           </div>
-          <div class="five wide column" style="display:flex; align-items:center;">
+          <div class="four wide column" style="display:flex; align-items:center;">
             <span class="ui small text">
+              {% if category.description %}
               {{ category.description }}
+              {% endif %}
             </span>
           </div>
-          <div class="five wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+          <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
             <a href="">
               <span>
                 {% if category.group %}
@@ -72,7 +74,9 @@
           </div>
           <div class="five wide column" style="display:flex; align-items:center;">
             <span class="ui small text">
+              {% if category.description %}
               {{ category.description }}
+              {% endif %}
             </span>
           </div>
           <div class="five wide column" style="display:flex; justify-content:flex-end; align-items:center;">
