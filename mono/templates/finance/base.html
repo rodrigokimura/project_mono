@@ -41,8 +41,8 @@
     </div>
     
     {% if messages %}
-    
-      <div class="ui grid container">
+      <div class="ui container">
+      <div class="ui grid">
         <div class="row">
           <div class="column">
             {% for message in messages %}
@@ -53,6 +53,7 @@
             {% endfor %}
           </div>
         </div>
+      </div>
       </div>
     {% endif %}
     
@@ -65,6 +66,12 @@
   $('.sidebar.icon').click(()=>{
     $('.ui.sidebar').sidebar('toggle');
   });
+   $.fn.api.settings.api = {
+      'get categories' : '/fn/ajax/categories/',
+      successTest: function(response) {
+        return response.success || false;
+      },
+    };
 </script>
 
 </html>

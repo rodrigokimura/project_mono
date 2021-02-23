@@ -10,7 +10,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Q, Sum
+from django.http import JsonResponse
+from django.db.models import F, Q, Sum
 from django.db.models.functions import Coalesce, TruncDay
 from .models import Transaction, Category, Account, Group, Category, Icon
 from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm
@@ -174,6 +175,23 @@ class CategoryListView(LoginRequiredMixin, ListView):
         qs = Category.objects.all()
         qs = qs.filter(created_by=self.request.user)
         return qs
+        
+def category_list(request):
+    type = request.GET.get("type", "EXP")
+    account = request.GET.get("account")
+    qs = Category.objects.all()
+    qs = qs.filter(created_by=request.user)
+    qs = qs.filter(type=type)
+    qs = qs.values('name')
+    qs = qs.annotate(value=F('id'))
+    qs = qs.annotate(icon=F('icon__markup'))
+    return JsonResponse(
+        {
+            'success':True,
+            'message':'Categories retrived from database.',
+            'results':list(qs),
+        }
+    )
 
 class CategoryCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
     model = Category 

@@ -44,19 +44,26 @@
     </div>
   </div>
 </div>
+{{ categories }}
   
 <script>
   $('.ui.dropdown').dropdown();
       
   {% if object %}
   $('[data-value={{ object.type }}').addClass('active');
-  $('input[name=type]').val('{{ object.type}}');
+  $('input[name=type]').val('{{ object.type }}');
+  setType('{{ object.type }}');
+  {% else %}
+  $('[data-value={{ form.type.value }}').addClass('active');
+  $('input[name=type]').val('{{ form.type.value }}');
+  setType('{{ form.type.value }}');
   {% endif %}
   
   let selectType = el => {
     $(el).addClass('active')
     .siblings().removeClass('active')
     $('input[name=type]').val($(el).data('value'));
+    setType($(el).data('value'));
   }
 </script>
 {% endblock %}

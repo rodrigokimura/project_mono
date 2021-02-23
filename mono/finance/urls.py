@@ -30,6 +30,7 @@ urlpatterns = [
     path("category/<int:pk>", views.CategoryUpdateView.as_view(), name='category_update'),
     path("category/<int:pk>/delete/", views.CategoryDeleteView.as_view(), name='category_delete'),
     path("categories/", views.CategoryListView.as_view(), name='categories'),
+    path("ajax/categories/", views.category_list, name='ajax_categories'),
   
     path("icon/", views.IconCreateView.as_view(), name='icon_create'),
     path("icon/<int:pk>", views.IconUpdateView.as_view(), name='icon_update'),

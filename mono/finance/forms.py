@@ -94,7 +94,6 @@ class AccountForm(forms.ModelForm):
 
 class TransactionForm(forms.ModelForm):
     error_css_class = 'error'
-    localized_fields = ['timestamp']
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
@@ -104,7 +103,13 @@ class TransactionForm(forms.ModelForm):
         self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user)
         self.fields['account'].queryset = Account.objects.filter(belongs_to=self.request.user)
         self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
-
+    
+    def get_context_data(self, **kwargs):
+        context = super(TransactionForm, self).get_context_data(**kwargs)
+        categories = Category.objects.all()
+        context['categories'] = categories
+        return context
+        
     class Meta:
         model = Transaction
         fields = '__all__'
