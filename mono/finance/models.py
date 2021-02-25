@@ -146,6 +146,7 @@ PROGRESSION_MODES = [
 ]
 
 class Goal(models.Model):
+    name = models.CharField(max_length=50)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     start_date = models.DateField(default=timezone.now)
@@ -154,9 +155,12 @@ class Goal(models.Model):
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     progression_mode = models.CharField(max_length=1, choices=PROGRESSION_MODES, default=CONSTANT)
     frequency = models.CharField(max_length=1, choices=GOAL_FREQUENCY, default=MONTHLY, editable=False)
-
+    def __str__(self) -> str:
+        return self.name
+        
 class Budget(models.Model):
     goal = models.FloatField()
     period = models.IntegerField()
     status = models.CharField(max_length=1, choices=BUDGET_STATUS, default=OPEN, editable=False)
-    
+    def __str__(self) -> str:
+        return f'{str(self.period)} - {self.status}'

@@ -26,6 +26,7 @@
     <a class="item" href="{% url 'finance:transactions' %}">Transactions</a>
     <a class="item" href="{% url 'finance:groups' %}">Groups</a>
     <a class="item" href="{% url 'finance:categories' %}">Categories</a>
+    <a class="item" href="{% url 'finance:goals' %}">Goals</a>
     {% if request.user.is_superuser %}
     <a class="item" href="{% url 'finance:icons' %}">
       <span class="ui red text">Icons</span>

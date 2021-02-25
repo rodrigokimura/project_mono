@@ -47,11 +47,12 @@
 {{ categories }}
   
 <script>
-  $('.ui.dropdown').dropdown();
-      
+  $('select[name=account]').dropdown();
+  
   {% if object %}
   $('[data-value={{ object.type }}').addClass('active');
   $('input[name=type]').val('{{ object.type }}');
+  dropdown_element.dropdown('set value', "{{ object.category.pk }}");
   setType('{{ object.type }}');
   {% else %}
   $('[data-value={{ form.type.value }}').addClass('active');
@@ -61,8 +62,9 @@
   
   let selectType = el => {
     $(el).addClass('active')
-    .siblings().removeClass('active')
+    .siblings().removeClass('active');
     $('input[name=type]').val($(el).data('value'));
+    dropdown_element.dropdown('clear');
     setType($(el).data('value'));
   }
 </script>

@@ -13,8 +13,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse
 from django.db.models import F, Q, Sum
 from django.db.models.functions import Coalesce, TruncDay
-from .models import Transaction, Category, Account, Group, Category, Icon
-from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm
+from .models import Transaction, Category, Account, Group, Category, Icon, Goal
+from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm
 
 class PassRequestToFormViewMixin:
     def get_form_kwargs(self):
@@ -218,7 +218,6 @@ class CategoryDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
             messages.warning(self.request, "Standard categories cannot be deleted.")
             return redirect('finance:categories')
         
-
 class IconListView(UserPassesTestMixin, ListView):
     model = Icon
     
@@ -258,3 +257,31 @@ class IconDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(IconDeleteView, self).delete(request, *args, **kwargs)
+
+class GoalListView(LoginRequiredMixin, ListView):
+    model = Goal
+  
+    def get_queryset(self):
+        qs = Goal.objects.all()
+        return qs
+
+class GoalCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
+    model = Goal
+    form_class = GoalForm
+    success_url = reverse_lazy('finance:goals')
+    success_message = "%(name)s was created successfully"
+
+class GoalUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView): 
+    model = Goal
+    form_class = GoalForm
+    success_url = reverse_lazy('finance:goals')
+    success_message = "%(name)s was updated successfully"
+    
+class GoalDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Goal
+    success_url = reverse_lazy('finance:goals')
+    success_message = "Goal was deleted successfully"
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(GoalDeleteView, self).delete(request, *args, **kwargs)

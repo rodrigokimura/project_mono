@@ -2,17 +2,17 @@
   <div class="ui input left icon">
     <i class="calendar icon"></i>
     <input 
-      id="{{ widget.attrs.id }}" 
       type="text" 
       name="{{ widget.name }}" 
       placeholder="{{ widget.name|title }}"
-      value="{{ widget.value|date:'n/d/Y h:i A' }}"
+      value="{{ widget.value|date:format }}"
       >
   </div>
 </div>
 <script type="text/javascript" charset="utf-8">
-  $('.ui.calendar').calendar(
+  $('[name={{widget.name}}]').parent().parent().calendar(
     {
+      type:"{{ type }}",
       today:true,
       ampm:false,
       formatInput:true,

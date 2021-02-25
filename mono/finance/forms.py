@@ -5,15 +5,21 @@ from django.forms.widgets import Widget
 from django.template import loader
 from django.utils.safestring import mark_safe
 from django.db.models.signals import post_save
-from .models import Transaction, Group, Category, Account, Icon
+from .models import Transaction, Group, Category, Account, Icon, Goal
 
 class CalendarWidget(Widget):
+    type = 'datetime'
+    format = 'n/d/Y h:i A'
     template_name = 'widgets/ui_calendar.html'
     def get_context(self, name, value, attrs=None):
-        return {'widget': {
+        return {
+          'widget': {
             'name': name,
             'value': value,
-        }}
+          },
+          'type':self.type,
+          'format':self.format,
+        }
     def render(self, name, value, attrs=None, renderer=None):
         context = self.get_context(name, value, attrs)
         template = loader.get_template(self.template_name).render(context)
@@ -29,6 +35,7 @@ class IconWidget(Widget):
             },
             'icon_list': Icon.objects.all()
         }
+        
     def render(self, name, value, attrs=None, renderer=None):
         context = self.get_context(name, value, attrs)
         template = loader.get_template(self.template_name).render(context)
@@ -180,6 +187,35 @@ class IconForm(forms.ModelForm):
         icon = self.instance
         icon.markup = icon.markup.lower()
         return super(IconForm, self).save(*args, **kwargs)
+
+class GoalForm(forms.ModelForm):
+    error_css_class = 'error'
+    
+    class Meta:
+        model = Goal
+        fields = '__all__'
+        exclude = ['created_by']
+        widgets = {
+            'start_date':CalendarWidget,
+            'target_date':CalendarWidget,
+        }
+    
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+        self.fields['start_date'].widget.type = 'date'
+        self.fields['start_date'].widget.format = 'n/d/Y'
+        self.fields['target_date'].widget.type = 'date'
+        self.fields['target_date'].widget.format = 'n/d/Y'
+        self.fields['name'].widget.attrs.update({'placeholder': 'Name'})
+        self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['progression_mode'].widget.attrs.update({'class': 'ui dropdown'})
+        
+    def save(self, *args, **kwargs):
+        goal = self.instance
+        goal.created_by = self.request.user
+        goal.save()
+        return super(GoalForm, self).save(*args, **kwargs)
         
 class UserForm(auth_forms.UserCreationForm):
     

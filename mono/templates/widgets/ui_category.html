@@ -1,12 +1,12 @@
-<div class="ui search selection long two column dropdown">
+<div class="ui search selection long dropdown">
   <input type="hidden" id="{{ widget.attrs.id }}" name="{{ widget.name }}">
   <div class="text"></div>
   <i class="dropdown icon"></i>
 </div>
 <script type="text/javascript" charset="utf-8">
+  let dropdown_element = $('[name={{ widget.name }}]').parent()
   let setType = type => {
-    dropdown_element = $('[name={{ widget.name }}]').parent()
-    dropdown_element.dropdown('clear');
+    dropdown_element.dropdown('bind touch events');
     dropdown_element.dropdown({
       apiSettings: {
         action: 'get categories',
@@ -17,6 +17,5 @@
       filterRemoteData:true,
       forceSelection:false,
     });
-    
   }
 </script>

@@ -36,5 +36,10 @@ urlpatterns = [
     path("icon/<int:pk>", views.IconUpdateView.as_view(), name='icon_update'),
     path("icon/<int:pk>/delete/", views.IconDeleteView.as_view(), name='icon_delete'),
     path("icons/", views.IconListView.as_view(), name='icons'),
+    
+    path("goal/", views.GoalCreateView.as_view(), name='goal_create'),
+    path("goal/<int:pk>", views.GoalUpdateView.as_view(), name='goal_update'),
+    path("goal/<int:pk>/delete/", views.GoalDeleteView.as_view(), name='goal_delete'),
+    path("goals/", views.GoalListView.as_view(), name='goals'),
 
 ]
