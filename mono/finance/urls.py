@@ -43,5 +43,6 @@ urlpatterns = [
     path("goals/", views.GoalListView.as_view(), name='goals'),
     
     path("invite/", views.InviteApi.as_view(), name='invite'),
+    path("invites/", views.InviteListApiView.as_view(), name='invites'),
 
 ]

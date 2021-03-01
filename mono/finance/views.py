@@ -290,7 +290,7 @@ class GoalDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         return super(GoalDeleteView, self).delete(request, *args, **kwargs)
 
 
-class InviteApi(View):
+class InviteApi(LoginRequiredMixin, View):
     
     def post(self, request):
         time.sleep(2)
@@ -299,20 +299,53 @@ class InviteApi(View):
         user = request.user
         group = Group.objects.get(id=int(group_id))
         
-        invite = Invite(
-            group=group,
-            email=email,
-            created_by=user
-        )
-        invite.save()
-        
-        return JsonResponse(
-            {
+        if Invite.objects.filter(email=email,group=group).exists():
+            response = {
+                'success': True,
+                'message':f"You've already invited {email} to this group."
+            }
+        elif email == '':
+            response = {
+                'success': False,
+                'message':'Email cannot be empty.'
+            }
+        else:
+            invite = Invite(
+                group=group,
+                email=email,
+                created_by=user
+            )
+            invite.save()
+            response = {
                 'success':True,
                 'message':'Invite created.',
                 'results':invite.pk,
             }
-        )
+        return JsonResponse(response)
+      
+      
+class InviteListApiView(View):
+    def get(self, request):
+        time.sleep(2)
+        group_id = request.GET.get("group")
+        user = request.user
+        group = Group.objects.get(id=int(group_id))
+        
+        if user in group.members.all():
+            pass
+        else:
+            print("not in")
+        
+        qs = Invite.objects.filter(group=group)
+        qs = qs.values('email')
+        qs = qs.annotate(value=F('id'))
+        response = {
+            'success':True,
+            'message':"List of invites.",
+            'results':list(qs)
+        }
+        return JsonResponse(response)
+    
 #class InviteCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
     #model = Invite
     #form_class = InviteForm

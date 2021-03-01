@@ -43,9 +43,13 @@
               </div>
             </div>
           </form>
+          
+          <div id="invite-list-container">
+          </div>
+          
           <script>
             $('.form .submit').api({ 
-              action: 'teste',
+              action: 'invite',
               method: 'POST',
               serializeForm: true,
               mode: 'same-origin',
@@ -66,6 +70,7 @@
                   })
                 ; 
                 $('#invite-form')[0].reset();
+                $('#invite-list-container').api('query');
               }
             })
             .state({
@@ -77,6 +82,51 @@
                 active     : 'Sent',
                 deactivate : 'Cancel',
                 flash      : 'Sent invite!'
+              }
+            })
+            
+            //$('#refresh-list').api({
+            $('#invite-list-container').api({
+              action:'list invites',
+              data:{
+                group: {{ object.pk }},
+              },
+              on:'now',
+              onRequest: function(){
+                $('#invite-list-container').addClass('ui segments')
+                $('#invite-list-container').html(`
+                <div class="ui segment">
+                  <div class="ui placeholder">
+                    <div class="line"></div>
+                    <div class="line"></div>
+                    <div class="line"></div>
+                  </div>
+                </div>
+                `)
+              },
+              onResponse: function(){
+                $('#invite-list-container').removeClass('ui segments')
+                $('#invite-list-container').empty()
+              },
+              onSuccess: function(response, element, xhr) {
+                $('body').toast({
+                  message: response.message,
+                  position: 'bottom center',
+                  showProgress: 'bottom',
+                  classProgress: 'primary'
+                }); 
+                
+                let segment = item => {
+                   $('#invite-list-container').append(
+                  `
+                  <div class="ui segment">
+                    <p>${item.email}</p>
+                  </div>
+                  `
+                  )
+                }
+                $('#invite-list-container').addClass('ui segments')
+                response.results.forEach(segment)
               }
             })
             
