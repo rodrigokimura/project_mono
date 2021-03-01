@@ -4,34 +4,88 @@
 {% block body %}
 
 <div class="pusher">
-  <div class="ui vertical stripe segment">
-    <div class="ui middle aligned stackable grid container">
-      <div class="row">
-        <div class="eight wide column">
-          <div class="ui container">
-            <form method="post" class="ui form" id="group_form">
-              {% csrf_token %}
-              {% include "_form.html" with form=form %}
-              <div class="fluid ui big buttons">
-                <button class="ui button primary" type="submit" form="group_form">
-                  Save
-                </button>
-                <div class="or"></div>
-                {% if object %}
-                <a class="ui button red" href="{% url 'finance:group_delete' pk=object.pk %}">
-                  Delete
-                </a>
-                <div class="or"></div>
-                {% endif %}
-                <a class="ui button" href="{% url 'finance:groups' %}">
-                  Cancel
-                </a>
-              </div>
-            </form>
-          </div>
-        </div>
+  <div class="ui container">
+    <div class="row">
+      <div class="column">
+          <form method="post" class="ui form" id="group_form">
+            {% csrf_token %}
+            {% include "_form.html" with form=form %}
+            <div class="fluid ui big buttons">
+              <button class="ui button primary" type="submit" form="group_form">
+                Save
+              </button>
+              <div class="or"></div>
+              {% if object %}
+              <a class="ui button red" href="{% url 'finance:group_delete' pk=object.pk %}">
+                Delete
+              </a>
+              <div class="or"></div>
+              {% endif %}
+              <a class="ui button" href="{% url 'finance:groups' %}">
+                Cancel
+              </a>
+            </div>
+          </form>
+        
       </div>
     </div>
+    <div class="row">
+      <div class="column">
+          {% if object %}
+          <form class="ui form" id="invite-form">
+            <div class="field">
+              <label>Invite</label>
+              <div class="ui action input">
+              <input type="email" name="email" required placeholder="Type an email to invite"/>
+                <div class="ui submit button">
+                  Send
+                </div>
+              </div>
+            </div>
+          </form>
+          <script>
+            $('.form .submit').api({ 
+              action: 'teste',
+              method: 'POST',
+              serializeForm: true,
+              mode: 'same-origin',
+              headers: {'X-CSRFToken': csrftoken},
+              data:{
+                group: {{ object.pk }},
+              },
+              onError: function(errorMessage, element, xhr) {
+                alert(errorMessage)
+              },
+              onSuccess: function(response, element, xhr) {
+                $('body')
+                  .toast({
+                    message: response.message,
+                    position: 'bottom center',
+                    showProgress: 'bottom',
+                    classProgress: 'primary'
+                  })
+                ; 
+                $('#invite-form')[0].reset();
+              }
+            })
+            .state({
+              onActivate: function() {
+                $(this).state('flash text');
+              },
+              text: {
+                inactive   : 'Send',
+                active     : 'Sent',
+                deactivate : 'Cancel',
+                flash      : 'Sent invite!'
+              }
+            })
+            
+          </script>
+          {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
   </div>
 </div>
   

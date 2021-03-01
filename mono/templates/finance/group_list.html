@@ -1,12 +1,6 @@
 {% extends "finance/base.html" %}
 
 {% block head %}
-<style>
-  .expense {color: #db2828}
-  .income {color: #b5cc18}
-  .muted {color: #656667}
-  a.muted {color: #656667}
-</style>
 {% endblock head %}
 
 {% block body %}
@@ -23,20 +17,22 @@
             <a href="{% url 'finance:group_update' pk=group.pk %}">{{ group.name }}</a>
           </th>
           <th class="right aligned">
-            <p>{{group.name}}</p>
+            
             </p>
           </th>
         </tr>
         </thead>
         <tbody>
+          {% for m in group.members.all %}
           <tr class="muted">
             <td>
-              Additional info
+              {{ m.email }}
             </td>
             <td class="right aligned">
-              
+              {{ m.username }}
             </td>
           </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>

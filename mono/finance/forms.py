@@ -1,11 +1,12 @@
 from django import forms
-from django.contrib.admin.widgets import AdminDateWidget
-from django.contrib.auth import login, authenticate, get_user_model, forms as auth_forms
+from django.forms import ValidationError
 from django.forms.widgets import Widget
+from django.contrib.auth import login, authenticate, get_user_model, forms as auth_forms
 from django.template import loader
 from django.utils.safestring import mark_safe
 from django.db.models.signals import post_save
 from .models import Transaction, Group, Category, Account, Icon, Goal
+User = get_user_model()
 
 class CalendarWidget(Widget):
     type = 'datetime'
@@ -137,17 +138,22 @@ class GroupForm(forms.ModelForm):
     error_css_class = 'error'
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'placeholder': 'Name'})
-        self.fields['members'].widget.attrs.update({'class': 'ui dropdown'})
 
     class Meta:
         model = Group
         fields = '__all__'
-        exclude = []
-        widgets = {
-            # 'timestamp':forms.Select,
-        }
+        exclude = ['members']
+        widgets = {}
+        
+    def save(self, *args, **kwargs): 
+        user = self.request.user
+        group = self.instance
+        group.save()
+        group.members.add(user)
+        return super(GroupForm, self).save(*args, **kwargs)
         
 class CategoryForm(forms.ModelForm):
     error_css_class = 'error'
@@ -219,7 +225,6 @@ class GoalForm(forms.ModelForm):
         
 class UserForm(auth_forms.UserCreationForm):
     
-    User = get_user_model()
     error_css_class = 'error'
 
     class Meta:
@@ -235,7 +240,13 @@ class UserForm(auth_forms.UserCreationForm):
         self.fields['email'].widget.attrs.update({'placeholder': 'Email address'})
         self.fields['password1'].widget.attrs.update({'placeholder': 'Password'})
         self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm password'})
-        
+    
+    def clean(self):
+       email = self.cleaned_data.get('email')
+       if User.objects.filter(email=email).exists():
+            raise ValidationError("Email already exists. Please use another one.")
+       return self.cleaned_data
+    
     def save(self, commit=True):
         user = super().save(commit=commit)
         if commit:

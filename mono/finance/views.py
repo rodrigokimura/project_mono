@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views import View
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, CreateView, UpdateView, DeleteView
@@ -10,11 +11,12 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db.models import F, Q, Sum
 from django.db.models.functions import Coalesce, TruncDay
-from .models import Transaction, Category, Account, Group, Category, Icon, Goal
+from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite
 from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm
+import time
 
 class PassRequestToFormViewMixin:
     def get_form_kwargs(self):
@@ -146,13 +148,13 @@ class GroupListView(LoginRequiredMixin, ListView):
         qs = qs.filter(members__in=[self.request.user])
         return qs
 
-class GroupCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView): 
+class GroupCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
     model = Group 
     form_class = GroupForm
     success_url = reverse_lazy('finance:groups')
     success_message = "%(name)s was created successfully"
 
-class GroupUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView): 
+class GroupUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView): 
     model = Group 
     form_class = GroupForm
     success_url = reverse_lazy('finance:groups')
@@ -176,22 +178,23 @@ class CategoryListView(LoginRequiredMixin, ListView):
         qs = qs.filter(created_by=self.request.user)
         return qs
         
-def category_list(request):
-    type = request.GET.get("type", "EXP")
-    account = request.GET.get("account")
-    qs = Category.objects.all()
-    qs = qs.filter(created_by=request.user)
-    qs = qs.filter(type=type)
-    qs = qs.values('name')
-    qs = qs.annotate(value=F('id'))
-    qs = qs.annotate(icon=F('icon__markup'))
-    return JsonResponse(
-        {
-            'success':True,
-            'message':'Categories retrived from database.',
-            'results':list(qs),
-        }
-    )
+class CategoryListApi(View):
+    def get(self, request):
+        type = request.GET.get("type", "EXP")
+        account = request.GET.get("account")
+        qs = Category.objects.all()
+        qs = qs.filter(created_by=request.user)
+        qs = qs.filter(type=type)
+        qs = qs.values('name')
+        qs = qs.annotate(value=F('id'))
+        qs = qs.annotate(icon=F('icon__markup'))
+        return JsonResponse(
+            {
+                'success':True,
+                'message':'Categories retrived from database.',
+                'results':list(qs),
+            }
+        )
 
 class CategoryCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
     model = Category 
@@ -285,3 +288,33 @@ class GoalDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(GoalDeleteView, self).delete(request, *args, **kwargs)
+
+
+class InviteApi(View):
+    
+    def post(self, request):
+        time.sleep(2)
+        group_id = request.POST.get("group")
+        email = request.POST.get("email")
+        user = request.user
+        group = Group.objects.get(id=int(group_id))
+        
+        invite = Invite(
+            group=group,
+            email=email,
+            created_by=user
+        )
+        invite.save()
+        
+        return JsonResponse(
+            {
+                'success':True,
+                'message':'Invite created.',
+                'results':invite.pk,
+            }
+        )
+#class InviteCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
+    #model = Invite
+    #form_class = InviteForm
+    #success_url = reverse_lazy('finance:goals')
+    #success_message = "%(name)s was created successfully"a

@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.enums import Choices
 from django.utils import timezone
 from django.db.models import Sum
+from django.core.mail import EmailMessage
 
 User = get_user_model()
 
@@ -164,3 +165,30 @@ class Budget(models.Model):
     status = models.CharField(max_length=1, choices=BUDGET_STATUS, default=OPEN, editable=False)
     def __str__(self) -> str:
         return f'{str(self.period)} - {self.status}'
+        
+class Invite(models.Model):
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
+    email = models.EmailField(max_length=1000)
+    accepted = models.BooleanField(editable=False, default=False)
+    
+    def send(self):
+        sender = self.created_by
+        
+    def accept(self):
+        group = self.group
+        user_check = User.filter(email=self.email).exists()
+        if user_check:
+            invited_user = User.get(email=self.email)
+            group.member.add(invited_user)
+        
+    @property
+    def link(self):
+        pass
+    
+    def send(self):
+        email = EmailMessage
+    
+    def __str__(self) -> str:
+        return f'{str(self.group)} -> {self.email}'

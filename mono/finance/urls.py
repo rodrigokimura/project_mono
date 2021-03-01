@@ -30,7 +30,7 @@ urlpatterns = [
     path("category/<int:pk>", views.CategoryUpdateView.as_view(), name='category_update'),
     path("category/<int:pk>/delete/", views.CategoryDeleteView.as_view(), name='category_delete'),
     path("categories/", views.CategoryListView.as_view(), name='categories'),
-    path("ajax/categories/", views.category_list, name='ajax_categories'),
+    path("ajax/categories/", views.CategoryListApi.as_view(), name='ajax_categories'),
   
     path("icon/", views.IconCreateView.as_view(), name='icon_create'),
     path("icon/<int:pk>", views.IconUpdateView.as_view(), name='icon_update'),
@@ -41,5 +41,7 @@ urlpatterns = [
     path("goal/<int:pk>", views.GoalUpdateView.as_view(), name='goal_update'),
     path("goal/<int:pk>/delete/", views.GoalDeleteView.as_view(), name='goal_delete'),
     path("goals/", views.GoalListView.as_view(), name='goals'),
+    
+    path("invite/", views.InviteApi.as_view(), name='invite'),
 
 ]
