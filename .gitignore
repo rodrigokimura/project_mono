@@ -3,4 +3,4 @@
 **/media/*
 *.pyc
 .vscode
-.pem
+*.pem
