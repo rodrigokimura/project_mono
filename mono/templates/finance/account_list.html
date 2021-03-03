@@ -1,0 +1,73 @@
+{% extends "finance/base.html" %}
+
+{% block head %}
+<style>
+  .expense {color: #db2828}
+  .income {color: #b5cc18}
+  .muted {color: #656667}
+  a.muted {color: #656667}
+</style>
+{% endblock head %}
+
+{% block body %}
+
+<div class="ui vertical stripe segment">
+  <div class="ui grid container">
+    
+    {% for account in object_list %}
+    <div class="row">
+      <table class="ui unstackable single line fixed table">
+        <thead>
+        <tr>
+          <th>
+            <a href="{% url 'finance:account_update' pk=account.pk %}">{{ account.name }}</a>
+          </th>
+          <th class="right aligned">
+            {% with account.current_balance as b %}
+            <p 
+              {% if b > 0 %}
+              class="income"
+              {% elif b == 0 %}
+              class="income"
+              {% else %}
+              class="expense"
+              {% endif %}
+              >
+              {{ b }}
+            </p>
+            {% endwith %}
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+          <tr class="muted">
+            <td>
+              Total transactions
+            </td>
+            <td class="right aligned">
+              {{ account.total_transactions }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    {% endfor %}
+
+    
+    <div class="row">
+        <a class="ui fluid button primary" href="{% url "finance:account_create" %}">Add account</a>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  $('.ui.dropdown').dropdown();
+  $('.message .close').click(function() {
+    $(this)
+    .closest('.message')
+    .transition('fade');
+  });
+</script>
+
+{% endblock %}

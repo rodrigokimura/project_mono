@@ -1,0 +1,71 @@
+{% extends "finance/base.html" %}
+{% load static %}
+
+{% block head %}
+<script src="{% static 'js/jquery.datetimepicker.full.min.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.datetimepicker.min.css' %}"/>
+{% endblock head %}
+
+{% block body %}
+
+<div class="pusher">
+  <div class="ui vertical stripe segment">
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+        <div class="eight wide column">
+          <div class="ui container">
+            <form method="post" class="ui form" id="transaction_form">
+              {% csrf_token %}
+              <div class="fluid ui buttons">
+                <a class="ui button" data-value="INC" onclick="selectType(this)">Income</a>
+                <a class="ui button" data-value="EXP" onclick="selectType(this)">Expense</a>
+              </div>
+              {% include "_form.html" with form=form %}
+              <div class="fluid ui buttons">
+                <button class="ui button primary" type="submit" form="transaction_form">
+                  Save
+                </button>
+                <div class="or"></div>
+                {% if object %}
+                <a class="ui button red" href="{% url 'finance:transaction_delete' pk=object.pk %}">
+                  <i class="trash icon"></i>
+                  Delete
+                </a>
+                <div class="or"></div>
+                {% endif %}
+                <a class="ui button" href="{% url 'finance:transactions' %}">
+                  Cancel
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ categories }}
+  
+<script>
+  $('select[name=account]').dropdown();
+  
+  {% if object %}
+  $('[data-value={{ object.type }}').addClass('active');
+  $('input[name=type]').val('{{ object.type }}');
+  dropdown_element.dropdown('set value', "{{ object.category.pk }}");
+  setType('{{ object.type }}');
+  {% else %}
+  $('[data-value={{ form.type.value }}').addClass('active');
+  $('input[name=type]').val('{{ form.type.value }}');
+  setType('{{ form.type.value }}');
+  {% endif %}
+  
+  let selectType = el => {
+    $(el).addClass('active')
+    .siblings().removeClass('active');
+    $('input[name=type]').val($(el).data('value'));
+    dropdown_element.dropdown('clear');
+    setType($(el).data('value'));
+  }
+</script>
+{% endblock %}

@@ -16,7 +16,7 @@ services:
       - ./env_files/web.env
     environment: 
       - DB_ADDR=db
-    command: bash -c "sleep 30s && python manage.py migrate && python manage.py loaddata data.json && python manage.py runserver 0:8000"
+    command: bash -c "sleep 30s && python manage.py migrate && python manage.py loaddata */fixtures/*.json && python manage.py runserver 0:8000"
     volumes:
       - ./mono:/code
     ports:

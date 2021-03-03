@@ -1,0 +1,58 @@
+{% extends "finance/base.html" %}
+
+{% block head %}
+{% endblock head %}
+
+{% block body %}
+
+<div class="ui vertical stripe segment">
+  <div class="ui grid container">
+    
+    {% for group in object_list %}
+    <div class="row">
+      <table class="ui unstackable single line fixed table">
+        <thead>
+        <tr>
+          <th>
+            <a href="{% url 'finance:group_update' pk=group.pk %}">{{ group.name }}</a>
+          </th>
+          <th class="right aligned">
+            
+            </p>
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+          {% for m in group.members.all %}
+          <tr class="muted">
+            <td>
+              {{ m.email }}
+            </td>
+            <td class="right aligned">
+              {{ m.username }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endfor %}
+
+    
+    <div class="row">
+        <a class="ui fluid button primary" href="{% url "finance:group_create" %}">Add group</a>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  $('.ui.dropdown').dropdown();
+  $('.message .close').click(function() {
+    $(this)
+    .closest('.message')
+    .transition('fade');
+  });
+</script>
+
+{% endblock %}

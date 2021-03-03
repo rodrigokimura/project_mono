@@ -1,17 +1,18 @@
 import os
 from pathlib import Path
+from django.urls import reverse_lazy
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 APP_VERSION = "0.0.1"
-
-CRISPY_TEMPLATE_PACK = 'semantic-ui'
-CRISPY_ALLOWED_TEMPLATE_PACKS = ('semantic-ui')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['APP_SECRET']
+if os.environ['APP_ENV'] == 'DEV': 
+    SECRET_KEY = 'devkeyprojectmono'
+else: 
+    SECRET_KEY = os.environ['APP_SECRET']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ['APP_ENV'] == 'DEV'
@@ -20,22 +21,22 @@ SESSION_COOKIE_SECURE = os.environ['APP_ENV'] == 'PRD'
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
-
 INSTALLED_APPS = [
-    # 'django.contrib.admin',
-    'mono.apps.MyAdminConfig',
+    '_mono.apps.MyAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'debug_toolbar',
     'healthcheck',
-    'accounts',
-    'messenger',
-    'homepage',
     'shared',
+    'accounts',
+    'homepage',
+    'project_manager',
+    'messenger',
+    'finance',
 ]
 
 MIDDLEWARE = [
@@ -46,9 +47,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
-ROOT_URLCONF = 'mono.urls'
+# INTERNAL_IPS = ['127.0.0.1']
+
+# SHOW_TOOLBAR_CALLBACK = '.'
+# SHOW_COLLAPSED = True
+
+ROOT_URLCONF = '_mono.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -65,28 +72,31 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'mono.wsgi.application'
+WSGI_APPLICATION = '_mono.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ['DB_NAME'],
-        'USER': os.environ['DB_USER'],
-        'PASSWORD': os.environ['DB_PASS'],
-        'HOST': os.environ['DB_ADDR'],
-        'PORT': '3306',
-    },
-    'sqlite': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.environ['APP_ENV'] == 'DEV':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
-
-
+else: 
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ['DB_NAME'],
+            'USER': os.environ['DB_USER'],
+            'PASSWORD': os.environ['DB_PASS'],
+            'HOST': os.environ['DB_ADDR'],
+            'PORT': '3306',
+        }
+    }
+    
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
@@ -129,4 +139,19 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
 
-LOGIN_REDIRECT_URL = '/' # URL redirecting after a successful authentication
+LOGIN_REDIRECT_URL = reverse_lazy('finance:index')
+LOGIN_URL = reverse_lazy('finance:login')
+
+if os.environ['APP_ENV'] == 'DEV': 
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'    
+    EMAIL_HOST
+    EMAIL_PORT
+    EMAIL_HOST_USER
+    EMAIL_HOST_PASSWORD
+    EMAIL_USE_TLS
+    EMAIL_USE_SSL
+    EMAIL_TIMEOUT
+    EMAIL_SSL_KEYFILE
+    EMAIL_SSL_CERTFILE

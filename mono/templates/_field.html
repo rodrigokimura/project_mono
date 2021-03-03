@@ -1,8 +1,5 @@
 <div class="field {% if field.errors %}error{% endif %}">
-    <div class="ui left icon input">
-        <i class="{{icon}} icon"></i>
-        {{ field }}
-    </div>
+    {{ field }}
     {% if field.errors %}
         <div class="ui error message">
         {% for error in field.errors %}
