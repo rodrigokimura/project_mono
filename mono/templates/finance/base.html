@@ -22,7 +22,7 @@
     'invite' : '/fn/invite/',
     'list invites' : '/fn/invites/',
     successTest: function(response) {
-      return response.success || false;
+      return response.success;
     },
   };
   function getCookie(name) {

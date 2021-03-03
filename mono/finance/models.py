@@ -3,7 +3,11 @@ from django.contrib.auth import get_user_model
 from django.db.models.enums import Choices
 from django.utils import timezone
 from django.db.models import Sum
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, EmailMultiAlternatives
+from datetime import timedelta
+from django.conf import settings
+from django.urls import reverse
+import jwt
 
 User = get_user_model()
 
@@ -172,23 +176,33 @@ class Invite(models.Model):
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     email = models.EmailField(max_length=1000)
     accepted = models.BooleanField(editable=False, default=False)
-    
-    def send(self):
-        sender = self.created_by
         
-    def accept(self):
+    def accept(self, user):
         group = self.group
-        user_check = User.filter(email=self.email).exists()
-        if user_check:
-            invited_user = User.get(email=self.email)
-            group.member.add(invited_user)
+        group.members.add(user)
+        self.accepted = True
+        self.save()
         
     @property
     def link(self):
-        pass
+        token = jwt.encode(
+            {
+                "exp": timezone.now() + timedelta(days=1),
+                "id": self.pk
+            },
+            settings.SECRET_KEY,
+            algorithm="HS256"
+        )
+        return f"{reverse('finance:invite_acception')}?t={token}"
     
-    def send(self):
-        email = EmailMessage
-    
+    def send(self, request):
+        full_link = request.get_host() + self.link
+        subject, from_email, to = 'Invite', 'from@example.com', self.email
+        text_content = f"Link to accept invite: {full_link}"
+        html_content = f'<p>Link to accept invite <strong>{full_link}</strong></p>'
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+        
     def __str__(self) -> str:
         return f'{str(self.group)} -> {self.email}'

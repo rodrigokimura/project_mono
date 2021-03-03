@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 from django.views.generic.base import TemplateView
@@ -17,6 +18,20 @@ from django.db.models.functions import Coalesce, TruncDay
 from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite
 from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm
 import time
+import jwt
+
+class TokenMixin(object):
+    def get_context_data(self, **kwargs):
+        context = super(TokenMixin, self).get_context_data(**kwargs)
+        token = self.kwargs['token']
+
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=["HS256"]
+        )
+        context['id'] = payload['id']
+        return context
 
 class PassRequestToFormViewMixin:
     def get_form_kwargs(self):
@@ -316,6 +331,7 @@ class InviteApi(LoginRequiredMixin, View):
                 created_by=user
             )
             invite.save()
+            invite.send(request)
             response = {
                 'success':True,
                 'message':'Invite created.',
@@ -326,7 +342,7 @@ class InviteApi(LoginRequiredMixin, View):
       
 class InviteListApiView(View):
     def get(self, request):
-        time.sleep(2)
+        time.sleep(1)
         group_id = request.GET.get("group")
         user = request.user
         group = Group.objects.get(id=int(group_id))
@@ -337,17 +353,44 @@ class InviteListApiView(View):
             print("not in")
         
         qs = Invite.objects.filter(group=group)
-        qs = qs.values('email')
-        qs = qs.annotate(value=F('id'))
-        response = {
-            'success':True,
-            'message':"List of invites.",
-            'results':list(qs)
-        }
+        qs = qs.values('email','accepted')
+        
+        if qs.count() == 0:
+            response = {
+                'success':True,
+                'message':"No invites found.",
+                'results': None
+            }
+            print('zero')
+        else:
+            response = {
+                'success':True,
+                'message':"List of invites.",
+                'results':list(qs)
+            }
         return JsonResponse(response)
     
-#class InviteCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
-    #model = Invite
-    #form_class = InviteForm
-    #success_url = reverse_lazy('finance:goals')
-    #success_message = "%(name)s was created successfully"a
+class InviteAcceptionView(TokenMixin, LoginRequiredMixin, View):
+    
+    def get(self, request):
+        token = request.GET.get('t', None)
+        
+        
+        if token is None:
+            return HttpResponse("error")
+        else:
+            payload = jwt.decode(
+                token,
+                settings.SECRET_KEY,
+                algorithms=["HS256"]
+            )
+            
+            invite = get_object_or_404(Invite, pk=payload['id'])
+            
+            accepted = invite.accepted
+            user_already_member = request.user in invite.group.members.all()
+            if not accepted and not user_already_member:
+                invite.accept(request.user)
+                invite.save()
+            
+            return HttpResponse(invite.accepted)

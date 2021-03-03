@@ -32,6 +32,10 @@
     <div class="row">
       <div class="column">
           {% if object %}
+                  
+          <div class="ui horizontal divider">
+            <i class="table icon"></i> Members
+          </div>
           <form class="ui form" id="invite-form">
             <div class="field">
               <label>Invite</label>
@@ -85,7 +89,6 @@
               }
             })
             
-            //$('#refresh-list').api({
             $('#invite-list-container').api({
               action:'list invites',
               data:{
@@ -117,16 +120,32 @@
                 }); 
                 
                 let segment = item => {
-                   $('#invite-list-container').append(
+                  $('#invite-list-container').append(
                   `
                   <div class="ui segment">
+                  <div class="ui grid">
+                  <div class="ten wide column">
                     <p>${item.email}</p>
+                  </div>
+                  <div class="six wide column">
+                    <p>${item.accepted}</p>
+                  </div>
+                  </div>
                   </div>
                   `
                   )
                 }
                 $('#invite-list-container').addClass('ui segments')
-                response.results.forEach(segment)
+                
+                if (response.results==null) {
+                  $('#invite-list-container').append(`
+                  <div class="ui segment">
+                    <p>No invites.</p>
+                  </div>
+                  `)
+                } else {
+                  response.results.forEach(segment)
+                }
               }
             })
             
@@ -140,6 +159,5 @@
 </div>
   
 <script>
-  $('.ui.dropdown').dropdown();
 </script>
 {% endblock %}
