@@ -1,0 +1,38 @@
+{% extends "finance/base.html" %}
+{% load static %}
+
+{% block head %}
+  <style type="text/css">
+  </style>
+  <script>
+  </script>
+{% endblock head %}
+
+{% block body %}
+<!-- Page Contents -->
+<div class="pusher">
+  <div class="ui vertical center aligned segment">
+    <div class="ui text container">
+      <h2>Do whatever you want when you want to.</h2>
+      {% if user.is_authenticated %}
+      <div class="ui text container">
+        <a class="ui huge right labeled icon button" href="{% url 'finance:logout' %}">
+          <i class="power off icon"></i>
+          Sign out
+        </a>
+      </div>
+      {% else %}
+      <div class="ui text container">
+      <div class="ui buttons">
+        <a class="ui big right labeled icon button" href="{% url 'finance:login' %}">
+          Log in
+          <i class="sign in alternate icon"></i>
+        </a>
+        <a class="ui big primary right labeled icon button" href="{% url 'finance:signup' %}">Sign Up<i class="right arrow icon"></i></a>
+      </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock body %}

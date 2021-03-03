@@ -1,0 +1,99 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+
+  <link rel="stylesheet" type="text/css" href="{% static 'css/semantic.min.css' %}">
+  <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
+  <script src="{% static 'js/jquery.serialize-object.min.js' %}"></script>
+  <script src="{% static 'js/semantic.min.js' %}"></script>
+  <script src="{% static 'js/global.js' %}"></script>
+  <script src="{% static 'js/pace.min.js' %}"></script>
+  <style type="text/css" media="all">
+  </style>
+  <script>
+     $.fn.api.settings.api = {
+    'get categories' : '/fn/ajax/categories/',
+    'invite' : '/fn/invite/',
+    'list invites' : '/fn/invites/',
+    successTest: function(response) {
+      return response.success;
+    },
+  };
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+  </script>
+  {% block head %}{% endblock head %}
+</head>
+
+<body class="pushable">
+  
+  <div class="ui vertical inverted sidebar menu left">
+    <a class="item" href="{% url 'finance:index' %}">Home</a>
+    <a class="item" href="{% url 'finance:accounts' %}">Accounts</a>
+    <a class="item" href="{% url 'finance:transactions' %}">Transactions</a>
+    <a class="item" href="{% url 'finance:groups' %}">Groups</a>
+    <a class="item" href="{% url 'finance:categories' %}">Categories</a>
+    <a class="item" href="{% url 'finance:goals' %}">Goals</a>
+    {% if request.user.is_superuser %}
+    <a class="item" href="{% url 'finance:icons' %}">
+      <span class="ui red text">Icons</span>
+    </a>
+    {% endif %}
+  </div>
+  
+  <div class="pusher">
+    <div class="ui menu">
+      <a class="toc item">
+        <i class="sidebar icon"></i>
+      </a>
+    </div>
+    
+    {% if messages %}
+      <div class="ui container">
+      <div class="ui grid">
+        <div class="row">
+          <div class="column">
+            {% for message in messages %}
+            <div class="ui {{ message.tags }} message">
+              <i class="close icon"></i>
+              {{ message }}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      </div>
+    {% endif %}
+    
+    {% block body %}
+    {% endblock body %}
+    
+  </div>
+</body>
+<script>
+  $('.sidebar.icon').click(()=>{
+    $('.ui.sidebar').sidebar('toggle');
+  });
+</script>
+
+</html>

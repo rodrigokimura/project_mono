@@ -89,12 +89,21 @@
       }
     }
 
+    span {
+      border-right: .05em solid;
+      animation: caret .7s steps(1) infinite;
+    }
+    @keyframes caret {
+      50% {
+        border-color: transparent;
+      }
+    }
 
   </style>
 
   <script>
     $(document)
-      .ready(function() {
+      .ready(function(event) {
 
         // fix menu when passed
         $('.masthead')
@@ -114,6 +123,36 @@
           .sidebar('attach events', '.toc.item')
         ;
 
+        // array with texts to type in typewriter
+        var dataText = [ "Web development.", "Full stack development.", "Data science."];
+        
+        function typeWriter(text, i, fnCallback) {
+          if (i < (text.length)) {
+            $('.typewriter').html(
+              text.substring(0, i+1) + '<span aria-hidden="true"></span>'
+            );
+            setTimeout(function() {
+              typeWriter(text, i + 1, fnCallback)
+            }, 100);
+          }
+          else if (typeof fnCallback == 'function') {
+            setTimeout(fnCallback, 700);
+          }
+        }
+        function StartTextAnimation(i) {
+          if (typeof dataText[i] == 'undefined'){
+            setTimeout(function() {
+              StartTextAnimation(0);
+            }, 5000);
+            return;
+          }
+          if (i < dataText[i].length) {
+            typeWriter(dataText[i], 0, function(){
+              StartTextAnimation(i + 1);
+            });
+          }
+        }
+        StartTextAnimation(0);
       })
     ;
   </script>
@@ -145,7 +184,7 @@
   <a class="item">Work</a>
   <a class="item">Company</a>
   <a class="item">Careers</a>
-  <a class="item">Login href="{% url 'accounts:login' %}"</a>
+  <a class="item" href="{% url 'accounts:login' %}">Login</a>
   <a class="item">Signup</a>
 </div>
 
@@ -163,6 +202,7 @@
         <a class="item">Work</a>
         <a class="item">Company</a>
         <a class="item">Careers</a>
+        <a class="item" href="{% url 'admin:index' %}">Admin</a>
         <div class="right item">
         {% if user.is_authenticated %}
           <a class="ui inverted button" href="{% url 'accounts:logout' %}">Sign out</a>
@@ -175,9 +215,10 @@
     </div>
 
     <div class="ui text container">
-      <h1 class="ui inverted header">
+      <h1 class="ui inverted header typewriter">
         Imagine-a-Company
       </h1>
+
       <h2>Do whatever you want when you want to.</h2>
       <div class="ui huge primary button">Get Started <i class="right arrow icon"></i></div>
     </div>

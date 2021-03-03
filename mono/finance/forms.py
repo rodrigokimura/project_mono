@@ -1,0 +1,293 @@
+from django import forms
+from django.forms import ValidationError
+from django.forms.widgets import Widget
+from django.contrib.auth import login, authenticate, get_user_model, forms as auth_forms
+from django.template import loader
+from django.utils.safestring import mark_safe
+from django.db.models.signals import post_save
+from .models import Transaction, Group, Category, Account, Icon, Goal
+User = get_user_model()
+
+class CalendarWidget(Widget):
+    type = 'datetime'
+    format = 'n/d/Y h:i A'
+    template_name = 'widgets/ui_calendar.html'
+    def get_context(self, name, value, attrs=None):
+        return {
+          'widget': {
+            'name': name,
+            'value': value,
+          },
+          'type':self.type,
+          'format':self.format,
+        }
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = loader.get_template(self.template_name).render(context)
+        return mark_safe(template)
+
+class IconWidget(Widget):
+    template_name = 'widgets/ui_icon.html'
+    def get_context(self, name, value, attrs=None):
+        return {
+            'widget': {
+                'name': name,
+                'value': value,
+            },
+            'icon_list': Icon.objects.all()
+        }
+        
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = loader.get_template(self.template_name).render(context)
+        return mark_safe(template)
+        
+class CategoryWidget(Widget):
+    template_name = 'widgets/ui_category.html'
+    def get_context(self, name, value, attrs=None):
+        return {
+            'widget': {
+                'name': name,
+                'value': value,
+            },
+            'category_list': self.queryset
+        }
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = loader.get_template(self.template_name).render(context)
+        return mark_safe(template)
+        
+class ToggleWidget(Widget):
+    template_name = 'widgets/ui_toggle.html'
+    def get_context(self, name, value, attrs=None):
+        return {
+            'widget': {
+                'name': name,
+                'value': value,
+            },
+        }
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = loader.get_template(self.template_name).render(context)
+        return mark_safe(template)
+
+class AccountForm(forms.ModelForm):
+    error_css_class = 'error'
+    current_balance = forms.FloatField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs.update({'placeholder': 'Description'})
+        self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['initial_balance'].widget.attrs.update({'placeholder': 'Initial balance'})
+        if self.instance.pk is None:
+            self.fields['current_balance'].widget = forms.HiddenInput()
+        else:
+            self.fields['current_balance'].widget.attrs.update({'value': self.instance.current_balance})
+        
+    def save(self, *args, **kwargs): 
+        account = self.instance
+        account.belongs_to = self.request.user
+        current_balance = self.cleaned_data['current_balance']
+        if current_balance is not None:
+            account.adjust_balance(current_balance, self.request.user)
+        return super(AccountForm, self).save(*args, **kwargs)
+        
+    class Meta:
+        model = Account
+        fields = '__all__'
+        exclude = ['belongs_to']
+        widgets = {}
+
+class TransactionForm(forms.ModelForm):
+    error_css_class = 'error'
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+        self.fields['description'].widget.attrs.update({'placeholder': 'Description'})
+        self.fields['ammount'].widget.attrs.update({'placeholder': 'Ammount'})
+        self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user)
+        self.fields['account'].queryset = Account.objects.filter(belongs_to=self.request.user)
+        self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
+    
+    def get_context_data(self, **kwargs):
+        context = super(TransactionForm, self).get_context_data(**kwargs)
+        categories = Category.objects.all()
+        context['categories'] = categories
+        return context
+        
+    class Meta:
+        model = Transaction
+        fields = '__all__'
+        exclude = ['created_by']
+        widgets = {
+            'type': forms.HiddenInput,
+            'category': CategoryWidget,
+            'timestamp': CalendarWidget,
+            'active': ToggleWidget,
+        }
+    def save(self, *args, **kwargs): 
+        category = self.instance
+        category.created_by = self.request.user
+        category.save()
+        return super(TransactionForm, self).save(*args, **kwargs)
+
+class GroupForm(forms.ModelForm):
+    error_css_class = 'error'
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs.update({'placeholder': 'Name'})
+
+    class Meta:
+        model = Group
+        fields = '__all__'
+        exclude = ['members']
+        widgets = {}
+        
+    def save(self, *args, **kwargs): 
+        user = self.request.user
+        group = self.instance
+        group.save()
+        group.members.add(user)
+        return super(GroupForm, self).save(*args, **kwargs)
+        
+class CategoryForm(forms.ModelForm):
+    error_css_class = 'error'
+    class Meta:
+        model = Category 
+        fields = '__all__'
+        exclude = ['created_by']
+        widgets = {
+            'icon':IconWidget,
+            'active':ToggleWidget
+        }
+    
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs.update({'placeholder': 'Name'})
+        self.fields['description'].widget.attrs.update({'rows': 3})
+        self.fields['description'].widget.attrs.update({'placeholder': 'Description'})
+        self.fields['type'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
+        
+    def save(self, *args, **kwargs): 
+        category = self.instance
+        category.created_by = self.request.user
+        category.save()
+        return super(CategoryForm, self).save(*args, **kwargs)
+        
+        
+class IconForm(forms.ModelForm):
+    error_css_class = 'error'
+    class Meta:
+        model = Icon
+        fields = '__all__'
+        exclude = []
+        widgets = {}
+    def save(self, *args, **kwargs):
+        icon = self.instance
+        icon.markup = icon.markup.lower()
+        return super(IconForm, self).save(*args, **kwargs)
+
+class GoalForm(forms.ModelForm):
+    error_css_class = 'error'
+    
+    class Meta:
+        model = Goal
+        fields = '__all__'
+        exclude = ['created_by']
+        widgets = {
+            'start_date':CalendarWidget,
+            'target_date':CalendarWidget,
+        }
+    
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+        self.fields['start_date'].widget.type = 'date'
+        self.fields['start_date'].widget.format = 'n/d/Y'
+        self.fields['target_date'].widget.type = 'date'
+        self.fields['target_date'].widget.format = 'n/d/Y'
+        self.fields['name'].widget.attrs.update({'placeholder': 'Name'})
+        self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['progression_mode'].widget.attrs.update({'class': 'ui dropdown'})
+        
+    def save(self, *args, **kwargs):
+        goal = self.instance
+        goal.created_by = self.request.user
+        goal.save()
+        return super(GoalForm, self).save(*args, **kwargs)
+        
+class UserForm(auth_forms.UserCreationForm):
+    
+    error_css_class = 'error'
+
+    class Meta:
+        fields = ("username", "email", "password1", "password2")
+        model = get_user_model()
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+        self.fields["username"].label = "Display name"
+        self.fields['username'].widget.attrs.update({'placeholder': 'Username'})
+        self.fields["email"].label = "Email address"
+        self.fields['email'].widget.attrs.update({'placeholder': 'Email address'})
+        self.fields['password1'].widget.attrs.update({'placeholder': 'Password'})
+        self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm password'})
+    
+    def clean(self):
+       email = self.cleaned_data.get('email')
+       if User.objects.filter(email=email).exists():
+            raise ValidationError("Email already exists. Please use another one.")
+       return self.cleaned_data
+    
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+        if commit:
+            auth_user = authenticate(
+                username=self.cleaned_data['username'], 
+                password=self.cleaned_data['password1']
+            )
+            login(self.request, auth_user)
+
+        return user
+    
+    def initial_setup(sender, instance, created, **kwargs):
+      
+        INITIAL_CATEGORIES = [
+            ['Health', 'EXP', 'heartbeat'], 
+            ['Shopping', 'EXP', 'cart'], 
+            ['Education', 'EXP', 'university'],
+            ['Transportation', 'EXP', 'car'],
+            ['Trips', 'EXP', 'plane'],
+            ['Leisure', 'EXP', 'gamepad'],
+            ['Groceries', 'EXP', 'shopping basket'],
+            ['Salary', 'INC', 'money bill alternate outline'],
+        ]
+        
+        if created:
+            try:
+                instance.groups.add(Group.objects.get(name='Cliente'))
+            except Group.DoesNotExist:
+                pass
+            
+            # Initial accounts
+            Account.objects.create(name="Wallet", belongs_to=instance)
+            Account.objects.create(name="Bank", belongs_to=instance)
+            
+            #Initial categories
+            for category in INITIAL_CATEGORIES:
+                Category.objects.create(
+                    name=category[0],
+                    type=category[1],
+                    created_by=instance,
+                    icon=Icon.objects.get(markup=category[2])
+                )
+    
+    post_save.connect(initial_setup, sender=User)

@@ -22,6 +22,12 @@ class UserCreateForm(auth_forms.UserCreationForm):
         self.fields['password1'].widget.attrs.update({'placeholder': 'Password'})
         self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm password'})
     
+    def clean(self):
+       email = self.cleaned_data.get('email')
+       if User.objects.filter(email=email).exists():
+            raise ValidationError("Email exists")
+       return self.cleaned_data
+    
     def add_user_to_public_group(sender, instance, created, **kwargs):
         """Post-create user signal that adds the user to everyone group."""
         try:
@@ -29,6 +35,7 @@ class UserCreateForm(auth_forms.UserCreationForm):
                 instance.groups.add(Group.objects.get(name='Cliente'))
         except Group.DoesNotExist:
             pass
+          
 
     post_save.connect(add_user_to_public_group, sender=User)
 

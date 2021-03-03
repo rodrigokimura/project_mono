@@ -1,0 +1,143 @@
+{% extends "finance/base.html" %}
+
+{% block head %}
+{% endblock head %}
+
+{% block body %}
+<div class="ui container" style="margin-bottom: 1em;">
+  <div class="ui grid">
+    <div class="row">
+      <div class="column">
+        <form class="ui form" method="GET" id="filter">
+          <div class="field">
+            <label>Category</label>
+            <select name="category" id="category" class="ui fluid dropdown">
+              {% if not request.GET.category %}
+              <option value="">Select a category</option>
+              {% endif %}
+              {% for c in categories %}
+              {% if c.id|stringformat:"i"  == request.GET.category %}
+              <option selected value="{{ c.id }}">
+                <i class="{{ c.icon }} icon"></i>{{ c.name }}
+              </option>
+              {% else %}
+              <option value="{{ c.id }}">
+                <i class="{{ c.icon }} icon"></i>{{ c.name }}
+              </option>
+              {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+          <div class="ui fluid buttons">
+            <button class="ui button primary" type="submit" form="filter">Filter</button>
+            <a class="ui button" href="{% url 'finance:transactions' %}">Clear</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <div class="ui horizontal divider">
+    <i class="table icon"></i> Transactions
+  </div>
+
+  {% if object_list %}
+  {% for date in dates %}
+  <div class="row" style="margin-bottom: 1em;">
+    <div class="ui segments">
+      <div class="ui secondary grey segment" style="padding: .5em 1em;">
+        <div class="ui grid">
+          <div class="eight wide column">
+            <div style="display:flex; flex-flow: row nowrap;">
+              <div style="flex: 0 0 auto;margin-right:.1em;">
+                <span class="ui big text">{{ date.date|date:"d" }}</span>
+              </div>
+              <div style="flex: 0 0 auto; display:flex; flex-flow: column nowrap; 
+                margin-top:-.25em;">
+                <div style="flex: 0 0 auto;">
+                  <span class="ui small text">{{ date.date|date:"b" }}</span>
+                </div>
+                <div style="flex: 0 0 auto; margin-top: -.5em;">
+                  <span class="ui small text">{{ date.date|date:"Y" }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+            <span class="ui green text">
+              <strong>
+                {{ date.total_income }}
+              </strong>
+            </span>
+          </div>
+          <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+            <span class="ui red text">
+              <strong>
+                {{ date.total_expense }}
+              </strong>
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      {% for transaction in object_list %}
+      {% if transaction.date == date.date %}
+      <div class="ui segment" style="padding: .5em 1em;">
+        <div class="ui grid">
+          <div class="eight wide column">
+            <span class="ui small text">
+              {% if transaction.category %}
+              <i class="{{ transaction.category.icon }} icon"></i>
+              {{ transaction.category }}
+              {% else %}
+              <i class="unlink icon"></i>
+              No category
+              {% endif %}
+            </span>
+            <br>
+            <span class="ui tiny text">
+              {{ transaction.description }}
+            </span>
+          </div>
+          <div class="four wide column" style="display:flex; align-items:center;">
+            {{ transaction.account }}
+          </div>
+          <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+            <a href="{% url 'finance:transaction_update' pk=transaction.pk %}">
+              <span
+                {% if transaction.type == 'INC' %}
+                class="ui green text"
+                {% elif transaction.type == 'EXP' %}
+                class="ui red text"
+                {% endif %}
+                >
+                  {{ transaction.ammount }}
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+  
+  <div class="row">
+      <a class="ui fluid button primary" href="{% url "finance:transaction_create" %}">Add transaction</a>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  $('.ui.dropdown').dropdown();
+  $('.message .close').click(function() {
+    $(this)
+    .closest('.message')
+    .transition('fade');
+  });
+</script>
+
+{% endblock %}

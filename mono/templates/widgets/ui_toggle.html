@@ -1,0 +1,11 @@
+<div class="ui toggle checkbox"> 
+    <input 
+        type="checkbox" 
+        name="{{ widget.name }}" 
+        id="{{ widget.attrs.id }}"
+        {% if widget.value %}
+        checked
+        {% endif %}
+        > 
+    <label>{{ widget.label }}</label>
+</div>
