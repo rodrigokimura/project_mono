@@ -361,7 +361,6 @@ class InviteListApiView(View):
                 'message':"No invites found.",
                 'results': None
             }
-            print('zero')
         else:
             response = {
                 'success':True,
@@ -374,7 +373,6 @@ class InviteAcceptionView(TokenMixin, LoginRequiredMixin, View):
     
     def get(self, request):
         token = request.GET.get('t', None)
-        
         
         if token is None:
             return HttpResponse("error")
