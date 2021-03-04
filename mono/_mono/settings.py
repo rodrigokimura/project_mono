@@ -146,12 +146,12 @@ if os.environ['APP_ENV'] == 'DEV':
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'    
-    EMAIL_HOST
-    EMAIL_PORT
-    EMAIL_HOST_USER
-    EMAIL_HOST_PASSWORD
-    EMAIL_USE_TLS
-    EMAIL_USE_SSL
-    EMAIL_TIMEOUT
-    EMAIL_SSL_KEYFILE
-    EMAIL_SSL_CERTFILE
+    # EMAIL_HOST
+    # EMAIL_PORT
+    # EMAIL_HOST_USER
+    # EMAIL_HOST_PASSWORD
+    # EMAIL_USE_TLS
+    # EMAIL_USE_SSL
+    # EMAIL_TIMEOUT
+    # EMAIL_SSL_KEYFILE
+    # EMAIL_SSL_CERTFILE
