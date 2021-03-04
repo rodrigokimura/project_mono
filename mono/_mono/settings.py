@@ -100,6 +100,9 @@ else:
             'PASSWORD': os.getenv('DB_PASS'),
             'HOST': os.getenv('DB_ADDR'),
             'PORT': '3306',
+            'OPTIONS': {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+            }
         }
     }
     

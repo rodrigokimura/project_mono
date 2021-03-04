@@ -163,16 +163,16 @@
 <!-- Following Menu -->
 <div class="ui large top fixed hidden menu">
   <div class="ui container">
-    <a class="active item">Home</a>
-    <a class="item">Work</a>
+    <a class="active item" href="{% url 'home' %}">Home</a>
+    <a class="item" href="{% url 'finance:index' %}">Finance</a>
     <a class="item">Company</a>
     <a class="item">Careers</a>
     <div class="right menu">
       <div class="item">
-        <a class="ui button" href="{% url 'accounts:login' %}">Log in</a>
+        <a class="ui button" href="{% url 'finance:login' %}">Log in</a>
       </div>
       <div class="item">
-        <a class="ui primary button" href="{% url 'accounts:signup' %}">Sign Up</a>
+        <a class="ui primary button" href="{% url 'finance:signup' %}">Sign Up</a>
       </div>
     </div>
   </div>
@@ -180,12 +180,12 @@
 
 <!-- Sidebar Menu -->
 <div class="ui vertical inverted sidebar menu left">
-  <a class="active item">Home</a>
-  <a class="item">Work</a>
+  <a class="active item" href="{% url 'home' %}">Home</a>
+  <a class="item" href="{% url 'finance:index' %}">Finance</a>
   <a class="item">Company</a>
   <a class="item">Careers</a>
-  <a class="item" href="{% url 'accounts:login' %}">Login</a>
-  <a class="item">Signup</a>
+  <a class="item" href="{% url 'finance:login' %}">Login</a>
+  <a class="item" href="{% url 'finance:signup' %}">Signup</a>
 </div>
 
 
@@ -198,17 +198,17 @@
         <a class="toc item">
           <i class="sidebar icon"></i>
         </a>
-        <a class="active item">Home</a>
-        <a class="item">Work</a>
+        <a class="active item" href="{% url 'home' %}">Home</a>
+        <a class="item" href="{% url 'finance:index' %}">Finance</a>
         <a class="item">Company</a>
         <a class="item">Careers</a>
         <a class="item" href="{% url 'admin:index' %}">Admin</a>
         <div class="right item">
         {% if user.is_authenticated %}
-          <a class="ui inverted button" href="{% url 'accounts:logout' %}">Sign out</a>
+          <a class="ui inverted button" href="{% url 'finance:logout' %}">Sign out</a>
         {% else %}
-          <a class="ui inverted button" href="{% url 'accounts:login' %}">Log in</a>
-          <a class="ui inverted button" href="{% url 'accounts:signup' %}">Sign Up</a>
+          <a class="ui inverted button" href="{% url 'finance:login' %}">Log in</a>
+          <a class="ui inverted button" href="{% url 'finance:signup' %}">Sign Up</a>
         {% endif %}
         </div>
       </div>
