@@ -3,3 +3,4 @@ mysqlclient>=2.0,<3.0
 django-tinymce>=3.0,<4.0
 pyjwt>=2.0,<3.0
 Pillow>=8
+python-dotenv
