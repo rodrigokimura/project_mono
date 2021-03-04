@@ -19,7 +19,10 @@ DEBUG = os.environ['APP_ENV'] == 'DEV'
 CSRF_COOKIE_SECURE = os.environ['APP_ENV'] == 'PRD'
 SESSION_COOKIE_SECURE = os.environ['APP_ENV'] == 'PRD'
 
-ALLOWED_HOSTS = []
+if os.environ['APP_ENV'] == 'DEV': 
+    ALLOWED_HOSTS = []
+else: 
+    ALLOWED_HOSTS = [os.environ['ALLOWED_HOST']]
 
 # Application definition
 INSTALLED_APPS = [
