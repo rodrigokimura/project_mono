@@ -1,0 +1,1 @@
+$('.ui.sidebar').sidebar('toggle');
