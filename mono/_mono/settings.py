@@ -2,6 +2,9 @@ import os
 from pathlib import Path
 from django.urls import reverse_lazy
 
+from dotenv import load_dotenv
+load_dotenv()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 APP_VERSION = "0.0.1"
 
@@ -9,20 +12,20 @@ APP_VERSION = "0.0.1"
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if os.environ['APP_ENV'] == 'DEV': 
+if os.getenv('APP_ENV') == 'DEV': 
     SECRET_KEY = 'devkeyprojectmono'
 else: 
-    SECRET_KEY = os.environ['APP_SECRET']
+    SECRET_KEY = os.getenv('APP_SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ['APP_ENV'] == 'DEV'
-CSRF_COOKIE_SECURE = os.environ['APP_ENV'] == 'PRD'
-SESSION_COOKIE_SECURE = os.environ['APP_ENV'] == 'PRD'
+DEBUG = os.getenv('APP_ENV') == 'DEV'
+CSRF_COOKIE_SECURE = os.getenv('APP_ENV') == 'PRD'
+SESSION_COOKIE_SECURE = os.getenv('APP_ENV') == 'PRD'
 
-if os.environ['APP_ENV'] == 'DEV': 
+if os.getenv('APP_ENV') == 'DEV': 
     ALLOWED_HOSTS = []
 else: 
-    ALLOWED_HOSTS = [os.environ['ALLOWED_HOST']]
+    ALLOWED_HOSTS = [os.getenv('ALLOWED_HOST')]
 
 # Application definition
 INSTALLED_APPS = [
@@ -81,7 +84,7 @@ WSGI_APPLICATION = '_mono.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-if os.environ['APP_ENV'] == 'DEV':
+if os.getenv('APP_ENV') == 'DEV':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -92,10 +95,10 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ['DB_NAME'],
-            'USER': os.environ['DB_USER'],
-            'PASSWORD': os.environ['DB_PASS'],
-            'HOST': os.environ['DB_ADDR'],
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASS'),
+            'HOST': os.getenv('DB_ADDR'),
             'PORT': '3306',
         }
     }
@@ -145,7 +148,7 @@ MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
 LOGIN_REDIRECT_URL = reverse_lazy('finance:index')
 LOGIN_URL = reverse_lazy('finance:login')
 
-if os.environ['APP_ENV'] == 'DEV': 
+if os.getenv('APP_ENV') == 'DEV': 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'    
