@@ -198,11 +198,16 @@ class Invite(models.Model):
     def send(self, request):
         print('Sending email')
         full_link = request.get_host() + self.link
-        subject, to = 'Invite', self.email
+        subject, from_email, to = 'Invite', settings.EMAIL_HOST_USER, self.email
         text_content = f"Link to accept invite: {full_link}"
         html_content = f'<p>Link to accept invite <strong>{full_link}</strong></p>'
-        msg = EmailMultiAlternatives(subject, text_content, [to])
+        msg = EmailMultiAlternatives(
+            subject=subject, 
+            body=text_content, 
+            from_email=from_email, 
+            to=[to])
         msg.attach_alternative(html_content, "text/html")
+        print(self.email)
         msg.send(fail_silently = False)
         
     def __str__(self) -> str:
