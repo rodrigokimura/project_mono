@@ -155,12 +155,12 @@ if os.getenv('APP_ENV') == 'DEV':
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'    
-    # EMAIL_HOST
-    # EMAIL_PORT
-    # EMAIL_HOST_USER
-    # EMAIL_HOST_PASSWORD
-    # EMAIL_USE_TLS
-    # EMAIL_USE_SSL
+    EMAIL_HOST = os.getenv('EMAIL_HOST')
+    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+    EMAIL_PORT=587
+    EMAIL_USE_TLS=True
+    EMAIL_USE_SSL=False
     # EMAIL_TIMEOUT
     # EMAIL_SSL_KEYFILE
     # EMAIL_SSL_CERTFILE
