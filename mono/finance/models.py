@@ -196,13 +196,14 @@ class Invite(models.Model):
         return f"{reverse('finance:invite_acception')}?t={token}"
     
     def send(self, request):
+        print('Sending email')
         full_link = request.get_host() + self.link
-        subject, from_email, to = 'Invite', 'from@example.com', self.email
+        subject, to = 'Invite', self.email
         text_content = f"Link to accept invite: {full_link}"
         html_content = f'<p>Link to accept invite <strong>{full_link}</strong></p>'
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg = EmailMultiAlternatives(subject, text_content, [to])
         msg.attach_alternative(html_content, "text/html")
-        msg.send()
+        msg.send(fail_silently = False)
         
     def __str__(self) -> str:
         return f'{str(self.group)} -> {self.email}'
