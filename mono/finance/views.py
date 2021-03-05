@@ -387,8 +387,15 @@ class InviteAcceptionView(TokenMixin, LoginRequiredMixin, View):
             
             accepted = invite.accepted
             user_already_member = request.user in invite.group.members.all()
+            
             if not accepted and not user_already_member:
                 invite.accept(request.user)
                 invite.save()
             
-            return HttpResponse(invite.accepted)
+            context = {
+                'accepted': accepted,
+                'user_already_member': user_already_member,
+            }
+            
+            return render(request, 'finance/invite_acception.html', context)
+            # return HttpResponse(invite.accepted)
