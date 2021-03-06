@@ -1,12 +1,13 @@
-from django.db import models
-from django.contrib.auth import get_user_model
-from django.db.models.enums import Choices
-from django.utils import timezone
-from django.db.models import Sum
-from django.core.mail import EmailMessage, EmailMultiAlternatives
-from datetime import timedelta
 from django.conf import settings
+from django.db import models
+from django.db.models import Sum
+from django.db.models.enums import Choices
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.urls import reverse
+from django.template.loader import get_template
+from datetime import timedelta
 import jwt
 
 User = get_user_model()
@@ -197,17 +198,29 @@ class Invite(models.Model):
     
     def send(self, request):
         print('Sending email')
-        full_link = request.get_host() + self.link
+
+        template_html = 'email/invitation.html'
+        template_text = 'email/invitation.txt'
+
+        text = get_template(template_text)
+        html = get_template(template_html)
+
+        site = f"{request.scheme}://{request.get_host()}"
+
+        full_link = site + self.link
+
+        d = {
+            'site': site,
+            'link': full_link
+        }
+
         subject, from_email, to = 'Invite', settings.EMAIL_HOST_USER, self.email
-        text_content = f"Link to accept invite: {full_link}"
-        html_content = f'<p>Link to accept invite <strong>{full_link}</strong></p>'
         msg = EmailMultiAlternatives(
             subject=subject, 
-            body=text_content, 
+            body=text.render(d), 
             from_email=from_email, 
             to=[to])
-        msg.attach_alternative(html_content, "text/html")
-        print(self.email)
+        msg.attach_alternative(html.render(d), "text/html")
         msg.send(fail_silently = False)
         
     def __str__(self) -> str:
