@@ -62,7 +62,7 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Category'
         verbose_name_plural = 'Categories'
-    
+        
     @property
     def is_user_defined(self):
         return self.created_by is not None

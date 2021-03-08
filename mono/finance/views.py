@@ -78,7 +78,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['now'] = timezone.now()
-        context['categories'] = Category.objects.all()
+        context['categories'] = Category.objects.filter(created_by=self.request.user)
         qs = self.get_queryset()
         qs = qs.annotate(date=TruncDay('timestamp')).values('date')
         qs = qs.annotate(
@@ -359,8 +359,8 @@ class InviteListApiView(View):
         else:
             print("not in")
         
-        qs = Invite.objects.filter(group=group)
-        qs = qs.values('email','accepted')
+        qs = Invite.objects.filter(group=group, accepted=False)
+        qs = qs.values('email')
         
         if qs.count() == 0:
             response = {
