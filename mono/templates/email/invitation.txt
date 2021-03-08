@@ -1,0 +1,2 @@
+Site: {{ site }}
+Link to accept invite: {{ link }}
