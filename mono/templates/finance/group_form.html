@@ -10,16 +10,26 @@
           <form method="post" class="ui form" id="group_form">
             {% csrf_token %}
             {% include "_form.html" with form=form %}
+            
+            {% if object %}
+            <div class="ui segment">
+              <p>This group was created by {{ object.created_by }}.</p>
+              <p>And is owned by {{ object.owned_by }}.</p>
+            </div>
+            {% endif %}
+            
             <div class="fluid ui big buttons">
               <button class="ui button primary" type="submit" form="group_form">
                 Save
               </button>
               <div class="or"></div>
               {% if object %}
+              {% if object.owned_by == request.user %}
               <a class="ui button red" href="{% url 'finance:group_delete' pk=object.pk %}">
                 Delete
               </a>
               <div class="or"></div>
+              {% endif %}
               {% endif %}
               <a class="ui button" href="{% url 'finance:groups' %}">
                 Cancel
@@ -34,7 +44,7 @@
           {% if object %}
                   
           <div class="ui horizontal divider">
-            <i class="table icon"></i> Members
+            <i class="table icon"></i> Invites
           </div>
           <form class="ui form" id="invite-form">
             <div class="field">

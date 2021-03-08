@@ -1,12 +1,12 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.db.models import signals, Sum
 from django.db.models.enums import Choices
+from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django.db.models import Sum
 from django.core.mail import EmailMessage, EmailMultiAlternatives
-from datetime import timedelta
 from django.conf import settings
 from django.urls import reverse
+from datetime import timedelta
 import jwt
 
 User = get_user_model()
@@ -72,14 +72,19 @@ class Category(models.Model):
     @property
     def is_deletable(self):
         return self.is_group_defined or self.created_by
-       
         
 class Group(models.Model):
     name = models.CharField(max_length=50)
-    members = models.ManyToManyField(User)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_groupset")
+    owned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owned_groupset")
+    members = models.ManyToManyField(User, related_name="shared_groupset")
     def __str__(self) -> str:
         return self.name
         
+    def change_ownership_to(self, user):
+        self.owned_by = user
+        self.save()
+
 class Account(models.Model): 
     name = models.CharField(max_length=50)
     belongs_to = models.ForeignKey(User, on_delete=models.CASCADE)

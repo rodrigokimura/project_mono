@@ -80,6 +80,7 @@ class AccountForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'placeholder': 'Description'})
         self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['group'].queryset = Group.objects.filter(members=self.request.user)
         self.fields['initial_balance'].widget.attrs.update({'placeholder': 'Initial balance'})
         if self.instance.pk is None:
             self.fields['current_balance'].widget = forms.HiddenInput()
@@ -106,10 +107,12 @@ class TransactionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
+        owned_accounts = Account.objects.filter(belongs_to=self.request.user)
+        shared_accounts = Account.objects.filter(group__members=self.request.user)
         self.fields['description'].widget.attrs.update({'placeholder': 'Description'})
         self.fields['ammount'].widget.attrs.update({'placeholder': 'Ammount'})
         self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user)
-        self.fields['account'].queryset = Account.objects.filter(belongs_to=self.request.user)
+        self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
         self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
     
     def get_context_data(self, **kwargs):
@@ -145,11 +148,14 @@ class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
         fields = '__all__'
-        exclude = ['members']
+        exclude = ['created_by', 'owned_by', 'members']
         widgets = {}
         
     def save(self, *args, **kwargs): 
         user = self.request.user
+        if self.instance.id is None:
+            self.instance.created_by = user
+            self.instance.owned_by = user
         group = self.instance
         group.save()
         group.members.add(user)
@@ -219,7 +225,8 @@ class GoalForm(forms.ModelForm):
         
     def save(self, *args, **kwargs):
         goal = self.instance
-        goal.created_by = self.request.user
+        if goal.id is None:
+            goal.created_by = self.request.user
         goal.save()
         return super(GoalForm, self).save(*args, **kwargs)
         
