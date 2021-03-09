@@ -78,7 +78,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['now'] = timezone.now()
-        context['categories'] = Category.objects.all()
+        context['categories'] = Category.objects.filter(created_by=self.request.user)
         qs = self.get_queryset()
         qs = qs.annotate(date=TruncDay('timestamp')).values('date')
         qs = qs.annotate(
@@ -115,11 +115,14 @@ class TransactionUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
     success_url = reverse_lazy('finance:transactions')
     success_message = "%(description)s was updated successfully"
   
-class TransactionDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class TransactionDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Transaction
     success_url = reverse_lazy('finance:transactions')
     success_message = "Transaction was deleted successfully"
-
+    
+    def test_func(self):
+        return self.get_object().created_by == self.request.user
+      
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(TransactionDeleteView, self).delete(request, *args, **kwargs)
@@ -128,8 +131,9 @@ class AccountListView(LoginRequiredMixin, ListView):
     model = Account
     
     def get_queryset(self):
-        qs = Account.objects.filter(belongs_to=self.request.user)
-        return qs
+        owned_accounts = Account.objects.filter(belongs_to=self.request.user)
+        shared_accounts = Account.objects.filter(group__members=self.request.user)
+        return (owned_accounts | shared_accounts).distinct()
     
 class AccountDetailView(LoginRequiredMixin, DetailView):
     model = Account
@@ -160,7 +164,7 @@ class GroupListView(LoginRequiredMixin, ListView):
     
     def get_queryset(self):
         qs = Group.objects.all()
-        qs = qs.filter(members__in=[self.request.user])
+        qs = qs.filter(members=self.request.user)
         return qs
 
 class GroupCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
@@ -176,11 +180,14 @@ class GroupUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     success_message = "%(name)s was updated successfully"
     
 
-class GroupDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class GroupDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Group
     success_url = reverse_lazy('finance:groups')
     success_message = "Group was deleted successfully"
-
+    
+    def test_func(self):
+        return self.get_object().owned_by == self.request.user
+    
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(GroupDeleteView, self).delete(request, *args, **kwargs)
@@ -352,8 +359,8 @@ class InviteListApiView(View):
         else:
             print("not in")
         
-        qs = Invite.objects.filter(group=group)
-        qs = qs.values('email','accepted')
+        qs = Invite.objects.filter(group=group, accepted=False)
+        qs = qs.values('email')
         
         if qs.count() == 0:
             response = {
@@ -398,4 +405,4 @@ class InviteAcceptionView(TokenMixin, LoginRequiredMixin, View):
             }
             
             return render(request, 'finance/invite_acception.html', context)
-            # return HttpResponse(invite.accepted)
+            

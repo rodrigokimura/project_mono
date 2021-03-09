@@ -48,16 +48,25 @@ const csrftoken = getCookie('csrftoken');
 <body class="pushable">
   
   <div class="ui vertical inverted sidebar menu left">
-    <a class="item" href="{% url 'finance:index' %}">Home</a>
-    <a class="item" href="{% url 'finance:accounts' %}">Accounts</a>
-    <a class="item" href="{% url 'finance:transactions' %}">Transactions</a>
-    <a class="item" href="{% url 'finance:groups' %}">Groups</a>
-    <a class="item" href="{% url 'finance:categories' %}">Categories</a>
-    <a class="item" href="{% url 'finance:goals' %}">Goals</a>
+    <div class="item">
+      <div class="header">Main</div>
+      <div class="menu">
+        <a class="item" href="{% url 'finance:index' %}">Home</a>
+        <a class="item" href="{% url 'finance:accounts' %}">Accounts</a>
+        <a class="item" href="{% url 'finance:transactions' %}">Transactions</a>
+        <a class="item" href="{% url 'finance:groups' %}">Groups</a>
+        <a class="item" href="{% url 'finance:categories' %}">Categories</a>
+        <a class="item" href="{% url 'finance:goals' %}">Goals</a>
+      </div>
+    </div>
     {% if request.user.is_superuser %}
-    <a class="item" href="{% url 'finance:icons' %}">
-      <span class="ui red text">Icons</span>
-    </a>
+    <div class="item">
+      <div class="header">Superuser</div>
+      <div class="menu">
+        <a class="item" href="{% url 'finance:icons' %}">Icons</a>
+        <a class="item" href="{% url 'admin:index' %}">Admin</a>
+      </div>
+    </div>
     {% endif %}
   </div>
   
