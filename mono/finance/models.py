@@ -1,12 +1,14 @@
+from django.conf import settings
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.db.models import signals, Sum
 from django.db.models.enums import Choices
+from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django.db.models import Sum
 from django.core.mail import EmailMessage, EmailMultiAlternatives
-from datetime import timedelta
 from django.conf import settings
 from django.urls import reverse
+from django.template.loader import get_template
+from datetime import timedelta
 import jwt
 
 User = get_user_model()
@@ -60,7 +62,7 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Category'
         verbose_name_plural = 'Categories'
-    
+        
     @property
     def is_user_defined(self):
         return self.created_by is not None
@@ -72,14 +74,19 @@ class Category(models.Model):
     @property
     def is_deletable(self):
         return self.is_group_defined or self.created_by
-       
         
 class Group(models.Model):
     name = models.CharField(max_length=50)
-    members = models.ManyToManyField(User)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_groupset")
+    owned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owned_groupset")
+    members = models.ManyToManyField(User, related_name="shared_groupset")
     def __str__(self) -> str:
         return self.name
         
+    def change_ownership_to(self, user):
+        self.owned_by = user
+        self.save()
+
 class Account(models.Model): 
     name = models.CharField(max_length=50)
     belongs_to = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -197,17 +204,29 @@ class Invite(models.Model):
     
     def send(self, request):
         print('Sending email')
-        full_link = request.get_host() + self.link
+
+        template_html = 'email/invitation.html'
+        template_text = 'email/invitation.txt'
+
+        text = get_template(template_text)
+        html = get_template(template_html)
+
+        site = f"{request.scheme}://{request.get_host()}"
+
+        full_link = site + self.link
+
+        d = {
+            'site': site,
+            'link': full_link
+        }
+
         subject, from_email, to = 'Invite', settings.EMAIL_HOST_USER, self.email
-        text_content = f"Link to accept invite: {full_link}"
-        html_content = f'<p>Link to accept invite <strong>{full_link}</strong></p>'
         msg = EmailMultiAlternatives(
             subject=subject, 
-            body=text_content, 
+            body=text.render(d), 
             from_email=from_email, 
             to=[to])
-        msg.attach_alternative(html_content, "text/html")
-        print(self.email)
+        msg.attach_alternative(html.render(d), "text/html")
         msg.send(fail_silently = False)
         
     def __str__(self) -> str:
