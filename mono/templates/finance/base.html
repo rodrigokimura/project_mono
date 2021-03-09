@@ -8,57 +8,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title></title>
 
-  <link rel="stylesheet" type="text/css" href="{% static 'css/semantic.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'semantic/dist/semantic.min.css' %}">
   <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
   <script src="{% static 'js/jquery.serialize-object.min.js' %}"></script>
-  <script src="{% static 'js/semantic.min.js' %}"></script>
+  <script src="{% static 'semantic/dist/semantic.min.js' %}"></script>
   <script src="{% static 'js/global.js' %}"></script>
   <script src="{% static 'js/pace.min.js' %}"></script>
   <style type="text/css" media="all">
   </style>
   <script>
      $.fn.api.settings.api = {
-    'get categories' : '/fn/ajax/categories/',
-    'invite' : '/fn/invite/',
-    'list invites' : '/fn/invites/',
-    successTest: function(response) {
-      return response.success;
-    },
-  };
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
+      'get categories' : '/fn/ajax/categories/',
+      'invite' : '/fn/invite/',
+      'list invites' : '/fn/invites/',
+      successTest: function(response) {
+        return response.success;
+      },
+    };
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
     }
-    return cookieValue;
-}
-const csrftoken = getCookie('csrftoken');
+    const csrftoken = getCookie('csrftoken');
   </script>
   {% block head %}{% endblock head %}
 </head>
 
 <body class="pushable">
   
-  <div class="ui vertical inverted sidebar menu left">
-    <div class="item">
-      <div class="header">Main</div>
-      <div class="menu">
-        <a class="item" href="{% url 'finance:index' %}">Home</a>
-        <a class="item" href="{% url 'finance:accounts' %}">Accounts</a>
-        <a class="item" href="{% url 'finance:transactions' %}">Transactions</a>
-        <a class="item" href="{% url 'finance:groups' %}">Groups</a>
-        <a class="item" href="{% url 'finance:categories' %}">Categories</a>
-        <a class="item" href="{% url 'finance:goals' %}">Goals</a>
-      </div>
-    </div>
+  <div class="ui vertical inverted thin sidebar labeled icon left menu">
+    <a class="item" href="{% url 'finance:index' %}"><i class="home icon"></i>Home</a>
+    <a class="item" href="{% url 'finance:accounts' %}"><i class="wallet icon"></i>Accounts</a>
+    <a class="item" href="{% url 'finance:transactions' %}"><i class="money bill icon"></i>Transactions</a>
+    <a class="item" href="{% url 'finance:groups' %}"><i class="users icon"></i>Groups</a>
+    <a class="item" href="{% url 'finance:categories' %}"><i class="tags icon"></i>Categories</a>
+    <a class="item" href="{% url 'finance:goals' %}"><i class="bullseye icon"></i>Goals</a>
     {% if request.user.is_superuser %}
     <div class="item">
       <div class="header">Superuser</div>
@@ -68,14 +63,20 @@ const csrftoken = getCookie('csrftoken');
       </div>
     </div>
     {% endif %}
+    {% comment %} <div class="item">Item</div> {% endcomment %}
   </div>
   
-  <div class="pusher">
-    <div class="ui menu">
-      <a class="toc item">
-        <i class="sidebar icon"></i>
-      </a>
-    </div>
+  <div class="ui top fixed menu">
+    <a class="toc item">
+      <i class="sidebar icon"></i>
+    </a>
+    {% comment %} <div class="item">Teste</div> {% endcomment %}
+    {% if request.user.is_authenticated %}
+    <div class="right menu item">{{ request.user }}</div>
+    {% endif %}
+  </div>
+  
+  <div class="pusher" style="padding-top: 4em;">
     
     {% if messages %}
       <div class="ui container">
@@ -100,9 +101,13 @@ const csrftoken = getCookie('csrftoken');
   </div>
 </body>
 <script>
-  $('.toc.item').click(()=>{
-    $('.ui.sidebar').sidebar('toggle');
-  });
+  $('.ui.sidebar')
+    .sidebar('setting', 'transition', 'slide along')
+    .sidebar('setting', 'mobileTransition', 'slide along')
+    .sidebar('setting', 'duration', 200)
+    .sidebar('attach events', '.toc.item');
+  
+  
 </script>
 
 </html>
