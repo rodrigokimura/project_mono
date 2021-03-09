@@ -4,3 +4,5 @@
 *.pyc
 .vscode
 *.pem
+/semantic
+/node_modules
