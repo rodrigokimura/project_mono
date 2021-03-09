@@ -14,11 +14,11 @@
       <div class="row">
         <div class="eight wide column">
           <div class="ui container">
-            <form method="post" class="ui form" id="transaction_form">
+            <form method="post" class="ui {% if form.errors %}error{% endif %} form" id="transaction_form">
               {% csrf_token %}
               <div class="fluid ui buttons">
-                <a class="ui button" data-value="INC" onclick="selectType(this)">Income</a>
-                <a class="ui button" data-value="EXP" onclick="selectType(this)">Expense</a>
+                <a class="ui button" data-name="type" data-value="INC" onclick="selectType(this)">Income</a>
+                <a class="ui button" data-name="type" data-value="EXP" onclick="selectType(this)">Expense</a>
               </div>
               {% include "_form.html" with form=form %}
               <div class="fluid ui buttons">
@@ -46,18 +46,29 @@
 </div>
 {{ categories }}
   
+      {% comment %} $('input[name=type]').val(), value {% endcomment %}
 <script>
-  $('select[name=account]').dropdown();
+  {% comment %} $('select[name=account]').dropdown(); {% endcomment %}
+  $('select[name=account]').dropdown(
+    {
+      onChange: function(value, text, choice) {
+        if (typeof value !== "undefined") {
+          dropdown_element.dropdown('clear');
+          updateDropdown($('input[name=type]').val(), value);
+        }
+      }
+    }
+  );
   
   {% if object %}
-  $('[data-value={{ object.type }}').addClass('active');
-  $('input[name=type]').val('{{ object.type }}');
-  dropdown_element.dropdown('set value', "{{ object.category.pk }}");
-  setType('{{ object.type }}');
+    $('[data-value={{ object.type }}').addClass('active');
+    $('input[name=type]').val('{{ object.type }}');
+    dropdown_element.dropdown('set value', "{{ object.category.pk }}");
+    updateDropdown('{{ object.type }}', '{{ object.account }}');
   {% else %}
-  $('[data-value={{ form.type.value }}').addClass('active');
-  $('input[name=type]').val('{{ form.type.value }}');
-  setType('{{ form.type.value }}');
+    $('[data-value={{ form.type.value }}').addClass('active');
+    $('input[name=type]').val('{{ form.type.value }}');
+    updateDropdown('{{ form.type.value }}', null);
   {% endif %}
   
   let selectType = el => {
@@ -65,7 +76,7 @@
     .siblings().removeClass('active');
     $('input[name=type]').val($(el).data('value'));
     dropdown_element.dropdown('clear');
-    setType($(el).data('value'));
+    updateDropdown($(el).data('value'), $('select[name=account]').dropdown("get value"));
   }
 </script>
 {% endblock %}

@@ -131,7 +131,7 @@ class AccountListView(LoginRequiredMixin, ListView):
     model = Account
     
     def get_queryset(self):
-        owned_accounts = Account.objects.filter(belongs_to=self.request.user)
+        owned_accounts = Account.objects.filter(owned_by=self.request.user)
         shared_accounts = Account.objects.filter(group__members=self.request.user)
         return (owned_accounts | shared_accounts).distinct()
     
@@ -150,10 +150,13 @@ class AccountUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
     success_url = reverse_lazy('finance:accounts')
     success_message = "%(name)s was updated successfully"
   
-class AccountDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class AccountDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Account
     success_url = reverse_lazy('finance:accounts')
     success_message = "Account was deleted successfully"
+
+    def test_func(self):
+        return self.get_object().owned_by == self.request.user
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -179,7 +182,6 @@ class GroupUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     success_url = reverse_lazy('finance:groups')
     success_message = "%(name)s was updated successfully"
     
-
 class GroupDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Group
     success_url = reverse_lazy('finance:groups')
@@ -202,11 +204,20 @@ class CategoryListView(LoginRequiredMixin, ListView):
         
 class CategoryListApi(View):
     def get(self, request):
+        time.sleep(.5)
         type = request.GET.get("type", "EXP")
-        account = request.GET.get("account")
+        account = request.GET.get("account", None)
         qs = Category.objects.all()
         qs = qs.filter(created_by=request.user)
         qs = qs.filter(type=type)
+
+        if account not in [None,""]:
+            account = Account.objects.get(id=int(account))
+            qs = qs.filter(group=account.group)
+            print(account)
+        else:
+            qs = qs.filter(group=None)
+
         qs = qs.values('name')
         qs = qs.annotate(value=F('id'))
         qs = qs.annotate(icon=F('icon__markup'))
@@ -230,10 +241,13 @@ class CategoryUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, Success
     success_url = reverse_lazy('finance:categories')
     success_message = "%(name)s was updated successfully"
     
-class CategoryDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class CategoryDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Category
     success_url = reverse_lazy('finance:categories')
     success_message = "Category was deleted successfully"
+
+    def test_func(self):
+        return self.get_object().created_by == self.request.user
 
     def delete(self, request, *args, **kwargs):
         if self.get_object().is_deletable:

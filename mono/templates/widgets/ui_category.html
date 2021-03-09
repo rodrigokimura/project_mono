@@ -5,12 +5,11 @@
 </div>
 <script type="text/javascript" charset="utf-8">
   let dropdown_element = $('[name={{ widget.name }}]').parent()
-  let setType = type => {
-    dropdown_element.dropdown('bind touch events');
+  let updateDropdown = (type, account=null) => {
     dropdown_element.dropdown({
       apiSettings: {
         action: 'get categories',
-        data: {type:type},
+        data: {type:type, account:account},
         cache:false,
       },
       fullTextSearch:false,
