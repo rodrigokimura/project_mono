@@ -8,7 +8,7 @@
 <div class="ui grid container">
   <div class="row">
     <div class="column">
-      <form class="ui form {% if form.errors %}error{% endif %}" method="POST">
+      <form class="ui {% if form.errors %}error{% endif %} form" method="POST">
         {% csrf_token %}
         {% include "_form.html" with form=form %}
         <button type="submit" class="ui fluid submit primary button">Sign up</button>

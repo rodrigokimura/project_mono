@@ -80,16 +80,28 @@ class AccountForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'placeholder': 'Description'})
         self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
+        if self.instance.pk:
+            if self.instance.owned_by != self.request.user:
+                self.fields['group'].widget.attrs.update({'class': 'ui disabled dropdown'})
+
         self.fields['group'].queryset = Group.objects.filter(members=self.request.user)
         self.fields['initial_balance'].widget.attrs.update({'placeholder': 'Initial balance'})
         if self.instance.pk is None:
             self.fields['current_balance'].widget = forms.HiddenInput()
         else:
             self.fields['current_balance'].widget.attrs.update({'value': self.instance.current_balance})
-        
+
+    def clean(self):
+        if self.instance.owned_by != self.request.user:
+            if self.instance.group != self.cleaned_data['group']:
+                raise ValidationError("You don't have permission to change the group.")
+        return self.cleaned_data
+
     def save(self, *args, **kwargs): 
         account = self.instance
-        account.belongs_to = self.request.user
+        if account.pk is None:
+            account.created_by = self.request.user
+            account.owned_by = self.request.user
         current_balance = self.cleaned_data['current_balance']
         if current_balance is not None:
             account.adjust_balance(current_balance, self.request.user)
@@ -98,7 +110,7 @@ class AccountForm(forms.ModelForm):
     class Meta:
         model = Account
         fields = '__all__'
-        exclude = ['belongs_to']
+        exclude = ['created_by', 'owned_by']
         widgets = {}
 
 class TransactionForm(forms.ModelForm):
@@ -107,7 +119,7 @@ class TransactionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        owned_accounts = Account.objects.filter(belongs_to=self.request.user)
+        owned_accounts = Account.objects.filter(owned_by=self.request.user)
         shared_accounts = Account.objects.filter(group__members=self.request.user)
         self.fields['description'].widget.attrs.update({'placeholder': 'Description'})
         self.fields['ammount'].widget.attrs.update({'placeholder': 'Ammount'})
@@ -123,7 +135,15 @@ class TransactionForm(forms.ModelForm):
         
     class Meta:
         model = Transaction
-        fields = '__all__'
+        fields = [
+            "description",
+            "timestamp",
+            "account",
+            "ammount",
+            "category",
+            "active",
+            "type",
+        ]
         exclude = ['created_by']
         widgets = {
             'type': forms.HiddenInput,
@@ -285,8 +305,8 @@ class UserForm(auth_forms.UserCreationForm):
                 pass
             
             # Initial accounts
-            Account.objects.create(name="Wallet", belongs_to=instance)
-            Account.objects.create(name="Bank", belongs_to=instance)
+            Account.objects.create(name="Wallet", owned_by=instance, created_by=instance)
+            Account.objects.create(name="Bank", owned_by=instance, created_by=instance)
             
             #Initial categories
             for category in INITIAL_CATEGORIES:
