@@ -89,7 +89,8 @@ class Group(models.Model):
 
 class Account(models.Model): 
     name = models.CharField(max_length=50)
-    belongs_to = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="created_accountset", null=True)
+    owned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owned_accountset")
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     initial_balance = models.FloatField(default=0)
     

@@ -7,7 +7,7 @@
   <div class="ui container">
     <div class="row">
       <div class="column">
-          <form method="post" class="ui form" id="group_form">
+          <form method="post" class="ui {% if form.errors %}error{% endif %} form" id="group_form">
             {% csrf_token %}
             {% include "_form.html" with form=form %}
             
