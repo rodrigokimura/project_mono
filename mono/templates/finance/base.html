@@ -47,11 +47,12 @@ const csrftoken = getCookie('csrftoken');
 
 <body class="pushable">
   
-  <div class="ui vertical inverted sidebar menu left">
+  <div class="ui vertical inverted thin sidebar menu left">
     <div class="item">
       <div class="header">Main</div>
-      <div class="menu">
-        <a class="item" href="{% url 'finance:index' %}">Home</a>
+      <div class="labeled icon menu">
+        <a class="big item" href="{% url 'finance:index' %}">
+          <i class="home icon"></i>Home</a>
         <a class="item" href="{% url 'finance:accounts' %}">Accounts</a>
         <a class="item" href="{% url 'finance:transactions' %}">Transactions</a>
         <a class="item" href="{% url 'finance:groups' %}">Groups</a>
@@ -68,17 +69,23 @@ const csrftoken = getCookie('csrftoken');
       </div>
     </div>
     {% endif %}
+    <div class="item">Item</div>
   </div>
   
-  <div class="pusher">
-    <div class="ui menu">
-      <a class="toc item">
-        <i class="sidebar icon"></i>
-      </a>
-    </div>
+  <div class="ui top fixed menu">
+    <a class="toc item">
+      <i class="sidebar icon"></i>
+    </a>
+    <div class="item">Teste</div>
+    {% if request.user %}
+    <div class="right menu item">{{ request.user }}</div>
+    {% endif %}
+  </div>
+  
+  <div class="pusher" style="padding-top: 4em;">
     
     {% if messages %}
-      <div class="ui container">
+      <div class="ui container masthe">
       <div class="ui grid">
         <div class="row">
           <div class="column">
@@ -100,9 +107,13 @@ const csrftoken = getCookie('csrftoken');
   </div>
 </body>
 <script>
-  $('.toc.item').click(()=>{
-    $('.ui.sidebar').sidebar('toggle');
-  });
+  $('.ui.sidebar')
+    .sidebar('setting', 'transition', 'slide along')
+    .sidebar('setting', 'mobileTransition', 'slide along')
+    .sidebar('setting', 'duration', 200)
+    .sidebar('attach events', '.toc.item');
+  
+  
 </script>
 
 </html>
