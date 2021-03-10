@@ -15,6 +15,12 @@
   <script src="{% static 'js/global.js' %}"></script>
   <script src="{% static 'js/pace.min.js' %}"></script>
   <link rel="stylesheet" href="{% static 'css/minimal.css' %}">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon-16x16.png' %}">
+  <link rel="manifest" href="{% static 'site.webmanifest' %}">
+
   <style type="text/css" media="all">
   </style>
   <script>
@@ -71,9 +77,20 @@
     <a class="toc item">
       <i class="sidebar icon"></i>
     </a>
-    {% comment %} <div class="item">Teste</div> {% endcomment %}
+
     {% if request.user.is_authenticated %}
-    <div class="right menu item">{{ request.user }}</div>
+    <div class="right menu">
+      <div class="ui top right auth dropdown item">
+        <i class="user icon"></i>
+        <div class="menu">
+          <div class="header">
+            <p>Signed in as </p>
+            <span class="ui primary text">{{ request.user }}</span></div>
+          <div class="divider"></div>
+          <a class="item" href="{% url 'finance:logout' %}">Sign out</a>
+        </div>
+      </div>
+    </div>
     {% endif %}
   </div>
   
@@ -107,7 +124,7 @@
     .sidebar('setting', 'mobileTransition', 'slide along')
     .sidebar('setting', 'duration', 200)
     .sidebar('attach events', '.toc.item');
-  
+  $('.ui.auth.dropdown').dropdown();
   
 </script>
 
