@@ -1,4 +1,4 @@
-<div class="ui selection dropdown" id="icon_widget">
+<div class="ui search selection very long dropdown" id="icon_widget">
     <input type="hidden" id="{{ widget.attrs.id }}" name="{{ widget.name }}">
     <div class="text"></div>
     <i class="dropdown icon"></i>
@@ -16,6 +16,9 @@
                 {% endif %}
             }, 
             {% endfor %}
-        ]
-    })
+        ],
+        fullTextSearch: false,
+        filterRemoteData: true,
+        forceSelection: false,
+    });
 </script>
