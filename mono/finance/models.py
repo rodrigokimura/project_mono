@@ -5,7 +5,6 @@ from django.db.models.enums import Choices
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.mail import EmailMessage, EmailMultiAlternatives
-from django.conf import settings
 from django.urls import reverse
 from django.template.loader import get_template
 from datetime import timedelta
@@ -95,7 +94,7 @@ class Account(models.Model):
     initial_balance = models.FloatField(default=0)
     
     @property
-    def has_group(self):
+    def is_shared(self):
         return self.group is not None
     
     @property
