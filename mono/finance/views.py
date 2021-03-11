@@ -424,25 +424,26 @@ class NotificationListApi(LoginRequiredMixin, View):
     def get(self, request):
         time.sleep(.5)
         user = request.user
-        qs = Notification.objects.all()
-        qs = qs.filter(to=request.user)
-        qs = qs.filter(active=True)
-        qs = qs.filter(read_at=None)
-        qs = qs.values('id')
-        qs = qs.annotate(value=F('id'))
-        qs = qs.annotate(name=F('title'))
-        qs = qs.annotate(message=F('message'))
-        qs = qs.annotate(icon=F('icon__markup'))
+        qs = Notification.objects.filter(
+            to=request.user,
+            active=True,
+            read_at=None
+        ).values('id').annotate(
+            value=F('id'),
+            name=F('title'),
+            message=F('message'),
+            icon=F('icon__markup'))
         return JsonResponse(
             {
                 'success':True,
                 'message':'Notifications retrived from database.',
-                'results':[{
-                    "name":
-                    f"""<div class="ui label">{n['name']}</div>{n['message']}""",
-                    "value":n['id'],
-                    "icon":n['icon'],
-                    } for n in qs],
+                'results': list(qs)
+                # 'results':[{
+                #     "name":
+                #     f"""<div class="ui label">{n['name']}</div>{n['message']}""",
+                #     "value":n['id'],
+                #     "icon":n['icon'],
+                #     } for n in qs],
             }
         )
 
