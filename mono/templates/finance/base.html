@@ -130,6 +130,8 @@
     .sidebar('attach events', '.toc.item');
   $('.ui.auth.dropdown').dropdown();
 
+  {% if request.user.is_authenticated %}
+
   let notificationsIds = [];
   let notificationMenuElement = $('.ui.dropdown#notification-menu');
     
@@ -183,9 +185,11 @@
       }
     );
   }
-  checkUnread()
+  checkUnread();
 
   setInterval( checkUnread, 5000 );
+
+  {% endif %}
   
 </script>
 
