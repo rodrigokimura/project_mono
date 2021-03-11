@@ -231,3 +231,27 @@ class Invite(models.Model):
         
     def __str__(self) -> str:
         return f'{str(self.group)} -> {self.email}'
+
+class Notification(models.Model):
+    title = models.CharField(max_length=50)
+    message = models.CharField(max_length=255)
+    icon = models.ForeignKey(Icon, on_delete=models.SET_NULL, null=True, default=None)
+    to = models.ForeignKey(User, on_delete=models.CASCADE)
+    read_at = models.DateTimeField(blank=True, null=True, default=None)
+    action = models.CharField(max_length=1000)
+    active = models.BooleanField(default=True)
+
+    def __str__(self) -> str:
+        return self.title
+
+    @property
+    def read(self):
+        return self.read_at is not None
+
+    def mark_as_read(self):
+        self.read_at = timezone.now()
+        self.save()
+
+    def set_icon_by_markup(self, markup):
+        self.icon = Icon.objects.filter(markup=markup).first()
+        self.save()
