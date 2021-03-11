@@ -83,7 +83,13 @@
     {% if request.user.is_authenticated %}
     <div class="right menu">
       <div class="ui top dropdown item" id="notification-menu">
-        <i class="bell outline icon"></i>
+        <i class="bell outline icon">
+        </i>
+        <div 
+          class="hidden right aligned top floating ui teal tiny circular label" 
+          id="notification-count"
+          style="transform: translate(0, 1em);"
+          ></div>
       </div>
       <div class="ui top right auth dropdown item">
         <i class="user icon"></i>
@@ -134,6 +140,7 @@
 
   let notificationsIds = [];
   let notificationMenuElement = $('.ui.dropdown#notification-menu');
+  let notificationLabelElement = $('.ui.dropdown#notification-menu #notification-count');
     
   let getNotifications = () => {
     $.api(
@@ -144,11 +151,16 @@
         cache: false,
         onSuccess: r => {
           notificationMenuElement.dropdown({
-            values: r.results,
+            values: r.results.map(item => {
+              item.name = `<div class="ui small label">${item.name}</div>${item.message}`;
+              return item;
+            }),
             action: function(text, value, element){
               window.location.replace(`/fn/notification/${value}/action`);
             }
           });
+          notificationLabelElement.text(r.results.length);
+          notificationLabelElement.removeClass('hidden');
           $('.ui.dropdown#notification-menu i.icon').removeClass('outline');
         }
       }
@@ -176,7 +188,7 @@
         cache: false,
         onSuccess: (response, element, xhr) => {
           if (!areEqual(response.results, notificationsIds)) {
-            notificationsIds = response.results
+            notificationsIds = response.results;
             getNotifications();
           }
         },
