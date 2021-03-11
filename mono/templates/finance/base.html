@@ -25,9 +25,11 @@
   </style>
   <script>
      $.fn.api.settings.api = {
-      'get categories' : '/fn/ajax/categories/',
-      'invite' : '/fn/invite/',
-      'list invites' : '/fn/invites/',
+      'get categories'              : '/fn/ajax/categories/',
+      'invite'                      : '/fn/invite/',
+      'list invites'                : '/fn/invites/',
+      'get notifications'           : '/fn/ajax/notifications/',
+      'get notification ids'  : '/fn/notification/get-ids/',
       successTest: function(response) {
         return response.success;
       },
@@ -80,6 +82,9 @@
 
     {% if request.user.is_authenticated %}
     <div class="right menu">
+      <div class="ui top dropdown item" id="notification-menu">
+        <i class="bell outline icon"></i>
+      </div>
       <div class="ui top right auth dropdown item">
         <i class="user icon"></i>
         <div class="menu">
@@ -122,9 +127,65 @@
   $('.ui.sidebar')
     .sidebar('setting', 'transition', 'slide along')
     .sidebar('setting', 'mobileTransition', 'slide along')
-    .sidebar('setting', 'duration', 200)
     .sidebar('attach events', '.toc.item');
   $('.ui.auth.dropdown').dropdown();
+
+  let notificationsIds = [];
+  let notificationMenuElement = $('.ui.dropdown#notification-menu');
+    
+  let getNotifications = () => {
+    $.api(
+      {
+        action: 'get notifications',
+        on: 'now',
+        stateContext: notificationMenuElement,
+        cache: false,
+        onSuccess: r => {
+          notificationMenuElement.dropdown({
+            values: r.results,
+            action: function(text, value, element){
+              window.location.replace(`/fn/notification/${value}/action`);
+            }
+          });
+          $('.ui.dropdown#notification-menu i.icon').removeClass('outline');
+        }
+      }
+    );
+  }
+
+  const areEqual = (first, second) => {
+    if(first.length !== second.length){
+        return false;
+    };
+    for(let i = 0; i < first.length; i++){
+        if(!second.includes(first[i])){
+          return false;
+        };
+    };
+    return true;
+  };
+
+
+  let checkUnread = () => {
+    $.api(
+      {
+        action: 'get notification ids',
+        on: 'now',
+        cache: false,
+        onSuccess: (response, element, xhr) => {
+          if (!areEqual(response.results, notificationsIds)) {
+            notificationsIds = response.results
+            getNotifications();
+          }
+        },
+        onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
+        onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+      }
+    );
+  }
+  checkUnread()
+
+  setInterval( checkUnread, 5000 );
   
 </script>
 

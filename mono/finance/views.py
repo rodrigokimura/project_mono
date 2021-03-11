@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
-from django.views.generic.base import TemplateView
+from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, CreateView, UpdateView, DeleteView
 from django.views.generic.detail import DetailView
@@ -12,10 +12,10 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.db.models import F, Q, Sum
 from django.db.models.functions import Coalesce, TruncDay
-from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite
+from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification
 from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm
 import time
 import jwt
@@ -420,3 +420,53 @@ class InviteAcceptionView(TokenMixin, LoginRequiredMixin, View):
             
             return render(request, 'finance/invite_acception.html', context)
             
+class NotificationListApi(LoginRequiredMixin, View):
+    def get(self, request):
+        time.sleep(.5)
+        user = request.user
+        qs = Notification.objects.all()
+        qs = qs.filter(to=request.user)
+        qs = qs.filter(active=True)
+        qs = qs.filter(read_at=None)
+        qs = qs.values('id')
+        qs = qs.annotate(value=F('id'))
+        qs = qs.annotate(name=F('title'))
+        qs = qs.annotate(message=F('message'))
+        qs = qs.annotate(icon=F('icon__markup'))
+        return JsonResponse(
+            {
+                'success':True,
+                'message':'Notifications retrived from database.',
+                'results':[{
+                    "name":
+                    f"""<div class="ui label">{n['name']}</div>{n['message']}""",
+                    "value":n['id'],
+                    "icon":n['icon'],
+                    } for n in qs],
+            }
+        )
+
+class NotificationAction(LoginRequiredMixin, RedirectView):
+    permanent = False
+    query_string = True
+
+    def get_redirect_url(self, *args, **kwargs):
+        notification = get_object_or_404(Notification, pk=kwargs['pk'])
+        if notification.to == self.request.user:
+            notification.mark_as_read()
+            self.url = notification.action
+        return super().get_redirect_url(*args, **kwargs)
+
+class NotificationCheckUnread(LoginRequiredMixin, View):
+    def get(self, request):
+        results = Notification.objects.filter(
+            to=request.user,
+            active=True,
+            read_at=None
+        ).values('id')
+        return JsonResponse({
+                'success': True,
+                'results': [r['id'] for r in results],
+            }
+        )
+
