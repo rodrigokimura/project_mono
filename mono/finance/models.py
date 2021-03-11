@@ -49,9 +49,9 @@ class Category(models.Model):
     name = models.CharField(max_length=50, null=False, blank=False)
     description = models.TextField(max_length=200, null=True, blank=True)
     type = models.CharField(max_length=3, choices=TRANSACTION_TYPES, default=EXPENSE)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    group = models.ForeignKey('Group', on_delete=models.SET_NULL, null=True, blank=True)
+    group = models.ForeignKey('Group', on_delete=models.CASCADE, null=True, blank=True)
     icon = models.ForeignKey(Icon, on_delete=models.SET_NULL, null=True)
     active = models.BooleanField(default=True)
     
@@ -255,3 +255,26 @@ class Notification(models.Model):
     def set_icon_by_markup(self, markup):
         self.icon = Icon.objects.filter(markup=markup).first()
         self.save()
+
+class Configuration(models.Model):
+
+    HOME = 'HOM'
+    ACCOUNTS = 'ACC'
+    TRANSACTIONS = 'TRN'
+    GROUPS = 'GRP'
+    CATEGORIES = 'CTG'
+    GOALS = 'GOL'
+    PAGES = [
+        (HOME, 'Home'),
+        (ACCOUNTS, 'Accounts'),
+        (TRANSACTIONS, 'Transactions'),
+        (GROUPS, 'Groups'),
+        (CATEGORIES, 'Categories'),
+        (GOALS, 'Goals'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    main_page = models.CharField(max_length=3, choices=PAGES, default=HOME)
+
+    def __str__(self) -> str:
+        return f'Config for {self.user}'
