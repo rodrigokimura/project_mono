@@ -457,3 +457,16 @@ class NotificationAction(LoginRequiredMixin, RedirectView):
             self.url = notification.action
         return super().get_redirect_url(*args, **kwargs)
 
+class NotificationCheckUnread(LoginRequiredMixin, View):
+    def get(self, request):
+        results = Notification.objects.filter(
+            to=request.user,
+            active=True,
+            read_at=None
+        ).values('id')
+        return JsonResponse({
+                'success': True,
+                'results': [r['id'] for r in results],
+            }
+        )
+
