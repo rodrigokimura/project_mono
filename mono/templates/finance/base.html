@@ -28,6 +28,7 @@
       'get categories' : '/fn/ajax/categories/',
       'invite' : '/fn/invite/',
       'list invites' : '/fn/invites/',
+      'get notifications' : '/fn/ajax/notifications/',
       successTest: function(response) {
         return response.success;
       },
@@ -80,6 +81,9 @@
 
     {% if request.user.is_authenticated %}
     <div class="right menu">
+      <div class="ui top right dropdown item" id="notification-menu">
+        <i class="bell outline icon"></i>
+      </div>
       <div class="ui top right auth dropdown item">
         <i class="user icon"></i>
         <div class="menu">
@@ -125,6 +129,49 @@
     .sidebar('setting', 'duration', 200)
     .sidebar('attach events', '.toc.item');
   $('.ui.auth.dropdown').dropdown();
+
+  {% comment %} 
+  $('.ui.dropdown#notification-menu').dropdown("destroy");
+  {% endcomment %}
+  let updateNotifications = () => {
+    $('.ui.dropdown#notification-menu').dropdown("destroy");
+    $('.ui.dropdown#notification-menu').dropdown({
+      apiSettings: {
+        action: 'get notifications',
+        on: 'now',
+        stateContext: $(''),
+        cache: false,
+      },
+      saveRemoteData: false,
+      filterRemoteData: false,
+      forceSelection: false,
+      action: function(text, value, element){
+        window.location.replace(`/fn/notification/${value}/action`);
+      }
+    });
+  }; 
+  updateNotifications();
+  
+  {% comment %} $('.ui.dropdown#notification-menu').api({
+    action: 'get notifications',
+    on: 'now'
+  }); {% endcomment %}
+
+  setInterval(function() {
+    {% comment %} 
+    $('.ui.dropdown#notification-menu').api({
+      action: 'get notifications',
+      on: 'now',
+      stateContext: $(''),
+      cache: false,
+    }); 
+    // $('.ui.dropdown#notification-menu').dropdown("refresh")
+    $('.ui.dropdown#notification-menu').api("destroy")
+    {% endcomment %}
+    updateNotifications()
+    console.log("Refreshing data.")
+    
+  }, 5000);
   
 </script>
 
