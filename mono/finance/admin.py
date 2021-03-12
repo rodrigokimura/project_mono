@@ -99,6 +99,13 @@ class InviteAdmin(admin.ModelAdmin):
 
 @admin.register(models.Notification)
 class NotificationAdmin(admin.ModelAdmin):
+
+    # Admin Action Functions
+    def mark_as_unread(modeladmin, request, queryset):
+        queryset.update(read_at = None)
+    # Action description
+    mark_as_unread.short_description = "Mark selected notifications as unread"
+
     list_display = [
         "title",
         "message",
@@ -117,6 +124,7 @@ class NotificationAdmin(admin.ModelAdmin):
         "action",
         "active",
     ]
+    actions = [mark_as_unread]
 
 @admin.register(models.Configuration)
 class ConfigurationAdmin(admin.ModelAdmin):
