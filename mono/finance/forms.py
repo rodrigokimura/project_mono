@@ -4,8 +4,14 @@ from django.forms.widgets import Widget
 from django.contrib.auth import login, authenticate, get_user_model, forms as auth_forms
 from django.template import loader
 from django.utils.safestring import mark_safe
-from django.db.models.signals import post_save
 from .models import Configuration, Transaction, Group, Category, Account, Icon, Goal, Configuration
+from django.contrib.contenttypes.models import ContentType
+from django.contrib import messages
+from faker import Faker
+from faker.providers import lorem
+
+import random
+    
 User = get_user_model()
 
 class CalendarWidget(Widget):
@@ -284,40 +290,57 @@ class UserForm(auth_forms.UserCreationForm):
             login(self.request, auth_user)
 
         return user
-    
-    def initial_setup(sender, instance, created, **kwargs):
-      
-        INITIAL_CATEGORIES = [
-            ['Health', 'EXP', 'heartbeat'], 
-            ['Shopping', 'EXP', 'cart'], 
-            ['Education', 'EXP', 'university'],
-            ['Transportation', 'EXP', 'car'],
-            ['Trips', 'EXP', 'plane'],
-            ['Leisure', 'EXP', 'gamepad'],
-            ['Groceries', 'EXP', 'shopping basket'],
-            ['Salary', 'INC', 'money bill alternate outline'],
-        ]
-        
-        if created:
-            try:
-                instance.groups.add(Group.objects.get(name='Cliente'))
-            except Group.DoesNotExist:
-                pass
-            
-            # Initial accounts
-            Account.objects.create(name="Wallet", owned_by=instance, created_by=instance)
-            Account.objects.create(name="Bank", owned_by=instance, created_by=instance)
-            
-            #Initial categories
-            for category in INITIAL_CATEGORIES:
-                Category.objects.create(
-                    name=category[0],
-                    type=category[1],
-                    created_by=instance,
-                    icon=Icon.objects.get(markup=category[2])
+
+class FakerForm(forms.Form):
+    # TODO: #44 Display important security alert for this faker functionality
+
+    class ContentTypeModelChoiceField(forms.ModelChoiceField):
+        def label_from_instance(self, obj):
+            return obj.model
+
+    model = ContentTypeModelChoiceField(
+        queryset=ContentType.objects.filter(
+            app_label='finance'
+        )
+    )
+    batch_ammount = forms.IntegerField(max_value=100)
+    target_user = forms.ModelChoiceField(User.objects.all())
+
+    def create_fake_instances(self):
+        fake = Faker()
+        fake.add_provider(lorem)
+
+        batch_ammount = self.cleaned_data['batch_ammount']
+        model = self.cleaned_data['model'].model
+        target_user = self.cleaned_data['target_user']
+
+        if model == 'transaction':
+            for i in range(batch_ammount):
+                Transaction.objects.create(
+                    description = fake.text(max_nb_chars=50, ext_word_list=None),
+                    created_by = target_user,
+                    # TODO: #43 Implement configurable timestamp faker generator
+                    # timestamp = models.DateTimeField(default=timezone.now)
+                    ammount = random.randint(0,1000),
+                    type = random.choice([t[0] for t in Transaction.TRANSACTION_TYPES]),
+                    category = Category.objects.filter(created_by=target_user, group=None).order_by("?").first(),
+                    account = Account.objects.filter(owned_by=target_user, group=None).order_by("?").first(),
+                    # active = models.BooleanField(default=True)
                 )
 
-            # Initial configuration
-            Configuration.objects.create(user=instance)
-    
-    post_save.connect(initial_setup, sender=User)
+            success, message = True, {
+                "level": messages.SUCCESS, 
+                "message": f"Successfully created {batch_ammount} fake instances of model {model}"
+            }
+            return success, message
+
+        else: 
+            success, message = True, {
+                "level": messages.ERROR, 
+                "message": f"No fake generator implemented for model {model}"
+            }
+            return success, message
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['model'].widget.attrs.update({'class': 'ui dropdown'})

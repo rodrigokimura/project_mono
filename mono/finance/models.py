@@ -12,14 +12,16 @@ import jwt
 
 User = get_user_model()
 
-INCOME = 'INC'
-EXPENSE = 'EXP'
-TRANSACTION_TYPES = [
-    (INCOME, 'Income'),
-    (EXPENSE, 'Expense'),
-]
+
 
 class Transaction(models.Model):
+    INCOME = 'INC'
+    EXPENSE = 'EXP'
+    TRANSACTION_TYPES = [
+        (INCOME, 'Income'),
+        (EXPENSE, 'Expense'),
+    ]
+
     description = models.CharField(max_length=50, null=False, blank=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -48,7 +50,7 @@ class Icon(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=50, null=False, blank=False)
     description = models.TextField(max_length=200, null=True, blank=True)
-    type = models.CharField(max_length=3, choices=TRANSACTION_TYPES, default=EXPENSE)
+    type = models.CharField(max_length=3, choices=Transaction.TRANSACTION_TYPES, default=Transaction.EXPENSE)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     group = models.ForeignKey('Group', on_delete=models.CASCADE, null=True, blank=True)
