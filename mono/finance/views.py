@@ -16,7 +16,7 @@ from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.db.models import F, Q, Sum
 from django.db.models.functions import Coalesce, TruncDay
 from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification
-from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm
+from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm
 import time
 import jwt
 
@@ -471,3 +471,18 @@ class NotificationCheckUnread(LoginRequiredMixin, View):
             }
         )
 
+
+class FakerView(UserPassesTestMixin, FormView):
+    template_name = "finance/faker.html"
+    form_class = FakerForm
+    success_url = "/fn/faker/"
+
+    def test_func(self):
+        return self.request.user.is_superuser 
+
+    def form_valid(self, form) -> HttpResponse:
+        
+        success, message = form.create_fake_instances()
+        messages.add_message(self.request, message['level'], message['message'])
+
+        return super().form_valid(form)
