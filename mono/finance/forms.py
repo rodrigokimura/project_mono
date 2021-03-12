@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate, get_user_model, forms as au
 from django.template import loader
 from django.utils.safestring import mark_safe
 from django.db.models.signals import post_save
-from .models import Transaction, Group, Category, Account, Icon, Goal
+from .models import Configuration, Transaction, Group, Category, Account, Icon, Goal, Configuration
 User = get_user_model()
 
 class CalendarWidget(Widget):
@@ -316,5 +316,8 @@ class UserForm(auth_forms.UserCreationForm):
                     created_by=instance,
                     icon=Icon.objects.get(markup=category[2])
                 )
+
+            # Initial configuration
+            Configuration.objects.create(user=instance)
     
     post_save.connect(initial_setup, sender=User)
