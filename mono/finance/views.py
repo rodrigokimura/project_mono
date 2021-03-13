@@ -61,7 +61,7 @@ class Logout(LogoutView):
 
 class TransactionListView(LoginRequiredMixin, ListView):
     model = Transaction
-    paginate_by = 10
+    paginate_by = 5
     
     def get_queryset(self):
         category = self.request.GET.get('category', None)
@@ -100,6 +100,12 @@ class TransactionListView(LoginRequiredMixin, ListView):
         qs = qs.order_by('-date')
         
         context['daily_grouped'] = qs
+        
+        query_string = self.request.GET.copy()
+        if "page" in query_string: 
+            query_string.pop('page')
+        
+        context['query_string'] = query_string.urlencode()
         
         return context
 

@@ -131,17 +131,7 @@
   {% endfor %}
   {% endif %}
   
-  <div class="ui buttons"> 
-    {% if page_obj.has_previous %} 
-    <a class="ui button" href="?page=1"><i class="angle double left icon"></i></a>
-    <a class="ui button" href="?page={{ page_obj.previous_page_number }}"><i class="angle left icon"></i></a>
-    {% endif %} 
-    <a class="ui button">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</a> 
-    {% if page_obj.has_next %} 
-    <a class="ui button" href="?page={{ page_obj.next_page_number }}"><i class="angle right icon"></i></a> 
-    <a class="ui button" href="?page={{ page_obj.paginator.num_pages }}"><i class="angle double right icon"></i></a> 
-    {% endif %} 
-  </div>
+  {% include "_pagination.html" with page_obj=page_obj %}
   
   <div class="row">
       <a class="ui fluid button primary" href="{% url "finance:transaction_create" %}">Add transaction</a>
