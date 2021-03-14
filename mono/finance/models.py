@@ -15,27 +15,23 @@ User = get_user_model()
 
 
 class Transaction(models.Model):
-    INCOME = 'INC'
-    EXPENSE = 'EXP'
-    TRANSACTION_TYPES = [
-        (INCOME, 'Income'),
-        (EXPENSE, 'Expense'),
-    ]
-
     description = models.CharField(max_length=50, null=False, blank=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     timestamp = models.DateTimeField(default=timezone.now)
     ammount = models.FloatField()
-    type = models.CharField(max_length=3, choices=TRANSACTION_TYPES, default=EXPENSE)
-    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True)
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False)
     account = models.ForeignKey('Account', on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
     
     @property
+    def type(self):
+        return self.category.type
+        
+    @property
     def signed_ammount(self):
         sign = 1
-        if self.type == 'EXP':
+        if self.category.type == 'EXP':
             sign = -1
         return self.ammount*sign
         
@@ -48,13 +44,31 @@ class Icon(models.Model):
         return self.markup
 
 class Category(models.Model):
+    INCOME = 'INC'
+    EXPENSE = 'EXP'
+    TRANSACTION_TYPES = [
+        (INCOME, 'Income'),
+        (EXPENSE, 'Expense'),
+    ]
+    DEFAULT = 'DEF'
+    TRANSFER = 'TRF'
+    ADJUSTMENT = 'ADJ'
+    INTERNAL_TYPES = [
+        (DEFAULT, 'Default'),
+        (TRANSFER, 'Transfer'),
+        (ADJUSTMENT, 'Balance adjustment'),
+    ]
+    TRANSFER_NAME = 'Transfer'
+    ADJUSTMENT_NAME = 'Balance adjustment'
+
     name = models.CharField(max_length=50, null=False, blank=False)
     description = models.TextField(max_length=200, null=True, blank=True)
-    type = models.CharField(max_length=3, choices=Transaction.TRANSACTION_TYPES, default=Transaction.EXPENSE)
+    type = models.CharField(max_length=3, choices=TRANSACTION_TYPES, default=EXPENSE)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    group = models.ForeignKey('Group', on_delete=models.CASCADE, null=True, blank=True)
+    group = models.ForeignKey('Group', on_delete=models.CASCADE, null=True, blank=True, default=None)
     icon = models.ForeignKey(Icon, on_delete=models.SET_NULL, null=True)
+    internal_type = models.CharField(max_length=3, choices=INTERNAL_TYPES, default=DEFAULT)
     active = models.BooleanField(default=True)
     
     def __str__(self) -> str:
@@ -115,13 +129,28 @@ class Account(models.Model):
     def adjust_balance(self, target, user):
         diff = target - self.current_balance
         if diff < 0:
-            type = "EXP"
+            type = Category.EXPENSE
         elif diff > 0:
-            type = "INC"
+            type = Category.INCOME
         else:
             return
+        
+        qs = Category.objects.filter(
+            created_by = user,
+            type = type,
+            internal_type = Category.ADJUSTMENT
+        )
+        if qs.exists():
+            adjustment_category = qs.first()
+        else:
+            adjustment_category = Category.objects.create(
+                name = Category.ADJUSTMENT_NAME,
+                created_by = user,
+                type = type,
+                internal_type = Category.ADJUSTMENT
+            )
         transaction = Transaction(ammount=abs(diff))
-        transaction.type = type
+        transaction.category = adjustment_category
         transaction.description = "Balance adjustment"
         transaction.account = self
         transaction.created_by = user

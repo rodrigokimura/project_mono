@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ValidationError
-from django.forms.widgets import Widget
+from django.forms.widgets import HiddenInput, Widget
 from django.contrib.auth import login, authenticate, get_user_model, forms as auth_forms
 from django.template import loader
 from django.utils.safestring import mark_safe
@@ -122,6 +122,8 @@ class AccountForm(forms.ModelForm):
 class TransactionForm(forms.ModelForm):
     error_css_class = 'error'
 
+    type=HiddenInput()
+
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
@@ -129,7 +131,7 @@ class TransactionForm(forms.ModelForm):
         shared_accounts = Account.objects.filter(group__members=self.request.user)
         self.fields['description'].widget.attrs.update({'placeholder': 'Description'})
         self.fields['ammount'].widget.attrs.update({'placeholder': 'Ammount'})
-        self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user)
+        self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
         self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
         self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
     
@@ -148,11 +150,9 @@ class TransactionForm(forms.ModelForm):
             "ammount",
             "category",
             "active",
-            "type",
         ]
         exclude = ['created_by']
         widgets = {
-            'type': forms.HiddenInput,
             'category': CategoryWidget,
             'timestamp': CalendarWidget,
             'active': ToggleWidget,
@@ -192,7 +192,7 @@ class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category 
         fields = '__all__'
-        exclude = ['created_by']
+        exclude = ['created_by', 'internal_type']
         widgets = {
             'icon':IconWidget,
             'active':ToggleWidget
@@ -322,8 +322,7 @@ class FakerForm(forms.Form):
                     # TODO: #43 Implement configurable timestamp faker generator
                     # timestamp = models.DateTimeField(default=timezone.now)
                     ammount = random.randint(0,1000),
-                    type = random.choice([t[0] for t in Transaction.TRANSACTION_TYPES]),
-                    category = Category.objects.filter(created_by=target_user, group=None).order_by("?").first(),
+                    category = Category.objects.filter(created_by=target_user, group=None, internal_type=Category.DEFAULT).order_by("?").first(),
                     account = Account.objects.filter(owned_by=target_user, group=None).order_by("?").first(),
                     # active = models.BooleanField(default=True)
                 )
