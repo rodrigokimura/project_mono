@@ -1,6 +1,10 @@
 {% extends "finance/base.html" %}
 
 {% block head %}
+<style type="text/css" media="all">
+.hidden{display: none}
+  
+</style>
 {% endblock head %}
 
 {% block body %}
@@ -41,10 +45,10 @@
     <i class="table icon"></i> Transactions
   </div>
 
-  {% if object_list %}
-  {% for date in dates %}
+  {% if page_obj.object_list %}
+  {% for date in daily_grouped %}
   <div class="row" style="margin-bottom: 1em;">
-    <div class="ui segments">
+    <div class="ui hidden segments" data-date="{{ date.date|date:'Y-m-d' }}">
       <div class="ui secondary grey segment" style="padding: .5em 1em;">
         <div class="ui grid">
           <div class="eight wide column">
@@ -80,8 +84,11 @@
         </div>
       </div>
       
-      {% for transaction in object_list %}
+      {% for transaction in page_obj.object_list %}
       {% if transaction.date == date.date %}
+      <script type="text/javascript" charset="utf-8">
+        $(".ui.segments[data-date='{{ date.date|date:'Y-m-d' }}']").removeClass("hidden");
+      </script>
       <div class="ui segment" style="padding: .5em 1em;">
         <div class="ui grid">
           <div class="eight wide column">
@@ -105,9 +112,9 @@
           <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
             <a href="{% url 'finance:transaction_update' pk=transaction.pk %}">
               <span
-                {% if transaction.type == 'INC' %}
+                {% if transaction.category.type == 'INC' %}
                 class="ui green text"
-                {% elif transaction.type == 'EXP' %}
+                {% elif transaction.category.type == 'EXP' %}
                 class="ui red text"
                 {% endif %}
                 >
@@ -123,6 +130,8 @@
   </div>
   {% endfor %}
   {% endif %}
+  
+  {% include "_pagination.html" with page_obj=page_obj %}
   
   <div class="row">
       <a class="ui fluid button primary" href="{% url "finance:transaction_create" %}">Add transaction</a>

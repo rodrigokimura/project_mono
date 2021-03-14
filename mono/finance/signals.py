@@ -12,6 +12,12 @@ def initial_setup(sender, instance, created, **kwargs):
         ['Groceries', 'EXP', 'shopping basket'],
         ['Salary', 'INC', 'money bill alternate outline'],
     ]
+    SPECIAL_CATEGORIES = [
+        [Category.TRANSFER_NAME, 'INC', 'money bill alternate outline', Category.TRANSFER],
+        [Category.TRANSFER_NAME, 'EXP', 'money bill alternate outline', Category.TRANSFER],
+        [Category.ADJUSTMENT_NAME, 'INC', 'money bill alternate outline', Category.ADJUSTMENT],
+        [Category.ADJUSTMENT_NAME, 'EXP', 'money bill alternate outline', Category.ADJUSTMENT],
+    ]
     
     if created:
         try:
@@ -28,8 +34,16 @@ def initial_setup(sender, instance, created, **kwargs):
             Category.objects.create(
                 name=category[0],
                 type=category[1],
+                icon=Icon.objects.get(markup=category[2]),
                 created_by=instance,
-                icon=Icon.objects.get(markup=category[2])
+            )
+        for category in SPECIAL_CATEGORIES:
+            Category.objects.create(
+                name=category[0],
+                type=category[1],
+                icon=Icon.objects.get(markup=category[2]),
+                internal_type=category[3],
+                created_by=instance,
             )
 
         # Initial configuration
