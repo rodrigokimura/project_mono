@@ -13,7 +13,7 @@ from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
-from django.db.models import F, Q, Sum
+from django.db.models import F, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
 from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification
 from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm
@@ -61,14 +61,15 @@ class Logout(LogoutView):
 
 class TransactionListView(LoginRequiredMixin, ListView):
     model = Transaction
-    paginate_by = 100
+    paginate_by = 5
     
     def get_queryset(self):
         category = self.request.GET.get('category', None)
-        qs = Transaction.objects.all()
-        qs = qs.annotate(date=TruncDay('timestamp'))
-        qs = qs.order_by('-timestamp')
-        qs = qs.filter(created_by=self.request.user)
+        qs = Transaction.objects.filter(
+            created_by=self.request.user
+        ).annotate(
+            date=TruncDay('timestamp')
+        ).order_by('-timestamp')
         
         if category not in [None, ""]:
             qs = qs.filter(category=category)
@@ -77,29 +78,34 @@ class TransactionListView(LoginRequiredMixin, ListView):
         
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()
         context['categories'] = Category.objects.filter(created_by=self.request.user)
         qs = self.get_queryset()
-        qs = qs.annotate(date=TruncDay('timestamp')).values('date')
+        qs = qs.annotate(
+            date=TruncDay('timestamp')
+        ).values('date')
         qs = qs.annotate(
             total_expense=Coalesce(
                 Sum(
                   'ammount', 
-                  filter=Q(type='EXP')
-                ), 0
-            )
-        )
-        qs = qs.annotate(
+                  filter=Q(category__type='EXP')
+                ), V(0)
+            ),
             total_income=Coalesce(
                 Sum(
                     'ammount', 
-                    filter=Q(type='INC')
-                ), 0
+                    filter=Q(category__type='INC')
+                ), V(0)
             )
         )
         qs = qs.order_by('-date')
         
-        context['dates'] = qs
+        context['daily_grouped'] = qs
+        
+        query_string = self.request.GET.copy()
+        if "page" in query_string: 
+            query_string.pop('page')
+        
+        context['query_string'] = query_string.urlencode()
         
         return context
 
@@ -198,29 +204,34 @@ class CategoryListView(LoginRequiredMixin, ListView):
     model = Category 
     
     def get_queryset(self):
-        qs = Category.objects.all()
-        qs = qs.filter(created_by=self.request.user)
+        qs = Category.objects.filter(
+            created_by=self.request.user,
+            internal_type=Category.DEFAULT
+        )
         return qs
         
 class CategoryListApi(View):
     def get(self, request):
         time.sleep(.5)
-        type = request.GET.get("type", "EXP")
+        type = request.GET.get("type", Category.EXPENSE)
         account = request.GET.get("account", None)
-        qs = Category.objects.all()
-        qs = qs.filter(created_by=request.user)
-        qs = qs.filter(type=type)
+        qs = Category.objects.filter(
+            created_by=request.user,
+            type=type,
+            internal_type=Category.DEFAULT
+        )
 
         if account not in [None,""]:
             account = Account.objects.get(id=int(account))
             qs = qs.filter(group=account.group)
-            print(account)
         else:
             qs = qs.filter(group=None)
 
         qs = qs.values('name')
-        qs = qs.annotate(value=F('id'))
-        qs = qs.annotate(icon=F('icon__markup'))
+        qs = qs.annotate(
+            value=F('id'),
+            icon=F('icon__markup'),
+        )
         return JsonResponse(
             {
                 'success':True,
@@ -438,12 +449,6 @@ class NotificationListApi(LoginRequiredMixin, View):
                 'success':True,
                 'message':'Notifications retrived from database.',
                 'results': list(qs)
-                # 'results':[{
-                #     "name":
-                #     f"""<div class="ui label">{n['name']}</div>{n['message']}""",
-                #     "value":n['id'],
-                #     "icon":n['icon'],
-                #     } for n in qs],
             }
         )
 

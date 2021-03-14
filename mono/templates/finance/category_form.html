@@ -37,21 +37,5 @@
   
 <script>
   $('*.ui.dropdown').dropdown();
-  $('input[name=timestamp]').datetimepicker(
-    {
-      inline:false,
-      format: 'Y-m-d H:i'
-    });
-      
-  {% if object %}
-  $('[data-value={{ object.type }}').addClass('active');
-  $('input[name=type]').val('{{ object.type}}');
-  {% endif %}
-  
-  let selectType = el => {
-    $(el).addClass('active')
-    .siblings().removeClass('active')
-    $('input[name=type]').val($(el).data('value'));
-  }
 </script>
 {% endblock %}
