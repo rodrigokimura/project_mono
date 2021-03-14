@@ -13,15 +13,17 @@ User = get_user_model()
 class TransactionModelTests(TestCase):
   
     def test_signed_ammount_with_income(self):
+        category = Category(type=Category.INCOME)
         income = Transaction(
             ammount=10,
-            type="INC")
+            category=category)
         self.assertIs(income.signed_ammount > 0, True)
 
     def test_signed_ammount_with_expense(self):
+        category = Category(type=Category.EXPENSE)
         expense = Transaction(
             ammount=10,
-            type="EXP")
+            category=category)
         self.assertIs(expense.signed_ammount < 0, True)
         
 class UserModelTests(TestCase):
@@ -85,11 +87,13 @@ class AccountModelTests(TestCase):
         self.assertFalse(self.group.owned_by==self.user_2)
 
     def test_patch_with_logged_in_user(self):
+        
         transaction = Transaction.objects.create(
             description="Test", 
             ammount=100, 
             account=self.account,
-            created_by=self.user_1
+            created_by=self.user_1,
+            category=Category.objects.filter(created_by=self.user_1, type=Category.EXPENSE).first()
         )
         request = self.factory.get(f'/fn/transaction/{transaction.pk}/delete/')
         request.user = self.user_1

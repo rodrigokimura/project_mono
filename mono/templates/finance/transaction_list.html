@@ -112,9 +112,9 @@
           <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
             <a href="{% url 'finance:transaction_update' pk=transaction.pk %}">
               <span
-                {% if transaction.type == 'INC' %}
+                {% if transaction.category.type == 'INC' %}
                 class="ui green text"
-                {% elif transaction.type == 'EXP' %}
+                {% elif transaction.category.type == 'EXP' %}
                 class="ui red text"
                 {% endif %}
                 >
