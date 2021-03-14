@@ -87,13 +87,13 @@ class TransactionListView(LoginRequiredMixin, ListView):
             total_expense=Coalesce(
                 Sum(
                   'ammount', 
-                  filter=Q(type='EXP')
+                  filter=Q(category__type='EXP')
                 ), V(0)
             ),
             total_income=Coalesce(
                 Sum(
                     'ammount', 
-                    filter=Q(type='INC')
+                    filter=Q(category__type='INC')
                 ), V(0)
             )
         )
@@ -204,29 +204,34 @@ class CategoryListView(LoginRequiredMixin, ListView):
     model = Category 
     
     def get_queryset(self):
-        qs = Category.objects.all()
-        qs = qs.filter(created_by=self.request.user)
+        qs = Category.objects.filter(
+            created_by=self.request.user,
+            internal_type=Category.DEFAULT
+        )
         return qs
         
 class CategoryListApi(View):
     def get(self, request):
         time.sleep(.5)
-        type = request.GET.get("type", "EXP")
+        type = request.GET.get("type", Category.EXPENSE)
         account = request.GET.get("account", None)
-        qs = Category.objects.all()
-        qs = qs.filter(created_by=request.user)
-        qs = qs.filter(type=type)
+        qs = Category.objects.filter(
+            created_by=request.user,
+            type=type,
+            internal_type=Category.DEFAULT
+        )
 
         if account not in [None,""]:
             account = Account.objects.get(id=int(account))
             qs = qs.filter(group=account.group)
-            print(account)
         else:
             qs = qs.filter(group=None)
 
         qs = qs.values('name')
-        qs = qs.annotate(value=F('id'))
-        qs = qs.annotate(icon=F('icon__markup'))
+        qs = qs.annotate(
+            value=F('id'),
+            icon=F('icon__markup'),
+        )
         return JsonResponse(
             {
                 'success':True,
@@ -444,12 +449,6 @@ class NotificationListApi(LoginRequiredMixin, View):
                 'success':True,
                 'message':'Notifications retrived from database.',
                 'results': list(qs)
-                # 'results':[{
-                #     "name":
-                #     f"""<div class="ui label">{n['name']}</div>{n['message']}""",
-                #     "value":n['id'],
-                #     "icon":n['icon'],
-                #     } for n in qs],
             }
         )
 
