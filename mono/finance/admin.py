@@ -23,7 +23,7 @@ class TransactionAdmin(admin.ModelAdmin):
         "created_by",
         "created_at",
         "timestamp",
-        "type",
+        "category__type",
         "category__name",
         "active",
     ]
