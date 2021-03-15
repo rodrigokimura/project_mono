@@ -12,8 +12,6 @@ import jwt
 
 User = get_user_model()
 
-
-
 class Transaction(models.Model):
     description = models.CharField(max_length=50, null=False, blank=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -163,32 +161,21 @@ class Account(models.Model):
     def __str__(self) -> str:
         return self.name
 
-WEEKLY = 'W'
-MONTHLY = 'M'
-YEARLY = 'Y'
-GOAL_FREQUENCY = [
-    (WEEKLY, 'Weekly'),
-    (MONTHLY, 'Monthly'),
-    (YEARLY, 'Yearly'),
-]
-
-OPEN = 'O'
-PENDING = 'P'
-CLOSED = 'C'
-BUDGET_STATUS = [
-    (OPEN, 'Open'),
-    (PENDING, 'Pending'),
-    (CLOSED, 'Closed'),
-]
-
-CONSTANT = 'C'
-LINEAR = 'L'
-PROGRESSION_MODES = [
-    (CONSTANT, 'Constant'),
-    (LINEAR, 'Linear'),
-]
-
 class Goal(models.Model):
+    WEEKLY = 'W'
+    MONTHLY = 'M'
+    YEARLY = 'Y'
+    GOAL_FREQUENCY = [
+        (WEEKLY, 'Weekly'),
+        (MONTHLY, 'Monthly'),
+        (YEARLY, 'Yearly'),
+    ]
+    CONSTANT = 'C'
+    LINEAR = 'L'
+    PROGRESSION_MODES = [
+        (CONSTANT, 'Constant'),
+        (LINEAR, 'Linear'),
+    ]
     name = models.CharField(max_length=50)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -202,6 +189,14 @@ class Goal(models.Model):
         return self.name
         
 class Budget(models.Model):
+    OPEN = 'O'
+    PENDING = 'P'
+    CLOSED = 'C'
+    BUDGET_STATUS = [
+        (OPEN, 'Open'),
+        (PENDING, 'Pending'),
+        (CLOSED, 'Closed'),
+    ]
     goal = models.FloatField()
     period = models.IntegerField()
     status = models.CharField(max_length=1, choices=BUDGET_STATUS, default=OPEN, editable=False)
