@@ -5,10 +5,8 @@ from .models import Transaction, Account, Category, Group
 import datetime
 from django.contrib.auth.models import AnonymousUser, User
 
-
-
-User = get_user_model()
 # Create your tests here.
+User = get_user_model()
 
 class TransactionModelTests(TestCase):
   
@@ -103,11 +101,6 @@ class AccountModelTests(TestCase):
         # # Use this syntax for class-based views.
         # response = MyView.as_view()(request)
         # self.assertEqual(response.status_code, 200)
-
-
-
-
-
 
 # User default accounts creation
 # User default category creation

@@ -4,7 +4,7 @@ from django.forms.widgets import HiddenInput, Widget
 from django.contrib.auth import login, authenticate, get_user_model, forms as auth_forms
 from django.template import loader
 from django.utils.safestring import mark_safe
-from .models import Configuration, Transaction, Group, Category, Account, Icon, Goal, Configuration
+from .models import Transaction, Group, Category, Account, Icon, Goal
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 from faker import Faker

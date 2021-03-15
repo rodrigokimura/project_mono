@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mono Project</title>
+  <title>Mono Project{% if APP_ENV == 'DEV' %} [DEV]{% endif %}</title>
 
   <link rel="stylesheet" type="text/css" href="{% static 'semantic/dist/semantic.min.css' %}">
   <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
@@ -16,10 +16,17 @@
   <script src="{% static 'js/pace.min.js' %}"></script>
   <link rel="stylesheet" href="{% static 'css/minimal.css' %}">
 
-  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
-  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon-32x32.png' %}">
-  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon-16x16.png' %}">
-  <link rel="manifest" href="{% static 'site.webmanifest' %}">
+  {% if APP_ENV == 'DEV' %}
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/dev/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/dev/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/dev/favicon-16x16.png' %}">
+  <link rel="manifest" href="{% static 'dev/site.webmanifest' %}">
+  {% else %}
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/prd/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/prd/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/prd/favicon-16x16.png' %}">
+  <link rel="manifest" href="{% static 'prd/site.webmanifest' %}">
+  {% endif %}
 
   <style type="text/css" media="all">
   </style>
@@ -29,7 +36,7 @@
       'invite'                      : '/fn/invite/',
       'list invites'                : '/fn/invites/',
       'get notifications'           : '/fn/ajax/notifications/',
-      'get notification ids'  : '/fn/notification/get-ids/',
+      'get notification ids'        : '/fn/notification/get-ids/',
       successTest: function(response) {
         return response.success;
       },
