@@ -8,22 +8,24 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 APP_VERSION = "0.0.1"
 
+APP_ENV = os.getenv('APP_ENV')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if os.getenv('APP_ENV') == 'DEV': 
+if APP_ENV == 'DEV': 
     SECRET_KEY = 'devkeyprojectmono'
 else: 
     SECRET_KEY = os.getenv('APP_SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('APP_ENV') == 'DEV'
-CSRF_COOKIE_SECURE = os.getenv('APP_ENV') == 'PRD'
-SESSION_COOKIE_SECURE = os.getenv('APP_ENV') == 'PRD'
+DEBUG = APP_ENV == 'DEV'
+CSRF_COOKIE_SECURE = APP_ENV == 'PRD'
+SESSION_COOKIE_SECURE = APP_ENV == 'PRD'
 
-if os.getenv('APP_ENV') == 'DEV': 
-    ALLOWED_HOSTS = []
+if APP_ENV == 'DEV': 
+    ALLOWED_HOSTS = ['*']
 else: 
     ALLOWED_HOSTS = [os.getenv('ALLOWED_HOST')]
 
@@ -69,6 +71,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                '_mono.context_processors.environment',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -84,7 +87,7 @@ WSGI_APPLICATION = '_mono.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-if os.getenv('APP_ENV') == 'DEV':
+if APP_ENV == 'DEV':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -151,7 +154,7 @@ MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
 LOGIN_REDIRECT_URL = reverse_lazy('finance:index')
 LOGIN_URL = reverse_lazy('finance:login')
 
-if os.getenv('APP_ENV') == 'DEV': 
+if APP_ENV == 'DEV': 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'    
