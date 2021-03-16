@@ -9,16 +9,16 @@
       <div class="row">
         <div class="eight wide column">
           <div class="ui container">
-            <form method="post" class="ui {% if form.errors %}error{% endif %} form" id="goal_form">
+            <form method="post" class="ui {% if form.errors %}error{% endif %} form" id="budget_form">
               {% csrf_token %}
               {% include "_form.html" with form=form %}
               <div class="fluid ui big buttons">
-                <button class="ui button primary" type="submit" form="goal_form">
+                <button class="ui button primary" type="submit" form="budget_form">
                   Save
                 </button>
                 <div class="or"></div>
-                {% if object %}
-                <a class="ui button red" href="{% url 'finance:goal_delete' pk=object.pk %}">
+                {% if object and object.created_by == request.user %}
+                <a class="ui button red" href="{% url 'finance:budget_delete' pk=object.pk %}">
                   Delete
                 </a>
                 <div class="or"></div>
@@ -36,6 +36,6 @@
 </div>
   
 <script>
-$('.ui.dropdown').dropdown();
+  $('*.ui.dropdown').dropdown();
 </script>
 {% endblock %}

@@ -1,13 +1,12 @@
 from django.conf import settings
 from django.db import models
-from django.db.models import signals, Sum
-from django.db.models.enums import Choices
+from django.db.models import F, Q, Sum, Value as V
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives
 from django.urls import reverse
 from django.template.loader import get_template
-from datetime import timedelta
+from datetime import date, timedelta
 import jwt
 
 User = get_user_model()
@@ -188,20 +187,100 @@ class Goal(models.Model):
     def __str__(self) -> str:
         return self.name
         
-class Budget(models.Model):
-    OPEN = 'O'
-    PENDING = 'P'
-    CLOSED = 'C'
-    BUDGET_STATUS = [
-        (OPEN, 'Open'),
-        (PENDING, 'Pending'),
-        (CLOSED, 'Closed'),
+class BudgetConfiguration(models.Model):
+    WEEKLY = 'W'
+    MONTHLY = 'M'
+    YEARLY = 'Y'
+    FREQUENCY = [
+        (WEEKLY, 'Weekly'),
+        (MONTHLY, 'Monthly'),
+        (YEARLY, 'Yearly'),
     ]
-    goal = models.FloatField()
-    period = models.IntegerField()
-    status = models.CharField(max_length=1, choices=BUDGET_STATUS, default=OPEN, editable=False)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    ammount = models.FloatField()
+    frequency = models.CharField(max_length=1, choices=FREQUENCY, default=MONTHLY)
+    accounts = models.ManyToManyField(Account)
+    categories = models.ManyToManyField(Category)
+    active = models.BooleanField(default=True)
+
+class Budget(models.Model):
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    ammount = models.FloatField()
+    start_date = models.DateField(default=timezone.now)
+    end_date = models.DateField()
+    accounts = models.ManyToManyField(Account)
+    categories = models.ManyToManyField(Category)
+    configuration = models.ForeignKey(BudgetConfiguration, on_delete=models.SET_NULL, null=True, blank=True)
     def __str__(self) -> str:
-        return f'{str(self.period)} - {self.status}'
+        return f'{str(self.configuration)} - {self.ammount}'
+    
+    @property
+    def open(self):
+        return self.end_date >= timezone.now().date()
+
+    @property
+    def time_spent(self):
+        return (timezone.now().date() - self.start_date).days
+
+    @property
+    def time_total(self):
+        return (self.end_date - self.start_date).days
+
+    @property
+    def time_progress(self):
+        if self.open:
+            try:
+                progress = (timezone.now().date() - self.start_date)/(self.end_date - self.start_date)
+            except ZeroDivisionError:
+                progress = 0
+        else: 
+            progress = 1
+        return progress
+
+    @property
+    def spent_queryset(self):
+        return Transaction.objects.filter(
+            account__in=self.accounts.all(),
+            category__in=self.categories.all()
+        )
+
+    @property
+    def ammount_spent(self):
+        return self.spent_queryset.aggregate(sum=Sum("ammount"))['sum']
+
+    @property
+    def ammount_progress(self):
+        try: 
+            progress = self.ammount_spent / self.ammount
+        except ZeroDivisionError:
+            progress = 0
+        return progress
+    
+    @property
+    def status(self):
+        threshold = (.9 * self.ammount)
+        if self.ammount_spent < threshold:
+            status = 'success'
+        elif threshold <= self.ammount_spent < self.ammount_spent:
+            status = 'warning'
+        else:
+            status = 'error'
+        return status
+
+    @property
+    def progress_bar_color(self):
+        if self.ammount_progress < .6:
+            color = 'green'
+        elif .6 <= self.ammount_progress < .8:
+            color = 'olive'
+        elif .8 <= self.ammount_progress < .9:
+            color = 'yellow'
+        elif .9 <= self.ammount_progress < .95:
+            color = 'orange'
+        else:
+            color = 'red'
+        return color
+
         
 class Invite(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True)
