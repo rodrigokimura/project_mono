@@ -19,6 +19,7 @@ def is_valid_signature(x_hub_signature, data, private_key):
     if sha_name != 'sha1':
         return False
     mac = hmac.new(force_bytes(private_key), msg=force_bytes(data), digestmod=sha1)
+    max_hex = mac.hexdigest()
 
     return hmac.compare_digest(force_bytes(mac.hexdigest()), force_bytes(signature))
 

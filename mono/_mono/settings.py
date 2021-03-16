@@ -10,7 +10,7 @@ APP_VERSION = "0.0.1"
 
 APP_ENV = os.getenv('APP_ENV')
 
-GITHUB_SECRET = os.getenv('APP_ENV')
+GITHUB_SECRET = os.getenv('GITHUB_SECRET')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
