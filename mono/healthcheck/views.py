@@ -32,9 +32,13 @@ def update_app(request):
                 repo = git.Repo(path)
                 origin = repo.remotes.origin
                 origin.pull()
+                print("Successfully updated repo!")
             elif event == "ping":
                 return JsonResponse({'msg': "pong"})
+            else:
+                print("Invalid event.")
+        else:
+            print("Invalid signature.")
 
-        print("Successfully updated repo!")
 
     return JsonResponse({'status': "ok"})
