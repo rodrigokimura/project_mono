@@ -501,11 +501,11 @@ class BudgetUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, SuccessM
   
 class BudgetDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Budget
-    success_url = reverse_lazy('finance:accounts')
+    success_url = reverse_lazy('finance:budgets')
     success_message = "Budget was deleted successfully"
 
     def test_func(self):
-        return self.get_object().owned_by == self.request.user
+        return self.get_object().created_by == self.request.user
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)

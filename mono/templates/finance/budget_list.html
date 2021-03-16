@@ -21,20 +21,31 @@
             From {{ budget.start_date }} to {{ budget.end_date }}
           </a>
         </div>
-        {% comment %}
-        <div class="six wide right aligned column">
-          {% with budget.current_balance as b %}
-          <span class="ui {% if b > 0 %}green{% elif b == 0 %}green{% else %}red{% endif %} text">{{ b }}</span>
-          {% endwith %}
-        </div>
-        {% endcomment %}
+      </div>
+      <div class="ui segment">
+
+          {% for account in budget.accounts.all %}
+          <a class="ui small label" href="{% url 'finance:account_update' account.pk %}">
+          {{ account }}
+          </a> 
+          {% endfor %}
+          {% for category in budget.categories.all %}
+          <a class="ui small tag label" style="margin-top: .2em;" href="{% url 'finance:category_update' category.pk %}">
+            <i class="{{ category.icon }} icon"></i>{{ category }}
+          </a> 
+          {% endfor %}
       </div>
       <div class="ui grid segment">
         <div class="six wide column">
           Ammount progress
         </div>
         <div class="ten wide right aligned column">
-          {{ budget.start_date }}
+          <div class="ui ammount {{ budget.progress_bar_color }} progress" data-value="{{ budget.ammount_spent }}" data-total="{{ budget.ammount }}">
+            <div class="bar">
+              <div class="progress"></div>
+            </div>
+            <div class="label">{{ budget.ammount_spent }} of {{ budget.ammount }} spent</div>
+          </div>
         </div>
       </div>
       <div class="ui grid segment">
@@ -42,12 +53,11 @@
           Time progress
         </div>
         <div class="ten wide right aligned column">
-          {% comment %} {{ budget.time_progress|floatformat:2 }} {% endcomment %}
-          <div class="ui progress" data-progress="{{ budget.time_progress }}">
+          <div class="ui time progress" data-value="{{ budget.time_spent }}" data-total="{{ budget.time_total }}">
             <div class="bar">
               <div class="progress"></div>
             </div>
-            {% comment %} <div class="label">Uploading Files</div> {% endcomment %}
+            <div class="label"></div>
           </div>
         </div>
       </div>
@@ -71,9 +81,33 @@
     .closest('.message')
     .transition('fade');
   });
-  $('*.ui.progress').toArray().forEach(
+  $('*.ui.ammount.progress').toArray().forEach(
     item => {
-      $(item).progress({percent: 100*$(item).data('progress')});
+      value = $(item).data('value');
+      total = $(item).data('total');
+      percent = Math.round(value/total*100)
+      
+      $(item).progress(
+        {
+          autoSuccess: false,
+          showActivity: false,
+          text: {
+            percent: `${percent}%`,
+          },
+        }
+      );
+    }
+  );
+  $('*.ui.time.progress').toArray().forEach(
+    item => {
+      $(item).progress(
+        {
+          showActivity: false,
+          text: {
+            active: '{value} of {total} days past',
+          }
+        }
+      ); 
     }
   );
 </script>
