@@ -1,14 +1,16 @@
 import os
 from pathlib import Path
 from django.urls import reverse_lazy
-
 from dotenv import load_dotenv
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 APP_VERSION = "0.0.1"
 
 APP_ENV = os.getenv('APP_ENV')
+
+GITHUB_SECRET = os.getenv('APP_ENV')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
