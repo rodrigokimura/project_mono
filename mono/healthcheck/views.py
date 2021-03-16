@@ -5,6 +5,8 @@ import git
 import os
 import hmac
 import hashlib
+from django.views.decorators.csrf import csrf_exempt
+
 
 def is_valid_signature(x_hub_signature, data, private_key):
     # x_hub_signature and data are from the webhook payload
@@ -18,6 +20,7 @@ def is_valid_signature(x_hub_signature, data, private_key):
 def healthcheck(request):
     return JsonResponse({'version': settings.APP_VERSION})
 
+@csrf_exempt
 def update_app(request):
     if request.method == "POST":
         x_hub_signature = request.headers.get('X-Hub-Signature')
