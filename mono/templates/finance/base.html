@@ -47,7 +47,6 @@
           const cookies = document.cookie.split(';');
           for (let i = 0; i < cookies.length; i++) {
               const cookie = cookies[i].trim();
-              // Does this cookie string begin with the name we want?
               if (cookie.substring(0, name.length + 1) === (name + '=')) {
                   cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                   break;
@@ -65,8 +64,9 @@
   
   <div class="ui vertical inverted thin sidebar labeled icon left menu">
     <a class="item" href="{% url 'finance:index' %}"><i class="home icon"></i>Home</a>
-    <a class="item" href="{% url 'finance:accounts' %}"><i class="wallet icon"></i>Accounts</a>
     <a class="item" href="{% url 'finance:transactions' %}"><i class="money bill icon"></i>Transactions</a>
+    <a class="item" href="{% url 'finance:accounts' %}"><i class="wallet icon"></i>Accounts</a>
+    <a class="item" href="{% url 'finance:budgets' %}"><i class="wallet icon"></i>Budgets</a>
     <a class="item" href="{% url 'finance:groups' %}"><i class="users icon"></i>Groups</a>
     <a class="item" href="{% url 'finance:categories' %}"><i class="tags icon"></i>Categories</a>
     <a class="item" href="{% url 'finance:goals' %}"><i class="bullseye icon"></i>Goals</a>
