@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import F, Q, Sum, Value as V
+from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.mail import EmailMultiAlternatives
@@ -241,12 +242,14 @@ class Budget(models.Model):
     def spent_queryset(self):
         return Transaction.objects.filter(
             account__in=self.accounts.all(),
-            category__in=self.categories.all()
+            category__in=self.categories.all(),
+            timestamp__gte=self.start_date,
+            timestamp__lt=self.end_date,
         )
 
     @property
     def ammount_spent(self):
-        return self.spent_queryset.aggregate(sum=Sum("ammount"))['sum']
+        return self.spent_queryset.aggregate(sum=Coalesce(Sum("ammount"), V(0)))['sum']
 
     @property
     def ammount_progress(self):
