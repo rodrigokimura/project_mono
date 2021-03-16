@@ -33,13 +33,15 @@ def update_app(request):
         if is_valid_signature(x_hub_signature, request.body, w_secret):
             ref = body['ref']
             event = request.headers.get('X-GitHub-Event')
-            if event == "push" and ref == "refs/heads/master":
-                path = Path(settings.BASE_DIR).resolve().parent
-                repo = git.Repo(path)
-                origin = repo.remotes.origin
-                fetchInfoList = origin.pull()
-                print("Successfully updated repo!")
-                print(fetchInfoList)
+            if event == "pull_request" and ref == "refs/heads/master":
+                if body["action"] == "closed" and body["pull_request"]["merged"]:
+                    pr_number = body['pull_request']["number"]
+                    path = Path(settings.BASE_DIR).resolve().parent
+                    repo = git.Repo(path)
+                    origin = repo.remotes.origin
+                    fetchInfoList = origin.pull()
+                    print(f"Merged Pull Request detedted: #{pr_number}")
+                    print(fetchInfoList)
             elif event == "ping":
                 return JsonResponse({'msg': "pong"})
             else:
