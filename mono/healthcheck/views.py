@@ -25,7 +25,7 @@ def update_app(request):
     if request.method == "POST":
         x_hub_signature = request.headers.get('X-Hub-Signature')
         w_secret = settings.GITHUB_SECRET
-        if is_valid_signature(x_hub_signature, request.data, w_secret):
+        if is_valid_signature(x_hub_signature, request.body, w_secret):
             event = request.headers.get('X-GitHub-Event')
             if event == "push":
                 path = Path(settings.BASE_DIR).resolve().parent
