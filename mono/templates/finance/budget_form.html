@@ -1,0 +1,41 @@
+{% extends "finance/base.html" %}
+{% load static %}
+
+{% block body %}
+
+<div class="pusher">
+  <div class="ui vertical stripe segment">
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+        <div class="eight wide column">
+          <div class="ui container">
+            <form method="post" class="ui {% if form.errors %}error{% endif %} form" id="budget_form">
+              {% csrf_token %}
+              {% include "_form.html" with form=form %}
+              <div class="fluid ui big buttons">
+                <button class="ui button primary" type="submit" form="budget_form">
+                  Save
+                </button>
+                <div class="or"></div>
+                {% if object and object.owned_by == request.user %}
+                <a class="ui button red" href="{% url 'finance:budget_delete' pk=object.pk %}">
+                  Delete
+                </a>
+                <div class="or"></div>
+                {% endif %}
+                <a class="ui button" href="{% url 'finance:budgets' %}">
+                  Cancel
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+<script>
+  $('*.ui.dropdown').dropdown();
+</script>
+{% endblock %}

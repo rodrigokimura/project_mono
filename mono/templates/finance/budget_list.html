@@ -1,0 +1,81 @@
+{% extends "finance/base.html" %}
+
+{% block head %}
+<style>
+</style>
+{% endblock head %}
+
+{% block body %}
+
+<div class="ui container" style="margin-bottom: 1em;">
+
+  <div class="ui horizontal divider"><i class="table icon"></i> Individual budgets</div>
+  
+  {% for budget in object_list %}
+  {% if not budget.is_shared %}
+  <div class="row" style="margin-bottom: 1em;">
+    <div class="ui segments">
+      <div class="ui grid secondary grey segment">
+        <div class="sixteen wide column">
+          <a href="{% url 'finance:budget_update' pk=budget.pk %}">
+            From {{ budget.start_date }} to {{ budget.end_date }}
+          </a>
+        </div>
+        {% comment %}
+        <div class="six wide right aligned column">
+          {% with budget.current_balance as b %}
+          <span class="ui {% if b > 0 %}green{% elif b == 0 %}green{% else %}red{% endif %} text">{{ b }}</span>
+          {% endwith %}
+        </div>
+        {% endcomment %}
+      </div>
+      <div class="ui grid segment">
+        <div class="six wide column">
+          Ammount progress
+        </div>
+        <div class="ten wide right aligned column">
+          {{ budget.start_date }}
+        </div>
+      </div>
+      <div class="ui grid segment">
+        <div class="six wide column">
+          Time progress
+        </div>
+        <div class="ten wide right aligned column">
+          {% comment %} {{ budget.time_progress|floatformat:2 }} {% endcomment %}
+          <div class="ui progress" data-progress="{{ budget.time_progress }}">
+            <div class="bar">
+              <div class="progress"></div>
+            </div>
+            {% comment %} <div class="label">Uploading Files</div> {% endcomment %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+
+  
+    
+  <div class="row">
+      <a class="ui fluid button primary" href="{% url "finance:budget_create" %}">Add budget</a>
+  </div>
+</div>
+
+
+<script>
+  $('.ui.dropdown').dropdown();
+  $('.message .close').click(function() {
+    $(this)
+    .closest('.message')
+    .transition('fade');
+  });
+  $('*.ui.progress').toArray().forEach(
+    item => {
+      $(item).progress({percent: 100*$(item).data('progress')});
+    }
+  );
+</script>
+
+{% endblock %}

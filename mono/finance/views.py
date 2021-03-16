@@ -14,8 +14,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse, HttpResponse
 from django.db.models import F, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
-from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification
-from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm
+from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification, Budget
+from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm, BudgetForm
 import time
 import jwt
 
@@ -149,11 +149,14 @@ class AccountCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
     success_url = reverse_lazy('finance:accounts')
     success_message = "%(name)s was created successfully"
 
-class AccountUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView): 
+class AccountUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView): 
     model = Account 
     form_class = AccountForm
     success_url = reverse_lazy('finance:accounts')
     success_message = "%(name)s was updated successfully"
+
+    def test_func(self):
+        return self.get_object().owned_by == self.request.user
   
 class AccountDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Account
@@ -475,6 +478,38 @@ class NotificationCheckUnread(LoginRequiredMixin, View):
             }
         )
 
+class BudgetListView(LoginRequiredMixin, ListView):
+    model = Budget
+    
+    def get_queryset(self):
+        return Budget.objects.filter(created_by=self.request.user)
+
+class BudgetCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
+    model = Budget
+    form_class = BudgetForm
+    success_url = reverse_lazy('finance:budgets')
+    success_message = "Budget was created successfully"
+
+class BudgetUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView): 
+    model = Budget 
+    form_class = BudgetForm
+    success_url = reverse_lazy('finance:budgets')
+    success_message = "Budget was updated successfully"
+
+    def test_func(self):
+        return self.get_object().created_by == self.request.user
+  
+class BudgetDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    model = Budget
+    success_url = reverse_lazy('finance:accounts')
+    success_message = "Budget was deleted successfully"
+
+    def test_func(self):
+        return self.get_object().owned_by == self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(BudgetDeleteView, self).delete(request, *args, **kwargs)
 
 class FakerView(UserPassesTestMixin, FormView):
     template_name = "finance/faker.html"

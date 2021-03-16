@@ -4,7 +4,6 @@ from . import models
 # Register your models here.
 admin.site.register(models.Icon)
 admin.site.register(models.Goal)
-admin.site.register(models.Budget)
 
 @admin.register(models.Transaction)
 class TransactionAdmin(admin.ModelAdmin):
@@ -78,6 +77,21 @@ class AccountAdmin(admin.ModelAdmin):
         "created_by",
         "group",
         "initial_balance",
+    ]
+
+@admin.register(models.Budget)
+class BudgetAdmin(admin.ModelAdmin):
+    list_display = [
+        "ammount",
+        "start_date",
+        "end_date",
+        "configuration",
+    ]
+    list_filter = [
+        "ammount",
+        "start_date",
+        "end_date",
+        "configuration",
     ]
 
 @admin.register(models.Invite)

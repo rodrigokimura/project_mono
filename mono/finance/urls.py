@@ -20,6 +20,11 @@ urlpatterns = [
     path("account/<int:pk>/detail/", views.AccountDetailView.as_view(), name='account_detail'),
     path("account/<int:pk>/delete/", views.AccountDeleteView.as_view(), name='account_delete'),
     path("accounts/", views.AccountListView.as_view(), name='accounts'),
+
+    path("budget/", views.BudgetCreateView.as_view(), name='budget_create'),
+    path("budget/<int:pk>/", views.BudgetUpdateView.as_view(), name='budget_update'),
+    path("budget/<int:pk>/delete/", views.BudgetDeleteView.as_view(), name='budget_delete'),
+    path("budgets/", views.BudgetListView.as_view(), name='budgets'),
     
     path("group/", views.GroupCreateView.as_view(), name='group_create'),
     path("group/<int:pk>", views.GroupUpdateView.as_view(), name='group_update'),
