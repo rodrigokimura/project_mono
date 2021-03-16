@@ -97,10 +97,16 @@ class AccountForm(forms.ModelForm):
         else:
             self.fields['current_balance'].widget.attrs.update({'value': self.instance.current_balance})
 
+    # def clean(self):
+    #     if self.instance.owned_by != self.request.user:
+    #         if self.instance.group != self.cleaned_data['group']:
+    #             raise ValidationError("You don't have permission to change the group.")
+    #     return self.cleaned_data
     def clean(self):
-        if self.instance.owned_by != self.request.user:
-            if self.instance.group != self.cleaned_data['group']:
-                raise ValidationError("You don't have permission to change the group.")
+        if self.instance.pk is not None:
+            if self.instance.owned_by != self.request.user:
+                if self.instance.group != self.cleaned_data['group']:
+                    raise ValidationError("You don't have permission to change the group.")
         return self.cleaned_data
 
     def save(self, *args, **kwargs): 
