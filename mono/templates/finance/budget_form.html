@@ -17,13 +17,13 @@
                   Save
                 </button>
                 <div class="or"></div>
-                {% if object and object.owned_by == request.user %}
+                {% if object and object.created_by == request.user %}
                 <a class="ui button red" href="{% url 'finance:budget_delete' pk=object.pk %}">
                   Delete
                 </a>
                 <div class="or"></div>
                 {% endif %}
-                <a class="ui button" href="{% url 'finance:budgets' %}">
+                <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
                   Cancel
                 </a>
               </div>

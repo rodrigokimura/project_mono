@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import F, Q, Sum, Value as V
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.mail import EmailMultiAlternatives
@@ -218,6 +219,14 @@ class Budget(models.Model):
         return self.end_date >= timezone.now().date()
 
     @property
+    def time_spent(self):
+        return (timezone.now().date() - self.start_date).days
+
+    @property
+    def time_total(self):
+        return (self.end_date - self.start_date).days
+
+    @property
     def time_progress(self):
         if self.open:
             try:
@@ -229,8 +238,49 @@ class Budget(models.Model):
         return progress
 
     @property
+    def spent_queryset(self):
+        return Transaction.objects.filter(
+            account__in=self.accounts.all(),
+            category__in=self.categories.all()
+        )
+
+    @property
+    def ammount_spent(self):
+        return self.spent_queryset.aggregate(sum=Sum("ammount"))['sum']
+
+    @property
     def ammount_progress(self):
-        pass
+        try: 
+            progress = self.ammount_spent / self.ammount
+        except ZeroDivisionError:
+            progress = 0
+        return progress
+    
+    @property
+    def status(self):
+        threshold = (.9 * self.ammount)
+        if self.ammount_spent < threshold:
+            status = 'success'
+        elif threshold <= self.ammount_spent < self.ammount_spent:
+            status = 'warning'
+        else:
+            status = 'error'
+        return status
+
+    @property
+    def progress_bar_color(self):
+        if self.ammount_progress < .6:
+            color = 'green'
+        elif .6 <= self.ammount_progress < .8:
+            color = 'olive'
+        elif .8 <= self.ammount_progress < .9:
+            color = 'yellow'
+        elif .9 <= self.ammount_progress < .95:
+            color = 'orange'
+        else:
+            color = 'red'
+        return color
+
         
 class Invite(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True)
