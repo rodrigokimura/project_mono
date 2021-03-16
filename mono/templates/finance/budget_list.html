@@ -35,30 +35,18 @@
           </a> 
           {% endfor %}
       </div>
-      <div class="ui grid segment">
-        <div class="six wide column">
-          Ammount progress
-        </div>
-        <div class="ten wide right aligned column">
-          <div class="ui ammount {{ budget.progress_bar_color }} progress" data-value="{{ budget.ammount_spent }}" data-total="{{ budget.ammount }}">
-            <div class="bar">
-              <div class="progress"></div>
-            </div>
-            <div class="label">{{ budget.ammount_spent }} of {{ budget.ammount }} spent</div>
+      <div class="ui segment">
+        <div class="ui ammount {{ budget.progress_bar_color }} progress" data-value="{{ budget.ammount_spent }}" data-total="{{ budget.ammount }}">
+          <div class="bar">
+            <div class="progress"></div>
           </div>
+          <div class="label">{{ budget.ammount_spent }} of {{ budget.ammount }} spent</div>
         </div>
-      </div>
-      <div class="ui grid segment">
-        <div class="six wide column">
-          Time progress
-        </div>
-        <div class="ten wide right aligned column">
-          <div class="ui time progress" data-value="{{ budget.time_spent }}" data-total="{{ budget.time_total }}">
-            <div class="bar">
-              <div class="progress"></div>
-            </div>
-            <div class="label"></div>
+        <div class="ui time progress" data-value="{{ budget.time_spent }}" data-total="{{ budget.time_total }}">
+          <div class="bar">
+            <div class="progress"></div>
           </div>
+          <div class="label"></div>
         </div>
       </div>
     </div>

@@ -5,3 +5,4 @@ pyjwt>=2.0,<3.0
 Pillow>=8
 python-dotenv
 Faker
+GitPython
