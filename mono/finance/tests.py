@@ -1,9 +1,12 @@
 from django.test import TestCase, RequestFactory
 from django.utils import timezone
 from django.contrib.auth import get_user_model
-from .models import Transaction, Account, Category, Group
-import datetime
 from django.contrib.auth.models import AnonymousUser, User
+from http import HTTPStatus
+import datetime
+
+from .models import Transaction, Account, Category, Group
+from .views import AccountCreateView
 
 # Create your tests here.
 User = get_user_model()
@@ -48,6 +51,7 @@ class AccountModelTests(TestCase):
     def setUp(self):
         self.user = User.objects.create(
             username="teste")
+        self.factory = RequestFactory()
             
     def test_adjust_balance(self):
         account = Account.objects.filter(created_by=self.user).first()
@@ -59,7 +63,32 @@ class AccountModelTests(TestCase):
         account.adjust_balance(-100, self.user)
         self.assertLess(account.current_balance, 0)
 
-class AccountModelTests(TestCase):
+class AccountFormTests(TestCase):
+
+    fixtures = ["icon.json"]
+    
+    def setUp(self):
+        self.user = User.objects.create(username="teste")
+        self.factory = RequestFactory()
+
+    def test_get(self):
+        request = self.factory.get(f'/fn/account/')
+        request.user = self.user
+        response = AccountCreateView.as_view()(request)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_post(self):
+        request = self.factory.post(
+            path=f'/fn/account/',
+            data={
+                "name": "Teste",
+            }
+        )
+        request.user = self.user
+        response = AccountCreateView.as_view()(request)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+class UserCreationTests(TestCase):
 
     fixtures = ["icon.json"]
 
