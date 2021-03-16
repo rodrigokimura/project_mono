@@ -31,7 +31,7 @@
               <div class="or"></div>
               {% endif %}
               {% endif %}
-              <a class="ui button" href="{% url 'finance:groups' %}">
+              <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
                 Cancel
               </a>
             </div>
