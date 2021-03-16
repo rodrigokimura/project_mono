@@ -4,7 +4,7 @@ from django.forms.widgets import HiddenInput, Widget
 from django.contrib.auth import login, authenticate, get_user_model, forms as auth_forms
 from django.template import loader
 from django.utils.safestring import mark_safe
-from .models import Transaction, Group, Category, Account, Icon, Goal
+from .models import Transaction, Group, Category, Account, Icon, Goal, Budget
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 from faker import Faker
@@ -15,17 +15,22 @@ import random
 User = get_user_model()
 
 class CalendarWidget(Widget):
+    template_name = 'widgets/ui_calendar.html'
     type = 'datetime'
     format = 'n/d/Y h:i A'
-    template_name = 'widgets/ui_calendar.html'
+
+    # def __init__(self):
+    #     self.type = 'datetime'
+    #     self.format = 'n/d/Y h:i A'
+
     def get_context(self, name, value, attrs=None):
         return {
-          'widget': {
-            'name': name,
-            'value': value,
-          },
-          'type':self.type,
-          'format':self.format,
+            'widget': {
+                'name': name,
+                'value': value,
+            },
+            'type': self.type,
+            'format': self.format,
         }
     def render(self, name, value, attrs=None, renderer=None):
         context = self.get_context(name, value, attrs)
@@ -261,6 +266,40 @@ class GoalForm(forms.ModelForm):
             goal.created_by = self.request.user
         goal.save()
         return super(GoalForm, self).save(*args, **kwargs)
+
+class BudgetForm(forms.ModelForm):
+    error_css_class = 'error'
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+        self.fields['accounts'].queryset = Account.objects.filter(owned_by=self.request.user, group=None)
+        self.fields['accounts'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['start_date'].widget.type = 'date'
+        self.fields['start_date'].widget.format = 'n/d/Y'
+        self.fields['end_date'].widget.type = 'date'
+        self.fields['end_date'].widget.format = 'n/d/Y'
+        self.fields['categories'].queryset = Category.objects.filter(
+            created_by=self.request.user, 
+            internal_type=Category.DEFAULT, 
+            group=None,
+            type=Category.EXPENSE)
+        self.fields['categories'].widget.attrs.update({'class': 'ui dropdown'})
+
+    def save(self, *args, **kwargs): 
+        budget = self.instance
+        if budget.pk is None:
+            budget.created_by = self.request.user
+        return super(BudgetForm, self).save(*args, **kwargs)
+        
+    class Meta:
+        model = Budget
+        fields = '__all__'
+        exclude = ['configuration', 'created_by']
+        widgets = {
+            'start_date': CalendarWidget,
+            'end_date': CalendarWidget,
+        }
         
 class UserForm(auth_forms.UserCreationForm):
     
