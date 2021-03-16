@@ -6,16 +6,21 @@ import os
 import hmac
 import hashlib
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.encoding import force_bytes
+from hashlib import sha1
+
+
 
 
 def is_valid_signature(x_hub_signature, data, private_key):
     # x_hub_signature and data are from the webhook payload
     # private key is your webhook secret
-    hash_algorithm, github_signature = x_hub_signature.split('=', 1)
-    algorithm = hashlib.__dict__.get(hash_algorithm)
-    encoded_key = bytes(private_key, 'latin-1')
-    mac = hmac.new(encoded_key, msg=data, digestmod=algorithm)
-    return hmac.compare_digest(mac.hexdigest(), github_signature)
+    sha_name, signature  = x_hub_signature.split('=')
+    if sha_name != 'sha1':
+        return False
+    mac = hmac.new(force_bytes(private_key), msg=force_bytes(data), digestmod=sha1)
+
+    return hmac.compare_digest(force_bytes(mac.hexdigest()), force_bytes(signature))
 
 def healthcheck(request):
     return JsonResponse({'version': settings.APP_VERSION})
