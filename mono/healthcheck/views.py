@@ -31,8 +31,9 @@ def update_app(request):
                 path = Path(settings.BASE_DIR).resolve().parent
                 repo = git.Repo(path)
                 origin = repo.remotes.origin
-                origin.pull()
+                fetchInfoList = origin.pull()
                 print("Successfully updated repo!")
+                print(fetchInfoList)
             elif event == "ping":
                 return JsonResponse({'msg': "pong"})
             else:
