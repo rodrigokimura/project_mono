@@ -1,0 +1,20 @@
+===={{ title }}====
+-------------------
+
+{{ warning_message }}
+
+{{ first_line }}
+
+{% for line in main_text_lines %}
+{{ line }}
+
+{% endfor %}
+
+{{ button_text }}:{{ button_link }}
+
+{{ after_button }}
+
+{% if unsubscribe_link %}
+Unsubcribe using the link below:
+{{ unsubscribe_link }}
+{% endif %}
