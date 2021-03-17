@@ -167,3 +167,10 @@ else:
     EMAIL_USE_TLS = True
     EMAIL_USE_SSL = False
     EMAIL_TIMEOUT = 30
+    
+DEFAULT_FROM_EMAIL = 'no-reply@voitkemp.com'
+
+ADMINS = [('Rodrigo Eiti Kimura', 'rodrigoeitikimura@gmail.com')]
+SERVER_EMAIL = 'error@voitkemp.com'
+EMAIL_SUBJECT_PREFIX = '[MONO PROJECT] '
+EMAIL_USE_LOCALTIME = True
