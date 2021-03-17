@@ -44,7 +44,7 @@ def update_app(request):
                     origin = repo.remotes.origin
                     fetchInfoList = origin.pull()
                     mail_admins(
-                        f'[MONO PROJECT] Delivery Notification - PR #{pr_number}', 
+                        f'Delivery Notification - PR #{pr_number}', 
                         f'Merged PR #{pr_number} triggered this code delivery. Merged at {merged_at} by {merged_by}')
                     print(f"Merged Pull Request detected: #{pr_number}")
                     print(fetchInfoList)
