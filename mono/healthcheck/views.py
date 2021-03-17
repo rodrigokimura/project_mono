@@ -12,7 +12,6 @@ import pytz
 import git
 import hmac
 import json
-import requests
 
 def is_valid_signature(x_hub_signature, data, private_key):
     sha_name, signature  = x_hub_signature.split('=')
