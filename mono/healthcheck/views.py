@@ -32,10 +32,10 @@ def update_app(request):
         
         body = json.loads(request.body.decode('utf-8'))
         if is_valid_signature(x_hub_signature, request.body, w_secret):
-            ref = body['ref']
             event = request.headers.get('X-GitHub-Event')
-            if event == "pull_request" and ref == "refs/heads/master":
-                if body["action"] == "closed" and body["pull_request"]["merged"]:
+            if event == "pull_request":
+                ref = body['pull_request']['base']['ref']
+                if body["action"] == "closed" and body["pull_request"]["merged"] and ref == 'master':
                     pr_number = body['pull_request']["number"]
                     merged_at = body['pull_request']["merged_at"]
                     merged_by = body['pull_request']["user"]['login']
