@@ -1,0 +1,12 @@
+# Add 'repo' label to any root file changes
+repo:
+  - ./*
+templates: mono/templates/**/*  
+tests: mono/*/tests.py
+forms: mono/*/forms.py
+urls: mono/*/urls.py
+views: mono/*/views.py
+settings: mono/_mono/settings.py
+fixtures: mono/*/fixtures/*
+migrations: mono/*/migrations/*
+sqlite: mono/db.sqlite3
