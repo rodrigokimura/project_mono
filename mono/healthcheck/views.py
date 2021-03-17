@@ -9,6 +9,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.encoding import force_bytes
 from hashlib import sha1
+from django.core.mail import mail_admins
 
 
 
@@ -36,11 +37,16 @@ def update_app(request):
             if event == "pull_request" and ref == "refs/heads/master":
                 if body["action"] == "closed" and body["pull_request"]["merged"]:
                     pr_number = body['pull_request']["number"]
+                    merged_at = body['pull_request']["merged_at"]
+                    merged_by = body['pull_request']["user"]['login']
                     path = Path(settings.BASE_DIR).resolve().parent
                     repo = git.Repo(path)
                     origin = repo.remotes.origin
                     fetchInfoList = origin.pull()
-                    print(f"Merged Pull Request detedted: #{pr_number}")
+                    mail_admins(
+                        f'[MONO PROJECT] Delivery Notification - PR #{pr_number}', 
+                        f'Merged PR #{pr_number} triggered this code delivery. Merged at {merged_at} by {merged_by}')
+                    print(f"Merged Pull Request detected: #{pr_number}")
                     print(fetchInfoList)
             elif event == "ping":
                 return JsonResponse({'msg': "pong"})
