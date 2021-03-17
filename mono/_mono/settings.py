@@ -171,6 +171,6 @@ else:
 DEFAULT_FROM_EMAIL = 'no-reply@voitkemp.com'
 
 ADMINS = [('Rodrigo Eiti Kimura', 'rodrigoeitikimura@gmail.com')]
-SERVER_EMAIL = 'error@voitkemp.com'
+SERVER_EMAIL = 'no-reply@voitkemp.com'
 EMAIL_SUBJECT_PREFIX = '[MONO PROJECT] '
 EMAIL_USE_LOCALTIME = True
