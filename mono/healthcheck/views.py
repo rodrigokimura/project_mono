@@ -3,12 +3,15 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.utils.encoding import force_bytes
+from django.views.generic.base import RedirectView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from datetime import datetime
 from hashlib import sha1
 import pytz
 import hmac
 import json
 from .models import PullRequest
+from django.shortcuts import get_object_or_404, redirect
 
 def is_valid_signature(x_hub_signature, data, private_key):
     sha_name, signature  = x_hub_signature.split('=')
@@ -73,3 +76,22 @@ def update_app(request):
             print("Invalid signature.")
 
     return HttpResponse("ok")
+
+
+class Deploy(UserPassesTestMixin, TemplateView):
+    template_name = 'healthcheck/deploy.html'
+
+    def test_func(self):
+        return self.request.user.is_superuser 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['last_pr'] = PullRequest.objects.latest('number')
+        return context
+    
+    def post(self, request):
+        pr = get_object_or_404(PullRequest, pk=request.POST.get('pk', None))
+        pr.deploy()
+        print("Deployment submit")
+        return redirect('healthcheck:deploy')
+        # return JsonResponse(response) 
