@@ -5,6 +5,29 @@ import git
 from django.utils import timezone
 from django.core.mail import mail_admins
 from django.template.loader import get_template
+from django.db.migrations.executor import MigrationExecutor
+from django.db import connections, DEFAULT_DB_ALIAS
+from django.core.management import execute_from_command_line
+
+def is_there_migrations_to_make():
+    try:
+        execute_from_command_line(["manage.py", "makemigrations", "--check", "--dry-run"])
+        system_exit = 0
+    except SystemExit as e:
+        system_exit = e
+    return system_exit != 0
+
+def pending_migrations(database=DEFAULT_DB_ALIAS):
+    """Returns a list of non applied Migration instances"""
+    connection = connections[database]
+    connection.prepare_database()
+    executor = MigrationExecutor(connection)
+    targets = executor.loader.graph.leaf_nodes()
+    return [migration for (migration, backwards) in executor.migration_plan(targets)]
+
+def is_database_synchronized(database=DEFAULT_DB_ALIAS):
+    """Returns True if there are no migrations to be applied."""
+    return not pending_migrations(database)
 
 # Create your models here.
 class PullRequest(models.Model):
@@ -15,7 +38,7 @@ class PullRequest(models.Model):
     deletions = models.IntegerField(default=0)
     changed_files = models.IntegerField(default=0)
     merged_at = models.DateTimeField(null=True, blank=True, default=None)
-    received_at = models.DateTimeField(auto_now=True)
+    received_at = models.DateTimeField(auto_now_add=True)
     pulled_at = models.DateTimeField(null=True, blank=True, default=None)
     deployed_at = models.DateTimeField(null=True, blank=True, default=None)
 
@@ -70,9 +93,17 @@ class PullRequest(models.Model):
 
     def deploy(self, **kwargs):
         """If in production, reloads the app and notifies admins."""
-        # TODO: #102 Check for migrations to apply before reloading
         # TODO: #103 Check for new static files to apply before reloading
         try:
+
+            if is_database_synchronized():
+                print("All migrations have been applied.")
+                migrations = []
+            else:
+                print("Unapplied migrations found.")
+                migrations = pending_migrations()
+                execute_from_command_line(["manage.py", "migrate"])
+
             if settings.APP_ENV == 'PRD':
                 wsgi_file = '/var/www/www_monoproject_info_wsgi.py'
                 Path(wsgi_file).touch()
@@ -87,13 +118,24 @@ class PullRequest(models.Model):
                 'warning_message': f'Deployment Notification - {self}',
                 'first_line': f'{self} has been deployed.',
                 'main_text_lines': [
+                    f'Merged by: {self.author}',
+                    f'Merged at: {self.merged_at}',
+                    f'Commits: {self.commits}',
+                    f'Additions: {self.additions}',
+                    f'Deletions: {self.deletions}',
+                    f'Changed files: {self.changed_files}',
+                    '',
                     f'Deployed at: {self.deployed_at}',
+                    'Migrations applied: ',
+                    ', '.join(migrations)
                 ],
                 'button_link': settings.ALLOWED_HOSTS[0],
                 'button_text': 'Go to app',
                 'after_button': '',
                 'unsubscribe_link': None,
             }
+
+            
 
             print("Notifying admins about the deployment.")
             mail_admins(
