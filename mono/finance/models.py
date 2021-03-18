@@ -19,7 +19,8 @@ class Transaction(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, 
         help_text="Identifies how created the transaction.")
     created_at = models.DateTimeField(auto_now_add=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(default=timezone.now, 
+        help_text="Timestamp when transaction occurred. User defined.")
     ammount = models.FloatField(help_text="Ammount related to the transaction. Absolute value, no positive/negative signs.")
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False)
     account = models.ForeignKey('Account', on_delete=models.CASCADE)
