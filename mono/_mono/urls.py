@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 # import debug_toolbar
 
 urlpatterns = [
+    path('admin/doc/', include('django.contrib.admindocs.urls')),
     path('admin/', admin.site.urls),
     path('', include('homepage.urls')),
     path('accounts/', include('accounts.urls')),
