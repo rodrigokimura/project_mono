@@ -22,10 +22,10 @@
           {% endif %}
         </div>
       </h1>
-      <form method="POST">
+      <form method="POST" class="ui form">
         {% csrf_token %}
         <input type="hidden" name="pk" value='{{ last_pr.pk }}' >
-        <button type="submit" class="ui huge button">
+        <button class="ui huge submit button">
           {% if last_pr.deployed %}
           Redeploy
           {% else %}
@@ -37,4 +37,22 @@
     </div>
   </div>
 </div>
+<script>
+$('.form .submit').api({ 
+  action: 'deploy',
+  method: 'POST',
+  serializeForm: true,
+  mode: 'same-origin',
+  headers: {'X-CSRFToken': csrftoken},
+  data:{
+    pk: {{ last_pr.pk }},
+  },
+  onError: function(errorMessage, element, xhr) {
+    alert(errorMessage)
+  },
+  onSuccess: function(response, element, xhr) {
+    window.location.replace(`/hc/deploy/`);
+  }
+})
+</script>
 {% endblock body %}

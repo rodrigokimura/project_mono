@@ -49,7 +49,7 @@ urlpatterns = [
     
     path("invite/", views.InviteApi.as_view(), name='invite'),
     path("invites/", views.InviteListApiView.as_view(), name='invites'),
-    path("invite/accept/", views.InviteAcceptionView.as_view(), name='invite_acception'),
+    path("invite/accept/", views.InviteAcceptanceView.as_view(), name='invite_acceptance'),
 
     path("ajax/notifications/", views.NotificationListApi.as_view(), name='ajax_notifications'),
     path("notification/<int:pk>/action/", views.NotificationAction.as_view(), name='notification_action'),

@@ -314,7 +314,7 @@ class Invite(models.Model):
             settings.SECRET_KEY,
             algorithm="HS256"
         )
-        return f"{reverse('finance:invite_acception')}?t={token}"
+        return f"{reverse('finance:invite_acceptance')}?t={token}"
     
     def send(self, request):
         print('Sending email')
