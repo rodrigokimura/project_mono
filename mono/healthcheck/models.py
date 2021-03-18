@@ -41,7 +41,7 @@ class PullRequest(models.Model):
     merged_at = models.DateTimeField(null=True, blank=True, default=None)
     received_at = models.DateTimeField(auto_now_add=True)
     pulled_at = models.DateTimeField(null=True, blank=True, default=None)
-    deployed_at = models.DateTimeField(null=True, blank=True, default=None)
+    deployed_at = models.DateTimeField(null=True, blank=True, default=None, help_text="Updated when deploy method runs.")
 
     def __str__(self) -> str:
         return f'PR #{self.number}'
@@ -114,22 +114,24 @@ class PullRequest(models.Model):
             self.deployed_at = timezone.now()
             self.save()
 
+            main_text_lines = [
+                f'Merged by: {self.author}',
+                f'Merged at: {self.merged_at}',
+                f'Commits: {self.commits}',
+                f'Additions: {self.additions}',
+                f'Deletions: {self.deletions}',
+                f'Changed files: {self.changed_files}',
+                '',
+                f'Deployed at: {self.deployed_at}',
+                'Migrations applied: ',
+            ]
+            main_text_lines.extend([f'+ {m.app_label}.{m.name}' for m in migrations])
+
             d = {
                 'title': 'Merged PR',
                 'warning_message': f'Deployment Notification - {self}',
                 'first_line': f'{self} has been deployed.',
-                'main_text_lines': [
-                    f'Merged by: {self.author}',
-                    f'Merged at: {self.merged_at}',
-                    f'Commits: {self.commits}',
-                    f'Additions: {self.additions}',
-                    f'Deletions: {self.deletions}',
-                    f'Changed files: {self.changed_files}',
-                    '',
-                    f'Deployed at: {self.deployed_at}',
-                    'Migrations applied: ',
-                    ', '.join([f'{m.app}: {m.name}' for m in migrations])
-                ],
+                'main_text_lines': main_text_lines,
                 'button_link': settings.ALLOWED_HOSTS[0],
                 'button_text': 'Go to app',
                 'after_button': '',
