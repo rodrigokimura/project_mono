@@ -1,0 +1,40 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% comment %} IMPORTANT: it's using Finance app base template {% endcomment %}
+
+{% block head %}
+  <style type="text/css">
+  </style>
+  <script>
+  </script>
+{% endblock head %}
+
+{% block body %}
+<div class="pusher">
+  <div class="ui vertical center aligned segment">
+    <div class="ui text container">
+      <h1 class="ui header">{{ last_pr }} - Build #{{ last_pr.build_number }}
+        <div class="sub header">
+          {% if last_pr.deployed %}
+          <span>Deployed at: {{ last_pr.deployed_at }}</span>
+          {% else %}
+          <span>Not deployed yet.</span>
+          {% endif %}
+        </div>
+      </h1>
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="pk" value='{{ last_pr.pk }}' >
+        <button type="submit" class="ui huge button">
+          {% if last_pr.deployed %}
+          Redeploy
+          {% else %}
+          Deploy
+          {% endif %}
+          <em data-emoji=":rocket:"></em>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock body %}
