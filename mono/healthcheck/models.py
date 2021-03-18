@@ -40,8 +40,13 @@ class PullRequest(models.Model):
     changed_files = models.IntegerField(default=0)
     merged_at = models.DateTimeField(null=True, blank=True, default=None)
     received_at = models.DateTimeField(auto_now_add=True)
-    pulled_at = models.DateTimeField(null=True, blank=True, default=None)
-    deployed_at = models.DateTimeField(null=True, blank=True, default=None, help_text="Updated when deploy method runs.")
+    pulled_at = models.DateTimeField(null=True, blank=True, default=None,help_text="Set when pull method runs.")
+    deployed_at = models.DateTimeField(null=True, blank=True, default=None, help_text="Set when deploy method runs.")
+    migrations = models.IntegerField(default=None, null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Pull Request'
+        verbose_name_plural = 'Pull Requests'
 
     def __str__(self) -> str:
         return f'PR #{self.number}'
@@ -57,6 +62,12 @@ class PullRequest(models.Model):
     @property
     def deployed(self):
         return self.deployed_at is not None
+
+    @property
+    def build_number(self):
+        year = self.merged_at.year
+        count = PullRequest.objects.filter(number__lte=self.number).values('number').distinct().count()
+        return f'{year}.{count}'
 
     def pull(self, **kwargs):
         """Pulls from remote repository and notifies admins."""
@@ -104,6 +115,8 @@ class PullRequest(models.Model):
                 print("Unapplied migrations found.")
                 migrations = pending_migrations()
                 execute_from_command_line(["manage.py", "migrate"])
+                self.migrations = len(migrations)
+                self.save()
 
             if settings.APP_ENV == 'PRD':
                 wsgi_file = '/var/www/www_monoproject_info_wsgi.py'
@@ -114,6 +127,12 @@ class PullRequest(models.Model):
             self.deployed_at = timezone.now()
             self.save()
 
+            if not migrations:
+                migrations_text_lines = ['No migrations applied.']
+            else:
+                migrations_text_lines = [f'Migrations applied ({len(migrations)})']
+                migrations_text_lines.extend([f'+ {m.app_label}.{m.name}' for m in migrations])
+
             main_text_lines = [
                 f'Merged by: {self.author}',
                 f'Merged at: {self.merged_at}',
@@ -122,10 +141,11 @@ class PullRequest(models.Model):
                 f'Deletions: {self.deletions}',
                 f'Changed files: {self.changed_files}',
                 '',
+                f'Build number: {self.build_number}',
                 f'Deployed at: {self.deployed_at}',
-                'Migrations applied: ',
+                '',
             ]
-            main_text_lines.extend([f'+ {m.app_label}.{m.name}' for m in migrations])
+            main_text_lines.extend(migrations_text_lines)
 
             d = {
                 'title': 'Merged PR',

@@ -26,10 +26,19 @@ def string_to_localized_datetime(datetime_string):
     
 
 def healthcheck(request):
-    return JsonResponse({'version': settings.APP_VERSION})
+    current_pull_request = PullRequest.objects.exclude(deployed_at=None).latest('number')
+    return JsonResponse(
+        {
+            'build_number': current_pull_request.build_number
+        }
+    )
 
 @csrf_exempt
 def update_app(request):
+    """
+    This view receives a POST notification from a GitHub webhook 
+    everytime a Pull Request is successfully merged.
+    """
     if request.method == "POST":
         x_hub_signature = request.headers.get('X-Hub-Signature')
         w_secret = settings.GITHUB_SECRET
