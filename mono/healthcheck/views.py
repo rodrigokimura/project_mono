@@ -93,5 +93,15 @@ class Deploy(UserPassesTestMixin, TemplateView):
         pr = get_object_or_404(PullRequest, pk=request.POST.get('pk', None))
         pr.deploy()
         print("Deployment submit")
-        return redirect('healthcheck:deploy')
-        # return JsonResponse(response) 
+        return JsonResponse(
+            {
+                'success': True,
+                'message': 'Deployed successfully.',
+                'data': {
+                    'number': pr.number,
+                    'build_number': pr.build_number,
+                    'deployed_at': pr.deployed_at,
+                },
+            }
+        )
+        # return redirect('healthcheck:deploy')
