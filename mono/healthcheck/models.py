@@ -31,8 +31,9 @@ def is_database_synchronized(database=DEFAULT_DB_ALIAS):
 
 # Create your models here.
 class PullRequest(models.Model):
-    number = models.IntegerField(unique=True)
-    author = models.CharField(max_length=100)
+    """Stores pull requests coming from GitHub webhook."""
+    number = models.IntegerField(unique=True, help_text="GitHub unique identifier.")
+    author = models.CharField(max_length=100, help_text="Login username that triggered the pull request.")
     commits = models.IntegerField(default=0)
     additions = models.IntegerField(default=0)
     deletions = models.IntegerField(default=0)
@@ -127,7 +128,7 @@ class PullRequest(models.Model):
                     '',
                     f'Deployed at: {self.deployed_at}',
                     'Migrations applied: ',
-                    ', '.join(migrations)
+                    ', '.join([f'{m.app}: {m.name}' for m in migrations])
                 ],
                 'button_link': settings.ALLOWED_HOSTS[0],
                 'button_text': 'Go to app',
