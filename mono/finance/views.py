@@ -59,6 +59,20 @@ class Logout(LogoutView):
     next_page = reverse_lazy('finance:index')
 
 class TransactionListView(LoginRequiredMixin, ListView):
+    """
+    Display the list of :model:`finance.Transaction`.
+
+    **Context**
+
+    ``categories``
+        List of :model:`finance.Category` to use in filter dropdown.
+    ``daily_grouped``
+        Queryset with trasaction data summarised by day.
+
+    **Template:**
+
+    :template:`finance/transaction_list.html`
+    """
     model = Transaction
     paginate_by = 5
     
