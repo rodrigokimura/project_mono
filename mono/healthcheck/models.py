@@ -35,6 +35,7 @@ class PullRequest(models.Model):
         return self.deployed_at is not None
 
     def pull(self, **kwargs):
+        """Pulls from remote repository and notifies admins."""
         path = Path(settings.BASE_DIR).resolve().parent
         repo = git.Repo(path)
         origin = repo.remotes.origin
@@ -67,7 +68,8 @@ class PullRequest(models.Model):
             html_message=get_template('email/alert.html').render(d)
         )
 
-    def deploy(self):
+    def deploy(self, **kwargs):
+        """If in production, reloads the app and notifies admins."""
         # TODO: #102 Check for migrations to apply before reloading
         # TODO: #103 Check for new static files to apply before reloading
         try:
@@ -99,6 +101,6 @@ class PullRequest(models.Model):
                 message=get_template('email/alert.txt').render(d),
                 html_message=get_template('email/alert.html').render(d)
             )
-            return True
         except Exception as e:
-            return e
+            print("An error ocurred during deployment.")
+            print(e)
