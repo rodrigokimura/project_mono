@@ -7,9 +7,6 @@ class MigrationsTests(TestCase):
     def test_no_migrations_to_make(self):
         self.assertFalse(is_there_migrations_to_make(), "You have migrations to make. Run 'manage.py makemigrations'.")
 
-    def test_no_migrations_to_apply(self):
-        self.assertTrue(is_database_synchronized(), "You have pending migrations to apply. Run 'manage.py migrate'.")
-
 class PullRequestModelTests(TestCase):
 
     def setUp(self):
