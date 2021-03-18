@@ -44,6 +44,10 @@ class PullRequest(models.Model):
     deployed_at = models.DateTimeField(null=True, blank=True, default=None, help_text="Set when deploy method runs.")
     migrations = models.IntegerField(default=None, null=True, blank=True)
 
+    class Meta:
+        verbose_name = 'Pull Request'
+        verbose_name_plural = 'Pull Requests'
+
     def __str__(self) -> str:
         return f'PR #{self.number}'
     
@@ -62,7 +66,7 @@ class PullRequest(models.Model):
     @property
     def build_number(self):
         year = self.merged_at.year
-        count = PullRequest.objects.filter(number__lte=self.number).count()
+        count = PullRequest.objects.filter(number__lte=self.number).values('number').distinct().count()
         return f'{year}.{count}'
 
     def pull(self, **kwargs):
@@ -137,6 +141,7 @@ class PullRequest(models.Model):
                 f'Deletions: {self.deletions}',
                 f'Changed files: {self.changed_files}',
                 '',
+                f'Build number: {self.build_number}',
                 f'Deployed at: {self.deployed_at}',
                 '',
             ]
