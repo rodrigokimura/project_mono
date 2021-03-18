@@ -13,21 +13,26 @@ import jwt
 User = get_user_model()
 
 class Transaction(models.Model):
-    description = models.CharField(max_length=50, null=False, blank=False)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    """Stores financial transactions."""
+    description = models.CharField(max_length=50, null=False, blank=False, 
+        help_text="A short description, so that the user can identify the transaction.")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, 
+        help_text="Identifies how created the transaction.")
     created_at = models.DateTimeField(auto_now_add=True)
     timestamp = models.DateTimeField(default=timezone.now)
-    ammount = models.FloatField()
+    ammount = models.FloatField(help_text="Ammount related to the transaction. Absolute value, no positive/negative signs.")
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False)
     account = models.ForeignKey('Account', on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
     
     @property
     def type(self):
+        """Gets the type of transaction (Expense /Income) from :model:`finance.Category` type."""
         return self.category.type
         
     @property
     def signed_ammount(self):
+        """Same as ammount, but with positive/negative sign, depending on :model:`finance.Category` type."""
         sign = 1
         if self.category.type == 'EXP':
             sign = -1
