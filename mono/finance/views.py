@@ -417,7 +417,7 @@ class InviteListApiView(View):
             }
         return JsonResponse(response)
     
-class InviteAcceptionView(TokenMixin, LoginRequiredMixin, View):
+class InviteAcceptanceView(TokenMixin, LoginRequiredMixin, View):
     
     def get(self, request):
         token = request.GET.get('t', None)
@@ -445,7 +445,7 @@ class InviteAcceptionView(TokenMixin, LoginRequiredMixin, View):
                 'user_already_member': user_already_member,
             }
             
-            return render(request, 'finance/invite_acception.html', context)
+            return render(request, 'finance/invite_acceptance.html', context)
             
 class NotificationListApi(LoginRequiredMixin, View):
     def get(self, request):
