@@ -37,6 +37,9 @@
       'list invites'                : '/fn/invites/',
       'get notifications'           : '/fn/ajax/notifications/',
       'get notification ids'        : '/fn/notification/get-ids/',
+      {% if request.user.is_superuser %}
+      'deploy'                      : '/hc/deploy/',
+      {% endif %}
       successTest: function(response) {
         return response.success;
       },
