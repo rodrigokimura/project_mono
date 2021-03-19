@@ -244,13 +244,14 @@ class Budget(models.Model):
             progress = 1
         return progress
 
+
     @property
     def spent_queryset(self):
         return Transaction.objects.filter(
             account__in=self.accounts.all(),
             category__in=self.categories.all(),
-            timestamp__gte=self.start_date,
-            timestamp__lt=self.end_date,
+            timestamp__date__gte=self.start_date,
+            timestamp__date__lt=self.end_date,
         )
 
     @property

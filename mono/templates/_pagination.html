@@ -1,24 +1,22 @@
-<div class="row" style="margin-bottom: 1em;"> 
-<div class="ui fluid small buttons">
-  <a 
-    class="ui {% if not page_obj.has_previous %}disabled{% endif %} button" 
-    href="?page=1{% if query_string %}&amp;{{ query_string }}{% endif %}">
-    <i class="angle double left icon"></i>
-  </a>
-  <a class="ui {% if not page_obj.has_previous %}disabled{% endif %} button" 
-    href="?page={% if page_obj.has_previous %}{{ page_obj.previous_page_number }}{% endif %}{% if query_string %}&amp;{{ query_string }}{% endif %}">
-    <i class="angle left icon"></i>
-  </a>
-  <a class="ui disabled button">
-    {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
-  </a> 
-  <a class="ui {% if not page_obj.has_next %}disabled{% endif %} button" 
-    href="?page={% if page_obj.has_next %}{{ page_obj.next_page_number }}{% endif %}{% if query_string %}&amp;{{ query_string }}{% endif %}">
-    <i class="angle right icon"></i>
-  </a> 
-  <a class="ui {% if not page_obj.has_next %}disabled{% endif %} button" 
-    href="?page={{ page_obj.paginator.num_pages }}{% if query_string %}&amp;{{ query_string }}{% endif %}">
-    <i class="angle double right icon"></i>
-  </a> 
-</div>
-</div>
+  <div class="ui fluid small buttons">
+    <a 
+      class="ui {% if not page_obj.has_previous %}disabled{% endif %} button" 
+      href="?page=1{% if query_string %}&amp;{{ query_string }}{% endif %}">
+      <i class="angle double left icon"></i>
+    </a>
+    <a class="ui {% if not page_obj.has_previous %}disabled{% endif %} button" 
+      href="?page={% if page_obj.has_previous %}{{ page_obj.previous_page_number }}{% endif %}{% if query_string %}&amp;{{ query_string }}{% endif %}">
+      <i class="angle left icon"></i>
+    </a>
+    <a class="ui disabled button">
+      {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+    </a> 
+    <a class="ui {% if not page_obj.has_next %}disabled{% endif %} button" 
+      href="?page={% if page_obj.has_next %}{{ page_obj.next_page_number }}{% endif %}{% if query_string %}&amp;{{ query_string }}{% endif %}">
+      <i class="angle right icon"></i>
+    </a> 
+    <a class="ui {% if not page_obj.has_next %}disabled{% endif %} button" 
+      href="?page={{ page_obj.paginator.num_pages }}{% if query_string %}&amp;{{ query_string }}{% endif %}">
+      <i class="angle double right icon"></i>
+    </a> 
+  </div>
