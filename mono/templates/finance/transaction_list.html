@@ -16,7 +16,7 @@
     <form class="ui fluid form" method="GET" id="filter">
       <div class="field">
         <label>Category</label>
-        <div class="ui search selection dropdown" data-name="category">
+        <div class="ui search multiple selection dropdown" data-name="category">
           <input type="hidden" name="category">
           <div class="text"></div>
           <i class="dropdown icon"></i>
@@ -24,7 +24,7 @@
       </div>
       <div class="field">
         <label>Account</label>
-        <div class="ui search selection dropdown" data-name="account">
+        <div class="ui search multiple selection dropdown" data-name="account">
           <input type="hidden" name="account">
           <div class="text"></div>
           <i class="dropdown icon"></i>
@@ -143,7 +143,7 @@
       {
         name: "{{ c.name }}",
         value: {{ c.id }},
-        {% if c.id|stringformat:"i" == request.GET.category %}
+        {% if c.id|stringformat:"i" in filtered_categories %}
         selected : true
         {% endif %}
       },
@@ -158,7 +158,7 @@
       {
         name: "{{ a.name }}",
         value: {{ a.id }},
-        {% if a.id|stringformat:"i" == request.GET.account %}
+        {% if a.id|stringformat:"i" in filtered_accounts %}
         selected : true
         {% endif %}
       },
