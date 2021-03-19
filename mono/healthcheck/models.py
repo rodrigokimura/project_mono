@@ -105,7 +105,6 @@ class PullRequest(models.Model):
 
     def deploy(self, **kwargs):
         """If in production, reloads the app and notifies admins."""
-        # TODO: #103 Check for new static files to apply before reloading
         try:
 
             if is_database_synchronized():
@@ -122,6 +121,7 @@ class PullRequest(models.Model):
                 wsgi_file = '/var/www/www_monoproject_info_wsgi.py'
                 Path(wsgi_file).touch()
                 print(f"{wsgi_file} has been touched.")
+                execute_from_command_line(["manage.py", "collectstatic", "--noinput"])
                 
             print(f"Successfully deployed {self}.")
             self.deployed_at = timezone.now()
@@ -157,8 +157,6 @@ class PullRequest(models.Model):
                 'after_button': '',
                 'unsubscribe_link': None,
             }
-
-            
 
             print("Notifying admins about the deployment.")
             mail_admins(
