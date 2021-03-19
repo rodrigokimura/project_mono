@@ -85,18 +85,27 @@ class TransactionListView(LoginRequiredMixin, ListView):
         
         category = self.request.GET.get('category', None)
         if category not in [None, ""]:
-            qs = qs.filter(category=category)
+            qs = qs.filter(category__in=category.split(','))
 
         account = self.request.GET.get('account', None)
         if account not in [None, ""]:
-            qs = qs.filter(accounts=account)
+            qs = qs.filter(account__in=account.split(','))
             
         return qs
         
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         context['categories'] = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
+        category = self.request.GET.get('category', None)
+        if category not in [None, ""]:
+            context['filtered_categories'] = category.split(',')
+        
         context['accounts'] = Account.objects.filter(owned_by=self.request.user)
+        account = self.request.GET.get('account', None)
+        if account not in [None, ""]:
+            context['filtered_accounts'] = account.split(',')
+
         qs = self.get_queryset()
         qs = qs.annotate(
             date=TruncDay('timestamp')
