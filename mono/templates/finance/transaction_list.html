@@ -1,54 +1,47 @@
 {% extends "finance/base.html" %}
 
 {% block head %}
-<style type="text/css" media="all">
-.hidden{display: none}
-  
-</style>
+  <style type="text/css" media="all">
+    .hidden{
+      display: none !important;
+    }
+  </style>
 {% endblock head %}
 
 {% block body %}
-<div class="ui container" style="margin-bottom: 1em;">
-  <div class="ui grid">
-    <div class="row">
-      <div class="column">
-        <form class="ui form" method="GET" id="filter">
-          <div class="field">
-            <label>Category</label>
-            <select name="category" id="category" class="ui fluid dropdown">
-              {% if not request.GET.category %}
-              <option value="">Select a category</option>
-              {% endif %}
-              {% for c in categories %}
-              {% if c.id|stringformat:"i"  == request.GET.category %}
-              <option selected value="{{ c.id }}">
-                <i class="{{ c.icon }} icon"></i>{{ c.name }}
-              </option>
-              {% else %}
-              <option value="{{ c.id }}">
-                <i class="{{ c.icon }} icon"></i>{{ c.name }}
-              </option>
-              {% endif %}
-              {% endfor %}
-            </select>
-          </div>
-          <div class="ui fluid buttons">
-            <button class="ui button primary" type="submit" form="filter">Filter</button>
-            <a class="ui button" href="{% url 'finance:transactions' %}">Clear</a>
-          </div>
-        </form>
+
+<div class="ui stackable grid container" style="margin-bottom: 1em;">
+
+  <div class="four wide column">
+    <form class="ui fluid form" method="GET" id="filter">
+      <div class="field">
+        <label>Category</label>
+        <div class="ui search selection dropdown" data-name="category">
+          <input type="hidden" name="category">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
+        </div>
       </div>
-    </div>
-  </div>
-  
-  <div class="ui horizontal divider">
-    <i class="table icon"></i> Transactions
+      <div class="field">
+        <label>Account</label>
+        <div class="ui search selection dropdown" data-name="account">
+          <input type="hidden" name="account">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
+        </div>
+      </div>
+      <div class="ui fluid buttons">
+        <button class="ui button primary" type="submit" form="filter">Filter</button>
+        <a class="ui button" href="{% url 'finance:transactions' %}">Clear</a>
+      </div>
+    </form>
   </div>
 
-  {% if page_obj.object_list %}
-  {% for date in daily_grouped %}
-  <div class="row" style="margin-bottom: 1em;">
-    <div class="ui hidden segments" data-date="{{ date.date|date:'Y-m-d' }}">
+  <div class="eight wide column">
+    {% if page_obj.object_list %}
+    {% for date in daily_grouped %}
+    
+    <div class="hidden ui segments" data-date="{{ date.date|date:'Y-m-d' }}">
       <div class="ui secondary grey segment" style="padding: .5em 1em;">
         <div class="ui grid">
           <div class="eight wide column">
@@ -87,12 +80,12 @@
       {% for transaction in page_obj.object_list %}
       {% if transaction.date == date.date %}
       <script type="text/javascript" charset="utf-8">
-        $(".ui.segments[data-date='{{ date.date|date:'Y-m-d' }}']").removeClass("hidden");
+        $("[data-date='{{ date.date|date:'Y-m-d' }}']").removeClass("hidden");
       </script>
       <div class="ui segment" style="padding: .5em 1em;">
         <div class="ui grid">
           <div class="eight wide column">
-            <span class="ui small text">
+            <span class="ui small label">
               {% if transaction.category %}
               <i class="{{ transaction.category.icon }} icon"></i>
               {{ transaction.category }}
@@ -102,7 +95,7 @@
               {% endif %}
             </span>
             <br>
-            <span class="ui tiny text">
+            <span class="ui small text">
               {{ transaction.description }}
             </span>
           </div>
@@ -127,21 +120,51 @@
       {% endif %}
       {% endfor %}
     </div>
+    {% endfor %}
+    {% endif %}
+
+    {% include "_pagination.html" with page_obj=page_obj %}
+
   </div>
-  {% endfor %}
-  {% endif %}
   
-  {% include "_pagination.html" with page_obj=page_obj %}
-  
-  <div class="row">
-      <a class="ui fluid button primary" href="{% url "finance:transaction_create" %}">Add transaction</a>
-    </div>
+  <div class="four wide column">
+    <a class="ui fluid button primary" href="{% url "finance:transaction_create" %}">Add transaction</a>
   </div>
+
 </div>
 
 
 <script>
-  $('.ui.dropdown').dropdown();
+  $('.ui.dropdown[data-name=category]').dropdown({
+    placeholder: "Select a category",
+    forceSelection: false,
+    values: [
+      {% for c in categories %}
+      {
+        name: "{{ c.name }}",
+        value: {{ c.id }},
+        {% if c.id|stringformat:"i" == request.GET.category %}
+        selected : true
+        {% endif %}
+      },
+      {% endfor %}
+    ]
+  });
+  $('.ui.dropdown[data-name=account]').dropdown({
+    placeholder: "Select an account",
+    forceSelection: false,
+    values: [
+      {% for a in accounts %}
+      {
+        name: "{{ a.name }}",
+        value: {{ a.id }},
+        {% if a.id|stringformat:"i" == request.GET.account %}
+        selected : true
+        {% endif %}
+      },
+      {% endfor %}
+    ]
+  });
   $('.message .close').click(function() {
     $(this)
     .closest('.message')
