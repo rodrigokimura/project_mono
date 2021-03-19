@@ -4,11 +4,15 @@ from django.forms.widgets import HiddenInput, Widget
 from django.contrib.auth import login, authenticate, get_user_model, forms as auth_forms
 from django.template import loader
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 from .models import Transaction, Group, Category, Account, Icon, Goal, Budget
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 from faker import Faker
 from faker.providers import lorem
+from random import randrange
+from datetime import timedelta, datetime
+import pytz
 
 import random
     
@@ -19,15 +23,12 @@ class CalendarWidget(Widget):
     type = 'datetime'
     format = 'n/d/Y h:i A'
 
-    # def __init__(self):
-    #     self.type = 'datetime'
-    #     self.format = 'n/d/Y h:i A'
-
     def get_context(self, name, value, attrs=None):
         return {
             'widget': {
                 'name': name,
                 'value': value,
+                'placeholder': name.replace('_', ' '),
             },
             'type': self.type,
             'format': self.format,
@@ -341,11 +342,19 @@ class FakerForm(forms.Form):
     model = ContentTypeModelChoiceField(queryset=ContentType.objects.filter(app_label='finance'))
     batch_ammount = forms.IntegerField(max_value=100)
     target_user = forms.ModelChoiceField(User.objects.all())
+    range_start = forms.DateField(required=False, widget=CalendarWidget)
+    range_end = forms.DateField(required=False, widget=CalendarWidget)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['model'].widget.attrs.update({'class': 'ui dropdown'})
         self.fields['target_user'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['range_start'].widget.type = 'date'
+        self.fields['range_start'].widget.format = 'n/d/Y'
+        self.fields['range_start'].widget.attrs.update({'placeholder': 'Range Start'})
+        self.fields['range_end'].widget.type = 'date'
+        self.fields['range_end'].widget.format = 'n/d/Y'
+        self.fields['range_end'].widget.attrs.update({'placeholder': 'Range End'})
 
     def create_fake_instances(self):
         fake = Faker()
@@ -354,14 +363,41 @@ class FakerForm(forms.Form):
         batch_ammount = self.cleaned_data['batch_ammount']
         model = self.cleaned_data['model'].model
         target_user = self.cleaned_data['target_user']
+        
+        tz = pytz.timezone('UTC')
+
+        if self.cleaned_data['range_start'] is not None:
+            range_start = timezone.make_aware(datetime.combine(self.cleaned_data['range_start'], datetime.min.time()), tz)
+        else:
+            range_start = None
+
+        if self.cleaned_data['range_end'] is not None:
+            range_end = timezone.make_aware(datetime.combine(self.cleaned_data['range_end'], datetime.min.time()), tz)
+        else:
+            range_end = None
+
+
+        def random_date(start, end):
+            """
+            This function will return a random datetime between two datetime 
+            objects.
+            """
+            delta = end - start
+            int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
+            random_second = randrange(int_delta)
+            r = start + timedelta(seconds=random_second)
+            return r
 
         if model == 'transaction':
             for i in range(batch_ammount):
+                if range_start is not None and range_end is not None:
+                    timestamp = random_date(range_start, range_end)
+                else:
+                    timestamp = timezone.now()
                 Transaction.objects.create(
                     description = fake.text(max_nb_chars=50, ext_word_list=None),
                     created_by = target_user,
-                    # TODO: #43 Implement configurable timestamp faker generator
-                    # timestamp = models.DateTimeField(default=timezone.now)
+                    timestamp = timestamp,
                     ammount = random.randint(0,1000),
                     category = Category.objects.filter(created_by=target_user, group=None, internal_type=Category.DEFAULT).order_by("?").first(),
                     account = Account.objects.filter(owned_by=target_user, group=None).order_by("?").first(),
