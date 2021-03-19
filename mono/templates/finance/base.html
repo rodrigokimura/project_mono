@@ -72,7 +72,7 @@
     <a class="item" href="{% url 'finance:budgets' %}"><i class="piggy bank icon"></i>Budgets</a>
     <a class="item" href="{% url 'finance:groups' %}"><i class="users icon"></i>Groups</a>
     <a class="item" href="{% url 'finance:categories' %}"><i class="tags icon"></i>Categories</a>
-    <a class="item" href="{% url 'finance:goals' %}"><i class="bullseye icon"></i>Goals</a>
+    {% comment %} <a class="item" href="{% url 'finance:goals' %}"><i class="bullseye icon"></i>Goals</a> {% endcomment %}
     {% if request.user.is_superuser %}
     <div class="item">
       <div class="header">Superuser</div>
