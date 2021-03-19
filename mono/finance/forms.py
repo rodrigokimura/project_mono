@@ -332,19 +332,20 @@ class UserForm(auth_forms.UserCreationForm):
         return user
 
 class FakerForm(forms.Form):
-    # TODO: #44 Display important security alert for this faker functionality
 
     class ContentTypeModelChoiceField(forms.ModelChoiceField):
+        """Custom ModelChoiceField that displays the model name as options"""
         def label_from_instance(self, obj):
             return obj.model
 
-    model = ContentTypeModelChoiceField(
-        queryset=ContentType.objects.filter(
-            app_label='finance'
-        )
-    )
+    model = ContentTypeModelChoiceField(queryset=ContentType.objects.filter(app_label='finance'))
     batch_ammount = forms.IntegerField(max_value=100)
     target_user = forms.ModelChoiceField(User.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['model'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['target_user'].widget.attrs.update({'class': 'ui dropdown'})
 
     def create_fake_instances(self):
         fake = Faker()
@@ -380,6 +381,4 @@ class FakerForm(forms.Form):
             }
             return success, message
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['model'].widget.attrs.update({'class': 'ui dropdown'})
+    

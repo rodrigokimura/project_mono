@@ -10,35 +10,53 @@
 
 {% block body %}
 <div class="pusher">
-  <div class="ui container">
-    <div class="ui horizontal divider">
-      <i class="table icon"></i> Transactions
+  <div class="ui grid container">
+
+    <div class="four wide column">
     </div>
-    <form method="post" class="ui {% if form.errors %}error{% endif %} form">
-      {% csrf_token %}
-      {% include "_form.html" with form=form %}
-      <div class="fluid ui buttons">
-        <button class="ui button primary" type="submit">
-          Save
-        </button>
-        <div class="or"></div>
-        {% if object %}
-        <a class="ui button red" href="{% url 'finance:transaction_delete' pk=object.pk %}">
-          <i class="trash icon"></i>
-          Delete
-        </a>
-        <div class="or"></div>
-        {% endif %}
-        <a class="ui button" href="{% url 'finance:transactions' %}">
-          Cancel
-        </a>
+
+    <div class="eight wide column">
+
+      <div class="ui negative message">
+        <i class="close icon"></i>
+        <div class="header">
+          SECURITY ALERT
+        </div>
+        <p>This page has extremely sensitive functionality. Please use with caution.</p>
       </div>
-    </form>
+
+    
+      <form method="post" class="ui {% if form.errors %}error{% endif %} form">
+        {% csrf_token %}
+        {% include "_form.html" with form=form %}
+        <div class="fluid ui buttons">
+          <button class="ui button primary" type="submit">
+            Save
+          </button>
+          <div class="or"></div>
+          {% if object %}
+          <a class="ui button red" href="{% url 'finance:transaction_delete' pk=object.pk %}">
+            <i class="trash icon"></i>
+            Delete
+          </a>
+          <div class="or"></div>
+          {% endif %}
+          <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
+            Cancel
+          </a>
+        </div>
+      </form>
+
+    </div>
+
+    <div class="four wide column">
+    </div>
+    
   </div>
 </div>
 
 <script>
-  $(".ui.dropdown").dropdown();
+  $("*.ui.dropdown").dropdown();
   $('.message .close').click(function() {
     $(this)
     .closest('.message')
