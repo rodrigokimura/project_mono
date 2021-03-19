@@ -14,7 +14,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse, HttpResponse
 from django.db.models import F, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
-from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification, Budget
+from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification, Budget, User
 from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm, BudgetForm
 import time
 import jwt
@@ -74,24 +74,29 @@ class TransactionListView(LoginRequiredMixin, ListView):
     :template:`finance/transaction_list.html`
     """
     model = Transaction
-    paginate_by = 5
+    paginate_by = 20
     
     def get_queryset(self):
-        category = self.request.GET.get('category', None)
         qs = Transaction.objects.filter(
             created_by=self.request.user
         ).annotate(
             date=TruncDay('timestamp')
         ).order_by('-timestamp')
         
+        category = self.request.GET.get('category', None)
         if category not in [None, ""]:
             qs = qs.filter(category=category)
+
+        account = self.request.GET.get('account', None)
+        if account not in [None, ""]:
+            qs = qs.filter(accounts=account)
             
         return qs
         
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.filter(created_by=self.request.user)
+        context['categories'] = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
+        context['accounts'] = Account.objects.filter(owned_by=self.request.user)
         qs = self.get_queryset()
         qs = qs.annotate(
             date=TruncDay('timestamp')
@@ -149,10 +154,28 @@ class TransactionDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView
 class AccountListView(LoginRequiredMixin, ListView):
     model = Account
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        groups = self.request.user.shared_groupset.all()
+        context['groups'] = groups
+        members = [m.id for g in groups for m in g.members.all()]
+        context['members'] = User.objects.filter(id__in=members).exclude(id=self.request.user.id)
+        return context
+    
     def get_queryset(self):
-        owned_accounts = Account.objects.filter(owned_by=self.request.user)
+        owned_accounts = self.request.user.owned_accountset.all()
         shared_accounts = Account.objects.filter(group__members=self.request.user)
-        return (owned_accounts | shared_accounts).distinct()
+        qs = (owned_accounts|shared_accounts).distinct()
+
+        group = self.request.GET.get('group', None)
+        if group not in [None, ""]:
+            qs = qs.filter(group=group)
+
+        member = self.request.GET.get('member', None)
+        if member not in [None, ""]:
+            qs = qs.filter(group__members=member)
+
+        return qs
     
 class AccountDetailView(LoginRequiredMixin, DetailView):
     model = Account
@@ -186,10 +209,21 @@ class AccountDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
 
 class GroupListView(LoginRequiredMixin, ListView):
     model = Group
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        groups = Group.objects.filter(members=self.request.user)
+        members = [m.id for g in groups for m in g.members.all()]
+        context['members'] = User.objects.filter(id__in=members).exclude(id=self.request.user.id)
+        return context
     
     def get_queryset(self):
-        qs = Group.objects.all()
-        qs = qs.filter(members=self.request.user)
+        qs = Group.objects.filter(members=self.request.user)
+
+        member = self.request.GET.get('member', None)
+        if member not in [None, ""]:
+            qs = qs.filter(members=member)
+
         return qs
 
 class GroupCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
@@ -218,14 +252,24 @@ class GroupDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
         
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['types'] = Category.TRANSACTION_TYPES
+        return context
     
     def get_queryset(self):
         qs = Category.objects.filter(
             created_by=self.request.user,
             internal_type=Category.DEFAULT
         )
+
+        type = self.request.GET.get('type', None)
+        if type not in [None, ""]:
+            qs = qs.filter(type=type)
+
         return qs
-        
+    
 class CategoryListApi(View):
     def get(self, request):
         time.sleep(.5)
@@ -494,9 +538,25 @@ class NotificationCheckUnread(LoginRequiredMixin, View):
 
 class BudgetListView(LoginRequiredMixin, ListView):
     model = Budget
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
+        context['accounts'] = Account.objects.filter(owned_by=self.request.user)
+        return context
     
     def get_queryset(self):
-        return Budget.objects.filter(created_by=self.request.user)
+        qs = Budget.objects.filter(created_by=self.request.user)
+
+        category = self.request.GET.get('category', None)
+        if category not in [None, ""]:
+            qs = qs.filter(categories=category)
+
+        account = self.request.GET.get('account', None)
+        if account not in [None, ""]:
+            qs = qs.filter(accounts=account)
+
+        return qs
 
 class BudgetCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
     model = Budget

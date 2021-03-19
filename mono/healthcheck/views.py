@@ -1,17 +1,16 @@
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone
 from django.utils.encoding import force_bytes
-from django.views.generic.base import RedirectView, TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic.base import TemplateView
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.shortcuts import get_object_or_404
 from datetime import datetime
 from hashlib import sha1
 import pytz
 import hmac
 import json
 from .models import PullRequest
-from django.shortcuts import get_object_or_404, redirect
 
 def is_valid_signature(x_hub_signature, data, private_key):
     sha_name, signature  = x_hub_signature.split('=')
@@ -92,7 +91,6 @@ class Deploy(UserPassesTestMixin, TemplateView):
     def post(self, request):
         pr = get_object_or_404(PullRequest, pk=request.POST.get('pk', None))
         pr.deploy()
-        print("Deployment submit")
         return JsonResponse(
             {
                 'success': True,
@@ -104,4 +102,3 @@ class Deploy(UserPassesTestMixin, TemplateView):
                 },
             }
         )
-        # return redirect('healthcheck:deploy')

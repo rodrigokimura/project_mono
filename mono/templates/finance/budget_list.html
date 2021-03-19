@@ -1,26 +1,47 @@
 {% extends "finance/base.html" %}
 
 {% block head %}
-<style>
-</style>
+  <style>
+  </style>
 {% endblock head %}
 
 {% block body %}
 
-<div class="ui container" style="margin-bottom: 1em;">
+<div class="ui stackable grid container" style="margin-bottom: 1em;">
 
-  <div class="ui horizontal divider"><i class="table icon"></i> Individual budgets</div>
-  
-  {% for budget in object_list %}
-  {% if not budget.is_shared %}
-  <div class="row" style="margin-bottom: 1em;">
-    <div class="ui segments">
-      <div class="ui grid secondary grey segment">
-        <div class="sixteen wide column">
-          <a href="{% url 'finance:budget_update' pk=budget.pk %}">
-            From {{ budget.start_date }} to {{ budget.end_date }}
-          </a>
+  <div class="four wide column">
+    <form class="ui fluid form" method="GET" id="filter">
+      <div class="field">
+        <label>Category</label>
+        <div class="ui search selection dropdown" data-name="category">
+          <input type="hidden" name="category">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
         </div>
+      </div>
+      <div class="field">
+        <label>Account</label>
+        <div class="ui search selection dropdown" data-name="account">
+          <input type="hidden" name="account">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
+        </div>
+      </div>
+      <div class="ui fluid buttons">
+        <button class="ui button primary" type="submit" form="filter">Filter</button>
+        <a class="ui button" href="{% url 'finance:budgets' %}">Clear</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="eight wide column">
+    {% for budget in object_list %}
+    {% if not budget.is_shared %}
+    <div class="ui segments">
+      <div class="ui secondary grey segment">
+        <a href="{% url 'finance:budget_update' pk=budget.pk %}">
+          From {{ budget.start_date }} to {{ budget.end_date }}
+        </a>
       </div>
       <div class="ui segment">
 
@@ -34,6 +55,7 @@
             <i class="{{ category.icon }} icon"></i>{{ category }}
           </a> 
           {% endfor %}
+          
       </div>
       <div class="ui segment">
         <div class="ui ammount {{ budget.progress_bar_color }} progress" data-value="{{ budget.ammount_spent }}" data-total="{{ budget.ammount }}">
@@ -50,20 +72,48 @@
         </div>
       </div>
     </div>
+    {% endif %}
+    {% endfor %}
   </div>
-  {% endif %}
-  {% endfor %}
 
-  
-    
-  <div class="row">
-      <a class="ui fluid button primary" href="{% url "finance:budget_create" %}">Add budget</a>
+  <div class="four wide column">
+    <a class="ui fluid button primary" href="{% url "finance:budget_create" %}">Add budget</a>
   </div>
+
 </div>
 
 
 <script>
-  $('.ui.dropdown').dropdown();
+  $('.ui.dropdown[data-name=category]').dropdown({
+    placeholder: "Select a category",
+    forceSelection: false,
+    values: [
+      {% for c in categories %}
+      {
+        name: "{{ c.name }}",
+        value: {{ c.id }},
+        {% if c.id|stringformat:"i" == request.GET.category %}
+        selected : true
+        {% endif %}
+      },
+      {% endfor %}
+    ]
+  });
+  $('.ui.dropdown[data-name=account]').dropdown({
+    placeholder: "Select an account",
+    forceSelection: false,
+    values: [
+      {% for a in accounts %}
+      {
+        name: "{{ a.name }}",
+        value: {{ a.id }},
+        {% if a.id|stringformat:"i" == request.GET.account %}
+        selected : true
+        {% endif %}
+      },
+      {% endfor %}
+    ]
+  });
   $('.message .close').click(function() {
     $(this)
     .closest('.message')
@@ -74,7 +124,6 @@
       value = $(item).data('value');
       total = $(item).data('total');
       percent = Math.round(value/total*100)
-      
       $(item).progress(
         {
           autoSuccess: false,
