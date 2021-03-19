@@ -4,7 +4,7 @@
     <input 
       type="text" 
       name="{{ widget.name }}" 
-      placeholder="{{ widget.name|title }}"
+      placeholder="{{ widget.placeholder|capfirst }}"
       value="{{ widget.value|date:format }}"
       >
   </div>
