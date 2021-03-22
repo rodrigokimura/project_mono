@@ -1,3 +1,8 @@
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+
+
+
 <div class="ui calendar">
   <div class="ui input left icon">
     <i class="calendar icon"></i>
@@ -19,7 +24,11 @@
       formatter: {
         date: function (date, settings) {
           if (!date) return '';
-          return date.toLocaleDateString('en-US');
+          {% for code, name, flag, js_locale in LANGUAGE_EXTRAS %}
+          {% if code == LANGUAGE_CODE %}
+          return date.toLocaleDateString("{{ js_locale }}");
+          {% endif %}
+          {% endfor %}
         }
       }
     }

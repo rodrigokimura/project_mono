@@ -1,5 +1,6 @@
 {% extends "finance/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block head %}
 <script src="{% static 'js/jquery.datetimepicker.full.min.js' %}"></script>
@@ -17,24 +18,24 @@
             <form method="post" class="ui {% if form.errors %}error {% endif %}form" id="transaction_form">
               {% csrf_token %}
               <div class="fluid ui buttons">
-                <a class="ui button" data-name="type" data-value="INC" onclick="selectType(this)">Income</a>
-                <a class="ui button" data-name="type" data-value="EXP" onclick="selectType(this)">Expense</a>
+                <a class="ui button" data-name="type" data-value="INC" onclick="selectType(this)">{% translate "Income" %}</a>
+                <a class="ui button" data-name="type" data-value="EXP" onclick="selectType(this)">{% translate "Expense" %}</a>
               </div>
               {% include "_form.html" with form=form %}
               <div class="fluid ui buttons">
                 <button class="ui button primary" type="submit" form="transaction_form">
-                  Save
+                  {% translate "Save" %}
                 </button>
-                <div class="or"></div>
+                <div class="{% translate 'or' %}"></div>
                 {% if object %}
                 <a class="ui button red" href="{% url 'finance:transaction_delete' pk=object.pk %}">
                   <i class="trash icon"></i>
-                  Delete
+                  {% translate "Delete" %}
                 </a>
-                <div class="or"></div>
+                <div class="{% translate 'or' %}"></div>
                 {% endif %}
                 <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
-                  Cancel
+                  {% translate "Cancel" %}
                 </a>
               </div>
             </form>
