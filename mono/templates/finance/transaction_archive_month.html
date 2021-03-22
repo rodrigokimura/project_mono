@@ -74,7 +74,7 @@
             </div>
             <br>
             {% for d in daily_grouped %}
-            {% if d.date|date:"d" == day|stringformat:"i" %}
+            {% if d.date|date:"j" == day|stringformat:"i" %}
             <span class="ui small red text">
             {{ d.total_expense|cool_numbers:1 }}
             </span><br>
