@@ -4,6 +4,7 @@ from django.db.models import F, Q, Sum, Value as V
 from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 from django.core.mail import EmailMultiAlternatives
 from django.urls import reverse
 from django.template.loader import get_template
@@ -15,16 +16,22 @@ User = get_user_model()
 class Transaction(models.Model):
     """Stores financial transactions."""
     description = models.CharField(max_length=50, null=False, blank=False, 
+        verbose_name=_("description"), 
         help_text="A short description, so that the user can identify the transaction.")
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, 
+        verbose_name=_("created by"), 
         help_text="Identifies how created the transaction.")
-    created_at = models.DateTimeField(auto_now_add=True)
-    timestamp = models.DateTimeField(default=timezone.now, 
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    timestamp = models.DateTimeField(_("timestamp"), default=timezone.now, 
         help_text="Timestamp when transaction occurred. User defined.")
-    ammount = models.FloatField(help_text="Ammount related to the transaction. Absolute value, no positive/negative signs.")
-    category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False)
-    account = models.ForeignKey('Account', on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
+    ammount = models.FloatField(_("ammount"), help_text="Ammount related to the transaction. Absolute value, no positive/negative signs.")
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
+    account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
+    active = models.BooleanField(_("active"), default=True)
+
+    class Meta:
+        verbose_name = _("transaction")
+        verbose_name_plural = _("transactions")
     
     @property
     def type(self):
@@ -46,13 +53,16 @@ class Icon(models.Model):
     markup = models.CharField(max_length=50, unique=True)
     def __str__(self) -> str:
         return self.markup
+    class Meta:
+        verbose_name = _("icon")
+        verbose_name_plural = _("icons")
 
 class Category(models.Model):
     INCOME = 'INC'
     EXPENSE = 'EXP'
     TRANSACTION_TYPES = [
-        (INCOME, 'Income'),
-        (EXPENSE, 'Expense'),
+        (INCOME, _('Income')),
+        (EXPENSE, _('Expense')),
     ]
     DEFAULT = 'DEF'
     TRANSFER = 'TRF'
@@ -79,8 +89,8 @@ class Category(models.Model):
         return self.name
     
     class Meta:
-        verbose_name = 'Category'
-        verbose_name_plural = 'Categories'
+        verbose_name = _('category')
+        verbose_name_plural = _('categories')
         
     @property
     def is_user_defined(self):
