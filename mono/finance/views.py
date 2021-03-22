@@ -185,6 +185,41 @@ class AccountListView(LoginRequiredMixin, ListView):
             qs = qs.filter(group__members=member)
 
         return qs
+        
+from django.views.generic.dates import MonthArchiveView
+
+class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
+    queryset = Transaction.objects.all()
+    date_field = "timestamp"
+    allow_future = True
+    allow_empty = True
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['weekday'] = context['month'].isoweekday()
+        context['weekday_range'] = range(context['month'].isoweekday())
+        context['month_range'] = range((context['next_month']-context['month']).days)
+        qs = context['object_list']
+        qs = qs.annotate(
+            date=TruncDay('timestamp')
+        ).values('date')
+        qs = qs.annotate(
+            total_expense=Coalesce(
+                Sum(
+                  'ammount', 
+                  filter=Q(category__type='EXP')
+                ), V(0)
+            ),
+            total_income=Coalesce(
+                Sum(
+                    'ammount', 
+                    filter=Q(category__type='INC')
+                ), V(0)
+            )
+        )
+        qs = qs.order_by('-date')
+        context['daily_grouped'] = qs
+        return context
     
 class AccountDetailView(LoginRequiredMixin, DetailView):
     model = Account
