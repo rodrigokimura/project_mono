@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -66,12 +67,12 @@
 <body class="pushable">
   
   <div class="ui vertical inverted thin sidebar labeled icon left menu">
-    <a class="item" href="{% url 'finance:index' %}"><i class="home icon"></i>Home</a>
-    <a class="item" href="{% url 'finance:transactions' %}"><i class="money bill icon"></i>Transactions</a>
-    <a class="item" href="{% url 'finance:accounts' %}"><i class="wallet icon"></i>Accounts</a>
-    <a class="item" href="{% url 'finance:budgets' %}"><i class="piggy bank icon"></i>Budgets</a>
-    <a class="item" href="{% url 'finance:groups' %}"><i class="users icon"></i>Groups</a>
-    <a class="item" href="{% url 'finance:categories' %}"><i class="tags icon"></i>Categories</a>
+    <a class="item" href="{% url 'finance:index' %}"><i class="home icon"></i>{% translate "Home" %}</a>
+    <a class="item" href="{% url 'finance:transactions' %}"><i class="money bill icon"></i>{% translate "Transactions" %}</a>
+    <a class="item" href="{% url 'finance:accounts' %}"><i class="wallet icon"></i>{% translate "Accounts" %}</a>
+    <a class="item" href="{% url 'finance:budgets' %}"><i class="piggy bank icon"></i>{% translate "Budgets" %}</a>
+    <a class="item" href="{% url 'finance:groups' %}"><i class="users icon"></i>{% translate "Groups" %}</a>
+    <a class="item" href="{% url 'finance:categories' %}"><i class="tags icon"></i>{% translate "Categories" %}</a>
     {% comment %} <a class="item" href="{% url 'finance:goals' %}"><i class="bullseye icon"></i>Goals</a> {% endcomment %}
     {% if request.user.is_superuser %}
     <div class="item">
@@ -104,13 +105,33 @@
           ></div>
       </div>
       <div class="ui top right auth dropdown item">
+        {% comment %} USER MENU {% endcomment %}
         <i class="user icon"></i>
         <div class="menu">
           <div class="header">
-            <p>Signed in as </p>
+            <p>{% translate "Signed in as " %}</p>
             <span class="ui primary text">{{ request.user }}</span></div>
           <div class="divider"></div>
-          <a class="item" href="{% url 'finance:logout' %}">Sign out</a>
+          <div class="item">
+            <i class="left dropdown icon"></i>
+            <span class="text">{% translate "Change language" %}</span>
+            <div class="left menu">
+              {% get_current_language as LANGUAGE_CODE %}
+              {% comment %} {% get_available_languages as LANGUAGES %} {% endcomment %}
+              {% for code, name, flag, js_locale in LANGUAGE_EXTRAS %}
+              <div class="{% if code == LANGUAGE_CODE %}active selected {% endif %} item" href="#" onclick="setLanguage('{{ code }}');">
+                <i class="{{ flag }} flag"></i>{{ name }}
+              </div>
+              {% endfor %}
+            </div>
+            <form action="{% url 'set_language' %}" method="post" name="language">
+              {% csrf_token %}
+              <input name="next" type="hidden" value="{{ redirect_to }}">
+              <input name="language" type="hidden" value="">
+            </form>
+          </div>
+          <div class="divider"></div>
+          <a class="item" href="{% url 'finance:logout' %}">{% translate "Sign out" %}</a>
         </div>
       </div>
     </div>
@@ -142,11 +163,17 @@
   </div>
 </body>
 <script>
+  let setLanguage = (el) => {
+    console.log(el);
+    $("input[name=language]").val(el);
+    $("form[name=language]").submit();
+  }
   $('.ui.sidebar')
     .sidebar('setting', 'transition', 'slide along')
     .sidebar('setting', 'mobileTransition', 'slide along')
     .sidebar('attach events', '.toc.item');
   $('.ui.auth.dropdown').dropdown();
+  $('.ui.selection.language.dropdown').dropdown();
 
   {% if request.user.is_authenticated %}
 
