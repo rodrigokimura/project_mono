@@ -4,6 +4,7 @@ from django.views import View
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, CreateView, UpdateView, DeleteView
+from django.views.generic.dates import MonthArchiveView
 from django.views.generic.detail import DetailView
 from django.urls import reverse_lazy
 from django.contrib import messages
@@ -14,6 +15,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse, HttpResponse
 from django.db.models import F, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
+from django.utils.translation import gettext as _
 from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification, Budget, User
 from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm, BudgetForm
 import time
@@ -151,7 +153,7 @@ class TransactionUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
 class TransactionDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Transaction
     success_url = reverse_lazy('finance:transactions')
-    success_message = "Transaction was deleted successfully"
+    success_message = _("Transaction was deleted successfully")
     
     def test_func(self):
         return self.get_object().created_by == self.request.user
@@ -159,34 +161,6 @@ class TransactionDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(TransactionDeleteView, self).delete(request, *args, **kwargs)
-
-class AccountListView(LoginRequiredMixin, ListView):
-    model = Account
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        groups = self.request.user.shared_groupset.all()
-        context['groups'] = groups
-        members = [m.id for g in groups for m in g.members.all()]
-        context['members'] = User.objects.filter(id__in=members).exclude(id=self.request.user.id)
-        return context
-    
-    def get_queryset(self):
-        owned_accounts = self.request.user.owned_accountset.all()
-        shared_accounts = Account.objects.filter(group__members=self.request.user)
-        qs = (owned_accounts|shared_accounts).distinct()
-
-        group = self.request.GET.get('group', None)
-        if group not in [None, ""]:
-            qs = qs.filter(group=group)
-
-        member = self.request.GET.get('member', None)
-        if member not in [None, ""]:
-            qs = qs.filter(group__members=member)
-
-        return qs
-        
-from django.views.generic.dates import MonthArchiveView
 
 class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
     queryset = Transaction.objects.all()
@@ -220,6 +194,31 @@ class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
         qs = qs.order_by('-date')
         context['daily_grouped'] = qs
         return context
+class AccountListView(LoginRequiredMixin, ListView):
+    model = Account
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        groups = self.request.user.shared_groupset.all()
+        context['groups'] = groups
+        members = [m.id for g in groups for m in g.members.all()]
+        context['members'] = User.objects.filter(id__in=members).exclude(id=self.request.user.id)
+        return context
+    
+    def get_queryset(self):
+        owned_accounts = self.request.user.owned_accountset.all()
+        shared_accounts = Account.objects.filter(group__members=self.request.user)
+        qs = (owned_accounts|shared_accounts).distinct()
+
+        group = self.request.GET.get('group', None)
+        if group not in [None, ""]:
+            qs = qs.filter(group=group)
+
+        member = self.request.GET.get('member', None)
+        if member not in [None, ""]:
+            qs = qs.filter(group__members=member)
+
+        return qs
     
 class AccountDetailView(LoginRequiredMixin, DetailView):
     model = Account

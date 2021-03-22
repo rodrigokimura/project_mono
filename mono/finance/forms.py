@@ -4,7 +4,9 @@ from django.forms.widgets import HiddenInput, Widget
 from django.contrib.auth import login, authenticate, get_user_model, forms as auth_forms
 from django.template import loader
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 from django.utils import timezone
+from django.conf import settings
 from .models import Transaction, Group, Category, Account, Icon, Goal, Budget
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
@@ -32,6 +34,7 @@ class CalendarWidget(Widget):
             },
             'type': self.type,
             'format': self.format,
+            'LANGUAGE_EXTRAS': settings.LANGUAGE_EXTRAS,
         }
     def render(self, name, value, attrs=None, renderer=None):
         context = self.get_context(name, value, attrs)
@@ -136,8 +139,8 @@ class TransactionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         owned_accounts = Account.objects.filter(owned_by=self.request.user)
         shared_accounts = Account.objects.filter(group__members=self.request.user)
-        self.fields['description'].widget.attrs.update({'placeholder': 'Description'})
-        self.fields['ammount'].widget.attrs.update({'placeholder': 'Ammount'})
+        self.fields['description'].widget.attrs.update({'placeholder': _('Description')})
+        self.fields['ammount'].widget.attrs.update({'placeholder': _('Ammount')})
         self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
         self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
         self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
