@@ -21,6 +21,7 @@ from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountFo
 import time
 import jwt
 
+
 class TokenMixin(object):
     def get_context_data(self, **kwargs):
         context = super(TokenMixin, self).get_context_data(**kwargs)
