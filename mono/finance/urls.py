@@ -14,6 +14,7 @@ urlpatterns = [
     path("transaction/<int:pk>/", views.TransactionUpdateView.as_view(), name='transaction_update'),
     path("transaction/<int:pk>/delete/", views.TransactionDeleteView.as_view(), name='transaction_delete'),
     path("transactions/", views.TransactionListView.as_view(), name='transactions'),
+    path('transactions/<int:year>/<int:month>/', views.TransactionMonthArchiveView.as_view(month_format='%m'), name='transaction_month'),
     
     path("account/", views.AccountCreateView.as_view(), name='account_create'),
     path("account/<int:pk>/", views.AccountUpdateView.as_view(), name='account_update'),

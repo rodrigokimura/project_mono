@@ -1,0 +1,125 @@
+{% extends "finance/base.html" %}
+
+{% block head %}
+{% endblock head %}
+{% load cool_numbers %}
+{% block body %}
+  <div class="ui stackable grid container">
+    
+    <div class="four wide column">
+      <form class="ui fluid form" method="GET" id="filter">
+        <div class="field">
+          <label>Member</label>
+          <div class="ui search selection dropdown" data-name="member">
+            <input type="hidden" name="member">
+            <div class="text"></div>
+            <i class="dropdown icon"></i>
+          </div>
+        </div>
+        <div class="ui fluid buttons">
+          <button class="ui button primary" type="submit" form="filter">Filter</button>
+          <a class="ui button" href="{% url 'finance:groups' %}">Clear</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="eight wide column">
+     
+      <div class="ui segments">
+        <div class="ui secondary grey grid segment">
+          <div class="row">
+            <div class="left aligned five wide column">
+              {% if previous_month %}
+              {% with m=previous_month|date:'m' y=previous_month|date:'Y' %}
+              <a class="ui button" href="{% url 'finance:transaction_month' year=y month=m %}"><i class="left arrow icon"></i></a>
+              {% endwith %}
+              {% endif %}
+            </div>
+              
+            <div class="center aligned six wide column">
+              {{ month|date:'F/Y' }}
+            </div>
+            
+            <div class="right aligned five wide column">
+              {% if next_month %}
+              {% with m=next_month|date:'m' y=next_month|date:'Y' %}
+              <a class="ui button" href="{% url 'finance:transaction_month' year=y month=m %}"><i class="right arrow icon"></i></a>
+              {% endwith %}
+              {% endif %}
+            </div>
+            
+          </div>
+        </div>
+        
+        <div class="ui seven column grid segment">
+          
+          {% with weekdays='SMTWTFS'|make_list %}
+          {% for w in weekdays %}
+          <div class="center aligned column" style="padding:.5rem;">{{ w }}</div>
+          {% endfor %}
+          {% endwith %}
+          
+          {% for i in weekday_range %}
+          <div class="column"></div>
+          {% endfor %}
+          
+          {% for i in month_range %}
+          <div class="column" style="padding: 0.5rem;">
+              
+            {% with day=i|add:1 %}
+            <div class="ui small circular label">
+              <span class="ui small text">
+                <strong>{{ day }}</strong>
+              </span>
+            </div>
+            <br>
+            {% for d in daily_grouped %}
+            {% if d.date|date:"d" == day|stringformat:"i" %}
+            <span class="ui small red text">
+            {{ d.total_expense|cool_numbers:1 }}
+            </span><br>
+            <span class="ui small green text">
+            {{ d.total_income|cool_numbers:1 }}
+            </span>
+            {% endif %}
+            {% endfor %}
+            {% endwith %}
+          
+        </div>
+        {% endfor %}
+          
+        </div>
+      </div>
+
+    </div>
+    
+    <div class="four wide column">
+      <a class="ui fluid button primary" href="{% url "finance:transaction_create" %}">Add transaction</a>
+    </div>
+
+  </div>
+
+  <script>
+    $('.ui.dropdown[data-name=member]').dropdown({
+      placeholder: "Select a member of a group",
+      forceSelection: false,
+      values: [
+        {% for m in members %}
+        {
+          name: "{{ m.username }}",
+          value: {{ m.id }},
+          {% if m.id|stringformat:"i" == request.GET.member %}
+          selected : true
+          {% endif %}
+        },
+        {% endfor %}
+      ]
+    });
+    $('.message .close').click(function() {
+      $(this)
+      .closest('.message')
+      .transition('fade');
+    });
+  </script>
+
+{% endblock %}
