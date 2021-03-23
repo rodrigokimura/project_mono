@@ -1,4 +1,5 @@
-from django.urls import path
+from django.contrib.auth import views as auth_views
+from django.urls import path, re_path
 from . import views
 
 app_name = 'finance'
@@ -57,4 +58,9 @@ urlpatterns = [
     path("notification/get-ids/", views.NotificationCheckUnread.as_view(), name='notification_get_ids'),
 
     path("faker/", views.FakerView.as_view(), name='faker'),
+    re_path(r'^password_reset/$', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    re_path(r'^password_reset/done/$', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    re_path(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+        auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    re_path(r'^reset/done/$', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]
