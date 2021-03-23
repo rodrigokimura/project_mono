@@ -1,4 +1,5 @@
 {% extends "finance/base.html" %}
+{% load i18n %}
 
 {% block head %}
   <style type="text/css" media="all">
@@ -128,7 +129,22 @@
   </div>
   
   <div class="four wide column">
-    <a class="ui fluid button primary" href="{% url "finance:transaction_create" %}">Add transaction</a>
+
+    <div class="ui horizontal divider"><i class="play circle outline icon"></i> {% translate "Actions" %}</div>
+    <div class="row">
+      <a class="ui fluid primary labeled icon button" href="{% url "finance:transaction_create" %}">
+        <i class="plus icon"></i>
+        {% translate "Add transaction" %}
+      </a>
+    </div>
+    
+    <div class="ui horizontal divider"><i class="eye outline icon"></i> {% translate "Views" %}</div>
+    <div class="row">
+      <a class="ui fluid basic labeled icon button" href="{% url "finance:transaction_month" month=now|date:'m' year=now|date:'Y' %}">
+          <i class="calendar alternate outline icon"></i>
+          {% translate "Go to Calendar View" %}
+      </a>
+    </div>
   </div>
 
 </div>
