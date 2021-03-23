@@ -10,17 +10,21 @@
 <script type="text/javascript" charset="utf-8">
   let dropdown_element = $('[name={{ widget.name }}]').parent()
 
+  {% if widget.value %}
+  dropdown_element.dropdown("set selected", "{{ widget.value }}")
+  {% endif %}
+
   let updateDropdown = (type, account) => {
     dropdown_element.dropdown({
       apiSettings: {
         action: 'get categories',
         data: {type:type, account:account},
-        cache:false,
+        cache: false,
       },
       placeholder: "Select a category",
-      fullTextSearch:false,
-      filterRemoteData:true,
-      forceSelection:false,
+      fullTextSearch: false,
+      filterRemoteData: false,
+      forceSelection: false,
     });
   }
   
