@@ -10,7 +10,10 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth import login
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import (
+    LoginView, LogoutView, PasswordResetDoneView, PasswordResetView,
+    PasswordResetConfirmView,
+    PasswordResetCompleteView)
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse, HttpResponse
 from django.db.models import F, Q, Sum, Value as V
@@ -61,6 +64,27 @@ class Login(LoginView):
 
 class Logout(LogoutView):
     next_page = reverse_lazy('finance:index')
+
+class PasswordResetView(PasswordResetView):
+    success_url = reverse_lazy('finance:password_reset_done')
+    title = _('Password reset')
+    email_template_name = 'registration/password_reset_email.html'
+    subject_template_name = 'registration/password_reset_subject.txt'
+    template_name = 'registration/password_reset_form.html'
+    extra_email_context = {"expiration_time_hours": settings.PASSWORD_RESET_TIMEOUT/24/60/60}
+
+class PasswordResetConfirmView(PasswordResetConfirmView):
+    success_url = reverse_lazy('finance:password_reset_complete')
+    template_name = 'registration/password_reset_confirm.html'
+    title = _('Enter new password')
+
+class PasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'registration/password_reset_done.html'
+    title = _('Password reset sent')
+
+class PasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'registration/password_reset_complete.html'
+    title = _('Password reset complete')
 
 class TransactionListView(LoginRequiredMixin, ListView):
     """
