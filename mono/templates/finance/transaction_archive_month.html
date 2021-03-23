@@ -10,16 +10,24 @@
     <div class="four wide column">
       <form class="ui fluid form" method="GET" id="filter">
         <div class="field">
-          <label>Member</label>
-          <div class="ui search selection dropdown" data-name="member">
-            <input type="hidden" name="member">
+          <label>Category</label>
+          <div class="ui search multiple selection dropdown" data-name="category">
+            <input type="hidden" name="category">
+            <div class="text"></div>
+            <i class="dropdown icon"></i>
+          </div>
+        </div>
+        <div class="field">
+          <label>Account</label>
+          <div class="ui search multiple selection dropdown" data-name="account">
+            <input type="hidden" name="account">
             <div class="text"></div>
             <i class="dropdown icon"></i>
           </div>
         </div>
         <div class="ui fluid buttons">
           <button class="ui button primary" type="submit" form="filter">Filter</button>
-          <a class="ui button" href="{% url 'finance:groups' %}">Clear</a>
+          <a class="ui button" href="{% url 'finance:transactions' %}">Clear</a>
         </div>
       </form>
     </div>
@@ -116,15 +124,30 @@
   </div>
 
   <script>
-    $('.ui.dropdown[data-name=member]').dropdown({
-      placeholder: "Select a member of a group",
+    $('.ui.dropdown[data-name=category]').dropdown({
+      placeholder: "Select a category",
       forceSelection: false,
       values: [
-        {% for m in members %}
+        {% for c in categories %}
         {
-          name: "{{ m.username }}",
-          value: {{ m.id }},
-          {% if m.id|stringformat:"i" == request.GET.member %}
+          name: "{{ c.name }}",
+          value: {{ c.id }},
+          {% if c.id|stringformat:"i" in filtered_categories %}
+          selected : true
+          {% endif %}
+        },
+        {% endfor %}
+      ]
+    });
+    $('.ui.dropdown[data-name=account]').dropdown({
+      placeholder: "Select an account",
+      forceSelection: false,
+      values: [
+        {% for a in accounts %}
+        {
+          name: "{{ a.name }}",
+          value: {{ a.id }},
+          {% if a.id|stringformat:"i" in filtered_accounts %}
           selected : true
           {% endif %}
         },
