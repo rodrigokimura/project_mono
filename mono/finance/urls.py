@@ -1,4 +1,6 @@
-from django.urls import path
+from django.contrib.auth import views as auth_views
+from django.urls import path, re_path
+from django.urls import reverse_lazy
 from . import views
 
 app_name = 'finance'
@@ -57,4 +59,9 @@ urlpatterns = [
     path("notification/get-ids/", views.NotificationCheckUnread.as_view(), name='notification_get_ids'),
 
     path("faker/", views.FakerView.as_view(), name='faker'),
+
+    path('password_reset/', views.PasswordResetView.as_view(), name='password_reset'),
+    path('password_reset/done/', views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]

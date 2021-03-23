@@ -188,3 +188,5 @@ ADMINS = [('Rodrigo Eiti Kimura', 'rodrigoeitikimura@gmail.com')]
 SERVER_EMAIL = 'no-reply@voitkemp.com'
 EMAIL_SUBJECT_PREFIX = '[MONO PROJECT] '
 EMAIL_USE_LOCALTIME = True
+
+PASSWORD_RESET_TIMEOUT = 24*60*60 
