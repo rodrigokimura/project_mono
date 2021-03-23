@@ -34,4 +34,5 @@ jobs:
     - name: Test with django test
       run: |
         export APP_ENV=DEV
-        python ./mono/manage.py test
+        cd mono
+        python manage.py test
