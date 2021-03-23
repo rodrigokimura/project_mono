@@ -367,13 +367,23 @@ class CategoryListView(LoginRequiredMixin, ListView):
 class CategoryListApi(View):
     def get(self, request):
         time.sleep(.5)
-        type = request.GET.get("type", Category.EXPENSE)
-        account = request.GET.get("account", None)
-        qs = Category.objects.filter(
-            created_by=request.user,
-            type=type,
-            internal_type=Category.DEFAULT
-        )
+        type = request.GET.get("type")
+        account = request.GET.get("account")
+        if type not in [None,""]:
+            qs = Category.objects.filter(
+                created_by=request.user,
+                type=type,
+                internal_type=Category.DEFAULT
+            )
+        else:
+            qs = qs.none()
+            return JsonResponse(
+                {
+                    'success':True,
+                    'message':'Categories retrived from database.',
+                    'results':list(qs),
+                }
+            )
 
         if account not in [None,""]:
             account = Account.objects.get(id=int(account))

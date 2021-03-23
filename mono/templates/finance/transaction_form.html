@@ -61,12 +61,15 @@
   })
   
   if ($('select[name=account]').dropdown("get value").length > 0) {
+    dropdown_element.dropdown('clear');
     updateDropdown($("input[name=type]").val(), $('select[name=account]').dropdown("get value"));
   }
   
   {% if object %}
-    updateDropdown('{{ object.category.type }}', '{{ object.account.pk }}');
-    dropdown_element.dropdown('set value', "{{ object.category.pk }}");
+    dropdown_element.dropdown('set text', "<i class='{{ object.category.icon }} icon'></i>{{ object.category }}");
+    dropdown_element.dropdown("set value", "{{ object.category.pk }}")
   {% endif %}
+   
+  
 </script>
 {% endblock %}

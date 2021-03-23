@@ -11,7 +11,7 @@
   let dropdown_element = $('[name={{ widget.name }}]').parent()
 
   {% if widget.value %}
-  dropdown_element.dropdown("set selected", "{{ widget.value }}")
+  // dropdown_element.dropdown("set value", "{{ widget.value }}")
   {% endif %}
 
   let updateDropdown = (type, account) => {
@@ -24,6 +24,7 @@
       placeholder: "Select a category",
       fullTextSearch: false,
       filterRemoteData: false,
+      saveRemoteData: false,
       forceSelection: false,
     });
   }
