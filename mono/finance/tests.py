@@ -1,4 +1,5 @@
 from django.test import TestCase, RequestFactory
+from django.urls.base import reverse
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser, User
@@ -133,3 +134,22 @@ class UserCreationTests(TestCase):
 
 # User default accounts creation
 # User default category creation
+
+# class TestView(TestCase):
+
+#     fixtures = ["icon.json"]
+    
+#     def setUp(self):
+#         self.user = User.objects.create(
+#             username="teste")
+#         self.factory = RequestFactory()
+#         self.view = AccountCreateView
+
+#     def test_index_page(self):
+#         url = reverse(self.view.as_view())
+#         request = self.factory.get(url)
+#         request.user = self.user
+#         response = self.view.as_view()(request)
+#         self.assertEqual(response.status_code, 200)
+        # self.assertTemplateUsed(response, 'index.html')
+        # self.assertContains(response, 'Company Name XYZ')
