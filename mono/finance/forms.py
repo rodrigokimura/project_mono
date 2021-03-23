@@ -337,6 +337,7 @@ class UserForm(auth_forms.UserCreationForm):
     error_css_class = 'error'
 
     captcha = ReCaptchaField()
+    email = forms.EmailField()
 
     class Meta:
         fields = ("username", "email", "password1", "password2")
@@ -345,12 +346,10 @@ class UserForm(auth_forms.UserCreationForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        self.fields["username"].label = "Display name"
-        self.fields['username'].widget.attrs.update({'placeholder': 'Username'})
-        self.fields["email"].label = "Email address"
-        self.fields['email'].widget.attrs.update({'placeholder': 'Email address'})
-        self.fields['password1'].widget.attrs.update({'placeholder': 'Password'})
-        self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm password'})
+        self.fields['username'].widget.attrs.update({'placeholder': self.fields["username"].label})
+        self.fields['email'].widget.attrs.update({'placeholder': _("Email")})
+        self.fields['password1'].widget.attrs.update({'placeholder': self.fields["password1"].label})
+        self.fields['password2'].widget.attrs.update({'placeholder': self.fields["password2"].label})
     
     def clean(self):
        email = self.cleaned_data.get('email')
