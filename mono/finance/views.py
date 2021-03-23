@@ -16,6 +16,7 @@ from django.http import JsonResponse, HttpResponse
 from django.db.models import F, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
 from django.utils.translation import gettext as _
+from django.utils import timezone
 from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification, Budget, User
 from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm, BudgetForm
 import time
@@ -100,6 +101,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         context['categories'] = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
+        context['now'] = timezone.now()
         category = self.request.GET.get('category', None)
         if category not in [None, ""]:
             context['filtered_categories'] = category.split(',')
