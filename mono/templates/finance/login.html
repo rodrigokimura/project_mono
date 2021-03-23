@@ -6,20 +6,33 @@
 {% endblock head %}
 
 {% block body %}
-<div class="ui grid container">
-  <div class="row">
-    <div class="column">
-      <form class="ui form {% if form.errors %}error{% endif %}" method="POST">
-        {% csrf_token %}
-        {% include "_form.html" with form=form %}
-        <button type="submit" class="ui fluid submit primary button">Login</button>
-        <div class="ui error message"></div>
-      </form>
+<div class="ui stackable grid container">
+
+  <div class="ui four wide column"></div>
+
+  <div class="ui eight wide column ">
+    <div class="row">
+      <div class="ui attached message">
+        <div class="header">
+          {% translate "Login to your account!" %}
+        </div>
+      </div>
+      <div class="ui attached segment">
+        <form class="ui form {% if form.errors %}error{% endif %}" method="POST">
+          {% csrf_token %}
+          {% include "_form.html" with form=form %}
+          <button type="submit" class="ui fluid submit primary button">{% translate "Login" %}</button>
+          <div class="ui error message"></div>
+        </form>
+      </div>
+    </div>
+    <div class="ui bottom attached message">
+      <p><i class="question circle icon"></i><a href="{% url 'finance:password_reset' %}">{% translate "Forgot your password?" %}</a></p>
+      <p><i class="info circle icon"></i><a href="{% url 'finance:signup' %}">{% translate "New here?" %}</a></p>  
     </div>
   </div>
-  <div class="row">
-    <a href="{% url 'finance:password_reset' %}">{% translate "Forgot my password" %}</a>
-  </div>
+  
+  <div class="ui four column wide"></div>
 </div>
 
 <script>
