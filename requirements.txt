@@ -13,3 +13,6 @@ GitPython
 
 # for Django Admin Docs
 docutils>=0.16
+
+# for Captcha on signup
+django-recaptcha>=2.0,<3.0
