@@ -16,6 +16,7 @@ from faker.providers import lorem
 from random import randrange
 from datetime import timedelta, datetime
 import pytz
+from captcha.fields import ReCaptchaField
 
 import random
     
@@ -254,8 +255,7 @@ class CategoryForm(forms.ModelForm):
         category.created_by = self.request.user
         category.save()
         return super(CategoryForm, self).save(*args, **kwargs)
-        
-        
+
 class IconForm(forms.ModelForm):
     error_css_class = 'error'
     class Meta:
@@ -335,6 +335,8 @@ class BudgetForm(forms.ModelForm):
 class UserForm(auth_forms.UserCreationForm):
     
     error_css_class = 'error'
+
+    captcha = ReCaptchaField()
 
     class Meta:
         fields = ("username", "email", "password1", "password2")
