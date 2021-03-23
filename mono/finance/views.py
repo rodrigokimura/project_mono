@@ -68,7 +68,7 @@ class Logout(LogoutView):
 class PasswordResetView(PasswordResetView):
     success_url = reverse_lazy('finance:password_reset_done')
     title = _('Password reset')
-    email_template_name = 'registration/password_reset_email.html'
+    html_email_template_name = 'registration/password_reset_email.html'
     subject_template_name = 'registration/password_reset_subject.txt'
     template_name = 'registration/password_reset_form.html'
     extra_email_context = {"expiration_time_hours": settings.PASSWORD_RESET_TIMEOUT/24/60/60}
