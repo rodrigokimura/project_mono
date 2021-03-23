@@ -13,14 +13,18 @@ APP_ENV = os.getenv('APP_ENV')
 
 GITHUB_SECRET = os.getenv('GITHUB_SECRET')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 if APP_ENV == 'DEV': 
     SECRET_KEY = 'devkeyprojectmono'
 else: 
     SECRET_KEY = os.getenv('APP_SECRET')
+
+# For django-recaptcha
+if APP_ENV == 'DEV': 
+    SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
+else: 
+    RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY')
+    RECAPTCHA_PRIVATE_KEY = os.getenv('RECAPTCHA_PRIVATE_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = APP_ENV == 'DEV'
@@ -42,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.admindocs',
     # 'debug_toolbar',
+    'captcha',
     'healthcheck',
     'shared',
     'accounts',
