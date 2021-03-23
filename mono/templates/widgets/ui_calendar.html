@@ -1,8 +1,6 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 
-
-
 <div class="ui calendar">
   <div class="ui input left icon">
     <i class="calendar icon"></i>
@@ -10,7 +8,7 @@
       type="text" 
       name="{{ widget.name }}" 
       placeholder="{{ widget.placeholder|capfirst }}"
-      value="{{ widget.value|date:format }}"
+      value="{{ widget.value }}"
       >
   </div>
 </div>
@@ -18,9 +16,9 @@
   $('[name={{widget.name}}]').parent().parent().calendar(
     {
       type:"{{ type }}",
-      today:true,
-      ampm:false,
-      formatInput:true,
+      today: true,
+      ampm: false,
+      formatInput: true,
       formatter: {
         date: function (date, settings) {
           if (!date) return '';

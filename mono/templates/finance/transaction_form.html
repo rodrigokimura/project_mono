@@ -17,10 +17,6 @@
           <div class="ui container">
             <form method="post" class="ui {% if form.errors %}error {% endif %}form" id="transaction_form">
               {% csrf_token %}
-              <div class="fluid ui buttons">
-                <a class="ui button" data-name="type" data-value="INC" onclick="selectType(this)">{% translate "Income" %}</a>
-                <a class="ui button" data-name="type" data-value="EXP" onclick="selectType(this)">{% translate "Expense" %}</a>
-              </div>
               {% include "_form.html" with form=form %}
               <div class="fluid ui buttons">
                 <button class="ui button primary" type="submit" form="transaction_form">
@@ -52,26 +48,25 @@
       onChange: function(value, text, choice) {
         if (typeof value !== "undefined") {
           dropdown_element.dropdown('clear');
-          updateDropdown($(".active[data-name=type]").data("value"), value);
+          updateDropdown($("input[name=type]").val(), value);
         }
       }
     }
   );
   
-  {% if object %}
-    $('[data-value={{ object.category.type }}').addClass('active');
-    dropdown_element.dropdown('set value', "{{ object.category.pk }}");
-    updateDropdown('{{ object.category.type }}', '{{ object.account.pk }}');
-  {% else %}
-    $('[data-value=EXP').addClass('active');
-    updateDropdown('EXP', null);
-  {% endif %}
-  
-  let selectType = el => {
-    $(el).addClass('active')
-    .siblings().removeClass('active');
+  $("input[name=type]").change(e=>{
+    type = $(e.target).val();
     dropdown_element.dropdown('clear');
-    updateDropdown($(el).data('value'), $('select[name=account]').dropdown("get value"));
+    updateDropdown(type, $('select[name=account]').dropdown("get value"));
+  })
+  
+  if ($('select[name=account]').dropdown("get value").length > 0) {
+    updateDropdown($("input[name=type]").val(), $('select[name=account]').dropdown("get value"));
   }
+  
+  {% if object %}
+    updateDropdown('{{ object.category.type }}', '{{ object.account.pk }}');
+    dropdown_element.dropdown('set value', "{{ object.category.pk }}");
+  {% endif %}
 </script>
 {% endblock %}

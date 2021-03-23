@@ -7,6 +7,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.utils import timezone
 from django.conf import settings
+from django.db.models import CharField
 from .models import Transaction, Group, Category, Account, Icon, Goal, Budget
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
@@ -24,6 +25,9 @@ class CalendarWidget(Widget):
     template_name = 'widgets/ui_calendar.html'
     type = 'datetime'
     format = 'n/d/Y h:i A'
+    
+    def __init__(self, attrs=None, *args, **kwargs):
+        super().__init__(attrs)
 
     def get_context(self, name, value, attrs=None):
         return {
@@ -36,6 +40,10 @@ class CalendarWidget(Widget):
             'format': self.format,
             'LANGUAGE_EXTRAS': settings.LANGUAGE_EXTRAS,
         }
+        
+    def format_value(self, value):
+        return value
+    
     def render(self, name, value, attrs=None, renderer=None):
         context = self.get_context(name, value, attrs)
         template = loader.get_template(self.template_name).render(context)
@@ -52,6 +60,24 @@ class IconWidget(Widget):
             'icon_list': Icon.objects.all()
         }
         
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = loader.get_template(self.template_name).render(context)
+        return mark_safe(template)
+
+class ButtonsWidget(Widget):
+    template_name = 'widgets/ui_buttons.html'
+    def __init__(self, attrs=None, *args, **kwargs):
+      self.choices = kwargs.pop('choices')
+      super().__init__(attrs)
+    def get_context(self, name, value, attrs=None):
+        return {
+            'widget': {
+                'name': name,
+                'value': value,
+                'choices': self.choices,
+            },
+        }
     def render(self, name, value, attrs=None, renderer=None):
         context = self.get_context(name, value, attrs)
         template = loader.get_template(self.template_name).render(context)
@@ -131,8 +157,10 @@ class AccountForm(forms.ModelForm):
 
 class TransactionForm(forms.ModelForm):
     error_css_class = 'error'
-
-    type=HiddenInput()
+    
+    #type=HiddenInput()
+    type = forms.CharField(
+        widget=ButtonsWidget(choices=Category.TRANSACTION_TYPES))
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
@@ -144,6 +172,10 @@ class TransactionForm(forms.ModelForm):
         self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
         self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
         self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
+        if self.instance.pk is not None:
+            self.fields['type'].initial = self.instance.category.type
+        else:
+            self.fields['type'].initial = Category.EXPENSE
     
     def get_context_data(self, **kwargs):
         context = super(TransactionForm, self).get_context_data(**kwargs)
