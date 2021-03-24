@@ -1,0 +1,308 @@
+{% extends "finance/base.html" %}
+{% load static %}
+
+{% block head %}
+  <style type="text/css">
+  </style>
+  <script>
+  </script>
+{% endblock head %}
+
+{% block body %}
+<div class="pusher">
+  <div class="ui vertical center aligned segment">
+    <div class="ui text container">
+    </div>
+  </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+  .StripeElement {
+    box-sizing: border-box;
+
+    height: 40px;
+
+    padding: 10px 12px;
+
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background-color: white;
+
+    box-shadow: 0 1px 3px 0 #e6ebf1;
+    -webkit-transition: box-shadow 150ms ease;
+    transition: box-shadow 150ms ease;
+  }
+
+  .StripeElement--focus {
+    outline: 0;
+    box-shadow: 
+      0 0 0 0.2rem rgba(0, 123, 255, 0.25), 
+      1px 3px 10px rgba(0,0,0, 0.25);
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+
+  .StripeElement--invalid {
+    border-color: #fa755a;
+  }
+
+  .StripeElement--webkit-autofill {
+    background-color: #fefde5 !important;
+  }
+</style>
+	
+<div class="container">
+  
+  <div class="row d-flex justify-content-center mb-3">
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+      <label class="btn btn-primary active">
+        <input interval="month" type="radio" name="interval" id="interval-month" autocomplete="off" checked> Mensal
+      </label>
+      <label class="btn btn-primary">
+        <input interval="year" type="radio" name="interval" id="interval-year" autocomplete="off"> Anual
+      </label>
+    </div>
+  </div>
+
+  <div class="row d-flex justify-content-center">
+
+		{% for p in products %}
+
+		<div class="col-md mb-3">
+			<div class="card card-plan border-primary" id="{{p.id}}">
+				<div class="card-body text-center" id="{{p.id}}">
+					<h5 class="card-title font-weight-bold text-center">{{p.name}}</h5>
+					<p class="card-text text-muted" style="height:5em">
+            {{p.description}}
+          </p>
+
+          {% for plan in p.plan_set.all %}
+          {% if plan.active == True %}
+          {% with currency_symbol="BRL" %}
+          <span  interval="{{plan.interval}}" class="plan-select-price {% if plan.interval == 'year' %}hidden{% endif %} align-baseline font-weight-lighter" id="{{plan.id}}" style="font-size: 4em;">R$</span>
+          <span  interval="{{plan.interval}}" class="plan-select-price {% if plan.interval == 'year' %}hidden{% endif %} align-baseline" id="{{plan.id}}" style="font-size: 4em;">{{plan.amount}}</span>
+          <span  interval="{{plan.interval}}" class="plan-select-price {% if plan.interval == 'year' %}hidden{% endif %} align-baseline  font-weight-lighter" id="{{plan.id}}" style="font-size: 1em;">{{plan.amount}}</span ><br>
+          <a interval="{{plan.interval}}" class="btn btn-outline-primary plan-select m-2 {% if plan.interval == 'year' %}hidden{% endif %}" id="{{plan.id}}" name="{{p.name}}" value="{{p.id}}" onclick="planSelect('{{p.id}}', '{{p.name}}', '{{plan.human_readable_price}}', '{{plan.id}}')" href="#subscription-form">
+            Escolher
+          </a>
+          {% endwith %}
+          {% endif %}
+          {% endfor %}
+
+				</div>
+			</div>
+		</div>
+
+		{% endfor %}
+
+	</div>
+
+  <div>
+		<div class="row mt-3 d-flex justify-content-center">
+			<div class="col-md-6">
+				<div class="card border-primary">
+          <h5 class="card-header font-weight-bold text-center">Pagamento</h5>
+					<div class="card-body">
+            <p class="text-muted ">Digite os detalhes do cartão.  Sua assinatura será ativada imediatamente.</p>
+						<div class="row">
+							<div class="col-6 text-muted">
+								<p>Plano:</p>
+								<p>Total:</p>
+							</div>
+							<div class="col-6 text-right">
+								<p id="plan"></p>
+								<p id="price"></p>
+								<p hidden id="priceId"></p>
+							</div>
+
+						</div>
+						<br>
+						<form id="subscription-form" >
+							<div id="card-element" class="MyCardElement mb-3 border-primary">
+								<!-- Elements will create input elements here -->
+							</div>
+							
+							<!-- We'll put the error messages in this element -->
+							<div id="card-errors" role="alert"></div>
+							<button id="submit" type="submit" class="btn btn-primary">
+								<span id="button-text">Increver-se</span>
+							</button>
+						</form>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+</div>
+<script>
+
+  stripeElements();
+
+  interval_toggle = document.getElementsByName('interval');
+  function selectInterval(element, index, array) {
+    element.addEventListener('click', function() {
+
+      buttons = $("*.plan-select,*.plan-select-price")
+      // price_descriptions = $("*.plan-select-price")
+
+      for (let index = 0; index < buttons.length; index++) {
+        const button = buttons[index];
+        if (button.getAttribute('interval')===element.getAttribute('interval')) {
+          button.classList.remove("hidden")
+        } else {
+          button.classList.add("hidden")
+        }
+      }
+      
+    })
+  }
+
+  interval_toggle.forEach(selectInterval);
+
+  function stripeElements() {
+    stripe = Stripe('{{stripe_pk}}');
+
+    if (document.getElementById('card-element')) {
+      let elements = stripe.elements();
+
+      // Card Element styles
+      let style = {
+        base: {
+          color: "#32325d",
+          fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+          fontSmoothing: "antialiased",
+          fontSize: "16px",
+          "::placeholder": {
+            color: "#aab7c4"
+          }
+        },
+        invalid: {
+          color: "#fa755a",
+          iconColor: "#fa755a"
+        }
+      };
+
+      card = elements.create('card', { style: style });
+
+      card.mount('#card-element');
+
+      card.on('focus', function () {
+        let el = document.getElementById('card-errors');
+        el.classList.add('focused');
+      });
+
+      card.on('blur', function () {
+        let el = document.getElementById('card-errors');
+        el.classList.remove('focused');
+      });
+
+      card.on('change', function (event) {
+        displayError(event);
+      });
+    }
+
+    //we'll add payment form handling here
+    let paymentForm = document.getElementById('subscription-form');
+    if (paymentForm) {
+
+      paymentForm.addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        // create new payment method & create subscription
+        createPaymentMethod({ card });
+      });
+    }
+  }
+
+  function createPaymentMethod({ card }) {
+    let billingName = '{{ request.user.username }}';
+
+    stripe
+      .createPaymentMethod({
+        type: 'card',
+        card: card,
+        billing_details: {
+          name: billingName,
+        },
+      })
+      .then((result) => {
+        if (result.error) {
+          displayError(result);
+        } else {
+        const paymentParams = {
+            price_id: document.getElementById("priceId").innerHTML,
+            payment_method: result.paymentMethod.id,
+        };
+
+        console.log(result.paymentMethod.id)
+
+        $.api({ 
+          action: 'checkout',
+          on: 'now',
+          method: 'POST',
+          serializeForm: true,
+          mode: 'same-origin',
+          headers: {'X-CSRFToken': csrftoken},
+          data:{
+            payment_method_id: result.paymentMethod.id,
+          },
+          onError: function(errorMessage, element, xhr) {
+            alert(errorMessage)
+          },
+          onSuccess: function(response, element, xhr) {
+            console.log(response)
+          }
+        })
+
+
+
+        {% comment %} fetch("{ url 'payment:create_sub' }", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken':'{{ csrf_token }}',
+          },
+          // credentials: 'same-origin',
+          body: JSON.stringify(paymentParams),
+        }).then((response) => {
+          return response.json(); 
+        }).then((result) => {
+          if (result.error) {
+            // The card had an error when trying to attach it to a customer
+            throw result;
+          }
+          return result;
+        }).then((result) => {
+          if (result && result.status === 'active') {
+            window.location.href = "{ url 'payment:complete' }";
+          } else {
+            console.log(result.message)
+            if (result.exists) {
+              window.location.href = "{ url 'payment:subscription_exists' }";
+            }
+          };
+        }).catch(function (error) {
+          window.location.href = "{ url 'payment:failure' }";
+          console.log(result.error.message);
+          displayError(result.error.message);
+        }); {% endcomment %}
+        
+      }
+    });
+  }
+
+  function displayError(event) {
+  
+    let displayError = document.getElementById('card-errors');
+    if (event.error) {
+      displayError.textContent = event.error.message;
+    } else {
+      displayError.textContent = '';
+    }
+  }
+
+</script>
+
+
+{% endblock body %}
