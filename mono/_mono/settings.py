@@ -20,13 +20,11 @@ else:
     SECRET_KEY = os.getenv('APP_SECRET')
 
 # For django-recaptcha
-RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY')
-RECAPTCHA_PRIVATE_KEY = os.getenv('RECAPTCHA_PRIVATE_KEY')
-# if APP_ENV == 'DEV': 
-#     SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
-# else: 
-#     RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY')
-#     RECAPTCHA_PRIVATE_KEY = os.getenv('RECAPTCHA_PRIVATE_KEY')
+if APP_ENV == 'DEV': 
+    SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
+else: 
+    RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY')
+    RECAPTCHA_PRIVATE_KEY = os.getenv('RECAPTCHA_PRIVATE_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = APP_ENV == 'DEV'
