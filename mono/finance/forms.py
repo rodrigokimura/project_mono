@@ -1,24 +1,21 @@
 from django import forms
 from django.forms import ValidationError
-from django.forms.widgets import HiddenInput, Widget
+from django.forms.widgets import Widget
 from django.contrib.auth import login, authenticate, get_user_model, forms as auth_forms
 from django.template import loader
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from django.utils import timezone
 from django.conf import settings
-from django.db.models import CharField
-from .models import Transaction, Group, Category, Account, Icon, Goal, Budget
-from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
+from datetime import timedelta, datetime
 from faker import Faker
 from faker.providers import lorem
-from random import randrange
-from datetime import timedelta, datetime
-import pytz
 from captcha.fields import ReCaptchaField
-
-import random
+from random import randrange, randint
+import pytz
+from .models import Transaction, Group, Category, Account, Icon, Goal, Budget
     
 User = get_user_model()
 
@@ -350,6 +347,7 @@ class UserForm(auth_forms.UserCreationForm):
         self.fields['email'].widget.attrs.update({'placeholder': _("Email")})
         self.fields['password1'].widget.attrs.update({'placeholder': self.fields["password1"].label})
         self.fields['password2'].widget.attrs.update({'placeholder': self.fields["password2"].label})
+        self.fields['captcha'].widget.api_params = {'hl': self.request.LANGUAGE_CODE}
     
     def clean(self):
        email = self.cleaned_data.get('email')
@@ -434,7 +432,7 @@ class FakerForm(forms.Form):
                     description = fake.text(max_nb_chars=50, ext_word_list=None),
                     created_by = target_user,
                     timestamp = timestamp,
-                    ammount = random.randint(0,1000),
+                    ammount = randint(0,1000),
                     category = Category.objects.filter(created_by=target_user, group=None, internal_type=Category.DEFAULT).order_by("?").first(),
                     account = Account.objects.filter(owned_by=target_user, group=None).order_by("?").first(),
                     # active = models.BooleanField(default=True)

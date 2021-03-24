@@ -40,6 +40,7 @@
       'get notification ids'        : '/fn/notification/get-ids/',
       {% if request.user.is_superuser %}
       'deploy'                      : '/hc/deploy/',
+      'checkout'                    : "{% url 'finance:checkout' %}",
       {% endif %}
       successTest: function(response) {
         return response.success;
@@ -80,6 +81,7 @@
       <div class="menu">
         <a class="item" href="{% url 'finance:faker' %}">Faker</a>
         <a class="item" href="{% url 'finance:icons' %}">Icons</a>
+        <a class="item" href="{% url 'finance:checkout' %}">Deploy</a>
         <a class="item" href="{% url 'admin:index' %}">Admin</a>
         <a class="item" href="{% url 'healthcheck:deploy' %}">Deploy</a>
       </div>
