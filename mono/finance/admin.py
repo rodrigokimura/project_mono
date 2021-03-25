@@ -151,3 +151,27 @@ class ConfigurationAdmin(admin.ModelAdmin):
         "main_page",
     ]
 
+@admin.register(models.Plan)
+class PlanAdmin(admin.ModelAdmin):
+    list_display = [
+        "product_id",
+        "name",
+        "type",
+    ]
+    list_filter = [
+        "type",
+    ]
+
+@admin.register(models.Feature)
+class FeatureAdmin(admin.ModelAdmin):
+    list_display = [
+        "plan",
+        "short_description",
+        "icon",
+        "display",
+    ]
+    list_filter = [
+        "plan",
+        "display",
+    ]
+    ordering = ('plan',)
