@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 from django.views.generic.base import RedirectView, TemplateView
@@ -15,16 +16,17 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
     PasswordResetCompleteView)
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.db.models import F, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
 from django.utils.translation import gettext as _
 from django.utils import timezone
-from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification, Budget, User
+from stripe.api_resources import payment_method, product
+from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification, Budget, User, Plan, Feature
 from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm, BudgetForm
 import time
 import jwt
-
+import stripe
 
 class TokenMixin(object):
     def get_context_data(self, **kwargs):
@@ -376,7 +378,7 @@ class CategoryListApi(View):
                 internal_type=Category.DEFAULT
             )
         else:
-            qs = qs.none()
+            qs = Category.objects.none()
             return JsonResponse(
                 {
                     'success':True,
@@ -703,3 +705,189 @@ class FakerView(UserPassesTestMixin, FormView):
         messages.add_message(self.request, message['level'], message['message'])
 
         return super().form_valid(form)
+
+class PlansView(UserPassesTestMixin, TemplateView):
+    template_name = "finance/plans.html"
+
+    def test_func(self):
+        return self.request.user.is_superuser 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+
+        # Get all Stripe products
+        products = stripe.Product.list(limit=100).data
+        if len(products) == 100:
+            next_page = True
+            max_loops = 10
+            loop = 0
+            last_product = products[-1]
+            while next_page and loop < max_loops:
+                loop += 1
+                new_products = stripe.Product.list(limit=100, starting_after=last_product).data
+                if len(new_products) == 100:
+                    products.extend(new_products)
+                    last_product = new_products[-1]
+                else:
+                    next_page = False
+
+        # Filter products by metada {app:finance}
+        products = filter(lambda product: hasattr(product.metadata, 'app'), products)
+        products = [product for product in products if product.metadata.app == 'finance']
+
+        # Sort products according to business rules
+        pass
+
+        context['plans'] = Plan.objects.filter(product_id__in=[product.id for product in products])
+
+        return context
+class CheckoutView(UserPassesTestMixin, TemplateView):
+    
+
+    
+    template_name = "finance/checkout.html"
+
+    def test_func(self):
+        return self.request.user.is_superuser 
+
+    # def get_client_ip(self, request):
+    #     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    #     if x_forwarded_for:
+    #         ip = x_forwarded_for.split(',')[0]
+    #     else:
+    #         ip = request.META.get('REMOTE_ADDR')
+    #     return ip
+
+    # def get(self, request):
+    #     from django.contrib.gis.geoip2 import GeoIP2
+    #     ip = self.get_client_ip(request)
+    #     g = GeoIP2()
+    #     g.city(ip)
+    #     return  JsonResponse(g.city(ip), safe=False)
+ 
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['stripe_pk'] = settings.STRIPE_PUBLIC_KEY
+        # Check query param 'plan'
+        plan_id = self.request.GET.get("plan", None)
+        if plan_id not in ["", None]:
+            plan = get_object_or_404(Plan, pk=plan_id)
+            context['plan'] = plan
+        else:
+            raise SuspiciousOperation("Invalid request. This route need a query parameter 'plan'.")
+        
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        try:
+            product = stripe.Product.retrieve(plan.product_id)
+            context['product'] = product
+        except Exception as e:
+            print(e)
+            raise SuspiciousOperation(e)
+
+        # Get currency from language
+        l = self.request.LANGUAGE_CODE
+        if l == 'pt-br':
+            currency = 'brl'
+        else:
+            currency = 'usd'
+
+
+
+        # Get prices for the plan
+        prices = stripe.Price.list(product=product.id, active=True, currency=currency).data
+
+        # Get monthly plan price
+        prices_for_context = []
+        try:
+            monthly_price = list(filter(lambda price: price.recurring.interval == 'month', prices))[0]
+            context['monthly_price'] = monthly_price
+            prices_for_context.append(monthly_price)
+        except Exception as e:
+            print(e)
+
+        # Get yearly plan price
+        try:
+            yearly_price = list(filter(lambda price: price.recurring.interval == 'year', prices))[0]
+            context['yearly_price'] = yearly_price
+            prices_for_context.append(yearly_price)
+        except Exception as e:
+            print(e)
+
+        context['prices'] = prices_for_context
+
+        return context
+    
+    def post(self, request):
+        payment_method_id = request.POST.get("payment_method_id")
+        price_id = request.POST.get("price_id")
+
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+
+        email = self.request.user.email
+
+        # Check if current user is a stripe Customer
+        customer_list = stripe.Customer.list(email=email).data
+
+        if len(customer_list) == 0:
+            # user is not a stripe Customer
+            # creating new customer
+            customer = stripe.Customer.create(email=email)
+        elif len(customer_list) == 1:
+            # user is a stripe Customer
+            customer = customer_list[0]
+        else:
+            # multiple users returned
+            customer = customer_list[-1]
+
+        # Attach payment method to customer
+        stripe.PaymentMethod.attach(
+            payment_method_id,
+            customer=customer.id,
+        )
+
+        # Set as default payment method
+        customer.modify(
+            customer.id, 
+            invoice_settings = { "default_payment_method": payment_method_id }
+        )
+
+        # Check if customer has a subscription
+        subscription_list = stripe.Subscription.list(customer=customer.id).data
+        if len(subscription_list) == 0:
+            # no subscriptions yet
+            # creating new subscription
+            subscription = stripe.Subscription.create(
+                customer=customer.id,
+                items=[{"price": price_id}]
+            )
+        elif len(subscription_list) == 1:
+            # already subscribed
+            subscription = subscription_list[0]
+            return JsonResponse(
+                {
+                    'success': False,
+                    'message': "You already have an active subscription.",
+                    'results': { 
+                        'customer': customer.id,
+                        'subscription': subscription.id,
+                    }
+                }
+            )
+        else:
+            # multiple subscriptions returned
+            subscription = subscription_list[-1]
+
+        return JsonResponse(
+            {
+                'success': True,
+                'message': "You've successfully subscribed!",
+                'results': { 
+                    'customer': customer.id,
+                    'subscription': subscription.id,
+                }
+            }
+        )

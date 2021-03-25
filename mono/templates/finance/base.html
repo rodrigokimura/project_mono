@@ -40,6 +40,7 @@
       'get notification ids'        : '/fn/notification/get-ids/',
       {% if request.user.is_superuser %}
       'deploy'                      : '/hc/deploy/',
+      'checkout'                    : "{% url 'finance:checkout' %}",
       {% endif %}
       successTest: function(response) {
         return response.success;
@@ -80,12 +81,12 @@
       <div class="menu">
         <a class="item" href="{% url 'finance:faker' %}">Faker</a>
         <a class="item" href="{% url 'finance:icons' %}">Icons</a>
+        <a class="item" href="{% url 'finance:plans' %}">Checkout</a>
         <a class="item" href="{% url 'admin:index' %}">Admin</a>
         <a class="item" href="{% url 'healthcheck:deploy' %}">Deploy</a>
       </div>
     </div>
     {% endif %}
-    {% comment %} <div class="item">Item</div> {% endcomment %}
   </div>
   
   <div class="ui top fixed menu">
@@ -117,7 +118,6 @@
             <span class="text">{% translate "Change language" %}</span>
             <div class="left menu">
               {% get_current_language as LANGUAGE_CODE %}
-              {% comment %} {% get_available_languages as LANGUAGES %} {% endcomment %}
               {% for code, name, flag, js_locale in LANGUAGE_EXTRAS %}
               <div class="{% if code == LANGUAGE_CODE %}active selected {% endif %} item" href="#" onclick="setLanguage('{{ code }}');">
                 <i class="{{ flag }} flag"></i>{{ name }}
