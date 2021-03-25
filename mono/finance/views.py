@@ -723,6 +723,7 @@ class PlansView(UserPassesTestMixin, TemplateView):
             next_page = True
             max_loops = 10
             loop = 0
+            last_product = products[-1]
             while next_page and loop < max_loops:
                 loop += 1
                 new_products = stripe.Product.list(limit=100, starting_after=last_product).data
