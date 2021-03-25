@@ -20,8 +20,8 @@ from django.db.models import F, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
 from django.utils.translation import gettext as _
 from django.utils import timezone
-from stripe.api_resources import payment_method
-from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification, Budget, User
+from stripe.api_resources import payment_method, product
+from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification, Budget, User, Plan, Feature
 from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm, BudgetForm
 import time
 import jwt
@@ -715,16 +715,44 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['stripe_pk'] = settings.STRIPE_PUBLIC_KEY
+
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+
+        # Get all Stripe products
+        products = stripe.Product.list(limit=100).data
+        if len(products) == 100:
+            next_page = True
+            max_loops = 10
+            loop = 0
+            while next_page and loop < max_loops:
+                loop += 1
+                new_products = stripe.Product.list(limit=100, starting_after=last_product).data
+                if len(new_products) == 100:
+                    products.extend(new_products)
+                    last_product = new_products[-1]
+                else:
+                    next_page = False
+
+        # Filter products by metada
+        products = filter(lambda product: hasattr(product.metadata, 'app'), products)
+        products = [product for product in products if product.metadata.app == 'finance']
+
+        # Sort products according to business rules
+        pass
+
+        
+
+        context['products'] = products
+        context['plans'] = Plan.objects.filter(product_id__in=[product.id for product in products])
+
         return context
 
     def post(self, request):
-        print("ok")
         payment_method_id = request.POST.get("payment_method_id")
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
         email = self.request.user.email
-        #email = "teste@gmail.com"
 
         # Check if current user is a stripe Customer
         customer_list = stripe.Customer.list(email=email).data
@@ -770,7 +798,11 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
 
         return JsonResponse(
             {
-                "customer": customer.id,
-                "payment_method_id": payment_method_id,
+                'success': True,
+                'message': "You've successfully subscribed!",
+                'results': { 
+                    'customer': customer.id,
+                    'subscription': subscription.id,
+                }
             }
         )
