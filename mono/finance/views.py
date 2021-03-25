@@ -718,13 +718,13 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
         return context
 
     def post(self, request):
-
+        print("ok")
         payment_method_id = request.POST.get("payment_method_id")
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
         email = self.request.user.email
-        email = "teste@gmail.com"
+        #email = "teste@gmail.com"
 
         # Check if current user is a stripe Customer
         customer_list = stripe.Customer.list(email=email).data

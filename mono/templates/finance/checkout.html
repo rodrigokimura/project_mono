@@ -158,30 +158,23 @@
         if (result.error) {
           displayError(result);
         } else {
-        const paymentParams = {
-            price_id: document.getElementById("priceId").innerHTML,
-            payment_method: result.paymentMethod.id,
-        };
-
-        console.log(result.paymentMethod.id)
-
-        $.api({ 
-          action: 'checkout',
-          on: 'now',
-          method: 'POST',
-          serializeForm: true,
-          mode: 'same-origin',
-          headers: {'X-CSRFToken': csrftoken},
-          data:{
-            payment_method_id: result.paymentMethod.id,
-          },
-          onError: function(errorMessage, element, xhr) {
-            alert(errorMessage)
-          },
-          onSuccess: function(response, element, xhr) {
-            console.log(response)
-          }
-        })
+          $.api({ 
+            action: 'checkout',
+            on: 'now',
+            method: 'POST',
+            serializeForm: true,
+            mode: 'same-origin',
+            headers: {'X-CSRFToken': csrftoken},
+            data:{
+              payment_method_id: result.paymentMethod.id,
+            },
+            onError: function(errorMessage, element, xhr) {
+              alert(errorMessage)
+            },
+            onSuccess: function(response, element, xhr) {
+              alert(response)
+            }
+          })
 
 
 
