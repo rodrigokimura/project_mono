@@ -1,5 +1,7 @@
 {% extends "finance/base.html" %}
 {% load static %}
+{% load i18n %}
+{% load cool_numbers %}
 
 {% block head %}
   <style>
@@ -28,25 +30,13 @@
       background-color: #fff7f5 !important;
       color: #9f3a38;
     }
-  
-    .StripeElement--invalid::-webkit-input-placeholder { /* Webkit */
-      color: #e0b4b5;
-    }
-     
-    .StripeElement--invalid:-moz-placeholder { /* Firefox 18-4 */
-      color: #e0b4b5;
-    }
-     
-    .StripeElement--invalid::-moz-placeholder {  /* Firefox 19+ */
-      color: #e0b4b5;
-    }
-     
-    .StripeElement--invalid:-ms-input-placeholder {  /*  IE10+  */
-      color: #e0b4b5;  
-    }
-  
+   
     .StripeElement--webkit-autofill {
       background-color: #fefde5 !important;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
   <script src="https://js.stripe.com/v3/"></script>
@@ -55,210 +45,237 @@
 {% block body %}
 <div class="pusher">
 
-  	
   <div class="ui stackable grid container">
 
     <div class="row">
-      <div class="column">
-        <div class="ui stackable equal width grid">
-          {% for plan in plans %}
+      <div class="ui fluid steps">
+        <div class="completed step">
+          <i class="check icon"></i>
+          <div class="content">
+            <div class="title">{% translate "Subscription" %}</div>
+          </div>
+        </div>
+        <div class="active billing step">
+          <i class="file invoice dollar icon"></i>
+          <div class="content">
+            <div class="title">{% translate "Billing" %}</div>
+          </div>
+        </div>
+        <div class="disabled payment step">
+          <i class="credit card icon"></i>
+          <div class="content">
+            <div class="title">{% translate "Payment" %}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+    
+      <div class="four wide column" id="plan-details-element">
+      
+        <h2 class="ui header">{% translate "Plan: " %}{{ plan.name }}</h2>
+        <h4 class="ui sub header">{% translate "Description:" %}</h4>
+        <div class="ui content">{{ plan.description }}</div>
+
+        <div class="ui divider"></div>
+
+        {% if plan.feature_set.all %}
+        <h4 class="ui sub header">{% translate "What's included:" %}</h4>
+        <div class="ui list">
+          {% for feature in plan.feature_set.all %}
+          <div class="item">
+            <i class="{{ feature.icon }} icon"></i>
+            <div class="content feature">
+              {{ feature.short_description }}
+            </div>
+            <div class="ui popup">
+              {{ feature.full_description }}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="hidden billing info">
+          <div class="ui divider"></div>
+          <h4 class="ui sub header">{% translate "Billing info:" %}</h4>
+          <div class="ui bulleted list">
+            <div class="item" id="billing-info-text"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="twelve wide column" id="prices-element">
+
+        <div class="ui warning message">{% translate "Select a billing plan" %}</div>
+
+        <div class="ui equal width grid">
+          {% for price in prices %}
           <div class="column">
-          
-            <div class="ui fluid card" style="overflow: hidden;">
-            
+            <div class="ui fluid price card">
               <div class="center aligned content">
-                <p><span class="ui big text"><i class="{{ plan.icon }} icon"></i></span></p>
-                <div class="header">{{ plan.name }}</div>
+                <div class="header">
+                  {% with price.recurring.interval as interval %}
+                  {% if interval == "month" %}
+                  {% translate "Monthly" %}
+                  {% elif interval == "year" %}
+                  {% translate "Yearly" %}
+                  {% endif %}
+                  {% endwith %}
+                </div>
               </div>
-              
-              <div class="content" style="overflow: hidden;">
-                {% if plan.type == 'LT' %}
-                <div class="ui right orange corner label"><i class="exclamation icon"></i></div>
-                {% elif plan.type == 'FR' %}
-                <div class="ui top right attached label">Always free!</div>
-                {% elif plan.type == 'RC' %}
-                <div class="ui right primary corner label"><i class="star icon"></i></div>
-                {% endif %}
-                {% if plan.feature_set.all %}
-                <h4 class="ui sub header">Details</h4>
-                <div class="ui list">
-                  {% for feature in plan.feature_set.all %}
-                  <div class="item">
-                    <i class="{{ feature.icon }} icon"></i>
-                    <div class="content feature">
-                      {{ feature.short_description }}
+              <div class="content">
+                <div class="center aligned content">
+                  <div class="ui statistic">
+                    <div class="value" data-price="{{ price.id }}">
+                      {{ price.unit_amount|stripe_currency:price.currency|floatformat:2 }}
                     </div>
-                    <div class="ui popup">
-                      <div class="header">Custom Header</div>
-                      {{ feature.full_description }}
+                    <div class="label">
+                      {{ price.currency }}
                     </div>
                   </div>
-                  {% endfor %}
+
                 </div>
-                {% else %}
-                <p>No features to display</p>
-                {% endif %}
               </div>
-              <div class="ui bottom attached button">Select plan</div>
+              <a class="ui bottom attached button" 
+                onclick="selectPrice(this)"
+                data-price="{{ price.id }}"
+                data-value="{{ price.unit_amount|stripe_currency:price.currency|floatformat:2 }}"
+                data-currency="{{ price.currency }}"
+                data-interval="{{ price.recurring.interval }}">
+                {% translate "Select plan" %}
+              </a>
             </div>
           </div>
           {% endfor %}
         </div>
       </div>
-    </div>
-    
-    <div class="four wide column"></div>
-    
-    <div class="eight wide column">
-      <div class="ui segment">
-        <form id="subscription-form" >
-          <div class="">
-            
-            <div id="card-element" style="margin-bottom: 1rem;"></div>
-          </div>
-          <div id="card-errors" role="alert" class="ui hidden error message"></div>
-          <button id="submit" type="submit" class="ui primary button" style="">
-            Subscribe
-          </button>
-        </form>
+
+      <div class="twelve wide column">
+        
+        <div class="ui hidden warning message" id="card-message"><strong>{% translate "Almost there!" %}</strong> {% translate "Now we need your payment info." %}</div>
+        
+        <div class="ui hidden fluid segment" id="card-segment">
+          <form id="subscription-form" >
+            <div class="">
+              <div id="card-element" style="margin-bottom: 1rem;"></div>
+            </div>
+            <div id="card-errors" role="alert" class="ui hidden error message"></div>
+            <input type="hidden" name="price">
+            <button id="submit" type="submit" class="ui primary button" style="">
+              {% translate "Subscribe" %}
+            </button>
+          </form>
+        </div>
       </div>
+
     </div>
-    
-    <div class="four wide column"></div>
-    
+
   </div>
+
 </div>
 <script>
+  stripe = Stripe('{{ stripe_pk }}', { locale: "{{ request.LANGUAGE_CODE }}" });
 
-  stripeElements();
+  let elements = stripe.elements();
 
-  function stripeElements() {
-    stripe = Stripe('{{stripe_pk}}', { locale: "{{ request.LANGUAGE_CODE }}" });
+  // Card Element styles
+  let style = {
+    base: {
+      color: "#32325d",
+      fontFamily: 'Lato,"Helvetica Neue",Arial,Helvetica,sans-serif',
+      // fontSmoothing: "antialiased",
+      fontSize: "16px",
+      "::placeholder": {
+        color: "#aab7c4"
+      }
+    },
+    invalid: {
+      color: "#9f3a38",
+      "::placeholder": {
+        color: "#e6bdbb",
+      },
+      iconColor: "#a03a38",
+      ':focus': {
+        color: "#9f3a38",
+      },
+    },
+  };
 
-    if (document.getElementById('card-element')) {
-      let elements = stripe.elements();
+  card = elements.create('card', { style: style });
 
-      // Card Element styles
-      let style = {
-        base: {
-          color: "#32325d",
-          fontFamily: 'Lato,"Helvetica Neue",Arial,Helvetica,sans-serif',
-          // fontSmoothing: "antialiased",
-          fontSize: "16px",
-          "::placeholder": {
-            color: "#aab7c4"
-          }
-        },
-        invalid: {
-          color: "#9f3a38",
-          "::placeholder": {
-            color: "#e6bdbb",
-          },
-          iconColor: "#a03a38",
-          ':focus': {
-            color: "#9f3a38",
-          },
-        },
-      };
+  card.mount('#card-element');
 
-      card = elements.create('card', { style: style });
+  card.on('focus', function () {
+    let el = document.getElementById('card-errors');
+    el.classList.add('focused');
+  });
 
-      card.mount('#card-element');
+  card.on('blur', function () {
+    let el = document.getElementById('card-errors');
+    el.classList.remove('focused');
+  });
 
-      card.on('focus', function () {
-        let el = document.getElementById('card-errors');
-        el.classList.add('focused');
-      });
+  card.on('change', function (event) {
+    displayError(event);
+  });
 
-      card.on('blur', function () {
-        let el = document.getElementById('card-errors');
-        el.classList.remove('focused');
-      });
-
-      card.on('change', function (event) {
-        displayError(event);
-      });
-    }
-
-    //we'll add payment form handling here
-    let paymentForm = document.getElementById('subscription-form');
-    if (paymentForm) {
-
-      paymentForm.addEventListener('submit', function (evt) {
-        evt.preventDefault();
-        // create new payment method & create subscription
-        createPaymentMethod({ card });
-      });
-    }
+  let paymentForm = document.getElementById('subscription-form');
+  if (paymentForm) {
+    paymentForm.addEventListener('submit', function (evt) {
+      evt.preventDefault();
+      createPaymentMethod({ card });
+    });
   }
 
   function createPaymentMethod({ card }) {
     let billingName = '{{ request.user.username }}';
+    $('button#submit').addClass('loading');
 
-    stripe
-      .createPaymentMethod({
-        type: 'card',
-        card: card,
-        billing_details: {
-          name: billingName,
-        },
-      })
-      .then((result) => {
-        if (result.error) {
-          displayError(result);
-        } else {
-          $.api({ 
-            action: 'checkout',
-            on: 'now',
-            method: 'POST',
-            serializeForm: true,
-            mode: 'same-origin',
-            headers: {'X-CSRFToken': csrftoken},
-            data:{
-              payment_method_id: result.paymentMethod.id,
-            },
-            onError: function(errorMessage, element, xhr) {
-              alert(errorMessage)
-            },
-            onSuccess: function(response, element, xhr) {
-              alert(response)
-            }
-          })
-
-
-
-        {% comment %} fetch("{ url 'payment:create_sub' }", {
+    stripe.createPaymentMethod({
+      type: 'card',
+      card: card,
+      billing_details: {
+        name: billingName,
+      },
+    })
+    .then((result) => {
+      if (result.error) {
+        displayError(result);
+        $('button#submit').removeClass('loading');
+      } else {
+        $.api({ 
+          action: 'checkout',
+          on: 'now',
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken':'{{ csrf_token }}',
+          serializeForm: true,
+          mode: 'same-origin',
+          headers: {'X-CSRFToken': csrftoken},
+          data:{
+            payment_method_id: result.paymentMethod.id,
+            price_id: $('input[name=price]').val(),
           },
-          // credentials: 'same-origin',
-          body: JSON.stringify(paymentParams),
-        }).then((response) => {
-          return response.json(); 
-        }).then((result) => {
-          if (result.error) {
-            // The card had an error when trying to attach it to a customer
-            throw result;
+          onResponse: () =>{$('button#submit').removeClass('loading');},
+          onError: (errorMessage, element, xhr) => {
+            $('body').toast({
+              message: errorMessage,
+              position: 'bottom center',
+              showProgress: 'bottom',
+              classProgress: 'primary'
+            }); 
+          },
+          onSuccess: (response, element, xhr) => {
+            $('body').toast({
+              message: response.message,
+              position: 'bottom center',
+              showProgress: 'bottom',
+              classProgress: 'primary'
+            }); 
           }
-          return result;
-        }).then((result) => {
-          if (result && result.status === 'active') {
-            window.location.href = "{ url 'payment:complete' }";
-          } else {
-            console.log(result.message)
-            if (result.exists) {
-              window.location.href = "{ url 'payment:subscription_exists' }";
-            }
-          };
-        }).catch(function (error) {
-          window.location.href = "{ url 'payment:failure' }";
-          console.log(result.error.message);
-          displayError(result.error.message);
-        }); {% endcomment %}
-        
-      }
+        })
+      };
+      
     });
   }
 
@@ -274,8 +291,31 @@
     }
   }
 
+  let selectPrice = el => {
+    priceId = $(el).data('price');
+    
+    value = $(el).data('value')
+    currency = $(el).data('currency')
+    interval = $(el).data('interval')
+
+    $('input[name=price]').val(priceId);
+    $("#card-segment").show()
+    $("#card-message").show()
+    $(".billing.info").show()
+
+    $("#billing-info-text").html(`${value} ${currency} per ${interval}`)
+
+    $("#prices-element").remove()
+
+    $(".billing.step").removeClass('active').addClass('complete')
+    $(".billing.step i").removeClass().addClass('green check icon')
+    $(".payment.step").removeClass('disabled').addClass('active')
+
+    card.focus();
+  }
 
   $('.content.feature').popup();
+
 </script>
 
 
