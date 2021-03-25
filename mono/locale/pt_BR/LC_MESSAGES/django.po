@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-22 15:54-0300\n"
+"POT-Creation-Date: 2021-03-25 19:54-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,25 +18,29 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: .\_mono\settings.py:154
+#: .\_mono\settings.py:160
 msgid "American English"
 msgstr "Inglês americano"
 
-#: .\_mono\settings.py:155
+#: .\_mono\settings.py:161
 msgid "Brasilian Portuguese"
 msgstr "Português brasileiro"
 
-#: .\finance\forms.py:140
+#: .\finance\forms.py:168
 #, fuzzy
 #| msgid "description"
 msgid "Description"
 msgstr "descrição"
 
-#: .\finance\forms.py:141
+#: .\finance\forms.py:169
 #, fuzzy
 #| msgid "ammount"
 msgid "Ammount"
 msgstr "quantidade"
+
+#: .\finance\forms.py:347
+msgid "Email"
+msgstr "E-mail"
 
 #: .\finance\models.py:19
 msgid "description"
@@ -86,11 +90,11 @@ msgstr "ícone"
 msgid "icons"
 msgstr "ícones"
 
-#: .\finance\models.py:64 .\templates\finance\transaction_form.html:21
+#: .\finance\models.py:64
 msgid "Income"
 msgstr "Entrada"
 
-#: .\finance\models.py:65 .\templates\finance\transaction_form.html:22
+#: .\finance\models.py:65
 msgid "Expense"
 msgstr "Gasto"
 
@@ -98,31 +102,63 @@ msgstr "Gasto"
 msgid "categories"
 msgstr "categorias"
 
-#: .\finance\views.py:156
+#: .\finance\models.py:419
+msgid "Free"
+msgstr "Gratuito"
+
+#: .\finance\models.py:420
+msgid "Lifetime"
+msgstr "Vitalício"
+
+#: .\finance\models.py:421
+msgid "Default"
+msgstr "Padrão"
+
+#: .\finance\models.py:422
+msgid "Recommended"
+msgstr "Recomendado"
+
+#: .\finance\views.py:72
+msgid "Password reset"
+msgstr "Recuperação de senha"
+
+#: .\finance\views.py:81
+msgid "Enter new password"
+msgstr "Digite a nova senha"
+
+#: .\finance\views.py:85
+msgid "Password reset sent"
+msgstr "E-mail recuperação de senha enviado"
+
+#: .\finance\views.py:89
+msgid "Password reset complete"
+msgstr "Recuperação de senha concluída"
+
+#: .\finance\views.py:185
 msgid "Transaction was deleted successfully"
 msgstr "A transação foi excluída com sucesso"
 
-#: .\templates\finance\base.html:70
+#: .\templates\finance\base.html:71
 msgid "Home"
 msgstr "Página Inicial"
 
-#: .\templates\finance\base.html:71
+#: .\templates\finance\base.html:72
 msgid "Transactions"
 msgstr "Transações"
 
-#: .\templates\finance\base.html:72
+#: .\templates\finance\base.html:73
 msgid "Accounts"
 msgstr "Contas"
 
-#: .\templates\finance\base.html:73
+#: .\templates\finance\base.html:74
 msgid "Budgets"
 msgstr "Orçamentos"
 
-#: .\templates\finance\base.html:74
+#: .\templates\finance\base.html:75
 msgid "Groups"
 msgstr "Grupos"
 
-#: .\templates\finance\base.html:75
+#: .\templates\finance\base.html:76
 msgid "Categories"
 msgstr "Categorias"
 
@@ -134,34 +170,222 @@ msgstr "Logado como "
 msgid "Change language"
 msgstr "Alterar idioma"
 
-#: .\templates\finance\base.html:135
+#: .\templates\finance\base.html:136
 msgid "Sign out"
 msgstr "Sair"
 
-#: .\templates\finance\faker.html:23
+#: .\templates\finance\checkout.html:55
+msgid "Subscription"
+msgstr "Assinatura"
+
+#: .\templates\finance\checkout.html:61
+msgid "Billing"
+msgstr "Plano"
+
+#: .\templates\finance\checkout.html:67
+msgid "Payment"
+msgstr "Pagamento"
+
+#: .\templates\finance\checkout.html:77
+msgid "Plan: "
+msgstr "Plano: "
+
+#: .\templates\finance\checkout.html:78
+msgid "Description:"
+msgstr "Descrição"
+
+#: .\templates\finance\checkout.html:84 .\templates\finance\plans.html:45
+msgid "What's included:"
+msgstr "O que está incluso:"
+
+#: .\templates\finance\checkout.html:102
+msgid "Billing info:"
+msgstr "Informações do plano:"
+
+#: .\templates\finance\checkout.html:111
+msgid "Select a billing plan"
+msgstr "Selecione um plano de pagamento"
+
+#: .\templates\finance\checkout.html:121
+msgid "Monthly"
+msgstr "Mensal"
+
+#: .\templates\finance\checkout.html:123
+msgid "Yearly"
+msgstr "Anual"
+
+#: .\templates\finance\checkout.html:147 .\templates\finance\plans.html:40
+msgid "Select plan"
+msgstr "Selecionar plano"
+
+#: .\templates\finance\checkout.html:157
+msgid "Almost there!"
+msgstr "Quase lá!"
+
+#: .\templates\finance\checkout.html:157
+msgid "Now we need your payment info."
+msgstr "Agora precisamos das suas informações de pagamento."
+
+#: .\templates\finance\checkout.html:167
+#, fuzzy
+#| msgid "Subscription"
+msgid "Subscribe"
+msgstr "Assinatura"
+
+#: .\templates\finance\faker.html:24
 msgid "SECURITY ALERT"
 msgstr "ALERTA DE SEGURANÇA"
 
-#: .\templates\finance\faker.html:25
+#: .\templates\finance\faker.html:26
 msgid ""
 "This page has extremely sensitive functionality. Please use with caution."
 msgstr ""
 "Esta página contém funcionalidades extremamente sensíveis. Por favor, tenha "
 "cuidado."
 
-#: .\templates\finance\transaction_form.html:27
+#: .\templates\finance\login.html:17
+msgid "Login to your account!"
+msgstr "Entre na sua conta!"
+
+#: .\templates\finance\login.html:24
+msgid "Login"
+msgstr "Logar"
+
+#: .\templates\finance\login.html:30 .\templates\finance\signup.html:30
+msgid "Forgot your password?"
+msgstr "Equeceu a sua senha?"
+
+#: .\templates\finance\login.html:31
+msgid "New here?"
+msgstr "É novo aqui?"
+
+#: .\templates\finance\signup.html:17
+msgid "Sign up here!"
+msgstr "Inscreva-se aqui!"
+
+#: .\templates\finance\signup.html:24
+msgid "Signup"
+msgstr "Inscrever-se"
+
+#: .\templates\finance\signup.html:31
+msgid "Already signed up? Login here instead."
+msgstr "Já se inscreveu? Então logue aqui."
+
+#: .\templates\finance\transaction_archive_month.html:107
+#: .\templates\finance\transaction_list.html:133
+msgid "Actions"
+msgstr "Ações"
+
+#: .\templates\finance\transaction_archive_month.html:111
+#: .\templates\finance\transaction_list.html:137
+msgid "Add transaction"
+msgstr "Adicionar transação"
+
+#: .\templates\finance\transaction_archive_month.html:115
+#: .\templates\finance\transaction_list.html:141
+msgid "Views"
+msgstr "Visualizações"
+
+#: .\templates\finance\transaction_archive_month.html:119
+msgid "Go to List View"
+msgstr "Visualizar como Lista"
+
+#: .\templates\finance\transaction_form.html:23
 msgid "Save"
 msgstr "Salvar"
 
-#: .\templates\finance\transaction_form.html:29
-#: .\templates\finance\transaction_form.html:35
+#: .\templates\finance\transaction_form.html:25
+#: .\templates\finance\transaction_form.html:31
 msgid "or"
 msgstr "ou"
 
-#: .\templates\finance\transaction_form.html:33
+#: .\templates\finance\transaction_form.html:29
 msgid "Delete"
 msgstr "Excluir"
 
-#: .\templates\finance\transaction_form.html:38
+#: .\templates\finance\transaction_form.html:34
 msgid "Cancel"
 msgstr "Cancelar"
+
+#: .\templates\finance\transaction_list.html:145
+msgid "Go to Calendar View"
+msgstr "Visualizar como Calendário"
+
+#: .\templates\registration\password_reset_complete.html:13
+msgid "Your password recovery was successful."
+msgstr "Sua senha foi recuperada com sucesso."
+
+#: .\templates\registration\password_reset_complete.html:15
+msgid "You may now log-in to your account "
+msgstr "Você pode agora logar na sua conta"
+
+#: .\templates\registration\password_reset_complete.html:15
+msgid "here"
+msgstr "aqui"
+
+#: .\templates\registration\password_reset_confirm.html:16
+msgid "Proceed"
+msgstr "Continuar"
+
+#: .\templates\registration\password_reset_confirm.html:22
+msgid "Invalid link."
+msgstr "Link inválido"
+
+#: .\templates\registration\password_reset_confirm.html:24
+msgid "This password recovery link is invalid. It was probably already used."
+msgstr ""
+"Esse link de recuperação de senha é inválido. Ele provavelmente já foi usado."
+
+#: .\templates\registration\password_reset_done.html:11
+msgid ""
+"We've emailed you instructions for setting your password, if an account "
+"exists with the email you entered. You should receive them shortly."
+msgstr ""
+"Te enviamos instruções para configurar sua nova senha, caso exista de fato "
+"uma conta vinculada ao email digitado. Você receberá esse e-mail em "
+"instantes."
+
+#: .\templates\registration\password_reset_done.html:14
+msgid ""
+"If you don't receive an email, please make sure you've entered the address "
+"you registered with, and check your spam folder."
+msgstr ""
+"Se você não receber nenhum e-mail, por favor, certifique-se de que o email "
+"digitado é o mesmo que você usou para se cadastrar e confira a sua caixa de "
+"spam."
+
+#: .\templates\registration\password_reset_email.html:8
+#: .\templates\registration\password_reset_email.html:338
+msgid "Password recovery"
+msgstr "Recuperação de senha"
+
+#: .\templates\registration\password_reset_email.html:354
+msgid "Someone has requested a password reset for user: "
+msgstr "Alguém solicitou uma nova senha para o usuário: "
+
+#: .\templates\registration\password_reset_email.html:355
+msgid "To change your password, use the button below: "
+msgstr "Para alterar a sua senha, use o botão abaixo: "
+
+#: .\templates\registration\password_reset_email.html:363
+msgid "Recover"
+msgstr "Recuperar"
+
+#: .\templates\registration\password_reset_email.html:373
+#, python-format
+msgid ""
+"\n"
+"                          This link will expire in %(hours)s hours.\n"
+"                          "
+msgstr ""
+"\n"
+"Esse link irá expirar em %(hours)s hours.\n"
+"                          "
+
+#: .\templates\registration\password_reset_email.html:377
+msgid "Mono Project Team"
+msgstr "Equipe do Projeto Mono"
+
+#: .\templates\registration\password_reset_form.html:16
+msgid "Send"
+msgstr "Enviar"

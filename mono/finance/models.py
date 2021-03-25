@@ -403,3 +403,46 @@ class Configuration(models.Model):
 
     def __str__(self) -> str:
         return f'Config for {self.user}'
+
+class Plan(models.Model):
+    """
+    Stores data about the plans user can subscribve to. 
+    This models has data used to populate the checkout page.
+    Those are related to Stripe products."""
+
+    FREE = 'FR'
+    LIFETIME = 'LT'
+    DEFAULT = 'DF'
+    RECOMMENDED = 'RC'
+
+    TYPE_CHOICES = [
+        (FREE,          _('Free')),
+        (LIFETIME,      _('Lifetime')),
+        (DEFAULT,       _('Default')),
+        (RECOMMENDED,   _('Recommended')),
+    ]
+
+    product_id = models.CharField(max_length=100, help_text="Stores the stripe unique identifiers")
+    name = models.CharField(max_length=100, help_text="Display name used on the template")
+    description = models.TextField(max_length=500, help_text="Description text used on the template")
+    icon = models.ForeignKey(Icon, null=True, blank=True, default=None, on_delete=models.SET_NULL, help_text="Icon rendered in the template")
+    type = models.CharField(max_length=2, choices=TYPE_CHOICES, 
+        help_text="Used to customize the template based on this field. For instance, the basic plan will be muted and the recommended one is highlighted.")
+    
+    def __str__(self) -> str:
+        return self.name
+
+class Feature(models.Model):
+    """
+    Stores features related to the plans user can subscribve to. 
+    This models is used to populate the checkout page.
+    Those are related to plans that are related to Stripe products."""
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
+    icon = models.ForeignKey(Icon, null=True, blank=True, default=None, on_delete=models.SET_NULL, help_text="Icon rendered in the template")
+    short_description = models.CharField(max_length=30)
+    full_description = models.TextField(max_length=200)
+    internal_description = models.TextField(max_length=1000, null=True, blank=True, default=None, help_text="This is used by staff and is not displayed to user in the template.")
+    display = models.BooleanField(help_text="Controls wether feature is shown on the template", default=True)
+
+    def __str__(self) -> str:
+        return f"{self.plan.name} - {self.short_description}"
