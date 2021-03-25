@@ -2,167 +2,89 @@
 {% load static %}
 
 {% block head %}
-  <style type="text/css">
+  <style>
+    .StripeElement {
+      box-sizing: border-box;
+  
+      height: 3rem;
+  
+      padding: .8rem;
+  
+      border: 1px solid #dedede;
+      border-radius: 4px;
+      background-color: white;
+  
+      -webkit-transition: box-shadow 150ms ease;
+      transition: box-shadow 150ms ease;
+    }
+  
+    .StripeElement--focus {
+      border: 1px solid #85b7d7;
+      transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+  
+    .StripeElement--invalid {
+      border-color: #e0b4b5;
+      background-color: #fff7f5 !important;
+      color: #9f3a38;
+    }
+  
+    .StripeElement--invalid::-webkit-input-placeholder { /* Webkit */
+      color: #e0b4b5;
+    }
+     
+    .StripeElement--invalid:-moz-placeholder { /* Firefox 18-4 */
+      color: #e0b4b5;
+    }
+     
+    .StripeElement--invalid::-moz-placeholder {  /* Firefox 19+ */
+      color: #e0b4b5;
+    }
+     
+    .StripeElement--invalid:-ms-input-placeholder {  /*  IE10+  */
+      color: #e0b4b5;  
+    }
+  
+    .StripeElement--webkit-autofill {
+      background-color: #fefde5 !important;
+    }
   </style>
-  <script>
-  </script>
+  <script src="https://js.stripe.com/v3/"></script>
 {% endblock head %}
 
 {% block body %}
 <div class="pusher">
-  <div class="ui vertical center aligned segment">
-    <div class="ui text container">
+
+  	
+  <div class="ui stackable grid container">
+    
+    <div class="four wide column"></div>
+    
+    <div class="eight wide column">
+      <div class="ui segment">
+        <form id="subscription-form" >
+          <div class="">
+            
+            <div id="card-element" style="margin-bottom: 1rem;"></div>
+          </div>
+          <div id="card-errors" role="alert" class="ui hidden error message"></div>
+          <button id="submit" type="submit" class="ui primary button" style="">
+            Subscribe
+          </button>
+        </form>
+      </div>
     </div>
+    
+    <div class="four wide column"></div>
+    
   </div>
-</div>
-
-<script src="https://js.stripe.com/v3/"></script>
-<style>
-  .StripeElement {
-    box-sizing: border-box;
-
-    height: 40px;
-
-    padding: 10px 12px;
-
-    border: 1px solid transparent;
-    border-radius: 4px;
-    background-color: white;
-
-    box-shadow: 0 1px 3px 0 #e6ebf1;
-    -webkit-transition: box-shadow 150ms ease;
-    transition: box-shadow 150ms ease;
-  }
-
-  .StripeElement--focus {
-    outline: 0;
-    box-shadow: 
-      0 0 0 0.2rem rgba(0, 123, 255, 0.25), 
-      1px 3px 10px rgba(0,0,0, 0.25);
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  }
-
-  .StripeElement--invalid {
-    border-color: #fa755a;
-  }
-
-  .StripeElement--webkit-autofill {
-    background-color: #fefde5 !important;
-  }
-</style>
-	
-<div class="container">
-  
-  <div class="row d-flex justify-content-center mb-3">
-    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-      <label class="btn btn-primary active">
-        <input interval="month" type="radio" name="interval" id="interval-month" autocomplete="off" checked> Mensal
-      </label>
-      <label class="btn btn-primary">
-        <input interval="year" type="radio" name="interval" id="interval-year" autocomplete="off"> Anual
-      </label>
-    </div>
-  </div>
-
-  <div class="row d-flex justify-content-center">
-
-		{% for p in products %}
-
-		<div class="col-md mb-3">
-			<div class="card card-plan border-primary" id="{{p.id}}">
-				<div class="card-body text-center" id="{{p.id}}">
-					<h5 class="card-title font-weight-bold text-center">{{p.name}}</h5>
-					<p class="card-text text-muted" style="height:5em">
-            {{p.description}}
-          </p>
-
-          {% for plan in p.plan_set.all %}
-          {% if plan.active == True %}
-          {% with currency_symbol="BRL" %}
-          <span  interval="{{plan.interval}}" class="plan-select-price {% if plan.interval == 'year' %}hidden{% endif %} align-baseline font-weight-lighter" id="{{plan.id}}" style="font-size: 4em;">R$</span>
-          <span  interval="{{plan.interval}}" class="plan-select-price {% if plan.interval == 'year' %}hidden{% endif %} align-baseline" id="{{plan.id}}" style="font-size: 4em;">{{plan.amount}}</span>
-          <span  interval="{{plan.interval}}" class="plan-select-price {% if plan.interval == 'year' %}hidden{% endif %} align-baseline  font-weight-lighter" id="{{plan.id}}" style="font-size: 1em;">{{plan.amount}}</span ><br>
-          <a interval="{{plan.interval}}" class="btn btn-outline-primary plan-select m-2 {% if plan.interval == 'year' %}hidden{% endif %}" id="{{plan.id}}" name="{{p.name}}" value="{{p.id}}" onclick="planSelect('{{p.id}}', '{{p.name}}', '{{plan.human_readable_price}}', '{{plan.id}}')" href="#subscription-form">
-            Escolher
-          </a>
-          {% endwith %}
-          {% endif %}
-          {% endfor %}
-
-				</div>
-			</div>
-		</div>
-
-		{% endfor %}
-
-	</div>
-
-  <div>
-		<div class="row mt-3 d-flex justify-content-center">
-			<div class="col-md-6">
-				<div class="card border-primary">
-          <h5 class="card-header font-weight-bold text-center">Pagamento</h5>
-					<div class="card-body">
-            <p class="text-muted ">Digite os detalhes do cartão.  Sua assinatura será ativada imediatamente.</p>
-						<div class="row">
-							<div class="col-6 text-muted">
-								<p>Plano:</p>
-								<p>Total:</p>
-							</div>
-							<div class="col-6 text-right">
-								<p id="plan"></p>
-								<p id="price"></p>
-								<p hidden id="priceId"></p>
-							</div>
-
-						</div>
-						<br>
-						<form id="subscription-form" >
-							<div id="card-element" class="MyCardElement mb-3 border-primary">
-								<!-- Elements will create input elements here -->
-							</div>
-							
-							<!-- We'll put the error messages in this element -->
-							<div id="card-errors" role="alert"></div>
-							<button id="submit" type="submit" class="btn btn-primary">
-								<span id="button-text">Increver-se</span>
-							</button>
-						</form>
-					</div>
-				</div>
-
-			</div>
-		</div>
-	</div>
-
 </div>
 <script>
 
   stripeElements();
 
-  interval_toggle = document.getElementsByName('interval');
-  function selectInterval(element, index, array) {
-    element.addEventListener('click', function() {
-
-      buttons = $("*.plan-select,*.plan-select-price")
-      // price_descriptions = $("*.plan-select-price")
-
-      for (let index = 0; index < buttons.length; index++) {
-        const button = buttons[index];
-        if (button.getAttribute('interval')===element.getAttribute('interval')) {
-          button.classList.remove("hidden")
-        } else {
-          button.classList.add("hidden")
-        }
-      }
-      
-    })
-  }
-
-  interval_toggle.forEach(selectInterval);
-
   function stripeElements() {
-    stripe = Stripe('{{stripe_pk}}');
+    stripe = Stripe('{{stripe_pk}}', { locale: "{{ request.LANGUAGE_CODE }}" });
 
     if (document.getElementById('card-element')) {
       let elements = stripe.elements();
@@ -171,17 +93,23 @@
       let style = {
         base: {
           color: "#32325d",
-          fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-          fontSmoothing: "antialiased",
+          // fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+          // fontSmoothing: "antialiased",
           fontSize: "16px",
           "::placeholder": {
             color: "#aab7c4"
           }
         },
         invalid: {
-          color: "#fa755a",
-          iconColor: "#fa755a"
-        }
+          color: "#9f3a38",
+          "::placeholder": {
+            color: "#e6bdbb",
+          },
+          iconColor: "#a03a38",
+          ':focus': {
+            color: "#9f3a38",
+          },
+        },
       };
 
       card = elements.create('card', { style: style });
@@ -292,13 +220,15 @@
     });
   }
 
-  function displayError(event) {
+  let displayError = event => {
   
-    let displayError = document.getElementById('card-errors');
+    let displayError = $('#card-errors');
     if (event.error) {
-      displayError.textContent = event.error.message;
+      displayError.text(event.error.message);
+      displayError.removeClass('hidden')
     } else {
-      displayError.textContent = '';
+      displayError.text('');
+      displayError.addClass('hidden')
     }
   }
 
