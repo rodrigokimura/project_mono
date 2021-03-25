@@ -85,8 +85,12 @@
                   {% for feature in plan.feature_set.all %}
                   <div class="item">
                     <i class="{{ feature.icon }} icon"></i>
-                    <div class="content">
+                    <div class="content feature">
                       {{ feature.short_description }}
+                    </div>
+                    <div class="ui popup">
+                      <div class="header">Custom Header</div>
+                      {{ feature.full_description }}
                     </div>
                   </div>
                   {% endfor %}
@@ -270,6 +274,8 @@
     }
   }
 
+
+  $('.content.feature').popup();
 </script>
 
 
