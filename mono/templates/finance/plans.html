@@ -1,0 +1,74 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head %}
+{% endblock head %}
+
+{% block body %}
+<div class="pusher">
+
+  	
+  <div class="ui stackable grid container">
+
+    <div class="row">
+      <div class="column">
+        <div class="ui stackable equal width grid">
+          {% for plan in plans %}
+          <div class="column">
+          
+            <div class="ui fluid card" style="overflow: hidden;">
+            
+              <div class="center aligned content">
+                <p><span class="ui big text"><i class="{{ plan.icon }} icon"></i></span></p>
+                <div class="header">{{ plan.name }}</div>
+              </div>
+              
+              <div class="content" style="overflow: hidden;">
+                {% if plan.type == 'LT' %}
+                <div class="ui right orange corner label"><i class="exclamation icon"></i></div>
+                {% elif plan.type == 'FR' %}
+                <div class="ui right gray corner label"><i class="heart icon"></i></div>
+                {% elif plan.type == 'RC' %}
+                <div class="ui right primary corner label"><i class="star icon"></i></div>
+                {% endif %}
+                <div class="content">
+                  <p>{{ plan.description }}</p>
+                </div>
+              </div>
+              <a class="ui bottom attached button" href="{% url "finance:checkout" %}?plan={{ plan.pk }}">
+                {% translate "Select plan" %}
+              </a>
+            </div>
+
+            {% if plan.feature_set.all %}
+            <h4 class="ui sub header">{% translate "What's included:" %}</h4>
+            <div class="ui list">
+              {% for feature in plan.feature_set.all %}
+              <div class="item">
+                <i class="{{ feature.icon }} icon"></i>
+                <div class="content feature">
+                  {{ feature.short_description }}
+                </div>
+                <div class="ui popup">
+                  {{ feature.full_description }}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<script>
+  $('.content.feature').popup();
+</script>
+
+{% endblock body %}

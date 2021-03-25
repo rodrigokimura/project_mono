@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 from django.views.generic.base import RedirectView, TemplateView
@@ -15,7 +16,7 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
     PasswordResetCompleteView)
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.db.models import F, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
 from django.utils.translation import gettext as _
@@ -705,16 +706,14 @@ class FakerView(UserPassesTestMixin, FormView):
 
         return super().form_valid(form)
 
-class CheckoutView(UserPassesTestMixin, TemplateView):
-    
-    template_name = "finance/checkout.html"
+class PlansView(UserPassesTestMixin, TemplateView):
+    template_name = "finance/plans.html"
 
     def test_func(self):
         return self.request.user.is_superuser 
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['stripe_pk'] = settings.STRIPE_PUBLIC_KEY
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -733,22 +732,97 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
                 else:
                     next_page = False
 
-        # Filter products by metada
+        # Filter products by metada {app:finance}
         products = filter(lambda product: hasattr(product.metadata, 'app'), products)
         products = [product for product in products if product.metadata.app == 'finance']
 
         # Sort products according to business rules
         pass
 
-        
-
-        context['products'] = products
         context['plans'] = Plan.objects.filter(product_id__in=[product.id for product in products])
 
         return context
+class CheckoutView(UserPassesTestMixin, TemplateView):
+    
 
+    
+    template_name = "finance/checkout.html"
+
+    def test_func(self):
+        return self.request.user.is_superuser 
+
+    # def get_client_ip(self, request):
+    #     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    #     if x_forwarded_for:
+    #         ip = x_forwarded_for.split(',')[0]
+    #     else:
+    #         ip = request.META.get('REMOTE_ADDR')
+    #     return ip
+
+    # def get(self, request):
+    #     from django.contrib.gis.geoip2 import GeoIP2
+    #     ip = self.get_client_ip(request)
+    #     g = GeoIP2()
+    #     g.city(ip)
+    #     return  JsonResponse(g.city(ip), safe=False)
+ 
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['stripe_pk'] = settings.STRIPE_PUBLIC_KEY
+        # Check query param 'plan'
+        plan_id = self.request.GET.get("plan", None)
+        if plan_id not in ["", None]:
+            plan = get_object_or_404(Plan, pk=plan_id)
+            context['plan'] = plan
+        else:
+            raise SuspiciousOperation("Invalid request. This route need a query parameter 'plan'.")
+        
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        try:
+            product = stripe.Product.retrieve(plan.product_id)
+            context['product'] = product
+        except Exception as e:
+            print(e)
+            raise SuspiciousOperation(e)
+
+        # Get currency from language
+        l = self.request.LANGUAGE_CODE
+        if l == 'pt-br':
+            currency = 'brl'
+        else:
+            currency = 'usd'
+
+
+
+        # Get prices for the plan
+        prices = stripe.Price.list(product=product.id, active=True, currency=currency).data
+
+        # Get monthly plan price
+        prices_for_context = []
+        try:
+            monthly_price = list(filter(lambda price: price.recurring.interval == 'month', prices))[0]
+            context['monthly_price'] = monthly_price
+            prices_for_context.append(monthly_price)
+        except Exception as e:
+            print(e)
+
+        # Get yearly plan price
+        try:
+            yearly_price = list(filter(lambda price: price.recurring.interval == 'year', prices))[0]
+            context['yearly_price'] = yearly_price
+            prices_for_context.append(yearly_price)
+        except Exception as e:
+            print(e)
+
+        context['prices'] = prices_for_context
+
+        return context
+    
     def post(self, request):
         payment_method_id = request.POST.get("payment_method_id")
+        price_id = request.POST.get("price_id")
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -781,17 +855,27 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
         )
 
         # Check if customer has a subscription
-        subscription_list = stripe.Subscription.list(customer=customer.id)
+        subscription_list = stripe.Subscription.list(customer=customer.id).data
         if len(subscription_list) == 0:
             # no subscriptions yet
-            # creating new customer
+            # creating new subscription
             subscription = stripe.Subscription.create(
                 customer=customer.id,
-                items=[{"price": "price_1IYbLtCpAtx19pKOycNPJdrw"}]
+                items=[{"price": price_id}]
             )
         elif len(subscription_list) == 1:
             # already subscribed
             subscription = subscription_list[0]
+            return JsonResponse(
+                {
+                    'success': False,
+                    'message': "You already have an active subscription.",
+                    'results': { 
+                        'customer': customer.id,
+                        'subscription': subscription.id,
+                    }
+                }
+            )
         else:
             # multiple subscriptions returned
             subscription = subscription_list[-1]
