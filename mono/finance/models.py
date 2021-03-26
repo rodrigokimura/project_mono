@@ -8,8 +8,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.mail import EmailMultiAlternatives
 from django.urls import reverse
 from django.template.loader import get_template
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 import jwt
+import pytz
+import stripe
 
 User = get_user_model()
 
@@ -446,3 +448,55 @@ class Feature(models.Model):
 
     def __str__(self) -> str:
         return f"{self.plan.name} - {self.short_description}"
+
+class Subscription(models.Model):
+    """
+    Stores subscriptions made by users. This is used to provide plan features and limitations to user."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    cancel_at = models.DateTimeField(null=True, blank=True)
+    event_id = models.CharField(max_length=100)
+
+    @property
+    def status(self):
+        if self.cancel_at is None:
+            status = "active"
+        elif self.cancel_at > timezone.now():
+            status = "pending"
+        elif self.cancel_at <= timezone.now():
+            status = "error"
+        return status
+
+    def cancel_at_period_end(self):
+        # Update Stripe
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        customer = stripe.Customer.list(email=self.user.email).data[0]
+        subscription = stripe.Subscription.list(customer=customer.id).data[0]
+        subscription = stripe.Subscription.modify(subscription.id, cancel_at_period_end=True)
+
+        # Update model
+        self.cancel_at = timezone.make_aware(
+            datetime.fromtimestamp(subscription.cancel_at),
+            pytz.timezone(settings.STRIPE_TIMEZONE)
+        )
+        self.save()
+    
+    def abort_cancellation(self):
+        if self.cancel_at is not None:
+            # Update Stripe
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            customer = stripe.Customer.list(email=self.user.email).data[0]
+            subscription = stripe.Subscription.list(customer=customer.id).data[0]
+            subscription = stripe.Subscription.modify(subscription.id, cancel_at_period_end=False)
+
+            # Update model
+            self.cancel_at = None
+            self.save()
+
+    # def cancel_now(self):
+    #     self.cancel_at = None
+    #     self.plan = Plan.objects.get(type=Plan.FREE)
+    #     self.save()
+
