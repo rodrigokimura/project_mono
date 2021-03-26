@@ -175,3 +175,21 @@ class FeatureAdmin(admin.ModelAdmin):
         "display",
     ]
     ordering = ('plan',)
+
+@admin.register(models.Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = [
+        "user",
+        "plan",
+        "created_at",
+        "updated_at",
+        "cancel_at",
+        "event_id",
+    ]
+    list_filter = [
+        "user",
+        "plan",
+        "created_at",
+        "updated_at",
+        "cancel_at",
+    ]
