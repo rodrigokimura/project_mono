@@ -22,11 +22,15 @@ from django.db.models.functions import Coalesce, TruncDay
 from django.utils.translation import gettext as _
 from django.utils import timezone
 from stripe.api_resources import payment_method, product
-from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification, Budget, User, Plan, Feature
+from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification, Budget, User, Plan, Feature, Subscription
 from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm, BudgetForm
 import time
 import jwt
 import stripe
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+import pytz
+from datetime import datetime
 
 class TokenMixin(object):
     def get_context_data(self, **kwargs):
@@ -741,33 +745,15 @@ class PlansView(UserPassesTestMixin, TemplateView):
         pass
 
         context['plans'] = Plan.objects.filter(product_id__in=[product.id for product in products])
+        context['free_plan'] = Plan.objects.filter(product_id__in=[product.id for product in products], type=Plan.FREE).first()
+        context['user_plan'] = Plan.objects.filter(product_id__in=[product.id for product in products], type=Plan.FREE).first()
 
         return context
 class CheckoutView(UserPassesTestMixin, TemplateView):
-    
-
-    
     template_name = "finance/checkout.html"
 
     def test_func(self):
         return self.request.user.is_superuser 
-
-    # def get_client_ip(self, request):
-    #     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    #     if x_forwarded_for:
-    #         ip = x_forwarded_for.split(',')[0]
-    #     else:
-    #         ip = request.META.get('REMOTE_ADDR')
-    #     return ip
-
-    # def get(self, request):
-    #     from django.contrib.gis.geoip2 import GeoIP2
-    #     ip = self.get_client_ip(request)
-    #     g = GeoIP2()
-    #     g.city(ip)
-    #     return  JsonResponse(g.city(ip), safe=False)
- 
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -776,6 +762,9 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
         plan_id = self.request.GET.get("plan", None)
         if plan_id not in ["", None]:
             plan = get_object_or_404(Plan, pk=plan_id)
+            if plan.type == Plan.FREE:
+                # TODO: Implement to change user plan
+                raise SuspiciousOperation("Invalid plan type. Users cannot 'checkout' to the free plan.")
             context['plan'] = plan
         else:
             raise SuspiciousOperation("Invalid request. This route need a query parameter 'plan'.")
@@ -794,8 +783,6 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
             currency = 'brl'
         else:
             currency = 'usd'
-
-
 
         # Get prices for the plan
         prices = stripe.Price.list(product=product.id, active=True, currency=currency).data
@@ -843,7 +830,27 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
             # multiple users returned
             customer = customer_list[-1]
 
-        # Attach payment method to customer
+        # Get all Stripe payment methods for the user
+        payment_methods = stripe.PaymentMethod.list(customer=customer.id, type="card", limit=100).data
+        if len(payment_methods) == 100:
+            next_page = True
+            max_loops = 10
+            loop = 0
+            last_payment_method = payment_methods[-1]
+            while next_page and loop < max_loops:
+                loop += 1
+                new_payment_methods = stripe.PaymentMethod.list(customer=customer.id, type="card", limit=100, starting_after=last_payment_method).data
+                if len(new_payment_methods) == 100:
+                    payment_methods.extend(new_payment_methods)
+                    last_payment_method = new_payment_methods[-1]
+                else:
+                    next_page = False
+
+        # Dettaching all payment methods
+        for payment_method in payment_methods:
+            stripe.PaymentMethod.detach(payment_method.id)
+
+        # Attach new payment method to customer
         stripe.PaymentMethod.attach(
             payment_method_id,
             customer=customer.id,
@@ -891,3 +898,102 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
                 }
             }
         )
+@method_decorator(csrf_exempt, name='dispatch')
+class StripeWebhookView(View):
+
+    def post(self, request):
+        payload = request.body
+        sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+        event = None
+
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+            )
+        except ValueError as e:
+            # Invalid payload
+            return HttpResponse(status=400)
+        except stripe.error.SignatureVerificationError as e:
+            # Invalid signature
+            return HttpResponse(status=400)
+
+        print(event['type'])
+        # TODO: store all webhook events
+
+        if event['type'] == 'customer.subscription.created':
+            user = User.objects.get(
+                email=stripe.Customer.retrieve(event.data.object.customer).email
+            )
+            plan = Plan.objects.get(
+                product_id=stripe.Price.retrieve(event.data.object['items'].data[0].price.id).product
+            )
+            subscription, created = Subscription.objects.update_or_create(
+                {
+                    'plan': plan,
+                    'event_id': event.id
+                },
+                user = user
+            )
+        elif event['type'] == 'customer.subscription.updated':
+
+            # Check for cancellation updates
+            subscription = event.data.object
+            
+            # Convert to timezone aware timestamp, based on Stripe timezone configuration
+            if subscription.cancel_at:
+                cancellation_timestamp = timezone.make_aware(
+                    datetime.fromtimestamp(subscription.cancel_at),
+                    pytz.timezone(settings.STRIPE_TIMEZONE)
+                )
+            else:
+                cancellation_timestamp = None
+
+
+            # Update cancellation_timestamp and plan
+            user = User.objects.get(
+                email=stripe.Customer.retrieve(event.data.object.customer).email
+            )
+            plan = Plan.objects.get(
+                product_id=stripe.Price.retrieve(event.data.object['items'].data[0].price.id).product
+            )
+            subscription, created = Subscription.objects.update_or_create(
+                {
+                    'plan': plan,
+                    'cancel_at': cancellation_timestamp,
+                    'event_id': event.id,
+                },
+                user = user
+            )
+
+        elif event['type'] == 'customer.subscription.deleted':
+            # user = User.objects.get(
+            #     email=stripe.Customer.retrieve(event.data.object.customer).email
+            # )
+            # plan = Plan.objects.get(
+            #     product_id=stripe.Price.retrieve(event.data.object['items'].data[0].price.id).product
+            # )
+            # subscription, created = Subscription.objects.update_or_create(
+            #     {
+            #         'plan': plan,
+            #         'event_id': event.id
+            #     },
+            #     user = user
+            # )
+            pass
+
+        return HttpResponse(status=200)
+
+class ConfigurationView(LoginRequiredMixin, TemplateView):
+    
+    template_name = "finance/configuration.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['subscription'] = Subscription.objects.get(user=self.request.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        customer = stripe.Customer.list(email=self.request.user.email).data[0]
+        payment_method = stripe.PaymentMethod.retrieve(customer.invoice_settings.default_payment_method)
+        context['payment_method'] = payment_method
+        return context
