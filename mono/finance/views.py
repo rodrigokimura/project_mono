@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls.base import reverse
 from django.views import View
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.list import ListView
@@ -762,9 +763,6 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
         plan_id = self.request.GET.get("plan", None)
         if plan_id not in ["", None]:
             plan = get_object_or_404(Plan, pk=plan_id)
-            if plan.type == Plan.FREE:
-                # TODO: Implement to change user plan
-                raise SuspiciousOperation("Invalid plan type. Users cannot 'checkout' to the free plan.")
             context['plan'] = plan
         else:
             raise SuspiciousOperation("Invalid request. This route need a query parameter 'plan'.")
@@ -807,6 +805,21 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
         context['prices'] = prices_for_context
 
         return context
+
+    def get(self, request):
+        plan_id = self.request.GET.get("plan", None)
+        plan = get_object_or_404(Plan, pk=plan_id)
+        if plan.type == Plan.FREE:
+            # TODO: Implement to change user plan
+            subscription = Subscription.objects.get(user=request.user)
+            (success, message) = subscription.cancel_at_period_end()
+            if success:
+                messages.success(request, message)
+            else:
+                messages.error(request, message)
+            return redirect(to=reverse('finance:plans'))
+        else:
+            return self.render_to_response(self.get_context_data())
     
     def post(self, request):
         payment_method_id = request.POST.get("payment_method_id")

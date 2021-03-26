@@ -243,6 +243,12 @@
   setInterval( checkUnread, 5000 );
 
   {% endif %}
+
+  $('.message .close').click(function() {
+    $(this)
+    .closest('.message')
+    .transition('fade');
+  });
   
 </script>
 
