@@ -12,7 +12,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
-            print("ok")
             # Get all Stripe customers
             customers = stripe.Customer.list(limit=100).data
             if len(customers) == 100:
@@ -28,28 +27,41 @@ class Command(BaseCommand):
                         last_customer = new_customers[-1]
                     else:
                         next_page = False
+            
+            print(f"Found {len(customers)} customers")
 
             # Get subscription for each customer
             # Assumes one to one
             for customer in customers:
                 print(f"Fetching customer {customer.id}")
 
-                stripe_subscription = stripe.Subscription.list(customer=customer.id).data[0]
+                subscriptions = stripe.Subscription.list(customer=customer.id).data
 
-                stripe_plan = Plan.objects.get(product_id=stripe_subscription['items'].data[0].price.product)
-                if stripe_subscription.cancel_at is not None:
-                    stripe_cancel_at = timezone.make_aware(
-                        datetime.fromtimestamp(stripe_subscription.cancel_at),
-                        pytz.timezone(settings.STRIPE_TIMEZONE)
-                    )
+                if len(subscriptions) > 0:
+                    stripe_subscription = stripe.Subscription.list(customer=customer.id).data[0]
+                    stripe_plan = Plan.objects.get(product_id=stripe_subscription['items'].data[0].price.product)
+                    if stripe_subscription.cancel_at is not None:
+                        stripe_cancel_at = timezone.make_aware(
+                            datetime.fromtimestamp(stripe_subscription.cancel_at),
+                            pytz.timezone(settings.STRIPE_TIMEZONE)
+                        )
+                    else:
+                        stripe_cancel_at = None
+
+                    user_subscription = Subscription.objects.get(user=User.objects.get(email=customer.email))
+                    # If subscription is not the one stored, updates the user's subscription
+                    if (user_subscription.plan, user_subscription.cancel_at) != (stripe_plan, stripe_cancel_at):
+                        print(f"Updating customer {customer.id}")
+                        user_subscription.plan = stripe_plan
+                        user_subscription.cancel_at = stripe_cancel_at
+                        user_subscription.save()
+                    else: 
+                        print("No changes to apply.")
                 else:
-                    stripe_cancel_at = None
-
-                user_subscription = Subscription.objects.get(user=User.objects.get(email=customer.email))
-                if (user_subscription.plan, user_subscription.cancel_at) != (stripe_plan, stripe_cancel_at):
-                    print(f"Updating customer {customer.id}")
-                    user_subscription.plan = stripe_plan
-                    user_subscription.cancel_at = stripe_cancel_at
-                    user_subscription.save()
+                    if Subscription.objects.filter(user=User.objects.get(email=customer.email)).exists():
+                        Subscription.objects.get(user=User.objects.get(email=customer.email)).delete()
+                        print(f"Updating customer {customer.id}")
+                    else:
+                        print(f"Customer {customer.id} has no subscriptions (FREE PLAN).")
         except Exception as e:
             CommandError(repr(e))

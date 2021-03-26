@@ -747,7 +747,14 @@ class PlansView(UserPassesTestMixin, TemplateView):
 
         context['plans'] = Plan.objects.filter(product_id__in=[product.id for product in products])
         context['free_plan'] = Plan.objects.filter(product_id__in=[product.id for product in products], type=Plan.FREE).first()
-        context['user_plan'] = Plan.objects.filter(product_id__in=[product.id for product in products], type=Plan.FREE).first()
+        if self.request.user.is_authenticated:
+            if Subscription.objects.filter(user=self.request.user).exists():
+                user_plan = Subscription.objects.get(user=self.request.user).plan
+            else:
+                user_plan = Plan.objects.get(type=Plan.FREE)
+        else:
+            user_plan = None
+        context['user_plan'] = user_plan
 
         return context
 class CheckoutView(UserPassesTestMixin, TemplateView):
@@ -810,14 +817,18 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
         plan_id = self.request.GET.get("plan", None)
         plan = get_object_or_404(Plan, pk=plan_id)
         if plan.type == Plan.FREE:
-            # TODO: Implement to change user plan
-            subscription = Subscription.objects.get(user=request.user)
-            (success, message) = subscription.cancel_at_period_end()
-            if success:
-                messages.success(request, message)
+            if Subscription.objects.filter(user=request.user).exists():
+                subscription = Subscription.objects.get(user=request.user)
+
+                (success, message) = subscription.cancel_at_period_end()
+                if success:
+                    messages.success(request, message)
+                else:
+                    messages.error(request, message)
+                return redirect(to=reverse('finance:plans'))
             else:
-                messages.error(request, message)
-            return redirect(to=reverse('finance:plans'))
+                messages.error(request, "You are already subscribed to the Free Plan.")
+                return redirect(to=reverse('finance:plans'))
         else:
             return self.render_to_response(self.get_context_data())
     
@@ -981,20 +992,11 @@ class StripeWebhookView(View):
             )
 
         elif event['type'] == 'customer.subscription.deleted':
-            # user = User.objects.get(
-            #     email=stripe.Customer.retrieve(event.data.object.customer).email
-            # )
-            # plan = Plan.objects.get(
-            #     product_id=stripe.Price.retrieve(event.data.object['items'].data[0].price.id).product
-            # )
-            # subscription, created = Subscription.objects.update_or_create(
-            #     {
-            #         'plan': plan,
-            #         'event_id': event.id
-            #     },
-            #     user = user
-            # )
-            pass
+            user = User.objects.get(
+                email=stripe.Customer.retrieve(event.data.object.customer).email
+            )
+            if Subscription.objects.filter(user=user).exists():
+                Subscription.objects.get(user=user).delete()
 
         return HttpResponse(status=200)
 

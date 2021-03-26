@@ -157,10 +157,12 @@ class PlanAdmin(admin.ModelAdmin):
         "product_id",
         "name",
         "type",
+        "order"
     ]
     list_filter = [
         "type",
     ]
+    ordering = ('order',)
 
 @admin.register(models.Feature)
 class FeatureAdmin(admin.ModelAdmin):
