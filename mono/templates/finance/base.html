@@ -131,6 +131,8 @@
             </form>
           </div>
           <div class="divider"></div>
+          <a class="item" href="{% url 'finance:configuration' %}"><i class="cog icon"></i>{% translate "Settings" %}</a>
+          <div class="divider"></div>
           <a class="item" href="{% url 'finance:logout' %}">{% translate "Sign out" %}</a>
         </div>
       </div>
@@ -241,6 +243,12 @@
   setInterval( checkUnread, 5000 );
 
   {% endif %}
+
+  $('.message .close').click(function() {
+    $(this)
+    .closest('.message')
+    .transition('fade');
+  });
   
 </script>
 
