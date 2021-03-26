@@ -470,18 +470,22 @@ class Subscription(models.Model):
         return status
 
     def cancel_at_period_end(self):
-        # Update Stripe
-        stripe.api_key = settings.STRIPE_SECRET_KEY
-        customer = stripe.Customer.list(email=self.user.email).data[0]
-        subscription = stripe.Subscription.list(customer=customer.id).data[0]
-        subscription = stripe.Subscription.modify(subscription.id, cancel_at_period_end=True)
+        try:
+            # Update Stripe
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            customer = stripe.Customer.list(email=self.user.email).data[0]
+            subscription = stripe.Subscription.list(customer=customer.id).data[0]
+            subscription = stripe.Subscription.modify(subscription.id, cancel_at_period_end=True)
 
-        # Update model
-        self.cancel_at = timezone.make_aware(
-            datetime.fromtimestamp(subscription.cancel_at),
-            pytz.timezone(settings.STRIPE_TIMEZONE)
-        )
-        self.save()
+            # Update model
+            self.cancel_at = timezone.make_aware(
+                datetime.fromtimestamp(subscription.cancel_at),
+                pytz.timezone(settings.STRIPE_TIMEZONE)
+            )
+            self.save()
+            return (True, "Your subscription has been scheduled to be cancelled at the end of your renewal date.")
+        except Exception as e:
+            return (False, e)
     
     def abort_cancellation(self):
         if self.cancel_at is not None:
