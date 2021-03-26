@@ -430,9 +430,13 @@ class Plan(models.Model):
     icon = models.ForeignKey(Icon, null=True, blank=True, default=None, on_delete=models.SET_NULL, help_text="Icon rendered in the template")
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, 
         help_text="Used to customize the template based on this field. For instance, the basic plan will be muted and the recommended one is highlighted.")
+    order = models.IntegerField(unique=True, help_text="Used to sort plans on the template.")
     
     def __str__(self) -> str:
         return self.name
+
+    class Meta:
+        ordering = ["order"]
 
 class Feature(models.Model):
     """

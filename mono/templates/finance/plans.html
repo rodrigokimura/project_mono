@@ -36,14 +36,18 @@
                   <p>{{ plan.description }}</p>
                 </div>
               </div>
-              {% if plan.type == 'FR' %}
-              <a class="ui bottom attached button" onclick="confirmDowngrade()">
-                {% translate "Select plan" %}
-              </a>
+              {% if plan == user_plan %}
+                <div class="ui bottom attached disabled button">{% translate "Subscribed" %}</div>
               {% else %}
-              <a class="ui bottom attached button" href="{% url "finance:checkout" %}?plan={{ plan.pk }}">
-                {% translate "Select plan" %}
-              </a>
+                {% if plan.type == 'FR' %}
+                <a class="ui bottom attached button" onclick="confirmDowngrade()">
+                  {% translate "Select plan" %}
+                </a>
+                {% else %}
+                <a class="ui bottom attached button" href="{% url "finance:checkout" %}?plan={{ plan.pk }}">
+                  {% translate "Select plan" %}
+                </a>
+                {% endif %}
               {% endif %}
             </div>
 

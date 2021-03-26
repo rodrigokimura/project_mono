@@ -19,6 +19,7 @@
         <div class="ui error message">
           <strong>Atention!</strong>
           Your subscription is scheduled to be canceled at {{ subscription.cancel_at }}. 
+          You can undo this by clicking <button class="ui primary small tertiary basic button" onclick="undoModal()">here</button>.
         </div>
         {% endif %}
 
@@ -45,14 +46,17 @@
         <div class="ui sub header">History</div>
 
 
-        <div class="ui button" onclick="cancellationModal()">Cancel subscription</div>
+        {% if not subscription.cancel_at %}
+        <div class="ui tiny basic red button" onclick="cancellationModal()">Cancel subscription</div>
+        {% endif %}
+
       </div>
 
       <div class="four wide column"></div>
 
     </div>
 
-    <div class="ui mini modal">
+    <div class="ui mini cancel modal">
       <div class="ui icon header">
         <i class="archive icon"></i>
         Confirmation
@@ -66,16 +70,36 @@
       </div>
     </div>
 
+    <div class="ui mini undo modal">
+      <div class="ui icon header">
+        <i class="archive icon"></i>
+        Confirmation
+      </div>
+      <div class="content">
+        <p>Are you sure you want to undo your scheduled subscription cancellation?</p>
+      </div>
+      <div class="actions">
+        <div class="ui cancel button">No</div>
+        <div class="ui approve red button">Yes, I'm sure</div>
+      </div>
+    </div>
+
   </div>
 
 
   <script>
     let cancelSubscription = () => {console.log("cancelling")};
-    $('.ui.modal').modal(
+    $('.ui.cancel.modal').modal(
       {
         onApprove: cancelSubscription,
       }
     );
-    let cancellationModal = () => { $('.ui.modal').modal('show'); }
+    $('.ui.undo.modal').modal(
+      {
+        onApprove: cancelSubscription,
+      }
+    );
+    let cancellationModal = () => { $('.ui.cancel.modal').modal('show'); }
+    let undoModal = () => { $('.ui.undo.modal').modal('show'); }
   </script>
 {% endblock body %}
