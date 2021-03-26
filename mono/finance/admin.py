@@ -157,10 +157,12 @@ class PlanAdmin(admin.ModelAdmin):
         "product_id",
         "name",
         "type",
+        "order"
     ]
     list_filter = [
         "type",
     ]
+    ordering = ('order',)
 
 @admin.register(models.Feature)
 class FeatureAdmin(admin.ModelAdmin):
@@ -175,3 +177,21 @@ class FeatureAdmin(admin.ModelAdmin):
         "display",
     ]
     ordering = ('plan',)
+
+@admin.register(models.Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = [
+        "user",
+        "plan",
+        "created_at",
+        "updated_at",
+        "cancel_at",
+        "event_id",
+    ]
+    list_filter = [
+        "user",
+        "plan",
+        "created_at",
+        "updated_at",
+        "cancel_at",
+    ]

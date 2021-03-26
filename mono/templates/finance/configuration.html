@@ -1,0 +1,105 @@
+{% extends "finance/base.html" %}
+{% load static %}
+
+{% block head %}
+  <style type="text/css">
+  </style>
+  <script>
+  </script>
+{% endblock head %}
+
+{% block body %}
+  <div class="pusher">
+    <div class="ui stackable grid container">
+      <div class="four wide column"></div>
+
+      <div class="eight wide column">
+        <div class="ui huge dividing header">Your plan</div>
+        {% if subscription.cancel_at %}
+        <div class="ui error message">
+          <strong>Atention!</strong>
+          Your subscription is scheduled to be canceled at {{ subscription.cancel_at }}. 
+          You can undo this by clicking <button class="ui primary small tertiary basic button" onclick="undoModal()">here</button>.
+        </div>
+        {% endif %}
+
+        <div class="ui header">Subscription</div>
+        <div class="ui sub header">{{ subscription.plan.name }}</div>
+        <div class="ui list">
+          <div class="item">Created at {{ subscription.created_at }}</div>
+          <div class="item">Updated at {{ subscription.updated_at }}</div>
+          {% if subscription.cancel_at %}
+          <div class="item">Cancel at {{ subscription.cancel_at }}</div>
+          {% endif %}
+        </div>
+
+        <div class="ui header">Billing</div>
+
+        <div class="ui header">Payments</div>
+        <div class="ui sub header">Payment method</div>
+        <div class="ui list">
+          <div class="item">Card brand: {{ payment_method.card.brand }}</div>
+          <div class="item">Card number: **** **** **** {{ payment_method.card.last4 }}</div>
+          <div class="item">Expiration month: {{ payment_method.card.exp_month }}</div>
+          <div class="item">Expiration year: {{ payment_method.card.exp_year }}</div>
+        </div>
+        <div class="ui sub header">History</div>
+
+
+        {% if not subscription.cancel_at and subscription %}
+        <div class="ui tiny basic red button" onclick="cancellationModal()">Cancel subscription</div>
+        {% endif %}
+
+      </div>
+
+      <div class="four wide column"></div>
+
+    </div>
+
+    <div class="ui mini cancel modal">
+      <div class="ui icon header">
+        <i class="archive icon"></i>
+        Confirmation
+      </div>
+      <div class="content">
+        <p>Are you sure you want to cancel your subscription?</p>
+      </div>
+      <div class="actions">
+        <div class="ui cancel button">No</div>
+        <div class="ui approve red button">Yes, I'm sure</div>
+      </div>
+    </div>
+
+    <div class="ui mini undo modal">
+      <div class="ui icon header">
+        <i class="archive icon"></i>
+        Confirmation
+      </div>
+      <div class="content">
+        <p>Are you sure you want to undo your scheduled subscription cancellation?</p>
+      </div>
+      <div class="actions">
+        <div class="ui cancel button">No</div>
+        <div class="ui approve red button">Yes, I'm sure</div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <script>
+    let cancelSubscription = () => {console.log("cancelling")};
+    $('.ui.cancel.modal').modal(
+      {
+        onApprove: cancelSubscription,
+      }
+    );
+    $('.ui.undo.modal').modal(
+      {
+        onApprove: cancelSubscription,
+      }
+    );
+    let cancellationModal = () => { $('.ui.cancel.modal').modal('show'); }
+    let undoModal = () => { $('.ui.undo.modal').modal('show'); }
+  </script>
+{% endblock body %}
