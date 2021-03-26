@@ -36,9 +36,15 @@
                   <p>{{ plan.description }}</p>
                 </div>
               </div>
+              {% if plan.type == 'FR' %}
+              <a class="ui bottom attached button" onclick="confirmDowngrade()">
+                {% translate "Select plan" %}
+              </a>
+              {% else %}
               <a class="ui bottom attached button" href="{% url "finance:checkout" %}?plan={{ plan.pk }}">
                 {% translate "Select plan" %}
               </a>
+              {% endif %}
             </div>
 
             {% if plan.feature_set.all %}
@@ -65,10 +71,33 @@
     </div>
     
   </div>
+  <div class="ui mini modal">
+    <div class="ui icon header">
+      <i class="archive icon"></i>
+      Confirmation
+    </div>
+    <div class="content">
+      <p>Are you sure you want to downgrade your subscription to the free plan?</p>
+      <div class="ui warning message">By doing this, your subscription will be schedule to cancel at the end of your renewal date.</div>
+    </div>
+    <div class="actions">
+      <div class="ui cancel button">No</div>
+      <div class="ui approve red button">Yes, I'm sure</div>
+    </div>
+  </div>
 </div>
 
 <script>
   $('.content.feature').popup();
+  $('.ui.modal').modal(
+    {
+      onApprove: () => {window.location.replace('{% url "finance:checkout" %}?plan={{ free_plan.pk }}')}
+    }
+  );
+  let confirmDowngrade = () => {
+    $('.ui.modal').modal('show');
+  }
+
 </script>
 
 {% endblock body %}
