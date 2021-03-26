@@ -46,7 +46,7 @@
         <div class="ui sub header">History</div>
 
 
-        {% if not subscription.cancel_at %}
+        {% if not subscription.cancel_at and subscription %}
         <div class="ui tiny basic red button" onclick="cancellationModal()">Cancel subscription</div>
         {% endif %}
 

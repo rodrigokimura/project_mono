@@ -48,15 +48,23 @@ class Command(BaseCommand):
                     else:
                         stripe_cancel_at = None
 
-                    user_subscription = Subscription.objects.get(user=User.objects.get(email=customer.email))
-                    # If subscription is not the one stored, updates the user's subscription
-                    if (user_subscription.plan, user_subscription.cancel_at) != (stripe_plan, stripe_cancel_at):
-                        print(f"Updating customer {customer.id}")
-                        user_subscription.plan = stripe_plan
-                        user_subscription.cancel_at = stripe_cancel_at
-                        user_subscription.save()
-                    else: 
-                        print("No changes to apply.")
+                    if Subscription.objects.filter(user=User.objects.get(email=customer.email)).exists():
+                        user_subscription = Subscription.objects.get(user=User.objects.get(email=customer.email))
+                        # If subscription is not the one stored, updates the user's subscription
+                        if (user_subscription.plan, user_subscription.cancel_at) != (stripe_plan, stripe_cancel_at):
+                            print(f"Updating customer {customer.id}")
+                            user_subscription.plan = stripe_plan
+                            user_subscription.cancel_at = stripe_cancel_at
+                            user_subscription.save()
+                        else: 
+                            print("No changes to apply.")
+                    else:
+                        Subscription.objects.create(
+                            user=User.objects.get(email=customer.email),
+                            plan = stripe_plan,
+                            cancel_at = stripe_cancel_at,
+                        )
+                        print("Subscription created.")
                 else:
                     if Subscription.objects.filter(user=User.objects.get(email=customer.email)).exists():
                         Subscription.objects.get(user=User.objects.get(email=customer.email)).delete()
