@@ -723,7 +723,7 @@ class PlansView(UserPassesTestMixin, TemplateView):
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
         # Get all Stripe products
-        products = stripe.Product.list(limit=100).data
+        products = stripe.Product.list(limit=100, active=True).data
         if len(products) == 100:
             next_page = True
             max_loops = 10
@@ -1006,7 +1006,11 @@ class ConfigurationView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['subscription'] = Subscription.objects.get(user=self.request.user)
+        if Subscription.objects.filter(user=self.request.user).exists():
+            context['subscription'] = Subscription.objects.get(user=self.request.user)
+        else:
+            context['subscription'] = None
+
         stripe.api_key = settings.STRIPE_SECRET_KEY
         customer = stripe.Customer.list(email=self.request.user.email).data[0]
         payment_method = stripe.PaymentMethod.retrieve(customer.invoice_settings.default_payment_method)
