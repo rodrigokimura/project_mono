@@ -76,6 +76,23 @@ class Category(models.Model):
     ]
     TRANSFER_NAME = 'Transfer'
     ADJUSTMENT_NAME = 'Balance adjustment'
+    
+    INITIAL_CATEGORIES = [
+        ['Health', 'EXP', 'heartbeat'], 
+        ['Shopping', 'EXP', 'cart'], 
+        ['Education', 'EXP', 'university'],
+        ['Transportation', 'EXP', 'car'],
+        ['Trips', 'EXP', 'plane'],
+        ['Leisure', 'EXP', 'gamepad'],
+        ['Groceries', 'EXP', 'shopping basket'],
+        ['Salary', 'INC', 'money bill alternate outline'],
+    ]
+    SPECIAL_CATEGORIES = [
+        [TRANSFER_NAME, 'INC', 'money bill alternate outline', TRANSFER],
+        [TRANSFER_NAME, 'EXP', 'money bill alternate outline', TRANSFER],
+        [ADJUSTMENT_NAME, 'INC', 'money bill alternate outline', ADJUSTMENT],
+        [ADJUSTMENT_NAME, 'EXP', 'money bill alternate outline', ADJUSTMENT],
+    ]
 
     name = models.CharField(max_length=50, null=False, blank=False)
     description = models.TextField(max_length=200, null=True, blank=True)

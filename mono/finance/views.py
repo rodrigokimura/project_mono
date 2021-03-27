@@ -252,6 +252,7 @@ class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
         qs = qs.order_by('-date')
         context['daily_grouped'] = qs
         return context
+        
 class AccountListView(LoginRequiredMixin, ListView):
     model = Account
     
@@ -757,6 +758,7 @@ class PlansView(UserPassesTestMixin, TemplateView):
         context['user_plan'] = user_plan
 
         return context
+        
 class CheckoutView(UserPassesTestMixin, TemplateView):
     template_name = "finance/checkout.html"
 
@@ -922,6 +924,7 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
                 }
             }
         )
+        
 @method_decorator(csrf_exempt, name='dispatch')
 class StripeWebhookView(View):
 
