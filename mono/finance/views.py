@@ -23,8 +23,8 @@ from django.db.models.functions import Coalesce, TruncDay
 from django.utils.translation import gettext as _
 from django.utils import timezone
 from stripe.api_resources import payment_method, product
-from .models import Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification, Budget, User, Plan, Feature, Subscription
-from .forms import TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm, BudgetForm
+from .models import BudgetConfiguration, Transaction, Category, Account, Group, Category, Icon, Goal, Invite, Notification, Budget, User, Plan, Feature, Subscription
+from .forms import BudgetConfigurationForm, TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm, BudgetForm
 import time
 import jwt
 import stripe
@@ -252,6 +252,7 @@ class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
         qs = qs.order_by('-date')
         context['daily_grouped'] = qs
         return context
+        
 class AccountListView(LoginRequiredMixin, ListView):
     model = Account
     
@@ -695,6 +696,55 @@ class BudgetDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(BudgetDeleteView, self).delete(request, *args, **kwargs)
+class BudgetConfigurationListView(LoginRequiredMixin, ListView):
+    model = BudgetConfiguration
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()
+        context['categories'] = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
+        context['accounts'] = Account.objects.filter(owned_by=self.request.user)
+        return context
+    
+    def get_queryset(self):
+        qs = BudgetConfiguration.objects.filter(created_by=self.request.user)
+
+        category = self.request.GET.get('category', None)
+        if category not in [None, ""]:
+            qs = qs.filter(categories=category)
+
+        account = self.request.GET.get('account', None)
+        if account not in [None, ""]:
+            qs = qs.filter(accounts=account)
+
+        return qs
+
+class BudgetConfigurationCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView): 
+    model = BudgetConfiguration
+    form_class = BudgetConfigurationForm
+    success_url = reverse_lazy('finance:budgetconfigurations')
+    success_message = "BudgetConfiguration was created successfully"
+
+class BudgetConfigurationUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView): 
+    model = BudgetConfiguration 
+    form_class = BudgetConfigurationForm
+    success_url = reverse_lazy('finance:budgetconfigurations')
+    success_message = "BudgetConfiguration was updated successfully"
+
+    def test_func(self):
+        return self.get_object().created_by == self.request.user
+  
+class BudgetConfigurationDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    model = BudgetConfiguration
+    success_url = reverse_lazy('finance:budgetconfigurations')
+    success_message = "BudgetConfiguration was deleted successfully"
+
+    def test_func(self):
+        return self.get_object().created_by == self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(BudgetConfigurationDeleteView, self).delete(request, *args, **kwargs)
 
 class FakerView(UserPassesTestMixin, FormView):
     template_name = "finance/faker.html"
@@ -757,6 +807,7 @@ class PlansView(UserPassesTestMixin, TemplateView):
         context['user_plan'] = user_plan
 
         return context
+        
 class CheckoutView(UserPassesTestMixin, TemplateView):
     template_name = "finance/checkout.html"
 
@@ -922,6 +973,7 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
                 }
             }
         )
+        
 @method_decorator(csrf_exempt, name='dispatch')
 class StripeWebhookView(View):
 

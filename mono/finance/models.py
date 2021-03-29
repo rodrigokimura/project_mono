@@ -1,3 +1,4 @@
+from calendar import weekday
 from django.conf import settings
 from django.db import models
 from django.db.models import F, Q, Sum, Value as V
@@ -12,6 +13,7 @@ from datetime import date, datetime, timedelta
 import jwt
 import pytz
 import stripe
+from dateutil.relativedelta import relativedelta
 
 User = get_user_model()
 
@@ -76,6 +78,23 @@ class Category(models.Model):
     ]
     TRANSFER_NAME = 'Transfer'
     ADJUSTMENT_NAME = 'Balance adjustment'
+    
+    INITIAL_CATEGORIES = [
+        ['Health', 'EXP', 'heartbeat'], 
+        ['Shopping', 'EXP', 'cart'], 
+        ['Education', 'EXP', 'university'],
+        ['Transportation', 'EXP', 'car'],
+        ['Trips', 'EXP', 'plane'],
+        ['Leisure', 'EXP', 'gamepad'],
+        ['Groceries', 'EXP', 'shopping basket'],
+        ['Salary', 'INC', 'money bill alternate outline'],
+    ]
+    SPECIAL_CATEGORIES = [
+        [TRANSFER_NAME, 'INC', 'money bill alternate outline', TRANSFER],
+        [TRANSFER_NAME, 'EXP', 'money bill alternate outline', TRANSFER],
+        [ADJUSTMENT_NAME, 'INC', 'money bill alternate outline', ADJUSTMENT],
+        [ADJUSTMENT_NAME, 'EXP', 'money bill alternate outline', ADJUSTMENT],
+    ]
 
     name = models.CharField(max_length=50, null=False, blank=False)
     description = models.TextField(max_length=200, null=True, blank=True)
@@ -217,10 +236,76 @@ class BudgetConfiguration(models.Model):
     ]
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     ammount = models.FloatField()
+    start_date = models.IntegerField()
     frequency = models.CharField(max_length=1, choices=FREQUENCY, default=MONTHLY)
     accounts = models.ManyToManyField(Account)
     categories = models.ManyToManyField(Category)
     active = models.BooleanField(default=True)
+
+    def schedule_dates(self, **kwargs):
+        reference_date = kwargs["reference_date"]
+        if self.frequency == self.WEEKLY:
+            current_week = int(kwargs["reference_date"].strftime("%U"))
+            start_date = timezone.make_aware(
+                datetime.strptime(f"{reference_date.year}-{current_week}-{self.start_date}","%Y-%U-%w"),
+                pytz.timezone(settings.STRIPE_TIMEZONE)
+            )
+            delta = relativedelta(weeks=1)
+        elif self.frequency == self.MONTHLY:
+            start_date = timezone.make_aware(
+                datetime(reference_date.year, reference_date.month - 1, self.start_date),
+                pytz.timezone(settings.STRIPE_TIMEZONE)
+            )
+            delta = relativedelta(months=1)
+        elif self.frequency == self.YEARLY:
+            start_date = timezone.make_aware(
+                datetime(reference_date.year, 1, self.start_date),
+                pytz.timezone(settings.STRIPE_TIMEZONE)
+            )
+            delta = relativedelta(years=1)
+        end_date = start_date + delta + relativedelta(days=-1)
+        return { "start_date": start_date, "end_date": end_date }
+
+    @property
+    def next_schedule_start_date(self):
+        dates = self.schedule_dates(reference_date = timezone.now())
+        if Budget.objects.filter(configuration = self, start_date = dates["start_date"]).exists():
+            return dates["end_date"] + relativedelta(days=1)
+        else:
+            return dates["start_date"]
+    
+    @property
+    def verbose_interval(self):
+        weekdays = [
+            _('Sunday'),
+            _('Monday'),
+            _('Tuesday'),
+            _('Wednesday'),
+            _('Thursday'),
+            _('Friday'),
+            _('Saturday'),
+        ]
+        if self.frequency == self.WEEKLY:
+            return _('Every %(d)s of each week.') % {'d': weekdays[self.start_date]}
+        elif self.frequency == self.MONTHLY:
+            return _('Every day %(d)s of each month.') % {'d': self.start_date}
+        elif self.frequency == self.YEARLY:
+            return _('Every day %(d)s of each year.') % {'d': self.start_date}
+
+    def create(self):
+        dates = self.schedule_dates(reference_date = timezone.now() + timedelta(1))
+        if not Budget.objects.filter(configuration = self, start_date = dates["start_date"]).exists():
+            budget = Budget(
+                created_by = self.created_by,
+                ammount = self.ammount,
+                start_date = dates["start_date"],
+                end_date = dates["end_date"],
+                configuration = self,
+            )
+            budget.save()
+            budget.accounts.set(self.accounts.all())
+            budget.categories.set(self.categories.all())
+            budget.save()
 
 class Budget(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
