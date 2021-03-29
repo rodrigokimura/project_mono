@@ -301,17 +301,23 @@ class BudgetForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        self.fields['accounts'].queryset = Account.objects.filter(owned_by=self.request.user, group=None)
+        shared_accounts = Account.objects.filter(group__members=self.request.user)
+        owned_accounts = Account.objects.filter(owned_by=self.request.user, group=None)
+        self.fields['accounts'].queryset = (shared_accounts|owned_accounts).distinct()
         self.fields['accounts'].widget.attrs.update({'class': 'ui dropdown'})
         self.fields['start_date'].widget.type = 'date'
         self.fields['start_date'].widget.format = 'n/d/Y'
         self.fields['end_date'].widget.type = 'date'
         self.fields['end_date'].widget.format = 'n/d/Y'
-        self.fields['categories'].queryset = Category.objects.filter(
+        created_categories = Category.objects.filter(
             created_by=self.request.user, 
             internal_type=Category.DEFAULT, 
             group=None,
             type=Category.EXPENSE)
+        shared_categories = Category.objects.filter(
+            group__members=self.request.user,
+            type=Category.EXPENSE)
+        self.fields['categories'].queryset = (shared_categories|created_categories).distinct()
         self.fields['categories'].widget.attrs.update({'class': 'ui dropdown'})
 
     def save(self, *args, **kwargs): 

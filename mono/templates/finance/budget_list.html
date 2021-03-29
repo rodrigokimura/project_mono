@@ -58,7 +58,7 @@
           
       </div>
       <div class="ui segment">
-        <div class="ui ammount {{ budget.progress_bar_color }} progress" data-value="{{ budget.ammount_spent }}" data-total="{{ budget.ammount }}">
+        <div class="ui ammount {{ budget.progress_bar_color }} progress" data-value="{{ budget.ammount_spent|stringformat:'f' }}" data-total="{{ budget.ammount|stringformat:'f' }}">
           <div class="bar">
             <div class="progress"></div>
           </div>
@@ -68,7 +68,7 @@
           <div class="bar">
             <div class="progress"></div>
           </div>
-          <div class="label"></div>
+          <div class="label">{{ budget.time_spent }} of {{ budget.time_total }} days past</div>
         </div>
       </div>
     </div>
@@ -141,7 +141,9 @@
         {
           showActivity: false,
           text: {
-            active: '{value} of {total} days past',
+            percent: `${percent}%`,
+            //active: '{value} of {total} days past',
+            //active: '{value} of {total} days past',
           }
         }
       ); 
