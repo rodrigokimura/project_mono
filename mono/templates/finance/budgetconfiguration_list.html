@@ -30,28 +30,28 @@
       </div>
       <div class="ui fluid buttons">
         <button class="ui button primary" type="submit" form="filter">Filter</button>
-        <a class="ui button" href="{% url 'finance:budgets' %}">Clear</a>
+        <a class="ui button" href="{% url 'finance:budgetconfigurations' %}">Clear</a>
       </div>
     </form>
   </div>
 
   <div class="eight wide column">
-    {% for budget in object_list %}
-    {% if not budget.is_shared %}
+    {% for budgetconfig in object_list %}
+    {% if not budgetconfig.is_shared %}
     <div class="ui segments">
       <div class="ui secondary grey segment">
-        <a href="{% url 'finance:budget_update' pk=budget.pk %}">
-          From {{ budget.start_date }} to {{ budget.end_date }}
+        <a href="{% url 'finance:budgetconfiguration_update' pk=budgetconfig.pk %}">
+          {{ budgetconfig.verbose_interval }}
         </a>
       </div>
       <div class="ui segment">
 
-          {% for account in budget.accounts.all %}
+          {% for account in budgetconfig.accounts.all %}
           <a class="ui small label" href="{% url 'finance:account_update' account.pk %}">
           {{ account }}
           </a> 
           {% endfor %}
-          {% for category in budget.categories.all %}
+          {% for category in budgetconfig.categories.all %}
           <a class="ui small tag label" style="margin-top: .2em;" href="{% url 'finance:category_update' category.pk %}">
             <i class="{{ category.icon }} icon"></i>{{ category }}
           </a> 
@@ -59,18 +59,7 @@
           
       </div>
       <div class="ui segment">
-        <div class="ui ammount {{ budget.progress_bar_color }} progress" data-value="{{ budget.ammount_spent|stringformat:'f' }}" data-total="{{ budget.ammount|stringformat:'f' }}">
-          <div class="bar">
-            <div class="progress"></div>
-          </div>
-          <div class="label">{{ budget.ammount_spent }} of {{ budget.ammount }} spent</div>
-        </div>
-        <div class="ui time progress" data-value="{{ budget.time_spent }}" data-total="{{ budget.time_total }}">
-          <div class="bar">
-            <div class="progress"></div>
-          </div>
-          <div class="label">{{ budget.time_spent }} of {{ budget.time_total }} days past</div>
-        </div>
+        {% translate "Next schedule: " %} {{ budgetconfig.next_schedule_start_date }}
       </div>
     </div>
     {% endif %}
@@ -81,21 +70,17 @@
 
     <div class="ui horizontal divider"><i class="play circle outline icon"></i> {% translate "Actions" %}</div>
     <div class="row">
-      <a class="ui fluid primary labeled icon button" href="{% url "finance:budget_create" %}">
-        <i class="plus icon"></i>
-        {% translate "Add budget" %}
-      </a>
       <a class="ui fluid primary labeled icon button" href="{% url "finance:budgetconfiguration_create" %}">
         <i class="plus icon"></i>
-        {% translate "Schedule budgets" %}
+        {% translate "Create new budget schedule" %}
       </a>
     </div>
     
     <div class="ui horizontal divider"><i class="eye outline icon"></i> {% translate "Views" %}</div>
     <div class="row">
-      <a class="ui fluid basic labeled icon button" href="{% url "finance:budgetconfigurations" %}">
+      <a class="ui fluid basic labeled icon button" href="{% url "finance:budgets" %}">
           <i class="calendar alternate outline icon"></i>
-          {% translate "Go to Scheduled Budgets" %}
+          {% translate "Go to Budgets View" %}
       </a>
     </div>
   </div>
