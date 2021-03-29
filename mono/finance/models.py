@@ -248,19 +248,19 @@ class BudgetConfiguration(models.Model):
             current_week = int(kwargs["reference_date"].strftime("%U"))
             start_date = timezone.make_aware(
                 datetime.strptime(f"{reference_date.year}-{current_week}-{self.start_date}","%Y-%U-%w"),
-                pytz.timezone(settings.STRIPE_TIMEZONE)
+                pytz.timezone(settings.TIME_ZONE)
             )
             delta = relativedelta(weeks=1)
         elif self.frequency == self.MONTHLY:
             start_date = timezone.make_aware(
                 datetime(reference_date.year, reference_date.month - 1, self.start_date),
-                pytz.timezone(settings.STRIPE_TIMEZONE)
+                pytz.timezone(settings.TIME_ZONE)
             )
             delta = relativedelta(months=1)
         elif self.frequency == self.YEARLY:
             start_date = timezone.make_aware(
                 datetime(reference_date.year, 1, self.start_date),
-                pytz.timezone(settings.STRIPE_TIMEZONE)
+                pytz.timezone(settings.TIME_ZONE)
             )
             delta = relativedelta(years=1)
         end_date = start_date + delta + relativedelta(days=-1)
