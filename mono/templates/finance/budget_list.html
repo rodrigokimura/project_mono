@@ -137,13 +137,14 @@
   );
   $('*.ui.time.progress').toArray().forEach(
     item => {
+      value = $(item).data('value');
+      total = $(item).data('total');
+      percent = Math.round(value/total*100)
       $(item).progress(
         {
           showActivity: false,
           text: {
             percent: `${percent}%`,
-            //active: '{value} of {total} days past',
-            //active: '{value} of {total} days past',
           }
         }
       ); 
