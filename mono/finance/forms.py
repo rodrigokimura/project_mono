@@ -15,7 +15,7 @@ from faker.providers import lorem
 from captcha.fields import ReCaptchaField
 from random import randrange, randint
 import pytz
-from .models import Transaction, Group, Category, Account, Icon, Goal, Budget
+from .models import BudgetConfiguration, Transaction, Group, Category, Account, Icon, Goal, Budget
     
 User = get_user_model()
 
@@ -234,8 +234,8 @@ class CategoryForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['created_by', 'internal_type']
         widgets = {
-            'icon':IconWidget,
-            'active':ToggleWidget
+            'icon': IconWidget,
+            'active': ToggleWidget
         }
     
     def __init__(self, *args, **kwargs):
@@ -333,6 +333,42 @@ class BudgetForm(forms.ModelForm):
         widgets = {
             'start_date': CalendarWidget,
             'end_date': CalendarWidget,
+        }
+
+class BudgetConfigurationForm(forms.ModelForm):
+    error_css_class = 'error'
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+        shared_accounts = Account.objects.filter(group__members=self.request.user)
+        owned_accounts = Account.objects.filter(owned_by=self.request.user, group=None)
+        self.fields['accounts'].queryset = (shared_accounts|owned_accounts).distinct()
+        self.fields['accounts'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['frequency'].widget.attrs.update({'class': 'ui dropdown'})
+        created_categories = Category.objects.filter(
+            created_by=self.request.user, 
+            internal_type=Category.DEFAULT, 
+            group=None,
+            type=Category.EXPENSE)
+        shared_categories = Category.objects.filter(
+            group__members=self.request.user,
+            type=Category.EXPENSE)
+        self.fields['categories'].queryset = (shared_categories|created_categories).distinct()
+        self.fields['categories'].widget.attrs.update({'class': 'ui dropdown'})
+
+    def save(self, *args, **kwargs): 
+        budget = self.instance
+        if budget.pk is None:
+            budget.created_by = self.request.user
+        return super(BudgetConfigurationForm, self).save(*args, **kwargs)
+        
+    class Meta:
+        model = BudgetConfiguration
+        fields = '__all__'
+        exclude = ['created_by']
+        widgets = {
+            'active': ToggleWidget
         }
         
 class UserForm(auth_forms.UserCreationForm):
