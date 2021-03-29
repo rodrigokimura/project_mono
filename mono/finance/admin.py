@@ -94,6 +94,21 @@ class BudgetAdmin(admin.ModelAdmin):
         "configuration",
     ]
 
+@admin.register(models.BudgetConfiguration)
+class BudgetConfigurationAdmin(admin.ModelAdmin):
+    list_display = [
+        "created_by",
+        "ammount",
+        "frequency",
+        "start_date",
+    ]
+    list_filter = [
+        "created_by",
+        "ammount",
+        "frequency",
+        "start_date",
+    ]
+
 @admin.register(models.Invite)
 class InviteAdmin(admin.ModelAdmin):
     list_display = [
