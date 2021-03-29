@@ -28,6 +28,11 @@ urlpatterns = [
     path("budget/<int:pk>/", views.BudgetUpdateView.as_view(), name='budget_update'),
     path("budget/<int:pk>/delete/", views.BudgetDeleteView.as_view(), name='budget_delete'),
     path("budgets/", views.BudgetListView.as_view(), name='budgets'),
+
+    path("budgetconfiguration/", views.BudgetConfigurationCreateView.as_view(), name='budgetconfiguration_create'),
+    path("budgetconfiguration/<int:pk>/", views.BudgetConfigurationUpdateView.as_view(), name='budgetconfiguration_update'),
+    path("budgetconfiguration/<int:pk>/delete/", views.BudgetConfigurationDeleteView.as_view(), name='budgetconfiguration_delete'),
+    path("budgetconfigurations/", views.BudgetConfigurationListView.as_view(), name='budgetconfigurations'),
     
     path("group/", views.GroupCreateView.as_view(), name='group_create'),
     path("group/<int:pk>", views.GroupUpdateView.as_view(), name='group_update'),
