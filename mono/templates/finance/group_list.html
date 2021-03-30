@@ -27,7 +27,7 @@
      
       {% for group in object_list %}
       <div class="ui segments">
-        <div class="ui secondary grey segment">
+        <div class="ui secondary grey segment" onclick="$(this).siblings('.ui.segment').toggle('swing');">
           <a href="{% url 'finance:group_update' pk=group.pk %}">{{ group.name }}</a>
         </div>
         {% for m in group.members.all %}

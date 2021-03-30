@@ -39,7 +39,7 @@
     {% for budget in object_list %}
     {% if not budget.is_shared %}
     <div class="ui segments">
-      <div class="ui secondary grey segment">
+      <div class="ui secondary grey segment" onclick="$(this).siblings('.ui.segment').toggle('swing');">
         <a href="{% url 'finance:budget_update' pk=budget.pk %}">
           From {{ budget.start_date }} to {{ budget.end_date }}
         </a>
@@ -77,11 +77,11 @@
     {% endfor %}
   </div>
 
-  <div class="four wide column">
+  <div class="four wide column">\
 
     <div class="ui horizontal divider"><i class="play circle outline icon"></i> {% translate "Actions" %}</div>
     <div class="row">
-      <a class="ui fluid primary labeled icon button" href="{% url "finance:budget_create" %}">
+      <a class="ui fluid primary labeled icon button" href="{% url "finance:budget_create" %}" style="margin-bottom: 1rem;">
         <i class="plus icon"></i>
         {% translate "Add budget" %}
       </a>
