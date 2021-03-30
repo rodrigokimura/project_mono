@@ -281,7 +281,7 @@ class BudgetConfiguration(models.Model):
             _('December'),
         ]
         if self.frequency == self.WEEKLY:
-            return _('Every %(d)s of each week.') % {'d': weekdays[self.start_date]}
+            return _('Every %(d)s of each week.') % {'d': weekdays[self.start_date.weekday()]}
         elif self.frequency == self.MONTHLY:
             return _('Every day %(d)s of each month.') % {'d': self.start_date.day}
         elif self.frequency == self.YEARLY:
