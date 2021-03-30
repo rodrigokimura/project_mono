@@ -39,7 +39,9 @@
     {% for budgetconfig in object_list %}
     {% if not budgetconfig.is_shared %}
     <div class="ui segments">
-      <div class="ui secondary grey segment">
+      <div class="ui secondary grey segment"
+        onclick="$(this).siblings('.ui.segment').toggle('swing');">
+        <i class="calendar check outline icon"></i>
         <a href="{% url 'finance:budgetconfiguration_update' pk=budgetconfig.pk %}">
           {{ budgetconfig.verbose_interval }}
         </a>
@@ -58,7 +60,7 @@
           {% endfor %}
           
       </div>
-      <div class="ui segment">
+      <div class="ui segment"  onclick="$(this).parent().slideUp(500);">
         {% translate "Next schedule: " %} {{ budgetconfig.next_schedule_start_date }}
       </div>
     </div>
