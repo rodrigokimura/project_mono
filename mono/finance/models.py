@@ -1,7 +1,6 @@
-from calendar import weekday
 from django.conf import settings
 from django.db import models
-from django.db.models import F, Q, Sum, Value as V
+from django.db.models import Sum, Value as V
 from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -9,11 +8,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.mail import EmailMultiAlternatives
 from django.urls import reverse
 from django.template.loader import get_template
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 import jwt
 import pytz
 import stripe
-from dateutil.relativedelta import relativedelta
 
 User = get_user_model()
 
@@ -24,7 +23,7 @@ class Transaction(models.Model):
         help_text="A short description, so that the user can identify the transaction.")
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, 
         verbose_name=_("created by"), 
-        help_text="Identifies how created the transaction.")
+        help_text="Identifies who created the transaction.")
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     timestamp = models.DateTimeField(_("timestamp"), default=timezone.now, 
         help_text="Timestamp when transaction occurred. User defined.")
@@ -236,43 +235,25 @@ class BudgetConfiguration(models.Model):
     ]
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     ammount = models.FloatField()
-    start_date = models.IntegerField()
+    start_date = models.DateField()
     frequency = models.CharField(max_length=1, choices=FREQUENCY, default=MONTHLY)
     accounts = models.ManyToManyField(Account)
     categories = models.ManyToManyField(Category)
     active = models.BooleanField(default=True)
 
-    def schedule_dates(self, **kwargs):
-        reference_date = kwargs["reference_date"]
-        if self.frequency == self.WEEKLY:
-            current_week = int(kwargs["reference_date"].strftime("%U"))
-            start_date = timezone.make_aware(
-                datetime.strptime(f"{reference_date.year}-{current_week}-{self.start_date}","%Y-%U-%w"),
-                pytz.timezone(settings.TIME_ZONE)
-            )
-            delta = relativedelta(weeks=1)
-        elif self.frequency == self.MONTHLY:
-            start_date = timezone.make_aware(
-                datetime(reference_date.year, reference_date.month - 1, self.start_date),
-                pytz.timezone(settings.TIME_ZONE)
-            )
-            delta = relativedelta(months=1)
-        elif self.frequency == self.YEARLY:
-            start_date = timezone.make_aware(
-                datetime(reference_date.year, 1, self.start_date),
-                pytz.timezone(settings.TIME_ZONE)
-            )
-            delta = relativedelta(years=1)
-        end_date = start_date + delta + relativedelta(days=-1)
-        return { "start_date": start_date, "end_date": end_date }
-
-    @property
-    def next_schedule_start_date(self):
-        dates = self.schedule_dates(reference_date = timezone.now())
-        if Budget.objects.filter(configuration = self, start_date = dates["start_date"]).exists():
-            return dates["end_date"] + relativedelta(days=1)
+    def is_schedule_date(self, reference_date):
+        if reference_date < self.start_date:
+            return False
+        elif reference_date == self.start_date:
+            return True
         else:
-            return dates["start_date"]
+
+            if self.frequency == self.WEEKLY:
+                return reference_date.weekday() == self.start_date.weekday()
+            elif self.frequency == self.MONTHLY:
+                return reference_date.day == self.start_date.day
+            elif self.frequency == self.YEARLY:
+                return reference_date.day == self.start_date.day and reference_date.month == self.start_date.month
     
     @property
     def verbose_interval(self):
@@ -285,21 +266,43 @@ class BudgetConfiguration(models.Model):
             _('Friday'),
             _('Saturday'),
         ]
+        months = [
+            _('January'),
+            _('February'),
+            _('March'),
+            _('April'),
+            _('May'),
+            _('June'),
+            _('July'),
+            _('August'),
+            _('September'),
+            _('October'),
+            _('November'),
+            _('December'),
+        ]
         if self.frequency == self.WEEKLY:
             return _('Every %(d)s of each week.') % {'d': weekdays[self.start_date]}
         elif self.frequency == self.MONTHLY:
-            return _('Every day %(d)s of each month.') % {'d': self.start_date}
+            return _('Every day %(d)s of each month.') % {'d': self.start_date.day}
         elif self.frequency == self.YEARLY:
-            return _('Every day %(d)s of each year.') % {'d': self.start_date}
+            return _('Every day %(d)s of %(m)s of each year.') % {'d': self.start_date.day, 'm': months[self.start_date.month]}
 
     def create(self):
-        dates = self.schedule_dates(reference_date = timezone.now() + timedelta(1))
-        if not Budget.objects.filter(configuration = self, start_date = dates["start_date"]).exists():
+        reference_date = (timezone.now() + timedelta(1)).date
+        
+        if self.frequency == self.WEEKLY:
+            delta = relativedelta(weeks=1)
+        elif self.frequency == self.MONTHLY:
+            delta = relativedelta(months=1)
+        elif self.frequency == self.YEARLY:
+            delta = relativedelta(years=1)
+            
+        if not Budget.objects.filter(configuration = self, start_date = reference_date).exists() and self.is_schedule_date(reference_date):
             budget = Budget(
                 created_by = self.created_by,
                 ammount = self.ammount,
-                start_date = dates["start_date"],
-                end_date = dates["end_date"],
+                start_date = reference_date,
+                end_date = reference_date + delta + relativedelta(days=-1),
                 configuration = self,
             )
             budget.save()
