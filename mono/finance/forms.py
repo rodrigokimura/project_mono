@@ -346,6 +346,8 @@ class BudgetConfigurationForm(forms.ModelForm):
         self.fields['accounts'].queryset = (shared_accounts|owned_accounts).distinct()
         self.fields['accounts'].widget.attrs.update({'class': 'ui dropdown'})
         self.fields['frequency'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['start_date'].widget.type = 'date'
+        self.fields['start_date'].widget.format = 'n/d/Y'
         created_categories = Category.objects.filter(
             created_by=self.request.user, 
             internal_type=Category.DEFAULT, 
@@ -368,7 +370,8 @@ class BudgetConfigurationForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['created_by']
         widgets = {
-            'active': ToggleWidget
+            'active': ToggleWidget,
+            'start_date': CalendarWidget,
         }
         
 class UserForm(auth_forms.UserCreationForm):
