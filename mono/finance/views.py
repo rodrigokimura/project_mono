@@ -573,8 +573,8 @@ class InviteListApiView(View):
             }
         return JsonResponse(response)
     
-class InviteAcceptanceView(TokenMixin, LoginRequiredMixin, View):
-    
+class InviteAcceptanceView(LoginRequiredMixin, TemplateView):
+    template_name = "finance/invite_acceptance.html"
     def get(self, request):
         token = request.GET.get('t', None)
         
@@ -586,22 +586,23 @@ class InviteAcceptanceView(TokenMixin, LoginRequiredMixin, View):
                 settings.SECRET_KEY,
                 algorithms=["HS256"]
             )
+            # Notification.objects.create(
+            #     title = "",
+            #     message = "",
+            #     icon = "",
+            #     to = "",
+            #     action = ""
+            # )
             
             invite = get_object_or_404(Invite, pk=payload['id'])
-            
-            accepted = invite.accepted
             user_already_member = request.user in invite.group.members.all()
-            
-            if not accepted and not user_already_member:
+            if not invite.accepted and not user_already_member:
                 invite.accept(request.user)
                 invite.save()
-            
-            context = {
-                'accepted': accepted,
-                'user_already_member': user_already_member,
-            }
-            
-            return render(request, 'finance/invite_acceptance.html', context)
+            return self.render_to_response({
+                "accepted": invite.accepted,
+                "user_already_member": user_already_member,
+            })
             
 class NotificationListApi(LoginRequiredMixin, View):
     def get(self, request):
