@@ -1,5 +1,7 @@
+from datetime import timedelta
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import timezone
 from ...models import User, BudgetConfiguration
 
 class Command(BaseCommand):
@@ -10,6 +12,6 @@ class Command(BaseCommand):
             # Get all budget configs
             configs = BudgetConfiguration.objects.filter(active=True)
             for config in configs:
-                config.create()
+                config.create_budget()
         except Exception as e:
             CommandError(repr(e))
