@@ -6,11 +6,15 @@
 
 {% block body %}
 <div class="ui grid container">
-  <div class="row">
-    <div class="column">
-      <p>You are logged in as {{ request.user }}.</p>
-    </div>
+
+  <div class="four wide column"></div>
+
+  <div class="eight wide column">
+    <div class="ui success message">You've just accepted this invitation!</div>
   </div>
+
+  <div class="four wide column"></div>
+  
 </div>
 
 <script>
