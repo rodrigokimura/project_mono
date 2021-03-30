@@ -29,7 +29,7 @@
       {% for value, name in types %}
 
       <div class="ui segments">
-        <div class="ui secondary grey segment" style="padding: .5em 1em;">
+        <div class="ui secondary grey segment" style="padding: .5em 1em;" onclick="$(this).siblings('.ui.segment').toggle('swing');">
           <div class="ui grid">
             <div class="eight wide column">
               {{ name }}

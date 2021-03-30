@@ -39,28 +39,29 @@
     {% for budgetconfig in object_list %}
     {% if not budgetconfig.is_shared %}
     <div class="ui segments">
-      <div class="ui secondary grey segment"
-        onclick="$(this).siblings('.ui.segment').toggle('swing');">
+      <div class="ui secondary grey segment" onclick="$(this).siblings('.ui.segment').toggle('swing');">
         <i class="calendar check outline icon"></i>
         <a href="{% url 'finance:budgetconfiguration_update' pk=budgetconfig.pk %}">
           {{ budgetconfig.verbose_interval }}
         </a>
       </div>
       <div class="ui segment">
-
-          {% for account in budgetconfig.accounts.all %}
-          <a class="ui small label" href="{% url 'finance:account_update' account.pk %}">
-          {{ account }}
-          </a> 
-          {% endfor %}
-          {% for category in budgetconfig.categories.all %}
-          <a class="ui small tag label" style="margin-top: .2em;" href="{% url 'finance:category_update' category.pk %}">
-            <i class="{{ category.icon }} icon"></i>{{ category }}
-          </a> 
-          {% endfor %}
-          
+        <p>Accounts: 
+        {% for account in budgetconfig.accounts.all %}
+        <a class="ui small label" href="{% url 'finance:account_update' account.pk %}">
+        {{ account }}
+        </a> 
+        {% endfor %}
+        </p>
+        <p>Categories: 
+        {% for category in budgetconfig.categories.all %}
+        <a class="ui small tag label" style="margin-top: .2em;" href="{% url 'finance:category_update' category.pk %}">
+          <i class="{{ category.icon }} icon"></i>{{ category }}
+        </a> 
+        {% endfor %}
+        </p>
       </div>
-      <div class="ui segment"  onclick="$(this).parent().slideUp(500);">
+      <div class="ui segment">
         {% translate "Next schedule: " %} {{ budgetconfig.next_schedule_start_date }}
       </div>
     </div>
@@ -157,6 +158,9 @@
       ); 
     }
   );
+  let toggleSegments = (el) => {
+    $(el).siblings('.ui.segment').toggle('swing');
+  }
 </script>
 
 {% endblock %}
