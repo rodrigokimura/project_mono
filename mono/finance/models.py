@@ -258,13 +258,13 @@ class BudgetConfiguration(models.Model):
     @property
     def verbose_interval(self):
         weekdays = [
-            _('Sunday'),
             _('Monday'),
             _('Tuesday'),
             _('Wednesday'),
             _('Thursday'),
             _('Friday'),
             _('Saturday'),
+            _('Sunday'),
         ]
         months = [
             _('January'),
@@ -287,8 +287,8 @@ class BudgetConfiguration(models.Model):
         elif self.frequency == self.YEARLY:
             return _('Every day %(d)s of %(m)s of each year.') % {'d': self.start_date.day, 'm': months[self.start_date.month]}
 
-    def create(self):
-        reference_date = (timezone.now() + timedelta(1)).date
+    def create_budget(self):
+        reference_date = (timezone.now() + timedelta(1)).date()
         
         if self.frequency == self.WEEKLY:
             delta = relativedelta(weeks=1)
@@ -296,7 +296,7 @@ class BudgetConfiguration(models.Model):
             delta = relativedelta(months=1)
         elif self.frequency == self.YEARLY:
             delta = relativedelta(years=1)
-            
+
         if not Budget.objects.filter(configuration = self, start_date = reference_date).exists() and self.is_schedule_date(reference_date):
             budget = Budget(
                 created_by = self.created_by,
