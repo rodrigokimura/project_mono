@@ -388,7 +388,30 @@ class Budget(models.Model):
             color = 'red'
         return color
 
-        
+class Notification(models.Model):
+    title = models.CharField(max_length=50)
+    message = models.CharField(max_length=255)
+    icon = models.ForeignKey(Icon, on_delete=models.SET_NULL, null=True, default=None)
+    to = models.ForeignKey(User, on_delete=models.CASCADE)
+    read_at = models.DateTimeField(blank=True, null=True, default=None)
+    action = models.CharField(max_length=1000)
+    active = models.BooleanField(default=True)
+
+    def __str__(self) -> str:
+        return self.title
+
+    @property
+    def read(self):
+        return self.read_at is not None
+
+    def mark_as_read(self):
+        self.read_at = timezone.now()
+        self.save()
+
+    def set_icon_by_markup(self, markup):
+        self.icon = Icon.objects.filter(markup=markup).first()
+        self.save()
+
 class Invite(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -401,6 +424,13 @@ class Invite(models.Model):
         group.members.add(user)
         self.accepted = True
         self.save()
+        Notification.objects.create(
+            title = "Group invitation",
+            message = f"{user} accepted you invite.",
+            icon = Icon.objects.get(markup="exclamation"),
+            to = self.created_by,
+            action = reverse("finance:groups"),
+        )
         
     @property
     def link(self):
@@ -440,33 +470,17 @@ class Invite(models.Model):
             to=[to])
         msg.attach_alternative(html.render(d), "text/html")
         msg.send(fail_silently = False)
+        if User.objects.filter(email=self.email).exists():
+            Notification.objects.create(
+                title = "Group invitation",
+                message = "You were invited to be part of a group.",
+                icon = Icon.objects.get(markup="exclamation"),
+                to = User.objects.get(email=self.email),
+                action = full_link
+            )
         
     def __str__(self) -> str:
         return f'{str(self.group)} -> {self.email}'
-
-class Notification(models.Model):
-    title = models.CharField(max_length=50)
-    message = models.CharField(max_length=255)
-    icon = models.ForeignKey(Icon, on_delete=models.SET_NULL, null=True, default=None)
-    to = models.ForeignKey(User, on_delete=models.CASCADE)
-    read_at = models.DateTimeField(blank=True, null=True, default=None)
-    action = models.CharField(max_length=1000)
-    active = models.BooleanField(default=True)
-
-    def __str__(self) -> str:
-        return self.title
-
-    @property
-    def read(self):
-        return self.read_at is not None
-
-    def mark_as_read(self):
-        self.read_at = timezone.now()
-        self.save()
-
-    def set_icon_by_markup(self, markup):
-        self.icon = Icon.objects.filter(markup=markup).first()
-        self.save()
 
 class Configuration(models.Model):
 
