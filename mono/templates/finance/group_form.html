@@ -62,7 +62,7 @@
           </div>
           
           <script>
-            $('.form .submit').api({ 
+            $('form#invite-form .submit').api({ 
               action: 'invite',
               method: 'POST',
               serializeForm: true,
@@ -88,15 +88,17 @@
               }
             })
             .state({
-              onActivate: function() {
+              onSuccess: function() {
                 $(this).state('flash text');
               },
               text: {
-                inactive   : 'Send',
-                active     : 'Sent',
-                deactivate : 'Cancel',
                 flash      : 'Sent invite!'
               }
+            })
+
+            $('form#invite-form').submit(e=>{
+              e.preventDefault();
+              $('form#invite-form .submit').api('query');
             })
             
             $('#invite-list-container').api({
