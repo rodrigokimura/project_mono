@@ -16,7 +16,7 @@
   <div class="four wide column">
     <form class="ui fluid form" method="GET" id="filter">
       <div class="field">
-        <label>Category</label>
+        <label>{% translate "Category" %}</label>
         <div class="ui search multiple selection dropdown" data-name="category">
           <input type="hidden" name="category">
           <div class="text"></div>
@@ -24,7 +24,7 @@
         </div>
       </div>
       <div class="field">
-        <label>Account</label>
+        <label>{% translate "Account" %}</label>
         <div class="ui search multiple selection dropdown" data-name="account">
           <input type="hidden" name="account">
           <div class="text"></div>
@@ -32,8 +32,8 @@
         </div>
       </div>
       <div class="ui fluid buttons">
-        <button class="ui button primary" type="submit" form="filter">Filter</button>
-        <a class="ui button" href="{% url 'finance:transactions' %}">Clear</a>
+        <button class="ui button primary" type="submit" form="filter">{% translate "Filter" %}</button>
+        <a class="ui button" href="{% url 'finance:transactions' %}">{% translate "Clear" %}</a>
       </div>
     </form>
   </div>
@@ -43,7 +43,8 @@
     {% for date in daily_grouped %}
     
     <div class="hidden ui segments" data-date="{{ date.date|date:'Y-m-d' }}">
-      <div class="ui secondary grey segment" style="padding: .5em 1em;" onclick="$(this).siblings('.ui.segment').toggle('swing');">
+      <div class="ui secondary grey segment" style="padding: .5em 1em;" 
+        onclick="$(this).siblings('.ui.segment').toggle('swing');">
         <div class="ui grid">
           <div class="eight wide column">
             <div style="display:flex; flex-flow: row nowrap;">
@@ -132,17 +133,29 @@
 
     <div class="ui horizontal divider"><i class="play circle outline icon"></i> {% translate "Actions" %}</div>
     <div class="row">
-      <a class="ui fluid primary labeled icon button" href="{% url "finance:transaction_create" %}">
+      <a class="ui fluid primary labeled icon button" href="{% url "finance:transaction_create" %}"
+        style="margin-bottom: 1rem;">
         <i class="plus icon"></i>
         {% translate "Add transaction" %}
+      </a>
+      <a class="ui fluid primary labeled icon button" href="{% url "finance:recurrent_transaction_create" %}">
+        <i class="plus icon"></i>
+        {% translate "Add recurrent transaction" %}
       </a>
     </div>
     
     <div class="ui horizontal divider"><i class="eye outline icon"></i> {% translate "Views" %}</div>
     <div class="row">
-      <a class="ui fluid basic labeled icon button" href="{% url "finance:transaction_month" month=now|date:'m' year=now|date:'Y' %}">
+      <a class="ui fluid basic labeled icon button" 
+        href="{% url "finance:transaction_month" month=now|date:'m' year=now|date:'Y' %}"
+        style="margin-bottom: 1rem;">
           <i class="calendar alternate outline icon"></i>
           {% translate "Go to Calendar View" %}
+      </a>
+      <a class="ui fluid basic labeled icon button" 
+        href="{% url "finance:recurrent_transactions" %}">
+          <i class="calendar alternate outline icon"></i>
+          {% translate "Go to recurrent transactions" %}
       </a>
     </div>
   </div>
