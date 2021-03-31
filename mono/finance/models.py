@@ -331,7 +331,7 @@ class Budget(models.Model):
 
     @property
     def time_total(self):
-        return (self.end_date - self.start_date).days
+        return (self.end_date - self.start_date).days + 1
 
     @property
     def time_progress(self):
@@ -351,7 +351,7 @@ class Budget(models.Model):
             account__in=self.accounts.all(),
             category__in=self.categories.all(),
             timestamp__date__gte=self.start_date,
-            timestamp__date__lt=self.end_date,
+            timestamp__date__lte=self.end_date,
         )
 
     @property

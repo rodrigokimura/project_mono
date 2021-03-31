@@ -39,7 +39,7 @@
     {% for account in object_list %}
     {% if not account.is_shared %}
     <div class="ui segments">
-      <div class="ui grid secondary grey segment" onclick="$(this).siblings('.ui.segment').toggle('swing');">
+      <div class="ui grid secondary grey segment" data-toggle="segments">
         <div class="ten wide column">
           <a href="{% url 'finance:account_update' pk=account.pk %}">{{ account.name }}</a>
         </div>
@@ -67,7 +67,7 @@
     {% for account in object_list %}
     {% if account.is_shared %}
     <div class="ui segments">
-      <div class="ui grid secondary grey segment" onclick="$(this).siblings('.ui.segment').toggle('swing');">
+      <div class="ui grid secondary grey segment" data-toggle="segments">
         <div class="ten wide column">
           <a href="{% url 'finance:account_update' pk=account.pk %}">{{ account.name }}</a>
         </div>
@@ -140,6 +140,9 @@
     .closest('.message')
     .transition('fade');
   });
+  $("*[data-toggle=segments]").click(e=>{
+    $(e.target).siblings('.ui.segment').toggle('swing');
+  })
 </script>
 
 {% endblock %}

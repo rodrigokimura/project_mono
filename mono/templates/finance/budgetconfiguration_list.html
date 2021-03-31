@@ -37,9 +37,8 @@
 
   <div class="eight wide column">
     {% for budgetconfig in object_list %}
-    {% if not budgetconfig.is_shared %}
     <div class="ui segments">
-      <div class="ui secondary grey segment" onclick="$(this).siblings('.ui.segment').toggle('swing');">
+      <div class="ui secondary grey segment" data-toggle="segments">
         <i class="calendar check outline icon"></i>
         <a href="{% url 'finance:budgetconfiguration_update' pk=budgetconfig.pk %}">
           {{ budgetconfig.verbose_interval }}
@@ -65,7 +64,6 @@
         {% translate "Next schedule: " %} {{ budgetconfig.next_schedule_start_date }}
       </div>
     </div>
-    {% endif %}
     {% endfor %}
   </div>
 
@@ -158,9 +156,9 @@
       ); 
     }
   );
-  let toggleSegments = (el) => {
-    $(el).siblings('.ui.segment').toggle('swing');
-  }
+  $("*[data-toggle=segments]").click(e=>{
+    $(e.target).siblings('.ui.segment').toggle('swing');
+  })
 </script>
 
 {% endblock %}
