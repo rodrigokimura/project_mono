@@ -14,15 +14,15 @@ APP_ENV = os.getenv('APP_ENV')
 GITHUB_SECRET = os.getenv('GITHUB_SECRET')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if APP_ENV == 'DEV': 
+if APP_ENV == 'DEV':
     SECRET_KEY = 'devkeyprojectmono'
-else: 
+else:
     SECRET_KEY = os.getenv('APP_SECRET')
 
 # For django-recaptcha
-if APP_ENV == 'DEV': 
+if APP_ENV == 'DEV':
     SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
-else: 
+else:
     RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY')
     RECAPTCHA_PRIVATE_KEY = os.getenv('RECAPTCHA_PRIVATE_KEY')
 
@@ -31,9 +31,9 @@ DEBUG = APP_ENV == 'DEV'
 CSRF_COOKIE_SECURE = APP_ENV == 'PRD'
 SESSION_COOKIE_SECURE = APP_ENV == 'PRD'
 
-if APP_ENV == 'DEV': 
+if APP_ENV == 'DEV':
     ALLOWED_HOSTS = ['*']
-else: 
+else:
     ALLOWED_HOSTS = [os.getenv('ALLOWED_HOST')]
 
 # Application definition
@@ -107,7 +107,7 @@ if APP_ENV == 'DEV':
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
-else: 
+else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -121,7 +121,7 @@ else:
             }
         }
     }
-    
+
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
@@ -170,15 +170,15 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGIN_REDIRECT_URL = reverse_lazy('finance:index')
 LOGIN_URL = reverse_lazy('finance:login')
 
-if APP_ENV == 'DEV': 
+if APP_ENV == 'DEV':
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'    
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = os.getenv('EMAIL_HOST')
     EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
@@ -186,7 +186,7 @@ else:
     EMAIL_USE_TLS = True
     EMAIL_USE_SSL = False
     EMAIL_TIMEOUT = 30
-    
+
 DEFAULT_FROM_EMAIL = 'no-reply@voitkemp.com'
 
 ADMINS = [('Rodrigo Eiti Kimura', 'rodrigoeitikimura@gmail.com')]
@@ -194,7 +194,7 @@ SERVER_EMAIL = 'no-reply@voitkemp.com'
 EMAIL_SUBJECT_PREFIX = '[MONO PROJECT] '
 EMAIL_USE_LOCALTIME = True
 
-PASSWORD_RESET_TIMEOUT = 24*60*60
+PASSWORD_RESET_TIMEOUT = 24 * 60 * 60
 
 STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')

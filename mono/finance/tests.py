@@ -1,19 +1,13 @@
 from django.test import TestCase, RequestFactory
-from django.urls.base import reverse
-from django.utils import timezone
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.auth.models import User
 from http import HTTPStatus
-import datetime
 
 from .models import Transaction, Account, Category, Group
 from .views import AccountCreateView
 
-# Create your tests here.
-User = get_user_model()
 
 class TransactionModelTests(TestCase):
-  
+
     def test_signed_ammount_with_income(self):
         category = Category(type=Category.INCOME)
         income = Transaction(
@@ -27,11 +21,12 @@ class TransactionModelTests(TestCase):
             ammount=10,
             category=category)
         self.assertIs(expense.signed_ammount < 0, True)
-        
+
+
 class UserModelTests(TestCase):
-  
+
     fixtures = ["icon.json"]
-    
+
     def setUp(self):
         self.user = User.objects.create(
             username="teste")
@@ -40,47 +35,49 @@ class UserModelTests(TestCase):
         self.assertIsNotNone(self.user)
 
     def test_user_has_accounts(self):
-        self.assertGreater(Account.objects.filter(created_by=self.user).count(),0)
+        self.assertGreater(Account.objects.filter(created_by=self.user).count(), 0)
 
     def test_user_has_categories(self):
-        self.assertGreater(Category.objects.filter(created_by=self.user).count(),0)
-    
+        self.assertGreater(Category.objects.filter(created_by=self.user).count(), 0)
+
+
 class AccountModelTests(TestCase):
-    
+
     fixtures = ["icon.json"]
-    
+
     def setUp(self):
         self.user = User.objects.create(
             username="teste")
         self.factory = RequestFactory()
-            
+
     def test_adjust_balance(self):
         account = Account.objects.filter(created_by=self.user).first()
         self.assertEquals(account.current_balance, 0)
-        
+
         account.adjust_balance(100, self.user)
         self.assertGreater(account.current_balance, 0)
 
         account.adjust_balance(-100, self.user)
         self.assertLess(account.current_balance, 0)
 
+
 class AccountFormTests(TestCase):
 
     fixtures = ["icon.json"]
-    
+
     def setUp(self):
         self.user = User.objects.create(username="teste")
         self.factory = RequestFactory()
 
     def test_get(self):
-        request = self.factory.get(f'/fn/account/')
+        request = self.factory.get('/fn/account/')
         request.user = self.user
         response = AccountCreateView.as_view()(request)
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_post(self):
         request = self.factory.post(
-            path=f'/fn/account/',
+            path='/fn/account/',
             data={
                 "name": "Teste",
             }
@@ -88,6 +85,7 @@ class AccountFormTests(TestCase):
         request.user = self.user
         response = AccountCreateView.as_view()(request)
         self.assertEqual(response.status_code, HTTPStatus.OK)
+
 
 class UserCreationTests(TestCase):
 
@@ -97,7 +95,7 @@ class UserCreationTests(TestCase):
         self.user_1 = User.objects.create(username="User_1")
         self.user_2 = User.objects.create(username="User_2")
         self.group = Group.objects.create(
-            name="Group", 
+            name="Group",
             owned_by=self.user_1,
             created_by=self.user_1
         )
@@ -109,16 +107,15 @@ class UserCreationTests(TestCase):
         self.account = Account.objects.filter(owned_by=self.user_1).first()
         self.factory = RequestFactory()
 
-
     def test_group_creation(self):
-        self.assertTrue(self.group.owned_by==self.user_1)
-        self.assertFalse(self.group.owned_by==self.user_2)
+        self.assertTrue(self.group.owned_by == self.user_1)
+        self.assertFalse(self.group.owned_by == self.user_2)
 
     def test_patch_with_logged_in_user(self):
-        
+
         transaction = Transaction.objects.create(
-            description="Test", 
-            ammount=100, 
+            description="Test",
+            ammount=100,
             account=self.account,
             created_by=self.user_1,
             category=Category.objects.filter(created_by=self.user_1, type=Category.EXPENSE).first()
@@ -138,7 +135,7 @@ class UserCreationTests(TestCase):
 # class TestView(TestCase):
 
 #     fixtures = ["icon.json"]
-    
+
 #     def setUp(self):
 #         self.user = User.objects.create(
 #             username="teste")

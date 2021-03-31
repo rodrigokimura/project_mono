@@ -16,49 +16,139 @@ import stripe
 
 User = get_user_model()
 
+
 class Transaction(models.Model):
     """Stores financial transactions."""
-    description = models.CharField(max_length=50, null=False, blank=False, 
-        verbose_name=_("description"), 
-        help_text="A short description, so that the user can identify the transaction.")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, 
-        verbose_name=_("created by"), 
-        help_text="Identifies who created the transaction.")
+    description = models.CharField(max_length=50, null=False, blank=False,
+                                   verbose_name=_("description"),
+                                   help_text="A short description, so that the user can identify the transaction.")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   verbose_name=_("created by"),
+                                   help_text="Identifies who created the transaction.")
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
-    timestamp = models.DateTimeField(_("timestamp"), default=timezone.now, 
-        help_text="Timestamp when transaction occurred. User defined.")
+    timestamp = models.DateTimeField(_("timestamp"), default=timezone.now,
+                                     help_text="Timestamp when transaction occurred. User defined.")
     ammount = models.FloatField(_("ammount"), help_text="Ammount related to the transaction. Absolute value, no positive/negative signs.")
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
     account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
     active = models.BooleanField(_("active"), default=True)
+    recurrent = models.ForeignKey('RecurrentTransaction', on_delete=models.SET_NULL, null=True, blank=True, default=None)
 
     class Meta:
         verbose_name = _("transaction")
         verbose_name_plural = _("transactions")
-    
+
     @property
     def type(self):
         """Gets the type of transaction (Expense /Income) from :model:`finance.Category` type."""
         return self.category.type
-        
+
     @property
     def signed_ammount(self):
         """Same as ammount, but with positive/negative sign, depending on :model:`finance.Category` type."""
         sign = 1
         if self.category.type == 'EXP':
             sign = -1
-        return self.ammount*sign
-        
+        return self.ammount * sign
+
     def __str__(self) -> str:
         return self.description
 
+
+class RecurrentTransaction(models.Model):
+    WEEKLY = 'W'
+    MONTHLY = 'M'
+    YEARLY = 'Y'
+    FREQUENCY = [
+        (WEEKLY, 'Weekly'),
+        (MONTHLY, 'Monthly'),
+        (YEARLY, 'Yearly'),
+    ]
+    description = models.CharField(max_length=50, null=False, blank=False,
+                                   verbose_name=_("description"),
+                                   help_text="A short description, so that the user can identify the transaction.")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   verbose_name=_("created by"),
+                                   help_text="Identifies who created the transaction.")
+    timestamp = models.DateTimeField(_("timestamp"), default=timezone.now,
+                                     help_text="Timestamp when transaction occurred. User defined.")
+    ammount = models.FloatField(_("ammount"), help_text="Ammount related to the transaction. Absolute value, no positive/negative signs.")
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
+    account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
+    active = models.BooleanField(_("active"), default=True)
+    frequency = models.CharField(max_length=1, choices=FREQUENCY, default=MONTHLY)
+
+    def is_schedule_date(self, reference_date):
+        if reference_date < self.timestamp.date():
+            return False
+        elif reference_date == self.timestamp.date():
+            return True
+        else:
+
+            if self.frequency == self.WEEKLY:
+                return reference_date.weekday() == self.timestamp.weekday()
+            elif self.frequency == self.MONTHLY:
+                return reference_date.day == self.timestamp.day
+            elif self.frequency == self.YEARLY:
+                return reference_date.day == self.timestamp.day and reference_date.month == self.timestamp.month
+
+    @property
+    def verbose_interval(self):
+        weekdays = [
+            _('Monday'),
+            _('Tuesday'),
+            _('Wednesday'),
+            _('Thursday'),
+            _('Friday'),
+            _('Saturday'),
+            _('Sunday'),
+        ]
+        months = [
+            _('January'),
+            _('February'),
+            _('March'),
+            _('April'),
+            _('May'),
+            _('June'),
+            _('July'),
+            _('August'),
+            _('September'),
+            _('October'),
+            _('November'),
+            _('December'),
+        ]
+        if self.frequency == self.WEEKLY:
+            return _('Every %(d)s of each week.') % {'d': weekdays[self.timestamp.weekday()]}
+        elif self.frequency == self.MONTHLY:
+            return _('Every day %(d)s of each month.') % {'d': self.timestamp.day}
+        elif self.frequency == self.YEARLY:
+            return _('Every day %(d)s of %(m)s of each year.') % {'d': self.timestamp.day, 'm': months[self.timestamp.month]}
+
+    def create_transaction(self):
+        reference_date = (timezone.now() + timedelta(1)).date()
+        if not Transaction.objects.filter(recurrent=self, timestamp__date=reference_date).exists() and self.is_schedule_date(reference_date):
+            budget = Transaction(
+                description=self.description,
+                created_by=self.created_by,
+                timestamp=datetime.combine(reference_date, datetime.min.time()),
+                ammount=self.ammount,
+                category=self.category,
+                account=self.account,
+                recurrent=self,
+            )
+            budget.save()
+
+
 class Icon(models.Model):
     markup = models.CharField(max_length=50, unique=True)
+
     def __str__(self) -> str:
         return self.markup
+
     class Meta:
         verbose_name = _("icon")
         verbose_name_plural = _("icons")
+
 
 class Category(models.Model):
     INCOME = 'INC'
@@ -77,10 +167,10 @@ class Category(models.Model):
     ]
     TRANSFER_NAME = 'Transfer'
     ADJUSTMENT_NAME = 'Balance adjustment'
-    
+
     INITIAL_CATEGORIES = [
-        ['Health', 'EXP', 'heartbeat'], 
-        ['Shopping', 'EXP', 'cart'], 
+        ['Health', 'EXP', 'heartbeat'],
+        ['Shopping', 'EXP', 'cart'],
         ['Education', 'EXP', 'university'],
         ['Transportation', 'EXP', 'car'],
         ['Trips', 'EXP', 'plane'],
@@ -104,49 +194,52 @@ class Category(models.Model):
     icon = models.ForeignKey(Icon, on_delete=models.SET_NULL, null=True)
     internal_type = models.CharField(max_length=3, choices=INTERNAL_TYPES, default=DEFAULT)
     active = models.BooleanField(default=True)
-    
+
     def __str__(self) -> str:
         return self.name
-    
+
     class Meta:
         verbose_name = _('category')
         verbose_name_plural = _('categories')
-        
+
     @property
     def is_user_defined(self):
         return self.created_by is not None
-    
+
     @property
     def is_group_defined(self):
         return self.group is not None
-        
+
     @property
     def is_deletable(self):
         return self.is_group_defined or self.created_by
-        
+
+
 class Group(models.Model):
     name = models.CharField(max_length=50)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_groupset")
     owned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owned_groupset")
     members = models.ManyToManyField(User, related_name="shared_groupset")
+
     def __str__(self) -> str:
         return self.name
-        
+
     def change_ownership_to(self, user):
         self.owned_by = user
         self.save()
 
-class Account(models.Model): 
+
+class Account(models.Model):
     name = models.CharField(max_length=50)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="created_accountset", null=True)
     owned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owned_accountset")
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     initial_balance = models.FloatField(default=0)
-    
+
     @property
     def is_shared(self):
         return self.group is not None
-    
+
     @property
     def current_balance(self):
         qs = Transaction.objects.filter(account=self.pk)
@@ -154,12 +247,12 @@ class Account(models.Model):
         for t in qs:
             sum += t.signed_ammount
         return sum
-    
+
     @property
     def total_transactions(self):
         qs = Transaction.objects.filter(account=self.pk)
         return qs.count()
-        
+
     def adjust_balance(self, target, user):
         diff = target - self.current_balance
         if diff < 0:
@@ -168,20 +261,20 @@ class Account(models.Model):
             type = Category.INCOME
         else:
             return
-        
+
         qs = Category.objects.filter(
-            created_by = user,
-            type = type,
-            internal_type = Category.ADJUSTMENT
+            created_by=user,
+            type=type,
+            internal_type=Category.ADJUSTMENT
         )
         if qs.exists():
             adjustment_category = qs.first()
         else:
             adjustment_category = Category.objects.create(
-                name = Category.ADJUSTMENT_NAME,
-                created_by = user,
-                type = type,
-                internal_type = Category.ADJUSTMENT
+                name=Category.ADJUSTMENT_NAME,
+                created_by=user,
+                type=type,
+                internal_type=Category.ADJUSTMENT
             )
         transaction = Transaction(ammount=abs(diff))
         transaction.category = adjustment_category
@@ -189,13 +282,14 @@ class Account(models.Model):
         transaction.account = self
         transaction.created_by = user
         transaction.save()
-        
+
     def remove_group(self):
         self.group = None
         self.save()
-        
+
     def __str__(self) -> str:
         return self.name
+
 
 class Goal(models.Model):
     WEEKLY = 'W'
@@ -221,9 +315,11 @@ class Goal(models.Model):
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     progression_mode = models.CharField(max_length=1, choices=PROGRESSION_MODES, default=CONSTANT)
     frequency = models.CharField(max_length=1, choices=GOAL_FREQUENCY, default=MONTHLY, editable=False)
+
     def __str__(self) -> str:
         return self.name
-        
+
+
 class BudgetConfiguration(models.Model):
     WEEKLY = 'W'
     MONTHLY = 'M'
@@ -254,7 +350,7 @@ class BudgetConfiguration(models.Model):
                 return reference_date.day == self.start_date.day
             elif self.frequency == self.YEARLY:
                 return reference_date.day == self.start_date.day and reference_date.month == self.start_date.month
-    
+
     @property
     def verbose_interval(self):
         weekdays = [
@@ -289,7 +385,7 @@ class BudgetConfiguration(models.Model):
 
     def create_budget(self):
         reference_date = (timezone.now() + timedelta(1)).date()
-        
+
         if self.frequency == self.WEEKLY:
             delta = relativedelta(weeks=1)
         elif self.frequency == self.MONTHLY:
@@ -297,18 +393,19 @@ class BudgetConfiguration(models.Model):
         elif self.frequency == self.YEARLY:
             delta = relativedelta(years=1)
 
-        if not Budget.objects.filter(configuration = self, start_date = reference_date).exists() and self.is_schedule_date(reference_date):
+        if not Budget.objects.filter(configuration=self, start_date=reference_date).exists() and self.is_schedule_date(reference_date):
             budget = Budget(
-                created_by = self.created_by,
-                ammount = self.ammount,
-                start_date = reference_date,
-                end_date = reference_date + delta + relativedelta(days=-1),
-                configuration = self,
+                created_by=self.created_by,
+                ammount=self.ammount,
+                start_date=reference_date,
+                end_date=reference_date + delta + relativedelta(days=-1),
+                configuration=self,
             )
             budget.save()
             budget.accounts.set(self.accounts.all())
             budget.categories.set(self.categories.all())
             budget.save()
+
 
 class Budget(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -318,9 +415,10 @@ class Budget(models.Model):
     accounts = models.ManyToManyField(Account)
     categories = models.ManyToManyField(Category)
     configuration = models.ForeignKey(BudgetConfiguration, on_delete=models.SET_NULL, null=True, blank=True)
+
     def __str__(self) -> str:
         return f'{str(self.configuration)} - {self.ammount}'
-    
+
     @property
     def open(self):
         return self.end_date >= timezone.now().date()
@@ -331,19 +429,18 @@ class Budget(models.Model):
 
     @property
     def time_total(self):
-        return (self.end_date - self.start_date).days
+        return (self.end_date - self.start_date).days + 1
 
     @property
     def time_progress(self):
         if self.open:
             try:
-                progress = (timezone.now().date() - self.start_date)/(self.end_date - self.start_date)
+                progress = (timezone.now().date() - self.start_date) / (self.end_date - self.start_date)
             except ZeroDivisionError:
                 progress = 0
-        else: 
+        else:
             progress = 1
         return progress
-
 
     @property
     def spent_queryset(self):
@@ -351,7 +448,7 @@ class Budget(models.Model):
             account__in=self.accounts.all(),
             category__in=self.categories.all(),
             timestamp__date__gte=self.start_date,
-            timestamp__date__lt=self.end_date,
+            timestamp__date__lte=self.end_date,
         )
 
     @property
@@ -360,12 +457,12 @@ class Budget(models.Model):
 
     @property
     def ammount_progress(self):
-        try: 
+        try:
             progress = self.ammount_spent / self.ammount
         except ZeroDivisionError:
             progress = 0
         return progress
-    
+
     @property
     def status(self):
         threshold = (.9 * self.ammount)
@@ -391,6 +488,7 @@ class Budget(models.Model):
             color = 'red'
         return color
 
+
 class Notification(models.Model):
     title = models.CharField(max_length=50)
     message = models.CharField(max_length=255)
@@ -415,26 +513,27 @@ class Notification(models.Model):
         self.icon = Icon.objects.filter(markup=markup).first()
         self.save()
 
+
 class Invite(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     email = models.EmailField(max_length=1000)
     accepted = models.BooleanField(editable=False, default=False)
-        
+
     def accept(self, user):
         group = self.group
         group.members.add(user)
         self.accepted = True
         self.save()
         Notification.objects.create(
-            title = "Group invitation",
-            message = f"{user} accepted you invite.",
-            icon = Icon.objects.get(markup="exclamation"),
-            to = self.created_by,
-            action = reverse("finance:groups"),
+            title="Group invitation",
+            message=f"{user} accepted you invite.",
+            icon=Icon.objects.get(markup="exclamation"),
+            to=self.created_by,
+            action=reverse("finance:groups"),
         )
-        
+
     @property
     def link(self):
         token = jwt.encode(
@@ -446,7 +545,7 @@ class Invite(models.Model):
             algorithm="HS256"
         )
         return f"{reverse('finance:invite_acceptance')}?t={token}"
-    
+
     def send(self, request):
         print('Sending email')
 
@@ -467,23 +566,24 @@ class Invite(models.Model):
 
         subject, from_email, to = 'Invite', settings.EMAIL_HOST_USER, self.email
         msg = EmailMultiAlternatives(
-            subject=subject, 
-            body=text.render(d), 
-            from_email=from_email, 
+            subject=subject,
+            body=text.render(d),
+            from_email=from_email,
             to=[to])
         msg.attach_alternative(html.render(d), "text/html")
-        msg.send(fail_silently = False)
+        msg.send(fail_silently=False)
         if User.objects.filter(email=self.email).exists():
             Notification.objects.create(
-                title = "Group invitation",
-                message = "You were invited to be part of a group.",
-                icon = Icon.objects.get(markup="exclamation"),
-                to = User.objects.get(email=self.email),
-                action = full_link
+                title="Group invitation",
+                message="You were invited to be part of a group.",
+                icon=Icon.objects.get(markup="exclamation"),
+                to=User.objects.get(email=self.email),
+                action=full_link
             )
-        
+
     def __str__(self) -> str:
         return f'{str(self.group)} -> {self.email}'
+
 
 class Configuration(models.Model):
 
@@ -508,9 +608,10 @@ class Configuration(models.Model):
     def __str__(self) -> str:
         return f'Config for {self.user}'
 
+
 class Plan(models.Model):
     """
-    Stores data about the plans user can subscribve to. 
+    Stores data about the plans user can subscribve to.
     This models has data used to populate the checkout page.
     Those are related to Stripe products."""
 
@@ -520,29 +621,30 @@ class Plan(models.Model):
     RECOMMENDED = 'RC'
 
     TYPE_CHOICES = [
-        (FREE,          _('Free')),
-        (LIFETIME,      _('Lifetime')),
-        (DEFAULT,       _('Default')),
-        (RECOMMENDED,   _('Recommended')),
+        (FREE, _('Free')),
+        (LIFETIME, _('Lifetime')),
+        (DEFAULT, _('Default')),
+        (RECOMMENDED, _('Recommended')),
     ]
 
     product_id = models.CharField(max_length=100, help_text="Stores the stripe unique identifiers")
     name = models.CharField(max_length=100, help_text="Display name used on the template")
     description = models.TextField(max_length=500, help_text="Description text used on the template")
     icon = models.ForeignKey(Icon, null=True, blank=True, default=None, on_delete=models.SET_NULL, help_text="Icon rendered in the template")
-    type = models.CharField(max_length=2, choices=TYPE_CHOICES, 
-        help_text="Used to customize the template based on this field. For instance, the basic plan will be muted and the recommended one is highlighted.")
+    type = models.CharField(max_length=2, choices=TYPE_CHOICES,
+                            help_text="Used to customize the template based on this field. For instance, the basic plan will be muted and the recommended one is highlighted.")
     order = models.IntegerField(unique=True, help_text="Used to sort plans on the template.")
-    
+
     def __str__(self) -> str:
         return self.name
 
     class Meta:
         ordering = ["order"]
 
+
 class Feature(models.Model):
     """
-    Stores features related to the plans user can subscribve to. 
+    Stores features related to the plans user can subscribve to.
     This models is used to populate the checkout page.
     Those are related to plans that are related to Stripe products."""
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
@@ -554,6 +656,7 @@ class Feature(models.Model):
 
     def __str__(self) -> str:
         return f"{self.plan.name} - {self.short_description}"
+
 
 class Subscription(models.Model):
     """
@@ -592,7 +695,7 @@ class Subscription(models.Model):
             return (True, "Your subscription has been scheduled to be cancelled at the end of your renewal date.")
         except Exception as e:
             return (False, e)
-    
+
     def abort_cancellation(self):
         if self.cancel_at is not None:
             # Update Stripe
@@ -609,4 +712,3 @@ class Subscription(models.Model):
     #     self.cancel_at = None
     #     self.plan = Plan.objects.get(type=Plan.FREE)
     #     self.save()
-

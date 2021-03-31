@@ -5,6 +5,7 @@ from . import models
 admin.site.register(models.Icon)
 admin.site.register(models.Goal)
 
+
 @admin.register(models.Transaction)
 class TransactionAdmin(admin.ModelAdmin):
     list_display = [
@@ -27,6 +28,7 @@ class TransactionAdmin(admin.ModelAdmin):
         "active",
     ]
 
+
 @admin.register(models.Group)
 class GroupAdmin(admin.ModelAdmin):
     list_display = [
@@ -40,6 +42,7 @@ class GroupAdmin(admin.ModelAdmin):
         "owned_by",
         "members",
     ]
+
 
 @admin.register(models.Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -62,6 +65,7 @@ class CategoryAdmin(admin.ModelAdmin):
         "active",
     ]
 
+
 @admin.register(models.Account)
 class AccountAdmin(admin.ModelAdmin):
     list_display = [
@@ -79,6 +83,7 @@ class AccountAdmin(admin.ModelAdmin):
         "initial_balance",
     ]
 
+
 @admin.register(models.Budget)
 class BudgetAdmin(admin.ModelAdmin):
     list_display = [
@@ -94,6 +99,7 @@ class BudgetAdmin(admin.ModelAdmin):
         "configuration",
     ]
 
+
 @admin.register(models.BudgetConfiguration)
 class BudgetConfigurationAdmin(admin.ModelAdmin):
     list_display = [
@@ -108,6 +114,7 @@ class BudgetConfigurationAdmin(admin.ModelAdmin):
         "frequency",
         "start_date",
     ]
+
 
 @admin.register(models.Invite)
 class InviteAdmin(admin.ModelAdmin):
@@ -126,12 +133,13 @@ class InviteAdmin(admin.ModelAdmin):
         "accepted",
     ]
 
+
 @admin.register(models.Notification)
 class NotificationAdmin(admin.ModelAdmin):
 
     # Admin Action Functions
     def mark_as_unread(modeladmin, request, queryset):
-        queryset.update(read_at = None)
+        queryset.update(read_at=None)
     # Action description
     mark_as_unread.short_description = "Mark selected notifications as unread"
 
@@ -155,6 +163,7 @@ class NotificationAdmin(admin.ModelAdmin):
     ]
     actions = [mark_as_unread]
 
+
 @admin.register(models.Configuration)
 class ConfigurationAdmin(admin.ModelAdmin):
     list_display = [
@@ -165,6 +174,7 @@ class ConfigurationAdmin(admin.ModelAdmin):
         "user",
         "main_page",
     ]
+
 
 @admin.register(models.Plan)
 class PlanAdmin(admin.ModelAdmin):
@@ -179,6 +189,7 @@ class PlanAdmin(admin.ModelAdmin):
     ]
     ordering = ('order',)
 
+
 @admin.register(models.Feature)
 class FeatureAdmin(admin.ModelAdmin):
     list_display = [
@@ -192,6 +203,7 @@ class FeatureAdmin(admin.ModelAdmin):
         "display",
     ]
     ordering = ('plan',)
+
 
 @admin.register(models.Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):

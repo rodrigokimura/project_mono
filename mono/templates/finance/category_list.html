@@ -29,7 +29,7 @@
       {% for value, name in types %}
 
       <div class="ui segments">
-        <div class="ui secondary grey segment" style="padding: .5em 1em;" onclick="$(this).siblings('.ui.segment').toggle('swing');">
+        <div class="ui secondary grey segment" style="padding: .5em 1em;" data-toggle="segments">
           <div class="ui grid">
             <div class="eight wide column">
               {{ name }}
@@ -103,6 +103,9 @@
       .closest('.message')
       .transition('fade');
     });
+    $("*[data-toggle=segments]").click(e=>{
+      $(e.target).siblings('.ui.segment').toggle('swing');
+    })
   </script>
 
 {% endblock %}
