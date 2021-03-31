@@ -9,6 +9,7 @@ from django.db.migrations.executor import MigrationExecutor
 from django.db import connections, DEFAULT_DB_ALIAS
 from django.core.management import execute_from_command_line
 
+
 def is_there_migrations_to_make():
     try:
         execute_from_command_line(["manage.py", "makemigrations", "--check", "--dry-run"])
@@ -16,6 +17,7 @@ def is_there_migrations_to_make():
     except SystemExit as e:
         system_exit = e
     return system_exit != 0
+
 
 def pending_migrations(database=DEFAULT_DB_ALIAS):
     """Returns a list of non applied Migration instances"""
@@ -25,11 +27,14 @@ def pending_migrations(database=DEFAULT_DB_ALIAS):
     targets = executor.loader.graph.leaf_nodes()
     return [migration for (migration, backwards) in executor.migration_plan(targets)]
 
+
 def is_database_synchronized(database=DEFAULT_DB_ALIAS):
     """Returns True if there are no migrations to be applied."""
     return not pending_migrations(database)
 
 # Create your models here.
+
+
 class PullRequest(models.Model):
     """Stores pull requests coming from GitHub webhook."""
     number = models.IntegerField(unique=True, help_text="GitHub unique identifier.")
@@ -40,7 +45,7 @@ class PullRequest(models.Model):
     changed_files = models.IntegerField(default=0)
     merged_at = models.DateTimeField(null=True, blank=True, default=None)
     received_at = models.DateTimeField(auto_now_add=True)
-    pulled_at = models.DateTimeField(null=True, blank=True, default=None,help_text="Set when pull method runs.")
+    pulled_at = models.DateTimeField(null=True, blank=True, default=None, help_text="Set when pull method runs.")
     deployed_at = models.DateTimeField(null=True, blank=True, default=None, help_text="Set when deploy method runs.")
     migrations = models.IntegerField(default=None, null=True, blank=True)
 
@@ -50,7 +55,7 @@ class PullRequest(models.Model):
 
     def __str__(self) -> str:
         return f'PR #{self.number}'
-    
+
     @property
     def merged(self):
         return self.merged_at is not None
@@ -74,7 +79,7 @@ class PullRequest(models.Model):
         path = Path(settings.BASE_DIR).resolve().parent
         repo = git.Repo(path)
         origin = repo.remotes.origin
-        fetchInfoList = origin.pull()
+        origin.pull()
         print("Successfully pulled from remote.")
         self.pulled_at = timezone.now()
         self.save()
@@ -98,7 +103,7 @@ class PullRequest(models.Model):
         }
 
         mail_admins(
-            subject=f'Delivery Notification - {self}', 
+            subject=f'Delivery Notification - {self}',
             message=get_template('email/alert.txt').render(d),
             html_message=get_template('email/alert.html').render(d)
         )
@@ -122,7 +127,7 @@ class PullRequest(models.Model):
                 Path(wsgi_file).touch()
                 print(f"{wsgi_file} has been touched.")
                 execute_from_command_line(["manage.py", "collectstatic", "--noinput"])
-                
+
             print(f"Successfully deployed {self}.")
             self.deployed_at = timezone.now()
             self.save()
@@ -160,7 +165,7 @@ class PullRequest(models.Model):
 
             print("Notifying admins about the deployment.")
             mail_admins(
-                subject=f'Deploy Notification', 
+                subject='Deploy Notification',
                 message=get_template('email/alert.txt').render(d),
                 html_message=get_template('email/alert.html').render(d)
             )

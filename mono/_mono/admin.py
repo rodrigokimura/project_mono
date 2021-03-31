@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+
 class MyAdminSite(admin.AdminSite):
     site_title = "MONO"
     site_header = "Project Mono"
@@ -12,20 +13,20 @@ class MyAdminSite(admin.AdminSite):
         registered in this site.
         """
         ordering = {
-            "Transaction":          1, 
-            "Account":              2, 
-            "Category":             3, 
-            "Group":                4, 
-            "Invite":               5, 
-            "Notification":         6, 
-            "Icon":                 7, 
-            "Budget":               8, 
-            "BudgetConfiguration":  9, 
-            "Goal":                 10, 
-            "Configuration":        11, 
-            "Plan":                 12, 
-            "Feature":              13, 
-            "Subscription":         14, 
+            "Transaction": 1,
+            "Account": 2,
+            "Category": 3,
+            "Group": 4,
+            "Invite": 5,
+            "Notification": 6,
+            "Icon": 7,
+            "Budget": 8,
+            "BudgetConfiguration": 9,
+            "Goal": 10,
+            "Configuration": 11,
+            "Plan": 12,
+            "Feature": 13,
+            "Subscription": 14,
         }
         app_dict = self._build_app_dict(request)
         # a.sort(key=lambda x: b.index(x[0]))
