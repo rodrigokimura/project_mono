@@ -6,9 +6,10 @@ import pytz
 from ...models import Plan, Subscription, User
 import stripe
 
+
 class Command(BaseCommand):
     help = 'Command to sync subscriptions from Stripe'
-        
+
     def handle(self, *args, **options):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
@@ -27,7 +28,7 @@ class Command(BaseCommand):
                         last_customer = new_customers[-1]
                     else:
                         next_page = False
-            
+
             print(f"Found {len(customers)} customers")
 
             # Get subscription for each customer
@@ -56,13 +57,13 @@ class Command(BaseCommand):
                             user_subscription.plan = stripe_plan
                             user_subscription.cancel_at = stripe_cancel_at
                             user_subscription.save()
-                        else: 
+                        else:
                             print("No changes to apply.")
                     else:
                         Subscription.objects.create(
                             user=User.objects.get(email=customer.email),
-                            plan = stripe_plan,
-                            cancel_at = stripe_cancel_at,
+                            plan=stripe_plan,
+                            cancel_at=stripe_cancel_at,
                         )
                         print("Subscription created.")
                 else:

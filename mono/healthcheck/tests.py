@@ -1,11 +1,13 @@
 from django.test import TestCase
-from .models import PullRequest, is_database_synchronized, is_there_migrations_to_make
+from .models import PullRequest, is_there_migrations_to_make
 
 # Create your tests here.
+
 
 class MigrationsTests(TestCase):
     def test_no_migrations_to_make(self):
         self.assertFalse(is_there_migrations_to_make(), "You have migrations to make. Run 'manage.py makemigrations'.")
+
 
 class PullRequestModelTests(TestCase):
 
