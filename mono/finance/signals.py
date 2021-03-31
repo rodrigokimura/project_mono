@@ -1,12 +1,13 @@
-from .models import Configuration, Group, Account, Category, Icon
+from .models import Configuration, Account, Category, Icon
+
 
 def initial_setup(sender, instance, created, **kwargs):
     if created:
         # Initial accounts
         Account.objects.create(name="Wallet", owned_by=instance, created_by=instance)
         Account.objects.create(name="Bank", owned_by=instance, created_by=instance)
-        
-        #Initial categories
+
+        # Initial categories
         for category in Category.INITIAL_CATEGORIES:
             Category.objects.create(
                 name=category[0],
@@ -25,10 +26,11 @@ def initial_setup(sender, instance, created, **kwargs):
 
         # Initial configuration
         Configuration.objects.create(user=instance)
-        
+
+
 def group_initial_setup(sender, instance, created, **kwargs):
     if created:
-        #Initial categories for the group
+        # Initial categories for the group
         for category in Category.INITIAL_CATEGORIES:
             Category.objects.create(
                 name=category[0],

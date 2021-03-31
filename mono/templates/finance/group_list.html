@@ -27,7 +27,7 @@
      
       {% for group in object_list %}
       <div class="ui segments">
-        <div class="ui secondary grey segment" onclick="$(this).siblings('.ui.segment').toggle('swing');">
+        <div class="ui secondary grey segment" data-toggle="segments">
           <a href="{% url 'finance:group_update' pk=group.pk %}">{{ group.name }}</a>
         </div>
         {% for m in group.members.all %}
@@ -72,6 +72,10 @@
       .closest('.message')
       .transition('fade');
     });
+    
+    $("*[data-toggle=segments]").click(e=>{
+      $(e.target).siblings('.ui.segment').toggle('swing');
+    })
   </script>
 
 {% endblock %}

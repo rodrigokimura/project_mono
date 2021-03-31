@@ -7,6 +7,7 @@ from django.forms import ValidationError
 from django.db.models.signals import post_save
 # from PIL import get
 
+
 class UserCreateForm(auth_forms.UserCreationForm):
     error_css_class = 'error'
 
@@ -22,13 +23,13 @@ class UserCreateForm(auth_forms.UserCreationForm):
         self.fields['email'].widget.attrs.update({'placeholder': 'Email address'})
         self.fields['password1'].widget.attrs.update({'placeholder': 'Password'})
         self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm password'})
-    
+
     def clean(self):
-       email = self.cleaned_data.get('email')
-       if User.objects.filter(email=email).exists():
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
             raise ValidationError("Email exists")
-       return self.cleaned_data
-    
+        return self.cleaned_data
+
     def add_user_to_public_group(sender, instance, created, **kwargs):
         """Post-create user signal that adds the user to everyone group."""
         try:
@@ -36,9 +37,9 @@ class UserCreateForm(auth_forms.UserCreationForm):
                 instance.groups.add(Group.objects.get(name='Cliente'))
         except Group.DoesNotExist:
             pass
-          
 
     post_save.connect(add_user_to_public_group, sender=User)
+
 
 class UserProfileForm(forms.ModelForm):
     error_css_class = 'error'
@@ -49,11 +50,10 @@ class UserProfileForm(forms.ModelForm):
         self.fields['gender'].widget.attrs.update({'class': 'ui dropdown'})
         self.fields['avatar'].widget.attrs.update({'placeholder': 'Avatar'})
 
-
     class Meta:
         model = models.UserProfile
         fields = (
-            "phone", 
+            "phone",
             "gender",
             "avatar"
         )
@@ -92,17 +92,15 @@ class UserProfileForm(forms.ModelForm):
     #     return avatar
 
 
-
-
 class CustomPasswordResetForm(auth_forms.PasswordResetForm):
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-    
+
     def send_mail(self, *args, **kwargs):
-        
+
         args = list(args)
-        if args[3] == None:
+        if args[3] is None:
             args[3] = "naoresponda@voitkemp.com"
         args = tuple(args)
 
