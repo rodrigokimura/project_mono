@@ -8,7 +8,7 @@
       type="text" 
       name="{{ widget.name }}" 
       placeholder="{{ widget.placeholder|capfirst }}"
-      value="{{ widget.value }}"
+      value="{{ widget.value|date:"SHORT_DATE_FORMAT" }}"
       >
   </div>
 </div>
