@@ -22,8 +22,12 @@ from django.db.models import F, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
 from django.utils.translation import gettext as _
 from django.utils import timezone
-from .models import BudgetConfiguration, Transaction, Account, Group, Category, Icon, Goal, Invite, Notification, Budget, User, Plan, Subscription, RecurrentTransaction
-from .forms import BudgetConfigurationForm, TransactionForm, GroupForm, CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm, BudgetForm, RecurrentTransactionForm
+from .models import (BudgetConfiguration, Transaction, Account, Group,
+                     Category, Icon, Goal, Invite, Notification, Budget, User, Plan,
+                     Subscription, RecurrentTransaction)
+from .forms import (BudgetConfigurationForm, TransactionForm, GroupForm,
+                    CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm,
+                    BudgetForm, RecurrentTransactionForm)
 import time
 import jwt
 import stripe
@@ -84,7 +88,9 @@ class PasswordResetView(PasswordResetView):
     html_email_template_name = 'registration/password_reset_email.html'
     subject_template_name = 'registration/password_reset_subject.txt'
     template_name = 'registration/password_reset_form.html'
-    extra_email_context = {"expiration_time_hours": int(settings.PASSWORD_RESET_TIMEOUT / 60 / 60)}
+    extra_email_context = {
+        "expiration_time_hours": int(settings.PASSWORD_RESET_TIMEOUT / 60 / 60)
+    }
 
 
 class PasswordResetConfirmView(PasswordResetConfirmView):
@@ -142,12 +148,14 @@ class TransactionListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['now'] = timezone.now()
 
-        context['categories'] = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
+        context['categories'] = Category.objects.filter(
+            created_by=self.request.user, internal_type=Category.DEFAULT)
         category = self.request.GET.get('category', None)
         if category not in [None, ""]:
             context['filtered_categories'] = category.split(',')
 
-        context['accounts'] = Account.objects.filter(owned_by=self.request.user)
+        context['accounts'] = Account.objects.filter(
+            owned_by=self.request.user)
         account = self.request.GET.get('account', None)
         if account not in [None, ""]:
             context['filtered_accounts'] = account.split(',')
@@ -272,13 +280,14 @@ class RecurrentTransactionListView(LoginRequiredMixin, ListView):
     model = RecurrentTransaction
 
     def get_queryset(self):
-        qs = Transaction.objects.filter(
+        qs = RecurrentTransaction.objects.filter(
             created_by=self.request.user
         ).order_by('-timestamp')
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['frequencies'] = RecurrentTransaction.FREQUENCY
         return context
 
 
@@ -665,13 +674,6 @@ class InviteAcceptanceView(LoginRequiredMixin, TemplateView):
                 settings.SECRET_KEY,
                 algorithms=["HS256"]
             )
-            # Notification.objects.create(
-            #     title = "",
-            #     message = "",
-            #     icon = "",
-            #     to = "",
-            #     action = ""
-            # )
 
             invite = get_object_or_404(Invite, pk=payload['id'])
             user_already_member = request.user in invite.group.members.all()
@@ -889,7 +891,10 @@ class PlansView(UserPassesTestMixin, TemplateView):
         pass
 
         context['plans'] = Plan.objects.filter(product_id__in=[product.id for product in products])
-        context['free_plan'] = Plan.objects.filter(product_id__in=[product.id for product in products], type=Plan.FREE).first()
+        context['free_plan'] = Plan.objects.filter(
+            product_id__in=[product.id for product in products],
+            type=Plan.FREE
+        ).first()
         if self.request.user.is_authenticated:
             if Subscription.objects.filter(user=self.request.user).exists():
                 user_plan = Subscription.objects.get(user=self.request.user).plan
@@ -1007,7 +1012,12 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
             last_payment_method = payment_methods[-1]
             while next_page and loop < max_loops:
                 loop += 1
-                new_payment_methods = stripe.PaymentMethod.list(customer=customer.id, type="card", limit=100, starting_after=last_payment_method).data
+                new_payment_methods = stripe.PaymentMethod.list(
+                    customer=customer.id,
+                    type="card",
+                    limit=100,
+                    starting_after=last_payment_method
+                ).data
                 if len(new_payment_methods) == 100:
                     payment_methods.extend(new_payment_methods)
                     last_payment_method = new_payment_methods[-1]

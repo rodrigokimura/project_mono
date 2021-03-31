@@ -16,10 +16,10 @@ urlpatterns = [
     path("transactions/", views.TransactionListView.as_view(), name='transactions'),
     path("transactions/<int:year>/<int:month>/", views.TransactionMonthArchiveView.as_view(month_format='%m'), name='transaction_month'),
 
-    path("recurrent-transaction/", views.TransactionCreateView.as_view(), name='recurrent_transaction_create'),
-    path("recurrent-transaction/<int:pk>/", views.TransactionUpdateView.as_view(), name='recurrent_transaction_update'),
-    path("recurrent-transaction/<int:pk>/delete/", views.TransactionDeleteView.as_view(), name='recurrent_transaction_delete'),
-    path("recurrent-transactions/", views.TransactionListView.as_view(), name='recurrent_transactions'),
+    path("recurrent-transaction/", views.RecurrentTransactionCreateView.as_view(), name='recurrent_transaction_create'),
+    path("recurrent-transaction/<int:pk>/", views.RecurrentTransactionUpdateView.as_view(), name='recurrent_transaction_update'),
+    path("recurrent-transaction/<int:pk>/delete/", views.RecurrentTransactionDeleteView.as_view(), name='recurrent_transaction_delete'),
+    path("recurrent-transactions/", views.RecurrentTransactionListView.as_view(), name='recurrent_transactions'),
 
     path("account/", views.AccountCreateView.as_view(), name='account_create'),
     path("account/<int:pk>/", views.AccountUpdateView.as_view(), name='account_update'),

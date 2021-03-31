@@ -15,7 +15,7 @@ from faker.providers import lorem
 from captcha.fields import ReCaptchaField
 from random import randrange, randint
 import pytz
-from .models import BudgetConfiguration, Transaction, Group, Category, Account, Icon, Goal, Budget
+from .models import BudgetConfiguration, RecurrentTransaction, Transaction, Group, Category, Account, Icon, Goal, Budget
 
 User = get_user_model()
 
@@ -171,7 +171,6 @@ class AccountForm(forms.ModelForm):
 class TransactionForm(forms.ModelForm):
     error_css_class = 'error'
 
-    # type=HiddenInput()
     type = forms.CharField(
         widget=ButtonsWidget(choices=Category.TRANSACTION_TYPES))
 
@@ -242,13 +241,13 @@ class RecurrentTransactionForm(forms.ModelForm):
             self.fields['type'].initial = Category.EXPENSE
 
     def get_context_data(self, **kwargs):
-        context = super(TransactionForm, self).get_context_data(**kwargs)
+        context = super(RecurrentTransactionForm, self).get_context_data(**kwargs)
         categories = Category.objects.all()
         context['categories'] = categories
         return context
 
     class Meta:
-        model = Transaction
+        model = RecurrentTransaction
         fields = [
             "description",
             "timestamp",
@@ -268,7 +267,7 @@ class RecurrentTransactionForm(forms.ModelForm):
         category = self.instance
         category.created_by = self.request.user
         category.save()
-        return super(TransactionForm, self).save(*args, **kwargs)
+        return super(RecurrentTransactionForm, self).save(*args, **kwargs)
 
 
 class GroupForm(forms.ModelForm):
