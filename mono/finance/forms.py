@@ -235,6 +235,7 @@ class RecurrentTransactionForm(forms.ModelForm):
         self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
         self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
         self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['frequency'].widget.attrs.update({'class': 'ui dropdown'})
         if self.instance.pk is not None:
             self.fields['type'].initial = self.instance.category.type
         else:
@@ -251,6 +252,7 @@ class RecurrentTransactionForm(forms.ModelForm):
         fields = [
             "description",
             "timestamp",
+            "frequency",
             "account",
             "ammount",
             "category",
