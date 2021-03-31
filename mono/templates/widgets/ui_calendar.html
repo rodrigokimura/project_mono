@@ -8,7 +8,11 @@
       type="text" 
       name="{{ widget.name }}" 
       placeholder="{{ widget.placeholder|capfirst }}"
+      {% if type == "date" %}
       value="{{ widget.value|date:"SHORT_DATE_FORMAT" }}"
+      {% else %}
+      value="{{ widget.value|date:"c" }}"
+      {% endif %}
       >
   </div>
 </div>
