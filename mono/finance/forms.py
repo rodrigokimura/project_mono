@@ -382,9 +382,7 @@ class BudgetForm(forms.ModelForm):
         self.fields['accounts'].queryset = (shared_accounts | owned_accounts).distinct()
         self.fields['accounts'].widget.attrs.update({'class': 'ui dropdown'})
         self.fields['start_date'].widget.type = 'date'
-        self.fields['start_date'].widget.format = 'n/d/Y'
         self.fields['end_date'].widget.type = 'date'
-        self.fields['end_date'].widget.format = 'n/d/Y'
         created_categories = Category.objects.filter(
             created_by=self.request.user,
             internal_type=Category.DEFAULT,
@@ -395,6 +393,13 @@ class BudgetForm(forms.ModelForm):
             type=Category.EXPENSE)
         self.fields['categories'].queryset = (shared_categories | created_categories).distinct()
         self.fields['categories'].widget.attrs.update({'class': 'ui dropdown'})
+
+    def clean(self):
+        start_date = self.cleaned_data.get('start_date')
+        end_date = self.cleaned_data.get('end_date')
+        if start_date > end_date:
+            raise ValidationError(_("Your end date must be after your start date."))
+        return self.cleaned_data
 
     def save(self, *args, **kwargs):
         budget = self.instance
@@ -475,7 +480,7 @@ class UserForm(auth_forms.UserCreationForm):
     def clean(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
-            raise ValidationError("Email already exists. Please use another one.")
+            raise ValidationError(_("Email already exists. Please use another one."))
         return self.cleaned_data
 
     def save(self, commit=True):
