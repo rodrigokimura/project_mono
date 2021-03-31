@@ -2,6 +2,8 @@ from django.contrib import admin
 from . import models
 
 # Register your models here.
+
+
 @admin.register(models.PullRequest)
 class BudgetAdmin(admin.ModelAdmin):
     list_display = [
@@ -14,7 +16,7 @@ class BudgetAdmin(admin.ModelAdmin):
         "merged_at",
         "received_at",
         "pulled_at",
-        "deployed_at",        
+        "deployed_at",
     ]
     list_filter = [
         "author",

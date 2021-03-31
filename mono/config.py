@@ -18,7 +18,9 @@ for command in commands:
         stderr=subprocess.STDOUT
     )
 
-    stdout,stderr = Output.communicate()
-    
-    if stdout is not None: print(f"[OUTPUT] {stdout.decode()}")
-    if stderr is not None: print(f"[ERROR] {stderr.decode()}")
+    stdout, stderr = Output.communicate()
+
+    if stdout is not None:
+        print(f"[OUTPUT] {stdout.decode()}")
+    if stderr is not None:
+        print(f"[ERROR] {stderr.decode()}")

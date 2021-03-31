@@ -1,9 +1,10 @@
 from django.core.management.base import BaseCommand, CommandError
 from ...models import PullRequest
 
+
 class Command(BaseCommand):
     help = 'Command to deploy the app based on last pulled PR'
-        
+
     def handle(self, *args, **options):
         try:
             pr = PullRequest.objects.latest('number')
