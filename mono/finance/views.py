@@ -167,13 +167,13 @@ class TransactionListView(LoginRequiredMixin, ListView):
         qs = qs.annotate(
             total_expense=Coalesce(
                 Sum(
-                    'ammount',
+                    'amount',
                     filter=Q(category__type='EXP')
                 ), V(0)
             ),
             total_income=Coalesce(
                 Sum(
-                    'ammount',
+                    'amount',
                     filter=Q(category__type='INC')
                 ), V(0)
             )
@@ -260,13 +260,13 @@ class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
         qs = qs.annotate(
             total_expense=Coalesce(
                 Sum(
-                    'ammount',
+                    'amount',
                     filter=Q(category__type='EXP')
                 ), V(0)
             ),
             total_income=Coalesce(
                 Sum(
-                    'ammount',
+                    'amount',
                     filter=Q(category__type='INC')
                 ), V(0)
             )
