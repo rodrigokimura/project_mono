@@ -15,7 +15,7 @@ from faker.providers import lorem
 from captcha.fields import ReCaptchaField
 from random import randrange, randint
 import pytz
-from .models import BudgetConfiguration, RecurrentTransaction, Transaction, Group, Category, Account, Icon, Goal, Budget
+from .models import BudgetConfiguration, Installment, RecurrentTransaction, Transaction, Group, Category, Account, Icon, Goal, Budget
 
 User = get_user_model()
 
@@ -270,6 +270,57 @@ class RecurrentTransactionForm(forms.ModelForm):
         category.created_by = self.request.user
         category.save()
         return super(RecurrentTransactionForm, self).save(*args, **kwargs)
+
+
+class InstallmentForm(forms.ModelForm):
+    error_css_class = 'error'
+
+    type = forms.CharField(
+        widget=ButtonsWidget(choices=Category.TRANSACTION_TYPES))
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+        owned_accounts = Account.objects.filter(owned_by=self.request.user)
+        shared_accounts = Account.objects.filter(group__members=self.request.user)
+        self.fields['description'].widget.attrs.update({'placeholder': _('Description')})
+        self.fields['total_amount'].widget.attrs.update({'placeholder': _('Total amount')})
+        self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
+        self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
+        self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['handle_remainder'].widget.attrs.update({'class': 'ui dropdown'})
+        if self.instance.pk is not None:
+            self.fields['type'].initial = self.instance.category.type
+        else:
+            self.fields['type'].initial = Category.EXPENSE
+
+    def get_context_data(self, **kwargs):
+        context = super(InstallmentForm, self).get_context_data(**kwargs)
+        categories = Category.objects.all()
+        context['categories'] = categories
+        return context
+
+    class Meta:
+        model = Installment
+        fields = [
+            "description",
+            "timestamp",
+            "account",
+            "total_amount",
+            "category",
+            "handle_remainder",
+        ]
+        exclude = ['created_by']
+        widgets = {
+            'category': CategoryWidget,
+            'timestamp': CalendarWidget,
+        }
+
+    def save(self, *args, **kwargs):
+        category = self.instance
+        category.created_by = self.request.user
+        category.save()
+        return super(InstallmentForm, self).save(*args, **kwargs)
 
 
 class GroupForm(forms.ModelForm):
