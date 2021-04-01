@@ -939,26 +939,24 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
             currency = 'usd'
 
         # Get Plans for the plan
-        prices = stripe.Plan.list(product=product.id, active=True, currency=currency).data
+        plans = stripe.Plan.list(product=product.id, active=True, currency=currency).data
 
         # Get monthly plan price
-        prices_for_context = []
+        plans_for_context = []
         try:
-            monthly_price = list(filter(lambda price: price.recurring.interval == 'month', prices))[0]
-            context['monthly_price'] = monthly_price
-            prices_for_context.append(monthly_price)
+            monthly_price = list(filter(lambda price: price.interval == 'month', plans))[0]
+            plans_for_context.append(monthly_price)
         except Exception as e:
             print(e)
 
         # Get yearly plan price
         try:
-            yearly_price = list(filter(lambda price: price.recurring.interval == 'year', prices))[0]
-            context['yearly_price'] = yearly_price
-            prices_for_context.append(yearly_price)
+            yearly_price = list(filter(lambda price: price.interval == 'year', plans))[0]
+            plans_for_context.append(yearly_price)
         except Exception as e:
             print(e)
 
-        context['prices'] = prices_for_context
+        context['plans'] = plans_for_context
 
         return context
 

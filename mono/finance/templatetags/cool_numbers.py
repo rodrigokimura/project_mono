@@ -24,7 +24,7 @@ def stripe_currency(val, currency):
         int_val = int(val)
     except ValueError:
         raise template.TemplateSyntaxError(
-            f'Value must be an integer. {val} is not an integer')
+            f'Value must be an integer. "{val}" is not an integer')
 
     if currency == 'brl':
         decimal_places = 2
