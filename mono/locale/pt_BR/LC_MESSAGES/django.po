@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-01 10:21-0300\n"
+"POT-Creation-Date: 2021-04-01 16:11-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,7 +26,7 @@ msgstr "Inglês americano"
 msgid "Brasilian Portuguese"
 msgstr "Português brasileiro"
 
-#: .\finance\forms.py:182 .\finance\forms.py:233
+#: .\finance\forms.py:182 .\finance\forms.py:233 .\finance\forms.py:286
 msgid "Description"
 msgstr "Descrição"
 
@@ -34,23 +34,27 @@ msgstr "Descrição"
 msgid "Amount"
 msgstr "Quantidade"
 
-#: .\finance\forms.py:401
+#: .\finance\forms.py:287
+msgid "Total amount"
+msgstr "Quantidade total"
+
+#: .\finance\forms.py:452
 msgid "Your end date must be after your start date."
 msgstr "A data final deve ser maior que a data inicial."
 
-#: .\finance\forms.py:475
+#: .\finance\forms.py:526
 msgid "Email"
 msgstr "E-mail"
 
-#: .\finance\forms.py:483
+#: .\finance\forms.py:534
 msgid "Email already exists. Please use another one."
 msgstr "O e-mail já existe. Por favor, use outro."
 
-#: .\finance\models.py:23 .\finance\models.py:68
+#: .\finance\models.py:23 .\finance\models.py:69 .\finance\models.py:157
 msgid "description"
 msgstr "descrição"
 
-#: .\finance\models.py:26 .\finance\models.py:71
+#: .\finance\models.py:26 .\finance\models.py:72 .\finance\models.py:159
 msgid "created by"
 msgstr "criado por"
 
@@ -58,158 +62,167 @@ msgstr "criado por"
 msgid "created at"
 msgstr "criado em"
 
-#: .\finance\models.py:29 .\finance\models.py:73
+#: .\finance\models.py:29 .\finance\models.py:74 .\finance\models.py:160
 msgid "timestamp"
 msgstr "data/hora"
 
-#: .\finance\models.py:31 .\finance\models.py:75
+#: .\finance\models.py:31 .\finance\models.py:76
 msgid "amount"
 msgstr "quantidade"
 
-#: .\finance\models.py:32 .\finance\models.py:76 .\finance\models.py:202
+#: .\finance\models.py:32 .\finance\models.py:77 .\finance\models.py:163
+#: .\finance\models.py:254
 msgid "category"
 msgstr "categoria"
 
-#: .\finance\models.py:33 .\finance\models.py:77
+#: .\finance\models.py:33 .\finance\models.py:78 .\finance\models.py:164
 msgid "account"
 msgstr "conta"
 
-#: .\finance\models.py:34 .\finance\models.py:78
+#: .\finance\models.py:34 .\finance\models.py:79
 msgid "active"
 msgstr "ativo"
 
-#: .\finance\models.py:38
+#: .\finance\models.py:36
+msgid "installment"
+msgstr "parcelamento"
+
+#: .\finance\models.py:39
 msgid "transaction"
 msgstr "transação"
 
-#: .\finance\models.py:39
+#: .\finance\models.py:40
 msgid "transactions"
 msgstr "transações"
 
-#: .\finance\models.py:98 .\finance\models.py:357
+#: .\finance\models.py:104 .\finance\models.py:409
 msgid "Monday"
 msgstr "Segunda-feira"
 
-#: .\finance\models.py:99 .\finance\models.py:358
+#: .\finance\models.py:105 .\finance\models.py:410
 msgid "Tuesday"
 msgstr "Terça-feira"
 
-#: .\finance\models.py:100 .\finance\models.py:359
+#: .\finance\models.py:106 .\finance\models.py:411
 msgid "Wednesday"
 msgstr "Quarta-feira"
 
-#: .\finance\models.py:101 .\finance\models.py:360
+#: .\finance\models.py:107 .\finance\models.py:412
 msgid "Thursday"
 msgstr "Quinta-feira"
 
-#: .\finance\models.py:102 .\finance\models.py:361
+#: .\finance\models.py:108 .\finance\models.py:413
 msgid "Friday"
 msgstr "Sexta-feira"
 
-#: .\finance\models.py:103 .\finance\models.py:362
+#: .\finance\models.py:109 .\finance\models.py:414
 msgid "Saturday"
 msgstr "Sábado"
 
-#: .\finance\models.py:104 .\finance\models.py:363
+#: .\finance\models.py:110 .\finance\models.py:415
 msgid "Sunday"
 msgstr "Domingo"
 
-#: .\finance\models.py:107 .\finance\models.py:366
+#: .\finance\models.py:113 .\finance\models.py:418
 msgid "January"
 msgstr "Janeiro"
 
-#: .\finance\models.py:108 .\finance\models.py:367
+#: .\finance\models.py:114 .\finance\models.py:419
 msgid "February"
 msgstr "Fevereiro"
 
-#: .\finance\models.py:109 .\finance\models.py:368
+#: .\finance\models.py:115 .\finance\models.py:420
 msgid "March"
 msgstr "Março"
 
-#: .\finance\models.py:110 .\finance\models.py:369
+#: .\finance\models.py:116 .\finance\models.py:421
 msgid "April"
 msgstr "Abril"
 
-#: .\finance\models.py:111 .\finance\models.py:370
+#: .\finance\models.py:117 .\finance\models.py:422
 msgid "May"
 msgstr "Maio"
 
-#: .\finance\models.py:112 .\finance\models.py:371
+#: .\finance\models.py:118 .\finance\models.py:423
 msgid "June"
 msgstr "Junho"
 
-#: .\finance\models.py:113 .\finance\models.py:372
+#: .\finance\models.py:119 .\finance\models.py:424
 msgid "July"
 msgstr "Julho"
 
-#: .\finance\models.py:114 .\finance\models.py:373
+#: .\finance\models.py:120 .\finance\models.py:425
 msgid "August"
 msgstr "Agosto"
 
-#: .\finance\models.py:115 .\finance\models.py:374
+#: .\finance\models.py:121 .\finance\models.py:426
 msgid "September"
 msgstr "Setembro"
 
-#: .\finance\models.py:116 .\finance\models.py:375
+#: .\finance\models.py:122 .\finance\models.py:427
 msgid "October"
 msgstr "Outubro"
 
-#: .\finance\models.py:117 .\finance\models.py:376
+#: .\finance\models.py:123 .\finance\models.py:428
 msgid "November"
 msgstr "Novembro"
 
-#: .\finance\models.py:118 .\finance\models.py:377
+#: .\finance\models.py:124 .\finance\models.py:429
 msgid "December"
 msgstr "Dezembro"
 
-#: .\finance\models.py:121 .\finance\models.py:380
+#: .\finance\models.py:127 .\finance\models.py:432
 #, python-format
 msgid "Every %(d)s of each week."
 msgstr "A cada %(d)s de cada semana."
 
-#: .\finance\models.py:123 .\finance\models.py:382
+#: .\finance\models.py:129 .\finance\models.py:434
 #, python-format
 msgid "Every day %(d)s of each month."
 msgstr "A cada dia %(d)s de cada mês."
 
-#: .\finance\models.py:125 .\finance\models.py:384
+#: .\finance\models.py:131 .\finance\models.py:436
 #, python-format
 msgid "Every day %(d)s of %(m)s of each year."
 msgstr "A cada %(d)s de %(m)s de cada ano."
 
-#: .\finance\models.py:149
+#: .\finance\models.py:162
+msgid "total amount"
+msgstr "quantidade total"
+
+#: .\finance\models.py:201
 msgid "icon"
 msgstr "ícone"
 
-#: .\finance\models.py:150
+#: .\finance\models.py:202
 msgid "icons"
 msgstr "ícones"
 
-#: .\finance\models.py:157
+#: .\finance\models.py:209
 msgid "Income"
 msgstr "Entrada"
 
-#: .\finance\models.py:158
+#: .\finance\models.py:210
 msgid "Expense"
 msgstr "Gasto"
 
-#: .\finance\models.py:203
+#: .\finance\models.py:255
 msgid "categories"
 msgstr "categorias"
 
-#: .\finance\models.py:624
+#: .\finance\models.py:676
 msgid "Free"
 msgstr "Gratuito"
 
-#: .\finance\models.py:625
+#: .\finance\models.py:677
 msgid "Lifetime"
 msgstr "Vitalício"
 
-#: .\finance\models.py:626
+#: .\finance\models.py:678
 msgid "Default"
 msgstr "Padrão"
 
-#: .\finance\models.py:627
+#: .\finance\models.py:679
 msgid "Recommended"
 msgstr "Recomendado"
 
@@ -232,6 +245,10 @@ msgstr "Recuperação de senha concluída"
 #: .\finance\views.py:211 .\finance\views.py:311
 msgid "Transaction was deleted successfully"
 msgstr "A transação foi excluída com sucesso"
+
+#: .\finance\views.py:352
+msgid "Installment group was deleted successfully"
+msgstr "O grupo de parcelamentos foi excluído com sucesso"
 
 #: .\templates\finance\base.html:71
 msgid "Home"
@@ -275,9 +292,10 @@ msgstr "Sair"
 
 #: .\templates\finance\budget_list.html:82
 #: .\templates\finance\budgetconfiguration_list.html:72
+#: .\templates\finance\installment_list.html:70
 #: .\templates\finance\recurrenttransaction_list.html:73
 #: .\templates\finance\transaction_archive_month.html:107
-#: .\templates\finance\transaction_list.html:134
+#: .\templates\finance\transaction_list.html:169
 msgid "Actions"
 msgstr "Ações"
 
@@ -291,9 +309,10 @@ msgstr "Agendar orçamentos"
 
 #: .\templates\finance\budget_list.html:94
 #: .\templates\finance\budgetconfiguration_list.html:80
+#: .\templates\finance\installment_list.html:83
 #: .\templates\finance\recurrenttransaction_list.html:86
 #: .\templates\finance\transaction_archive_month.html:115
-#: .\templates\finance\transaction_list.html:147
+#: .\templates\finance\transaction_list.html:187
 msgid "Views"
 msgstr "Visualizações"
 
@@ -367,10 +386,8 @@ msgid "Now we need your payment info."
 msgstr "Agora precisamos das suas informações de pagamento."
 
 #: .\templates\finance\checkout.html:167
-#, fuzzy
-#| msgid "Subscription"
 msgid "Subscribe"
-msgstr "Assinatura"
+msgstr "Inscrever-se"
 
 #: .\templates\finance\faker.html:24
 msgid "SECURITY ALERT"
@@ -382,6 +399,76 @@ msgid ""
 msgstr ""
 "Esta página contém funcionalidades extremamente sensíveis. Por favor, tenha "
 "cuidado."
+
+#: .\templates\finance\installment_form.html:23
+#: .\templates\finance\recurrenttransaction_form.html:23
+#: .\templates\finance\transaction_form.html:23
+msgid "Save"
+msgstr "Salvar"
+
+#: .\templates\finance\installment_form.html:25
+#: .\templates\finance\installment_form.html:31
+#: .\templates\finance\recurrenttransaction_form.html:25
+#: .\templates\finance\recurrenttransaction_form.html:31
+#: .\templates\finance\transaction_form.html:25
+#: .\templates\finance\transaction_form.html:31
+msgid "or"
+msgstr "ou"
+
+#: .\templates\finance\installment_form.html:29
+#: .\templates\finance\recurrenttransaction_form.html:29
+#: .\templates\finance\transaction_form.html:29
+msgid "Delete"
+msgstr "Excluir"
+
+#: .\templates\finance\installment_form.html:34
+#: .\templates\finance\recurrenttransaction_form.html:34
+#: .\templates\finance\transaction_form.html:34
+#: .\templates\finance\transaction_list.html:118
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: .\templates\finance\installment_list.html:19
+#: .\templates\finance\recurrenttransaction_list.html:19
+#: .\templates\finance\transaction_list.html:19
+msgid "Category"
+msgstr "Categoria"
+
+#: .\templates\finance\installment_list.html:27
+#: .\templates\finance\recurrenttransaction_list.html:27
+#: .\templates\finance\transaction_list.html:27
+msgid "Account"
+msgstr "Conta"
+
+#: .\templates\finance\installment_list.html:35
+#: .\templates\finance\recurrenttransaction_list.html:35
+#: .\templates\finance\transaction_list.html:35
+msgid "Filter"
+msgstr "Filtrar"
+
+#: .\templates\finance\installment_list.html:36
+#: .\templates\finance\recurrenttransaction_list.html:36
+#: .\templates\finance\transaction_list.html:36
+msgid "Clear"
+msgstr "Limpar"
+
+#: .\templates\finance\installment_list.html:75
+#: .\templates\finance\recurrenttransaction_list.html:78
+#: .\templates\finance\transaction_archive_month.html:111
+#: .\templates\finance\transaction_list.html:174
+msgid "Add transaction"
+msgstr "Adicionar transação"
+
+#: .\templates\finance\installment_list.html:79
+#: .\templates\finance\recurrenttransaction_list.html:82
+#: .\templates\finance\transaction_list.html:183
+msgid "Add recurrent transaction"
+msgstr "Adicionar transação recorrente"
+
+#: .\templates\finance\installment_list.html:88
+#: .\templates\finance\recurrenttransaction_list.html:91
+msgid "Go to transactions"
+msgstr "Ir para as transações"
 
 #: .\templates\finance\login.html:17
 msgid "Login to your account!"
@@ -403,63 +490,6 @@ msgstr "É novo aqui?"
 msgid "Subscribed"
 msgstr "Inscrito"
 
-#: .\templates\finance\recurrenttransaction_form.html:23
-#: .\templates\finance\transaction_form.html:23
-msgid "Save"
-msgstr "Salvar"
-
-#: .\templates\finance\recurrenttransaction_form.html:25
-#: .\templates\finance\recurrenttransaction_form.html:31
-#: .\templates\finance\transaction_form.html:25
-#: .\templates\finance\transaction_form.html:31
-msgid "or"
-msgstr "ou"
-
-#: .\templates\finance\recurrenttransaction_form.html:29
-#: .\templates\finance\transaction_form.html:29
-msgid "Delete"
-msgstr "Excluir"
-
-#: .\templates\finance\recurrenttransaction_form.html:34
-#: .\templates\finance\transaction_form.html:34
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: .\templates\finance\recurrenttransaction_list.html:19
-#: .\templates\finance\transaction_list.html:19
-msgid "Category"
-msgstr "Categoria"
-
-#: .\templates\finance\recurrenttransaction_list.html:27
-#: .\templates\finance\transaction_list.html:27
-msgid "Account"
-msgstr "Conta"
-
-#: .\templates\finance\recurrenttransaction_list.html:35
-#: .\templates\finance\transaction_list.html:35
-msgid "Filter"
-msgstr "Filtrar"
-
-#: .\templates\finance\recurrenttransaction_list.html:36
-#: .\templates\finance\transaction_list.html:36
-msgid "Clear"
-msgstr "Limpar"
-
-#: .\templates\finance\recurrenttransaction_list.html:78
-#: .\templates\finance\transaction_archive_month.html:111
-#: .\templates\finance\transaction_list.html:139
-msgid "Add transaction"
-msgstr "Adicionar transação"
-
-#: .\templates\finance\recurrenttransaction_list.html:82
-#: .\templates\finance\transaction_list.html:143
-msgid "Add recurrent transaction"
-msgstr "Adicionar transação recorrente"
-
-#: .\templates\finance\recurrenttransaction_list.html:91
-msgid "Go to transactions"
-msgstr "Ir para as transações"
-
 #: .\templates\finance\signup.html:17
 msgid "Sign up here!"
 msgstr "Inscreva-se aqui!"
@@ -476,11 +506,39 @@ msgstr "Já se inscreveu? Então logue aqui."
 msgid "Go to List View"
 msgstr "Visualizar como Lista"
 
-#: .\templates\finance\transaction_list.html:153
+#: .\templates\finance\transaction_list.html:112
+msgid "Installment"
+msgstr "Parcelamento"
+
+#: .\templates\finance\transaction_list.html:115
+msgid ""
+"You are trying to edit a installment. Do you want to edit the group of "
+"installments, or just this one?"
+msgstr ""
+"Você está tentando editar um pagamento parcelado. Você gostaria de editar "
+"o grupo de parcelas, ou somente essa transação?"
+
+#: .\templates\finance\transaction_list.html:119
+msgid "Just this one"
+msgstr "Somente essa transação"
+
+#: .\templates\finance\transaction_list.html:120
+msgid "Group of installments"
+msgstr "Grupo de parcelas"
+
+#: .\templates\finance\transaction_list.html:179
+msgid "Add transactions in installments"
+msgstr "Adicionar pagamento parcelado"
+
+#: .\templates\finance\transaction_list.html:193
 msgid "Go to Calendar View"
 msgstr "Visualizar como Calendário"
 
-#: .\templates\finance\transaction_list.html:158
+#: .\templates\finance\transaction_list.html:199
+msgid "Go to installments"
+msgstr "Ir para as transações parceladas"
+
+#: .\templates\finance\transaction_list.html:204
 msgid "Go to recurrent transactions"
 msgstr "Ir para as transações recorrentes"
 
