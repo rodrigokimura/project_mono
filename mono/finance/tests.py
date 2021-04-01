@@ -8,19 +8,19 @@ from .views import AccountCreateView
 
 class TransactionModelTests(TestCase):
 
-    def test_signed_ammount_with_income(self):
+    def test_signed_amount_with_income(self):
         category = Category(type=Category.INCOME)
         income = Transaction(
-            ammount=10,
+            amount=10,
             category=category)
-        self.assertIs(income.signed_ammount > 0, True)
+        self.assertIs(income.signed_amount > 0, True)
 
-    def test_signed_ammount_with_expense(self):
+    def test_signed_amount_with_expense(self):
         category = Category(type=Category.EXPENSE)
         expense = Transaction(
-            ammount=10,
+            amount=10,
             category=category)
-        self.assertIs(expense.signed_ammount < 0, True)
+        self.assertIs(expense.signed_amount < 0, True)
 
 
 class UserModelTests(TestCase):
@@ -115,7 +115,7 @@ class UserCreationTests(TestCase):
 
         transaction = Transaction.objects.create(
             description="Test",
-            ammount=100,
+            amount=100,
             account=self.account,
             created_by=self.user_1,
             category=Category.objects.filter(created_by=self.user_1, type=Category.EXPENSE).first()

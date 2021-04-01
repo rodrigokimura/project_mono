@@ -13,7 +13,7 @@ class TransactionAdmin(admin.ModelAdmin):
         "created_by",
         "created_at",
         "timestamp",
-        "ammount",
+        "amount",
         "type",
         "category",
         "account",
@@ -87,13 +87,13 @@ class AccountAdmin(admin.ModelAdmin):
 @admin.register(models.Budget)
 class BudgetAdmin(admin.ModelAdmin):
     list_display = [
-        "ammount",
+        "amount",
         "start_date",
         "end_date",
         "configuration",
     ]
     list_filter = [
-        "ammount",
+        "amount",
         "start_date",
         "end_date",
         "configuration",
@@ -104,13 +104,13 @@ class BudgetAdmin(admin.ModelAdmin):
 class BudgetConfigurationAdmin(admin.ModelAdmin):
     list_display = [
         "created_by",
-        "ammount",
+        "amount",
         "frequency",
         "start_date",
     ]
     list_filter = [
         "created_by",
-        "ammount",
+        "amount",
         "frequency",
         "start_date",
     ]
