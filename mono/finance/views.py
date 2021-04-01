@@ -938,8 +938,8 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
         else:
             currency = 'usd'
 
-        # Get prices for the plan
-        prices = stripe.Price.list(product=product.id, active=True, currency=currency).data
+        # Get Plans for the plan
+        prices = stripe.Plan.list(product=product.id, active=True, currency=currency).data
 
         # Get monthly plan price
         prices_for_context = []
