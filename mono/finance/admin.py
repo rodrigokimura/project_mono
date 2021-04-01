@@ -18,6 +18,8 @@ class TransactionAdmin(admin.ModelAdmin):
         "category",
         "account",
         "active",
+        "recurrent",
+        "installment",
     ]
     list_filter = [
         "created_by",
@@ -26,6 +28,47 @@ class TransactionAdmin(admin.ModelAdmin):
         "category__type",
         "category__name",
         "active",
+    ]
+
+
+@admin.register(models.RecurrentTransaction)
+class RecurrentTransactionAdmin(admin.ModelAdmin):
+    list_display = [
+        "description",
+        "created_by",
+        "timestamp",
+        "amount",
+        "type",
+        "category",
+        "account",
+        "active",
+        "frequency",
+    ]
+    list_filter = [
+        "created_by",
+        "timestamp",
+        "category__type",
+        "category__name",
+        "active",
+        "frequency",
+    ]
+
+
+@admin.register(models.Installment)
+class InstallmentAdmin(admin.ModelAdmin):
+    list_display = [
+        "description",
+        "created_by",
+        "timestamp",
+        "total_amount",
+        "category",
+        "account",
+    ]
+    list_filter = [
+        "created_by",
+        "timestamp",
+        "category__type",
+        "category__name",
     ]
 
 
