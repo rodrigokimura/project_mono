@@ -28,7 +28,7 @@ class Transaction(models.Model):
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     timestamp = models.DateTimeField(_("timestamp"), default=timezone.now,
                                      help_text="Timestamp when transaction occurred. User defined.")
-    ammount = models.FloatField(_("ammount"), help_text="Ammount related to the transaction. Absolute value, no positive/negative signs.")
+    amount = models.FloatField(_("amount"), help_text="Amount related to the transaction. Absolute value, no positive/negative signs.")
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
     account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
     active = models.BooleanField(_("active"), default=True)
@@ -44,12 +44,12 @@ class Transaction(models.Model):
         return self.category.type
 
     @property
-    def signed_ammount(self):
-        """Same as ammount, but with positive/negative sign, depending on :model:`finance.Category` type."""
+    def signed_amount(self):
+        """Same as amount, but with positive/negative sign, depending on :model:`finance.Category` type."""
         sign = 1
         if self.category.type == 'EXP':
             sign = -1
-        return self.ammount * sign
+        return self.amount * sign
 
     def __str__(self) -> str:
         return self.description
@@ -72,7 +72,7 @@ class RecurrentTransaction(models.Model):
                                    help_text="Identifies who created the transaction.")
     timestamp = models.DateTimeField(_("timestamp"), default=timezone.now,
                                      help_text="Timestamp when transaction occurred. User defined.")
-    ammount = models.FloatField(_("ammount"), help_text="Ammount related to the transaction. Absolute value, no positive/negative signs.")
+    amount = models.FloatField(_("amount"), help_text="Amount related to the transaction. Absolute value, no positive/negative signs.")
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
     account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
     active = models.BooleanField(_("active"), default=True)
@@ -131,7 +131,7 @@ class RecurrentTransaction(models.Model):
                 description=self.description,
                 created_by=self.created_by,
                 timestamp=datetime.combine(reference_date, datetime.min.time()),
-                ammount=self.ammount,
+                amount=self.amount,
                 category=self.category,
                 account=self.account,
                 recurrent=self,
@@ -245,7 +245,7 @@ class Account(models.Model):
         qs = Transaction.objects.filter(account=self.pk)
         sum = self.initial_balance
         for t in qs:
-            sum += t.signed_ammount
+            sum += t.signed_amount
         return sum
 
     @property
@@ -276,7 +276,7 @@ class Account(models.Model):
                 type=type,
                 internal_type=Category.ADJUSTMENT
             )
-        transaction = Transaction(ammount=abs(diff))
+        transaction = Transaction(amount=abs(diff))
         transaction.category = adjustment_category
         transaction.description = "Balance adjustment"
         transaction.account = self
@@ -311,7 +311,7 @@ class Goal(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     start_date = models.DateField(default=timezone.now)
     target_date = models.DateField()
-    target_ammount = models.FloatField()
+    target_amount = models.FloatField()
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     progression_mode = models.CharField(max_length=1, choices=PROGRESSION_MODES, default=CONSTANT)
     frequency = models.CharField(max_length=1, choices=GOAL_FREQUENCY, default=MONTHLY, editable=False)
@@ -330,7 +330,7 @@ class BudgetConfiguration(models.Model):
         (YEARLY, 'Yearly'),
     ]
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    ammount = models.FloatField()
+    amount = models.FloatField()
     start_date = models.DateField()
     frequency = models.CharField(max_length=1, choices=FREQUENCY, default=MONTHLY)
     accounts = models.ManyToManyField(Account)
@@ -396,7 +396,7 @@ class BudgetConfiguration(models.Model):
         if not Budget.objects.filter(configuration=self, start_date=reference_date).exists() and self.is_schedule_date(reference_date):
             budget = Budget(
                 created_by=self.created_by,
-                ammount=self.ammount,
+                amount=self.amount,
                 start_date=reference_date,
                 end_date=reference_date + delta + relativedelta(days=-1),
                 configuration=self,
@@ -409,7 +409,7 @@ class BudgetConfiguration(models.Model):
 
 class Budget(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    ammount = models.FloatField()
+    amount = models.FloatField()
     start_date = models.DateField(default=timezone.now)
     end_date = models.DateField()
     accounts = models.ManyToManyField(Account)
@@ -417,7 +417,7 @@ class Budget(models.Model):
     configuration = models.ForeignKey(BudgetConfiguration, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self) -> str:
-        return f'{str(self.configuration)} - {self.ammount}'
+        return f'{str(self.configuration)} - {self.amount}'
 
     @property
     def open(self):
@@ -452,23 +452,23 @@ class Budget(models.Model):
         )
 
     @property
-    def ammount_spent(self):
-        return self.spent_queryset.aggregate(sum=Coalesce(Sum("ammount"), V(0)))['sum']
+    def amount_spent(self):
+        return self.spent_queryset.aggregate(sum=Coalesce(Sum("amount"), V(0)))['sum']
 
     @property
-    def ammount_progress(self):
+    def amount_progress(self):
         try:
-            progress = self.ammount_spent / self.ammount
+            progress = self.amount_spent / self.amount
         except ZeroDivisionError:
             progress = 0
         return progress
 
     @property
     def status(self):
-        threshold = (.9 * self.ammount)
-        if self.ammount_spent < threshold:
+        threshold = (.9 * self.amount)
+        if self.amount_spent < threshold:
             status = 'success'
-        elif threshold <= self.ammount_spent < self.ammount_spent:
+        elif threshold <= self.amount_spent < self.amount_spent:
             status = 'warning'
         else:
             status = 'error'
@@ -476,13 +476,13 @@ class Budget(models.Model):
 
     @property
     def progress_bar_color(self):
-        if self.ammount_progress < .6:
+        if self.amount_progress < .6:
             color = 'green'
-        elif .6 <= self.ammount_progress < .8:
+        elif .6 <= self.amount_progress < .8:
             color = 'olive'
-        elif .8 <= self.ammount_progress < .9:
+        elif .8 <= self.amount_progress < .9:
             color = 'yellow'
-        elif .9 <= self.ammount_progress < .95:
+        elif .9 <= self.amount_progress < .95:
             color = 'orange'
         else:
             color = 'red'
