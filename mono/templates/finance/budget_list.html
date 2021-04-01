@@ -59,11 +59,11 @@
           
       </div>
       <div class="ui segment">
-        <div class="ui ammount {{ budget.progress_bar_color }} progress" data-value="{{ budget.ammount_spent|stringformat:'f' }}" data-total="{{ budget.ammount|stringformat:'f' }}">
+        <div class="ui amount {{ budget.progress_bar_color }} progress" data-value="{{ budget.amount_spent|stringformat:'f' }}" data-total="{{ budget.amount|stringformat:'f' }}">
           <div class="bar">
             <div class="progress"></div>
           </div>
-          <div class="label">{{ budget.ammount_spent }} of {{ budget.ammount }} spent</div>
+          <div class="label">{{ budget.amount_spent }} of {{ budget.amount }} spent</div>
         </div>
         <div class="ui time progress" data-value="{{ budget.time_spent }}" data-total="{{ budget.time_total }}">
           <div class="bar">
@@ -139,7 +139,7 @@
     .closest('.message')
     .transition('fade');
   });
-  $('*.ui.ammount.progress').toArray().forEach(
+  $('*.ui.amount.progress').toArray().forEach(
     item => {
       value = $(item).data('value');
       total = $(item).data('total');
