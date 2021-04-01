@@ -34,5 +34,6 @@ jobs:
     - name: Test with django test
       run: |
         export APP_ENV=DEV
+        export STRIPE_SECRET_KEY=${{ secrets.SECRET_TOKEN }}
         cd mono
         python manage.py test
