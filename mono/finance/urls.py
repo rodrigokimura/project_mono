@@ -21,6 +21,11 @@ urlpatterns = [
     path("recurrent-transaction/<int:pk>/delete/", views.RecurrentTransactionDeleteView.as_view(), name='recurrent_transaction_delete'),
     path("recurrent-transactions/", views.RecurrentTransactionListView.as_view(), name='recurrent_transactions'),
 
+    path("installment/", views.InstallmentCreateView.as_view(), name='installment_create'),
+    path("installment/<int:pk>/", views.InstallmentUpdateView.as_view(), name='installment_update'),
+    path("installment/<int:pk>/delete/", views.InstallmentDeleteView.as_view(), name='installment_delete'),
+    path("installments/", views.InstallmentListView.as_view(), name='installments'),
+
     path("account/", views.AccountCreateView.as_view(), name='account_create'),
     path("account/<int:pk>/", views.AccountUpdateView.as_view(), name='account_update'),
     path("account/<int:pk>/detail/", views.AccountDetailView.as_view(), name='account_detail'),

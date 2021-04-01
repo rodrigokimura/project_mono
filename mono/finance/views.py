@@ -22,10 +22,10 @@ from django.db.models import F, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
 from django.utils.translation import gettext as _
 from django.utils import timezone
-from .models import (BudgetConfiguration, Transaction, Account, Group,
+from .models import (BudgetConfiguration, Installment, Transaction, Account, Group,
                      Category, Icon, Goal, Invite, Notification, Budget, User, Plan,
                      Subscription, RecurrentTransaction)
-from .forms import (BudgetConfigurationForm, TransactionForm, GroupForm,
+from .forms import (BudgetConfigurationForm, InstallmentForm, TransactionForm, GroupForm,
                     CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm,
                     BudgetForm, RecurrentTransactionForm)
 import time
@@ -315,7 +315,48 @@ class RecurrentTransactionDeleteView(UserPassesTestMixin, SuccessMessageMixin, D
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(TransactionDeleteView, self).delete(request, *args, **kwargs)
+        return super(RecurrentTransactionDeleteView, self).delete(request, *args, **kwargs)
+
+
+class InstallmentListView(LoginRequiredMixin, ListView):
+    model = Installment
+
+    def get_queryset(self):
+        qs = Installment.objects.filter(
+            created_by=self.request.user
+        ).order_by('-timestamp')
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class InstallmentCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    model = Installment
+    form_class = InstallmentForm
+    success_url = reverse_lazy('finance:installments')
+    success_message = "%(description)s was created successfully"
+
+
+class InstallmentUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    model = Installment
+    form_class = InstallmentForm
+    success_url = reverse_lazy('finance:installments')
+    success_message = "%(description)s was updated successfully"
+
+
+class InstallmentDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    model = Installment
+    success_url = reverse_lazy('finance:installments')
+    success_message = _("Installment group was deleted successfully")
+
+    def test_func(self):
+        return self.get_object().created_by == self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(InstallmentDeleteView, self).delete(request, *args, **kwargs)
 
 
 class AccountListView(LoginRequiredMixin, ListView):
