@@ -105,6 +105,40 @@
             {{ transaction.account }}
           </div>
           <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+            {% if transaction.installment %}
+
+            <div class="ui small installment modal" data-id="{{ transaction.pk }}">
+              <div class="ui header">
+                {% translate "Installment" %}
+              </div>
+              <div class="content">
+                <p>{% translate "You are trying to edit a installment. Do you want to edit the group of installments, or just this one?" %}</p>
+              </div>
+              <div class="actions">
+                <div class="ui red cancel button">{% translate "Cancel" %}</div>
+                <a class="ui button" href="{% url 'finance:transaction_update' pk=transaction.pk %}">{% translate "Just this one" %}</a>
+                <a class="ui primary button" href="{% url 'finance:installment_update' pk=transaction.installment.pk %}">{% translate "Group of installments" %}</a>
+              </div>
+            </div>
+            <a data-id="{{ transaction.pk }}" style="cursor: pointer;">
+              <span
+                {% if transaction.category.type == 'INC' %}
+                class="ui green text"
+                {% elif transaction.category.type == 'EXP' %}
+                class="ui red text"
+                {% endif %}
+                >
+                  {{ transaction.amount }}
+              </span>
+            </a>
+            <script>
+              $('.ui.installment.modal[data-id={{ transaction.pk }}]').modal(
+                'attach events', 
+                'a[data-id={{ transaction.pk }}]', 
+                'show'
+              );
+            </script>
+            {% else %}
             <a href="{% url 'finance:transaction_update' pk=transaction.pk %}">
               <span
                 {% if transaction.category.type == 'INC' %}
@@ -116,6 +150,7 @@
                   {{ transaction.amount }}
               </span>
             </a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -138,6 +173,11 @@
         <i class="plus icon"></i>
         {% translate "Add transaction" %}
       </a>
+      <a class="ui fluid primary labeled icon button" href="{% url "finance:installment_create" %}"
+        style="margin-bottom: 1rem;">
+        <i class="plus icon"></i>
+        {% translate "Add transactions in installments" %}
+      </a>
       <a class="ui fluid primary labeled icon button" href="{% url "finance:recurrent_transaction_create" %}">
         <i class="plus icon"></i>
         {% translate "Add recurrent transaction" %}
@@ -151,6 +191,12 @@
         style="margin-bottom: 1rem;">
           <i class="calendar alternate outline icon"></i>
           {% translate "Go to Calendar View" %}
+      </a>
+      <a class="ui fluid basic labeled icon button" 
+        href="{% url "finance:installments" %}"
+        style="margin-bottom: 1rem;">
+          <i class="calendar alternate outline icon"></i>
+          {% translate "Go to installments" %}
       </a>
       <a class="ui fluid basic labeled icon button" 
         href="{% url "finance:recurrent_transactions" %}">

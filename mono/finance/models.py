@@ -33,6 +33,7 @@ class Transaction(models.Model):
     account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
     active = models.BooleanField(_("active"), default=True)
     recurrent = models.ForeignKey('RecurrentTransaction', on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    installment = models.ForeignKey('Installment', verbose_name=_("installment"), on_delete=models.CASCADE, null=True, blank=True, default=None)
 
     class Meta:
         verbose_name = _("transaction")
@@ -93,6 +94,11 @@ class RecurrentTransaction(models.Model):
                 return reference_date.day == self.timestamp.day and reference_date.month == self.timestamp.month
 
     @property
+    def type(self):
+        """Gets the type of transaction (Expense /Income) from :model:`finance.Category` type."""
+        return self.category.type
+
+    @property
     def verbose_interval(self):
         weekdays = [
             _('Monday'),
@@ -137,6 +143,52 @@ class RecurrentTransaction(models.Model):
                 recurrent=self,
             )
             budget.save()
+
+
+class Installment(models.Model):
+    FIRST = 'F'
+    LAST = 'L'
+    HANDLE_REMAINDER = [
+        (FIRST, 'Add to first transaction'),
+        (LAST, 'Add to last transaction'),
+    ]
+    months = models.IntegerField(default=12)
+    description = models.CharField(max_length=50, null=False, blank=False,
+                                   verbose_name=_("description"),
+                                   help_text="A short description, so that the user can identify the transaction.")
+    created_by = models.ForeignKey(User, verbose_name=_("created by"), on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(_("timestamp"), default=timezone.now,
+                                     help_text="Timestamp when transaction occurred. User defined.")
+    total_amount = models.FloatField(_("total amount"), help_text="Amount related to the transaction. Absolute value, no positive/negative signs.")
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
+    account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
+    handle_remainder = models.CharField(max_length=1, choices=HANDLE_REMAINDER, default=FIRST)
+
+    def create_transactions(self):
+        if self.id is None:
+            self.save()
+        remainder = ((self.total_amount * 100) % self.months) / 100
+        amount = (self.total_amount - remainder) / self.months
+
+        if self.handle_remainder == self.FIRST:
+            i_to_add_remainder = 0
+        elif self.handle_remainder == self.FIRST:
+            i_to_add_remainder = self.months - 1
+
+        for i in range(self.months):
+            if i == i_to_add_remainder:
+                final_amount = amount + remainder
+            else:
+                final_amount = amount
+            Transaction.objects.create(
+                description=f'{self.description} - {i + 1}/{self.months}',
+                created_by=self.created_by,
+                timestamp=self.timestamp + relativedelta(months=i),
+                amount=final_amount,
+                category=self.category,
+                account=self.account,
+                installment=self,
+            )
 
 
 class Icon(models.Model):
