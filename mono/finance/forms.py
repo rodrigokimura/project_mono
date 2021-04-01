@@ -180,7 +180,7 @@ class TransactionForm(forms.ModelForm):
         owned_accounts = Account.objects.filter(owned_by=self.request.user)
         shared_accounts = Account.objects.filter(group__members=self.request.user)
         self.fields['description'].widget.attrs.update({'placeholder': _('Description')})
-        self.fields['ammount'].widget.attrs.update({'placeholder': _('Ammount')})
+        self.fields['amount'].widget.attrs.update({'placeholder': _('Amount')})
         self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
         self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
         self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
@@ -201,7 +201,7 @@ class TransactionForm(forms.ModelForm):
             "description",
             "timestamp",
             "account",
-            "ammount",
+            "amount",
             "category",
             "active",
         ]
@@ -231,7 +231,7 @@ class RecurrentTransactionForm(forms.ModelForm):
         owned_accounts = Account.objects.filter(owned_by=self.request.user)
         shared_accounts = Account.objects.filter(group__members=self.request.user)
         self.fields['description'].widget.attrs.update({'placeholder': _('Description')})
-        self.fields['ammount'].widget.attrs.update({'placeholder': _('Ammount')})
+        self.fields['amount'].widget.attrs.update({'placeholder': _('Amount')})
         self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
         self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
         self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
@@ -254,7 +254,7 @@ class RecurrentTransactionForm(forms.ModelForm):
             "timestamp",
             "frequency",
             "account",
-            "ammount",
+            "amount",
             "category",
             "active",
         ]
@@ -504,7 +504,7 @@ class FakerForm(forms.Form):
             return obj.model
 
     model = ContentTypeModelChoiceField(queryset=ContentType.objects.filter(app_label='finance'))
-    batch_ammount = forms.IntegerField(max_value=100)
+    batch_amount = forms.IntegerField(max_value=100)
     target_user = forms.ModelChoiceField(User.objects.all())
     range_start = forms.DateField(required=False, widget=CalendarWidget)
     range_end = forms.DateField(required=False, widget=CalendarWidget)
@@ -524,7 +524,7 @@ class FakerForm(forms.Form):
         fake = Faker()
         fake.add_provider(lorem)
 
-        batch_ammount = self.cleaned_data['batch_ammount']
+        batch_amount = self.cleaned_data['batch_amount']
         model = self.cleaned_data['model'].model
         target_user = self.cleaned_data['target_user']
 
@@ -552,7 +552,7 @@ class FakerForm(forms.Form):
             return r
 
         if model == 'transaction':
-            for i in range(batch_ammount):
+            for i in range(batch_amount):
                 if range_start is not None and range_end is not None:
                     timestamp = random_date(range_start, range_end)
                 else:
@@ -561,7 +561,7 @@ class FakerForm(forms.Form):
                     description=fake.text(max_nb_chars=50, ext_word_list=None),
                     created_by=target_user,
                     timestamp=timestamp,
-                    ammount=randint(0, 1000),
+                    amount=randint(0, 1000),
                     category=Category.objects.filter(created_by=target_user, group=None, internal_type=Category.DEFAULT).order_by("?").first(),
                     account=Account.objects.filter(owned_by=target_user, group=None).order_by("?").first(),
                     # active = models.BooleanField(default=True)
@@ -569,7 +569,7 @@ class FakerForm(forms.Form):
 
             success, message = True, {
                 "level": messages.SUCCESS,
-                "message": f"Successfully created {batch_ammount} fake instances of model {model}"
+                "message": f"Successfully created {batch_amount} fake instances of model {model}"
             }
             return success, message
 
