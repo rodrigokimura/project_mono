@@ -1,9 +1,10 @@
+from django.conf import settings
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
 from http import HTTPStatus
-
 from .models import Transaction, Account, Category, Group
 from .views import AccountCreateView
+import stripe
 
 
 class TransactionModelTests(TestCase):
@@ -118,7 +119,9 @@ class UserCreationTests(TestCase):
             amount=100,
             account=self.account,
             created_by=self.user_1,
-            category=Category.objects.filter(created_by=self.user_1, type=Category.EXPENSE).first()
+            category=Category.objects.filter(
+                created_by=self.user_1, type=Category.EXPENSE
+            ).first()
         )
         request = self.factory.get(f'/fn/transaction/{transaction.pk}/delete/')
         request.user = self.user_1
@@ -150,3 +153,21 @@ class UserCreationTests(TestCase):
 #         self.assertEqual(response.status_code, 200)
         # self.assertTemplateUsed(response, 'index.html')
         # self.assertContains(response, 'Company Name XYZ')
+
+
+class StripeTests(TestCase):
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    fixtures = ["icon.json"]
+
+    def setUp(self):
+        self.user = User.objects.create(username="user")
+        products = stripe.Product.list(limit=100, active=True).data
+        self.products = [product for product in products if product.metadata.app == 'finance']
+
+    def test_stripe_products(self):
+        self.assertGreater(len(self.products), 0)
+
+    def test_stripe_plans(self):
+        for product in self.products:
+            plans = stripe.Plan.list(product=product.id, limit=100).data
+            self.assertGreater(len(plans), 0)
