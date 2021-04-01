@@ -106,17 +106,17 @@
         </div>
       </div>
 
-      <div class="twelve wide column" id="prices-element">
+      <div class="twelve wide column" id="plans-element">
 
         <div class="ui warning message">{% translate "Select a billing plan" %}</div>
 
         <div class="ui equal width grid">
-          {% for price in prices %}
+          {% for plan in plans %}
           <div class="column">
-            <div class="ui fluid price card">
+            <div class="ui fluid plan card">
               <div class="center aligned content">
                 <div class="header">
-                  {% with price.recurring.interval as interval %}
+                  {% with plan.interval as interval %}
                   {% if interval == "month" %}
                   {% translate "Monthly" %}
                   {% elif interval == "year" %}
@@ -128,11 +128,11 @@
               <div class="content">
                 <div class="center aligned content">
                   <div class="ui statistic">
-                    <div class="value" data-price="{{ price.id }}">
-                      {{ price.unit_amount|stripe_currency:price.currency|floatformat:2 }}
+                    <div class="value" data-plan="{{ plan.id }}">
+                      {{ plan.amount_decimal|stripe_currency:plan.currency|floatformat:2 }}
                     </div>
                     <div class="label">
-                      {{ price.currency }}
+                      {{ plan.currency }}
                     </div>
                   </div>
 
@@ -140,10 +140,10 @@
               </div>
               <a class="ui bottom attached button" 
                 onclick="selectPrice(this)"
-                data-price="{{ price.id }}"
-                data-value="{{ price.unit_amount|stripe_currency:price.currency|floatformat:2 }}"
-                data-currency="{{ price.currency }}"
-                data-interval="{{ price.recurring.interval }}">
+                data-plan="{{ plan.id }}"
+                data-value="{{ plan.amount_decimal|stripe_currency:plan.currency|floatformat:2 }}"
+                data-currency="{{ plan.currency }}"
+                data-interval="{{ plan.recurring.interval }}">
                 {% translate "Select plan" %}
               </a>
             </div>
@@ -162,7 +162,7 @@
               <div id="card-element" style="margin-bottom: 1rem;"></div>
             </div>
             <div id="card-errors" role="alert" class="ui hidden error message"></div>
-            <input type="hidden" name="price">
+            <input type="hidden" name="plan">
             <button id="submit" type="submit" class="ui primary button" style="">
               {% translate "Subscribe" %}
             </button>
@@ -254,7 +254,7 @@
           headers: {'X-CSRFToken': csrftoken},
           data:{
             payment_method_id: result.paymentMethod.id,
-            price_id: $('input[name=price]').val(),
+            price_id: $('input[name=plan]').val(),
           },
           onResponse: () =>{$('button#submit').removeClass('loading');},
           onError: (errorMessage, element, xhr) => {
@@ -292,20 +292,20 @@
   }
 
   let selectPrice = el => {
-    priceId = $(el).data('price');
+    planId = $(el).data('plan');
     
     value = $(el).data('value')
     currency = $(el).data('currency')
     interval = $(el).data('interval')
 
-    $('input[name=price]').val(priceId);
+    $('input[name=plan]').val(planId);
     $("#card-segment").show()
     $("#card-message").show()
     $(".billing.info").show()
 
     $("#billing-info-text").html(`${value} ${currency} per ${interval}`)
 
-    $("#prices-element").remove()
+    $("#plans-element").remove()
 
     $(".billing.step").removeClass('active').addClass('complete')
     $(".billing.step i").removeClass().addClass('green check icon')
