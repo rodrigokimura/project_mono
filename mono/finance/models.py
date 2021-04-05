@@ -549,7 +549,7 @@ class Notification(models.Model):
     icon = models.ForeignKey(Icon, on_delete=models.SET_NULL, null=True, default=None)
     to = models.ForeignKey(User, on_delete=models.CASCADE)
     read_at = models.DateTimeField(blank=True, null=True, default=None)
-    action = models.CharField(max_length=1000)
+    action = models.CharField(max_length=1000, blank=True, null=True, default=None)
     active = models.BooleanField(default=True)
 
     def __str__(self) -> str:

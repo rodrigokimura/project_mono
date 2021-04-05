@@ -1,7 +1,14 @@
+from datetime import timedelta
+from django.conf import settings
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models.fields import DateTimeField
+from django.template.loader import get_template
+from django.urls.base import reverse
 from django.utils import timezone
+from django.core.mail import EmailMultiAlternatives
+import jwt
+from finance.models import Notification, Icon
 
 User = get_user_model()
 
@@ -27,3 +34,53 @@ class UserProfile(models.Model):
     def verify(self):
         self.verified_at = timezone.now()
         self.save()
+        Notification.objects.create(
+            title="Account verification",
+            message="Your account was successfully verified.",
+            icon=Icon.objects.get(markup="exclamation"),
+            to=self.user
+        )
+
+    def send_verification_email(self):
+        print('Sending email')
+
+        token = jwt.encode(
+            {
+                "exp": timezone.now() + timedelta(days=30),
+                "user_id": self.user.id
+            },
+            settings.SECRET_KEY,
+            algorithm="HS256"
+        )
+
+        template_html = 'email/alert.html'
+        template_text = 'email/alert.txt'
+
+        text = get_template(template_text)
+        html = get_template(template_html)
+
+        site = settings.SITE
+
+        full_link = site + f"{reverse('accounts:verify')}?t={token}"
+
+        d = {
+            'warning_message': 'Account verification',
+            'first_line': 'We need to verify your account. Please click the button below.',
+            'button_text': 'Verify',
+            'button_link': full_link,
+        }
+
+        msg = EmailMultiAlternatives(
+            subject='Invite',
+            body=text.render(d),
+            from_email=settings.EMAIL_HOST_USER,
+            to=[self.user.email])
+        msg.attach_alternative(html.render(d), "text/html")
+        msg.send(fail_silently=False)
+
+        Notification.objects.create(
+            title="Account verification",
+            message="We've sent you an email to verify your account.",
+            icon=Icon.objects.get(markup="exclamation"),
+            to=self.user,
+        )

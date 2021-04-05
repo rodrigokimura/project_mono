@@ -756,7 +756,10 @@ class NotificationAction(LoginRequiredMixin, RedirectView):
         notification = get_object_or_404(Notification, pk=kwargs['pk'])
         if notification.to == self.request.user:
             notification.mark_as_read()
-            self.url = notification.action
+            if notification.action:
+                self.url = notification.action
+            else:
+                self.url = reverse("finance:index")
         return super().get_redirect_url(*args, **kwargs)
 
 
@@ -767,10 +770,11 @@ class NotificationCheckUnread(LoginRequiredMixin, View):
             active=True,
             read_at=None
         ).values('id')
-        return JsonResponse({
-            'success': True,
-            'results': [r['id'] for r in results],
-        }
+        return JsonResponse(
+            {
+                'success': True,
+                'results': [r['id'] for r in results],
+            }
         )
 
 
