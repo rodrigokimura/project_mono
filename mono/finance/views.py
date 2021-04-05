@@ -737,7 +737,7 @@ class NotificationListApi(LoginRequiredMixin, View):
         ).values('id').annotate(
             value=F('id'),
             name=F('title'),
-            message=F('message'),
+            description=F('message'),
             icon=F('icon__markup'))
         return JsonResponse(
             {
@@ -776,6 +776,23 @@ class NotificationCheckUnread(LoginRequiredMixin, View):
                 'results': [r['id'] for r in results],
             }
         )
+
+
+class NotificationMarkAsRead(LoginRequiredMixin, View):
+    def post(self, request):
+        id = request.POST.get('id')
+        qs = Notification.objects.filter(to=request.user)
+        if id == '*' and qs.exists():
+            for notification in qs:
+                notification.mark_as_read()
+            return JsonResponse({'success': True})
+        else:
+            notification = get_object_or_404(Notification, id=request.POST.get('id'))
+            if notification.to == request.user:
+                notification.mark_as_read()
+                return JsonResponse({'success': True})
+            else:
+                return JsonResponse({'success': False})
 
 
 class BudgetListView(LoginRequiredMixin, ListView):
