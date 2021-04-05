@@ -7,8 +7,6 @@ from django.utils.translation import gettext_lazy as _
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-APP_VERSION = "0.0.1"
-
 APP_ENV = os.getenv('APP_ENV')
 
 GITHUB_SECRET = os.getenv('GITHUB_SECRET')
@@ -35,6 +33,11 @@ if APP_ENV == 'DEV':
     ALLOWED_HOSTS = ['*']
 else:
     ALLOWED_HOSTS = [os.getenv('ALLOWED_HOST')]
+
+if APP_ENV == 'DEV':
+    SITE = "http://dev.monoproject.info"
+else:
+    SITE = "https://www.monoproject.info"
 
 # Application definition
 INSTALLED_APPS = [
