@@ -30,6 +30,11 @@
   {% endif %}
 
   <style type="text/css" media="all">
+    #notification-menu .menu>* {
+      white-space: break-spaces !important;
+      width: 20rem;
+      line-height: 1.5rem;
+    }
   </style>
   <script>
      $.fn.api.settings.api = {
@@ -38,6 +43,7 @@
       'list invites'                : '/fn/invites/',
       'get notifications'           : '/fn/ajax/notifications/',
       'get notification ids'        : '/fn/notification/get-ids/',
+      'mark notification as read'   : '/fn/notification/mark-as-read/',
       {% if request.user.is_superuser %}
       'deploy'                      : '/hc/deploy/',
       'checkout'                    : "{% url 'finance:checkout' %}",
@@ -96,16 +102,15 @@
 
     {% if request.user.is_authenticated %}
     <div class="right menu">
-      <div class="ui top dropdown item" id="notification-menu">
-        <i class="bell outline icon">
-        </i>
+      <div class="ui top pointing dropdown item" id="notification-menu">
+        <i class="bell outline icon"></i>
         <div 
           class="hidden right aligned top floating ui teal tiny circular label" 
           id="notification-count"
           style="transform: translate(0, 1em);"
           ></div>
       </div>
-      <div class="ui top right auth dropdown item">
+      <div class="ui top right auth pointing dropdown item">
         {% comment %} USER MENU {% endcomment %}
         <i class="user icon"></i>
         <div class="menu">
@@ -116,10 +121,12 @@
           <div class="item">
             <i class="left dropdown icon"></i>
             <span class="text">{% translate "Change language" %}</span>
-            <div class="left menu">
+            <div class="left menu" id="language-dropdown">
               {% get_current_language as LANGUAGE_CODE %}
               {% for code, name, flag, js_locale in LANGUAGE_EXTRAS %}
-              <div class="{% if code == LANGUAGE_CODE %}active selected {% endif %} item" href="#" onclick="setLanguage('{{ code }}');">
+              <div class="{% if code == LANGUAGE_CODE %}active selected {% endif %} item" 
+                href="#" onclick="setLanguage('{{ code }}');"
+                >
                 <i class="{{ flag }} flag"></i>{{ name }}
               </div>
               {% endfor %}
@@ -131,7 +138,9 @@
             </form>
           </div>
           <div class="divider"></div>
-          <a class="item" href="{% url 'finance:configuration' %}"><i class="cog icon"></i>{% translate "Settings" %}</a>
+          <a class="item" href="{% url 'finance:configuration' %}">
+            <i class="cog icon"></i>{% translate "Settings" %}
+          </a>
           <div class="divider"></div>
           <a class="item" href="{% url 'finance:logout' %}">{% translate "Sign out" %}</a>
         </div>
@@ -166,7 +175,6 @@
 </body>
 <script>
   let setLanguage = (el) => {
-    console.log(el);
     $("input[name=language]").val(el);
     $("form[name=language]").submit();
   }
@@ -175,6 +183,7 @@
     .sidebar('setting', 'mobileTransition', 'slide along')
     .sidebar('attach events', '.toc.item');
   $('.ui.auth.dropdown').dropdown();
+  $('#language-dropdown').dropdown({action: "hide"});
 
   {% if request.user.is_authenticated %}
 
@@ -190,18 +199,33 @@
         stateContext: notificationMenuElement,
         cache: false,
         onSuccess: r => {
+          values = r.results.map(item => {
+            item.name = `{% include 'finance/_notification_item.html' %}`
+            .replace(/\r?\n|\r/g, '').replace(/\s+/g, ' ');
+            item.icon = '';
+            return item;
+          })
+          values.unshift(
+            {
+              name: `Notifications <div class="ui tiny right floated basic circular button" onclick="markAsRead('*');"><i class="eraser icon"></i>Clear all</div>`, 
+              type: 'header'
+            }
+          );
           notificationMenuElement.dropdown({
-            values: r.results.map(item => {
-              item.name = `<div class="ui small label">${item.name}</div>${item.message}`;
-              return item;
-            }),
-            action: function(text, value, element){
+            values: values,
+            action: (text, value, element) => {
               window.location.replace(`/fn/notification/${value}/action`);
             }
           });
-          notificationLabelElement.text(r.results.length);
-          notificationLabelElement.removeClass('hidden');
-          $('.ui.dropdown#notification-menu i.icon').removeClass('outline');
+          if (r.results.length > 0) {
+            notificationLabelElement.text(r.results.length);
+            notificationLabelElement.removeClass('hidden');
+            $('.ui.dropdown#notification-menu i.icon').removeClass('outline');
+          } else {
+            notificationLabelElement.text(r.results.length);
+            notificationLabelElement.addClass('hidden');
+            $('.ui.dropdown#notification-menu i.icon').addClass('outline');
+          }
         }
       }
     );
@@ -248,6 +272,26 @@
     .closest('.message')
     .transition('fade');
   });
+
+  let markAsRead = id => {
+    $.api(
+      {
+        action: 'mark notification as read',
+        method: 'POST',
+        mode: 'same-origin',
+        headers: {'X-CSRFToken': csrftoken},
+        data: {id: id},
+        on: 'now',
+        cache: false,
+        onSuccess: () => {
+          notificationMenuElement.dropdown('hide');
+          checkUnread();
+        },
+        onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
+        onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+      }
+    );
+  }
   
 </script>
 
