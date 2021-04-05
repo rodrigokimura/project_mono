@@ -11,14 +11,16 @@
               <form method="post">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <h1 class="ui header">Delete transaction?</h1>
+                <h1 class="ui header">Delete this group of installments?</h1>
+                <div class="ui warning message">
+                  You have {{ object.transaction_set.count }} transactions in this group.</div>
                 <div class="ui buttons">
                   
                 <button type="submit" class="ui huge negative button">
                   Yes
                 </button>
                 <div class="or"></div>
-                <a class="ui huge button" href="{% url 'finance:transaction_update' pk=object.pk %}">
+                <a class="ui huge button" href="{% url 'finance:installment_update' pk=object.pk %}">
                   Cancel
                 </a>
                 </div>
