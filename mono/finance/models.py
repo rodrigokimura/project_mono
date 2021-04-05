@@ -167,8 +167,9 @@ class Installment(models.Model):
     def create_transactions(self):
         if self.id is None:
             self.save()
-        remainder = ((self.total_amount * 100) % self.months) / 100
-        amount = (self.total_amount - remainder) / self.months
+        decimals = 2
+        remainder = round(((self.total_amount * 10 ** decimals) % self.months) / 10 ** decimals, decimals)
+        amount = round((self.total_amount - remainder) / self.months, decimals)
 
         if self.handle_remainder == self.FIRST:
             i_to_add_remainder = 0
@@ -294,11 +295,12 @@ class Account(models.Model):
 
     @property
     def current_balance(self):
+        decimals = 2
         qs = Transaction.objects.filter(account=self.pk)
         sum = self.initial_balance
         for t in qs:
             sum += t.signed_amount
-        return sum
+        return round(sum, decimals)
 
     @property
     def total_transactions(self):
@@ -547,7 +549,7 @@ class Notification(models.Model):
     icon = models.ForeignKey(Icon, on_delete=models.SET_NULL, null=True, default=None)
     to = models.ForeignKey(User, on_delete=models.CASCADE)
     read_at = models.DateTimeField(blank=True, null=True, default=None)
-    action = models.CharField(max_length=1000)
+    action = models.CharField(max_length=1000, blank=True, null=True, default=None)
     active = models.BooleanField(default=True)
 
     def __str__(self) -> str:

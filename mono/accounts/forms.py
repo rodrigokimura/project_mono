@@ -1,10 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth import forms as auth_forms
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from . import models
 from django import forms
 from django.forms import ValidationError
-from django.db.models.signals import post_save
 # from PIL import get
 
 
@@ -30,33 +29,19 @@ class UserCreateForm(auth_forms.UserCreationForm):
             raise ValidationError("Email exists")
         return self.cleaned_data
 
-    def add_user_to_public_group(sender, instance, created, **kwargs):
-        """Post-create user signal that adds the user to everyone group."""
-        try:
-            if created:
-                instance.groups.add(Group.objects.get(name='Cliente'))
-        except Group.DoesNotExist:
-            pass
-
-    post_save.connect(add_user_to_public_group, sender=User)
-
 
 class UserProfileForm(forms.ModelForm):
     error_css_class = 'error'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['phone'].widget.attrs.update({'placeholder': 'Phone'})
-        self.fields['gender'].widget.attrs.update({'class': 'ui dropdown'})
         self.fields['avatar'].widget.attrs.update({'placeholder': 'Avatar'})
 
     class Meta:
         model = models.UserProfile
-        fields = (
-            "phone",
-            "gender",
-            "avatar"
-        )
+        fields = [
+            "avatar",
+        ]
 
     # def clean_avatar(self):
     #     avatar = self.cleaned_data['avatar']
@@ -90,18 +75,3 @@ class UserProfileForm(forms.ModelForm):
     #         pass
 
     #     return avatar
-
-
-class CustomPasswordResetForm(auth_forms.PasswordResetForm):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def send_mail(self, *args, **kwargs):
-
-        args = list(args)
-        if args[3] is None:
-            args[3] = "naoresponda@voitkemp.com"
-        args = tuple(args)
-
-        super().send_mail(*args, **kwargs)
