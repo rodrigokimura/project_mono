@@ -656,11 +656,45 @@ class Configuration(models.Model):
         (GOALS, 'Goals'),
     ]
 
+    C_OVERVIEW = 1
+    C_BALANCE = 2
+    C_BUDGETS = 3
+    CARDS = [
+        (C_OVERVIEW, 'Overview'),
+        (C_BALANCE, 'Balance'),
+        (C_BUDGETS, 'Budgets'),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     main_page = models.CharField(max_length=3, choices=PAGES, default=HOME)
+    cards = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        default=None,
+        help_text="Used to store comma-separated string of integers \
+            corresponding to cards"
+    )
 
     def __str__(self) -> str:
         return f'Config for {self.user}'
+
+    @property
+    def cards_list(self):
+        if self.cards:
+            return list(map(int, self.cards.split(',')))
+        else:
+            return None
+
+    @property
+    def decoded_cards(self):
+        if self.cards:
+            cards_list = []
+            for i in self.cards_list:
+                cards_list.append([n for v, n in self.CARDS if v == i][0])
+            return cards_list
+        else:
+            return None
 
 
 class Plan(models.Model):

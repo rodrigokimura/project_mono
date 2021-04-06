@@ -1,22 +1,33 @@
 {% extends "finance/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block head %}
 {% endblock head %}
 
 {% block body %}
 <div class="pusher">
-  <div class="ui vertical center aligned segment">
-    <div class="ui text container">
-      <h2>MEU PRIMEIRO COMMIT</h2>
-      {% if user.is_authenticated %}
-      <div class="ui text container">
-        <a class="ui huge right labeled icon button" href="{% url 'finance:logout' %}">
-          <i class="power off icon"></i>
-          Sign out
-        </a>
-      </div>
-      {% else %}
+
+  <div class="ui stackable grid container" style="margin-bottom: .5rem;">
+
+    {% if user.is_authenticated %}
+
+    {% with cards=user.configuration.decoded_cards user=user %}
+    {% for card in cards %}
+    <div class="four wide column">
+      {% include 'finance/_card.html' %}
+    </div>
+    {% endfor %}
+    {% endwith %}
+
+    <div class="sixteen wide column">
+      <a class="ui fluid basic button" href="{% url 'finance:card_order' %}">
+        {% translate "Personalize" %}
+      </a>
+    </div>
+
+    {% else %}
+
       <div class="ui text container">
       <div class="ui buttons">
         <a class="ui big right labeled icon button" href="{% url 'finance:login' %}">
@@ -26,8 +37,10 @@
         <a class="ui big primary right labeled icon button" href="{% url 'finance:signup' %}">Sign Up<i class="right arrow icon"></i></a>
       </div>
       </div>
-      {% endif %}
-    </div>
+
+    {% endif %}
+
   </div>
+
 </div>
 {% endblock body %}
