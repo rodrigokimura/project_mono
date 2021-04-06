@@ -1,0 +1,92 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head %}
+  <script src="{% static 'js/dragula.min.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
+{% endblock head %}
+
+{% block body %}
+<div class="pusher">
+
+  <div class="ui stackable grid container" style="margin-bottom: .5rem;">
+    <div class="four wide column"></div>
+
+    <div class="eight wide column">
+      <div id="drag">
+        {% for v, n, b in cards %}
+        
+        <div class="ui grid segment" style="padding: 0;" data-id="{{ v }}">
+          <div class="twelve wide column">
+            <div class="ui header">
+              <i class="grip lines icon"></i>
+              {{ n }}
+            </div>
+          </div>
+          <div class="four wide right aligned column">
+            <div class="ui right floated fitted toggle checkbox">
+              <input type="checkbox" name="card_{{ v }}" {% if b %}checked{% endif %}>
+              <label></label>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="ui fluid teal submit button">{% translate "Save" %}</div>
+    </div>
+
+    <div class="four wide column"></div>
+
+  </div>
+
+</div>
+
+<script>
+  var drake = dragula([$('#drag')[0]])
+
+  var cardHandlers = document.getElementsByClassName("ui grid segment")
+  for (var i = 0; i < cardHandlers.length; i++) {
+    cardHandlers[i].addEventListener(
+      'touchmove',
+      e => { e.preventDefault(); },
+      { passive: false }
+    );
+  }
+
+  let getCardsArray = () => {
+    arr = []
+    $('#drag').children().each(
+      (index) => {
+        c = $('#drag').children()[index];
+        if ($(c).find(':checked').length > 0) {
+          arr.push($(c).data('id'));
+        }
+      }
+    )
+    return arr;
+  }
+
+  $('.submit.button').api(
+    {
+      action: 'set card order',
+      method: 'POST',
+      mode: 'same-origin',
+      headers: {'X-CSRFToken': csrftoken},
+      
+      beforeSend: settings => {
+        settings.data = {cards: getCardsArray().toString()};
+        return settings;
+      },
+      cache: false,
+      onSuccess: () => {
+        $('.submit.button').state('flash text', '{% translate "Success!" %}');
+      },
+      onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
+      onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+    }
+  )
+
+</script>
+
+{% endblock body %}

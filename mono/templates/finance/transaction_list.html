@@ -6,10 +6,32 @@
     .hidden{
       display: none !important;
     }
+
+    #floating-button {
+      display: none;
+    }
+
+    @media only screen and (max-width: 768px) {
+      #floating-button {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        right: 1rem;
+        z-index: 10;
+      }
+    }
   </style>
 {% endblock head %}
 
 {% block body %}
+
+<div id="floating-button">
+  <a class="ui primary circular huge teal icon mobile only button" 
+    href="{% url "finance:transaction_create" %}"
+    style="margin-bottom: 1rem;">
+    <i class="plus icon"></i>
+  </a>
+</div>
 
 <div class="ui stackable grid container" style="margin-bottom: 1em;">
 
