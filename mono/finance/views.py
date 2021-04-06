@@ -1323,7 +1323,11 @@ class ConfigurationView(LoginRequiredMixin, TemplateView):
             context['subscription'] = None
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
-        customer = stripe.Customer.list(email=self.request.user.email).data[0]
-        payment_method = stripe.PaymentMethod.retrieve(customer.invoice_settings.default_payment_method)
-        context['payment_method'] = payment_method
+        try:
+            customer = stripe.Customer.list(email=self.request.user.email).data[0]
+            payment_method = stripe.PaymentMethod.retrieve(customer.invoice_settings.default_payment_method)
+            context['payment_method'] = payment_method
+        except IndexError:
+            context['payment_method'] = None
+
         return context
