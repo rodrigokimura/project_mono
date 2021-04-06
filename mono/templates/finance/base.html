@@ -44,6 +44,8 @@
       'get notifications'           : '/fn/ajax/notifications/',
       'get notification ids'        : '/fn/notification/get-ids/',
       'mark notification as read'   : '/fn/notification/mark-as-read/',
+      'set language'                : "{% url 'set_language' %}",
+      'set card order'              : "{% url 'finance:card_order' %}",
       {% if request.user.is_superuser %}
       'deploy'                      : '/hc/deploy/',
       'checkout'                    : "{% url 'finance:checkout' %}",
@@ -95,14 +97,14 @@
     {% endif %}
   </div>
   
-  <div class="ui top fixed menu">
+  <div class="ui top inverted fixed menu">
     <a class="toc item">
       <i class="sidebar icon"></i>
     </a>
 
     {% if request.user.is_authenticated %}
     <div class="right menu">
-      <div class="ui top pointing dropdown item" id="notification-menu">
+      <div class="ui top pointing inverted teal dropdown item" id="notification-menu">
         <i class="bell outline icon"></i>
         <div 
           class="hidden right aligned top floating ui teal tiny circular label" 
@@ -110,7 +112,7 @@
           style="transform: translate(0, 1em);"
           ></div>
       </div>
-      <div class="ui top right auth pointing dropdown item">
+      <div class="ui top auth pointing teal dropdown item">
         {% comment %} USER MENU {% endcomment %}
         <i class="user icon"></i>
         <div class="menu">
@@ -118,10 +120,10 @@
             <p>{% translate "Signed in as " %}</p>
             <span class="ui primary text">{{ request.user }}</span></div>
           <div class="divider"></div>
-          <div class="item">
+          <div class="language item">
             <i class="left dropdown icon"></i>
             <span class="text">{% translate "Change language" %}</span>
-            <div class="left menu" id="language-dropdown">
+            <div class="left menu">
               {% get_current_language as LANGUAGE_CODE %}
               {% for code, name, flag, js_locale in LANGUAGE_EXTRAS %}
               <div class="{% if code == LANGUAGE_CODE %}active selected {% endif %} item" 
@@ -142,7 +144,9 @@
             <i class="cog icon"></i>{% translate "Settings" %}
           </a>
           <div class="divider"></div>
-          <a class="item" href="{% url 'finance:logout' %}">{% translate "Sign out" %}</a>
+          <a class="item" href="{% url 'finance:logout' %}">
+            <i class="power off icon"></i>{% translate "Sign out" %}
+          </a>
         </div>
       </div>
     </div>
@@ -182,8 +186,17 @@
     .sidebar('setting', 'transition', 'slide along')
     .sidebar('setting', 'mobileTransition', 'slide along')
     .sidebar('attach events', '.toc.item');
-  $('.ui.auth.dropdown').dropdown();
-  $('#language-dropdown').dropdown({action: "hide"});
+
+  $('.ui.auth.dropdown').dropdown(
+    {
+      action: "hide",
+      {% comment %} TO FIX A BUG OF SUBMENU NOT HIDING {% endcomment %}
+      onHide: () => {
+        $('.menu.transition.visible').removeClass('transition', 'visible');
+      },
+    }
+  );
+  
 
   {% if request.user.is_authenticated %}
 
@@ -207,7 +220,7 @@
           })
           values.unshift(
             {
-              name: `Notifications <div class="ui tiny right floated basic circular button" onclick="markAsRead('*');"><i class="eraser icon"></i>Clear all</div>`, 
+              name: `Notifications <div class="ui tiny right floated basic circular inverted button" onclick="markAsRead('*');"><i class="eraser icon"></i>Clear all</div>`, 
               type: 'header'
             }
           );

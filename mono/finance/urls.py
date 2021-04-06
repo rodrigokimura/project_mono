@@ -84,4 +84,5 @@ urlpatterns = [
     path('stripe/webhook/', views.StripeWebhookView.as_view(), name='stripe_webhook'),
 
     path('configuration/', views.ConfigurationView.as_view(), name='configuration'),
+    path('card-order/', views.CardOrderView.as_view(), name='card_order'),
 ]
