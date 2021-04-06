@@ -307,6 +307,7 @@ class InstallmentForm(forms.ModelForm):
             "timestamp",
             "account",
             "total_amount",
+            "months",
             "category",
             "handle_remainder",
         ]
