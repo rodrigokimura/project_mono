@@ -125,17 +125,18 @@ class CardOrderView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         available_cards = Configuration.CARDS
-        # context['available_cards'] = available_cards
-        # context['user_cards'] = self.request.user.configuration.decoded_cards
         user_cards = self.request.user.configuration.cards_list
 
+        # Generates a list of 3-tuples in the format (value, name, boolean)
+        # value: code
+        # name: human name
+        # boolean: if user has selected
         cards = []
         if user_cards:
             for card in user_cards:
                 cards.append(
                     (card, [n for v, n in available_cards if v == card][0], True)
                 )
-
         for v, n in available_cards:
             if v not in [v for v, n, b in cards]:
                 cards.append(
