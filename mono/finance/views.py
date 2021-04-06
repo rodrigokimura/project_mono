@@ -1,3 +1,4 @@
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import get_object_or_404, redirect
@@ -22,7 +23,7 @@ from django.db.models import F, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
 from django.utils.translation import gettext as _
 from django.utils import timezone
-from .models import (BudgetConfiguration, Installment, Transaction, Account, Group,
+from .models import (BudgetConfiguration, Configuration, Installment, Transaction, Account, Group,
                      Category, Icon, Goal, Invite, Notification, Budget, User, Plan,
                      Subscription, RecurrentTransaction)
 from .forms import (BudgetConfigurationForm, InstallmentForm, TransactionForm, GroupForm,
@@ -60,6 +61,101 @@ class PassRequestToFormViewMixin:
 
 class HomePageView(TemplateView):
     template_name = "finance/index.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(HomePageView, self).get_context_data(**kwargs)
+        balance = 0
+        for a in self.request.user.owned_accountset.all():
+            balance += a.current_balance
+        context["total_balance"] = balance
+
+        transactions_this_month = Transaction.objects.filter(
+            created_by=self.request.user,
+            timestamp__range=[
+                timezone.now() + relativedelta(months=-1),
+                timezone.now()
+            ],
+        )
+        transactions_last_month = Transaction.objects.filter(
+            created_by=self.request.user,
+            timestamp__range=[
+                timezone.now() + relativedelta(months=-2),
+                timezone.now() + relativedelta(months=-1)
+            ]
+        )
+
+        expenses_this_month = transactions_this_month.filter(
+            category__type=Category.EXPENSE
+        ).aggregate(sum=Coalesce(Sum("amount"), V(0)))
+        incomes_this_month = transactions_this_month.filter(
+            category__type=Category.INCOME
+        ).aggregate(sum=Coalesce(Sum("amount"), V(0)))
+        expenses_last_month = transactions_last_month.filter(
+            category__type=Category.EXPENSE
+        ).aggregate(sum=Coalesce(Sum("amount"), V(0)))
+        incomes_last_month = transactions_last_month.filter(
+            category__type=Category.INCOME
+        ).aggregate(sum=Coalesce(Sum("amount"), V(0)))
+        context["expenses_this_month"] = expenses_this_month['sum']
+        context["incomes_this_month"] = incomes_this_month['sum']
+        context["expenses_last_month"] = expenses_last_month['sum']
+        context["incomes_last_month"] = incomes_last_month['sum']
+
+        closed_budgets = Budget.objects.filter(
+            created_by=self.request.user,
+            end_date__lt=datetime.combine(
+                timezone.now().date(),
+                datetime.min.time()
+            )
+        )
+        open_budgets = Budget.objects.filter(
+            created_by=self.request.user,
+            start_date__lt=timezone.now(),
+            end_date__gte=timezone.now(),
+        )
+        context["closed_budgets"] = closed_budgets
+        context["open_budgets"] = open_budgets
+
+        return context
+
+
+class CardOrderView(TemplateView):
+    template_name = "finance/card_order.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        available_cards = Configuration.CARDS
+        # context['available_cards'] = available_cards
+        # context['user_cards'] = self.request.user.configuration.decoded_cards
+        user_cards = self.request.user.configuration.cards_list
+
+        cards = []
+        if user_cards:
+            for card in user_cards:
+                cards.append(
+                    (card, [n for v, n in available_cards if v == card][0], True)
+                )
+
+        for v, n in available_cards:
+            if v not in [v for v, n, b in cards]:
+                cards.append(
+                    (v, n, False)
+                )
+
+        context['cards'] = cards
+
+        return context
+
+    def post(self, request):
+        cards = request.POST.get('cards')
+        configuration = request.user.configuration
+        configuration.cards = cards
+        configuration.save()
+        return JsonResponse(
+            {
+                'success': True,
+            }
+        )
 
 
 class SignUp(SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
