@@ -95,14 +95,14 @@
     {% endif %}
   </div>
   
-  <div class="ui top fixed menu">
+  <div class="ui top inverted fixed menu">
     <a class="toc item">
       <i class="sidebar icon"></i>
     </a>
 
     {% if request.user.is_authenticated %}
     <div class="right menu">
-      <div class="ui top pointing dropdown item" id="notification-menu">
+      <div class="ui top pointing inverted teal dropdown item" id="notification-menu">
         <i class="bell outline icon"></i>
         <div 
           class="hidden right aligned top floating ui teal tiny circular label" 
@@ -110,7 +110,7 @@
           style="transform: translate(0, 1em);"
           ></div>
       </div>
-      <div class="ui top right auth pointing dropdown item">
+      <div class="ui top right auth pointing teal dropdown item">
         {% comment %} USER MENU {% endcomment %}
         <i class="user icon"></i>
         <div class="menu">
@@ -207,7 +207,7 @@
           })
           values.unshift(
             {
-              name: `Notifications <div class="ui tiny right floated basic circular button" onclick="markAsRead('*');"><i class="eraser icon"></i>Clear all</div>`, 
+              name: `Notifications <div class="ui tiny right floated basic circular inverted button" onclick="markAsRead('*');"><i class="eraser icon"></i>Clear all</div>`, 
               type: 'header'
             }
           );
