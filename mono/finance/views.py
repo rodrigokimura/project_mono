@@ -62,8 +62,17 @@ class PassRequestToFormViewMixin:
 class HomePageView(TemplateView):
     template_name = "finance/index.html"
 
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            return super().get(request, *args, **kwargs)
+        else:
+            return redirect(reverse("finance:login"))
+
     def get_context_data(self, **kwargs):
         context = super(HomePageView, self).get_context_data(**kwargs)
+        if self.request.user.is_anonymous:
+            return context
+
         balance = 0
         for a in self.request.user.owned_accountset.all():
             balance += a.current_balance
