@@ -6,3 +6,5 @@
 /semantic
 /node_modules
 *.exe
+venv/
+.idea/
