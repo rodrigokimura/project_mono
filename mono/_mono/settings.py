@@ -102,6 +102,7 @@ WSGI_APPLICATION = '_mono.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 if APP_ENV == 'DEV':
     DATABASES = {
