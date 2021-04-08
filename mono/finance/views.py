@@ -19,7 +19,7 @@ from django.contrib.auth.views import (
     PasswordResetCompleteView)
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse, HttpResponse
-from django.db.models import F, Q, Sum, Value as V
+from django.db.models import F, Q, Sum, Value as V, FloatField
 from django.db.models.functions import Coalesce, TruncDay
 from django.utils.translation import gettext as _
 from django.utils import timezone
@@ -95,16 +95,16 @@ class HomePageView(TemplateView):
 
         expenses_this_month = transactions_this_month.filter(
             category__type=Category.EXPENSE
-        ).aggregate(sum=Coalesce(Sum("amount"), V(0)))
+        ).aggregate(sum=Coalesce(Sum("amount"), V(0), output_field=FloatField()))
         incomes_this_month = transactions_this_month.filter(
             category__type=Category.INCOME
-        ).aggregate(sum=Coalesce(Sum("amount"), V(0)))
+        ).aggregate(sum=Coalesce(Sum("amount"), V(0), output_field=FloatField()))
         expenses_last_month = transactions_last_month.filter(
             category__type=Category.EXPENSE
-        ).aggregate(sum=Coalesce(Sum("amount"), V(0)))
+        ).aggregate(sum=Coalesce(Sum("amount"), V(0), output_field=FloatField()))
         incomes_last_month = transactions_last_month.filter(
             category__type=Category.INCOME
-        ).aggregate(sum=Coalesce(Sum("amount"), V(0)))
+        ).aggregate(sum=Coalesce(Sum("amount"), V(0), output_field=FloatField()))
         context["expenses_this_month"] = expenses_this_month['sum']
         context["incomes_this_month"] = incomes_this_month['sum']
         context["expenses_last_month"] = expenses_last_month['sum']
@@ -275,13 +275,13 @@ class TransactionListView(LoginRequiredMixin, ListView):
                 Sum(
                     'amount',
                     filter=Q(category__type='EXP')
-                ), V(0)
+                ), V(0), output_field=FloatField()
             ),
             total_income=Coalesce(
                 Sum(
                     'amount',
                     filter=Q(category__type='INC')
-                ), V(0)
+                ), V(0), output_field=FloatField()
             )
         )
         qs = qs.order_by('-date')
@@ -368,13 +368,13 @@ class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
                 Sum(
                     'amount',
                     filter=Q(category__type='EXP')
-                ), V(0)
+                ), V(0), output_field=FloatField()
             ),
             total_income=Coalesce(
                 Sum(
                     'amount',
                     filter=Q(category__type='INC')
-                ), V(0)
+                ), V(0), output_field=FloatField()
             )
         )
         qs = qs.order_by('-date')
