@@ -48,6 +48,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admindocs',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
     # 'debug_toolbar',
     'captcha',
     'healthcheck',
@@ -102,6 +105,7 @@ WSGI_APPLICATION = '_mono.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 if APP_ENV == 'DEV':
     DATABASES = {

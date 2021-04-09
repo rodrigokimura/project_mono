@@ -10,9 +10,10 @@ from django.db import connections, DEFAULT_DB_ALIAS
 from django.core.management import execute_from_command_line
 
 
-def is_there_migrations_to_make():
+def is_there_migrations_to_make(app_label):
+    # This doesn's work when a third-party app requires migrations
     try:
-        execute_from_command_line(["manage.py", "makemigrations", "--check", "--dry-run"])
+        execute_from_command_line(["manage.py", "makemigrations", app_label, "--check", "--dry-run", "--verbosity", "3"])
         system_exit = 0
     except SystemExit as e:
         system_exit = e

@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from django.db.models import Sum, Value as V
+from django.db.models import Sum, Value as V, FloatField
 from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -28,7 +28,9 @@ class Transaction(models.Model):
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     timestamp = models.DateTimeField(_("timestamp"), default=timezone.now,
                                      help_text="Timestamp when transaction occurred. User defined.")
-    amount = models.FloatField(_("amount"), help_text="Amount related to the transaction. Absolute value, no positive/negative signs.")
+    amount = models.FloatField(
+        _("amount"),
+        help_text="Amount related to the transaction. Absolute value, no positive/negative signs.")
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
     account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
     active = models.BooleanField(_("active"), default=True)
@@ -507,7 +509,7 @@ class Budget(models.Model):
 
     @property
     def amount_spent(self):
-        return self.spent_queryset.aggregate(sum=Coalesce(Sum("amount"), V(0)))['sum']
+        return self.spent_queryset.aggregate(sum=Coalesce(Sum("amount"), V(0), output_field=FloatField()))['sum']
 
     @property
     def amount_progress(self):
