@@ -8,6 +8,9 @@ urlpatterns = [
     path('admin/doc/', include('django.contrib.admindocs.urls')),
     path('admin/', admin.site.urls),
     path('', include('homepage.urls')),
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
+
     path('accounts/', include('accounts.urls')),
     path('ms/', include('messenger.urls')),
     path('pm/', include('project_manager.urls')),
