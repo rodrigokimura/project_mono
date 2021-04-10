@@ -33,8 +33,6 @@ urlpatterns = [
     path('admin/doc/', include('django.contrib.admindocs.urls')),
     path('admin/', admin.site.urls),
     path('', include('homepage.urls')),
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
 
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/', include(router.urls)),
@@ -48,6 +46,11 @@ urlpatterns = [
 ]
 #     prefix_default_language=False
 # )
+
+from rest_framework.authtoken import views
+urlpatterns += [
+    path('api-token-auth/', views.obtain_auth_token)
+]
 
 urlpatterns += [path('i18n/', include('django.conf.urls.i18n'))]
 
