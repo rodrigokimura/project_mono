@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'django.contrib.admindocs',
     'rest_framework',
     'rest_framework.authtoken',
-    'djoser',
     # 'debug_toolbar',
     'captcha',
     'healthcheck',
