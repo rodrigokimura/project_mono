@@ -24,11 +24,12 @@ from django.db.models import F, Q, Sum, Value as V, FloatField
 from django.db.models.functions import Coalesce, TruncDay
 from django.utils.translation import gettext as _
 from django.utils import timezone
+from rest_framework import authentication, permissions
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import authentication, permissions
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.authtoken.models import Token
 from .models import (BudgetConfiguration, Configuration, Installment, Transaction, Account, Group,
                      Category, Icon, Goal, Invite, Notification, Budget, Plan,
                      Subscription, RecurrentTransaction)
@@ -1376,3 +1377,20 @@ class Me(RetrieveAPIView):
     def get_object(self):
         user = self.request.user
         return user
+
+
+class ApiLogoutView(APIView):
+
+    authentication_classes = [authentication.TokenAuthentication, authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def post(self, request):
+        Token.objects.get(user=request.user).delete()
+        return Response(
+            {
+                "success": True,
+                "message": "Token was successfully deleted.",
+            }
+        )
