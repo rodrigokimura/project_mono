@@ -1,0 +1,43 @@
+{% extends "rest_framework/base.html" %}
+{% load static %}
+
+{% block bootstrap_theme %}
+{% if APP_ENV == 'DEV' %}
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/dev/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/dev/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/dev/favicon-16x16.png' %}">
+  <link rel="manifest" href="{% static 'favicon/dev/site.webmanifest' %}">
+{% else %}
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/prd/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/prd/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/prd/favicon-16x16.png' %}">
+  <link rel="manifest" href="{% static 'favicon/prd/site.webmanifest' %}">
+{% endif %}
+<link rel="stylesheet" href="{% static "/rest_framework/css/custom-bootstrap.min.css" %}" type="text/css">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap" rel="stylesheet">
+<style type="text/css" media="all">
+  .prettyprint {
+    font-family: 'Ubuntu Mono', monospace;
+    font-size: 1.5em;
+  }
+</style>
+{% endblock %}
+
+{% block title %}
+Project Mono
+{% endblock %}
+
+{% comment %} {% block style %}
+{% endblock %} {% endcomment %}
+
+{% block branding %}
+  <a class="navbar-brand" href="{% url 'finance:index' %}">Project Mono</a>
+{% endblock %}
+
+{% block userlinks %}
+<li>
+  <a href="{% url 'admin:index' %}">Admin</a>
+</li>
+{{ block.super }}
+{% endblock %}
