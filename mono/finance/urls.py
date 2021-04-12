@@ -85,4 +85,6 @@ urlpatterns = [
 
     path('configuration/', views.ConfigurationView.as_view(), name='configuration'),
     path('card-order/', views.CardOrderView.as_view(), name='card_order'),
+
+    path('me/', views.Me.as_view(), name='me'),
 ]
