@@ -24,6 +24,10 @@ from django.db.models import F, Q, Sum, Value as V, FloatField
 from django.db.models.functions import Coalesce, TruncDay
 from django.utils.translation import gettext as _
 from django.utils import timezone
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import authentication, permissions
 from rest_framework.viewsets import ModelViewSet
 from .models import (BudgetConfiguration, Configuration, Installment, Transaction, Account, Group,
                      Category, Icon, Goal, Invite, Notification, Budget, Plan,
@@ -1350,12 +1354,25 @@ class UserViewSet(ModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    
+
+
 class TransactionViewSet(ModelViewSet):
 
     queryset = Transaction.objects.order_by('id').all()
     serializer_class = TransactionSerializer
-    
+
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.filter(created_by=self.request.user)
+
+
+class Me(RetrieveAPIView):
+
+    authentication_classes = [authentication.TokenAuthentication, authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        user = self.request.user
+        return user
