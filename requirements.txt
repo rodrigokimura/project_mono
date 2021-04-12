@@ -19,5 +19,7 @@ django-recaptcha>=2.0,<3.0
 
 stripe>=2.48.0,<3.0
 
-# for android auth
-djoser
+# for mobile API
+djangorestframework
+markdown
+django-filter
