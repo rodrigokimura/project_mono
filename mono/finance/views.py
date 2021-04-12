@@ -13,6 +13,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth import login
+from django.contrib.auth.models import User
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordResetDoneView, PasswordResetView,
     PasswordResetConfirmView,
@@ -23,12 +24,14 @@ from django.db.models import F, Q, Sum, Value as V, FloatField
 from django.db.models.functions import Coalesce, TruncDay
 from django.utils.translation import gettext as _
 from django.utils import timezone
+from rest_framework.viewsets import ModelViewSet
 from .models import (BudgetConfiguration, Configuration, Installment, Transaction, Account, Group,
-                     Category, Icon, Goal, Invite, Notification, Budget, User, Plan,
+                     Category, Icon, Goal, Invite, Notification, Budget, Plan,
                      Subscription, RecurrentTransaction)
 from .forms import (BudgetConfigurationForm, InstallmentForm, TransactionForm, GroupForm,
                     CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm,
                     BudgetForm, RecurrentTransactionForm)
+from .serializers import UserSerializer, TransactionSerializer
 import time
 import jwt
 import stripe
@@ -1341,3 +1344,18 @@ class ConfigurationView(LoginRequiredMixin, TemplateView):
             context['payment_method'] = None
 
         return context
+
+
+class UserViewSet(ModelViewSet):
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    
+class TransactionViewSet(ModelViewSet):
+
+    queryset = Transaction.objects.order_by('id').all()
+    serializer_class = TransactionSerializer
+    
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(created_by=self.request.user)
