@@ -87,4 +87,5 @@ urlpatterns = [
     path('card-order/', views.CardOrderView.as_view(), name='card_order'),
 
     path('me/', views.Me.as_view(), name='me'),
+    path('api-logout/', views.ApiLogoutView.as_view(), name='api_logout'),
 ]
