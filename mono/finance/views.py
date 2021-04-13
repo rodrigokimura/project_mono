@@ -1397,3 +1397,18 @@ class ApiLogoutView(APIView):
                 "message": "Token was successfully deleted.",
             }
         )
+
+
+class ChartsView(LoginRequiredMixin, TemplateView):
+    template_name = "finance/charts.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        transactions_by_category = Transaction.objects.filter(
+            created_by=self.request.user
+        ).values("category__name").annotate(
+            sum=Coalesce(Sum("amount"), V(0), output_field=FloatField())
+        ).order_by("category__name")
+
+        context['transactions_by_category'] = transactions_by_category
+        return context
