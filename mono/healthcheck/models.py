@@ -124,6 +124,8 @@ class PullRequest(models.Model):
                 self.save()
 
             if settings.APP_ENV == 'PRD':
+                execute_from_command_line(["cd", "~/project_mono"])
+                execute_from_command_line(["pip3.8", "install", "-r", "requirements.txt" "--user"])
                 wsgi_file = '/var/www/www_monoproject_info_wsgi.py'
                 Path(wsgi_file).touch()
                 print(f"{wsgi_file} has been touched.")
