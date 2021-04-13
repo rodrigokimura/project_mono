@@ -332,7 +332,7 @@ class Account(models.Model):
                 type=type,
                 internal_type=Category.ADJUSTMENT
             )
-        transaction = Transaction(amount=abs(diff))
+        transaction = Transaction(amount=abs(round(diff, 2)))
         transaction.category = adjustment_category
         transaction.description = "Balance adjustment"
         transaction.account = self
