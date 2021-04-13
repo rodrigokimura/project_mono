@@ -146,6 +146,10 @@ class RecurrentTransaction(models.Model):
             )
             budget.save()
 
+    class Meta:
+        verbose_name = _("recurrent transaction")
+        verbose_name_plural = _("recurrent transactions")
+
 
 class Installment(models.Model):
     FIRST = 'F'
@@ -192,6 +196,10 @@ class Installment(models.Model):
                 account=self.account,
                 installment=self,
             )
+
+    class Meta:
+        verbose_name = _("installment")
+        verbose_name_plural = _("installments")
 
 
 class Icon(models.Model):
@@ -283,6 +291,10 @@ class Group(models.Model):
         self.owned_by = user
         self.save()
 
+    class Meta:
+        verbose_name = _("group")
+        verbose_name_plural = _("groups")
+
 
 class Account(models.Model):
     name = models.CharField(max_length=50)
@@ -346,6 +358,10 @@ class Account(models.Model):
     def __str__(self) -> str:
         return self.name
 
+    class Meta:
+        verbose_name = _("account")
+        verbose_name_plural = _("accounts")
+
 
 class Goal(models.Model):
     WEEKLY = 'W'
@@ -374,6 +390,10 @@ class Goal(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    class Meta:
+        verbose_name = _("goal")
+        verbose_name_plural = _("goals")
 
 
 class BudgetConfiguration(models.Model):
@@ -462,6 +482,10 @@ class BudgetConfiguration(models.Model):
             budget.categories.set(self.categories.all())
             budget.save()
 
+    class Meta:
+        verbose_name = _("budget configuration")
+        verbose_name_plural = _("budget configurations")
+
 
 class Budget(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -471,6 +495,10 @@ class Budget(models.Model):
     accounts = models.ManyToManyField(Account)
     categories = models.ManyToManyField(Category)
     configuration = models.ForeignKey(BudgetConfiguration, on_delete=models.SET_NULL, null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("budget")
+        verbose_name_plural = _("budgets")
 
     def __str__(self) -> str:
         return f'{str(self.configuration)} - {self.amount}'
@@ -557,6 +585,10 @@ class Notification(models.Model):
     action = models.CharField(max_length=1000, blank=True, null=True, default=None)
     active = models.BooleanField(default=True)
 
+    class Meta:
+        verbose_name = _("notification")
+        verbose_name_plural = _("notifications")
+
     def __str__(self) -> str:
         return self.title
 
@@ -579,6 +611,10 @@ class Invite(models.Model):
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     email = models.EmailField(max_length=1000)
     accepted = models.BooleanField(editable=False, default=False)
+
+    class Meta:
+        verbose_name = _("invite")
+        verbose_name_plural = _("invites")
 
     def accept(self, user):
         group = self.group
@@ -623,7 +659,7 @@ class Invite(models.Model):
             'link': full_link
         }
 
-        subject, from_email, to = 'Invite', settings.EMAIL_HOST_USER, self.email
+        subject, from_email, to = _('Invite'), settings.EMAIL_HOST_USER, self.email
         msg = EmailMultiAlternatives(
             subject=subject,
             body=text.render(d),
@@ -633,8 +669,8 @@ class Invite(models.Model):
         msg.send(fail_silently=False)
         if User.objects.filter(email=self.email).exists():
             Notification.objects.create(
-                title="Group invitation",
-                message="You were invited to be part of a group.",
+                title=_("Group invitation"),
+                message=_("You were invited to be part of a group."),
                 icon=Icon.objects.get(markup="exclamation"),
                 to=User.objects.get(email=self.email),
                 action=full_link
@@ -680,6 +716,10 @@ class Configuration(models.Model):
         help_text="Used to store comma-separated string of integers \
             corresponding to cards"
     )
+
+    class Meta:
+        verbose_name = _("configuration")
+        verbose_name_plural = _("configurations")
 
     def __str__(self) -> str:
         return f'Config for {self.user}'
@@ -728,11 +768,13 @@ class Plan(models.Model):
                             help_text="Used to customize the template based on this field. For instance, the basic plan will be muted and the recommended one is highlighted.")
     order = models.IntegerField(unique=True, help_text="Used to sort plans on the template.")
 
+    class Meta:
+        verbose_name = _("plan")
+        verbose_name_plural = _("plans")
+        ordering = ["order"]
+
     def __str__(self) -> str:
         return self.name
-
-    class Meta:
-        ordering = ["order"]
 
 
 class Feature(models.Model):
@@ -747,6 +789,10 @@ class Feature(models.Model):
     internal_description = models.TextField(max_length=1000, null=True, blank=True, default=None, help_text="This is used by staff and is not displayed to user in the template.")
     display = models.BooleanField(help_text="Controls wether feature is shown on the template", default=True)
 
+    class Meta:
+        verbose_name = _("feature")
+        verbose_name_plural = _("features")
+
     def __str__(self) -> str:
         return f"{self.plan.name} - {self.short_description}"
 
@@ -760,6 +806,10 @@ class Subscription(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     cancel_at = models.DateTimeField(null=True, blank=True)
     event_id = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name = _("subscription")
+        verbose_name_plural = _("subscriptions")
 
     @property
     def status(self):

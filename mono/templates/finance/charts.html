@@ -1,0 +1,75 @@
+{% extends "finance/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+{% endblock head %}
+
+{% block body %}
+<div class="ui stackable grid container">
+
+  <div class="ui four wide column"></div>
+
+  <div class="ui eight wide column ">
+    <div class="row">
+      <div class="ui icon warning message" style="margin-bottom: 1rem;">
+        <i class="exclamation icon"></i>
+        <div class="content">
+          <div class="header">
+            {% translate "Attention" %}
+          </div>
+          <p>{% translate "Please, be aware that this is still a work in progress page!" %}</p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      
+      <div class="ui segment">
+        <div id="chart"></div>
+        
+      </div>
+
+    </div>
+  </div>
+  
+  <div class="ui four column wide"></div>
+</div>
+
+<script>
+var options = {
+  chart: {
+    type: 'bar',
+    fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;"
+  },
+  plotOptions: {
+    bar: {
+      borderRadius: 4,
+      horizontal: true,
+    }
+  },
+  series: [
+    {
+      name: 'Total',
+      data: [
+      {% for t in transactions_by_category %}
+      Math.round({{ t.sum }}*100)/100,
+      {% endfor %}
+      ]
+    }
+  ],
+  xaxis: {
+    categories: [
+    {% for t in transactions_by_category %}
+    "{{ t.category__name }}",
+    {% endfor %}
+    ]
+  }
+}
+
+var chart = new ApexCharts(document.querySelector('#chart'), options)
+chart.render()
+
+</script>
+{% endblock body %}
