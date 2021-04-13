@@ -499,7 +499,7 @@ msgstr "Atenção!"
 #: .\templates\finance\charts.html:23
 msgid "Please, be aware that this is still a work in progress page!"
 msgstr ""
-"Por favor, tenha consciência de que está página ainda está em "
+"Por favor, tenha consciência de que esta página ainda está em "
 "desenvolvimento!"
 
 #: .\templates\finance\checkout.html:55
