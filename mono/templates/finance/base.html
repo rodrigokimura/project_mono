@@ -86,6 +86,7 @@
     <a class="item" href="{% url 'finance:budgets' %}"><i class="piggy bank icon"></i>{% translate "Budgets" %}</a>
     <a class="item" href="{% url 'finance:groups' %}"><i class="users icon"></i>{% translate "Groups" %}</a>
     <a class="item" href="{% url 'finance:categories' %}"><i class="tags icon"></i>{% translate "Categories" %}</a>
+    <a class="item" href="{% url 'finance:charts' %}"><i class="chart line icon"></i>{% translate "Charts" %}</a>
     {% comment %} <a class="item" href="{% url 'finance:goals' %}"><i class="bullseye icon"></i>Goals</a> {% endcomment %}
     {% if request.user.is_superuser %}
     <div class="item">
