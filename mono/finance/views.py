@@ -919,7 +919,10 @@ class BudgetListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-        qs = Budget.objects.filter(created_by=self.request.user)
+        qs = Budget.objects.filter(
+            created_by=self.request.user,
+            start_date__lt=timezone.now().date()
+        )
 
         category = self.request.GET.get('category', None)
         if category not in [None, ""]:
@@ -1367,7 +1370,7 @@ class TransactionViewSet(ModelViewSet):
         return qs.filter(created_by=self.request.user)
 
 
-class Me(RetrieveAPIView):
+class ApiMeView(RetrieveAPIView):
 
     authentication_classes = [authentication.TokenAuthentication, authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticated]
