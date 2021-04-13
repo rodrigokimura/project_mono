@@ -1,10 +1,12 @@
 {% load static %}
 {% load i18n %}
+{% load analytical %}
 
 <!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
+  {% analytical_head_top %}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mono Project</title>
@@ -26,11 +28,14 @@
   <link rel="manifest" href="{% static 'favicon/prd/site.webmanifest' %}">
   {% endif %}
   {% block head %}{% endblock head %}
+  {% analytical_head_bottom %}
 </head>
 
 <body class="pushable">
+  {% analytical_body_top %}
   {% block body %}
   {% endblock body %}
+  {% analytical_body_bottom %}
 </body>
 
 </html>
