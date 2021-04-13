@@ -86,6 +86,6 @@ urlpatterns = [
     path('configuration/', views.ConfigurationView.as_view(), name='configuration'),
     path('card-order/', views.CardOrderView.as_view(), name='card_order'),
 
-    path('me/', views.Me.as_view(), name='me'),
+    path('api-me/', views.ApiMeView.as_view(), name='api_me'),
     path('api-logout/', views.ApiLogoutView.as_view(), name='api_logout'),
 ]

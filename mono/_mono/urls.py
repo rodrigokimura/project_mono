@@ -19,6 +19,7 @@ urlpatterns = [
     path('', include('homepage.urls')),
 
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api-token-auth/', views.obtain_auth_token),
     path('api/', include(router.urls)),
 
     path('accounts/', include('accounts.urls')),
@@ -30,10 +31,6 @@ urlpatterns = [
 ]
 #     prefix_default_language=False
 # )
-
-urlpatterns += [
-    path('api-token-auth/', views.obtain_auth_token)
-]
 
 urlpatterns += [path('i18n/', include('django.conf.urls.i18n'))]
 
