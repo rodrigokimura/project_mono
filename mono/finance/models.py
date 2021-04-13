@@ -481,7 +481,10 @@ class Budget(models.Model):
 
     @property
     def time_spent(self):
-        return (timezone.now().date() - self.start_date).days
+        if self.end_date < timezone.now().date():
+            return (self.end_date - self.start_date).days + 1
+        else:
+            return (timezone.now().date() - self.start_date).days
 
     @property
     def time_total(self):
