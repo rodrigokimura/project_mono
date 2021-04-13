@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'analytical',
     'django.contrib.admindocs',
     'rest_framework',
     'rest_framework.authtoken',
@@ -218,3 +219,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100
 }
+
+# ANALYTICAL APP CONFIG
+CLICKY_SITE_ID = '101311237'
