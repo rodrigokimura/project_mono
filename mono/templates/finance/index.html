@@ -10,8 +10,11 @@
 
   <div class="ui stackable grid container" style="margin-bottom: .5rem;">
 
-    {% if user.is_authenticated %}
 
+    {% if user.is_authenticated %}
+    <div class="sixteen wide column">
+      <h1 class="ui header">{% translate "Hi, " %}{% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}!</h1>
+    </div>
     {% with cards=user.configuration.decoded_cards user=user %}
     {% for card in cards %}
     <div class="four wide column">
