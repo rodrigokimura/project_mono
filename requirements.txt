@@ -23,3 +23,6 @@ stripe>=2.48.0,<3.0
 djangorestframework
 markdown
 django-filter
+
+# for usage analytics
+django-analytical
