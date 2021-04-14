@@ -3,10 +3,7 @@
 {% endfor %}
 
 {% for field in form.visible_fields %}
-    <div class="field">
-        <label>{{ field.label }}</label>
     {% include "_field.html" with field=field %}
-    </div>
 {% endfor %}
 
 {% if form.non_field_errors %}

@@ -411,6 +411,8 @@ class BudgetConfiguration(models.Model):
     frequency = models.CharField(max_length=1, choices=FREQUENCY, default=MONTHLY)
     accounts = models.ManyToManyField(Account)
     categories = models.ManyToManyField(Category)
+    all_accounts = models.BooleanField(_("all accounts"), default=False)
+    all_categories = models.BooleanField(_("all categories"), default=False)
     active = models.BooleanField(default=True)
 
     def is_schedule_date(self, reference_date):
@@ -476,6 +478,8 @@ class BudgetConfiguration(models.Model):
                 start_date=reference_date,
                 end_date=reference_date + delta + relativedelta(days=-1),
                 configuration=self,
+                all_accounts=self.all_accounts,
+                all_categories=self.all_categories,
             )
             budget.save()
             budget.accounts.set(self.accounts.all())
@@ -489,12 +493,14 @@ class BudgetConfiguration(models.Model):
 
 class Budget(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    amount = models.FloatField()
-    start_date = models.DateField(default=timezone.now)
-    end_date = models.DateField()
-    accounts = models.ManyToManyField(Account)
-    categories = models.ManyToManyField(Category)
-    configuration = models.ForeignKey(BudgetConfiguration, on_delete=models.SET_NULL, null=True, blank=True)
+    amount = models.FloatField(_("amount"))
+    start_date = models.DateField(_("start date"), default=timezone.now)
+    end_date = models.DateField(_("end date"))
+    accounts = models.ManyToManyField(Account, verbose_name=_("accounts"))
+    categories = models.ManyToManyField(Category, verbose_name=_("categories"))
+    all_accounts = models.BooleanField(_("all accounts"), default=False)
+    all_categories = models.BooleanField(_("all categories"), default=False)
+    configuration = models.ForeignKey(BudgetConfiguration, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("configuration"))
 
     class Meta:
         verbose_name = _("budget")
@@ -531,9 +537,32 @@ class Budget(models.Model):
 
     @property
     def spent_queryset(self):
+
+        if self.all_accounts:
+            owned_accounts = Account.objects.filter(owned_by=self.created_by)
+            shared_accounts = Account.objects.filter(group__members=self.created_by)
+            accounts = (owned_accounts | shared_accounts).distinct()
+        else:
+            accounts = self.accounts.all()
+
+        if self.all_categories:
+            user_categories = Category.objects.filter(
+                created_by=self.created_by,
+                type=Category.EXPENSE,
+                internal_type=Category.DEFAULT
+            )
+            group_categories = Category.objects.filter(
+                group__members=self.created_by,
+                type=Category.EXPENSE,
+                internal_type=Category.DEFAULT
+            )
+            categories = (user_categories | group_categories).distinct()
+        else:
+            categories = self.categories.all()
+
         return Transaction.objects.filter(
-            account__in=self.accounts.all(),
-            category__in=self.categories.all(),
+            account__in=accounts,
+            category__in=categories,
             timestamp__date__gte=self.start_date,
             timestamp__date__lte=self.end_date,
         )

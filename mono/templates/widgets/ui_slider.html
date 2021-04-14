@@ -1,4 +1,5 @@
-<div class="ui toggle checkbox" data-name="{{ widget.name }}"> 
+{% load i18n %}
+<div class="ui slider checkbox" data-name="{{ widget.name }}"> 
     <input 
         type="checkbox" 
         name="{{ widget.name }}" 
@@ -7,5 +8,5 @@
         checked
         {% endif %}
         > 
-    <label>{{ widget.label }}</label>
+    <label>{% translate widget.label %}</label>
 </div>

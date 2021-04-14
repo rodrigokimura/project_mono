@@ -466,6 +466,8 @@ class BudgetForm(forms.ModelForm):
         widgets = {
             'start_date': CalendarWidget,
             'end_date': CalendarWidget,
+            'all_accounts': ToggleWidget,
+            'all_categories': ToggleWidget,
         }
 
 
@@ -506,6 +508,8 @@ class BudgetConfigurationForm(forms.ModelForm):
         widgets = {
             'active': ToggleWidget,
             'start_date': CalendarWidget,
+            'all_accounts': ToggleWidget,
+            'all_categories': ToggleWidget,
         }
 
 
