@@ -234,7 +234,7 @@
 
 <script>
   $('.ui.dropdown[data-name=category]').dropdown({
-    placeholder: "Select a category",
+    placeholder: "{% translate 'Select a category' %}",
     forceSelection: false,
     values: [
       {% for c in categories %}
@@ -249,7 +249,7 @@
     ]
   });
   $('.ui.dropdown[data-name=account]').dropdown({
-    placeholder: "Select an account",
+    placeholder: "{% translate 'Select an account' %}",
     forceSelection: false,
     values: [
       {% for a in accounts %}
