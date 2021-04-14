@@ -921,7 +921,7 @@ class BudgetListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         qs = Budget.objects.filter(
             created_by=self.request.user,
-            start_date__lt=timezone.now().date()
+            start_date__lte=timezone.now().date()
         )
 
         category = self.request.GET.get('category', None)

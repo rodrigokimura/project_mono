@@ -16,18 +16,47 @@
           <p>{% translate "Hi! Can you help us improve?" %}</p>
         </div>
       </div>
-      <form class="ui form bottom attached segment" method="post" class="ui {% if form.errors %}error{% endif %} form" id="account_form">
+      <form class="ui form bottom attached segment" method="post" class="ui {% if form.errors %}error{% endif %} form" id="feedback_form">
         {% csrf_token %}
 
-        <p>{% translate "How are you feeling?" %}</p>
-        {% include "_field.html" with field=form.feeling %}
-        {% include "_field.html" with field=form.message %}
+        <div class="field {% if form.feeling.errors %}error{% endif %}">
+          <label>{% translate "How are you feeling?" %}</label>
+          {{ form.feeling }}
+          {% if form.feeling.errors %}
+            <div class="ui error message">
+            {% for error in form.feeling.errors %}
+              {{ error }}
+            {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="field {% if form.message.errors %}error{% endif %}">
+          {{ form.message }}
+          {% if form.message.errors %}
+            <div class="ui error message">
+            {% for error in form.message.errors %}
+              {{ error }}
+            {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
         <div data-tooltip="{% translate 'By turning this on, you agree that your comment may be visible to other users.' %}" style="margin-bottom: 1em;">
-          {% include "_field.html" with field=form.public %}
+          <div class="field {% if form.public.errors %}error{% endif %}">
+            {{ form.public }}
+            {% if form.public.errors %}
+              <div class="ui error message">
+              {% for error in form.public.errors %}
+                {{ error }}
+              {% endfor %}
+              </div>
+            {% endif %}
+          </div>
         </div>
 
         <div class="fluid ui buttons">
-          <button class="ui button primary" type="submit" form="account_form">
+          <button class="ui button primary" type="submit" form="feedback_form">
             {% translate "Save" %}
           </button>
           <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
