@@ -131,14 +131,14 @@ class AccountForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        self.fields['name'].widget.attrs.update({'placeholder': 'Description'})
+        self.fields['name'].widget.attrs.update({'placeholder': _('Description')})
         self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
         if self.instance.pk:
             if self.instance.owned_by != self.request.user:
                 self.fields['group'].widget.attrs.update({'class': 'ui disabled dropdown'})
 
         self.fields['group'].queryset = Group.objects.filter(members=self.request.user)
-        self.fields['initial_balance'].widget.attrs.update({'placeholder': 'Initial balance'})
+        self.fields['initial_balance'].widget.attrs.update({'placeholder': _('Initial balance')})
         if self.instance.pk is None:
             self.fields['current_balance'].widget = forms.HiddenInput()
         else:
@@ -148,7 +148,7 @@ class AccountForm(forms.ModelForm):
         if self.instance.pk is not None:
             if self.instance.owned_by != self.request.user:
                 if self.instance.group != self.cleaned_data['group']:
-                    raise ValidationError("You don't have permission to change the group.")
+                    raise ValidationError(_("You don't have permission to change the group."))
         return self.cleaned_data
 
     def save(self, *args, **kwargs):

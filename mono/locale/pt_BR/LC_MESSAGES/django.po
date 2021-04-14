@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-14 14:40-0300\n"
+"POT-Creation-Date: 2021-04-14 15:00-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,9 +54,18 @@ msgstr "público"
 msgid "Your feedback was sent! Thank you!"
 msgstr "Sua avaliação foi enviada! Muito obrigado!"
 
-#: .\finance\forms.py:182 .\finance\forms.py:233 .\finance\forms.py:286
+#: .\finance\forms.py:134 .\finance\forms.py:182 .\finance\forms.py:233
+#: .\finance\forms.py:286
 msgid "Description"
 msgstr "Descrição"
+
+#: .\finance\forms.py:141
+msgid "Initial balance"
+msgstr "Saldo inicial"
+
+#: .\finance\forms.py:151
+msgid "You don't have permission to change the group."
+msgstr "Você não possui permissão para alterar o grupo."
 
 #: .\finance\forms.py:183 .\finance\forms.py:234
 msgid "Amount"
@@ -503,6 +512,14 @@ msgstr "Sair"
 msgid "Give feedback"
 msgstr "Avaliar"
 
+#: .\templates\finance\base.html:258
+msgid "Notifications"
+msgstr "Notificações"
+
+#: .\templates\finance\base.html:258
+msgid "Clear all"
+msgstr "Limpar tudo"
+
 #: .\templates\finance\budget_list.html:82
 #: .\templates\finance\budgetconfiguration_list.html:72
 #: .\templates\finance\installment_list.html:70
@@ -763,6 +780,14 @@ msgstr "Ir para as transações parceladas"
 #: .\templates\finance\transaction_list.html:227
 msgid "Go to recurrent transactions"
 msgstr "Ir para as transações recorrentes"
+
+#: .\templates\finance\transaction_list.html:237
+msgid "Select a category"
+msgstr "Selecione uma categoria"
+
+#: .\templates\finance\transaction_list.html:252
+msgid "Select an account"
+msgstr "Selecione uma conta"
 
 #: .\templates\registration\password_reset_complete.html:13
 msgid "Your password recovery was successful."
