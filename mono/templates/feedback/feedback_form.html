@@ -1,0 +1,45 @@
+{% extends "finance/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block head %}
+{% endblock head %}
+
+{% block body %}
+<div class="ui center aligned stackable grid container">
+  <div class="row">
+    <div class="ten wide column">
+    
+
+      <div class="ui attached message">
+        <div class="header">
+          <p>{% translate "Hi! Can you help us improve?" %}</p>
+        </div>
+      </div>
+      <form class="ui form bottom attached segment" method="post" class="ui {% if form.errors %}error{% endif %} form" id="account_form">
+        {% csrf_token %}
+
+        <p>{% translate "How are you feeling?" %}</p>
+        {% include "_field.html" with field=form.feeling %}
+        {% include "_field.html" with field=form.message %}
+        <div data-tooltip="{% translate 'By turning this on, you agree that your comment may be visible to other users.' %}" style="margin-bottom: 1em;">
+          {% include "_field.html" with field=form.public %}
+        </div>
+
+        <div class="fluid ui buttons">
+          <button class="ui button primary" type="submit" form="account_form">
+            {% translate "Save" %}
+          </button>
+          <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
+            {% translate "Cancel" %}
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<script>
+</script>
+{% endblock body %}
