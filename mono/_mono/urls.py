@@ -26,6 +26,7 @@ urlpatterns = [
     path('ms/', include('messenger.urls')),
     path('pm/', include('project_manager.urls')),
     path('hc/', include('healthcheck.urls')),
+    path('fb/', include('feedback.urls')),
     path('fn/', include('finance.urls')),
     # path('__debug__/', include(debug_toolbar.urls)),
 ]

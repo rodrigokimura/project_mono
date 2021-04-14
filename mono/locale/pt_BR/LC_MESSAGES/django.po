@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-13 17:43-0300\n"
+"POT-Creation-Date: 2021-04-14 14:40-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,13 +18,41 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: .\_mono\settings.py:168
+#: .\_mono\settings.py:169
 msgid "American English"
 msgstr "Inglês americano"
 
-#: .\_mono\settings.py:169
+#: .\_mono\settings.py:170
 msgid "Brasilian Portuguese"
 msgstr "Português brasileiro"
+
+#: .\feedback\forms.py:57
+msgid "Please, tell us what is on your mind."
+msgstr "Por favor, nos conte o que está pensando."
+
+#: .\feedback\forms.py:76
+msgid "Please, select a valid option."
+msgstr "Por favor, selecione uma opção válida."
+
+#: .\feedback\models.py:18
+msgid "user"
+msgstr "usuário"
+
+#: .\feedback\models.py:19
+msgid "feeling"
+msgstr "sentimento"
+
+#: .\feedback\models.py:20
+msgid "message"
+msgstr "mensagem"
+
+#: .\feedback\models.py:21
+msgid "public"
+msgstr "público"
+
+#: .\feedback\views.py:21
+msgid "Your feedback was sent! Thank you!"
+msgstr "Sua avaliação foi enviada! Muito obrigado!"
 
 #: .\finance\forms.py:182 .\finance\forms.py:233 .\finance\forms.py:286
 msgid "Description"
@@ -363,6 +391,38 @@ msgstr "A transação foi excluída com sucesso"
 msgid "Installment group was deleted successfully"
 msgstr "O grupo de parcelamentos foi excluído com sucesso"
 
+#: .\templates\feedback\feedback_form.html:16
+msgid "Hi! Can you help us improve?"
+msgstr "Olá! Você poderia nos ajudar a melhorar?"
+
+#: .\templates\feedback\feedback_form.html:22
+msgid "How are you feeling?"
+msgstr "Como está se sentindo?"
+
+#: .\templates\feedback\feedback_form.html:25
+msgid ""
+"By turning this on, you agree that your comment may be visible to other "
+"users."
+msgstr ""
+"Ao ligar esse botão, você concorda que seu comentário poderá ficar visível "
+"para outros usuários."
+
+#: .\templates\feedback\feedback_form.html:31
+#: .\templates\finance\card_order.html:36
+#: .\templates\finance\installment_form.html:23
+#: .\templates\finance\recurrenttransaction_form.html:23
+#: .\templates\finance\transaction_form.html:23
+msgid "Save"
+msgstr "Salvar"
+
+#: .\templates\feedback\feedback_form.html:34
+#: .\templates\finance\installment_form.html:34
+#: .\templates\finance\recurrenttransaction_form.html:34
+#: .\templates\finance\transaction_form.html:34
+#: .\templates\finance\transaction_list.html:140
+msgid "Cancel"
+msgstr "Cancelar"
+
 #: .\templates\finance\_card.html:12
 msgid "Expenses - this month"
 msgstr "Gastos - esse mês"
@@ -395,49 +455,53 @@ msgstr "gasto"
 msgid "Closed budgets"
 msgstr "Orçamentos encerrados"
 
-#: .\templates\finance\base.html:83
+#: .\templates\finance\base.html:99
 msgid "Home"
 msgstr "Página Inicial"
 
-#: .\templates\finance\base.html:84
+#: .\templates\finance\base.html:100
 msgid "Transactions"
 msgstr "Transações"
 
-#: .\templates\finance\base.html:85
+#: .\templates\finance\base.html:101
 msgid "Accounts"
 msgstr "Contas"
 
-#: .\templates\finance\base.html:86
+#: .\templates\finance\base.html:102
 msgid "Budgets"
 msgstr "Orçamentos"
 
-#: .\templates\finance\base.html:87
+#: .\templates\finance\base.html:103
 msgid "Groups"
 msgstr "Grupos"
 
-#: .\templates\finance\base.html:88
+#: .\templates\finance\base.html:104
 msgid "Categories"
 msgstr "Categorias"
 
-#: .\templates\finance\base.html:89
+#: .\templates\finance\base.html:105
 msgid "Charts"
 msgstr "Gráficos"
 
-#: .\templates\finance\base.html:130
+#: .\templates\finance\base.html:146
 msgid "Signed in as "
 msgstr "Logado como "
 
-#: .\templates\finance\base.html:135
+#: .\templates\finance\base.html:151
 msgid "Change language"
 msgstr "Alterar idioma"
 
-#: .\templates\finance\base.html:154
+#: .\templates\finance\base.html:170
 msgid "Settings"
 msgstr "Configurações"
 
-#: .\templates\finance\base.html:158
+#: .\templates\finance\base.html:174
 msgid "Sign out"
 msgstr "Sair"
+
+#: .\templates\finance\base.html:208
+msgid "Give feedback"
+msgstr "Avaliar"
 
 #: .\templates\finance\budget_list.html:82
 #: .\templates\finance\budgetconfiguration_list.html:72
@@ -480,13 +544,6 @@ msgstr "Criar novo agendamento de orçamento."
 #: .\templates\finance\budgetconfiguration_list.html:84
 msgid "Go to Budgets View"
 msgstr "Ir para os orçamentos"
-
-#: .\templates\finance\card_order.html:36
-#: .\templates\finance\installment_form.html:23
-#: .\templates\finance\recurrenttransaction_form.html:23
-#: .\templates\finance\transaction_form.html:23
-msgid "Save"
-msgstr "Salvar"
 
 #: .\templates\finance\card_order.html:83
 msgid "Success!"
@@ -570,7 +627,11 @@ msgstr ""
 "Esta página contém funcionalidades extremamente sensíveis. Por favor, tenha "
 "cuidado."
 
-#: .\templates\finance\index.html:25
+#: .\templates\finance\index.html:16
+msgid "Hi, "
+msgstr "Olá, "
+
+#: .\templates\finance\index.html:28
 msgid "Personalize"
 msgstr "Personalizar"
 
@@ -588,13 +649,6 @@ msgstr "ou"
 #: .\templates\finance\transaction_form.html:29
 msgid "Delete"
 msgstr "Excluir"
-
-#: .\templates\finance\installment_form.html:34
-#: .\templates\finance\recurrenttransaction_form.html:34
-#: .\templates\finance\transaction_form.html:34
-#: .\templates\finance\transaction_list.html:140
-msgid "Cancel"
-msgstr "Cancelar"
 
 #: .\templates\finance\installment_list.html:19
 #: .\templates\finance\recurrenttransaction_list.html:19

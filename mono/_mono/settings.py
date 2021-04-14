@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     # 'debug_toolbar',
     'captcha',
+    'feedback',
     'healthcheck',
     'shared',
     'accounts',
