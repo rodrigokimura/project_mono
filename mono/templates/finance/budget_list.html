@@ -46,17 +46,26 @@
       </div>
       <div class="ui segment">
 
+        {% if budget.all_accounts %}
+          <div class="ui small label">{% translate "All accounts" %}</div> 
+        {% else %}
           {% for account in budget.accounts.all %}
           <a class="ui small label" href="{% url 'finance:account_update' account.pk %}">
           {{ account }}
           </a> 
           {% endfor %}
+        {% endif %}
+
+        {% if budget.all_categories %}
+          <div class="ui small label">{% translate "All categories" %}</div> 
+        {% else %}
           {% for category in budget.categories.all %}
           <a class="ui small tag label" style="margin-top: .2em;" href="{% url 'finance:category_update' category.pk %}">
             <i class="{{ category.icon }} icon"></i>{{ category }}
           </a> 
           {% endfor %}
-          
+        {% endif %}
+
       </div>
       <div class="ui segment">
         <div class="ui amount {{ budget.progress_bar_color }} progress" data-value="{{ budget.amount_spent|stringformat:'f' }}" data-total="{{ budget.amount|stringformat:'f' }}">

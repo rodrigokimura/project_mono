@@ -1,4 +1,6 @@
+{% load i18n %}
 <div class="field {% if field.errors %}error{% endif %}">
+    <label>{% translate field.label %}</label>
     {{ field }}
     {% if field.errors %}
         <div class="ui error message">
