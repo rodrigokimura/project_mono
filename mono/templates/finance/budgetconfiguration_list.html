@@ -13,7 +13,7 @@
   <div class="four wide column">
     <form class="ui fluid form" method="GET" id="filter">
       <div class="field">
-        <label>Category</label>
+        <label>{% translate "Category" %}</label>
         <div class="ui search selection dropdown" data-name="category">
           <input type="hidden" name="category">
           <div class="text"></div>
@@ -21,7 +21,7 @@
         </div>
       </div>
       <div class="field">
-        <label>Account</label>
+        <label>{% translate "Account" %}</label>
         <div class="ui search selection dropdown" data-name="account">
           <input type="hidden" name="account">
           <div class="text"></div>
@@ -29,8 +29,8 @@
         </div>
       </div>
       <div class="ui fluid buttons">
-        <button class="ui button primary" type="submit" form="filter">Filter</button>
-        <a class="ui button" href="{% url 'finance:budgetconfigurations' %}">Clear</a>
+        <button class="ui button primary" type="submit" form="filter">{% translate "Filter" %}</button>
+        <a class="ui button" href="{% url 'finance:budgetconfigurations' %}">{% translate "Clear" %}</a>
       </div>
     </form>
   </div>
@@ -45,20 +45,27 @@
         </a>
       </div>
       <div class="ui segment">
-        <p>Accounts: 
-        {% for account in budgetconfig.accounts.all %}
-        <a class="ui small label" href="{% url 'finance:account_update' account.pk %}">
-        {{ account }}
-        </a> 
-        {% endfor %}
-        </p>
-        <p>Categories: 
-        {% for category in budgetconfig.categories.all %}
-        <a class="ui small tag label" style="margin-top: .2em;" href="{% url 'finance:category_update' category.pk %}">
-          <i class="{{ category.icon }} icon"></i>{{ category }}
-        </a> 
-        {% endfor %}
-        </p>
+
+        {% if budgetconfig.all_accounts %}
+          <div class="ui small label">{% translate "All accounts" %}</div> 
+        {% else %}
+          {% for account in budgetconfig.accounts.all %}
+          <a class="ui small label" href="{% url 'finance:account_update' account.pk %}">
+          {{ account }}
+          </a> 
+          {% endfor %}
+        {% endif %} 
+
+        {% if budgetconfig.all_categories %}
+          <div class="ui small label">{% translate "All categories" %}</div> 
+        {% else %}
+          {% for category in budgetconfig.categories.all %}
+          <a class="ui small tag label" style="margin-top: .2em;" href="{% url 'finance:category_update' category.pk %}">
+            <i class="{{ category.icon }} icon"></i>{{ category }}
+          </a> 
+          {% endfor %}
+        {% endif %}
+
       </div>
       <div class="ui segment">
         {% translate "Next schedule: " %} {{ budgetconfig.next_schedule_start_date }}

@@ -28,8 +28,8 @@ class ButtonsWidget(Widget):
         return mark_safe(template)
 
 
-class ToggleWidget(Widget):
-    template_name = 'widgets/ui_toggle.html'
+class SliderWidget(Widget):
+    template_name = 'widgets/ui_slider.html'
 
     def get_context(self, name, value, attrs=None):
         return {
@@ -69,7 +69,7 @@ class FeedbackForm(forms.ModelForm):
         fields = ['feeling', 'message', 'public']
         widgets = {
             'feeling': ButtonsWidget(choices=Feedback.FEELING_CHOICES),
-            'public': ToggleWidget,
+            'public': SliderWidget,
         }
         error_messages = {
             'feeling': {
