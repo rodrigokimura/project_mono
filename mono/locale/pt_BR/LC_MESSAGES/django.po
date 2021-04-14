@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-14 15:00-0300\n"
+"POT-Creation-Date: 2021-04-14 15:22-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: .\_mono\settings.py:169
+#: .\_mono\settings.py:173
 msgid "American English"
 msgstr "Inglês americano"
 
-#: .\_mono\settings.py:170
+#: .\_mono\settings.py:174
 msgid "Brasilian Portuguese"
 msgstr "Português brasileiro"
 
@@ -713,15 +713,19 @@ msgstr "Ir para as transações"
 msgid "Login to your account!"
 msgstr "Entre na sua conta!"
 
-#: .\templates\finance\login.html:24
+#: .\templates\finance\login.html:25
+msgid "Username or email address"
+msgstr "Nome de usuário ou e-mail"
+
+#: .\templates\finance\login.html:41
 msgid "Login"
 msgstr "Logar"
 
-#: .\templates\finance\login.html:30 .\templates\finance\signup.html:30
+#: .\templates\finance\login.html:47 .\templates\finance\signup.html:30
 msgid "Forgot your password?"
 msgstr "Equeceu a sua senha?"
 
-#: .\templates\finance\login.html:31
+#: .\templates\finance\login.html:48
 msgid "New here?"
 msgstr "É novo aqui?"
 

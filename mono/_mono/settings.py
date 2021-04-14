@@ -131,6 +131,10 @@ else:
         }
     }
 
+AUTHENTICATION_BACKENDS = [
+    '_mono.auth_backends.EmailOrUsernameModelBackend',
+]
+
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
