@@ -730,9 +730,9 @@ class Configuration(models.Model):
     C_BALANCE = 2
     C_BUDGETS = 3
     CARDS = [
-        (C_OVERVIEW, 'Overview'),
-        (C_BALANCE, 'Balance'),
-        (C_BUDGETS, 'Budgets'),
+        (C_OVERVIEW, _('Overview')),
+        (C_BALANCE, _('Balance')),
+        (C_BUDGETS, _('Budgets')),
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
