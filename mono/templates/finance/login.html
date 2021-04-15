@@ -52,6 +52,13 @@
       <p><i class="question circle icon"></i><a href="{% url 'finance:password_reset' %}">{% translate "Forgot your password?" %}</a></p>
       <p><i class="info circle icon"></i><a href="{% url 'finance:signup' %}">{% translate "New here?" %}</a></p>  
     </div>
+
+    <div class="ui horizontal divider">{% translate "Or" %}</div>
+    <span class="ui text">{% translate "Login with: " %}</span>
+    <a class="ui github button" href="{% url 'social:begin' 'github' %}">
+      <i class="github icon"></i>
+      GitHub
+    </a>
   </div>
   
   <div class="ui four column wide"></div>

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-14 18:17-0300\n"
+"POT-Creation-Date: 2021-04-15 09:16-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -344,6 +344,18 @@ msgstr "Convite para grupo"
 msgid "You were invited to be part of a group."
 msgstr "Você foi convidade para fazer parte de um grupo."
 
+#: .\finance\models.py:733
+msgid "Overview"
+msgstr "Resumo"
+
+#: .\finance\models.py:734
+msgid "Balance"
+msgstr "Saldo"
+
+#: .\finance\models.py:735 .\templates\finance\base.html:102
+msgid "Budgets"
+msgstr "Orçamentos"
+
 #: .\finance\models.py:751
 msgid "configurations"
 msgstr "configurações"
@@ -491,10 +503,6 @@ msgstr "Transações"
 #: .\templates\finance\base.html:101
 msgid "Accounts"
 msgstr "Contas"
-
-#: .\templates\finance\base.html:102
-msgid "Budgets"
-msgstr "Orçamentos"
 
 #: .\templates\finance\base.html:103
 msgid "Groups"
@@ -753,15 +761,15 @@ msgstr "Entre na sua conta!"
 msgid "Username or email address"
 msgstr "Nome de usuário ou e-mail"
 
-#: .\templates\finance\login.html:41
+#: .\templates\finance\login.html:46
 msgid "Login"
 msgstr "Logar"
 
-#: .\templates\finance\login.html:47 .\templates\finance\signup.html:30
+#: .\templates\finance\login.html:52 .\templates\finance\signup.html:30
 msgid "Forgot your password?"
 msgstr "Equeceu a sua senha?"
 
-#: .\templates\finance\login.html:48
+#: .\templates\finance\login.html:53
 msgid "New here?"
 msgstr "É novo aqui?"
 
@@ -907,6 +915,3 @@ msgstr "Equipe do Projeto Mono"
 #: .\templates\registration\password_reset_form.html:16
 msgid "Send"
 msgstr "Enviar"
-
-#~ msgid "Public"
-#~ msgstr "Público"
