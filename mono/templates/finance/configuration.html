@@ -14,90 +14,90 @@
       <div class="four wide column"></div>
 
       <div class="eight wide column">
-        <div class="ui huge dividing header">Your plan</div>
+        <div class="ui huge dividing header">{% translate "Your plan" %}</div>
         {% if subscription.cancel_at %}
         <div class="ui error message">
-          <strong>Atention!</strong>
-          Your subscription is scheduled to be canceled at {{ subscription.cancel_at }}. 
-          You can undo this by clicking <button class="ui primary small tertiary basic button" onclick="undoModal()">here</button>.
+          <strong>{% translate "Attention!" %}</strong>
+          {% translate "Your subscription is scheduled to be canceled at " %}{{ subscription.cancel_at }}. 
+          {% tranlsate "You can undo this by clicking " %}<a href="#" onclick="undoModal()">{% translate "here" %}</a>.
         </div>
         {% endif %}
 
-        <div class="ui header">Subscription</div>
+        <div class="ui header">{% translate "Subscription" %}</div>
         <div class="ui sub header">{{ subscription.plan.name }}</div>
         <div class="ui list">
-          <div class="item">Created at {{ subscription.created_at }}</div>
-          <div class="item">Updated at {{ subscription.updated_at }}</div>
+          <div class="item">{% translate "Created at " %}{{ subscription.created_at }}</div>
+          <div class="item">{% translate "Updated at " %}{{ subscription.updated_at }}</div>
           {% if subscription.cancel_at %}
-          <div class="item">Cancel at {{ subscription.cancel_at }}</div>
+          <div class="item">{% translate "Cancel at " %}{{ subscription.cancel_at }}</div>
           {% endif %}
         </div>
 
-        <div class="ui header">Billing</div>
+        <div class="ui header">{% translate "Billing" %}</div>
 
-        <div class="ui header">Payments</div>
-        <div class="ui sub header">Payment method</div>
+        <div class="ui header">{% translate "Payments" %}</div>
+        <div class="ui sub header">{% translate "Payment method" %}</div>
         <div class="ui list">
-          <div class="item">Card brand: {{ payment_method.card.brand }}</div>
-          <div class="item">Card number: **** **** **** {{ payment_method.card.last4 }}</div>
-          <div class="item">Expiration month: {{ payment_method.card.exp_month }}</div>
-          <div class="item">Expiration year: {{ payment_method.card.exp_year }}</div>
+          <div class="item">{% translate "Card brand: " %}{{ payment_method.card.brand }}</div>
+          <div class="item">{% translate "Card number: " %}**** **** **** {{ payment_method.card.last4 }}</div>
+          <div class="item">{% translate "Expiration month: " %}{{ payment_method.card.exp_month }}</div>
+          <div class="item">{% translate "Expiration year: " %}{{ payment_method.card.exp_year }}</div>
         </div>
-        <div class="ui sub header">History</div>
+        <div class="ui sub header">{% translate "History" %}</div>
 
 
         {% if not subscription.cancel_at and subscription %}
-        <div class="ui tiny basic red button" onclick="cancellationModal()">Cancel subscription</div>
+        <div class="ui tiny basic red button" onclick="cancellationModal()">{% tranlsate "Cancel subscription" %}</div>
         {% endif %}
 
         <div class="ui segment">
         
           <h3>GitHub</h3>
           {% if github_login %}
-            <p>Connected as <a href="https://github.com/{{ github_login.extra_data.login }}/" target="_blank">{{ github_login.extra_data.login }}</a></p>
+            <p>{% translate "Connected as " %}<a href="https://github.com/{{ github_login.extra_data.login }}/" target="_blank">{{ github_login.extra_data.login }}</a></p>
             {% if can_disconnect %}
               <form method="post" action="{% url 'social:disconnect' 'github' %}">
                 {% csrf_token %}
-                <button type="submit" class="ui secondary button">Disconnect from GitHub</button>
+                <button type="submit" class="ui secondary button">{% translate "Disconnect from GitHub" %}</button>
               </form>
             {% else %}
-              <button type="button" class="ui disabled secondary button">Disconnect from GitHub</button>
+              <button type="button" class="ui disabled secondary button">{% translate "Disconnect from GitHub" %}</button>
               <p style="color: red">You must <a href="{% url 'password' %}">define a password</a> for your account before disconnecting from Github.</p>
             {% endif %}
           {% else %}
-            <a href="{% url 'social:begin' 'github' %}" class="ui primary button">Connect to GitHub</a>
+            <a href="{% url 'social:begin' 'github' %}" class="ui primary button">{% translate "Connect to GitHub" %}</a>
           {% endif %}
 
           <h3>Twitter</h3>
           {% if twitter_login %}
-            <p>Connected as <a href="https://twitter.com/{{ twitter_login.extra_data.access_token.screen_name }}/" target="_blank">@{{ twitter_login.extra_data.access_token.screen_name }}</a></p>
+            <p>{% translate "Connected as " %}<a href="https://twitter.com/{{ twitter_login.extra_data.access_token.screen_name }}/" target="_blank">@{{ twitter_login.extra_data.access_token.screen_name }}</a></p>
             {% if can_disconnect %}
               <form method="post" action="{% url 'social:disconnect' 'twitter' %}">
                 {% csrf_token %}
-                <button type="submit" class="ui secondary button">Disconnect from Twitter</button>
+                <button type="submit" class="ui secondary button">{% translate "Disconnect from Twitter" %}</button>
               </form>
             {% else %}
-              <button type="button" class="ui disabled secondary button">Disconnect from Twitter</button>
+              <button type="button" class="ui disabled secondary button">{% translate "Disconnect from Twitter" %}</button>
               <p style="color: red">You must <a href="{% url 'password' %}">define a password</a> for your account before disconnecting from Twitter.</p>
             {% endif %}
           {% else %}
-            <a href="{% url 'social:begin' 'twitter' %}" class="ui primary button">Connect to Twitter</a>
+            <a href="{% url 'social:begin' 'twitter' %}" class="ui primary button">{% translate "Connect to Twitter" %}</a>
           {% endif %}
 
           <h3>Facebook</h3>
           {% if facebook_login %}
-            <p>Connected as <a href="https://facebook.com/{{ facebook_login.extra_data.id }}/" target="_blank">{{ facebook_login.extra_data.id }}</a></p>
+            <p>{% translate "Connected as " %}<a href="https://facebook.com/{{ facebook_login.extra_data.id }}/" target="_blank">{{ facebook_login.extra_data.id }}</a></p>
             {% if can_disconnect %}
               <form method="post" action="{% url 'social:disconnect' 'facebook' %}">
                 {% csrf_token %}
-                <button type="submit" class="ui secondary button">Disconnect from Facebook</button>
+                <button type="submit" class="ui secondary button">{% translate "Disconnect from Facebook" %}</button>
               </form>
             {% else %}
-              <button type="button" class="ui disabled secondary button">Disconnect from Facebook</button>
+              <button type="button" class="ui disabled secondary button">{% translate "Disconnect from Facebook" %}</button>
               <p style="color: red">You must <a href="{% url 'password' %}">define a password</a> for your account before disconnecting from Facebook.</p>
             {% endif %}
           {% else %}
-            <a href="{% url 'social:begin' 'facebook' %}" class="ui primary button">Connect to Facebook</a>
+            <a href="{% url 'social:begin' 'facebook' %}" class="ui primary button">{% translate "Connect to Facebook" %}</a>
           {% endif %}
         
         </div>
@@ -111,28 +111,28 @@
     <div class="ui mini cancel modal">
       <div class="ui icon header">
         <i class="archive icon"></i>
-        Confirmation
+        {% translate "Confirmation" %}
       </div>
       <div class="content">
-        <p>Are you sure you want to cancel your subscription?</p>
+        <p>{% translate "Are you sure you want to cancel your subscription?" %}</p>
       </div>
       <div class="actions">
-        <div class="ui cancel button">No</div>
-        <div class="ui approve red button">Yes, I'm sure</div>
+        <div class="ui cancel button">{% translate "No" %}</div>
+        <div class="ui approve red button">{% translate "Yes, I'm sure" %}</div>
       </div>
     </div>
 
     <div class="ui mini undo modal">
       <div class="ui icon header">
         <i class="archive icon"></i>
-        Confirmation
+        {% translate "Confirmation" %}
       </div>
       <div class="content">
-        <p>Are you sure you want to undo your scheduled subscription cancellation?</p>
+        <p>{% translate "Are you sure you want to undo your scheduled subscription cancellation?" %}</p>
       </div>
       <div class="actions">
-        <div class="ui cancel button">No</div>
-        <div class="ui approve red button">Yes, I'm sure</div>
+        <div class="ui cancel button">{% translate "No" %}</div>
+        <div class="ui approve red button">{% translate "Yes, I'm sure" %}</div>
       </div>
     </div>
 

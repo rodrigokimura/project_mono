@@ -29,3 +29,5 @@ django-analytical
 
 # for social login
 social-auth-app-django
+
+django-maintenance-mode

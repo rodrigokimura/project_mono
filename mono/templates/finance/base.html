@@ -121,10 +121,20 @@
     {% endif %}
   </div>
   
-  <div class="ui top inverted fixed menu">
+  <div class="ui top inverted fixed {% if maintenance_mode %}red{% endif %} menu">
+
     <a class="toc item">
       <i class="sidebar icon"></i>
     </a>
+
+    {% if request.user.is_superuser %}
+    <div class="header item">
+      <div class="ui toggle inverted maintenance {% if maintenance_mode %}checked{% endif %} checkbox">
+        <input type="checkbox" {% if maintenance_mode %}checked{% endif %}>
+        <label>{% translate "MAINTENANCE MODE" %}</label>
+      </div>
+    </div>
+    {% endif %}
 
     {% if request.user.is_authenticated %}
     <div class="right menu">
@@ -338,6 +348,14 @@
       }
     );
   }
+
+  $('.ui.maintenance.checkbox').checkbox(
+    {
+      onChecked: () => { location.href = '/maintenance-mode/on/'; console.log("teste") },
+      onUnchecked: () => { location.href = '/maintenance-mode/off/'; },
+    }
+  );
+
   
 </script>
 
