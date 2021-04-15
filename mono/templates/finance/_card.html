@@ -7,7 +7,7 @@
   </div>
   <div class="ui segment">
 
-    {% if card == 'Overview' %}
+    {% if card == _('Overview') %}
       <div class="ui sub header">
         {% translate "Expenses - this month" %}
       </div>
@@ -27,7 +27,7 @@
 
 
 
-    {% elif card == 'Balance' %}
+    {% elif card == _('Balance') %}
 
       {% with accounts=user.owned_accountset.all %}
         {% for account in accounts %}
@@ -40,7 +40,7 @@
       <div class="ui sub header">{% translate "Total balance" %}</div>
       {{ total_balance }}
 
-    {% elif card == 'Budgets' %}
+    {% elif card == _('Budgets') %}
 
       {% with budgets=open_budgets %}
         {% for budget in budgets %}

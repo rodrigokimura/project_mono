@@ -26,3 +26,6 @@ django-filter
 
 # for usage analytics
 django-analytical
+
+# for social login
+social-auth-app-django

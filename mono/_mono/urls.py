@@ -14,6 +14,7 @@ router.register(r'transactions', TransactionViewSet)
 
 
 urlpatterns = [
+    path('auth/', include('social_django.urls', namespace='social')),
     path('admin/doc/', include('django.contrib.admindocs.urls')),
     path('admin/', admin.site.urls),
     path('', include('homepage.urls')),
