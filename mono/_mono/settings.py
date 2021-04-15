@@ -47,8 +47,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'analytical',
     'django.contrib.admindocs',
+    'maintenance_mode',
+    'analytical',
     'rest_framework',
     'rest_framework.authtoken',
     'social_django',
@@ -75,6 +76,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.admindocs.middleware.XViewMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
+    'maintenance_mode.middleware.MaintenanceModeMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
@@ -101,6 +103,7 @@ TEMPLATES = [
                 'django.template.context_processors.i18n',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
+                'maintenance_mode.context_processors.maintenance_mode',
             ],
         },
     },
@@ -245,3 +248,6 @@ SOCIAL_AUTH_GITHUB_SECRET = os.getenv('SOCIAL_AUTH_GITHUB_SECRET')
 SOCIAL_AUTH_LOGIN_ERROR_URL = reverse_lazy('finance:configuration')
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = reverse_lazy('finance:configuration')
 SOCIAL_AUTH_RAISE_EXCEPTIONS = False
+
+# MAINTENANCE MODE
+MAINTENANCE_MODE_IGNORE_SUPERUSER = True
