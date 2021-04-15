@@ -36,7 +36,7 @@ class SliderWidget(Widget):
             'widget': {
                 'name': name,
                 'value': value,
-                'label': name.title(),
+                'label': _(name).title(),
             },
         }
 
