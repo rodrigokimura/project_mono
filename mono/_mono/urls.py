@@ -18,6 +18,7 @@ urlpatterns = [
     path('admin/doc/', include('django.contrib.admindocs.urls')),
     path('admin/', admin.site.urls),
     path('', include('homepage.urls')),
+    path('maintenance-mode/', include('maintenance_mode.urls')),
 
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api-token-auth/', views.obtain_auth_token),
