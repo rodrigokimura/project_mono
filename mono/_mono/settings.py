@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.admindocs',
     'rest_framework',
     'rest_framework.authtoken',
+    'social_django',
     # 'debug_toolbar',
     'captcha',
     'feedback',
@@ -73,6 +74,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.admindocs.middleware.XViewMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
@@ -97,6 +99,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -132,6 +136,9 @@ else:
     }
 
 AUTHENTICATION_BACKENDS = [
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.twitter.TwitterOAuth',
+    'social_core.backends.facebook.FacebookOAuth2',
     '_mono.auth_backends.EmailOrUsernameModelBackend',
 ]
 
@@ -185,8 +192,9 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-LOGIN_REDIRECT_URL = reverse_lazy('finance:index')
 LOGIN_URL = reverse_lazy('finance:login')
+LOGOUT_URL = reverse_lazy('finance:index')
+LOGIN_REDIRECT_URL = reverse_lazy('finance:index')
 
 if APP_ENV == 'DEV':
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -229,3 +237,11 @@ REST_FRAMEWORK = {
 # ANALYTICAL APP CONFIG
 CLICKY_SITE_ID = '101311237'
 GOOGLE_ANALYTICS_GTAG_PROPERTY_ID = 'G-7MZ1SHW9YC'
+
+# SOCIAL LOGIN SECRETS
+SOCIAL_AUTH_GITHUB_KEY = os.getenv('SOCIAL_AUTH_GITHUB_KEY')
+SOCIAL_AUTH_GITHUB_SECRET = os.getenv('SOCIAL_AUTH_GITHUB_SECRET')
+
+SOCIAL_AUTH_LOGIN_ERROR_URL = reverse_lazy('finance:configuration')
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = reverse_lazy('finance:configuration')
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
