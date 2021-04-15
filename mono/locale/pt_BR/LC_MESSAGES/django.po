@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-15 09:16-0300\n"
+"POT-Creation-Date: 2021-04-15 14:31-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: .\_mono\settings.py:173
+#: .\_mono\settings.py:180
 msgid "American English"
 msgstr "Inglês americano"
 
-#: .\_mono\settings.py:174
+#: .\_mono\settings.py:181
 msgid "Brasilian Portuguese"
 msgstr "Português brasileiro"
 
@@ -344,15 +344,16 @@ msgstr "Convite para grupo"
 msgid "You were invited to be part of a group."
 msgstr "Você foi convidade para fazer parte de um grupo."
 
-#: .\finance\models.py:733
+#: .\finance\models.py:733 .\templates\finance\_card.html:10
 msgid "Overview"
 msgstr "Resumo"
 
-#: .\finance\models.py:734
+#: .\finance\models.py:734 .\templates\finance\_card.html:30
 msgid "Balance"
 msgstr "Saldo"
 
-#: .\finance\models.py:735 .\templates\finance\base.html:102
+#: .\finance\models.py:735 .\templates\finance\_card.html:43
+#: .\templates\finance\base.html:102
 msgid "Budgets"
 msgstr "Orçamentos"
 
@@ -400,27 +401,27 @@ msgstr "assinatura"
 msgid "subscriptions"
 msgstr "assinaturas"
 
-#: .\finance\views.py:201
+#: .\finance\views.py:202
 msgid "Password reset"
 msgstr "Recuperação de senha"
 
-#: .\finance\views.py:213
+#: .\finance\views.py:214
 msgid "Enter new password"
 msgstr "Digite a nova senha"
 
-#: .\finance\views.py:218
+#: .\finance\views.py:219
 msgid "Password reset sent"
 msgstr "E-mail recuperação de senha enviado"
 
-#: .\finance\views.py:223
+#: .\finance\views.py:224
 msgid "Password reset complete"
 msgstr "Recuperação de senha concluída"
 
-#: .\finance\views.py:325 .\finance\views.py:425
+#: .\finance\views.py:326 .\finance\views.py:426
 msgid "Transaction was deleted successfully"
 msgstr "A transação foi excluída com sucesso"
 
-#: .\finance\views.py:466
+#: .\finance\views.py:467
 msgid "Installment group was deleted successfully"
 msgstr "O grupo de parcelamentos foi excluído com sucesso"
 
@@ -651,10 +652,12 @@ msgstr ""
 "desenvolvimento!"
 
 #: .\templates\finance\checkout.html:55
+#: .\templates\finance\configuration.html:26
 msgid "Subscription"
 msgstr "Assinatura"
 
 #: .\templates\finance\checkout.html:61
+#: .\templates\finance\configuration.html:36
 msgid "Billing"
 msgstr "Plano"
 
@@ -706,6 +709,119 @@ msgstr "Agora precisamos das suas informações de pagamento."
 #: .\templates\finance\checkout.html:167
 msgid "Subscribe"
 msgstr "Inscrever-se"
+
+#: .\templates\finance\configuration.html:17
+msgid "Your plan"
+msgstr "Seu plano"
+
+#: .\templates\finance\configuration.html:20
+msgid "Attention!"
+msgstr "Atenção!"
+
+#: .\templates\finance\configuration.html:21
+msgid "Your subscription is scheduled to be canceled at "
+msgstr "Sua assunatura está agendada para ser cancelada em "
+
+#: .\templates\finance\configuration.html:22
+#: .\templates\registration\password_reset_complete.html:15
+msgid "here"
+msgstr "aqui"
+
+#: .\templates\finance\configuration.html:29
+msgid "Created at "
+msgstr "Criado em "
+
+#: .\templates\finance\configuration.html:30
+msgid "Updated at "
+msgstr "Atualizado em "
+
+#: .\templates\finance\configuration.html:32
+msgid "Cancel at "
+msgstr "Cancelar em "
+
+#: .\templates\finance\configuration.html:38
+msgid "Payments"
+msgstr "Pagamentos"
+
+#: .\templates\finance\configuration.html:39
+msgid "Payment method"
+msgstr "Método de agamento"
+
+#: .\templates\finance\configuration.html:41
+msgid "Card brand: "
+msgstr "Bandeira do cartão: "
+
+#: .\templates\finance\configuration.html:42
+msgid "Card number: "
+msgstr "Número do cartão: "
+
+#: .\templates\finance\configuration.html:43
+msgid "Expiration month: "
+msgstr "Mês de vencimento: "
+
+#: .\templates\finance\configuration.html:44
+msgid "Expiration year: "
+msgstr "Ano de vencimento"
+
+#: .\templates\finance\configuration.html:46
+msgid "History"
+msgstr "Histórico"
+
+#: .\templates\finance\configuration.html:57
+#: .\templates\finance\configuration.html:73
+#: .\templates\finance\configuration.html:89
+msgid "Connected as "
+msgstr "Conectado como "
+
+#: .\templates\finance\configuration.html:61
+#: .\templates\finance\configuration.html:64
+msgid "Disconnect from GitHub"
+msgstr "Desconectar do GitHub"
+
+#: .\templates\finance\configuration.html:68
+msgid "Connect to GitHub"
+msgstr "Conectar ao GitHub"
+
+#: .\templates\finance\configuration.html:77
+#: .\templates\finance\configuration.html:80
+msgid "Disconnect from Twitter"
+msgstr "Desconectar do Twitter"
+
+#: .\templates\finance\configuration.html:84
+msgid "Connect to Twitter"
+msgstr "Conectar ao Twitter"
+
+#: .\templates\finance\configuration.html:93
+#: .\templates\finance\configuration.html:96
+msgid "Disconnect from Facebook"
+msgstr "Desconectar do Facebook"
+
+#: .\templates\finance\configuration.html:100
+msgid "Connect to Facebook"
+msgstr "Conectar ao Facebook"
+
+#: .\templates\finance\configuration.html:114
+#: .\templates\finance\configuration.html:128
+msgid "Confirmation"
+msgstr "Confirmação"
+
+#: .\templates\finance\configuration.html:117
+msgid "Are you sure you want to cancel your subscription?"
+msgstr "Tem certeza de que quer cancelar a sua assinatura?"
+
+#: .\templates\finance\configuration.html:120
+#: .\templates\finance\configuration.html:134
+msgid "No"
+msgstr "Não"
+
+#: .\templates\finance\configuration.html:121
+#: .\templates\finance\configuration.html:135
+msgid "Yes, I'm sure"
+msgstr "Sim, tenho certeza"
+
+#: .\templates\finance\configuration.html:131
+msgid "Are you sure you want to undo your scheduled subscription cancellation?"
+msgstr "Tem certeza de que quer desfazer o seu agendamento de cancelamento da assinatura?"
 
 #: .\templates\finance\faker.html:24
 msgid "SECURITY ALERT"
@@ -772,6 +888,14 @@ msgstr "Equeceu a sua senha?"
 #: .\templates\finance\login.html:53
 msgid "New here?"
 msgstr "É novo aqui?"
+
+#: .\templates\finance\login.html:56
+msgid "Or"
+msgstr "Ou"
+
+#: .\templates\finance\login.html:57
+msgid "Login with: "
+msgstr "Login usando: "
 
 #: .\templates\finance\plans.html:40
 msgid "Subscribed"
@@ -844,10 +968,6 @@ msgstr "Sua senha foi recuperada com sucesso."
 #: .\templates\registration\password_reset_complete.html:15
 msgid "You may now log-in to your account "
 msgstr "Você pode agora logar na sua conta"
-
-#: .\templates\registration\password_reset_complete.html:15
-msgid "here"
-msgstr "aqui"
 
 #: .\templates\registration\password_reset_confirm.html:16
 msgid "Proceed"
