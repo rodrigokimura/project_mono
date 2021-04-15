@@ -44,6 +44,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import pytz
 from datetime import datetime
+from social_django.models import UserSocialAuth
 
 
 class TokenMixin(object):
@@ -1350,6 +1351,29 @@ class ConfigurationView(LoginRequiredMixin, TemplateView):
             context['payment_method'] = payment_method
         except IndexError:
             context['payment_method'] = None
+
+        # For social login controls
+        try:
+            github_login = self.request.user.social_auth.get(provider='github')
+        except UserSocialAuth.DoesNotExist:
+            github_login = None
+
+        try:
+            twitter_login = self.request.user.social_auth.get(provider='twitter')
+        except UserSocialAuth.DoesNotExist:
+            twitter_login = None
+
+        try:
+            facebook_login = self.request.user.social_auth.get(provider='facebook')
+        except UserSocialAuth.DoesNotExist:
+            facebook_login = None
+
+        can_disconnect = (self.request.user.social_auth.count() > 1 or self.request.user.has_usable_password())
+
+        context['github_login'] = github_login
+        context['twitter_login'] = twitter_login
+        context['facebook_login'] = facebook_login
+        context['can_disconnect'] = can_disconnect
 
         return context
 
