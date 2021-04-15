@@ -58,14 +58,14 @@
             {% if can_disconnect %}
               <form method="post" action="{% url 'social:disconnect' 'github' %}">
                 {% csrf_token %}
-                <button type="submit">Disconnect from GitHub</button>
+                <button type="submit" class="ui secondary button">Disconnect from GitHub</button>
               </form>
             {% else %}
-              <button type="button" disabled>Disconnect from GitHub</button>
+              <button type="button" class="ui disabled secondary button">Disconnect from GitHub</button>
               <p style="color: red">You must <a href="{% url 'password' %}">define a password</a> for your account before disconnecting from Github.</p>
             {% endif %}
           {% else %}
-            <a href="{% url 'social:begin' 'github' %}">Connect to GitHub</a>
+            <a href="{% url 'social:begin' 'github' %}" class="ui primary button">Connect to GitHub</a>
           {% endif %}
 
           <h3>Twitter</h3>
@@ -74,14 +74,14 @@
             {% if can_disconnect %}
               <form method="post" action="{% url 'social:disconnect' 'twitter' %}">
                 {% csrf_token %}
-                <button type="submit">Disconnect from Twitter</button>
+                <button type="submit" class="ui secondary button">Disconnect from Twitter</button>
               </form>
             {% else %}
-              <button type="button" disabled>Disconnect from Twitter</button>
+              <button type="button" class="ui disabled secondary button">Disconnect from Twitter</button>
               <p style="color: red">You must <a href="{% url 'password' %}">define a password</a> for your account before disconnecting from Twitter.</p>
             {% endif %}
           {% else %}
-            <a href="{% url 'social:begin' 'twitter' %}">Connect to Twitter</a>
+            <a href="{% url 'social:begin' 'twitter' %}" class="ui primary button">Connect to Twitter</a>
           {% endif %}
 
           <h3>Facebook</h3>
@@ -90,14 +90,14 @@
             {% if can_disconnect %}
               <form method="post" action="{% url 'social:disconnect' 'facebook' %}">
                 {% csrf_token %}
-                <button type="submit">Disconnect from Facebook</button>
+                <button type="submit" class="ui secondary button">Disconnect from Facebook</button>
               </form>
             {% else %}
-              <button type="button" disabled>Disconnect from Facebook</button>
+              <button type="button" class="ui disabled secondary button">Disconnect from Facebook</button>
               <p style="color: red">You must <a href="{% url 'password' %}">define a password</a> for your account before disconnecting from Facebook.</p>
             {% endif %}
           {% else %}
-            <a href="{% url 'social:begin' 'facebook' %}">Connect to Facebook</a>
+            <a href="{% url 'social:begin' 'facebook' %}" class="ui primary button">Connect to Facebook</a>
           {% endif %}
         
         </div>
