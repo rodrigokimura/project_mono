@@ -131,7 +131,7 @@
       <div class="ui top pointing inverted teal dropdown item" id="notification-menu">
         <i class="bell outline icon"></i>
         <div 
-          class="ui mini floating circular teal notification label" 
+          class="hidden ui mini floating circular teal notification label" 
           id="notification-count"
           style="transform: translate(0, 1em);"
           ></div>
@@ -269,6 +269,7 @@
           } else {
             notificationLabelElement.text(r.results.length);
             notificationLabelElement.addClass('hidden');
+            notificationLabelElement.text("ttttt")
             $('.ui.dropdown#notification-menu i.icon').addClass('outline');
           }
         }
