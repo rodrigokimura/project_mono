@@ -1,0 +1,32 @@
+# APP_ENV=PRD
+APP_ENV=DEV
+APP_SECRET="r*yxzn+k1kg3nk1&gurn3#l0==ue&toj6d#a3=p00m7)1&*k=9"
+ALLOWED_HOST="www.monoproject.info"
+
+DB_NAME=kimura$monodb
+DB_USER=kimura
+DB_PASS="0xbf+nz2fb7fa$8uh*-+()&5"
+DB_ADDR="kimura.mysql.pythonanywhere-services.com"
+
+EMAIL_HOST="smtp.hostinger.com.br"
+EMAIL_HOST_USER="no-reply@voitkemp.com"
+EMAIL_HOST_PASSWORD="Zl8>dmE^@Q9l"
+
+GITHUB_SECRET="jsshatdsd647kel5ypkfnlrdm6l55nhfxko"
+
+RECAPTCHA_PUBLIC_KEY="6LdW3YsaAAAAADW2j0PTaQl5UkAtpPMhV9Ptz-Ya"
+RECAPTCHA_PRIVATE_KEY="6LdW3YsaAAAAALoobLdT9pGa2Nn1vorlfQ8nF13s"
+
+STRIPE_PUBLIC_KEY = "pk_test_51IYaTcCpAtx19pKO2F5E4SgAknGJrahq96OGWK3MyklefDwxWZJ0IHDeYTLqHG0CZtPoiFHYu2eNCrDS3OkSFPEp004TaKpVZ7"
+STRIPE_SECRET_KEY = "sk_test_51IYaTcCpAtx19pKO8u18Diboc54plUla0jmxN0Ueg8zp6xTDmfL0nK9L19Q1rNCe466o4AbA2uxOtRl0cYzalDCY00rOi3N5z0"
+STRIPE_ENDPOINT_SECRET = "whsec_vuJgLHwJtiH9yL08eilDZlq26591I2MN"
+STRIPE_TIMEZONE = "America/Sao_Paulo"
+
+# STRIPE_PUBLIC_KEY = "pk_live_51IYaTcCpAtx19pKOu1mVDb42W4i5JyFIhX1AKEjw4hJERwoTh5Ms08U2F63BogBXR8qfLbBMKVnQgneuEtZc6SMH00ByRcu0YN"
+# STRIPE_SECRET_KEY = "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"
+
+# EMAIL_HOST_USER="teste@voitkemp.com" #teste
+# EMAIL_HOST_PASSWORD="1k#eZcYhN" #teste
+
+SOCIAL_AUTH_GITHUB_KEY = 'd2262fda27e1996fa170'
+SOCIAL_AUTH_GITHUB_SECRET = 'd658105bc525879d5566cfefef03c99fc2803c60'
