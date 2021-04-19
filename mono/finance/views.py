@@ -1428,11 +1428,20 @@ class ChartsView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
         transactions_by_category = Transaction.objects.filter(
             created_by=self.request.user
         ).values("category__name").annotate(
             sum=Coalesce(Sum("amount"), V(0), output_field=FloatField())
         ).order_by("category__name")
-
         context['transactions_by_category'] = transactions_by_category
+        
+        transactions_by_month_this_year = Transaction.objects.filter(
+            created_by=self.request.user,
+            timestamp__year=timezone.now().year
+        ).values("timestamp__month").annotate(
+            sum=Coalesce(Sum("amount"), V(0), output_field=FloatField())
+        ).order_by("timestamp__month")
+        context['transactions_by_month_this_year'] = transactions_by_month_this_year
+
         return context
