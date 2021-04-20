@@ -1,3 +1,4 @@
+import logging
 from rest_framework.authtoken import views
 from django.contrib import admin
 from django.urls import path, include
@@ -5,12 +6,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from finance.views import UserViewSet, TransactionViewSet
+from .ascii_arts import ascii_art_1
 # import debug_toolbar
 
 
 router = DefaultRouter()
-router.register(r'users', UserViewSet)
-router.register(r'transactions', TransactionViewSet)
+router.register('users', UserViewSet)
+router.register('transactions', TransactionViewSet)
 
 
 urlpatterns = [
@@ -31,11 +33,12 @@ urlpatterns = [
     path('fb/', include('feedback.urls')),
     path('fn/', include('finance.urls')),
     # path('__debug__/', include(debug_toolbar.urls)),
+    path('i18n/', include('django.conf.urls.i18n')),
 ]
-#     prefix_default_language=False
-# )
-
-urlpatterns += [path('i18n/', include('django.conf.urls.i18n'))]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Aesthetics-only
+logger = logging.getLogger("mylogger")
+logger.info(ascii_art_1)
