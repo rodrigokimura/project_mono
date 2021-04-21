@@ -31,3 +31,5 @@ django-analytical
 social-auth-app-django
 
 django-maintenance-mode
+
+django-filebrowser
