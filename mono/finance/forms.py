@@ -168,6 +168,59 @@ class AccountForm(forms.ModelForm):
         widgets = {}
 
 
+class UniversalTransactionForm(forms.ModelForm):
+    error_css_class = 'error'
+
+    type = forms.CharField(
+        widget=ButtonsWidget(choices=Category.TRANSACTION_TYPES))
+    recurrent = forms.BooleanField(widget=ToggleWidget)
+    installment = forms.BooleanField(widget=ToggleWidget)
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+        owned_accounts = Account.objects.filter(owned_by=self.request.user)
+        shared_accounts = Account.objects.filter(group__members=self.request.user)
+        self.fields['description'].widget.attrs.update({'placeholder': _('Description')})
+        self.fields['amount'].widget.attrs.update({'placeholder': _('Amount')})
+        self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
+        self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
+        self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
+        if self.instance.pk is not None:
+            self.fields['type'].initial = self.instance.category.type
+        else:
+            self.fields['type'].initial = Category.EXPENSE
+
+    def get_context_data(self, **kwargs):
+        context = super(TransactionForm, self).get_context_data(**kwargs)
+        categories = Category.objects.all()
+        context['categories'] = categories
+        return context
+
+    class Meta:
+        model = Transaction
+        fields = [
+            "description",
+            "timestamp",
+            "account",
+            "amount",
+            "category",
+            "active",
+        ]
+        exclude = ['created_by']
+        widgets = {
+            'category': CategoryWidget,
+            'timestamp': CalendarWidget,
+            'active': ToggleWidget,
+        }
+
+    def save(self, *args, **kwargs):
+        category = self.instance
+        category.created_by = self.request.user
+        category.save()
+        return super().save(*args, **kwargs)
+
+
 class TransactionForm(forms.ModelForm):
     error_css_class = 'error'
 
