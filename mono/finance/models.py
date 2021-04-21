@@ -54,6 +54,10 @@ class Transaction(models.Model):
             sign = -1
         return self.amount * sign
 
+    def round_amount(self):
+        self.amount = round(float(self.amount), 2)
+        self.save()
+
     def __str__(self) -> str:
         return self.description
 

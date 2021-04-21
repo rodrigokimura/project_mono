@@ -59,3 +59,8 @@ def installments_creation(sender, instance, created, **kwargs):
             for transaction in transactions:
                 transaction.delete()
             instance.create_transactions()
+
+
+def round_transaction(sender, instance, created, **kwargs):
+    if sender == Transaction:
+        instance.round_amount()
