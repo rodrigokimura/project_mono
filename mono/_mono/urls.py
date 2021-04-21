@@ -7,6 +7,7 @@ from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from finance.views import UserViewSet, TransactionViewSet
 from .ascii_arts import ascii_art_1
+from filebrowser.sites import site
 # import debug_toolbar
 
 
@@ -16,16 +17,16 @@ router.register('transactions', TransactionViewSet)
 
 
 urlpatterns = [
+    path('admin/filebrowser/', site.urls),
+    path('grappelli/', include('grappelli.urls')),
+    path('admin/', admin.site.urls),
     path('auth/', include('social_django.urls', namespace='social')),
     path('admin/doc/', include('django.contrib.admindocs.urls')),
-    path('admin/', admin.site.urls),
     path('', include('homepage.urls')),
     path('maintenance-mode/', include('maintenance_mode.urls')),
-
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api-token-auth/', views.obtain_auth_token),
     path('api/', include(router.urls)),
-
     path('accounts/', include('accounts.urls')),
     path('ms/', include('messenger.urls')),
     path('pm/', include('project_manager.urls')),
@@ -33,6 +34,7 @@ urlpatterns = [
     path('fb/', include('feedback.urls')),
     path('fn/', include('finance.urls')),
     # path('__debug__/', include(debug_toolbar.urls)),
+    path('tinymce/', include('tinymce.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
 ]
 
