@@ -33,9 +33,10 @@ from rest_framework.authtoken.models import Token
 from .models import (BudgetConfiguration, Configuration, Installment, Transaction, Account, Group,
                      Category, Icon, Goal, Invite, Notification, Budget, Plan,
                      Subscription, RecurrentTransaction)
-from .forms import (BudgetConfigurationForm, InstallmentForm, TransactionForm, GroupForm,
-                    CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm,
-                    BudgetForm, RecurrentTransactionForm)
+from .forms import (
+    BudgetConfigurationForm, InstallmentForm, TransactionForm, GroupForm,
+    CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm,
+    BudgetForm, RecurrentTransactionForm, UniversalTransactionForm)
 from .serializers import UserSerializer, TransactionSerializer
 import time
 import jwt
@@ -1428,14 +1429,14 @@ class ChartsView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         transactions_by_category = Transaction.objects.filter(
             created_by=self.request.user
         ).values("category__name").annotate(
             sum=Coalesce(Sum("amount"), V(0), output_field=FloatField())
         ).order_by("category__name")
         context['transactions_by_category'] = transactions_by_category
-        
+
         transactions_by_month_this_year = Transaction.objects.filter(
             created_by=self.request.user,
             timestamp__year=timezone.now().year

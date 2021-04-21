@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-15 14:31-0300\n"
+"POT-Creation-Date: 2021-04-20 18:20-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,13 +18,54 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: .\_mono\settings.py:180
+#: .\_mono\settings.py:184
 msgid "American English"
 msgstr "Inglês americano"
 
-#: .\_mono\settings.py:181
+#: .\_mono\settings.py:185
 msgid "Brasilian Portuguese"
 msgstr "Português brasileiro"
+
+#: .\blog\models.py:11
+msgid "title"
+msgstr "título"
+
+#: .\blog\models.py:12
+msgid "content"
+msgstr "conteúdo"
+
+#: .\blog\models.py:13 .\blog\models.py:25
+msgid "author"
+msgstr "autor"
+
+#: .\blog\models.py:14 .\blog\models.py:26 .\finance\models.py:28
+msgid "created at"
+msgstr "criado em"
+
+#: .\blog\models.py:15 .\blog\models.py:27
+msgid "updated at"
+msgstr "atualizado em"
+
+#: .\blog\models.py:18 .\blog\models.py:23
+msgid "post"
+msgstr "postagem"
+
+#: .\blog\models.py:19
+msgid "posts"
+msgstr "postagens"
+
+#: .\blog\models.py:24 .\finance\models.py:23 .\finance\models.py:71
+#: .\finance\models.py:163
+msgid "description"
+msgstr "descrição"
+
+#: .\blog\models.py:30
+msgid "comment"
+msgstr "comentário"
+
+#: .\blog\models.py:31
+msgid "comments"
+msgstr "comentários"
 
 #: .\feedback\forms.py:57
 msgid "Please, tell us what is on your mind."
@@ -54,8 +95,8 @@ msgstr "público"
 msgid "Your feedback was sent! Thank you!"
 msgstr "Sua avaliação foi enviada! Muito obrigado!"
 
-#: .\finance\forms.py:134 .\finance\forms.py:182 .\finance\forms.py:233
-#: .\finance\forms.py:286
+#: .\finance\forms.py:134 .\finance\forms.py:184 .\finance\forms.py:235
+#: .\finance\forms.py:286 .\finance\forms.py:339
 msgid "Description"
 msgstr "Descrição"
 
@@ -67,37 +108,29 @@ msgstr "Saldo inicial"
 msgid "You don't have permission to change the group."
 msgstr "Você não possui permissão para alterar o grupo."
 
-#: .\finance\forms.py:183 .\finance\forms.py:234
+#: .\finance\forms.py:185 .\finance\forms.py:236 .\finance\forms.py:287
 msgid "Amount"
 msgstr "Quantidade"
 
-#: .\finance\forms.py:287
+#: .\finance\forms.py:340
 msgid "Total amount"
 msgstr "Quantidade total"
 
-#: .\finance\forms.py:453
+#: .\finance\forms.py:506
 msgid "Your end date must be after your start date."
 msgstr "A data final deve ser maior que a data inicial."
 
-#: .\finance\forms.py:531
+#: .\finance\forms.py:584
 msgid "Email"
 msgstr "E-mail"
 
-#: .\finance\forms.py:539
+#: .\finance\forms.py:592
 msgid "Email already exists. Please use another one."
 msgstr "O e-mail já existe. Por favor, use outro."
-
-#: .\finance\models.py:23 .\finance\models.py:71 .\finance\models.py:163
-msgid "description"
-msgstr "descrição"
 
 #: .\finance\models.py:26 .\finance\models.py:74 .\finance\models.py:165
 msgid "created by"
 msgstr "criado por"
-
-#: .\finance\models.py:28
-msgid "created at"
-msgstr "criado em"
 
 #: .\finance\models.py:29 .\finance\models.py:76 .\finance\models.py:166
 msgid "timestamp"
@@ -401,29 +434,33 @@ msgstr "assinatura"
 msgid "subscriptions"
 msgstr "assinaturas"
 
-#: .\finance\views.py:202
+#: .\finance\views.py:203
 msgid "Password reset"
 msgstr "Recuperação de senha"
 
-#: .\finance\views.py:214
+#: .\finance\views.py:215
 msgid "Enter new password"
 msgstr "Digite a nova senha"
 
-#: .\finance\views.py:219
+#: .\finance\views.py:220
 msgid "Password reset sent"
 msgstr "E-mail recuperação de senha enviado"
 
-#: .\finance\views.py:224
+#: .\finance\views.py:225
 msgid "Password reset complete"
 msgstr "Recuperação de senha concluída"
 
-#: .\finance\views.py:326 .\finance\views.py:426
+#: .\finance\views.py:327 .\finance\views.py:427
 msgid "Transaction was deleted successfully"
 msgstr "A transação foi excluída com sucesso"
 
-#: .\finance\views.py:467
+#: .\finance\views.py:468
 msgid "Installment group was deleted successfully"
 msgstr "O grupo de parcelamentos foi excluído com sucesso"
+
+#: .\templates\503.html:40
+msgid "We are under maintenance!"
+msgstr "Estamos em manutenção!"
 
 #: .\templates\feedback\feedback_form.html:16
 msgid "Hi! Can you help us improve?"
@@ -517,31 +554,35 @@ msgstr "Categorias"
 msgid "Charts"
 msgstr "Gráficos"
 
-#: .\templates\finance\base.html:146
+#: .\templates\finance\base.html:135
+msgid "MAINTENANCE"
+msgstr "MANUTENÇÃO"
+
+#: .\templates\finance\base.html:156
 msgid "Signed in as "
 msgstr "Logado como "
 
-#: .\templates\finance\base.html:151
+#: .\templates\finance\base.html:161
 msgid "Change language"
 msgstr "Alterar idioma"
 
-#: .\templates\finance\base.html:170
+#: .\templates\finance\base.html:180
 msgid "Settings"
 msgstr "Configurações"
 
-#: .\templates\finance\base.html:174
+#: .\templates\finance\base.html:184
 msgid "Sign out"
 msgstr "Sair"
 
-#: .\templates\finance\base.html:208
+#: .\templates\finance\base.html:218
 msgid "Give feedback"
 msgstr "Avaliar"
 
-#: .\templates\finance\base.html:258
+#: .\templates\finance\base.html:268
 msgid "Notifications"
 msgstr "Notificações"
 
-#: .\templates\finance\base.html:258
+#: .\templates\finance\base.html:268
 msgid "Clear all"
 msgstr "Limpar tudo"
 
@@ -555,17 +596,13 @@ msgstr "Excluir"
 
 #: .\templates\finance\budget_list.html:50
 #: .\templates\finance\budgetconfiguration_list.html:50
-#, fuzzy
-#| msgid "all accounts"
 msgid "All accounts"
-msgstr "todas as contas"
+msgstr "Todas as contas"
 
 #: .\templates\finance\budget_list.html:60
 #: .\templates\finance\budgetconfiguration_list.html:60
-#, fuzzy
-#| msgid "all categories"
 msgid "All categories"
-msgstr "todas as categorias"
+msgstr "Todas as categorias"
 
 #: .\templates\finance\budget_list.html:91
 #: .\templates\finance\budgetconfiguration_list.html:79
@@ -652,12 +689,12 @@ msgstr ""
 "desenvolvimento!"
 
 #: .\templates\finance\checkout.html:55
-#: .\templates\finance\configuration.html:26
+#: .\templates\finance\configuration.html:27
 msgid "Subscription"
 msgstr "Assinatura"
 
 #: .\templates\finance\checkout.html:61
-#: .\templates\finance\configuration.html:36
+#: .\templates\finance\configuration.html:37
 msgid "Billing"
 msgstr "Plano"
 
@@ -710,118 +747,132 @@ msgstr "Agora precisamos das suas informações de pagamento."
 msgid "Subscribe"
 msgstr "Inscrever-se"
 
-#: .\templates\finance\configuration.html:17
+#: .\templates\finance\configuration.html:18
 msgid "Your plan"
 msgstr "Seu plano"
 
-#: .\templates\finance\configuration.html:20
+#: .\templates\finance\configuration.html:21
 msgid "Attention!"
 msgstr "Atenção!"
 
-#: .\templates\finance\configuration.html:21
+#: .\templates\finance\configuration.html:22
 msgid "Your subscription is scheduled to be canceled at "
 msgstr "Sua assunatura está agendada para ser cancelada em "
 
-#: .\templates\finance\configuration.html:22
+#: .\templates\finance\configuration.html:23
+msgid "You can undo this by clicking "
+msgstr "Você pode desfazer isso clicando "
+
+#: .\templates\finance\configuration.html:23
 #: .\templates\registration\password_reset_complete.html:15
 msgid "here"
 msgstr "aqui"
 
-#: .\templates\finance\configuration.html:29
+#: .\templates\finance\configuration.html:30
 msgid "Created at "
 msgstr "Criado em "
 
-#: .\templates\finance\configuration.html:30
+#: .\templates\finance\configuration.html:31
 msgid "Updated at "
 msgstr "Atualizado em "
 
-#: .\templates\finance\configuration.html:32
+#: .\templates\finance\configuration.html:33
 msgid "Cancel at "
 msgstr "Cancelar em "
 
-#: .\templates\finance\configuration.html:38
+#: .\templates\finance\configuration.html:39
 msgid "Payments"
 msgstr "Pagamentos"
 
-#: .\templates\finance\configuration.html:39
+#: .\templates\finance\configuration.html:40
 msgid "Payment method"
 msgstr "Método de agamento"
 
-#: .\templates\finance\configuration.html:41
+#: .\templates\finance\configuration.html:42
 msgid "Card brand: "
 msgstr "Bandeira do cartão: "
 
-#: .\templates\finance\configuration.html:42
+#: .\templates\finance\configuration.html:43
 msgid "Card number: "
 msgstr "Número do cartão: "
 
-#: .\templates\finance\configuration.html:43
+#: .\templates\finance\configuration.html:44
 msgid "Expiration month: "
 msgstr "Mês de vencimento: "
 
-#: .\templates\finance\configuration.html:44
+#: .\templates\finance\configuration.html:45
 msgid "Expiration year: "
 msgstr "Ano de vencimento"
 
-#: .\templates\finance\configuration.html:46
+#: .\templates\finance\configuration.html:47
 msgid "History"
 msgstr "Histórico"
 
-#: .\templates\finance\configuration.html:57
-#: .\templates\finance\configuration.html:73
-#: .\templates\finance\configuration.html:89
+#: .\templates\finance\configuration.html:51
+msgid "Cancel subscription"
+msgstr "Cancelar assinatura"
+
+#: .\templates\finance\configuration.html:55
+msgid "Connected services"
+msgstr "Serviços conectados"
+
+#: .\templates\finance\configuration.html:59
+#: .\templates\finance\configuration.html:75
+#: .\templates\finance\configuration.html:91
 msgid "Connected as "
 msgstr "Conectado como "
 
-#: .\templates\finance\configuration.html:61
-#: .\templates\finance\configuration.html:64
+#: .\templates\finance\configuration.html:63
+#: .\templates\finance\configuration.html:66
 msgid "Disconnect from GitHub"
 msgstr "Desconectar do GitHub"
 
-#: .\templates\finance\configuration.html:68
+#: .\templates\finance\configuration.html:70
 msgid "Connect to GitHub"
 msgstr "Conectar ao GitHub"
 
-#: .\templates\finance\configuration.html:77
-#: .\templates\finance\configuration.html:80
+#: .\templates\finance\configuration.html:79
+#: .\templates\finance\configuration.html:82
 msgid "Disconnect from Twitter"
 msgstr "Desconectar do Twitter"
 
-#: .\templates\finance\configuration.html:84
+#: .\templates\finance\configuration.html:86
 msgid "Connect to Twitter"
 msgstr "Conectar ao Twitter"
 
-#: .\templates\finance\configuration.html:93
-#: .\templates\finance\configuration.html:96
+#: .\templates\finance\configuration.html:95
+#: .\templates\finance\configuration.html:98
 msgid "Disconnect from Facebook"
 msgstr "Desconectar do Facebook"
 
-#: .\templates\finance\configuration.html:100
+#: .\templates\finance\configuration.html:102
 msgid "Connect to Facebook"
 msgstr "Conectar ao Facebook"
 
-#: .\templates\finance\configuration.html:114
-#: .\templates\finance\configuration.html:128
+#: .\templates\finance\configuration.html:116
+#: .\templates\finance\configuration.html:130
 msgid "Confirmation"
 msgstr "Confirmação"
 
-#: .\templates\finance\configuration.html:117
+#: .\templates\finance\configuration.html:119
 msgid "Are you sure you want to cancel your subscription?"
 msgstr "Tem certeza de que quer cancelar a sua assinatura?"
 
-#: .\templates\finance\configuration.html:120
-#: .\templates\finance\configuration.html:134
+#: .\templates\finance\configuration.html:122
+#: .\templates\finance\configuration.html:136
 msgid "No"
 msgstr "Não"
 
-#: .\templates\finance\configuration.html:121
-#: .\templates\finance\configuration.html:135
+#: .\templates\finance\configuration.html:123
+#: .\templates\finance\configuration.html:137
 msgid "Yes, I'm sure"
 msgstr "Sim, tenho certeza"
 
-#: .\templates\finance\configuration.html:131
+#: .\templates\finance\configuration.html:133
 msgid "Are you sure you want to undo your scheduled subscription cancellation?"
-msgstr "Tem certeza de que quer desfazer o seu agendamento de cancelamento da assinatura?"
+msgstr ""
+"Tem certeza de que quer desfazer o seu agendamento de cancelamento da "
+"assinatura?"
 
 #: .\templates\finance\faker.html:24
 msgid "SECURITY ALERT"
