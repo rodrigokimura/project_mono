@@ -15,4 +15,4 @@ class HealthcheckConfig(AppConfig):
         post_save.connect(group_initial_setup, sender=Group, dispatch_uid="group_initial_setup")
         post_save.connect(installments_creation, sender=Installment, dispatch_uid="installments_creation")
         post_save.connect(email_verification, sender=User, dispatch_uid="email_verification")
-        # post_save.connect(round_transaction, sender=Transaction, dispatch_uid="round_transaction")
+        post_save.connect(round_transaction, sender=Transaction, dispatch_uid="round_transaction")
