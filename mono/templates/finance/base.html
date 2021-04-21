@@ -131,7 +131,7 @@
     <div class="header item">
       <div class="ui toggle inverted maintenance {% if maintenance_mode %}checked{% endif %} checkbox">
         <input type="checkbox" {% if maintenance_mode %}checked{% endif %}>
-        <label>{% translate "MAINTENANCE MODE" %}</label>
+        <label>{% translate "MAINTENANCE" %}</label>
       </div>
     </div>
     {% endif %}
@@ -355,6 +355,13 @@
       onUnchecked: () => { location.href = '/maintenance-mode/off/'; },
     }
   );
+
+  tinymce.init({
+    selector: 'textarea',  // change this value according to your HTML
+    skin: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oxide-dark' : 'oxide'),
+    content_css: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default')
+  });
+  
 
   
 </script>

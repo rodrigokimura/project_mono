@@ -87,14 +87,14 @@
           <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
             <span class="ui green text">
               <strong>
-                {{ date.total_income }}
+                {{ date.total_income|floatformat:2 }}
               </strong>
             </span>
           </div>
           <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
             <span class="ui red text">
               <strong>
-                {{ date.total_expense }}
+                {{ date.total_expense|floatformat:2 }}
               </strong>
             </span>
           </div>
@@ -151,7 +151,7 @@
                 {% endif %}
                 >
               <i class="history icon"></i>
-                  {{ transaction.amount }}
+                  {{ transaction.amount|floatformat:2 }}
               </span>
             </a>
             <script>

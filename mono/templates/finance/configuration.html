@@ -1,5 +1,6 @@
 {% extends "finance/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block head %}
   <style type="text/css">
@@ -19,7 +20,7 @@
         <div class="ui error message">
           <strong>{% translate "Attention!" %}</strong>
           {% translate "Your subscription is scheduled to be canceled at " %}{{ subscription.cancel_at }}. 
-          {% tranlsate "You can undo this by clicking " %}<a href="#" onclick="undoModal()">{% translate "here" %}</a>.
+          {% translate "You can undo this by clicking " %}<a href="#" onclick="undoModal()">{% translate "here" %}</a>.
         </div>
         {% endif %}
 
@@ -47,10 +48,11 @@
 
 
         {% if not subscription.cancel_at and subscription %}
-        <div class="ui tiny basic red button" onclick="cancellationModal()">{% tranlsate "Cancel subscription" %}</div>
+        <div class="ui tiny basic red button" onclick="cancellationModal()">{% translate "Cancel subscription" %}</div>
         {% endif %}
 
         <div class="ui segment">
+          <h3>{% translate "Connected services"%}</h3>
         
           <h3>GitHub</h3>
           {% if github_login %}
