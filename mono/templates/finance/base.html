@@ -356,6 +356,13 @@
     }
   );
 
+  tinymce.init({
+    selector: 'textarea',  // change this value according to your HTML
+    skin: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oxide-dark' : 'oxide'),
+    content_css: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default')
+  });
+  
+
   
 </script>
 

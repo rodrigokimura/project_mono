@@ -41,7 +41,10 @@ else:
 
 # Application definition
 INSTALLED_APPS = [
+    # 'grappelli',
+    # 'filebrowser',
     '_mono.apps.MyAdminConfig',
+    'tinymce',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -63,6 +66,7 @@ INSTALLED_APPS = [
     'project_manager',
     'messenger',
     'finance',
+    'blog',
 ]
 
 MIDDLEWARE = [
@@ -275,3 +279,25 @@ LOGGING = {
         },
     },
 }
+
+
+TINYMCE_DEFAULT_CONFIG = {
+    "height": "320px",
+    "width": "960px",
+    "skin": 'oxide-dark',
+    "content_css": 'dark',
+    "menubar": "file edit view insert format tools table help",
+    "plugins": "advlist autolink lists link image charmap print preview anchor searchreplace visualblocks code "
+    "fullscreen insertdatetime media table paste code help wordcount spellchecker",
+    "toolbar": "undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft "
+    "aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor "
+    "backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | "
+    "fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | "
+    "a11ycheck ltr rtl | showcomments addcomment code",
+    "custom_undo_redo_levels": 10,
+}
+
+TINYMCE_FILEBROWSER = False
+
+FILEBROWSER_DIRECTORY = os.path.join(MEDIA_ROOT, 'uploads')
+DIRECTORY = ""
