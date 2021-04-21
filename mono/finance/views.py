@@ -115,10 +115,10 @@ class HomePageView(TemplateView):
         incomes_last_month = transactions_last_month.filter(
             category__type=Category.INCOME
         ).aggregate(sum=Coalesce(Sum("amount"), V(0), output_field=FloatField()))
-        context["expenses_this_month"] = expenses_this_month['sum']
-        context["incomes_this_month"] = incomes_this_month['sum']
-        context["expenses_last_month"] = expenses_last_month['sum']
-        context["incomes_last_month"] = incomes_last_month['sum']
+        context["expenses_this_month"] = round(expenses_this_month['sum'], 2)
+        context["incomes_this_month"] = round(incomes_this_month['sum'], 2)
+        context["expenses_last_month"] = round(expenses_last_month['sum'], 2)
+        context["incomes_last_month"] = round(incomes_last_month['sum'], 2)
 
         closed_budgets = Budget.objects.filter(
             created_by=self.request.user,
