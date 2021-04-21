@@ -170,7 +170,7 @@
                 class="ui red text"
                 {% endif %}
                 >
-                  {{ transaction.amount }}
+                  {{ transaction.amount|floatformat:2 }}
               </span>
             </a>
             {% endif %}
