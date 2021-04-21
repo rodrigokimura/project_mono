@@ -7,9 +7,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
+            print("Rounding transactions...")
             qs = Transaction.objects.all()
             for t in qs:
-                t.amount = round(t.amount, 2)
-                t.save()
+                print(t.amount)
+                t.round_amount()
+            print(f"{qs.count()} transactions rounded.")
         except Exception as e:
             CommandError(repr(e))
