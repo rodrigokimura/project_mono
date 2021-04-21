@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-20 18:20-0300\n"
+"POT-Creation-Date: 2021-04-21 10:29-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: .\_mono\settings.py:184
+#: .\_mono\settings.py:187
 msgid "American English"
 msgstr "Inglês americano"
 
-#: .\_mono\settings.py:185
+#: .\_mono\settings.py:188
 msgid "Brasilian Portuguese"
 msgstr "Português brasileiro"
 
@@ -95,8 +95,12 @@ msgstr "público"
 msgid "Your feedback was sent! Thank you!"
 msgstr "Sua avaliação foi enviada! Muito obrigado!"
 
-#: .\finance\forms.py:134 .\finance\forms.py:184 .\finance\forms.py:235
-#: .\finance\forms.py:286 .\finance\forms.py:339
+#: .\finance\forms.py:129 .\finance\forms.py:148
+msgid "Current balance"
+msgstr "Saldo atual"
+
+#: .\finance\forms.py:134 .\finance\forms.py:189 .\finance\forms.py:240
+#: .\finance\forms.py:291 .\finance\forms.py:344
 msgid "Description"
 msgstr "Descrição"
 
@@ -104,27 +108,27 @@ msgstr "Descrição"
 msgid "Initial balance"
 msgstr "Saldo inicial"
 
-#: .\finance\forms.py:151
+#: .\finance\forms.py:156
 msgid "You don't have permission to change the group."
 msgstr "Você não possui permissão para alterar o grupo."
 
-#: .\finance\forms.py:185 .\finance\forms.py:236 .\finance\forms.py:287
+#: .\finance\forms.py:190 .\finance\forms.py:241 .\finance\forms.py:292
 msgid "Amount"
 msgstr "Quantidade"
 
-#: .\finance\forms.py:340
+#: .\finance\forms.py:345
 msgid "Total amount"
 msgstr "Quantidade total"
 
-#: .\finance\forms.py:506
+#: .\finance\forms.py:511
 msgid "Your end date must be after your start date."
 msgstr "A data final deve ser maior que a data inicial."
 
-#: .\finance\forms.py:584
+#: .\finance\forms.py:589
 msgid "Email"
 msgstr "E-mail"
 
-#: .\finance\forms.py:592
+#: .\finance\forms.py:597
 msgid "Email already exists. Please use another one."
 msgstr "O e-mail já existe. Por favor, use outro."
 
@@ -479,6 +483,7 @@ msgstr ""
 "para outros usuários."
 
 #: .\templates\feedback\feedback_form.html:60
+#: .\templates\finance\account_form.html:18
 #: .\templates\finance\budget_form.html:56
 #: .\templates\finance\budgetconfiguration_form.html:57
 #: .\templates\finance\card_order.html:36
@@ -489,6 +494,7 @@ msgid "Save"
 msgstr "Salvar"
 
 #: .\templates\feedback\feedback_form.html:63
+#: .\templates\finance\account_form.html:28
 #: .\templates\finance\budget_form.html:66
 #: .\templates\finance\budgetconfiguration_form.html:67
 #: .\templates\finance\installment_form.html:34
@@ -529,6 +535,57 @@ msgstr "gasto"
 #: .\templates\finance\_card.html:56
 msgid "Closed budgets"
 msgstr "Orçamentos encerrados"
+
+#: .\templates\finance\account_form.html:23
+#: .\templates\finance\budget_form.html:61
+#: .\templates\finance\budgetconfiguration_form.html:62
+#: .\templates\finance\installment_form.html:29
+#: .\templates\finance\recurrenttransaction_form.html:29
+#: .\templates\finance\transaction_form.html:29
+msgid "Delete"
+msgstr "Excluir"
+
+#: .\templates\finance\account_list.html:16
+#: .\templates\finance\account_list.html:91
+msgid "Group"
+msgstr "Grupo"
+
+#: .\templates\finance\account_list.html:24
+msgid "Member"
+msgstr "Membro"
+
+#: .\templates\finance\account_list.html:32
+#: .\templates\finance\budgetconfiguration_list.html:32
+#: .\templates\finance\installment_list.html:35
+#: .\templates\finance\recurrenttransaction_list.html:35
+#: .\templates\finance\transaction_list.html:57
+msgid "Filter"
+msgstr "Filtrar"
+
+#: .\templates\finance\account_list.html:33
+#: .\templates\finance\budgetconfiguration_list.html:33
+#: .\templates\finance\installment_list.html:36
+#: .\templates\finance\recurrenttransaction_list.html:36
+#: .\templates\finance\transaction_list.html:58
+msgid "Clear"
+msgstr "Limpar"
+
+#: .\templates\finance\account_list.html:39
+msgid "Individual accounts"
+msgstr "Contas individuais"
+
+#: .\templates\finance\account_list.html:55
+#: .\templates\finance\account_list.html:83
+msgid "Total transactions"
+msgstr "Total de transações"
+
+#: .\templates\finance\account_list.html:67
+msgid "Shared accounts"
+msgstr "Contas compartilhadas"
+
+#: .\templates\finance\account_list.html:103
+msgid "Add account"
+msgstr "Adicionar uma conta"
 
 #: .\templates\finance\base.html:99
 msgid "Home"
@@ -586,14 +643,6 @@ msgstr "Notificações"
 msgid "Clear all"
 msgstr "Limpar tudo"
 
-#: .\templates\finance\budget_form.html:61
-#: .\templates\finance\budgetconfiguration_form.html:62
-#: .\templates\finance\installment_form.html:29
-#: .\templates\finance\recurrenttransaction_form.html:29
-#: .\templates\finance\transaction_form.html:29
-msgid "Delete"
-msgstr "Excluir"
-
 #: .\templates\finance\budget_list.html:50
 #: .\templates\finance\budgetconfiguration_list.html:50
 msgid "All accounts"
@@ -647,20 +696,6 @@ msgstr "Categoria"
 #: .\templates\finance\transaction_list.html:49
 msgid "Account"
 msgstr "Conta"
-
-#: .\templates\finance\budgetconfiguration_list.html:32
-#: .\templates\finance\installment_list.html:35
-#: .\templates\finance\recurrenttransaction_list.html:35
-#: .\templates\finance\transaction_list.html:57
-msgid "Filter"
-msgstr "Filtrar"
-
-#: .\templates\finance\budgetconfiguration_list.html:33
-#: .\templates\finance\installment_list.html:36
-#: .\templates\finance\recurrenttransaction_list.html:36
-#: .\templates\finance\transaction_list.html:58
-msgid "Clear"
-msgstr "Limpar"
 
 #: .\templates\finance\budgetconfiguration_list.html:71
 msgid "Next schedule: "
@@ -1086,3 +1121,6 @@ msgstr "Equipe do Projeto Mono"
 #: .\templates\registration\password_reset_form.html:16
 msgid "Send"
 msgstr "Enviar"
+
+#~ msgid "current balance"
+#~ msgstr "saldo atual"

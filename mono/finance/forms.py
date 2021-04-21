@@ -126,7 +126,7 @@ class ToggleWidget(Widget):
 
 class AccountForm(forms.ModelForm):
     error_css_class = 'error'
-    current_balance = forms.FloatField(required=False)
+    current_balance = forms.FloatField(required=False, label=_('Current balance'))
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
@@ -142,7 +142,12 @@ class AccountForm(forms.ModelForm):
         if self.instance.pk is None:
             self.fields['current_balance'].widget = forms.HiddenInput()
         else:
-            self.fields['current_balance'].widget.attrs.update({'value': self.instance.current_balance})
+            self.fields['current_balance'].widget.attrs.update(
+                {
+                    'value': self.instance.current_balance,
+                    'placeholder': _('Current balance')
+                }
+            )
 
     def clean(self):
         if self.instance.pk is not None:
