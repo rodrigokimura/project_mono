@@ -61,6 +61,6 @@ def installments_creation(sender, instance, created, **kwargs):
             instance.create_transactions()
 
 
-def round_transaction(sender, instance, created, **kwargs):
+def round_transaction(sender, instance, **kwargs):
     if sender == Transaction:
         instance.round_amount()

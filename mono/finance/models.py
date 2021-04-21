@@ -56,7 +56,6 @@ class Transaction(models.Model):
 
     def round_amount(self):
         self.amount = round(float(self.amount), 2)
-        self.save()
 
     def __str__(self) -> str:
         return self.description
