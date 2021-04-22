@@ -324,6 +324,7 @@ class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
         if is_recurrent_or_installment:
             if recurrent_or_installment == "R":
                 del data['months']
+                del data['handle_remainder']
                 recurrent_transaction = RecurrentTransaction(**data)
                 recurrent_transaction.save()
             elif recurrent_or_installment == "I":
@@ -335,6 +336,7 @@ class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
         else:
             del data["frequency"]
             del data["months"]
+            del data['handle_remainder']
             transaction = Transaction(**data)
             transaction.save()
 

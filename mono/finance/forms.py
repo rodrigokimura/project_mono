@@ -207,7 +207,7 @@ class UniversalTransactionForm(forms.Form):
         label=_("Description"),
     )
     timestamp = forms.DateTimeField(
-        label="Description",
+        label=_("Timestamp"),
         widget=CalendarWidget,
         initial=timezone.now(),
     )
@@ -245,12 +245,18 @@ class UniversalTransactionForm(forms.Form):
     )
     recurrent_or_installment = forms.CharField(
         label=_("Recurrent or installment"),
+        required=False,
         widget=RadioWidget(
             choices=[
                 ("R", _("Recurrent")),
                 ("I", _("Installment")),
             ]
         ),
+    )
+    handle_remainder = forms.ChoiceField(
+        label=_("Handle remainder"),
+        choices=Installment.HANDLE_REMAINDER,
+        initial=Installment.FIRST,
     )
 
     def __init__(self, *args, **kwargs):
@@ -297,6 +303,7 @@ class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
         fields = [
+            "type",
             "description",
             "timestamp",
             "account",
@@ -349,13 +356,14 @@ class RecurrentTransactionForm(forms.ModelForm):
     class Meta:
         model = RecurrentTransaction
         fields = [
-            "description",
-            "timestamp",
-            "frequency",
-            "account",
+            "type",
             "amount",
+            "description",
+            "account",
             "category",
+            "timestamp",
             "active",
+            "frequency",
         ]
         exclude = ['created_by']
         widgets = {
@@ -402,12 +410,13 @@ class InstallmentForm(forms.ModelForm):
     class Meta:
         model = Installment
         fields = [
-            "description",
-            "timestamp",
-            "account",
+            "type",
             "total_amount",
-            "months",
+            "description",
+            "account",
             "category",
+            "timestamp",
+            "months",
             "handle_remainder",
         ]
         exclude = ['created_by']

@@ -176,6 +176,20 @@
                 </div>
                 {% endwith %}
 
+                {% with field=form.handle_remainder %}
+                <div class="hidden field {% if field.errors %}error{% endif %}" data-name="months">
+                  <label>{% translate field.label %}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                  <div class="ui error message">
+                    {% for error in field.errors %}
+                    {{ error }}
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+                {% endwith %}
+
               </div>
 
               {% if form.non_field_errors %}
@@ -214,6 +228,7 @@
 </div>
   
 <script>
+  $('select[name=handle_remainder]').dropdown()
   $('select[name=frequency]').dropdown()
   $('select[name=account]').dropdown(
     {
