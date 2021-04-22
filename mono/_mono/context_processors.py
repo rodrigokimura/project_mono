@@ -6,7 +6,14 @@ def environment(request):
 
 
 def language_extras(request):
-    return {'LANGUAGE_EXTRAS': settings.LANGUAGE_EXTRAS}
+    tinyMCE_languages = {
+        'pt-br': 'pt_BR'
+    }
+    tinyMCE_language = tinyMCE_languages.get(request.LANGUAGE_CODE)
+    return {
+        'LANGUAGE_EXTRAS': settings.LANGUAGE_EXTRAS,
+        'tinyMCE_language': tinyMCE_language
+    }
 
 
 def analytical_app(request):

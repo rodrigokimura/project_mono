@@ -1,0 +1,291 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head %}
+<script src="{% static 'js/jquery.datetimepicker.full.min.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.datetimepicker.min.css' %}"/>
+<style>
+  .hidden { display: none !important; }
+</style>
+{% endblock head %}
+
+{% block body %}
+
+<div class="pusher">
+  <div class="ui vertical stripe segment">
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+        <div class="eight wide column">
+          <div class="ui container">
+            <form method="post" class="ui {% if form.errors %}error {% endif %}form" id="transaction_form">
+              {% csrf_token %}
+
+              {% with field=form.type %}
+              <div class="field {% if field.errors %}error{% endif %}">
+                <label>{% translate field.label %}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="ui error message">
+                  {% for error in field.errors %}
+                  {{ error }}
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              {% endwith %}
+              
+              {% with field=form.amount %}
+              <div class="field {% if field.errors %}error{% endif %}">
+                <label>{% translate field.label %}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="ui error message">
+                  {% for error in field.errors %}
+                  {{ error }}
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              {% endwith %}
+
+              {% with field=form.description %}
+              <div class="field {% if field.errors %}error{% endif %}">
+                <label>{% translate field.label %}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="ui error message">
+                  {% for error in field.errors %}
+                  {{ error }}
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              {% endwith %}
+
+              {% with field=form.account %}
+              <div class="field {% if field.errors %}error{% endif %}">
+                <label>{% translate field.label %}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="ui error message">
+                  {% for error in field.errors %}
+                  {{ error }}
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              {% endwith %}
+
+              {% with field=form.category %}
+              <div class="field {% if field.errors %}error{% endif %}">
+                <label>{% translate field.label %}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="ui error message">
+                  {% for error in field.errors %}
+                  {{ error }}
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              {% endwith %}
+
+              {% with field=form.timestamp %}
+              <div class="field {% if field.errors %}error{% endif %}">
+                <label>{% translate field.label %}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="ui error message">
+                  {% for error in field.errors %}
+                  {{ error }}
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              {% endwith %}
+
+              {% with field=form.active %}
+              <div class="field {% if field.errors %}error{% endif %}">
+                <label>{% translate field.label %}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="ui error message">
+                  {% for error in field.errors %}
+                  {{ error }}
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              {% endwith %}
+
+              {% with field=form.is_recurrent_or_installment %}
+              <div class="field {% if field.errors %}error{% endif %}">
+                <label>{% translate field.label %}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="ui error message">
+                  {% for error in field.errors %}
+                  {{ error }}
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              {% endwith %}
+
+              <div class="hidden" data-name="recurrent_or_installment" style="margin-bottom: 1em;">
+
+                {% with field=form.recurrent_or_installment %}
+                <div class="inline fields {% if field.errors %}error{% endif %}">
+                  {{ field }}
+                  {% if field.errors %}
+                  <div class="ui error message">
+                    {% for error in field.errors %}
+                    {{ error }}
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+                {% endwith %}
+
+                {% with field=form.frequency %}
+                <div class="hidden field {% if field.errors %}error{% endif %}" data-name="frequency">
+                  <label>{% translate "Frequency" %}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                  <div class="ui error message">
+                    {% for error in field.errors %}
+                    {{ error }}
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+                {% endwith %}
+
+                {% with field=form.months %}
+                <div class="hidden field {% if field.errors %}error{% endif %}" data-name="months">
+                  <label>{% translate "Months" %}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                  <div class="ui error message">
+                    {% for error in field.errors %}
+                    {{ error }}
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+                {% endwith %}
+
+                {% with field=form.handle_remainder %}
+                <div class="hidden field {% if field.errors %}error{% endif %}" data-name="months">
+                  <label>{% translate field.label %}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                  <div class="ui error message">
+                    {% for error in field.errors %}
+                    {{ error }}
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+                {% endwith %}
+
+              </div>
+
+              {% if form.non_field_errors %}
+                <div class="ui error message">
+                {% for error in form.non_field_errors %}
+                  {{ error }}
+                {% endfor %}
+                </div>
+              {% endif %}
+
+
+
+
+              <div class="fluid ui buttons">
+                <button class="ui button primary" type="submit" form="transaction_form">
+                  {% translate "Save" %}
+                </button>
+                <div class="{% translate 'or' %}"></div>
+                {% if object %}
+                <a class="ui button red" href="{% url 'finance:transaction_delete' pk=object.pk %}">
+                  <i class="trash icon"></i>
+                  {% translate "Delete" %}
+                </a>
+                <div class="{% translate 'or' %}"></div>
+                {% endif %}
+                <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
+                  {% translate "Cancel" %}
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+<script>
+  $('select[name=handle_remainder]').dropdown()
+  $('select[name=frequency]').dropdown()
+  $('select[name=account]').dropdown(
+    {
+      onChange: function(value, text, choice) {
+        if (typeof value !== "undefined") {
+          dropdown_element.dropdown('clear');
+          updateDropdown($("input[name=type]").val(), value);
+        }
+      }
+    }
+  );
+  
+  $("input[name=type]").change(e=>{
+    type = $(e.target).val();
+    dropdown_element.dropdown('clear');
+    updateDropdown(type, $('select[name=account]').dropdown("get value"));
+  })
+  
+  if ($('select[name=account]').dropdown("get value").length > 0) {
+    dropdown_element.dropdown('clear');
+    updateDropdown($("input[name=type]").val(), $('select[name=account]').dropdown("get value"));
+  }
+  
+  {% if object %}
+    dropdown_element.dropdown('set text', "<i class='{{ object.category.icon }} icon'></i>{{ object.category }}");
+    dropdown_element.dropdown("set value", "{{ object.category.pk }}")
+  {% endif %}
+
+
+  $('.ui.checkbox[data-name=is_recurrent_or_installment]').checkbox(
+    {
+      onChecked: () => {
+        $('[data-name=recurrent_or_installment]').removeClass('hidden');
+      },
+      onUnchecked: () => {
+        $('[data-name=recurrent_or_installment]').addClass('hidden');
+      }
+    }
+  );
+
+  $('.ui.radio.checkbox input[name=recurrent_or_installment][value=R]').parent().checkbox(
+    {
+      onChecked: () => {
+        $('.field[data-name=frequency]').removeClass('hidden');
+        $('.field[data-name=months]').addClass('hidden');
+      },
+    }
+  );
+  $('.ui.radio.checkbox input[name=recurrent_or_installment][value=I]').parent().checkbox(
+    {
+      onChecked: () => {
+        $('.field[data-name=frequency]').addClass('hidden');
+        $('.field[data-name=months]').removeClass('hidden');
+      },
+    }
+  );
+
+  
+</script>
+{% endblock %}

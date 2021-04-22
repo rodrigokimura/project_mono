@@ -1,0 +1,56 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head %}
+  {{ form.media }}
+{% endblock %}
+
+
+{% block body %}
+
+<div class="pusher">
+  <div class="ui vertical stripe segment">
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+        <div class="sixteen wide column">
+          <div class="ui container">
+            <form method="post" class="ui {% if form.errors %}error{% endif %} form" id="post_form">
+              {% csrf_token %}
+              {% include "_form.html" with form=form %}
+              <div class="fluid ui big buttons">
+                <button class="ui button primary" type="submit" form="post_form">
+                  {% translate "Save" %}
+                </button>
+                <div class="or"></div>
+                {% if object %}
+                <a class="ui button red" href="{% url 'blog:post_delete' pk=object.pk %}">
+                  {% translate "Delete" %}
+                </a>
+                <div class="or"></div>
+                {% endif %}
+                <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
+                  {% translate "Cancel" %}
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+<script>
+tinyMCE.init({
+    mode: "textareas",
+    theme: "silver",
+    plugins: "spellchecker,directionality,paste,searchreplace",
+    language: "{{ tinyMCE_language }}",
+    directionality: "{{ directionality }}",
+    spellchecker_languages : "{{ spellchecker_languages }}",
+    spellchecker_rpc_url : "{{ spellchecker_rpc_url }}"
+});
+
+</script>
+{% endblock %}
