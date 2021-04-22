@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-21 10:29-0300\n"
+"POT-Creation-Date: 2021-04-22 15:12-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,8 +54,8 @@ msgstr "postagem"
 msgid "posts"
 msgstr "postagens"
 
-#: .\blog\models.py:24 .\finance\models.py:23 .\finance\models.py:71
-#: .\finance\models.py:163
+#: .\blog\models.py:24 .\finance\models.py:23 .\finance\models.py:74
+#: .\finance\models.py:165
 msgid "description"
 msgstr "descrição"
 
@@ -95,70 +95,119 @@ msgstr "público"
 msgid "Your feedback was sent! Thank you!"
 msgstr "Sua avaliação foi enviada! Muito obrigado!"
 
-#: .\finance\forms.py:129 .\finance\forms.py:148
+#: .\finance\forms.py:151 .\finance\forms.py:170
 msgid "Current balance"
 msgstr "Saldo atual"
 
-#: .\finance\forms.py:134 .\finance\forms.py:189 .\finance\forms.py:240
-#: .\finance\forms.py:291 .\finance\forms.py:344
+#: .\finance\forms.py:156 .\finance\forms.py:207 .\finance\forms.py:261
+#: .\finance\forms.py:281 .\finance\forms.py:332 .\finance\forms.py:385
 msgid "Description"
 msgstr "Descrição"
 
-#: .\finance\forms.py:141
+#: .\finance\forms.py:163
 msgid "Initial balance"
 msgstr "Saldo inicial"
 
-#: .\finance\forms.py:156
+#: .\finance\forms.py:178
 msgid "You don't have permission to change the group."
 msgstr "Você não possui permissão para alterar o grupo."
 
-#: .\finance\forms.py:190 .\finance\forms.py:241 .\finance\forms.py:292
+#: .\finance\forms.py:202
+msgid "Type"
+msgstr "Tipo"
+
+#: .\finance\forms.py:215 .\templates\finance\budgetconfiguration_list.html:24
+#: .\templates\finance\installment_list.html:27
+#: .\templates\finance\recurrenttransaction_list.html:27
+#: .\templates\finance\transaction_list.html:49
+msgid "Account"
+msgstr "Conta"
+
+#: .\finance\forms.py:219 .\finance\forms.py:262 .\finance\forms.py:282
+#: .\finance\forms.py:333
 msgid "Amount"
 msgstr "Quantidade"
 
-#: .\finance\forms.py:345
+#: .\finance\forms.py:222 .\templates\finance\budgetconfiguration_list.html:16
+#: .\templates\finance\installment_list.html:19
+#: .\templates\finance\recurrenttransaction_list.html:19
+#: .\templates\finance\transaction_list.html:41
+msgid "Category"
+msgstr "Categoria"
+
+#: .\finance\forms.py:227
+msgid "Active"
+msgstr "Ativo"
+
+#: .\finance\forms.py:232
+#: .\templates\finance\universal_transaction_form.html:153
+msgid "Frequency"
+msgstr "Frequência"
+
+#: .\finance\forms.py:237
+#: .\templates\finance\universal_transaction_form.html:167
+msgid "Months"
+msgstr "Meses"
+
+#: .\finance\forms.py:241
+msgid "Recurrent or installment?"
+msgstr "Recorrente ou parcelado?"
+
+#: .\finance\forms.py:247
+msgid "Recurrent or installment"
+msgstr "Recorrente ou parcelado"
+
+#: .\finance\forms.py:250
+msgid "Recurrent"
+msgstr "Recorrente"
+
+#: .\finance\forms.py:251 .\templates\finance\transaction_list.html:134
+msgid "Installment"
+msgstr "Parcelamento"
+
+#: .\finance\forms.py:386
 msgid "Total amount"
 msgstr "Quantidade total"
 
-#: .\finance\forms.py:511
+#: .\finance\forms.py:552
 msgid "Your end date must be after your start date."
 msgstr "A data final deve ser maior que a data inicial."
 
-#: .\finance\forms.py:589
+#: .\finance\forms.py:630
 msgid "Email"
 msgstr "E-mail"
 
-#: .\finance\forms.py:597
+#: .\finance\forms.py:638
 msgid "Email already exists. Please use another one."
 msgstr "O e-mail já existe. Por favor, use outro."
 
-#: .\finance\models.py:26 .\finance\models.py:74 .\finance\models.py:165
+#: .\finance\models.py:26 .\finance\models.py:77 .\finance\models.py:167
 msgid "created by"
 msgstr "criado por"
 
-#: .\finance\models.py:29 .\finance\models.py:76 .\finance\models.py:166
+#: .\finance\models.py:29 .\finance\models.py:79 .\finance\models.py:168
 msgid "timestamp"
 msgstr "data/hora"
 
-#: .\finance\models.py:32 .\finance\models.py:78 .\finance\models.py:496
+#: .\finance\models.py:32 .\finance\models.py:81 .\finance\models.py:498
 msgid "amount"
 msgstr "quantidade"
 
-#: .\finance\models.py:34 .\finance\models.py:79 .\finance\models.py:169
-#: .\finance\models.py:265
+#: .\finance\models.py:34 .\finance\models.py:82 .\finance\models.py:171
+#: .\finance\models.py:267
 msgid "category"
 msgstr "categoria"
 
-#: .\finance\models.py:35 .\finance\models.py:80 .\finance\models.py:170
-#: .\finance\models.py:362
+#: .\finance\models.py:35 .\finance\models.py:83 .\finance\models.py:172
+#: .\finance\models.py:364
 msgid "account"
 msgstr "conta"
 
-#: .\finance\models.py:36 .\finance\models.py:81
+#: .\finance\models.py:36 .\finance\models.py:84
 msgid "active"
 msgstr "ativo"
 
-#: .\finance\models.py:38 .\finance\models.py:201
+#: .\finance\models.py:38 .\finance\models.py:203
 msgid "installment"
 msgstr "parcelamento"
 
@@ -170,271 +219,279 @@ msgstr "transação"
 msgid "transactions"
 msgstr "transações"
 
-#: .\finance\models.py:106 .\finance\models.py:435
+#: .\finance\models.py:85
+msgid "frequency"
+msgstr "frequência"
+
+#: .\finance\models.py:109 .\finance\models.py:437
 msgid "Monday"
 msgstr "Segunda-feira"
 
-#: .\finance\models.py:107 .\finance\models.py:436
+#: .\finance\models.py:110 .\finance\models.py:438
 msgid "Tuesday"
 msgstr "Terça-feira"
 
-#: .\finance\models.py:108 .\finance\models.py:437
+#: .\finance\models.py:111 .\finance\models.py:439
 msgid "Wednesday"
 msgstr "Quarta-feira"
 
-#: .\finance\models.py:109 .\finance\models.py:438
+#: .\finance\models.py:112 .\finance\models.py:440
 msgid "Thursday"
 msgstr "Quinta-feira"
 
-#: .\finance\models.py:110 .\finance\models.py:439
+#: .\finance\models.py:113 .\finance\models.py:441
 msgid "Friday"
 msgstr "Sexta-feira"
 
-#: .\finance\models.py:111 .\finance\models.py:440
+#: .\finance\models.py:114 .\finance\models.py:442
 msgid "Saturday"
 msgstr "Sábado"
 
-#: .\finance\models.py:112 .\finance\models.py:441
+#: .\finance\models.py:115 .\finance\models.py:443
 msgid "Sunday"
 msgstr "Domingo"
 
-#: .\finance\models.py:115 .\finance\models.py:444
+#: .\finance\models.py:118 .\finance\models.py:446
 msgid "January"
 msgstr "Janeiro"
 
-#: .\finance\models.py:116 .\finance\models.py:445
+#: .\finance\models.py:119 .\finance\models.py:447
 msgid "February"
 msgstr "Fevereiro"
 
-#: .\finance\models.py:117 .\finance\models.py:446
+#: .\finance\models.py:120 .\finance\models.py:448
 msgid "March"
 msgstr "Março"
 
-#: .\finance\models.py:118 .\finance\models.py:447
+#: .\finance\models.py:121 .\finance\models.py:449
 msgid "April"
 msgstr "Abril"
 
-#: .\finance\models.py:119 .\finance\models.py:448
+#: .\finance\models.py:122 .\finance\models.py:450
 msgid "May"
 msgstr "Maio"
 
-#: .\finance\models.py:120 .\finance\models.py:449
+#: .\finance\models.py:123 .\finance\models.py:451
 msgid "June"
 msgstr "Junho"
 
-#: .\finance\models.py:121 .\finance\models.py:450
+#: .\finance\models.py:124 .\finance\models.py:452
 msgid "July"
 msgstr "Julho"
 
-#: .\finance\models.py:122 .\finance\models.py:451
+#: .\finance\models.py:125 .\finance\models.py:453
 msgid "August"
 msgstr "Agosto"
 
-#: .\finance\models.py:123 .\finance\models.py:452
+#: .\finance\models.py:126 .\finance\models.py:454
 msgid "September"
 msgstr "Setembro"
 
-#: .\finance\models.py:124 .\finance\models.py:453
+#: .\finance\models.py:127 .\finance\models.py:455
 msgid "October"
 msgstr "Outubro"
 
-#: .\finance\models.py:125 .\finance\models.py:454
+#: .\finance\models.py:128 .\finance\models.py:456
 msgid "November"
 msgstr "Novembro"
 
-#: .\finance\models.py:126 .\finance\models.py:455
+#: .\finance\models.py:129 .\finance\models.py:457
 msgid "December"
 msgstr "Dezembro"
 
-#: .\finance\models.py:129 .\finance\models.py:458
+#: .\finance\models.py:132 .\finance\models.py:460
 #, python-format
 msgid "Every %(d)s of each week."
 msgstr "A cada %(d)s de cada semana."
 
-#: .\finance\models.py:131 .\finance\models.py:460
+#: .\finance\models.py:134 .\finance\models.py:462
 #, python-format
 msgid "Every day %(d)s of each month."
 msgstr "A cada dia %(d)s de cada mês."
 
-#: .\finance\models.py:133 .\finance\models.py:462
+#: .\finance\models.py:136 .\finance\models.py:464
 #, python-format
 msgid "Every day %(d)s of %(m)s of each year."
 msgstr "A cada %(d)s de %(m)s de cada ano."
 
-#: .\finance\models.py:150
+#: .\finance\models.py:153
 msgid "recurrent transaction"
 msgstr "transação recorrente"
 
-#: .\finance\models.py:151
+#: .\finance\models.py:154
 msgid "recurrent transactions"
 msgstr "transações recorrentes"
 
-#: .\finance\models.py:168
+#: .\finance\models.py:164
+msgid "months"
+msgstr "meses"
+
+#: .\finance\models.py:170
 msgid "total amount"
 msgstr "quantidade total"
 
-#: .\finance\models.py:202
+#: .\finance\models.py:204
 msgid "installments"
 msgstr "parcelamentos"
 
-#: .\finance\models.py:212
+#: .\finance\models.py:214
 msgid "icon"
 msgstr "ícone"
 
-#: .\finance\models.py:213
+#: .\finance\models.py:215
 msgid "icons"
 msgstr "ícones"
 
-#: .\finance\models.py:220
+#: .\finance\models.py:222
 msgid "Income"
 msgstr "Entrada"
 
-#: .\finance\models.py:221
+#: .\finance\models.py:223
 msgid "Expense"
 msgstr "Gasto"
 
-#: .\finance\models.py:266 .\finance\models.py:500
+#: .\finance\models.py:268 .\finance\models.py:502
 msgid "categories"
 msgstr "categorias"
 
-#: .\finance\models.py:295
+#: .\finance\models.py:297
 msgid "group"
 msgstr "grupo"
 
-#: .\finance\models.py:296
+#: .\finance\models.py:298
 msgid "groups"
 msgstr "grupos"
 
-#: .\finance\models.py:363 .\finance\models.py:499
+#: .\finance\models.py:365 .\finance\models.py:501
 msgid "accounts"
 msgstr "contas"
 
-#: .\finance\models.py:395
+#: .\finance\models.py:397
 msgid "goal"
 msgstr "objetivo"
 
-#: .\finance\models.py:396
+#: .\finance\models.py:398
 msgid "goals"
 msgstr "objetivos"
 
-#: .\finance\models.py:414 .\finance\models.py:501
+#: .\finance\models.py:416 .\finance\models.py:503
 msgid "all accounts"
 msgstr "todas as contas"
 
-#: .\finance\models.py:415 .\finance\models.py:502
+#: .\finance\models.py:417 .\finance\models.py:504
 msgid "all categories"
 msgstr "todas as categorias"
 
-#: .\finance\models.py:490
+#: .\finance\models.py:492
 msgid "budget configuration"
 msgstr "configuração de orçamento"
 
-#: .\finance\models.py:491
+#: .\finance\models.py:493
 msgid "budget configurations"
 msgstr "configurações de orçamento"
 
-#: .\finance\models.py:497
+#: .\finance\models.py:499
 msgid "start date"
 msgstr "data inicial"
 
-#: .\finance\models.py:498
+#: .\finance\models.py:500
 msgid "end date"
 msgstr "data final"
 
-#: .\finance\models.py:503 .\finance\models.py:750
+#: .\finance\models.py:505 .\finance\models.py:752
 msgid "configuration"
 msgstr "configuração"
 
-#: .\finance\models.py:506
+#: .\finance\models.py:508
 msgid "budget"
 msgstr "orçamento"
 
-#: .\finance\models.py:507
+#: .\finance\models.py:509
 msgid "budgets"
 msgstr "orçamentos"
 
-#: .\finance\models.py:618
+#: .\finance\models.py:620
 msgid "notification"
 msgstr "notificação"
 
-#: .\finance\models.py:619
+#: .\finance\models.py:621
 msgid "notifications"
 msgstr "notificações"
 
-#: .\finance\models.py:645
+#: .\finance\models.py:647
 msgid "invite"
 msgstr "convite"
 
-#: .\finance\models.py:646
+#: .\finance\models.py:648
 msgid "invites"
 msgstr "convites"
 
-#: .\finance\models.py:691
+#: .\finance\models.py:693
 msgid "Invite"
 msgstr "Convite"
 
-#: .\finance\models.py:701
+#: .\finance\models.py:703
 msgid "Group invitation"
 msgstr "Convite para grupo"
 
-#: .\finance\models.py:702
+#: .\finance\models.py:704
 msgid "You were invited to be part of a group."
 msgstr "Você foi convidade para fazer parte de um grupo."
 
-#: .\finance\models.py:733 .\templates\finance\_card.html:10
+#: .\finance\models.py:735 .\templates\finance\_card.html:10
 msgid "Overview"
 msgstr "Resumo"
 
-#: .\finance\models.py:734 .\templates\finance\_card.html:30
+#: .\finance\models.py:736 .\templates\finance\_card.html:30
 msgid "Balance"
 msgstr "Saldo"
 
-#: .\finance\models.py:735 .\templates\finance\_card.html:43
+#: .\finance\models.py:737 .\templates\finance\_card.html:43
 #: .\templates\finance\base.html:102
 msgid "Budgets"
 msgstr "Orçamentos"
 
-#: .\finance\models.py:751
+#: .\finance\models.py:753
 msgid "configurations"
 msgstr "configurações"
 
-#: .\finance\models.py:786
+#: .\finance\models.py:788
 msgid "Free"
 msgstr "Gratuito"
 
-#: .\finance\models.py:787
+#: .\finance\models.py:789
 msgid "Lifetime"
 msgstr "Vitalício"
 
-#: .\finance\models.py:788
+#: .\finance\models.py:790
 msgid "Default"
 msgstr "Padrão"
 
-#: .\finance\models.py:789
+#: .\finance\models.py:791
 msgid "Recommended"
 msgstr "Recomendado"
 
-#: .\finance\models.py:801
+#: .\finance\models.py:803
 msgid "plan"
 msgstr "plano"
 
-#: .\finance\models.py:802
+#: .\finance\models.py:804
 msgid "plans"
 msgstr "planos"
 
-#: .\finance\models.py:822
+#: .\finance\models.py:824
 msgid "feature"
 msgstr "característica"
 
-#: .\finance\models.py:823
+#: .\finance\models.py:825
 msgid "features"
 msgstr "características"
 
-#: .\finance\models.py:840
+#: .\finance\models.py:842
 msgid "subscription"
 msgstr "assinatura"
 
-#: .\finance\models.py:841
+#: .\finance\models.py:843
 msgid "subscriptions"
 msgstr "assinaturas"
 
@@ -454,11 +511,11 @@ msgstr "E-mail recuperação de senha enviado"
 msgid "Password reset complete"
 msgstr "Recuperação de senha concluída"
 
-#: .\finance\views.py:327 .\finance\views.py:427
+#: .\finance\views.py:354 .\finance\views.py:454
 msgid "Transaction was deleted successfully"
 msgstr "A transação foi excluída com sucesso"
 
-#: .\finance\views.py:468
+#: .\finance\views.py:495
 msgid "Installment group was deleted successfully"
 msgstr "O grupo de parcelamentos foi excluído com sucesso"
 
@@ -490,6 +547,7 @@ msgstr ""
 #: .\templates\finance\installment_form.html:23
 #: .\templates\finance\recurrenttransaction_form.html:23
 #: .\templates\finance\transaction_form.html:23
+#: .\templates\finance\universal_transaction_form.html:194
 msgid "Save"
 msgstr "Salvar"
 
@@ -501,6 +559,7 @@ msgstr "Salvar"
 #: .\templates\finance\recurrenttransaction_form.html:34
 #: .\templates\finance\transaction_form.html:34
 #: .\templates\finance\transaction_list.html:140
+#: .\templates\finance\universal_transaction_form.html:205
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -542,6 +601,7 @@ msgstr "Orçamentos encerrados"
 #: .\templates\finance\installment_form.html:29
 #: .\templates\finance\recurrenttransaction_form.html:29
 #: .\templates\finance\transaction_form.html:29
+#: .\templates\finance\universal_transaction_form.html:200
 msgid "Delete"
 msgstr "Excluir"
 
@@ -682,20 +742,6 @@ msgstr "Visualizações"
 #: .\templates\finance\budget_list.html:107
 msgid "Go to Scheduled Budgets"
 msgstr "Ir para os Orçamentos Agendados"
-
-#: .\templates\finance\budgetconfiguration_list.html:16
-#: .\templates\finance\installment_list.html:19
-#: .\templates\finance\recurrenttransaction_list.html:19
-#: .\templates\finance\transaction_list.html:41
-msgid "Category"
-msgstr "Categoria"
-
-#: .\templates\finance\budgetconfiguration_list.html:24
-#: .\templates\finance\installment_list.html:27
-#: .\templates\finance\recurrenttransaction_list.html:27
-#: .\templates\finance\transaction_list.html:49
-msgid "Account"
-msgstr "Conta"
 
 #: .\templates\finance\budgetconfiguration_list.html:71
 msgid "Next schedule: "
@@ -934,6 +980,8 @@ msgstr "Personalizar"
 #: .\templates\finance\recurrenttransaction_form.html:31
 #: .\templates\finance\transaction_form.html:25
 #: .\templates\finance\transaction_form.html:31
+#: .\templates\finance\universal_transaction_form.html:196
+#: .\templates\finance\universal_transaction_form.html:202
 msgid "or"
 msgstr "ou"
 
@@ -1002,10 +1050,6 @@ msgstr "Já se inscreveu? Então logue aqui."
 #: .\templates\finance\transaction_archive_month.html:119
 msgid "Go to List View"
 msgstr "Visualizar como Lista"
-
-#: .\templates\finance\transaction_list.html:134
-msgid "Installment"
-msgstr "Parcelamento"
 
 #: .\templates\finance\transaction_list.html:137
 msgid ""
