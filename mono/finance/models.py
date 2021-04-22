@@ -66,9 +66,9 @@ class RecurrentTransaction(models.Model):
     MONTHLY = 'M'
     YEARLY = 'Y'
     FREQUENCY = [
-        (WEEKLY, 'Weekly'),
-        (MONTHLY, 'Monthly'),
-        (YEARLY, 'Yearly'),
+        (WEEKLY, _('Weekly')),
+        (MONTHLY, _('Monthly')),
+        (YEARLY, _('Yearly')),
     ]
     description = models.CharField(max_length=50, null=False, blank=False,
                                    verbose_name=_("description"),
@@ -82,7 +82,7 @@ class RecurrentTransaction(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
     account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
     active = models.BooleanField(_("active"), default=True)
-    frequency = models.CharField(max_length=1, choices=FREQUENCY, default=MONTHLY)
+    frequency = models.CharField(_("frequency"), max_length=1, choices=FREQUENCY, default=MONTHLY)
 
     def is_schedule_date(self, reference_date):
         if reference_date < self.timestamp.date():
@@ -158,12 +158,11 @@ class Installment(models.Model):
     FIRST = 'F'
     LAST = 'L'
     HANDLE_REMAINDER = [
-        (FIRST, 'Add to first transaction'),
-        (LAST, 'Add to last transaction'),
+        (FIRST, _('Add to first transaction')),
+        (LAST, _('Add to last transaction')),
     ]
-    months = models.IntegerField(default=12)
-    description = models.CharField(max_length=50, null=False, blank=False,
-                                   verbose_name=_("description"),
+    months = models.IntegerField(_("months"), default=12)
+    description = models.CharField(_("description"), max_length=50, null=False, blank=False,
                                    help_text="A short description, so that the user can identify the transaction.")
     created_by = models.ForeignKey(User, verbose_name=_("created by"), on_delete=models.CASCADE)
     timestamp = models.DateTimeField(_("timestamp"), default=timezone.now,
@@ -171,7 +170,7 @@ class Installment(models.Model):
     total_amount = models.FloatField(_("total amount"), help_text="Amount related to the transaction. Absolute value, no positive/negative signs.")
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
     account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
-    handle_remainder = models.CharField(max_length=1, choices=HANDLE_REMAINDER, default=FIRST)
+    handle_remainder = models.CharField(_("handle remainder"), max_length=1, choices=HANDLE_REMAINDER, default=FIRST)
 
     def create_transactions(self):
         if self.id is None:
