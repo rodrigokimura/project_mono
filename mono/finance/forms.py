@@ -89,6 +89,28 @@ class ButtonsWidget(Widget):
         return mark_safe(template)
 
 
+class RadioWidget(Widget):
+    template_name = 'widgets/ui_radio.html'
+
+    def __init__(self, attrs=None, *args, **kwargs):
+        self.choices = kwargs.pop('choices')
+        super().__init__(attrs)
+
+    def get_context(self, name, value, attrs=None):
+        return {
+            'widget': {
+                'name': name,
+                'value': value,
+                'choices': self.choices,
+            },
+        }
+
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = loader.get_template(self.template_name).render(context)
+        return mark_safe(template)
+
+
 class CategoryWidget(Widget):
     template_name = 'widgets/ui_category.html'
 
@@ -173,13 +195,69 @@ class AccountForm(forms.ModelForm):
         widgets = {}
 
 
-class UniversalTransactionForm(forms.ModelForm):
+class UniversalTransactionForm(forms.Form):
     error_css_class = 'error'
 
     type = forms.CharField(
-        widget=ButtonsWidget(choices=Category.TRANSACTION_TYPES))
-    recurrent = forms.BooleanField(widget=ToggleWidget)
-    installment = forms.BooleanField(widget=ToggleWidget)
+        label=_("Type"),
+        widget=ButtonsWidget(choices=Category.TRANSACTION_TYPES),
+        initial=Category.EXPENSE,
+    )
+    description = forms.CharField(
+        label=_("Description"),
+    )
+    timestamp = forms.DateTimeField(
+        label=_("Timestamp"),
+        widget=CalendarWidget,
+        initial=timezone.now(),
+    )
+    account = forms.ModelChoiceField(
+        label=_("Account"),
+        queryset=Account.objects.all()
+    )
+    amount = forms.FloatField(
+        label=_("Amount"),
+    )
+    category = forms.ModelChoiceField(
+        label=_("Category"),
+        widget=CategoryWidget,
+        queryset=Category.objects.all(),
+    )
+    active = forms.BooleanField(
+        label=_("Active"),
+        widget=ToggleWidget,
+        initial=True,
+    )
+    frequency = forms.ChoiceField(
+        label=_("Frequency"),
+        choices=RecurrentTransaction.FREQUENCY,
+        initial=RecurrentTransaction.MONTHLY
+    )
+    months = forms.IntegerField(
+        label=_("Months"),
+        initial=12,
+    )
+    is_recurrent_or_installment = forms.BooleanField(
+        label=_("Recurrent or installment?"),
+        widget=ToggleWidget,
+        initial=False,
+        required=False,
+    )
+    recurrent_or_installment = forms.CharField(
+        label=_("Recurrent or installment"),
+        required=False,
+        widget=RadioWidget(
+            choices=[
+                ("R", _("Recurrent")),
+                ("I", _("Installment")),
+            ]
+        ),
+    )
+    handle_remainder = forms.ChoiceField(
+        label=_("Handle remainder"),
+        choices=Installment.HANDLE_REMAINDER,
+        initial=Installment.FIRST,
+    )
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
@@ -191,39 +269,8 @@ class UniversalTransactionForm(forms.ModelForm):
         self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
         self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
         self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
-        if self.instance.pk is not None:
-            self.fields['type'].initial = self.instance.category.type
-        else:
-            self.fields['type'].initial = Category.EXPENSE
-
-    def get_context_data(self, **kwargs):
-        context = super(TransactionForm, self).get_context_data(**kwargs)
-        categories = Category.objects.all()
-        context['categories'] = categories
-        return context
-
-    class Meta:
-        model = Transaction
-        fields = [
-            "description",
-            "timestamp",
-            "account",
-            "amount",
-            "category",
-            "active",
-        ]
-        exclude = ['created_by']
-        widgets = {
-            'category': CategoryWidget,
-            'timestamp': CalendarWidget,
-            'active': ToggleWidget,
-        }
-
-    def save(self, *args, **kwargs):
-        category = self.instance
-        category.created_by = self.request.user
-        category.save()
-        return super().save(*args, **kwargs)
+        self.fields['frequency'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['recurrent_or_installment'].widget.attrs.update({'class': 'ui radio checkbox'})
 
 
 class TransactionForm(forms.ModelForm):
@@ -256,6 +303,7 @@ class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
         fields = [
+            "type",
             "description",
             "timestamp",
             "account",
@@ -308,13 +356,14 @@ class RecurrentTransactionForm(forms.ModelForm):
     class Meta:
         model = RecurrentTransaction
         fields = [
-            "description",
-            "timestamp",
-            "frequency",
-            "account",
+            "type",
             "amount",
+            "description",
+            "account",
             "category",
+            "timestamp",
             "active",
+            "frequency",
         ]
         exclude = ['created_by']
         widgets = {
@@ -361,12 +410,13 @@ class InstallmentForm(forms.ModelForm):
     class Meta:
         model = Installment
         fields = [
-            "description",
-            "timestamp",
-            "account",
+            "type",
             "total_amount",
-            "months",
+            "description",
+            "account",
             "category",
+            "timestamp",
+            "months",
             "handle_remainder",
         ]
         exclude = ['created_by']

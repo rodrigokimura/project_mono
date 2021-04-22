@@ -1,0 +1,12 @@
+{% load i18n %}
+{% for value, name in widget.choices %}
+<div class="field">
+  <div class="ui radio checkbox">
+    <input type="radio" name="{{ widget.name }}" value="{{ value }}">
+    <label>{% translate name %} </label>
+  </div>
+</div> 
+{% endfor %}
+<script type="text/javascript" charset="utf-8">
+  $('.ui.radio.checkbox').checkbox();
+</script>

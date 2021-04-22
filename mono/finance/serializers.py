@@ -2,6 +2,7 @@ from rest_framework.serializers import HyperlinkedModelSerializer
 from django.contrib.auth.models import User
 from .models import Transaction
 
+
 class UserSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = User
