@@ -208,7 +208,7 @@ class UniversalTransactionForm(forms.Form):
     )
     timestamp = forms.DateTimeField(
         label="Description",
-        widget=CalendarWidget, 
+        widget=CalendarWidget,
         initial=timezone.now(),
     )
     account = forms.ModelChoiceField(
