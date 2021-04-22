@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-22 15:12-0300\n"
+"POT-Creation-Date: 2021-04-22 16:24-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -99,8 +99,8 @@ msgstr "Sua avaliação foi enviada! Muito obrigado!"
 msgid "Current balance"
 msgstr "Saldo atual"
 
-#: .\finance\forms.py:156 .\finance\forms.py:207 .\finance\forms.py:261
-#: .\finance\forms.py:281 .\finance\forms.py:332 .\finance\forms.py:385
+#: .\finance\forms.py:156 .\finance\forms.py:207 .\finance\forms.py:267
+#: .\finance\forms.py:287 .\finance\forms.py:339 .\finance\forms.py:393
 msgid "Description"
 msgstr "Descrição"
 
@@ -116,6 +116,10 @@ msgstr "Você não possui permissão para alterar o grupo."
 msgid "Type"
 msgstr "Tipo"
 
+#: .\finance\forms.py:210
+msgid "Timestamp"
+msgstr "Data/hora"
+
 #: .\finance\forms.py:215 .\templates\finance\budgetconfiguration_list.html:24
 #: .\templates\finance\installment_list.html:27
 #: .\templates\finance\recurrenttransaction_list.html:27
@@ -123,8 +127,8 @@ msgstr "Tipo"
 msgid "Account"
 msgstr "Conta"
 
-#: .\finance\forms.py:219 .\finance\forms.py:262 .\finance\forms.py:282
-#: .\finance\forms.py:333
+#: .\finance\forms.py:219 .\finance\forms.py:268 .\finance\forms.py:288
+#: .\finance\forms.py:340
 msgid "Amount"
 msgstr "Quantidade"
 
@@ -157,27 +161,31 @@ msgstr "Recorrente ou parcelado?"
 msgid "Recurrent or installment"
 msgstr "Recorrente ou parcelado"
 
-#: .\finance\forms.py:250
+#: .\finance\forms.py:251
 msgid "Recurrent"
 msgstr "Recorrente"
 
-#: .\finance\forms.py:251 .\templates\finance\transaction_list.html:134
+#: .\finance\forms.py:252 .\templates\finance\transaction_list.html:134
 msgid "Installment"
 msgstr "Parcelamento"
 
-#: .\finance\forms.py:386
+#: .\finance\forms.py:257
+msgid "Handle remainder"
+msgstr "Resto da divisão"
+
+#: .\finance\forms.py:394
 msgid "Total amount"
 msgstr "Quantidade total"
 
-#: .\finance\forms.py:552
+#: .\finance\forms.py:561
 msgid "Your end date must be after your start date."
 msgstr "A data final deve ser maior que a data inicial."
 
-#: .\finance\forms.py:630
+#: .\finance\forms.py:639
 msgid "Email"
 msgstr "E-mail"
 
-#: .\finance\forms.py:638
+#: .\finance\forms.py:647
 msgid "Email already exists. Please use another one."
 msgstr "O e-mail já existe. Por favor, use outro."
 
@@ -218,6 +226,18 @@ msgstr "transação"
 #: .\finance\models.py:42
 msgid "transactions"
 msgstr "transações"
+
+#: .\finance\models.py:69
+msgid "Weekly"
+msgstr "Semanalmente"
+
+#: .\finance\models.py:70 .\templates\finance\checkout.html:121
+msgid "Monthly"
+msgstr "Mensal"
+
+#: .\finance\models.py:71 .\templates\finance\checkout.html:123
+msgid "Yearly"
+msgstr "Anual"
 
 #: .\finance\models.py:85
 msgid "frequency"
@@ -322,6 +342,14 @@ msgstr "transação recorrente"
 msgid "recurrent transactions"
 msgstr "transações recorrentes"
 
+#: .\finance\models.py:161
+msgid "Add to first transaction"
+msgstr "Adicionar à primeira transação"
+
+#: .\finance\models.py:162
+msgid "Add to last transaction"
+msgstr "Adicionar à última transação"
+
 #: .\finance\models.py:164
 msgid "months"
 msgstr "meses"
@@ -329,6 +357,10 @@ msgstr "meses"
 #: .\finance\models.py:170
 msgid "total amount"
 msgstr "quantidade total"
+
+#: .\finance\models.py:173
+msgid "handle remainder"
+msgstr "resto da divisão"
 
 #: .\finance\models.py:204
 msgid "installments"
@@ -511,11 +543,11 @@ msgstr "E-mail recuperação de senha enviado"
 msgid "Password reset complete"
 msgstr "Recuperação de senha concluída"
 
-#: .\finance\views.py:354 .\finance\views.py:454
+#: .\finance\views.py:356 .\finance\views.py:456
 msgid "Transaction was deleted successfully"
 msgstr "A transação foi excluída com sucesso"
 
-#: .\finance\views.py:495
+#: .\finance\views.py:497
 msgid "Installment group was deleted successfully"
 msgstr "O grupo de parcelamentos foi excluído com sucesso"
 
@@ -547,7 +579,7 @@ msgstr ""
 #: .\templates\finance\installment_form.html:23
 #: .\templates\finance\recurrenttransaction_form.html:23
 #: .\templates\finance\transaction_form.html:23
-#: .\templates\finance\universal_transaction_form.html:194
+#: .\templates\finance\universal_transaction_form.html:208
 msgid "Save"
 msgstr "Salvar"
 
@@ -559,7 +591,7 @@ msgstr "Salvar"
 #: .\templates\finance\recurrenttransaction_form.html:34
 #: .\templates\finance\transaction_form.html:34
 #: .\templates\finance\transaction_list.html:140
-#: .\templates\finance\universal_transaction_form.html:205
+#: .\templates\finance\universal_transaction_form.html:219
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -601,7 +633,7 @@ msgstr "Orçamentos encerrados"
 #: .\templates\finance\installment_form.html:29
 #: .\templates\finance\recurrenttransaction_form.html:29
 #: .\templates\finance\transaction_form.html:29
-#: .\templates\finance\universal_transaction_form.html:200
+#: .\templates\finance\universal_transaction_form.html:214
 msgid "Delete"
 msgstr "Excluir"
 
@@ -803,14 +835,6 @@ msgstr "Informações do plano:"
 msgid "Select a billing plan"
 msgstr "Selecione um plano de pagamento"
 
-#: .\templates\finance\checkout.html:121
-msgid "Monthly"
-msgstr "Mensal"
-
-#: .\templates\finance\checkout.html:123
-msgid "Yearly"
-msgstr "Anual"
-
 #: .\templates\finance\checkout.html:147 .\templates\finance\plans.html:44
 #: .\templates\finance\plans.html:48
 msgid "Select plan"
@@ -980,8 +1004,8 @@ msgstr "Personalizar"
 #: .\templates\finance\recurrenttransaction_form.html:31
 #: .\templates\finance\transaction_form.html:25
 #: .\templates\finance\transaction_form.html:31
-#: .\templates\finance\universal_transaction_form.html:196
-#: .\templates\finance\universal_transaction_form.html:202
+#: .\templates\finance\universal_transaction_form.html:210
+#: .\templates\finance\universal_transaction_form.html:216
 msgid "or"
 msgstr "ou"
 

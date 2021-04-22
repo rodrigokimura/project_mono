@@ -66,9 +66,9 @@ class RecurrentTransaction(models.Model):
     MONTHLY = 'M'
     YEARLY = 'Y'
     FREQUENCY = [
-        (WEEKLY, 'Weekly'),
-        (MONTHLY, 'Monthly'),
-        (YEARLY, 'Yearly'),
+        (WEEKLY, _('Weekly')),
+        (MONTHLY, _('Monthly')),
+        (YEARLY, _('Yearly')),
     ]
     description = models.CharField(max_length=50, null=False, blank=False,
                                    verbose_name=_("description"),
@@ -158,8 +158,8 @@ class Installment(models.Model):
     FIRST = 'F'
     LAST = 'L'
     HANDLE_REMAINDER = [
-        (FIRST, 'Add to first transaction'),
-        (LAST, 'Add to last transaction'),
+        (FIRST, _('Add to first transaction')),
+        (LAST, _('Add to last transaction')),
     ]
     months = models.IntegerField(_("months"), default=12)
     description = models.CharField(_("description"), max_length=50, null=False, blank=False,
@@ -170,7 +170,7 @@ class Installment(models.Model):
     total_amount = models.FloatField(_("total amount"), help_text="Amount related to the transaction. Absolute value, no positive/negative signs.")
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
     account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
-    handle_remainder = models.CharField(max_length=1, choices=HANDLE_REMAINDER, default=FIRST)
+    handle_remainder = models.CharField(_("handle remainder"), max_length=1, choices=HANDLE_REMAINDER, default=FIRST)
 
     def create_transactions(self):
         if self.id is None:
