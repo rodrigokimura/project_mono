@@ -307,11 +307,40 @@ class TransactionListView(LoginRequiredMixin, ListView):
         return context
 
 
-class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
-    model = Transaction
-    form_class = TransactionForm
+class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, FormView):
+    template_name = "finance/universal_transaction_form.html"
+    form_class = UniversalTransactionForm
     success_url = reverse_lazy('finance:transactions')
     success_message = "%(description)s was created successfully"
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        is_recurrent_or_installment = data.pop("is_recurrent_or_installment")
+        recurrent_or_installment = data.pop("recurrent_or_installment")
+
+        del data["type"]
+        data["created_by"] = self.request.user
+
+        if is_recurrent_or_installment:
+            if recurrent_or_installment == "R":
+                del data['months']
+                del data['handle_remainder']
+                recurrent_transaction = RecurrentTransaction(**data)
+                recurrent_transaction.save()
+            elif recurrent_or_installment == "I":
+                del data['frequency']
+                del data['active']
+                data["total_amount"] = data.pop("amount")
+                installment = Installment(**data)
+                installment.save()
+        else:
+            del data["frequency"]
+            del data["months"]
+            del data['handle_remainder']
+            transaction = Transaction(**data)
+            transaction.save()
+
+        return super().form_valid(form)
 
 
 class TransactionUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
