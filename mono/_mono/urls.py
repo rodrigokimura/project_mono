@@ -33,6 +33,7 @@ urlpatterns = [
     path('hc/', include('healthcheck.urls')),
     path('fb/', include('feedback.urls')),
     path('fn/', include('finance.urls')),
+    path('bl/', include('blog.urls')),
     # path('__debug__/', include(debug_toolbar.urls)),
     path('tinymce/', include('tinymce.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
