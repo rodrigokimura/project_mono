@@ -1,5 +1,6 @@
 {% extends "finance/base.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block head %}
   <style type="text/css" media="all">
@@ -108,7 +109,7 @@
       </script>
       <div class="ui segment" style="padding: .5em 1em;">
         <div class="ui grid">
-          <div class="eight wide column">
+          <div class="seven wide column">
             <span class="ui small label">
               {% if transaction.category %}
               <i class="{{ transaction.category.icon }} icon"></i>
@@ -126,7 +127,7 @@
           <div class="four wide column" style="display:flex; align-items:center;">
             {{ transaction.account }}
           </div>
-          <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+          <div class="five wide column" style="display:flex; justify-content:flex-end; align-items:center;">
             {% if transaction.installment %}
 
             <div class="ui small installment modal" data-id="{{ transaction.pk }}">
@@ -150,7 +151,7 @@
                 class="ui red text"
                 {% endif %}
                 >
-              <i class="history icon"></i>
+              <i class="credit card icon"></i>
                   {{ transaction.amount|floatformat:2 }}
               </span>
             </a>
@@ -161,6 +162,19 @@
                 'show'
               );
             </script>
+            {% elif transaction.recurrent %}
+            <a href="{% url 'finance:transaction_update' pk=transaction.pk %}">
+              <span
+                {% if transaction.category.type == 'INC' %}
+                class="ui green text"
+                {% elif transaction.category.type == 'EXP' %}
+                class="ui red text"
+                {% endif %}
+                >
+                <i class="history icon"></i>
+                  {{ transaction.amount|floatformat:2 }}
+              </span>
+            </a>
             {% else %}
             <a href="{% url 'finance:transaction_update' pk=transaction.pk %}">
               <span
@@ -181,6 +195,12 @@
       {% endfor %}
     </div>
     {% endfor %}
+    {% else %}
+    <img 
+      src="{% static 'image/undraw_empty_xct9.png' %}" 
+      alt=""
+      width="100%"
+      >
     {% endif %}
 
     {% include "_pagination.html" with page_obj=page_obj %}
@@ -195,15 +215,6 @@
         style="margin-bottom: 1rem;">
         <i class="plus icon"></i>
         {% translate "Add transaction" %}
-      </a>
-      <a class="ui fluid primary labeled icon button" href="{% url "finance:installment_create" %}"
-        style="margin-bottom: 1rem;">
-        <i class="plus icon"></i>
-        {% translate "Add transactions in installments" %}
-      </a>
-      <a class="ui fluid primary labeled icon button" href="{% url "finance:recurrent_transaction_create" %}">
-        <i class="plus icon"></i>
-        {% translate "Add recurrent transaction" %}
       </a>
     </div>
     

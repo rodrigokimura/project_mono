@@ -42,15 +42,17 @@
 </div>
   
 <script>
-tinyMCE.init({
-    mode: "textareas",
-    theme: "silver",
-    plugins: "spellchecker,directionality,paste,searchreplace",
-    language: "{{ tinyMCE_language }}",
-    directionality: "{{ directionality }}",
-    spellchecker_languages : "{{ spellchecker_languages }}",
-    spellchecker_rpc_url : "{{ spellchecker_rpc_url }}"
-});
-
+  tinyMCE.init({
+      mode: "textareas",
+      theme: "silver",
+      // plugins: "spellchecker,directionality,paste,searchreplace",
+      plugins: "advlist,autolink,lists,link,image,charmap,print,preview,anchor,searchreplace,visualblocks,code",
+      {% if tinyMCE_language %}
+      language: "{{ tinyMCE_language }}",
+      {% endif %}
+      directionality: "{{ directionality }}",
+      spellchecker_languages : "{{ spellchecker_languages }}",
+      spellchecker_rpc_url : "{{ spellchecker_rpc_url }}"
+  });
 </script>
 {% endblock %}
