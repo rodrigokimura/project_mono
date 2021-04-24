@@ -41,10 +41,10 @@ else:
 
 # Application definition
 INSTALLED_APPS = [
+    'tinymce',
     # 'grappelli',
     # 'filebrowser',
     '_mono.apps.MyAdminConfig',
-    'tinymce',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -103,6 +103,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                '_mono.context_processors.users',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
                 'social_django.context_processors.backends',
@@ -295,11 +296,11 @@ TINYMCE_DEFAULT_CONFIG = {
     "fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | "
     "a11ycheck ltr rtl | showcomments addcomment code",
     "custom_undo_redo_levels": 10,
-    "branding": "false"
-
 }
 
-TINYMCE_FILEBROWSER = False
+# TINYMCE_FILEBROWSER = False
+TINYMCE_JS_ROOT = os.path.join(STATIC_ROOT, "tinymce")
+
 
 FILEBROWSER_DIRECTORY = os.path.join(MEDIA_ROOT, 'uploads')
 DIRECTORY = ""
