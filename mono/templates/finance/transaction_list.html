@@ -1,5 +1,6 @@
 {% extends "finance/base.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block head %}
   <style type="text/css" media="all">
@@ -194,6 +195,12 @@
       {% endfor %}
     </div>
     {% endfor %}
+    {% else %}
+    <img 
+      src="{% static 'image/undraw_empty_xct9.png' %}" 
+      alt=""
+      width="100%"
+      >
     {% endif %}
 
     {% include "_pagination.html" with page_obj=page_obj %}
