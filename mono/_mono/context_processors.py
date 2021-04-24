@@ -1,4 +1,7 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 def environment(request):
@@ -13,6 +16,12 @@ def language_extras(request):
     return {
         'LANGUAGE_EXTRAS': settings.LANGUAGE_EXTRAS,
         'tinyMCE_language': tinyMCE_language
+    }
+
+
+def users(request):
+    return {
+        'users': User.objects.filter(is_active=True).exclude(id=request.user.id)
     }
 
 
