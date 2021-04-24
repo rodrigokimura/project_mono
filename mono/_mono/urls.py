@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from finance.views import UserViewSet, TransactionViewSet
 from .ascii_arts import ascii_art_1
-from filebrowser.sites import site
+# from filebrowser.sites import site
 # import debug_toolbar
 
 
@@ -17,8 +17,9 @@ router.register('transactions', TransactionViewSet)
 
 
 urlpatterns = [
-    path('admin/filebrowser/', site.urls),
-    path('grappelli/', include('grappelli.urls')),
+    # path('admin/filebrowser/', site.urls),
+    # path('grappelli/', include('grappelli.urls')),
+    path('tinymce/', include('tinymce.urls')),
     path('admin/', admin.site.urls),
     path('auth/', include('social_django.urls', namespace='social')),
     path('admin/doc/', include('django.contrib.admindocs.urls')),
@@ -35,7 +36,6 @@ urlpatterns = [
     path('fn/', include('finance.urls')),
     path('bl/', include('blog.urls')),
     # path('__debug__/', include(debug_toolbar.urls)),
-    path('tinymce/', include('tinymce.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
 ]
 

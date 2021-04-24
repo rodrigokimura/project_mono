@@ -11,5 +11,10 @@ class PostForm(forms.ModelForm):
         fields = '__all__'
         exclude = []
         widgets = {
-            "content": TinyMCE(attrs={'cols': 80, 'rows': 30})
+            "content": TinyMCE(
+                attrs={
+                    'cols': 80,
+                    'rows': 30,
+                },
+            )
         }
