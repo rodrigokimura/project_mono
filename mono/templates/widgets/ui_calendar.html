@@ -1,5 +1,8 @@
 {% load i18n %}
+{% load tz %}
+
 {% get_current_language as LANGUAGE_CODE %}
+
 
 <div class="ui calendar">
   <div class="ui input left icon">
@@ -7,24 +10,32 @@
     <input 
       type="text" 
       name="{{ widget.name }}" 
-      placeholder="{{ widget.placeholder|capfirst }}"
+      placeholder="{% translate widget.placeholder|capfirst %}"
       {% if type == "date" %}
-      value="{{ widget.value|date:"SHORT_DATE_FORMAT" }}"
+        {% if widget.value|date %}
+        value="{{ widget.value|date:'SHORT_DATE_FORMAT' }}"
+        {% else %}
+        value="{{ widget.value }}"
+        {% endif %}
       {% else %}
-      value="{{ widget.value|date:"c" }}"
+        {% if widget.value|date %}
+        value="{{ widget.value|date:'SHORT_DATE_FORMAT' }} {{ widget.value|time:'G:i' }}"
+        {% else %}
+        value="{{ widget.value }}"
+        {% endif %}
       {% endif %}
       >
   </div>
 </div>
 <script type="text/javascript" charset="utf-8">
-  $('[name={{widget.name}}]').parent().parent().calendar(
+  $('[name={{ widget.name }}]').parent().parent().calendar(
     {
       type:"{{ type }}",
       today: true,
       ampm: false,
       formatInput: true,
       formatter: {
-        date: function (date, settings) {
+        date: (date, settings) => {
           if (!date) return '';
           {% for code, name, flag, js_locale in LANGUAGE_EXTRAS %}
           {% if code == LANGUAGE_CODE %}
@@ -34,6 +45,8 @@
         }
       }
     }
-    
   );
+  {% comment %} $('[name={{ widget.name }}]').parent().parent().calendar(
+    'set date', "{{ widget.value }}"
+  ) {% endcomment %}
 </script>

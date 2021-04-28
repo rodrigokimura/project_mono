@@ -114,9 +114,9 @@
         <a class="item" href="{% url 'finance:icons' %}">Icons</a>
         <a class="item" href="{% url 'finance:plans' %}">Checkout</a>
         <a class="item" href="{% url 'admin:index' %}">Admin</a>
-        <div class="divider"></div>
         <a class="item" href="https://clicky.com/stats/?site_id={{ CLICKY_SITE_ID }}">Clicky</a>
         <a class="item" href="{% url 'healthcheck:deploy' %}">Deploy</a>
+        <a class="item" href="{% url 'finance:restricted_area' %}">Restricted Area</a>
       </div>
     </div>
     <div class="item">
@@ -135,18 +135,6 @@
     <a class="toc item">
       <i class="sidebar icon"></i>
     </a>
-
-    {% if request.user.is_superuser %}
-    <div class="header item">
-      <div class="ui user search">
-        <div class="ui icon input">
-          <input class="prompt" type="text" placeholder="Login as">
-          <i class="search icon"></i>
-        </div>
-        <div class="results"></div>
-      </div>    
-    </div>
-    {% endif %}
 
     {% if request.user.is_authenticated %}
     <div class="right menu">
@@ -374,40 +362,6 @@
     content_css: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default')
   }); {% endcomment %}
 
-  {% if request.user.is_superuser %}
-  var content = [
-    {% for user in users %}
-    {
-      id: "{{ user.id }}",
-      title: "{{ user.username }}"
-    },
-    {% endfor %}
-  ];
-
-  $('.ui.user.search').search({
-      source: content,
-      onSelect: (result, response) => {
-        $.api(
-          {
-            action: 'login as',
-            method: 'POST',
-            stateContext: $('.ui.user.search'),
-            mode: 'same-origin',
-            headers: {'X-CSRFToken': csrftoken},
-            data: {user: result.id},
-            on: 'now',
-            cache: false,
-            onSuccess: response => {
-              console.log(response.message);
-              location.reload(true);
-            },
-            onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
-            onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
-          }
-        )
-      }
-    });
-  {% endif %}
   
 
   

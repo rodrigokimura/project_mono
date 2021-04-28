@@ -20,6 +20,7 @@ class TransactionAdmin(admin.ModelAdmin):
         "active",
         "recurrent",
         "installment",
+        "transference",
     ]
     list_filter = [
         "created_by",
@@ -69,6 +70,25 @@ class InstallmentAdmin(admin.ModelAdmin):
         "timestamp",
         "category__type",
         "category__name",
+    ]
+
+
+@admin.register(models.Transference)
+class TransferenceAdmin(admin.ModelAdmin):
+    list_display = [
+        "description",
+        "from_account",
+        "to_account",
+        "created_by",
+        "timestamp",
+        "amount",
+    ]
+    list_filter = [
+        "from_account",
+        "to_account",
+        "created_by",
+        "timestamp",
+        "amount",
     ]
 
 
