@@ -1,10 +1,9 @@
 {% extends "finance/base.html" %}
 {% load static %}
 {% load i18n %}
+{% load l10n %}
 
 {% block head %}
-<script src="{% static 'js/jquery.datetimepicker.full.min.js' %}"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.datetimepicker.min.css' %}"/>
 <style>
   .hidden { display: none !important; }
 </style>
@@ -64,7 +63,7 @@
               {% endwith %}
 
               {% with field=form.account %}
-              <div class="field {% if field.errors %}error{% endif %}">
+              <div class="field {% if field.errors %}error{% endif %}" data-name="account">
                 <label>{% translate field.label %}</label>
                 {{ field }}
                 {% if field.errors %}
@@ -78,7 +77,7 @@
               {% endwith %}
 
               {% with field=form.category %}
-              <div class="field {% if field.errors %}error{% endif %}">
+              <div class="field {% if field.errors %}error{% endif %}" data-name="category">
                 <label>{% translate field.label %}</label>
                 {{ field }}
                 {% if field.errors %}
@@ -90,6 +89,36 @@
                 {% endif %}
               </div>
               {% endwith %}
+
+              <div class="hidden transference two fields">
+                {% with field=form.from_account %}
+                <div class="field {% if field.errors %}error{% endif %}">
+                  <label>{% translate field.label %}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                  <div class="ui error message">
+                    {% for error in field.errors %}
+                    {{ error }}
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+                {% endwith %}
+
+                {% with field=form.to_account %}
+                <div class="field {% if field.errors %}error{% endif %}">
+                  <label>{% translate field.label %}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                  <div class="ui error message">
+                    {% for error in field.errors %}
+                    {{ error }}
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+                {% endwith %}
+              </div>
 
               {% with field=form.timestamp %}
               <div class="field {% if field.errors %}error{% endif %}">
@@ -106,7 +135,7 @@
               {% endwith %}
 
               {% with field=form.active %}
-              <div class="field {% if field.errors %}error{% endif %}">
+              <div class="field {% if field.errors %}error{% endif %}" data-name="active">
                 <label>{% translate field.label %}</label>
                 {{ field }}
                 {% if field.errors %}
@@ -120,7 +149,7 @@
               {% endwith %}
 
               {% with field=form.is_recurrent_or_installment %}
-              <div class="field {% if field.errors %}error{% endif %}">
+              <div class="field {% if field.errors %}error{% endif %}" data-name="is_recurrent_or_installment">
                 <label>{% translate field.label %}</label>
                 {{ field }}
                 {% if field.errors %}
@@ -230,6 +259,8 @@
 <script>
   $('select[name=handle_remainder]').dropdown()
   $('select[name=frequency]').dropdown()
+  $('select[name=from_account]').dropdown()
+  $('select[name=to_account]').dropdown()
   $('select[name=account]').dropdown(
     {
       onChange: function(value, text, choice) {
@@ -257,7 +288,6 @@
     dropdown_element.dropdown("set value", "{{ object.category.pk }}")
   {% endif %}
 
-
   $('.ui.checkbox[data-name=is_recurrent_or_installment]').checkbox(
     {
       onChecked: () => {
@@ -268,6 +298,9 @@
       }
     }
   );
+  if ($('.ui.checkbox[data-name=is_recurrent_or_installment]').hasClass('checked')) {
+    $('[data-name=recurrent_or_installment]').removeClass('hidden');
+  }
 
   $('.ui.radio.checkbox input[name=recurrent_or_installment][value=R]').parent().checkbox(
     {
@@ -285,6 +318,26 @@
       },
     }
   );
+
+  $('input[name=type]').change(
+    () => {
+      if ($('input[name=type]').val() == "TRF") {
+        $(".transference").removeClass("hidden")
+        $(".field[data-name=account]").addClass("hidden")
+        $(".field[data-name=category]").addClass("hidden")
+        $(".field[data-name=active]").addClass("hidden")
+        $(".field[data-name=is_recurrent_or_installment]").addClass("hidden")
+        $("div[data-name=recurrent_or_installment]").addClass("hidden")
+      } else {
+        $(".transference").addClass("hidden")
+        $(".field[data-name=account]").removeClass("hidden")
+        $(".field[data-name=category]").removeClass("hidden")
+        $(".field[data-name=active]").removeClass("hidden")
+        $(".field[data-name=is_recurrent_or_installment]").removeClass("hidden")
+        $("div[data-name=recurrent_or_installment]").removeClass("hidden")
+      }
+    }
+  )
 
   
 </script>
