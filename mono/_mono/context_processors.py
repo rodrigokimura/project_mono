@@ -19,11 +19,5 @@ def language_extras(request):
     }
 
 
-def users(request):
-    return {
-        'users': User.objects.filter(is_active=True).exclude(id=request.user.id)
-    }
-
-
 def analytical_app(request):
     return {'CLICKY_SITE_ID': settings.CLICKY_SITE_ID}
