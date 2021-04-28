@@ -32,7 +32,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.authtoken.models import Token
 from .models import (BudgetConfiguration, Configuration, Installment, Transaction, Account, Group,
                      Category, Icon, Goal, Invite, Notification, Budget, Plan,
-                     Subscription, RecurrentTransaction)
+                     Subscription, RecurrentTransaction, Transference)
 from .forms import (
     BudgetConfigurationForm, InstallmentForm, TransactionForm, GroupForm,
     CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm,
@@ -317,28 +317,44 @@ class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
         data = form.cleaned_data
         is_recurrent_or_installment = data.pop("is_recurrent_or_installment")
         recurrent_or_installment = data.pop("recurrent_or_installment")
-
-        del data["type"]
         data["created_by"] = self.request.user
 
-        if is_recurrent_or_installment:
-            if recurrent_or_installment == "R":
-                del data['months']
-                del data['handle_remainder']
-                recurrent_transaction = RecurrentTransaction(**data)
-                recurrent_transaction.save()
-            elif recurrent_or_installment == "I":
-                del data['frequency']
-                del data['active']
-                data["total_amount"] = data.pop("amount")
-                installment = Installment(**data)
-                installment.save()
-        else:
+        if data['type'] == "TRF":
+            # For Transference
             del data["frequency"]
             del data["months"]
             del data['handle_remainder']
-            transaction = Transaction(**data)
-            transaction.save()
+            del data["account"]
+            del data["category"]
+            del data["type"]
+            del data["active"]
+            transference = Transference(**data)
+            transference.save()
+        else:
+            del data["type"]
+            del data['from_account']
+            del data['to_account']
+            if is_recurrent_or_installment:
+                if recurrent_or_installment == "R":
+                    # For Recurrent Transaction
+                    del data['months']
+                    del data['handle_remainder']
+                    recurrent_transaction = RecurrentTransaction(**data)
+                    recurrent_transaction.save()
+                elif recurrent_or_installment == "I":
+                    # For Installment
+                    del data['frequency']
+                    del data['active']
+                    data["total_amount"] = data.pop("amount")
+                    installment = Installment(**data)
+                    installment.save()
+            else:
+                # For Transaction
+                del data["frequency"]
+                del data["months"]
+                del data['handle_remainder']
+                transaction = Transaction(**data)
+                transaction.save()
 
         return super().form_valid(form)
 
@@ -1451,6 +1467,17 @@ class ApiLogoutView(APIView):
                 "message": "Token was successfully deleted.",
             }
         )
+
+
+class RestrictedAreaView(LoginRequiredMixin, TemplateView):
+    template_name = "finance/restricted_area.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['users'] = User.objects.filter(
+            is_active=True).exclude(
+                id=self.request.user.id)
+        return context
 
 
 class ChartsView(LoginRequiredMixin, TemplateView):

@@ -103,7 +103,6 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                '_mono.context_processors.users',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
                 'social_django.context_processors.backends',
