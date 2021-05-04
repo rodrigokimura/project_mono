@@ -32,10 +32,11 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.authtoken.models import Token
 from .models import (BudgetConfiguration, Configuration, Installment, Transaction, Account, Group,
                      Category, Icon, Goal, Invite, Notification, Budget, Plan,
-                     Subscription, RecurrentTransaction)
-from .forms import (BudgetConfigurationForm, InstallmentForm, TransactionForm, GroupForm,
-                    CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm,
-                    BudgetForm, RecurrentTransactionForm)
+                     Subscription, RecurrentTransaction, Transference)
+from .forms import (
+    BudgetConfigurationForm, InstallmentForm, TransactionForm, GroupForm,
+    CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm,
+    BudgetForm, RecurrentTransactionForm, UniversalTransactionForm)
 from .serializers import UserSerializer, TransactionSerializer
 import time
 import jwt
@@ -114,10 +115,10 @@ class HomePageView(TemplateView):
         incomes_last_month = transactions_last_month.filter(
             category__type=Category.INCOME
         ).aggregate(sum=Coalesce(Sum("amount"), V(0), output_field=FloatField()))
-        context["expenses_this_month"] = expenses_this_month['sum']
-        context["incomes_this_month"] = incomes_this_month['sum']
-        context["expenses_last_month"] = expenses_last_month['sum']
-        context["incomes_last_month"] = incomes_last_month['sum']
+        context["expenses_this_month"] = round(expenses_this_month['sum'], 2)
+        context["incomes_this_month"] = round(incomes_this_month['sum'], 2)
+        context["expenses_last_month"] = round(expenses_last_month['sum'], 2)
+        context["incomes_last_month"] = round(incomes_last_month['sum'], 2)
 
         closed_budgets = Budget.objects.filter(
             created_by=self.request.user,
@@ -306,11 +307,56 @@ class TransactionListView(LoginRequiredMixin, ListView):
         return context
 
 
-class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
-    model = Transaction
-    form_class = TransactionForm
+class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, FormView):
+    template_name = "finance/universal_transaction_form.html"
+    form_class = UniversalTransactionForm
     success_url = reverse_lazy('finance:transactions')
     success_message = "%(description)s was created successfully"
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        is_recurrent_or_installment = data.pop("is_recurrent_or_installment")
+        recurrent_or_installment = data.pop("recurrent_or_installment")
+        data["created_by"] = self.request.user
+
+        if data['type'] == "TRF":
+            # For Transference
+            del data["frequency"]
+            del data["months"]
+            del data['handle_remainder']
+            del data["account"]
+            del data["category"]
+            del data["type"]
+            del data["active"]
+            transference = Transference(**data)
+            transference.save()
+        else:
+            del data["type"]
+            del data['from_account']
+            del data['to_account']
+            if is_recurrent_or_installment:
+                if recurrent_or_installment == "R":
+                    # For Recurrent Transaction
+                    del data['months']
+                    del data['handle_remainder']
+                    recurrent_transaction = RecurrentTransaction(**data)
+                    recurrent_transaction.save()
+                elif recurrent_or_installment == "I":
+                    # For Installment
+                    del data['frequency']
+                    del data['active']
+                    data["total_amount"] = data.pop("amount")
+                    installment = Installment(**data)
+                    installment.save()
+            else:
+                # For Transaction
+                del data["frequency"]
+                del data["months"]
+                del data['handle_remainder']
+                transaction = Transaction(**data)
+                transaction.save()
+
+        return super().form_valid(form)
 
 
 class TransactionUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
@@ -1423,19 +1469,30 @@ class ApiLogoutView(APIView):
         )
 
 
+class RestrictedAreaView(LoginRequiredMixin, TemplateView):
+    template_name = "finance/restricted_area.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['users'] = User.objects.filter(
+            is_active=True).exclude(
+                id=self.request.user.id)
+        return context
+
+
 class ChartsView(LoginRequiredMixin, TemplateView):
     template_name = "finance/charts.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         transactions_by_category = Transaction.objects.filter(
             created_by=self.request.user
         ).values("category__name").annotate(
             sum=Coalesce(Sum("amount"), V(0), output_field=FloatField())
         ).order_by("category__name")
         context['transactions_by_category'] = transactions_by_category
-        
+
         transactions_by_month_this_year = Transaction.objects.filter(
             created_by=self.request.user,
             timestamp__year=timezone.now().year

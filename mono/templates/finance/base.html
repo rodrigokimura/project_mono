@@ -67,6 +67,7 @@
       {% if request.user.is_superuser %}
       'deploy'                      : '/hc/deploy/',
       'checkout'                    : "{% url 'finance:checkout' %}",
+      'login as'                    : "{% url 'accounts:login_as' %}",
       {% endif %}
       successTest: function(response) {
         return response.success;
@@ -113,9 +114,17 @@
         <a class="item" href="{% url 'finance:icons' %}">Icons</a>
         <a class="item" href="{% url 'finance:plans' %}">Checkout</a>
         <a class="item" href="{% url 'admin:index' %}">Admin</a>
-        <div class="divider"></div>
         <a class="item" href="https://clicky.com/stats/?site_id={{ CLICKY_SITE_ID }}">Clicky</a>
         <a class="item" href="{% url 'healthcheck:deploy' %}">Deploy</a>
+        <a class="item" href="{% url 'finance:restricted_area' %}">Restricted Area</a>
+      </div>
+    </div>
+    <div class="item">
+      <div class="header item">
+        <div class="ui toggle inverted maintenance {% if maintenance_mode %}checked{% endif %} checkbox">
+          <input type="checkbox" {% if maintenance_mode %}checked{% endif %}>
+          <label>{% translate "MAINTENANCE" %}</label>
+        </div>
       </div>
     </div>
     {% endif %}
@@ -126,15 +135,6 @@
     <a class="toc item">
       <i class="sidebar icon"></i>
     </a>
-
-    {% if request.user.is_superuser %}
-    <div class="header item">
-      <div class="ui toggle inverted maintenance {% if maintenance_mode %}checked{% endif %} checkbox">
-        <input type="checkbox" {% if maintenance_mode %}checked{% endif %}>
-        <label>{% translate "MAINTENANCE" %}</label>
-      </div>
-    </div>
-    {% endif %}
 
     {% if request.user.is_authenticated %}
     <div class="right menu">
@@ -220,6 +220,8 @@
   {% analytical_body_bottom %}
 </body>
 <script>
+
+
   let setLanguage = (el) => {
     $("input[name=language]").val(el);
     $("form[name=language]").submit();
@@ -355,6 +357,14 @@
       onUnchecked: () => { location.href = '/maintenance-mode/off/'; },
     }
   );
+
+  {% comment %} tinymce.init({
+    selector: 'textarea',  // change this value according to your HTML
+    skin: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oxide-dark' : 'oxide'),
+    content_css: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default')
+  }); {% endcomment %}
+
+  
 
   
 </script>

@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from datetime import timedelta, datetime
+from dateutil.parser import parse
 from faker import Faker
 from faker.providers import lorem
 from captcha.fields import ReCaptchaField
@@ -40,11 +41,10 @@ class CalendarWidget(Widget):
             'LANGUAGE_EXTRAS': settings.LANGUAGE_EXTRAS,
         }
 
-    def format_value(self, value):
-        return value
-
     def render(self, name, value, attrs=None, renderer=None):
         context = self.get_context(name, value, attrs)
+        if type(value) == str:
+            value = parse(value, ignoretz=False)
         template = loader.get_template(self.template_name).render(context)
         return mark_safe(template)
 
@@ -69,6 +69,28 @@ class IconWidget(Widget):
 
 class ButtonsWidget(Widget):
     template_name = 'widgets/ui_buttons.html'
+
+    def __init__(self, attrs=None, *args, **kwargs):
+        self.choices = kwargs.pop('choices')
+        super().__init__(attrs)
+
+    def get_context(self, name, value, attrs=None):
+        return {
+            'widget': {
+                'name': name,
+                'value': value,
+                'choices': self.choices,
+            },
+        }
+
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = loader.get_template(self.template_name).render(context)
+        return mark_safe(template)
+
+
+class RadioWidget(Widget):
+    template_name = 'widgets/ui_radio.html'
 
     def __init__(self, attrs=None, *args, **kwargs):
         self.choices = kwargs.pop('choices')
@@ -126,7 +148,7 @@ class ToggleWidget(Widget):
 
 class AccountForm(forms.ModelForm):
     error_css_class = 'error'
-    current_balance = forms.FloatField(required=False)
+    current_balance = forms.FloatField(required=False, label=_('Current balance'))
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
@@ -142,7 +164,12 @@ class AccountForm(forms.ModelForm):
         if self.instance.pk is None:
             self.fields['current_balance'].widget = forms.HiddenInput()
         else:
-            self.fields['current_balance'].widget.attrs.update({'value': self.instance.current_balance})
+            self.fields['current_balance'].widget.attrs.update(
+                {
+                    'value': self.instance.current_balance,
+                    'placeholder': _('Current balance')
+                }
+            )
 
     def clean(self):
         if self.instance.pk is not None:
@@ -166,6 +193,132 @@ class AccountForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['created_by', 'owned_by']
         widgets = {}
+
+
+class UniversalTransactionForm(forms.Form):
+    error_css_class = 'error'
+
+    transaction_types = Category.TRANSACTION_TYPES.copy()
+    transaction_types.append(("TRF", _("Transfer")))
+
+    type = forms.CharField(
+        label=_("Type"),
+        widget=ButtonsWidget(choices=transaction_types),
+        initial=Category.EXPENSE,
+    )
+    description = forms.CharField(
+        label=_("Description"),
+    )
+    timestamp = forms.DateTimeField(
+        label=_("Timestamp"),
+        widget=CalendarWidget,
+        initial=timezone.now(),
+    )
+    account = forms.ModelChoiceField(
+        label=_("Account"),
+        required=False,
+        queryset=Account.objects.all(),
+    )
+    amount = forms.FloatField(
+        label=_("Amount"),
+    )
+    category = forms.ModelChoiceField(
+        label=_("Category"),
+        required=False,
+        widget=CategoryWidget,
+        queryset=Category.objects.all(),
+    )
+    active = forms.BooleanField(
+        label=_("Active"),
+        widget=ToggleWidget,
+        initial=True,
+    )
+    frequency = forms.ChoiceField(
+        label=_("Frequency"),
+        choices=RecurrentTransaction.FREQUENCY,
+        initial=RecurrentTransaction.MONTHLY
+    )
+    months = forms.IntegerField(
+        label=_("Months"),
+        initial=12,
+    )
+    is_recurrent_or_installment = forms.BooleanField(
+        label=_("Recurrent or installment?"),
+        widget=ToggleWidget,
+        initial=False,
+        required=False,
+    )
+    recurrent_or_installment = forms.CharField(
+        label=_("Recurrent or installment"),
+        required=False,
+        widget=RadioWidget(
+            choices=[
+                ("R", _("Recurrent")),
+                ("I", _("Installment")),
+            ]
+        ),
+    )
+    handle_remainder = forms.ChoiceField(
+        label=_("Handle remainder"),
+        choices=Installment.HANDLE_REMAINDER,
+        initial=Installment.FIRST,
+    )
+    # For transference
+    from_account = forms.ModelChoiceField(
+        label=_("From account"),
+        required=False,
+        queryset=Account.objects.all()
+    )
+    to_account = forms.ModelChoiceField(
+        label=_("To account"),
+        required=False,
+        queryset=Account.objects.all()
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+        owned_accounts = Account.objects.filter(owned_by=self.request.user)
+        shared_accounts = Account.objects.filter(group__members=self.request.user)
+        self.fields['description'].widget.attrs.update({'placeholder': _('Description')})
+        self.fields['amount'].widget.attrs.update({'placeholder': _('Amount')})
+        self.fields['category'].widget.queryset = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
+        self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
+        self.fields['from_account'].queryset = (owned_accounts | shared_accounts).distinct()
+        self.fields['to_account'].queryset = (owned_accounts | shared_accounts).distinct()
+        self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['from_account'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['to_account'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['frequency'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['recurrent_or_installment'].widget.attrs.update({'class': 'ui radio checkbox'})
+
+    def clean(self):
+        type = self.cleaned_data['type']
+        errors = {}
+        if type == 'TRF':
+            # if Transfer, from and to accounts are required
+            if self.cleaned_data['from_account'] is None:
+                errors['from_account'] = ValidationError(_('This field is required.'))
+            if self.cleaned_data['to_account'] is None:
+                errors['to_account'] = ValidationError(_('This field is required.'))
+        elif self.cleaned_data['is_recurrent_or_installment']:
+            # if Recurrent, Installment or Transaction, account and category are required
+            if self.cleaned_data['account'] is None:
+                errors['account'] = ValidationError(_('This field is required.'))
+            if self.cleaned_data['category'] is None:
+                errors['category'] = ValidationError(_('This field is required.'))
+            if self.cleaned_data['recurrent_or_installment'] == "R":
+                if self.cleaned_data['frequency'] is None:
+                    errors['frequency'] = ValidationError(_('This field is required.'))
+            elif self.cleaned_data['recurrent_or_installment'] == "I":
+                if self.cleaned_data['months'] is None:
+                    errors['months'] = ValidationError(_('This field is required.'))
+                if self.cleaned_data['handle_remainder'] is None:
+                    errors['handle_remainder'] = ValidationError(_('This field is required.'))
+            elif self.cleaned_data['recurrent_or_installment'] == "":
+                errors['recurrent_or_installment'] = ValidationError(_('This field is required.'))
+        if len(errors) > 0:
+            raise ValidationError(errors)
 
 
 class TransactionForm(forms.ModelForm):
@@ -198,6 +351,7 @@ class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
         fields = [
+            "type",
             "description",
             "timestamp",
             "account",
@@ -250,13 +404,14 @@ class RecurrentTransactionForm(forms.ModelForm):
     class Meta:
         model = RecurrentTransaction
         fields = [
-            "description",
-            "timestamp",
-            "frequency",
-            "account",
+            "type",
             "amount",
+            "description",
+            "account",
             "category",
+            "timestamp",
             "active",
+            "frequency",
         ]
         exclude = ['created_by']
         widgets = {
@@ -303,12 +458,13 @@ class InstallmentForm(forms.ModelForm):
     class Meta:
         model = Installment
         fields = [
-            "description",
-            "timestamp",
-            "account",
+            "type",
             "total_amount",
-            "months",
+            "description",
+            "account",
             "category",
+            "timestamp",
+            "months",
             "handle_remainder",
         ]
         exclude = ['created_by']

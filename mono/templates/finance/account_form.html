@@ -1,5 +1,6 @@
 {% extends "finance/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block body %}
 
@@ -14,17 +15,17 @@
               {% include "_form.html" with form=form %}
               <div class="fluid ui big buttons">
                 <button class="ui button primary" type="submit" form="account_form">
-                  Save
+                  {% translate "Save" %}
                 </button>
                 <div class="or"></div>
                 {% if object and object.owned_by == request.user %}
                 <a class="ui button red" href="{% url 'finance:account_delete' pk=object.pk %}">
-                  Delete
+                  {% translate "Delete" %}
                 </a>
                 <div class="or"></div>
                 {% endif %}
                 <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
-                  Cancel
+                  {% translate "Cancel" %}
                 </a>
               </div>
             </form>

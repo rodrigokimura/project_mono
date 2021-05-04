@@ -88,6 +88,8 @@ urlpatterns = [
 
     path('api-me/', views.ApiMeView.as_view(), name='api_me'),
     path('api-logout/', views.ApiLogoutView.as_view(), name='api_logout'),
-    
+
     path('charts/', views.ChartsView.as_view(), name='charts'),
+
+    path('restricted-area/', views.RestrictedAreaView.as_view(), name='restricted_area'),
 ]
