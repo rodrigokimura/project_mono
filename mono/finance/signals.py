@@ -1,4 +1,4 @@
-from .models import Configuration, Account, Category, Group, Icon, Installment, Transaction, User
+from .models import Configuration, Account, Category, Group, Icon, Installment, Transaction, Transference, User
 
 
 def initial_setup(sender, instance, created, **kwargs):
@@ -59,3 +59,19 @@ def installments_creation(sender, instance, created, **kwargs):
             for transaction in transactions:
                 transaction.delete()
             instance.create_transactions()
+
+
+def transference_creation(sender, instance, created, **kwargs):
+    if sender == Transference:
+        if created:
+            instance.create_transactions()
+        else:
+            transactions = Transaction.objects.filter(transference=instance)
+            for transaction in transactions:
+                transaction.delete()
+            instance.create_transactions()
+
+
+def round_transaction(sender, instance, **kwargs):
+    if sender == Transaction:
+        instance.round_amount()

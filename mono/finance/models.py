@@ -19,15 +19,22 @@ User = get_user_model()
 
 class Transaction(models.Model):
     """Stores financial transactions."""
-    description = models.CharField(max_length=50, null=False, blank=False,
-                                   verbose_name=_("description"),
-                                   help_text="A short description, so that the user can identify the transaction.")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
-                                   verbose_name=_("created by"),
-                                   help_text="Identifies who created the transaction.")
-    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
-    timestamp = models.DateTimeField(_("timestamp"), default=timezone.now,
-                                     help_text="Timestamp when transaction occurred. User defined.")
+    description = models.CharField(
+        max_length=50,
+        null=False,
+        blank=False,
+        verbose_name=_("description"),
+        help_text="A short description, so that the user can identify the transaction.")
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        verbose_name=_("created by"),
+        help_text="Identifies who created the transaction.")
+    created_at = models.DateTimeField(
+        _("created at"),
+        auto_now_add=True)
+    timestamp = models.DateTimeField(
+        _("timestamp"), default=timezone.now,
+        help_text="Timestamp when transaction occurred. User defined.")
     amount = models.FloatField(
         _("amount"),
         help_text="Amount related to the transaction. Absolute value, no positive/negative signs.")
@@ -36,6 +43,7 @@ class Transaction(models.Model):
     active = models.BooleanField(_("active"), default=True)
     recurrent = models.ForeignKey('RecurrentTransaction', on_delete=models.SET_NULL, null=True, blank=True, default=None)
     installment = models.ForeignKey('Installment', verbose_name=_("installment"), on_delete=models.CASCADE, null=True, blank=True, default=None)
+    transference = models.ForeignKey('Transference', verbose_name=_("installment"), on_delete=models.CASCADE, null=True, blank=True, default=None)
 
     class Meta:
         verbose_name = _("transaction")
@@ -54,6 +62,9 @@ class Transaction(models.Model):
             sign = -1
         return self.amount * sign
 
+    def round_amount(self):
+        self.amount = round(float(self.amount), 2)
+
     def __str__(self) -> str:
         return self.description
 
@@ -63,9 +74,9 @@ class RecurrentTransaction(models.Model):
     MONTHLY = 'M'
     YEARLY = 'Y'
     FREQUENCY = [
-        (WEEKLY, 'Weekly'),
-        (MONTHLY, 'Monthly'),
-        (YEARLY, 'Yearly'),
+        (WEEKLY, _('Weekly')),
+        (MONTHLY, _('Monthly')),
+        (YEARLY, _('Yearly')),
     ]
     description = models.CharField(max_length=50, null=False, blank=False,
                                    verbose_name=_("description"),
@@ -79,7 +90,7 @@ class RecurrentTransaction(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
     account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
     active = models.BooleanField(_("active"), default=True)
-    frequency = models.CharField(max_length=1, choices=FREQUENCY, default=MONTHLY)
+    frequency = models.CharField(_("frequency"), max_length=1, choices=FREQUENCY, default=MONTHLY)
 
     def is_schedule_date(self, reference_date):
         if reference_date < self.timestamp.date():
@@ -155,12 +166,11 @@ class Installment(models.Model):
     FIRST = 'F'
     LAST = 'L'
     HANDLE_REMAINDER = [
-        (FIRST, 'Add to first transaction'),
-        (LAST, 'Add to last transaction'),
+        (FIRST, _('Add to first transaction')),
+        (LAST, _('Add to last transaction')),
     ]
-    months = models.IntegerField(default=12)
-    description = models.CharField(max_length=50, null=False, blank=False,
-                                   verbose_name=_("description"),
+    months = models.IntegerField(_("months"), default=12)
+    description = models.CharField(_("description"), max_length=50, null=False, blank=False,
                                    help_text="A short description, so that the user can identify the transaction.")
     created_by = models.ForeignKey(User, verbose_name=_("created by"), on_delete=models.CASCADE)
     timestamp = models.DateTimeField(_("timestamp"), default=timezone.now,
@@ -168,7 +178,7 @@ class Installment(models.Model):
     total_amount = models.FloatField(_("total amount"), help_text="Amount related to the transaction. Absolute value, no positive/negative signs.")
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
     account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
-    handle_remainder = models.CharField(max_length=1, choices=HANDLE_REMAINDER, default=FIRST)
+    handle_remainder = models.CharField(_("handle remainder"), max_length=1, choices=HANDLE_REMAINDER, default=FIRST)
 
     def create_transactions(self):
         if self.id is None:
@@ -200,6 +210,70 @@ class Installment(models.Model):
     class Meta:
         verbose_name = _("installment")
         verbose_name_plural = _("installments")
+
+
+class Transference(models.Model):
+    """Stores couples of transactions; one income and one expense."""
+    description = models.CharField(
+        max_length=50,
+        null=False,
+        blank=False,
+        default=_("Transfer"),
+        verbose_name=_("description"),
+        help_text="A short description, so that the user can identify the transaction.")
+    from_account = models.ForeignKey(
+        "Account",
+        verbose_name=_("from account"),
+        on_delete=models.CASCADE,
+        related_name="expense_transferences",
+        help_text="Source account in which an expense will be stored.")
+    to_account = models.ForeignKey(
+        "Account",
+        verbose_name=_("to account"),
+        on_delete=models.CASCADE,
+        related_name="income_transferences",
+        help_text="Destination account in which an income will be stored.")
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name=_("created by"),
+        help_text="Identifies who created the transaction.")
+    timestamp = models.DateTimeField(
+        _("timestamp"), default=timezone.now,
+        help_text="Timestamp when transaction occurred. User defined.")
+    amount = models.FloatField(
+        _("amount"),
+        help_text="Amount related to the transaction. Absolute value, no positive/negative signs.")
+
+    def create_transactions(self):
+        """Creates a pair of transactions: expense and income."""
+        if not Transaction.objects.filter(transference=self.id).exists():
+            Transaction.objects.create(
+                description=self.description,
+                account=self.from_account,
+                created_by=self.created_by,
+                timestamp=self.timestamp,
+                amount=self.amount,
+                transference=self,
+                category=Category.objects.get(
+                    created_by=self.created_by,
+                    internal_type=Category.TRANSFER,
+                    type=Category.EXPENSE,
+                ),
+            )
+            Transaction.objects.create(
+                description=self.description,
+                account=self.to_account,
+                created_by=self.created_by,
+                timestamp=self.timestamp,
+                amount=self.amount,
+                transference=self,
+                category=Category.objects.get(
+                    created_by=self.created_by,
+                    internal_type=Category.TRANSFER,
+                    type=Category.INCOME,
+                ),
+            )
 
 
 class Icon(models.Model):
@@ -808,7 +882,7 @@ class Plan(models.Model):
 
 class Feature(models.Model):
     """
-    Stores features related to the plans user can subscribve to.
+    Stores features related to the plans user can subscribe to.
     This models is used to populate the checkout page.
     Those are related to plans that are related to Stripe products."""
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE)

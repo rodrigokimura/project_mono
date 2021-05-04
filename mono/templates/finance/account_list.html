@@ -1,4 +1,5 @@
 {% extends "finance/base.html" %}
+{% load i18n %}
 
 {% block head %}
   <style>
@@ -12,7 +13,7 @@
   <div class="four wide column">
     <form class="ui fluid form" method="GET" id="filter">
       <div class="field">
-        <label>Group</label>
+        <label>{% translate "Group" %}</label>
         <div class="ui search selection dropdown" data-name="group">
           <input type="hidden" name="group">
           <div class="text"></div>
@@ -20,7 +21,7 @@
         </div>
       </div>
       <div class="field">
-        <label>Member</label>
+        <label>{% translate "Member" %}</label>
         <div class="ui search selection dropdown" data-name="member">
           <input type="hidden" name="member">
           <div class="text"></div>
@@ -28,14 +29,14 @@
         </div>
       </div>
       <div class="ui fluid buttons">
-        <button class="ui button primary" type="submit" form="filter">Filter</button>
-        <a class="ui button" href="{% url 'finance:accounts' %}">Clear</a>
+        <button class="ui button primary" type="submit" form="filter">{% translate "Filter" %}</button>
+        <a class="ui button" href="{% url 'finance:accounts' %}">{% translate "Clear" %}</a>
       </div>
     </form>
   </div>
   
   <div class="eight wide column">
-    <div class="ui horizontal divider"><i class="table icon"></i> Individual accounts</div>
+    <div class="ui horizontal divider"><i class="table icon"></i> {% translate "Individual accounts" %}</div>
     {% for account in object_list %}
     {% if not account.is_shared %}
     <div class="ui segments">
@@ -51,7 +52,7 @@
       </div>
       <div class="ui grid segment">
         <div class="ten wide column">
-          Total transactions
+          {% translate "Total transactions" %}
         </div>
         <div class="six wide right aligned column">
           {{ account.total_transactions }}
@@ -63,7 +64,7 @@
 
 
   
-    <div class="ui horizontal divider"><i class="table icon"></i> Shared accounts</div>
+    <div class="ui horizontal divider"><i class="table icon"></i> {% translate "Shared accounts" %}</div>
     {% for account in object_list %}
     {% if account.is_shared %}
     <div class="ui segments">
@@ -79,7 +80,7 @@
       </div>
       <div class="ui grid segment" style="margin-top: 0;">
         <div class="ten wide column">
-          Total transactions
+          {% translate "Total transactions" %}
         </div>
         <div class="six wide right aligned column">
           {{ account.total_transactions }}
@@ -87,7 +88,7 @@
       </div>
       <div class="ui grid segment">
         <div class="ten wide column">
-          Group
+          {% translate "Group" %}
         </div>
         <div class="six wide right aligned column">
           {{ account.group.name }}
@@ -99,7 +100,7 @@
   </div>
     
   <div class="four wide column">
-      <a class="ui fluid button primary" href="{% url "finance:account_create" %}">Add account</a>
+      <a class="ui fluid button primary" href="{% url "finance:account_create" %}">{% translate "Add account" %}</a>
   </div>
 </div>
 
