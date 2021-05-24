@@ -9,10 +9,10 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "program": "${workspaceFolder}\\mono\\manage.py",
+            "program": "${workspaceFolder}/mono/manage.py",
             "args": [
                 "runserver",
-                "127.0.0.42:80"
+                "127.0.0.42:8080"
             ],
             "django": true
         },
@@ -20,7 +20,7 @@
             "name": "createbudgets",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}\\mono\\manage.py",
+            "program": "${workspaceFolder}/mono/manage.py",
             "args": [
                 "createbudgets"
             ],
@@ -30,11 +30,31 @@
             "name": "createtransactions",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}\\mono\\manage.py",
+            "program": "${workspaceFolder}/mono/manage.py",
             "args": [
                 "createtransactions"
             ],
             "django": true
         },
+        {
+            "name": "Docker: Python - Django",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "docker-run: debug",
+            "python": {
+                "pathMappings": [
+                    {
+                        "localRoot": "${workspaceFolder}",
+                        "remoteRoot": "/app"
+                    }
+                ],
+                "projectType": "django"
+            },
+            "dockerServerReadyAction": {
+                "action": "openExternally",
+                "pattern": "Starting development server at (https?://\\S+|[0-9]+)",
+                "uriFormat": "%s://localhost:%s"
+            }
+        }
     ]
 }
