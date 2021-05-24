@@ -1,25 +1,12 @@
-version: "3.8"
-   
-services:
-  db:
-    image: mariadb
-    restart: always
-    env_file:
-      - ./env_files/db.env
+version: '3.4'
 
-  mono:
-    image: mono
-    stdin_open: true
-    tty: true
-    build: .
-    env_file:
-      - ./env_files/web.env
-    environment: 
-      - DB_ADDR=db
-    command: bash -c "sleep 30s && python manage.py migrate && python manage.py loaddata */fixtures/*.json && python manage.py runserver 0:8000"
-    volumes:
-      - ./mono:/code
+services:
+  projectmono:
+    image: projectmono
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     ports:
-      - "8888:8000"
-    depends_on:
-      - db
+      - 8000:8000
+  db:
+    image: mysql
