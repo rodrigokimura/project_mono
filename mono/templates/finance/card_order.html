@@ -81,6 +81,7 @@
       cache: false,
       onSuccess: () => {
         $('.submit.button').state('flash text', '{% translate "Success!" %}');
+        window.location = '/fn'
       },
       onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
       onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
