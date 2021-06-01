@@ -192,7 +192,6 @@
 <!-- Page Contents -->
 <div class="pusher">
   <div class="ui inverted vertical masthead center aligned segment">
-
     <div class="ui container">
       <div class="ui large secondary inverted pointing menu">
         <a class="toc item">
@@ -204,6 +203,12 @@
         <a class="item">Careers</a>
         <a class="item" href="{% url 'admin:index' %}">Admin</a>
         <div class="right item">
+          <div class="ui inverted icon apps button"><i class="toolbox icon"></i></div>
+          <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto;">
+          {% comment %} <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto;"> {% endcomment %}
+            {% include "homepage/_apps_menu.html" %}
+          </div>
+          
         {% if user.is_authenticated %}
           <a class="ui inverted button" href="{% url 'finance:logout' %}">Sign out</a>
         {% else %}
@@ -211,6 +216,10 @@
           <a class="ui inverted button" href="{% url 'finance:signup' %}">Sign Up</a>
         {% endif %}
         </div>
+        
+        
+        
+        
       </div>
     </div>
 
@@ -308,4 +317,22 @@
     </div>
   </div>
 </div>
+<script>
+  {% comment %} $('.ui.apps.button').popup() {% endcomment %}
+  w = 0;
+  s = $('.ui.apps.button').siblings('.ui.button');
+  for (i=0; i<s.length; i++) {
+    w += $(s[i]).outerWidth();
+  }
+  // w += $('.ui.apps.button').outerWidth();
+  $('.ui.apps.button').popup(
+    {
+      on: 'click',
+      hoverable: true,
+      position:	"bottom right",
+      forcePosition: true,
+      offset: w
+    }
+  );
+</script>
 {% endblock body %}
