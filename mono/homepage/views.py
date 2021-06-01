@@ -1,16 +1,11 @@
 from django.shortcuts import render
 from django.contrib.auth import views
-
-# Create your views here.
+from django.views.generic.base import TemplateView
 
 
 class Login(views.LoginView):
     template_name = "homepage/home.html"
 
 
-def index(request):
-    my_dict = {
-        "insert_content": "inserindo conteúdo da views",
-        'access_records': "teste"
-    }
-    return render(request=request, template_name='homepage/home.html', context=my_dict)
+class HomepageView(TemplateView):
+    template_name = "homepage/home.html"
