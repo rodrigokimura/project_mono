@@ -6,5 +6,6 @@
     "workbench.colorCustomizations": {
         "editorRuler.foreground": "#99999B",
     },
-    "python.pythonPath": "venv/bin/python"
+    "python.pythonPath": "venv/bin/python",
+    "python.linting.lintOnSave": true
 }
