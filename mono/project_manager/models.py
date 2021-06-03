@@ -9,7 +9,6 @@ def card_directory_path(instance, filename):
     return 'user_{0}/{1}'.format(instance.user.id, filename)
 
 
-# Create your models here.
 class BaseModel(models.Model):
     name = models.CharField(max_length=50, null=False, blank=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
