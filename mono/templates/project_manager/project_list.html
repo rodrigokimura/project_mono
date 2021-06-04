@@ -1,42 +1,25 @@
 {% extends "base.html" %}
 {% load static %}
-
-{% comment %} {% block body %}
-
-<div class="pusher">
-  <div class="ui grid container">
-    
-    <div class="row">
-      <div class="column">
-        <h1>Projetos</h1>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="column">
-        <a class="ui button" href="{% url 'project_manager:project_create' %}">Adicionar projeto</a>
-      </div>
-    </div>
-    
-    <ul>
-    {% for project in object_list %}
-    <li>{{ project.created_at|date }} - {{ project.name }}</li>
-    {% empty %}
-    <li>No projects yet.</li>
-    {% endfor %}
-    </ul>
-
-  </div>
-</div>
-
-{% endblock body %} {% endcomment %}
-
-
 {% load i18n %}
 
 {% block body %}
 <div class="pusher">
   <div class="ui stackable grid container" style="margin-bottom: 1em;">
+    
+    <div class="row">
+      <div class="column">
+        <div class="ui segment" style="margin-top: 1em;">
+          <div class="ui breadcrumb">
+            <a class="section" href="{% url 'home' %}">Home</a>
+            <i class="right chevron icon divider"></i>
+            <a class="section" href="{% url 'project_manager:projects' %}">Project Manager</a>
+            <i class="right arrow icon divider"></i>
+            <div class="section">Projects</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <div class="four wide column">
       {% comment %} <form class="ui fluid form" method="GET" id="filter">
@@ -64,26 +47,41 @@
     </div>
     
     <div class="eight wide column">
+      
+      
+      
+      
       <div class="ui horizontal divider"><i class="table icon"></i> {% translate "Projects" %}</div>
       {% for project in object_list %}
       {% if not project.is_shared %}
       <div class="ui segments">
         <div class="ui grid secondary grey segment" data-toggle="segments">
-          <div class="ten wide column">
-            <a href="{% url 'project_manager:project_update' pk=project.pk %}">{{ project.name }}</a>
+          <div class="eight wide column">
+            {{ project.name }}
           </div>
-          <div class="six wide right aligned column">
-            {% with project.current_balance as b %}
-            <span class="ui {% if b > 0 %}green{% elif b == 0 %}green{% else %}red{% endif %} text">{{ b }}</span>
-            {% endwith %}
+          <div class="eight wide right aligned column">
+            <div class="ui tiny buttons">
+              <a class="ui button" href="{% url 'project_manager:project_detail' pk=project.pk %}">{% translate "View" %}</a>
+              <a class="ui button" href="{% url 'project_manager:project_update' pk=project.pk %}">{% translate "Edit" %}</a>
+            </div>
           </div>
         </div>
         <div class="ui grid segment">
-          <div class="ten wide column">
-            {% translate "Total transactions" %}
+          <div class="row">
+            <div class="ten wide column">
+              {% translate "Created by" %}
+            </div>
+            <div class="six wide right aligned column">
+              {{ project.created_by }}
+            </div>
           </div>
-          <div class="six wide right aligned column">
-            {{ project.total_transactions }}
+          <div class="row">
+            <div class="eight wide column">
+              {% translate "Deadline" %}
+            </div>
+            <div class="eight wide right aligned column">
+              {{ project.deadline|date }}
+            </div>
           </div>
         </div>
       </div>

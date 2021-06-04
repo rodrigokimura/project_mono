@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls.base import reverse_lazy
 from django.views.generic import ListView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from .models import Project
 from .forms import ProjectForm
@@ -13,6 +14,14 @@ from .mixins import PassRequestToFormViewMixin
 class ProjectListView(ListView):
     model = Project
     paginate_by = 100
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()
+        return context
+
+class ProjectDetailView(DetailView):
+    model = Project
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
