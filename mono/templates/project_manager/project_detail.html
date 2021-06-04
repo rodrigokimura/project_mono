@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block body %}
+
+<div class="pusher">
+  
+  
+
+  <div class="ui middle aligned stackable grid container">
+    
+    <div class="row">
+      <div class="column">
+        <div class="ui segment" style="margin-top: 1em;">
+          <div class="ui breadcrumb">
+            <a class="section" href="{% url 'home' %}">Home</a>
+            <i class="right chevron icon divider"></i>
+            <a class="section" href="{% url 'project_manager:projects' %}">Project Manager</a>
+            <i class="right arrow icon divider"></i>
+            <div class="section">Project: view</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    {% with object as p %}
+    <div class="row">
+      <div class="column">
+        {{ p.name }}
+      </div>
+    </div>
+    {% for board in p.board_set.all %}
+    <div class="row">
+      <div class="column">
+        {{ board.name }}
+      </div>
+    </div>
+    {% empty %}
+    <div class="row">
+      <div class="column">
+        {% translate "No boards yet" %}
+      </div>
+    </div>
+    {% endfor %}
+    <div class="row">
+      <div class="column">
+        <a href="" class="ui button">{% translate "New board" %}</a>
+      </div>
+    </div>
+    {% endwith %}
+  </div>
+</div>
+  
+<script>
+  $('*.ui.dropdown').dropdown();
+</script>
+{% endblock %}

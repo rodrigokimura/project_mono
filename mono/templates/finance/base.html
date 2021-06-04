@@ -138,6 +138,10 @@
 
     {% if request.user.is_authenticated %}
     <div class="right menu">
+      <div class="ui inverted teal apps item"><i class="toolbox icon"></i></div>
+      <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
+        {% include "homepage/_apps_menu.html" %}
+      </div>
       <div class="ui top pointing inverted teal dropdown item" id="notification-menu">
         <i class="bell outline icon"></i>
         <div 
@@ -358,15 +362,29 @@
     }
   );
 
-  {% comment %} tinymce.init({
-    selector: 'textarea',  // change this value according to your HTML
-    skin: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oxide-dark' : 'oxide'),
-    content_css: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default')
-  }); {% endcomment %}
 
   
 
-  
+  w = 0;
+  s = $('.ui.apps.item').siblings('.ui.item');
+  for (i=0; i<s.length; i++) {
+    w += $(s[i]).outerWidth();
+  }
+  $('.ui.apps.item').popup(
+    {
+      on: 'click',
+      hoverable: true,
+      position:	"bottom right",
+      forcePosition: true,
+      offset: w,
+      onShow: () => {
+        $('.ui.apps.item').addClass('active')
+      },
+      onHide: () => {
+        $('.ui.apps.item').removeClass('active')
+      }
+    }
+  );
 </script>
 
 </html>
