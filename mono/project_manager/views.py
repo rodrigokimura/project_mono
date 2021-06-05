@@ -6,8 +6,8 @@ from django.urls.base import reverse_lazy
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from .models import Project
-from .forms import ProjectForm
+from .models import Project, Board
+from .forms import ProjectForm, BoardForm
 from .mixins import PassRequestToFormViewMixin
 
 
@@ -18,7 +18,13 @@ class ProjectListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['now'] = timezone.now()
+        context['breadcrumb'] = [
+            ('Home', 'home'),
+            ('Project Manager', 'project_manager:projects'),
+            ('Projects', None),
+        ]
         return context
+
 
 class ProjectDetailView(DetailView):
     model = Project
@@ -26,27 +32,12 @@ class ProjectDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['now'] = timezone.now()
+        context['breadcrumb'] = [
+            ('Home', 'home'),
+            ('Project Manager', 'project_manager:projects'),
+            ('Project: view', None),
+        ]
         return context
-
-
-# class GroupListView(LoginRequiredMixin, ListView):
-#     model = Group
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         groups = Group.objects.filter(members=self.request.user)
-#         members = [m.id for g in groups for m in g.members.all()]
-#         context['members'] = User.objects.filter(id__in=members).exclude(id=self.request.user.id)
-#         return context
-
-#     def get_queryset(self):
-#         qs = Group.objects.filter(members=self.request.user)
-
-#         member = self.request.GET.get('member', None)
-#         if member not in [None, ""]:
-#             qs = qs.filter(members=member)
-
-#         return qs
 
 
 class ProjectCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
@@ -55,6 +46,16 @@ class ProjectCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
     success_url = reverse_lazy('project_manager:projects')
     success_message = "%(name)s was created successfully"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()
+        context['breadcrumb'] = [
+            ('Home', 'home'),
+            ('Project Manager', 'project_manager:projects'),
+            ('Project: create', None),
+        ]
+        return context
+
 
 class ProjectUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
     model = Project
@@ -62,11 +63,67 @@ class ProjectUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
     success_url = reverse_lazy('project_manager:projects')
     success_message = "%(name)s was updated successfully"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()
+        context['breadcrumb'] = [
+            ('Home', 'home'),
+            ('Project Manager', 'project_manager:projects'),
+            ('Project: edit', None),
+        ]
+        return context
+
 
 class ProjectDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Project
     success_url = reverse_lazy('project_manager:projects')
     success_message = "Project was deleted successfully"
+
+    def test_func(self):
+        return self.get_object().owned_by == self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(ProjectDeleteView, self).delete(request, *args, **kwargs)
+
+
+class BoardListView(ListView):
+    model = Board
+    paginate_by = 100
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()
+        return context
+
+
+class BoardDetailView(DetailView):
+    model = Board
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()
+        return context
+
+
+class BoardCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    model = Board
+    form_class = BoardForm
+    success_url = reverse_lazy('Board_manager:boards')
+    success_message = "%(name)s was created successfully"
+
+
+class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    model = Board
+    form_class = BoardForm
+    success_url = reverse_lazy('Board_manager:boards')
+    success_message = "%(name)s was updated successfully"
+
+
+class BoardDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    model = Board
+    success_url = reverse_lazy('Board_manager:boards')
+    success_message = "Board was deleted successfully"
 
     def test_func(self):
         return self.get_object().owned_by == self.request.user
