@@ -1,0 +1,22 @@
+<div class="row">
+  <div class="column">
+    <div class="ui segment" style="margin-top: 1em;">
+      <div class="ui breadcrumb">
+
+        {% for name, url in breadcrumb %}
+          {% if forloop.first %}
+          {% elif forloop.last %}
+            <i class="right arrow icon divider"></i>
+          {% else %}
+            <i class="right chevron icon divider"></i>
+          {% endif %}
+          {% if url %}
+            <a class="section" href="{% url url %}">{{ name }}</a>
+          {% else %}
+            <div class="section">{{ name }}</div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
