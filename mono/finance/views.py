@@ -28,7 +28,6 @@ from rest_framework import authentication, permissions
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.authtoken.models import Token
 from .models import (
     BudgetConfiguration, Configuration, Installment, Transaction, Account, Group,
@@ -39,7 +38,7 @@ from .forms import (
     CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm,
     BudgetForm, RecurrentTransactionForm, UniversalTransactionForm)
 from .mixins import PassRequestToFormViewMixin
-from .serializers import UserSerializer, TransactionSerializer
+from .serializers import UserSerializer
 import time
 import jwt
 import stripe
@@ -1403,22 +1402,6 @@ class ConfigurationView(LoginRequiredMixin, TemplateView):
         context['can_disconnect'] = can_disconnect
 
         return context
-
-
-class UserViewSet(ModelViewSet):
-
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-class TransactionViewSet(ModelViewSet):
-
-    queryset = Transaction.objects.order_by('id').all()
-    serializer_class = TransactionSerializer
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.filter(created_by=self.request.user)
 
 
 class ApiMeView(RetrieveAPIView):

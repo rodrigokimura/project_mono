@@ -31,7 +31,6 @@ class ProjectDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()
         context['breadcrumb'] = [
             ('Home', 'home'),
             ('Project Manager', 'project_manager:projects'),
@@ -48,7 +47,6 @@ class ProjectCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()
         context['breadcrumb'] = [
             ('Home', 'home'),
             ('Project Manager', 'project_manager:projects'),
@@ -65,7 +63,6 @@ class ProjectUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()
         context['breadcrumb'] = [
             ('Home', 'home'),
             ('Project Manager', 'project_manager:projects'),
@@ -93,7 +90,11 @@ class BoardListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()
+        context['breadcrumb'] = [
+            ('Home', 'home'),
+            ('Project Manager', 'project_manager:projects'),
+            ('Boards', None),
+        ]
         return context
 
 
@@ -102,27 +103,49 @@ class BoardDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()
+        context['breadcrumb'] = [
+            ('Home', 'home'),
+            ('Project Manager', 'project_manager:projects'),
+            ('Board: view', None),
+        ]
         return context
 
 
 class BoardCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
     model = Board
     form_class = BoardForm
-    success_url = reverse_lazy('Board_manager:boards')
+    success_url = reverse_lazy('project_manager:boards')
     success_message = "%(name)s was created successfully"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumb'] = [
+            ('Home', 'home'),
+            ('Project Manager', 'project_manager:projects'),
+            ('Board: create', None),
+        ]
+        return context
 
 
 class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
     model = Board
     form_class = BoardForm
-    success_url = reverse_lazy('Board_manager:boards')
+    success_url = reverse_lazy('project_manager:boards')
     success_message = "%(name)s was updated successfully"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumb'] = [
+            ('Home', 'home'),
+            ('Project Manager', 'project_manager:projects'),
+            ('Board: edit', None),
+        ]
+        return context
 
 
 class BoardDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = Board
-    success_url = reverse_lazy('Board_manager:boards')
+    success_url = reverse_lazy('project_manager:boards')
     success_message = "Board was deleted successfully"
 
     def test_func(self):
