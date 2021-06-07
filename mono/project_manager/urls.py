@@ -1,10 +1,19 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
+from rest_framework.routers import DefaultRouter
 from . import views
+from .viewsets import UserViewSet, BoardViewSet, ProjectViewSet
+
 
 app_name = 'project_manager'
 
+router = DefaultRouter()
+router.register('users', UserViewSet)
+router.register('projects', ProjectViewSet)
+router.register('boards', BoardViewSet)
+
 urlpatterns = [
+
     path('', RedirectView.as_view(pattern_name='project_manager:projects'), name='index'),
 
     path('project/', views.ProjectCreateView.as_view(), name='project_create'),

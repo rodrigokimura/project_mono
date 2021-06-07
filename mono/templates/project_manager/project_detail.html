@@ -6,36 +6,46 @@
 
 <div class="pusher">
   
-  
-
   <div class="ui middle aligned stackable grid container">
     
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
     
     {% with object as p %}
-    <div class="row">
-      <div class="column">
-        {{ p.name }}
+      <div class="row">
+        <div class="column">
+          {{ p.name }}
+        </div>
       </div>
-    </div>
-    {% for board in p.board_set.all %}
-    <div class="row">
-      <div class="column">
-        {{ board.name }}
+      {% for board in p.board_set.all %}
+        <div class="row">
+          <div class="column">
+
+            <div class="ui grid secondary grey segment" data-toggle="segments">
+              <div class="eight wide column">
+                {{ board.name }}
+              </div>
+              <div class="eight wide right aligned column">
+                <div class="ui tiny buttons">
+                  <a class="ui button" href="{% url 'project_manager:board_detail' pk=board.pk %}">{% translate "View" %}</a>
+                  <a class="ui button" href="{% url 'project_manager:board_update' pk=board.pk %}">{% translate "Edit" %}</a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      {% empty %}
+        <div class="row">
+          <div class="column">
+            {% translate "No boards yet" %}
+          </div>
+        </div>
+      {% endfor %}
+      <div class="row">
+        <div class="column">
+          <a href="{% url 'project_manager:board_create' %}" class="ui button">{% translate "New board" %}</a>
+        </div>
       </div>
-    </div>
-    {% empty %}
-    <div class="row">
-      <div class="column">
-        {% translate "No boards yet" %}
-      </div>
-    </div>
-    {% endfor %}
-    <div class="row">
-      <div class="column">
-        <a href="{% url 'project_manager:board_create' %}" class="ui button">{% translate "New board" %}</a>
-      </div>
-    </div>
     {% endwith %}
   </div>
 </div>
