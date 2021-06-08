@@ -43,4 +43,4 @@ sqlparse==0.4.1
 stripe==2.56.0
 text-unidecode==1.3
 toml==0.10.2
-urllib3==1.26.4
+urllib3==1.26.5
