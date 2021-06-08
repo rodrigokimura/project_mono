@@ -28,16 +28,17 @@ from rest_framework import authentication, permissions
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.authtoken.models import Token
-from .models import (BudgetConfiguration, Configuration, Installment, Transaction, Account, Group,
-                     Category, Icon, Goal, Invite, Notification, Budget, Plan,
-                     Subscription, RecurrentTransaction, Transference)
+from .models import (
+    BudgetConfiguration, Configuration, Installment, Transaction, Account, Group,
+    Category, Icon, Goal, Invite, Notification, Budget, Plan,
+    Subscription, RecurrentTransaction, Transference)
 from .forms import (
     BudgetConfigurationForm, InstallmentForm, TransactionForm, GroupForm,
     CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm,
     BudgetForm, RecurrentTransactionForm, UniversalTransactionForm)
-from .serializers import UserSerializer, TransactionSerializer
+from .mixins import PassRequestToFormViewMixin
+from .serializers import UserSerializer
 import time
 import jwt
 import stripe
@@ -46,27 +47,6 @@ from django.utils.decorators import method_decorator
 import pytz
 from datetime import datetime
 from social_django.models import UserSocialAuth
-
-
-class TokenMixin(object):
-    def get_context_data(self, **kwargs):
-        context = super(TokenMixin, self).get_context_data(**kwargs)
-        token = self.kwargs['token']
-
-        payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=["HS256"]
-        )
-        context['id'] = payload['id']
-        return context
-
-
-class PassRequestToFormViewMixin:
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
 
 
 class HomePageView(TemplateView):
@@ -242,6 +222,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
     """
     model = Transaction
     paginate_by = 20
+    template_name = 'finance/transaction_list.html'
 
     def get_queryset(self):
         qs = Transaction.objects.filter(
@@ -1422,22 +1403,6 @@ class ConfigurationView(LoginRequiredMixin, TemplateView):
         context['can_disconnect'] = can_disconnect
 
         return context
-
-
-class UserViewSet(ModelViewSet):
-
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-class TransactionViewSet(ModelViewSet):
-
-    queryset = Transaction.objects.order_by('id').all()
-    serializer_class = TransactionSerializer
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.filter(created_by=self.request.user)
 
 
 class ApiMeView(RetrieveAPIView):
