@@ -1,3 +1,7 @@
+import jwt
+from django.conf import settings
+
+
 class TokenMixin(object):
     def get_context_data(self, **kwargs):
         context = super(TokenMixin, self).get_context_data(**kwargs)
