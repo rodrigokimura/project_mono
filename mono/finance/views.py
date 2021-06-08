@@ -222,6 +222,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
     """
     model = Transaction
     paginate_by = 20
+    template_name = 'finance/transaction_list.html'
 
     def get_queryset(self):
         qs = Transaction.objects.filter(

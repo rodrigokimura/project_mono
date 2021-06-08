@@ -129,7 +129,6 @@
           </div>
           <div class="five wide column" style="display:flex; justify-content:flex-end; align-items:center;">
             {% if transaction.installment %}
-
             <div class="ui small installment modal" data-id="{{ transaction.pk }}">
               <div class="ui header">
                 {% translate "Installment" %}
@@ -143,17 +142,19 @@
                 <a class="ui primary button" href="{% url 'finance:installment_update' pk=transaction.installment.pk %}">{% translate "Group of installments" %}</a>
               </div>
             </div>
-            <a data-id="{{ transaction.pk }}" style="cursor: pointer;">
-              <span
-                {% if transaction.category.type == 'INC' %}
-                class="ui green text"
-                {% elif transaction.category.type == 'EXP' %}
-                class="ui red text"
-                {% endif %}
-                >
+            <span
+              {% if transaction.category.type == 'INC' %}
+              class="ui green text"
+              {% elif transaction.category.type == 'EXP' %}
+              class="ui red text"
+              {% endif %}
+              >
               <i class="credit card icon"></i>
-                  {{ transaction.amount|floatformat:2 }}
-              </span>
+                {{ transaction.amount|floatformat:2 }}
+            </span>
+            <a class="ui tiny icon button" style="margin-left: 1em;" data-id="{{ transaction.pk }}" style="cursor: pointer;" data-tooltip="{% translate 'Edit' %}" data-inverted="">
+              <i class="edit icon">
+              </i>
             </a>
             <script>
               $('.ui.installment.modal[data-id={{ transaction.pk }}]').modal(
@@ -163,29 +164,33 @@
               );
             </script>
             {% elif transaction.recurrent %}
-            <a href="{% url 'finance:transaction_update' pk=transaction.pk %}">
-              <span
-                {% if transaction.category.type == 'INC' %}
-                class="ui green text"
-                {% elif transaction.category.type == 'EXP' %}
-                class="ui red text"
-                {% endif %}
-                >
-                <i class="history icon"></i>
-                  {{ transaction.amount|floatformat:2 }}
-              </span>
+            <span
+              {% if transaction.category.type == 'INC' %}
+              class="ui green text"
+              {% elif transaction.category.type == 'EXP' %}
+              class="ui red text"
+              {% endif %}
+              >
+              <i class="history icon"></i>
+                {{ transaction.amount|floatformat:2 }}
+            </span>
+            <a class="ui tiny icon button" style="margin-left: 1em;" href="{% url 'finance:transaction_update' pk=transaction.pk %}" data-tooltip="{% translate 'Edit' %}" data-inverted="">
+              <i class="edit icon">
+              </i>
             </a>
             {% else %}
-            <a href="{% url 'finance:transaction_update' pk=transaction.pk %}">
-              <span
-                {% if transaction.category.type == 'INC' %}
-                class="ui green text"
-                {% elif transaction.category.type == 'EXP' %}
-                class="ui red text"
-                {% endif %}
-                >
-                  {{ transaction.amount|floatformat:2 }}
-              </span>
+            <span
+              {% if transaction.category.type == 'INC' %}
+              class="ui green text"
+              {% elif transaction.category.type == 'EXP' %}
+              class="ui red text"
+              {% endif %}
+              >
+                {{ transaction.amount|floatformat:2 }}
+            </span>
+            <a class="ui tiny icon button" style="margin-left: 1em;" href="{% url 'finance:transaction_update' pk=transaction.pk %}" data-tooltip="{% translate 'Edit' %}" data-inverted="">
+              <i class="edit icon">
+              </i>
             </a>
             {% endif %}
           </div>

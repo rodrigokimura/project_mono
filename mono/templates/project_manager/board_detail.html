@@ -10,20 +10,7 @@
 
   <div class="ui middle aligned stackable grid container">
     
-    <div class="row">
-      <div class="column">
-        <div class="ui segment" style="margin-top: 1em;">
-          <div class="ui breadcrumb">
-            <a class="section" href="{% url 'home' %}">Home</a>
-            <i class="right chevron icon divider"></i>
-            <a class="section" href="{% url 'project_manager:projects' %}">Project Manager</a>
-            <i class="right arrow icon divider"></i>
-            <div class="section">Project: view</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
+    {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
     
     {% with object as p %}
     <div class="row">
