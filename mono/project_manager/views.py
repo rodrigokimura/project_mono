@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.urls.base import reverse_lazy
+from django.urls.base import reverse, reverse_lazy
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
@@ -19,8 +19,8 @@ class ProjectListView(ListView):
         context = super().get_context_data(**kwargs)
         context['now'] = timezone.now()
         context['breadcrumb'] = [
-            ('Home', 'home'),
-            ('Project Manager', 'project_manager:projects'),
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
             ('Projects', None),
         ]
         return context
@@ -32,8 +32,8 @@ class ProjectDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = [
-            ('Home', 'home'),
-            ('Project Manager', 'project_manager:projects'),
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
             ('Project: view', None),
         ]
         return context
@@ -48,8 +48,8 @@ class ProjectCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = [
-            ('Home', 'home'),
-            ('Project Manager', 'project_manager:projects'),
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
             ('Project: create', None),
         ]
         return context
@@ -64,8 +64,8 @@ class ProjectUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = [
-            ('Home', 'home'),
-            ('Project Manager', 'project_manager:projects'),
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
             ('Project: edit', None),
         ]
         return context
@@ -91,8 +91,8 @@ class BoardListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = [
-            ('Home', 'home'),
-            ('Project Manager', 'project_manager:projects'),
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
             ('Boards', None),
         ]
         return context
@@ -104,8 +104,9 @@ class BoardDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = [
-            ('Home', 'home'),
-            ('Project Manager', 'project_manager:projects'),
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
+            (f'Project: {self.object}', reverse('project_manager:project_detail', args=[self.object.id])),
             ('Board: view', None),
         ]
         return context
@@ -120,8 +121,8 @@ class BoardCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = [
-            ('Home', 'home'),
-            ('Project Manager', 'project_manager:projects'),
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
             ('Board: create', None),
         ]
         return context
@@ -136,8 +137,8 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = [
-            ('Home', 'home'),
-            ('Project Manager', 'project_manager:projects'),
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
             ('Board: edit', None),
         ]
         return context
