@@ -8,7 +8,7 @@ app_name = 'todo_lists'
 
 urlpatterns = [
 
-    path('', RedirectView.as_view(pattern_name='project_manager:projects'), name='index'),
+    path('', RedirectView.as_view(pattern_name='todo_lists:lists'), name='index'),
 
     path('list/', views.ListCreateView.as_view(), name='list_create'),
     path('list/<int:pk>/', views.ListDetailView.as_view(), name='list_detail'),
