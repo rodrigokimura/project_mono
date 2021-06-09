@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'messenger',
     'finance',
     'blog',
+    'todo_lists',
 ]
 
 MIDDLEWARE = [

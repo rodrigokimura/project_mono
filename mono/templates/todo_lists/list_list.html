@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block body %}
+<div class="pusher">
+  <div class="ui stackable grid container" style="margin-bottom: 1em;">
+    
+    {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
+
+    <div class="four wide column">
+      {% comment %} <form class="ui fluid form" method="GET" id="filter">
+        <div class="field">
+          <label>{% translate "Group" %}</label>
+          <div class="ui search selection dropdown" data-name="group">
+            <input type="hidden" name="group">
+            <div class="text"></div>
+            <i class="dropdown icon"></i>
+          </div>
+        </div>
+        <div class="field">
+          <label>{% translate "Member" %}</label>
+          <div class="ui search selection dropdown" data-name="member">
+            <input type="hidden" name="member">
+            <div class="text"></div>
+            <i class="dropdown icon"></i>
+          </div>
+        </div>
+        <div class="ui fluid buttons">
+          <button class="ui button primary" type="submit" form="filter">{% translate "Filter" %}</button>
+          <a class="ui button" href="{% url 'project_manager:projects' %}">{% translate "Clear" %}</a>
+        </div>
+      </form> {% endcomment %}
+    </div>
+    
+    <div class="eight wide column">
+      
+      
+      
+      
+      <div class="ui horizontal divider"><i class="table icon"></i> {% translate "Projects" %}</div>
+      {% for project in object_list %}
+      {% if not project.is_shared %}
+      <div class="ui segments">
+        <div class="ui grid secondary grey segment" data-toggle="segments">
+          <div class="eight wide column">
+            {{ project.name }}
+          </div>
+          <div class="eight wide right aligned column">
+            <div class="ui tiny buttons">
+              <a class="ui button" href="{% url 'project_manager:project_detail' pk=project.pk %}">{% translate "View" %}</a>
+              <a class="ui button" href="{% url 'project_manager:project_update' pk=project.pk %}">{% translate "Edit" %}</a>
+            </div>
+          </div>
+        </div>
+        <div class="ui grid segment">
+          <div class="row">
+            <div class="ten wide column">
+              {% translate "Created by" %}
+            </div>
+            <div class="six wide right aligned column">
+              {{ project.created_by }}
+            </div>
+          </div>
+          <div class="row">
+            <div class="eight wide column">
+              {% translate "Deadline" %}
+            </div>
+            <div class="eight wide right aligned column">
+              {{ project.deadline|date }}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+      
+    <div class="four wide column">
+        <a class="ui fluid button primary" href="{% url "project_manager:project_create" %}">{% translate "Add project" %}</a>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  $('.ui.dropdown[data-name=group]').dropdown({
+    placeholder: "Select a group",
+    forceSelection: false,
+    values: [
+      {% for g in groups %}
+      {
+        name: "{{ g.name }}",
+        value: {{ g.id }},
+        {% if g.id|stringformat:"i" == request.GET.group %}
+        selected : true
+        {% endif %}
+      },
+      {% endfor %}
+    ]
+  });
+  $('.ui.dropdown[data-name=member]').dropdown({
+    placeholder: "Select a member of a group",
+    forceSelection: false,
+    values: [
+      {% for m in members %}
+      {
+        name: "{{ m.username }}",
+        value: {{ m.id }},
+        {% if m.id|stringformat:"i" == request.GET.member %}
+        selected : true
+        {% endif %}
+      },
+      {% endfor %}
+    ]
+  });
+  $('.message .close').click(function() {
+    $(this)
+    .closest('.message')
+    .transition('fade');
+  });
+  $("*[data-toggle=segments]").click(e=>{
+    $(e.target).siblings('.ui.segment').toggle('swing');
+  })
+</script>
+
+{% endblock %}
