@@ -31,6 +31,7 @@ urlpatterns = [
     path('fn/', include('finance.urls')),
     path('fn/api/', include(finance_router.urls)),
     path('bl/', include('blog.urls')),
+    path('todo/', include('todo_lists.urls')),
     # path('__debug__/', include(debug_toolbar.urls)),
     path('i18n/', include('django.conf.urls.i18n')),
 ]
