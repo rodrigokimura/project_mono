@@ -13,19 +13,19 @@ class List(models.Model):
         return self.name
 
 
-class Item(models.Model):
-    list = models.ForeignKey(List, on_delete=models.CASCADE)
+class Task(models.Model):
+    list = models.ForeignKey(List, on_delete=models.CASCADE, null=True, blank=True)
     description = models.CharField(max_length=255)
     order = models.IntegerField()
-    # assigned_to = models.ManyToManyField(User, related_name="assigned_cards")
-    # files = models.FileField(upload_to=None, max_length=100)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_todo_items")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_todo_tasks")
     created_at = models.DateTimeField(auto_now_add=True)
-    checked_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="checked_todo_items")
-    checked_at = models.DateTimeField()
+    checked_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="checked_todo_tasks", null=True, blank=True)
+    checked_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self) -> str:
         return self.description
 
     def mark_as_checked(self):
         pass
+
+# class Step

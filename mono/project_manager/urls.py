@@ -1,16 +1,9 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
-from rest_framework.routers import DefaultRouter
 from . import views
-from .viewsets import UserViewSet, BoardViewSet, ProjectViewSet
 
 
 app_name = 'project_manager'
-
-router = DefaultRouter()
-router.register('users', UserViewSet)
-router.register('projects', ProjectViewSet)
-router.register('boards', BoardViewSet)
 
 urlpatterns = [
 
@@ -27,4 +20,15 @@ urlpatterns = [
     path('board/<int:pk>/edit/', views.BoardUpdateView.as_view(), name='board_update'),
     path('board/<int:pk>/delete/', views.BoardDeleteView.as_view(), name='board_delete'),
     path('boards/', views.BoardListView.as_view(), name='boards'),
+
+    # API Routes
+    path('api/projects/', views.ProjectListAPIView.as_view()),
+    path('api/projects/<int:pk>/', views.ProjectDetailAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/', views.BoardListAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:pk>/', views.BoardDetailAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/', views.BucketListAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:pk>/', views.BucketDetailAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/', views.CardListAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:pk>/', views.CardDetailAPIView.as_view()),
+
 ]

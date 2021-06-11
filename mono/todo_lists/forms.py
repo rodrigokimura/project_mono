@@ -1,5 +1,5 @@
 from django import forms
-from .models import List, Item
+from .models import List, Task
 
 
 class ListForm(forms.ModelForm):
@@ -22,7 +22,7 @@ class ListForm(forms.ModelForm):
         ]
 
 
-class ItemForm(forms.ModelForm):
+class TaskForm(forms.ModelForm):
     error_css_class = 'error'
 
     def __init__(self, *args, **kwargs):
@@ -31,15 +31,15 @@ class ItemForm(forms.ModelForm):
         self.fields['list'].widget.attrs.update({'class': 'ui dropdown'})
 
     def save(self, *args, **kwargs):
-        item = self.instance
+        task = self.instance
         if kwargs['list_pk'] is None:
-            item.list = kwargs['list_pk']
-        if item.pk is None:
-            item.created_by = self.request.user
+            task.list = kwargs['list_pk']
+        if task.pk is None:
+            task.created_by = self.request.user
         return super().save(*args, **kwargs)
 
     class Meta:
-        model = Item
+        model = Task
         fields = [
             'description',
             'list',

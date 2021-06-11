@@ -1,0 +1,100 @@
+{% extends "todo_lists/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block body %}
+<div class="ui fluid container" style="margin-bottom: 1em;">
+  <div class="ui grid">
+  
+    
+    <div class="four wide column">
+
+      <div class="ui fluid vertical menu" id="lists-menu">
+        <div id="lists-div">
+          {% comment %} LIST WILL BE INSERTED HERE {% endcomment %}
+        </div>
+        <div class="item" id="add_list">
+          <div class="ui transparent icon input">
+            <input type="text" placeholder="Create list">
+            <i class="plus icon"></i>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <div class="eight wide column">
+      
+      <div class="ui fluid vertical menu" id="tasks-menu">
+        <div id="tasks-div">
+          {% comment %} LIST WILL BE INSERTED HERE {% endcomment %}
+        </div>
+        <div class="item" id="add_task">
+          <div class="ui transparent icon input">
+            <input type="text" placeholder="Create task">
+            <i class="plus icon"></i>
+          </div>
+        </div>
+      </div>
+      
+      
+      
+    </div>
+      
+    <div class="four wide column">
+        <a class="ui fluid button primary" href="{% url "todo_lists:list_create" %}">{% translate "Add list" %}</a>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  var listsMenu = $('#lists-menu')
+  var listsDiv = $('#lists-div')
+  var tasksDiv = $('#tasks-div')
+  var addList = (listId, listName, listCount) => {
+    listsDiv.append(
+      `
+      <a class="item" data-list-id="${listId}" onclick="retrieveTasks(${listId})">
+        ${listName}
+        <div class="ui left label">${listCount}</div>
+      </a>
+      `
+    )
+  }
+  var addTask = (taskId, taskDescription) => {
+    tasksDiv.append(
+      `
+      <a class="item" data-list-id="${taskId}">
+        ${taskDescription}
+      </a>
+      `
+    )
+  }
+  var retrieveLists = () => {
+    // Retrieves lists from api and inserts to DOM
+    $.get(url='/todo/api/lists/')
+    .done(lists => {
+      listsDiv.empty();
+      lists.forEach(item => addList(item.id, item.name, 0))
+    })
+    .fail()
+    .always()
+  }
+  var retrieveTasks = listId => {
+    // Retrieves tasks from api and inserts to DOM
+    $.get(url=`/todo/api/lists/${listId}/tasks/`)
+    .done(tasks => {
+      tasksDiv.empty();
+      tasks.forEach(item => addTask(item.id, item.description))
+    })
+    .fail()
+    .always()
+  }
+
+  $(document).ready(()=>{
+    retrieveLists();
+  })
+</script>
+
+{% endblock %}

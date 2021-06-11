@@ -1,14 +1,30 @@
-from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls.base import reverse, reverse_lazy
 from django.views.generic import ListView
+from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from .models import List, Item
-from .forms import ListForm, ItemForm
+from django.http import Http404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
+from rest_framework import status
+from .models import List, Task
+from .forms import ListForm, TaskForm
 from .mixins import PassRequestToFormViewMixin
+from .serializers import ListSerializer, TaskSerializer
+
+
+class HomePageView(TemplateView):
+
+    template_name = "todo_lists/home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
 
 
 class ListListView(ListView):
@@ -83,8 +99,8 @@ class ListDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class ItemListView(ListView):
-    model = Item
+class TaskListView(ListView):
+    model = Task
     paginate_by = 100
 
     def get_context_data(self, **kwargs):
@@ -92,13 +108,13 @@ class ItemListView(ListView):
         context['breadcrumb'] = [
             ('Home', reverse('home')),
             ('To-do Lists', reverse('todo_lists:lists')),
-            ('Items', None),
+            ('Tasks', None),
         ]
         return context
 
 
-class ItemDetailView(DetailView):
-    model = Item
+class TaskDetailView(DetailView):
+    model = Task
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -106,14 +122,14 @@ class ItemDetailView(DetailView):
             ('Home', reverse('home')),
             ('To-do Lists', reverse('todo_lists:lists')),
             (f'Project: {self.object}', reverse('todo_lists:project_detail', args=[self.object.id])),
-            ('Item: view', None),
+            ('Task: view', None),
         ]
         return context
 
 
-class ItemCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
-    model = Item
-    form_class = ItemForm
+class TaskCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    model = Task
+    form_class = TaskForm
     success_url = reverse_lazy('todo_lists:lists')
     success_message = "%(name)s was created successfully"
 
@@ -122,14 +138,14 @@ class ItemCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMess
         context['breadcrumb'] = [
             ('Home', reverse('home')),
             ('To-do Lists', reverse('todo_lists:lists')),
-            ('Item: create', None),
+            ('Task: create', None),
         ]
         return context
 
 
-class ItemUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
-    model = Item
-    form_class = ItemForm
+class TaskUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    model = Task
+    form_class = TaskForm
     success_url = reverse_lazy('todo_lists:lists')
     success_message = "%(name)s was updated successfully"
 
@@ -138,15 +154,15 @@ class ItemUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMess
         context['breadcrumb'] = [
             ('Home', reverse('home')),
             ('To-do Lists', reverse('todo_lists:lists')),
-            ('Item: edit', None),
+            ('Task: edit', None),
         ]
         return context
 
 
-class ItemDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
-    model = Item
+class TaskDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    model = Task
     success_url = reverse_lazy('todo_lists:lists')
-    success_message = "Item was deleted successfully"
+    success_message = "Task was deleted successfully"
 
     def test_func(self):
         return self.get_object().created_by == self.request.user
@@ -154,3 +170,111 @@ class ItemDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+# API views
+
+class ListListAPIView(APIView):
+    """
+    List all lists, or create a new list.
+    """
+
+    def get(self, request, format=None):
+        lists = List.objects.filter(created_by=request.user)
+        serializer = ListSerializer(lists, many=True)
+        # data = serializer.data
+        # data['count'] = Task.objects.filter()
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = ListSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(created_by=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ListDetailAPIView(APIView):
+    """
+    Retrieve, update or delete a list instance.
+    """
+
+    def get_object(self, pk):
+        try:
+            return List.objects.get(pk=pk)
+        except List.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        list = self.get_object(pk)
+        serializer = ListSerializer(list)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        list = self.get_object(pk)
+        serializer = ListSerializer(list, data=request.data)
+        if serializer.is_valid():
+            serializer.save(created_by=request.user)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        list = self.get_object(pk)
+        list.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class TaskListAPIView(APIView):
+    """
+    List all tasks, or create a new task.
+    """
+
+    def get(self, request, format=None, **kwargs):
+        print(kwargs)
+        tasks = Task.objects.filter(list=kwargs['list_pk'])
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None, **kwargs):
+        serializer = TaskSerializer(data=request.data)
+        if serializer.is_valid():
+            if 'list_pk' in kwargs.keys():
+                list = get_object_or_404(List, pk=kwargs['list_pk'])
+                if list.created_by == request.user:
+                    serializer.save(created_by=request.user, list=list)
+                else:
+                    raise PermissionDenied
+            else:
+                serializer.save(created_by=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TaskDetailAPIView(APIView):
+    """
+    Retrieve, update or delete a task instance.
+    """
+
+    def get_object(self, pk):
+        try:
+            return Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        task = self.get_object(pk)
+        serializer = TaskSerializer(task)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        task = self.get_object(pk)
+        serializer = TaskSerializer(task, data=request.data)
+        if serializer.is_valid():
+            serializer.save(created_by=request.user)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        task = self.get_object(pk)
+        task.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
