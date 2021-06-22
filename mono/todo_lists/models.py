@@ -1,3 +1,4 @@
+from django.utils.timezone import now
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -25,7 +26,14 @@ class Task(models.Model):
     def __str__(self) -> str:
         return self.description
 
-    def mark_as_checked(self):
-        pass
+    def mark_as_checked(self, user):
+        self.checked_by = user
+        self.checked_at = now()
+        self.save()
+
+    def mark_as_unchecked(self, user):
+        self.checked_by = None
+        self.checked_at = None
+        self.save()
 
 # class Step
