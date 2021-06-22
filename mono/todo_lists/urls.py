@@ -28,4 +28,6 @@ urlpatterns = [
     path('api/lists/<int:pk>/', views.ListDetailAPIView.as_view(), name='api_lists_detail'),
     path('api/lists/<int:list_pk>/tasks/', views.TaskListAPIView.as_view(), name='api_tasks_list'),
     path('api/lists/<int:list_pk>/tasks/<int:pk>/', views.TaskDetailAPIView.as_view(), name='api_tasks_detail'),
+    path('api/lists/<int:list_pk>/tasks/<int:pk>/check/', views.TaskCheckApiView.as_view(), name='api_tasks_check'),
+    path('api/lists/<int:list_pk>/tasks/<int:pk>/uncheck/', views.TaskUncheckApiView.as_view(), name='api_tasks_uncheck'),
 ]

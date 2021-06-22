@@ -8,6 +8,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.http import Http404
+from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
@@ -261,12 +262,12 @@ class TaskDetailAPIView(APIView):
         except Task.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk, format=None):
+    def get(self, request, pk, format=None, **kwargs):
         task = self.get_object(pk)
         serializer = TaskSerializer(task)
         return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
+    def put(self, request, pk, format=None, **kwargs):
         task = self.get_object(pk)
         serializer = TaskSerializer(task, data=request.data)
         if serializer.is_valid():
@@ -274,7 +275,43 @@ class TaskDetailAPIView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
+    def delete(self, request, pk, format=None, **kwargs):
         task = self.get_object(pk)
         task.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class TaskCheckApiView(APIView):
+    """
+    Mark task as checked
+    """
+
+    def get_object(self, pk):
+        try:
+            return Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk, **kwargs):
+        task = self.get_object(pk)
+        task.mark_as_checked(request.user)
+        serializer = TaskSerializer(task)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class TaskUncheckApiView(APIView):
+    """
+    Mark task as unchecked
+    """
+
+    def get_object(self, pk):
+        try:
+            return Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk, **kwargs):
+        task = self.get_object(pk)
+        task.mark_as_unchecked(request.user)
+        serializer = TaskSerializer(task)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
