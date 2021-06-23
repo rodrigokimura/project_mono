@@ -56,14 +56,11 @@
         </div>
         <div class="item" id="add_task">
           <div class="ui transparent icon input">
-            <input type="text" placeholder="Create task">
+            <input type="text" id="task-input" placeholder="Create task">
             <i class="plus icon"></i>
           </div>
         </div>
       </div>
-      
-      
-      
     </div>
       
     <div class="four wide column">
@@ -105,6 +102,19 @@
       `
     )
   }
+  var createTask = (listId, taskDescription) => {
+    alert(`Creating task "${taskDescription}" on list ${listId}`)
+    $.post(
+      url=`/todo/api/lists/${listId}/tasks/`,
+      data={
+        "description": taskDescription,
+        "order": 5
+      }
+    )
+    .done(r=>{
+      addTask(listId, r.id, r.description, r.checked_at != null)
+    })
+  }
   var retrieveLists = () => {
     // Retrieves lists from api and inserts to DOM
     $.get(url='/todo/api/lists/')
@@ -120,6 +130,7 @@
     $.get(url=`/todo/api/lists/${listId}/tasks/`)
     .done(tasks => {
       tasksDiv.empty();
+      tasksDiv.attr("data-list-id", listId)
       tasks.forEach(item => addTask(listId, item.id, item.description, item.checked_at != null))
     })
     .fail()
@@ -152,9 +163,19 @@
     }
   }
 
-  $(document).ready(()=>{
-    retrieveLists();
-  })
+  retrieveLists();
+  $("#task-input").on('keyup', function (e) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+      desc = $(this).val();
+      listId = tasksDiv.attr("data-list-id");
+      if (listId != undefined) {
+        createTask(listId, desc);
+      } else {
+        alert("No list selected.")
+      }
+      $(this).val('');
+    }
+  });
   $('.ui.lists.item').popup(
     {
       on: 'click',
