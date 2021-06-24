@@ -1,0 +1,195 @@
+{% extends "todo_lists/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head %}
+  <style>
+    .task.item[data-checked=true] .check .circle { display: none }
+    .task.item[data-checked=true] .check .check { }
+    .task.item[data-checked=false] .check .circle { }
+    .task.item[data-checked=false] .check .check { display: none }
+  </style>
+  <script>
+    $.ajaxSetup({
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+  </script>
+{% endblock %}
+
+{% block body %}
+<div class="ui fluid container" style="margin-bottom: 1em;">
+  <div class="ui top fixed menu">
+    <div class="ui lists item">
+      Lists
+    </div>
+    <div class="ui popup">
+      <div class="ui secondary vertical menu">
+        <div id="lists-div"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="ui stackable grid">
+  
+    
+    <div class="computer only four wide column">
+
+      <div class="ui fluid secondary pointing vertical menu" id="lists-menu">
+        <div id="lists-div">
+          {% comment %} LIST WILL BE INSERTED HERE {% endcomment %}
+        </div>
+        <div class="item" id="add_list">
+          <div class="ui transparent icon input">
+            <input type="text" placeholder="Create list">
+            <i class="plus icon"></i>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <div class="eight wide column">
+      
+      <div class="ui fluid vertical menu" id="tasks-menu">
+        <div id="tasks-div">
+          {% comment %} LIST WILL BE INSERTED HERE {% endcomment %}
+        </div>
+        <div class="item" id="add_task">
+          <div class="ui transparent icon input">
+            <input type="text" id="task-input" placeholder="Create task">
+            <i class="plus icon"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+      
+    <div class="four wide column">
+        <a class="ui fluid button primary" href="{% url "todo_lists:list_create" %}">{% translate "Add list" %}</a>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  var listsMenu = $('#lists-menu')
+  var listsDiv = $('*#lists-div')
+  var tasksDiv = $('*#tasks-div')
+  var addList = (listId, listName, listCount) => {
+    listsDiv.append(
+      `
+      <a class="item" data-list-id="${listId}" onclick="retrieveTasks(${listId})">
+        ${listName}
+        <div class="ui left label">${listCount}</div>
+      </a>
+      `
+    )
+  }
+  var addTask = (listId, taskId, taskDescription, checked) => {
+    tasksDiv.append(
+      `
+      <a class="task item" data-task-id="${taskId}" data-checked=${checked}>
+        <div class="check" style="display: inline;" onclick="toggleTask(${listId}, ${taskId})">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="circle" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="check" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+          </svg>
+        </div>
+        ${taskDescription}
+      </a>
+      `
+    )
+  }
+  var createTask = (listId, taskDescription) => {
+    alert(`Creating task "${taskDescription}" on list ${listId}`)
+    $.post(
+      url=`/todo/api/lists/${listId}/tasks/`,
+      data={
+        "description": taskDescription,
+        "order": 5
+      }
+    )
+    .done(r=>{
+      addTask(listId, r.id, r.description, r.checked_at != null)
+    })
+  }
+  var retrieveLists = () => {
+    // Retrieves lists from api and inserts to DOM
+    $.get(url='/todo/api/lists/')
+    .done(lists => {
+      listsDiv.empty();
+      lists.forEach(item => addList(item.id, item.name, 0))
+    })
+    .fail()
+    .always()
+  }
+  var retrieveTasks = listId => {
+    // Retrieves tasks from api and inserts to DOM
+    $.get(url=`/todo/api/lists/${listId}/tasks/`)
+    .done(tasks => {
+      tasksDiv.empty();
+      tasksDiv.attr("data-list-id", listId)
+      tasks.forEach(item => addTask(listId, item.id, item.description, item.checked_at != null))
+    })
+    .fail()
+    .always()
+  }
+  var checkTask = (listId, taskId) => {
+    // Marks task as checked
+    $.post(url=`/todo/api/lists/${listId}/tasks/${taskId}/check/`)
+      .done(tasks => {
+        $(`.task.item[data-task-id=${taskId}]`).attr('data-checked', true);
+      })
+      .fail()
+      .always()
+  }
+  var uncheckTask = (listId, taskId) => {
+    // Marks task as unchecked
+    $.post(url=`/todo/api/lists/${listId}/tasks/${taskId}/uncheck/`)
+      .done(tasks => {
+        $(`.task.item[data-task-id="${taskId}"]`).attr('data-checked', false);
+      })
+      .fail()
+      .always()
+  }
+  var toggleTask = (listId, taskId) => {
+    checked = $(`.task.item[data-task-id="${taskId}"]`).attr('data-checked');
+    if (checked == "true") {
+      uncheckTask(listId, taskId);
+    } else {
+      checkTask(listId, taskId);
+    }
+  }
+
+  retrieveLists();
+  $("#task-input").on('keyup', function (e) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+      desc = $(this).val();
+      listId = tasksDiv.attr("data-list-id");
+      if (listId != undefined) {
+        createTask(listId, desc);
+      } else {
+        alert("No list selected.")
+      }
+      $(this).val('');
+    }
+  });
+  $('.ui.lists.item').popup(
+    {
+      on: 'click',
+      hoverable: true,
+      position:	"bottom left",
+      forcePosition: true,
+      onShow: () => {
+        $('.ui.lists.item').addClass('active')
+      },
+      onHide: () => {
+        $('.ui.lists.item').removeClass('active')
+      }
+    }
+  );
+</script>
+
+{% endblock %}
