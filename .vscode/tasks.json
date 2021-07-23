@@ -26,7 +26,31 @@
 					"--noreload"
 				],
 				"file": "mono/manage.py"
-			},
-		}
+			}
+		},
+		{
+			"type": "shell",
+			"label": "Pip freeze",
+			"command": "source ${workspaceFolder}/venv/bin/activate; pip freeze > requirements.txt; echo Requirements updated",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "Django - Make migrations",
+			"command": "source ${workspaceFolder}/venv/bin/activate; python mono/manage.py makemigrations",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "Django - Migrate",
+			"command": "source ${workspaceFolder}/venv/bin/activate; python mono/manage.py migrate",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "Django - Collect Static Files",
+			"command": "source ${workspaceFolder}/venv/bin/activate; python mono/manage.py collectstatic --noinput",
+			"problemMatcher": []
+		},
 	]
 }

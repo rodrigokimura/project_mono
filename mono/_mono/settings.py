@@ -42,8 +42,6 @@ else:
 # Application definition
 INSTALLED_APPS = [
     'tinymce',
-    # 'grappelli',
-    # 'filebrowser',
     '_mono.apps.MyAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,6 +54,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'social_django',
+    'markdownx',
     # 'debug_toolbar',
     'captcha',
     'feedback',
@@ -68,6 +67,8 @@ INSTALLED_APPS = [
     'finance',
     'blog',
     'todo_lists',
+    'notes',
+    'django.forms',
 ]
 
 MIDDLEWARE = [
@@ -90,11 +91,15 @@ MIDDLEWARE = [
 # SHOW_TOOLBAR_CALLBACK = '.'
 # SHOW_COLLAPSED = True
 
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
+
 ROOT_URLCONF = '_mono.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, "templates")],
+        'DIRS': [
+            os.path.join(BASE_DIR, "templates"),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
