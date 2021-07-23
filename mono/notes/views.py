@@ -6,9 +6,55 @@ from django.urls import reverse_lazy
 from .models import Note
 from .forms import NoteForm
 from .mixins import PassRequestToFormViewMixin
-import os
+from collections import defaultdict
 from django.template import loader
-from django.conf import settings
+
+
+FILE_MARKER = '<files>'
+
+
+def attach(branch, trunk):
+    '''
+    Insert a branch of directories on its trunk.
+    '''
+    parts = branch.split('/', 1)
+    if len(parts) == 1:  # branch is a file
+        trunk[FILE_MARKER].append(parts[0])
+    else:
+        node, others = parts
+        if node not in trunk:
+            trunk[node] = defaultdict(dict, ((FILE_MARKER, []),))
+        attach(others, trunk[node])
+
+
+def generate_tree(tree):
+
+    def index_maker():
+        def _index(files):
+            for mfile in files:
+                if mfile != FILE_MARKER:
+                    yield loader.render_to_string(
+                        'notes/p_folder.html',
+                        {
+                            'file': mfile,
+                            'subfiles': _index(files[mfile])
+                        }
+                    )
+                    continue
+                else:
+                    for f in files[mfile]:
+                        id = f.split(':')[0]
+                        title = f[len(id) + 1:]
+                        yield loader.render_to_string(
+                            'notes/p_file.html',
+                            {
+                                'id': id,
+                                'title': title,
+                            }
+                        )
+        return _index(tree)
+
+    return index_maker()
 
 
 class NoteCreateView(SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
@@ -27,50 +73,13 @@ class NoteListView(ListView):
         ).order_by('location')
         return qs
 
-    def _generate_tree(self, user):
-        user_folder = f'{settings.MEDIA_ROOT}/user_{user.id}/'
-
-        def index_maker():
-            def _index(root):
-                files = os.listdir(root)
-                for mfile in files:
-                    t = os.path.join(root, mfile)
-                    if os.path.isdir(t):
-                        yield loader.render_to_string('notes/p_folder.html',
-                                                      {'file': mfile,
-                                                       'subfiles': _index(os.path.join(root, t))})
-                        continue
-                    yield loader.render_to_string('notes/p_file.html',
-                                                  {'file': mfile})
-            return _index(user_folder)
-
-        return index_maker()
-
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        # def _obj_to_tuple(obj):
-        #     return obj.
         context = super().get_context_data(**kwargs)
-        tree = []
 
-        tree = [
-            {'t': 1, 'n': 'teste', 'c': 1},
-            {'t': 0, 'n': 'asasd', 'c': [
-                {'t': 0, 'n': 'aa', 'c': [
-                    {'t': 1, 'n': 'sdassdasd', 'c': 2},
-                ]}
-            ]},
-            {'t': 0, 'n': 'teste', 'c': [
-                {'t': 1, 'n': 'Test2', 'c': 3},
-                {'t': 0, 'n': 'teste', 'c': [
-                    {'t': 1, 'n': 'Teste2', 'c': 4},
-                    {'t': 1, 'n': 'Teste', 'c': 5},
-                ]},
-            ]},
-        ]
+        main_dict = defaultdict(dict, ((FILE_MARKER, []),))
+        for obj in self.get_queryset():
+            attach(obj.full_path, main_dict)
 
-        # qs = self.get_queryset()
-        # self._path_to_nested(qs)
+        context['subfiles'] = generate_tree(main_dict)
 
-        print(tree)
-        context['subfiles'] = self._generate_tree(self.request.user)
         return context

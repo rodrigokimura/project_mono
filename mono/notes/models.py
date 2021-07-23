@@ -43,3 +43,10 @@ class Note(models.Model):
     def save(self, *args, **kwargs):
         self.location = '/'.join(map(lambda s: s.strip(), self.location.strip("/").split("/")))
         super().save(*args, **kwargs)
+
+    @property
+    def full_path(self):
+        if self.location == '':
+            return f'{self.id}:{self.title}'
+        else:
+            return f'{self.location}/{self.id}:{self.title}'
