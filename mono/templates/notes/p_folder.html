@@ -1,1 +1,9 @@
-<li>{{ file }}<ul>{% for f in subfiles %}{{ f }}{% endfor %}</ul></li>
+<div class="item">
+  <i class="folder icon"></i>
+  <div class="content">
+    {{ file }}
+  </div>
+  <div class="list">
+  {% for f in subfiles %}{{ f }}{% endfor %}
+  </div>
+</div>

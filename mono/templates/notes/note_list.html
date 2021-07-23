@@ -3,24 +3,26 @@
 
 {% block main %}
 <div class="row">
-  <div class="column">
-    {% comment %} {% for note in object_list %}
-      {{ note.title }}
-    {% endfor %} {% endcomment %}
-    <div class="ui list">
-    {% for obj in object_list %}
-      <div class="item">
-        <i class="folder icon"></i>
-        <div class="content">
-          <div class="header">
-            {{ obj.location }} / {{ obj.title }}
-          </div>
-        </div>
+  <div class="four wide column">
+    <div class="ui segment">
+      <div class="ui list">
+        {% for f in subfiles %}
+          {{ f }}
+        {% endfor %}
       </div>
-    {% endfor %}
-    <ul>{% for f in subfiles %}{{ f }}{% endfor %}</ul>
+    </div>
+  </div>
+  <div class="eight wide column">
+  </div>
+  <div class="four wide column">
   </div>
 </div>
+
+<script>
+  $('.expand').click(function() {
+    $('ul', $(this).parent()).eq(0).toggle();
+  });
+</script>
 
 {{ form.media }}
 {% endblock main %}
