@@ -1,0 +1,14 @@
+{% extends "notes/base.html" %}
+
+{% block main %}
+<div class="row">
+  <div class="column">
+    <form method="POST" action="" class="ui form">{% csrf_token %}
+      {% include '_form.html' with form=form %}
+      <button type="submit" class="ui submit button">Save</button>
+    </form>
+  </div>
+</div>
+
+{{ form.media }}
+{% endblock main %}
