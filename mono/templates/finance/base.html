@@ -138,7 +138,7 @@
 
     {% if request.user.is_authenticated %}
     <div class="right menu">
-      <div class="ui inverted teal apps item"><i class="toolbox icon"></i></div>
+      <div class="ui inverted teal apps item" style="cursor: pointer;"><i class="toolbox icon"></i></div>
       <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
         {% include "homepage/_apps_menu.html" %}
       </div>

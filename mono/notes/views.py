@@ -1,6 +1,7 @@
 from typing import Any, Dict
 from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView
+from django.views import View
+from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from .models import Note
@@ -8,6 +9,8 @@ from .forms import NoteForm
 from .mixins import PassRequestToFormViewMixin
 from collections import defaultdict
 from django.template import loader
+from django.http import JsonResponse
+from markdownx.utils import markdownify
 
 
 FILE_MARKER = '<files>'
@@ -62,6 +65,19 @@ class NoteCreateView(SuccessMessageMixin, PassRequestToFormViewMixin, CreateView
     template_name = 'notes/note_form.html'
     success_url = reverse_lazy('notes:note_list')
     success_message = "%(title)s note created successfully"
+
+
+class NoteDetailApiView(View):
+    def get(self, request, *args, **kwargs):
+        id = kwargs['id']
+        note = Note.objects.get(id=id)
+        return JsonResponse(
+          {
+            'id': id,
+            'text': note.text,
+            'html': markdownify(note.text),
+          }
+        )
 
 
 class NoteListView(ListView):
