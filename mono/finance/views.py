@@ -118,7 +118,7 @@ class HomePageView(TemplateView):
         return context
 
 
-class CardOrderView(TemplateView):
+class CardOrderView(LoginRequiredMixin, TemplateView):
     template_name = "finance/card_order.html"
 
     def get_context_data(self, **kwargs):
