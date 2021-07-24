@@ -8,6 +8,7 @@
     .task.item[data-checked=true] .check .check { }
     .task.item[data-checked=false] .check .circle { }
     .task.item[data-checked=false] .check .check { display: none }
+    //.task.modal .header input { border: 0px; }
   </style>
   <script>
     $.ajaxSetup({
@@ -61,6 +62,32 @@
           </div>
         </div>
       </div>
+      
+      <div class="ui task modal">
+        <div class="header">
+          <div class="ui fluid input">
+            <input type=text id="modal-task-description">
+          </div>
+        </div>
+        <div class="content">
+          <p></p>
+          <div class="ui red basic button" id="delete-task-btn" data-list-id="" data-task-id="" onclick="deleteTask()">
+            <i class="remove icon"></i>
+            Delete
+          </div>
+        </div>
+        <div class="actions">
+          <div class="ui black cancel button">
+            <i class="remove icon"></i>
+            Close
+          </div>
+          <div class="ui green ok button">
+            <i class="checkmark icon"></i>
+            Save
+          </div>
+        </div>
+      </div>
+      
     </div>
       
     <div class="four wide column">
@@ -88,22 +115,18 @@
     tasksDiv.append(
       `
       <a class="task item" data-task-id="${taskId}" data-checked=${checked}>
-        <div class="check" style="display: inline;" onclick="toggleTask(${listId}, ${taskId})">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="circle" viewBox="0 0 16 16">
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-          </svg>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="check" viewBox="0 0 16 16">
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-            <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
-          </svg>
+        <div class="ui checkbox">
+          <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTask(${listId}, ${taskId})">
+          <label>${taskDescription}</label>
         </div>
-        ${taskDescription}
+        <div class="ui icon label" onclick="showTaskModal(${listId}, ${taskId})">
+          <i class="edit icon"></i>
+        </div>
       </a>
       `
-    )
+    );
   }
   var createTask = (listId, taskDescription) => {
-    alert(`Creating task "${taskDescription}" on list ${listId}`)
     $.post(
       url=`/todo/api/lists/${listId}/tasks/`,
       data={
@@ -141,6 +164,7 @@
     $.post(url=`/todo/api/lists/${listId}/tasks/${taskId}/check/`)
       .done(tasks => {
         $(`.task.item[data-task-id=${taskId}]`).attr('data-checked', true);
+        $(`.task.item[data-task-id=${taskId}] input`).prop('checked', true);
       })
       .fail()
       .always()
@@ -150,6 +174,7 @@
     $.post(url=`/todo/api/lists/${listId}/tasks/${taskId}/uncheck/`)
       .done(tasks => {
         $(`.task.item[data-task-id="${taskId}"]`).attr('data-checked', false);
+        $(`.task.item[data-task-id="${taskId}"] input`).prop('checked', false);
       })
       .fail()
       .always()
@@ -162,19 +187,70 @@
       checkTask(listId, taskId);
     }
   }
-
-  retrieveLists();
+  
+  var showTaskModal = (listId, taskId) => {
+    $.get(
+      url=`/todo/api/lists/${listId}/tasks/${taskId}`
+    )
+      .done(function(r){
+        desc = r.description;
+        deleteButton = $("#delete-task-btn")
+        deleteButton.attr("data-list-id", listId)
+        deleteButton.attr("data-task-id", taskId)
+        $("#modal-task-description").val(desc);
+        $(".ui.task.modal").modal(
+          {
+            onApprove: function() {
+              $.post(
+                url=``,
+              )
+              $("#modal-task-description").val(desc);
+              alert("ok")
+            }
+          }
+        ).modal("show");
+      })
+  }
+  
+  var deleteTask = () => {
+    deleteButton = $("#delete-task-btn");
+    listId = deleteButton.attr("data-list-id")
+    taskId = deleteButton.attr("data-task-id")
+    $.ajax({
+        url: `/todo/api/lists/${listId}/tasks/${taskId}`,
+        type: 'DELETE',
+        success: function(result) {
+          retrieveTasks(listId);
+          $(".ui.task.modal").modal("hide");
+        }
+    });
+  }
+  var lists 
+  $.get(url='/todo/api/lists/')
+    .done(lists => {
+      retrieveLists();
+      if (lists.length > 0) {
+        retrieveTasks(lists[0].id)
+      }
+    })
+    .fail()
+    .always()
   $("#task-input").on('keyup', function (e) {
     if (e.key === 'Enter' || e.keyCode === 13) {
       desc = $(this).val();
       listId = tasksDiv.attr("data-list-id");
       if (listId != undefined) {
-        createTask(listId, desc);
+        if (desc != "") {
+          createTask(listId, desc);
+        }
       } else {
         alert("No list selected.")
       }
       $(this).val('');
     }
+  });
+  $("*.task.item").on('click', function (e) {
+    alert("ok")
   });
   $('.ui.lists.item').popup(
     {

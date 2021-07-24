@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block body %}
+{% block sidebar %}
+{% endblock sidebar %}
+<div class="ui top inverted fixed menu">
+  {% block menu %}
+  {% endblock menu %}
+</div>
+<div class="pusher" style="padding-top: 4em;">
+  <div class="ui stackable grid container" style="margin-top: 1em;">
+    {% block main %}
+    {% endblock main %}
+  </div>
+</div>
+{% endblock body %}

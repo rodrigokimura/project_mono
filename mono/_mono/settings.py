@@ -42,8 +42,6 @@ else:
 # Application definition
 INSTALLED_APPS = [
     'tinymce',
-    # 'grappelli',
-    # 'filebrowser',
     '_mono.apps.MyAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,6 +54,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'social_django',
+    'markdownx',
     # 'debug_toolbar',
     'captcha',
     'feedback',
@@ -68,6 +67,8 @@ INSTALLED_APPS = [
     'finance',
     'blog',
     'todo_lists',
+    'notes',
+    'django.forms',
 ]
 
 MIDDLEWARE = [
@@ -90,11 +91,15 @@ MIDDLEWARE = [
 # SHOW_TOOLBAR_CALLBACK = '.'
 # SHOW_COLLAPSED = True
 
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
+
 ROOT_URLCONF = '_mono.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, "templates")],
+        'DIRS': [
+            os.path.join(BASE_DIR, "templates"),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -124,22 +129,24 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 if APP_ENV == 'DEV':
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            'ENGINE': 'django.db.backends.mysql',
+            'HOST': '127.0.0.1',  # DB's IP address
+            'PORT': '3306',
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASS'),
         }
     }
+
 else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
+            'HOST': os.getenv('DB_ADDR'),
+            'PORT': '3306',
             'NAME': os.getenv('DB_NAME'),
             'USER': os.getenv('DB_USER'),
             'PASSWORD': os.getenv('DB_PASS'),
-            'HOST': os.getenv('DB_ADDR'),
-            'PORT': '3306',
-            'OPTIONS': {
-                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-            }
         }
     }
 
