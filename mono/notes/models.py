@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.urls.base import reverse
 from django.utils.translation import ugettext_lazy as _
 from markdownx.models import MarkdownxField
 
@@ -43,6 +44,9 @@ class Note(models.Model):
     def save(self, *args, **kwargs):
         self.location = '/'.join(map(lambda s: s.strip(), self.location.strip("/").split("/")))
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('notes:note_edit', args=[str(self.id)])
 
     @property
     def full_path(self):

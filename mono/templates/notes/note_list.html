@@ -1,87 +1,93 @@
 {% extends "notes/base.html" %}
 {% load i18n %}
 
-{% block bodyclass %} class="pushable"
-{% endblock bodyclass %}
+{% block head %}
+{% endblock head %}
+
 {% block menu %}
-<div class="toc item"><I class="sidebar icon"></I></div>
-<div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
-</div>
-<div class="right menu">
-  <div class="ui inverted teal apps item" style="cursor: pointer;"><i class="toolbox icon"></i></div>
+  <a class="toc item"><i class="sidebar icon"></i></a>
   <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
-    {% include "homepage/_apps_menu.html" %}
   </div>
-</div>
+  <div class="right menu">
+    <div class="ui inverted teal apps item" style="cursor: pointer;"><i class="toolbox icon"></i></div>
+    <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
+      {% include "homepage/_apps_menu.html" %}
+    </div>
+  </div>
 {% endblock menu %}
 
 {% block sidebar %}
-<div class="ui sidebar inverted menu" style="padding: 1em;">
-  <div class="ui inverted relaxed big list">
-    {% for f in subfiles %}
-      {{ f }}
-    {% endfor %}
+  <div class="ui sidebar inverted menu" style="padding: 1em;">
+    <div class="ui inverted big list" style="width: 100%;">
+      {% for f in subfiles %}
+        {{ f }}
+      {% endfor %}
+    </div>
   </div>
-</div>
 {% endblock sidebar %}
  
 
 {% block main %}
-<div class="row">
-  <div class="four wide column">
+  <div class="row">
+    <div class="four wide column">
+    </div>
+    <div class="eight wide column">
+      <div class="ui note hidden segment"></div>
+    </div>
+    <div class="four wide column">
+      <a class="ui green button" href="{% url 'notes:note_create' %}">Create</a>
+      <a class="ui yellow edit button">Edit</a>
+      <a class="ui red button">Delete</a>
+    </div>
   </div>
-  <div class="eight wide column">
-    <div class="ui note hidden segment"></div>
-  </div>
-  <div class="four wide column">
-  </div>
-</div>
 
-<script>
-  const getNote = (id) => {
-    $.get(
-      url=`/nt/api/notes/${id}/`
-    )
-    .done(r=>{
-      $(".note.segment").html(r.html)
-    })
-  }
-  
-  $('.file.item').click(function(e) {
-    getNote($(e.target).closest('.file.item').attr('data-id'));
-  });
-  
-  
-  $('.folder').click(function() {
-    $(this).siblings('.list').toggle();
-    $(this).parent().children('.icon').toggleClass('open');
-  })
-  $('.ui.sidebar')
-    .sidebar('setting', 'transition', 'slide along')
-    .sidebar('setting', 'mobileTransition', 'slide along')
-    .sidebar('attach events', '.toc.item');
-  
-  w = 0;
-  s = $('.ui.apps.item').siblings('.ui.item');
-  for (i=0; i<s.length; i++) {
-    w += $(s[i]).outerWidth();
-  }
-  $('.ui.apps.item').popup(
-    {
-      on: 'click',
-      hoverable: true,
-      position:	"bottom right",
-      forcePosition: true,
-      offset: w,
-      onShow: () => {
-        $('.ui.apps.item').addClass('active')
-      },
-      onHide: () => {
-        $('.ui.apps.item').removeClass('active')
-      }
+  <script>
+    const getNote = (id) => {
+      $.get(
+        url=`/nt/api/notes/${id}/`
+      )
+      .done(r=>{
+        $(".note.segment").html(r.html);
+        console.log(r.url);
+        $(".edit.button").attr('href', r.url);
+      })
     }
-  );
-</script>
+    
+    $('.file.item').click(function(e) {
+      getNote($(e.target).closest('.file.item').attr('data-id'));
+    });
+    
+    
+    $('.folder').click(function() {
+      $(this).siblings('.list').toggle();
+      $(this).parent().children('.icon').toggleClass('open');
+    })
+    $('.ui.sidebar')
+      .sidebar('setting', 'transition', 'slide along')
+      .sidebar('setting', 'mobileTransition', 'slide along')
+      .sidebar('attach events', '.toc.item');
+    
+    w = 0;
+    s = $('.ui.apps.item').siblings('.ui.item');
+    for (i=0; i<s.length; i++) {
+      w += $(s[i]).outerWidth();
+    }
+    $('.ui.apps.item').popup(
+      {
+        on: 'click',
+        hoverable: true,
+        position:	"bottom right",
+        forcePosition: true,
+        offset: w,
+        onShow: () => {
+          $('.ui.apps.item').addClass('active')
+        },
+        onHide: () => {
+          $('.ui.apps.item').removeClass('active')
+        }
+      }
+    );
+  </script>
 
-{{ form.media }}
+  {{ form.media }}
 {% endblock main %}
