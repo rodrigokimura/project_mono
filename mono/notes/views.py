@@ -1,8 +1,8 @@
 from typing import Any, Dict
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views import View
-from django.views.generic import ListView, DetailView
-from django.views.generic.edit import CreateView
+from django.views.generic import ListView
+from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
 from .models import Note
 from .forms import NoteForm
@@ -67,16 +67,26 @@ class NoteCreateView(SuccessMessageMixin, PassRequestToFormViewMixin, CreateView
     success_message = "%(title)s note created successfully"
 
 
+class NoteFormView(SuccessMessageMixin, PassRequestToFormViewMixin, UpdateView):
+    model = Note
+    form_class = NoteForm
+    template_name = 'notes/note_form.html'
+    success_url = reverse_lazy('notes:note_list')
+    success_message = "%(title)s note created successfully"
+
+
 class NoteDetailApiView(View):
     def get(self, request, *args, **kwargs):
-        id = kwargs['id']
+        id = kwargs['pk']
         note = Note.objects.get(id=id)
         return JsonResponse(
-          {
-            'id': id,
-            'text': note.text,
-            'html': markdownify(note.text),
-          }
+            {
+                'id': id,
+                'title': note.title,
+                'text': note.text,
+                'html': markdownify(note.text),
+                'url': note.get_absolute_url(),
+            }
         )
 
 
