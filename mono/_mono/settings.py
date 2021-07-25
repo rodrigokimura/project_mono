@@ -1,3 +1,4 @@
+import io
 import os
 from pathlib import Path
 from django.urls import reverse_lazy
@@ -31,7 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 if os.path.isfile(os.path.join(BASE_DIR, ".env")):
     load_dotenv()
 else:
-    load_dotenv(stream=get_secret('ENV_FILE'))
+    load_dotenv(stream=io.StringIO(get_secret('ENV_FILE')))
 
 APP_ENV = os.getenv('APP_ENV')
 
