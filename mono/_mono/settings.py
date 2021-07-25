@@ -29,39 +29,40 @@ def get_secret(secret_id, version_id="latest"):
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-if os.path.isfile(os.path.join(BASE_DIR, ".env")):
+APP_ENV = os.getenv('APP_ENV')
+
+if os.path.isfile(os.path.join(BASE_DIR, "_mono", ".env")):
     load_dotenv()
-else:
+elif APP_ENV == 'PRD':
     load_dotenv(stream=io.StringIO(get_secret('ENV_FILE')))
 
-APP_ENV = os.getenv('APP_ENV')
 
 GITHUB_SECRET = os.getenv('GITHUB_SECRET')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if APP_ENV == 'DEV':
+if APP_ENV in ['DEV', 'TEST']:
     SECRET_KEY = 'devkeyprojectmono'
 else:
     SECRET_KEY = os.getenv('APP_SECRET')
 
 # For django-recaptcha
-if APP_ENV == 'DEV':
+if APP_ENV in ['DEV', 'TEST']:
     SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
 else:
     RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY')
     RECAPTCHA_PRIVATE_KEY = os.getenv('RECAPTCHA_PRIVATE_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = APP_ENV == 'DEV'
+DEBUG = APP_ENV in ['DEV', 'TEST']
 CSRF_COOKIE_SECURE = APP_ENV == 'PRD'
 SESSION_COOKIE_SECURE = APP_ENV == 'PRD'
 
-if APP_ENV == 'DEV':
+if APP_ENV in ['DEV', 'TEST']:
     ALLOWED_HOSTS = ['*']
 else:
     ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 
-if APP_ENV == 'DEV':
+if APP_ENV in ['DEV', 'TEST']:
     SITE = "http://dev.monoproject.info"
 else:
     SITE = "https://www.monoproject.info"
@@ -153,7 +154,7 @@ WSGI_APPLICATION = '_mono.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-if APP_ENV == 'DEV':
+if APP_ENV in ['DEV', 'TEST']:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -233,7 +234,7 @@ LOGIN_URL = reverse_lazy('finance:login')
 LOGOUT_URL = reverse_lazy('finance:index')
 LOGIN_REDIRECT_URL = reverse_lazy('finance:index')
 
-if APP_ENV == 'DEV':
+if APP_ENV in ['DEV', 'TEST']:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

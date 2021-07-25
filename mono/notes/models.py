@@ -15,12 +15,14 @@ def user_directory_path(instance, filename):
 class Note(models.Model):
     title = models.CharField(
         max_length=200,
+        verbose_name=_("title"),
         help_text="Note's title.")
     location = models.CharField(
         max_length=2000,
         default="",
         blank=True,
-        help_text="Note's location in format of a path of folders separated by '/'")
+        verbose_name=_("location"),
+        help_text="Note's location in path-like format (eg.: random/stuff)")
     text = MarkdownxField()
     created_by = models.ForeignKey(
         User, on_delete=models.CASCADE,
@@ -54,3 +56,23 @@ class Note(models.Model):
             return f'{self.id}:{self.title}'
         else:
             return f'{self.location}/{self.id}:{self.title}'
+
+
+class Tag(models.Model):
+    name = models.CharField(
+        max_length=100,
+        verbose_name=_("name"),
+        help_text="Tag's name.")
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        verbose_name=_("created by"),
+        help_text="Identifies who created the tag.")
+    created_at = models.DateTimeField(
+        _("created at"),
+        auto_now_add=True)
+    updated_at = models.DateTimeField(
+        _("updated at"),
+        auto_now=True)
+
+    def __str__(self) -> str:
+        return self.name
