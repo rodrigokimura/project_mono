@@ -29,7 +29,7 @@ def get_secret(secret_id, version_id="latest"):
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-if os.path.isfile(os.path.join(BASE_DIR, ".env")):
+if os.path.isfile(os.path.join(BASE_DIR, "_mono", ".env")):
     load_dotenv()
 else:
     load_dotenv(stream=io.StringIO(get_secret('ENV_FILE')))
