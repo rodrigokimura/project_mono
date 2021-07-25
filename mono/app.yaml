@@ -6,4 +6,5 @@ handlers:
   - url: /.*
     script: auto
 env_variables:
+  APP_ENV: "PRD"
   GOOGLE_CLOUD_PROJECT_ID: "monoproject-308518"
