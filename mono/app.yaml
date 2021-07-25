@@ -31,6 +31,6 @@ handlers:
     script: auto
 # [END gaestd_py_django_app_yaml]
 # [END django_app]
-env_variables:
-  APP_ENV: "DEV"
+# env_variables:
+#   APP_ENV: "DEV"
 # entrypoint: gunicorn -b :$PORT _mono.wsgi
