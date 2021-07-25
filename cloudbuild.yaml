@@ -4,7 +4,6 @@ steps:
     secretEnv:
       [
         "ALLOWED_HOST",
-        "ALLOWED_HOST",
         "APP_SECRET",
         "DB_ADDR",
         "DB_NAME",
