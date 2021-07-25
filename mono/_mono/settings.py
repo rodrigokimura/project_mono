@@ -172,6 +172,11 @@ else:
             'PASSWORD': os.getenv('DB_PASS'),
         }
     }
+    # If the flag as been set, configure to use proxy
+    if os.getenv("USE_CLOUD_SQL_AUTH_PROXY", None):
+        DATABASES["default"]["HOST"] = "127.0.0.1"
+        DATABASES["default"]["PORT"] = 3306
+
 
 AUTHENTICATION_BACKENDS = [
     'social_core.backends.github.GithubOAuth2',

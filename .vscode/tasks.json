@@ -48,8 +48,20 @@
 		},
 		{
 			"type": "shell",
+			"label": "Django - Migrate to Prod",
+			"command": "source ${workspaceFolder}/venv/bin/activate; export USE_CLOUD_SQL_AUTH_PROXY=true; python mono/manage.py migrate",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
 			"label": "Django - Collect Static Files",
 			"command": "source ${workspaceFolder}/venv/bin/activate; python mono/manage.py collectstatic --noinput",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "Start the Cloud SQL Proxy",
+			"command": "source ${workspaceFolder}/venv/bin/activate; $HOME/cloud_sql_proxy -instances='monoproject-308518:southamerica-east1:monoprojectdb'=tcp:3306",
 			"problemMatcher": []
 		},
 	]
