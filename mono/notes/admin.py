@@ -4,3 +4,4 @@ from . import models
 
 
 admin.site.register(models.Note, MarkdownxModelAdmin)
+admin.site.register(models.Tag)
