@@ -25,7 +25,8 @@ else:
     RECAPTCHA_PRIVATE_KEY = os.getenv('RECAPTCHA_PRIVATE_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = APP_ENV == 'DEV'
+# DEBUG = APP_ENV == 'DEV'
+DEBUG = True
 CSRF_COOKIE_SECURE = APP_ENV == 'PRD'
 SESSION_COOKIE_SECURE = APP_ENV == 'PRD'
 
