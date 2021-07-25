@@ -4,6 +4,7 @@ steps:
     secretEnv:
       [
         "ALLOWED_HOST",
+        "APP_ENV",
         "APP_SECRET",
         "DB_ADDR",
         "DB_NAME",
@@ -26,6 +27,8 @@ availableSecrets:
   secretManager:
     - versionName: projects/monoproject-308518/secrets/ALLOWED_HOST/versions/1
       env: "ALLOWED_HOST"
+    - versionName: projects/monoproject-308518/secrets/APP_ENV/versions/1
+      env: "APP_ENV"
     - versionName: projects/monoproject-308518/secrets/APP_SECRET/versions/1
       env: "APP_SECRET"
     - versionName: projects/monoproject-308518/secrets/DB_ADDR/versions/1
