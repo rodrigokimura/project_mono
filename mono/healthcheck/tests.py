@@ -19,6 +19,7 @@ class MigrationsTests(TestCase):
             'rest_framework',
             'rest_framework.authtoken',
             'social_django',
+            'django.forms',
         ]
         for app in apps_exception:
             apps.remove(app)
