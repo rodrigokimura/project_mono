@@ -4,25 +4,47 @@ from django.urls import reverse_lazy
 from dotenv import load_dotenv
 from django.utils.translation import gettext_lazy as _
 
+
+def get_secret(secret_id, version_id="latest"):
+    """
+    Access the payload for the given secret version if one exists. The version
+    can be a version number as a string (e.g. "5") or an alias (e.g. "latest").
+    """
+
+    # Import the Secret Manager client library.
+    from google.cloud import secretmanager
+
+    # Create the Secret Manager client.
+    client = secretmanager.SecretManagerServiceClient()
+
+    # Build the resource name of the secret version.
+    name = f"projects/{os.getenv('GOOGLE_CLOUD_PROJECT_ID')}/secrets/{secret_id}/versions/{version_id}"
+
+    # Access the secret version.
+    response = client.access_secret_version(request={"name": name})
+
+    return response.payload.data.decode("UTF-8")
+
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-APP_ENV = os.getenv('APP_ENV')
+APP_ENV = os.getenv('APP_ENV', get_secret('APP_ENV'))
 
-GITHUB_SECRET = os.getenv('GITHUB_SECRET')
+GITHUB_SECRET = os.getenv('GITHUB_SECRET', get_secret('GITHUB_SECRET'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 if APP_ENV == 'DEV':
     SECRET_KEY = 'devkeyprojectmono'
 else:
-    SECRET_KEY = os.getenv('APP_SECRET')
+    SECRET_KEY = os.getenv('APP_SECRET', get_secret('APP_SECRET'))
 
 # For django-recaptcha
 if APP_ENV == 'DEV':
     SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
 else:
-    RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY')
-    RECAPTCHA_PRIVATE_KEY = os.getenv('RECAPTCHA_PRIVATE_KEY')
+    RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY', get_secret('RECAPTCHA_PUBLIC_KEY'))
+    RECAPTCHA_PRIVATE_KEY = os.getenv('RECAPTCHA_PRIVATE_KEY', get_secret('RECAPTCHA_PRIVATE_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = APP_ENV == 'DEV'
@@ -33,7 +55,7 @@ SESSION_COOKIE_SECURE = APP_ENV == 'PRD'
 if APP_ENV == 'DEV':
     ALLOWED_HOSTS = ['*']
 else:
-    ALLOWED_HOSTS = [os.getenv('ALLOWED_HOST')]
+    ALLOWED_HOSTS = [os.getenv('ALLOWED_HOST', get_secret('ALLOWED_HOST'))]
 
 if APP_ENV == 'DEV':
     SITE = "http://dev.monoproject.info"
@@ -138,11 +160,11 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'HOST': os.getenv('DB_ADDR'),
+            'HOST': os.getenv('DB_ADDR', get_secret('DB_ADDR')),
             'PORT': '3306',
-            'NAME': os.getenv('DB_NAME'),
-            'USER': os.getenv('DB_USER'),
-            'PASSWORD': os.getenv('DB_PASS'),
+            'NAME': os.getenv('DB_NAME', get_secret('DB_NAME')),
+            'USER': os.getenv('DB_USER', get_secret('DB_USER')),
+            'PASSWORD': os.getenv('DB_PASS', get_secret('DB_PASS')),
         }
     }
 
@@ -211,9 +233,9 @@ if APP_ENV == 'DEV':
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = os.getenv('EMAIL_HOST')
-    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+    EMAIL_HOST = os.getenv('EMAIL_HOST', get_secret('EMAIL_HOST'))
+    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', get_secret('EMAIL_HOST_USER'))
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', get_secret('EMAIL_HOST_PASSWORD'))
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True
     EMAIL_USE_SSL = False
@@ -228,10 +250,10 @@ EMAIL_USE_LOCALTIME = True
 
 PASSWORD_RESET_TIMEOUT = 24 * 60 * 60
 
-STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY')
-STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
-STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_ENDPOINT_SECRET')
-STRIPE_TIMEZONE = os.getenv('STRIPE_TIMEZONE')
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', get_secret('STRIPE_PUBLIC_KEY'))
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', get_secret('STRIPE_SECRET_KEY'))
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_ENDPOINT_SECRET', get_secret('STRIPE_ENDPOINT_SECRET'))
+STRIPE_TIMEZONE = os.getenv('STRIPE_TIMEZONE', get_secret('STRIPE_TIMEZONE'))
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -253,8 +275,8 @@ GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-194514221-1'
 
 
 # SOCIAL LOGIN SECRETS
-SOCIAL_AUTH_GITHUB_KEY = os.getenv('SOCIAL_AUTH_GITHUB_KEY')
-SOCIAL_AUTH_GITHUB_SECRET = os.getenv('SOCIAL_AUTH_GITHUB_SECRET')
+SOCIAL_AUTH_GITHUB_KEY = os.getenv('SOCIAL_AUTH_GITHUB_KEY', get_secret('SOCIAL_AUTH_GITHUB_KEY'))
+SOCIAL_AUTH_GITHUB_SECRET = os.getenv('SOCIAL_AUTH_GITHUB_SECRET', get_secret('SOCIAL_AUTH_GITHUB_SECRET'))
 
 SOCIAL_AUTH_LOGIN_ERROR_URL = reverse_lazy('finance:configuration')
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = reverse_lazy('finance:configuration')
