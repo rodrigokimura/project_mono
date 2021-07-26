@@ -14,11 +14,11 @@ def user_directory_path(instance, filename):
 
 class Note(models.Model):
     title = models.CharField(
-        max_length=200,
+        max_length=100,
         verbose_name=_("title"),
         help_text="Note's title.")
     location = models.CharField(
-        max_length=2000,
+        max_length=500,
         default="",
         blank=True,
         verbose_name=_("location"),
