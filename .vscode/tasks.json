@@ -61,7 +61,7 @@
 		{
 			"type": "shell",
 			"label": "Start the Cloud SQL Proxy",
-			"command": "source ${workspaceFolder}/venv/bin/activate; $HOME/cloud_sql_proxy -instances='monoproject-308518:southamerica-east1:monoprojectdb'=tcp:3306",
+			"command": "source ${workspaceFolder}/venv/bin/activate; $HOME/cloud_sql_proxy -instances='monoproject-308518:us-central1:monoprojectdb2'=tcp:3306",
 			"problemMatcher": []
 		},
 	]
