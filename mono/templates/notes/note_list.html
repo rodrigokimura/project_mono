@@ -2,10 +2,20 @@
 {% load i18n %}
 
 {% block head %}
+  <style>
+    .hidden {
+      display: none;
+    }
+    @media only screen and (min-width: 768px) {
+      a.toc {
+        display: none !important;
+      }
+    }
+  </style>
 {% endblock head %}
 
 {% block menu %}
-  <a class="toc item"><i class="sidebar icon"></i></a>
+  <a class="toc computer only item"><i class="sidebar icon"></i></a>
   <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
   </div>
   <div class="right menu">
@@ -18,30 +28,43 @@
 
 {% block sidebar %}
   <div class="ui sidebar inverted menu" style="padding: 1em;">
-    <div class="ui inverted big list" style="width: 100%;">
-      {% for f in subfiles %}
-        {{ f }}
-      {% endfor %}
-    </div>
+    <div class="ui inverted big list" data-notes-list="true" style="width: 100%;"></div>
   </div>
 {% endblock sidebar %}
  
 
 {% block main %}
   <div class="row">
-    <div class="four wide column">
+    <div class="four wide computer only column">
+      <div class="ui segment">
+        <div class="ui big list" data-notes-list="true" style="width: 100%;"></div>
+      </div>
     </div>
     <div class="eight wide column">
       <div class="ui note hidden segment"></div>
     </div>
     <div class="four wide column">
-      <a class="ui green button" href="{% url 'notes:note_create' %}">Create</a>
-      <a class="ui yellow edit button">Edit</a>
-      <a class="ui red button">Delete</a>
+      <a style="margin-bottom: 1em;" class="ui fluid icon labeled green button" href="{% url 'notes:note_create' %}"><i class="add icon"></i>{% translate "Create" %}</a>
+      <a style="margin-bottom: 1em;" class="ui fluid icon labeled yellow edit disabled button"><i class="edit icon"></i>{% translate "Edit" %}</a>
+      <a style="margin-bottom: 1em;" class="ui fluid icon labeled red delete disabled button"><i class="delete icon"></i>{% translate "Delete" %}</a>
     </div>
   </div>
+      
 
   <script>
+    $('*[data-notes-list=true]').html(
+      `
+      <div class="item">
+        <div class="header">
+          {% translate 'My notes' %}
+        </div>
+      </div>
+      {% for f in subfiles %}
+      {{ f }}
+      {% endfor %}
+      `
+    );
+
     const getNote = (id) => {
       $.get(
         url=`/nt/api/notes/${id}/`
@@ -55,8 +78,10 @@
     
     $('.file.item').click(function(e) {
       getNote($(e.target).closest('.file.item').attr('data-id'));
+      $('.ui.note.segment').removeClass('hidden');
+      $('.ui.edit.button').removeClass('disabled');
+      $('.ui.delete.button').removeClass('disabled');
     });
-    
     
     $('.folder').click(function() {
       $(this).siblings('.list').toggle();
