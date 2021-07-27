@@ -18,12 +18,6 @@
   <a class="toc computer only item"><i class="sidebar icon"></i></a>
   <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
   </div>
-  <div class="right menu">
-    <div class="ui inverted teal apps item" style="cursor: pointer;"><i class="toolbox icon"></i></div>
-    <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
-      {% include "homepage/_apps_menu.html" %}
-    </div>
-  </div>
 {% endblock menu %}
 
 {% block sidebar %}
@@ -91,27 +85,6 @@
       .sidebar('setting', 'transition', 'slide along')
       .sidebar('setting', 'mobileTransition', 'slide along')
       .sidebar('attach events', '.toc.item');
-    
-    w = 0;
-    s = $('.ui.apps.item').siblings('.ui.item');
-    for (i=0; i<s.length; i++) {
-      w += $(s[i]).outerWidth();
-    }
-    $('.ui.apps.item').popup(
-      {
-        on: 'click',
-        hoverable: true,
-        position:	"bottom right",
-        forcePosition: true,
-        offset: w,
-        onShow: () => {
-          $('.ui.apps.item').addClass('active')
-        },
-        onHide: () => {
-          $('.ui.apps.item').removeClass('active')
-        }
-      }
-    );
   </script>
 
   {{ form.media }}
