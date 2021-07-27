@@ -1,5 +1,6 @@
 from typing import Any, Dict
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView
@@ -60,14 +61,14 @@ def generate_tree(tree):
     return index_maker()
 
 
-class NoteCreateView(SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
+class NoteCreateView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
     form_class = NoteForm
     template_name = 'notes/note_form.html'
     success_url = reverse_lazy('notes:note_list')
     success_message = "%(title)s note created successfully"
 
 
-class NoteFormView(SuccessMessageMixin, PassRequestToFormViewMixin, UpdateView):
+class NoteFormView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormViewMixin, UpdateView):
     model = Note
     form_class = NoteForm
     template_name = 'notes/note_form.html'
@@ -75,7 +76,7 @@ class NoteFormView(SuccessMessageMixin, PassRequestToFormViewMixin, UpdateView):
     success_message = "%(title)s note created successfully"
 
 
-class NoteDetailApiView(View):
+class NoteDetailApiView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         id = kwargs['pk']
         note = Note.objects.get(id=id)
@@ -90,7 +91,7 @@ class NoteDetailApiView(View):
         )
 
 
-class NoteListView(ListView):
+class NoteListView(LoginRequiredMixin, ListView):
     model = Note
 
     def get_queryset(self):
