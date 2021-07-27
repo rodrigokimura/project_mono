@@ -1,11 +1,12 @@
 {% extends "notes/base.html" %}
+{% load i18n %}
 
 {% block main %}
 <div class="row">
   <div class="column">
     <form method="POST" action="" class="ui form">{% csrf_token %}
       {% include '_form.html' with form=form %}
-      <button type="submit" class="ui submit button">Save</button>
+      <button type="submit" class="ui icon labeled submit green button"><i class="save icon"></i>{% translate "Save" %}</button>
     </form>
   </div>
 </div>
