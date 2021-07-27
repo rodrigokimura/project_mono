@@ -33,8 +33,6 @@ def is_database_synchronized(database=DEFAULT_DB_ALIAS):
     """Returns True if there are no migrations to be applied."""
     return not pending_migrations(database)
 
-# Create your models here.
-
 
 class PullRequest(models.Model):
     """Stores pull requests coming from GitHub webhook."""
@@ -79,8 +77,8 @@ class PullRequest(models.Model):
         """Pulls from remote repository and notifies admins."""
         path = Path(settings.BASE_DIR).resolve().parent
         repo = git.Repo(path)
-        origin = repo.remotes.origin
-        origin.pull()
+        repo.git.reset('--hard', 'origin/master')
+        repo.remotes.pull()
         print("Successfully pulled from remote.")
         self.pulled_at = timezone.now()
         self.save()
