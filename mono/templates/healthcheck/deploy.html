@@ -4,6 +4,7 @@
 
 {% block head %}
   <style type="text/css">
+    .hidden { display: none; }
   </style>
   <script>
   </script>
@@ -11,8 +12,8 @@
 
 {% block body %}
 <div class="pusher">
-  <div class="ui vertical center aligned segment">
-    <div class="ui text container">
+  <div class="ui grid container">
+    <div class="centered row">
       <h1 class="ui header">{{ last_pr }} - Build #{{ last_pr.build_number }}
         <div class="sub header">
           {% if last_pr.deployed %}
@@ -22,6 +23,8 @@
           {% endif %}
         </div>
       </h1>
+    </div>
+    <div class="centered row">
       <form method="POST" class="ui form">
         {% csrf_token %}
         <input type="hidden" name="pk" value='{{ last_pr.pk }}' >
@@ -34,6 +37,58 @@
           <em data-emoji=":rocket:"></em>
         </button>
       </form>
+    </div>
+    <div class="ui segment">
+      <div class="ui bulleted list">
+        <div class="item">’A’ for added paths</div>
+        <div class="item">’D’ for deleted paths</div>
+        <div class="item">’R’ for renamed paths</div>
+        <div class="item">’M’ for paths with modified data</div>
+        <div class="item">’T’ for changed in the type paths</div>
+      </div>
+    </div>
+    <div class="row">
+      <table class="ui celled striped table">
+        <thead>
+          <tr><th>Type</th>
+          <th>File</th>
+          <th>Diff</th>
+        </tr></thead>
+        <tbody>
+          {% for i, type, file, diff in diff_items %}
+          <tr>
+            <td data-label="Type">{{ type }}</td>
+            <td data-label="File">{{ file }}</td>
+            <td data-label="Diff">
+              {% if diff %}
+                {% if type == "M" %}
+                  <div class="ui button" onclick="$('.ui.modal[data-file={{i}}]').modal('show');">Show diff</div>
+                {% else %}
+                  <div class="ui button" onclick="$('.ui.modal[data-file={{i}}]').modal('show');">Show file</div>
+                {% endif %}
+              {% endif %}
+            </td>
+          </tr>
+          <div class="ui huge modal" data-file="{{i}}">
+            <i class="close icon"></i>
+            <div class="header">
+              Viewing diff
+            </div>
+            <div class="scrolling content">
+              <pre>{% for line in diff %}{{ line }}<br>{% endfor %}</pre>
+            </div>
+            <div class="actions">
+              <div class="ui black deny button">
+                Close
+              </div>
+            </div>
+          </div>
+          <div class="hidden diff" data-file="{{ file }}">
+            <pre>{% for line in diff %}{{ line }}<br>{% endfor %}</pre>
+          </div>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
