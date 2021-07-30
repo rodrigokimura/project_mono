@@ -37,7 +37,12 @@
     <div class="eight wide column">
       <div class="ui note hidden segment"></div>
     </div>
-    <div class="four wide column">
+    <div class="four wide computer only column">
+      <a style="margin-bottom: 1em;" class="ui fluid green icon labeled create button" href="{% url 'notes:note_create' %}" data-tooltip="{% translate 'Create' %}" data-inverted=""><i class="add icon"></i>{% translate 'Create' %}</a>
+      <a style="margin-bottom: 1em;" class="ui fluid yellow icon labeled edit disabled button" data-tooltip="{% translate 'Edit' %}" data-inverted=""><i class="edit icon"></i>{% translate 'Edit' %}</a>
+      <a style="margin-bottom: 1em;" class="ui fluid red icon labeled delete disabled button" data-tooltip="{% translate 'Delete' %}" data-inverted=""><i class="delete icon"></i>{% translate 'Delete' %}</a>
+    </div>
+    <div class="four wide mobile only column">
       <a style="margin-bottom: 1em;" class="ui green icon create button" href="{% url 'notes:note_create' %}" data-tooltip="{% translate 'Create' %}" data-inverted=""><i class="add icon"></i></a>
       <div class="ui right floated buttons">
         <a style="margin-bottom: 1em;" class="ui icon yellow edit disabled button" data-tooltip="{% translate 'Edit' %}" data-inverted=""><i class="edit icon"></i></a>
