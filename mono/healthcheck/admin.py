@@ -6,6 +6,14 @@ from . import models
 
 @admin.register(models.PullRequest)
 class BudgetAdmin(admin.ModelAdmin):
+    # Admin Action Functions
+    def deploy(modeladmin, request, queryset):
+        for pr in queryset:
+            pr.pull()
+            pr.deploy()
+    # Action description
+    deploy.short_description = "Pull and deploy"
+
     list_display = [
         "number",
         "author",
