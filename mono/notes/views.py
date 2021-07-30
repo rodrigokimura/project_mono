@@ -1,9 +1,10 @@
 from typing import Any, Dict
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views import View
 from django.views.generic import ListView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from .models import Note
 from .forms import NoteForm
@@ -11,6 +12,7 @@ from .mixins import PassRequestToFormViewMixin
 from collections import defaultdict
 from django.template import loader
 from django.http import JsonResponse
+from django.utils.translation import gettext as _
 from markdownx.utils import markdownify
 
 
@@ -64,7 +66,7 @@ def generate_tree(tree):
 class NoteCreateView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
     form_class = NoteForm
     template_name = 'notes/note_form.html'
-    success_url = reverse_lazy('notes:note_list')
+    success_url = reverse_lazy('notes:notes')
     success_message = "%(title)s note created successfully"
 
 
@@ -72,7 +74,7 @@ class NoteFormView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormVie
     model = Note
     form_class = NoteForm
     template_name = 'notes/note_form.html'
-    success_url = reverse_lazy('notes:note_list')
+    success_url = reverse_lazy('notes:notes')
     success_message = "%(title)s note created successfully"
 
 
@@ -87,6 +89,7 @@ class NoteDetailApiView(LoginRequiredMixin, View):
                 'text': note.text,
                 'html': markdownify(note.text),
                 'url': note.get_absolute_url(),
+                'delete_url': note.get_delete_url(),
             }
         )
 
@@ -110,3 +113,16 @@ class NoteListView(LoginRequiredMixin, ListView):
         context['subfiles'] = generate_tree(main_dict)
 
         return context
+
+
+class NoteDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    model = Note
+    success_url = reverse_lazy('notes:notes')
+    success_message = _("Note was deleted successfully")
+
+    def test_func(self):
+        return self.get_object().created_by == self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)

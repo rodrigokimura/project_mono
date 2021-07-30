@@ -37,10 +37,17 @@
     <div class="eight wide column">
       <div class="ui note hidden segment"></div>
     </div>
-    <div class="four wide column">
-      <a style="margin-bottom: 1em;" class="ui fluid icon labeled green button" href="{% url 'notes:note_create' %}"><i class="add icon"></i>{% translate "Create" %}</a>
-      <a style="margin-bottom: 1em;" class="ui fluid icon labeled yellow edit disabled button"><i class="edit icon"></i>{% translate "Edit" %}</a>
-      <a style="margin-bottom: 1em;" class="ui fluid icon labeled red delete disabled button"><i class="delete icon"></i>{% translate "Delete" %}</a>
+    <div class="four wide computer only column">
+      <a style="margin-bottom: 1em;" class="ui fluid green icon labeled create button" href="{% url 'notes:note_create' %}" data-tooltip="{% translate 'Create' %}" data-inverted=""><i class="add icon"></i>{% translate 'Create' %}</a>
+      <a style="margin-bottom: 1em;" class="ui fluid yellow icon labeled edit disabled button" data-tooltip="{% translate 'Edit' %}" data-inverted=""><i class="edit icon"></i>{% translate 'Edit' %}</a>
+      <a style="margin-bottom: 1em;" class="ui fluid red icon labeled delete disabled button" data-tooltip="{% translate 'Delete' %}" data-inverted=""><i class="delete icon"></i>{% translate 'Delete' %}</a>
+    </div>
+    <div class="four wide mobile only column">
+      <a style="margin-bottom: 1em;" class="ui green icon create button" href="{% url 'notes:note_create' %}" data-tooltip="{% translate 'Create' %}" data-inverted=""><i class="add icon"></i></a>
+      <div class="ui right floated buttons">
+        <a style="margin-bottom: 1em;" class="ui icon yellow edit disabled button" data-tooltip="{% translate 'Edit' %}" data-inverted=""><i class="edit icon"></i></a>
+        <a style="margin-bottom: 1em;" class="ui icon red delete disabled button" data-tooltip="{% translate 'Delete' %}" data-inverted=""><i class="delete icon"></i></a>
+      </div>
     </div>
   </div>
       
@@ -59,22 +66,25 @@
       `
     );
 
-    const getNote = (id) => {
+    const getNote = id => {
       $.get(
         url=`/nt/api/notes/${id}/`
       )
-      .done(r=>{
+      .done(r => {
         $(".note.segment").html(r.html);
         console.log(r.url);
-        $(".edit.button").attr('href', r.url);
+        $('.ui.note.segment').removeClass('hidden');
+        $('.ui.edit.button')
+          .removeClass('disabled')
+          .attr('href', r.url);
+        $('.ui.delete.button')
+          .removeClass('disabled')
+          .attr('href', r.delete_url);
       })
     }
     
     $('.file.item').click(function(e) {
       getNote($(e.target).closest('.file.item').attr('data-id'));
-      $('.ui.note.segment').removeClass('hidden');
-      $('.ui.edit.button').removeClass('disabled');
-      $('.ui.delete.button').removeClass('disabled');
     });
     
     $('.folder').click(function() {
