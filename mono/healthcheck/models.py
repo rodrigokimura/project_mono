@@ -110,7 +110,6 @@ class PullRequest(models.Model):
     def deploy(self, **kwargs):
         """If in production, reloads the app and notifies admins."""
         try:
-
             if is_database_synchronized():
                 print("All migrations have been applied.")
                 migrations = []
