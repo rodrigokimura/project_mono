@@ -1,24 +1,22 @@
-from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.serializers import ModelSerializer
 from django.contrib.auth.models import User
 from .models import Project, Board, Bucket, Card
 
 
-class UserSerializer(HyperlinkedModelSerializer):
+class UserSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'url',
             'username',
             'email',
             'is_staff'
         ]
 
 
-class ProjectSerializer(HyperlinkedModelSerializer):
+class ProjectSerializer(ModelSerializer):
     class Meta:
         model = Project
         fields = [
-            'url',
             'name',
             'created_by',
             'created_at',
@@ -26,11 +24,10 @@ class ProjectSerializer(HyperlinkedModelSerializer):
         ]
 
 
-class BoardSerializer(HyperlinkedModelSerializer):
+class BoardSerializer(ModelSerializer):
     class Meta:
         model = Board
         fields = [
-            'url',
             'name',
             'created_by',
             'created_at',
@@ -39,24 +36,22 @@ class BoardSerializer(HyperlinkedModelSerializer):
         ]
 
 
-class BucketSerializer(HyperlinkedModelSerializer):
+class BucketSerializer(ModelSerializer):
     class Meta:
         model = Bucket
         fields = [
-            'url',
             'name',
             'created_by',
             'created_at',
-            'project',
-            'assigned_to',
+            'board',
+            'order',
         ]
 
 
-class CardSerializer(HyperlinkedModelSerializer):
+class CardSerializer(ModelSerializer):
     class Meta:
         model = Card
         fields = [
-            'url',
             'name',
             'created_by',
             'created_at',

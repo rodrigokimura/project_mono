@@ -265,9 +265,9 @@ class BucketListAPIView(APIView):
     List all snippets, or create a new snippet.
     """
 
-    def get(self, request, format=None):
-        snippets = Bucket.objects.all()
-        serializer = BucketSerializer(snippets, many=True)
+    def get(self, request, format=None, **kwargs):
+        buckets = Bucket.objects.all()
+        serializer = BucketSerializer(buckets, many=True, context={'request': request})
         return Response(serializer.data)
 
     def post(self, request, format=None):
@@ -290,13 +290,13 @@ class BucketDetailAPIView(APIView):
             raise Http404
 
     def get(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = BucketSerializer(snippet)
+        bucket = self.get_object(pk)
+        serializer = BucketSerializer(bucket)
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = BucketSerializer(snippet, data=request.data)
+        bucket = self.get_object(pk)
+        serializer = BucketSerializer(bucket, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
