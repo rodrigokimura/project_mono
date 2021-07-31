@@ -5,42 +5,62 @@
 {% block body %}
 
 <div class="pusher">
-  
-  
-
-  <div class="ui middle aligned stackable grid container">
+  <div class="ui fluid container">
     
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
+    <div class="row">
+      <div class="ui segment">
+        <div id="board" class="ui cards"></div>
+      </div>
+    </div>
     
-    {% with object as p %}
-    <div class="row">
-      <div class="column">
-        {{ p.name }}
-      </div>
-    </div>
-    {% for board in p.board_set.all %}
-    <div class="row">
-      <div class="column">
-        {{ board.name }}
-      </div>
-    </div>
+    {% with object as b %}
+    {% for bucket in b.bucket_set.all %}
     {% empty %}
-    <div class="row">
-      <div class="column">
-        {% translate "No boards yet" %}
-      </div>
-    </div>
     {% endfor %}
-    <div class="row">
-      <div class="column">
-        <a href="" class="ui button">{% translate "New board" %}</a>
-      </div>
-    </div>
     {% endwith %}
   </div>
 </div>
   
 <script>
   $('*.ui.dropdown').dropdown();
+  const PROJECT_ID = "{{ object.project.id }}";
+  const BOARD_ID = "{{ object.id }}";
+
+  const adjustBoardHeight = () => {
+
+  } 
+
+  let renderBuckets = (containerSelector, buckets) => {
+    $(containerSelector).empty();
+    buckets.forEach(e => {
+      $(containerSelector).append(
+        `
+        <div class="card" style="width: 200px;">
+          <div class="content">
+            ${e.name}
+          </div>
+        </div>
+        `
+      )
+    });
+    $(containerSelector).append(
+      `
+      <div class="ui button">Add</div>
+      `
+    );
+
+  };
+
+  const getBuckets = () => {
+    $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`)
+      .done(r => {
+        renderBuckets(containerSelector='#board', r);
+      })
+      .fail(e => { console.error(e) })
+      .always()
+  };
+
+  getBuckets();
 </script>
 {% endblock %}
