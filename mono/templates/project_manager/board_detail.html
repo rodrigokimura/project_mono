@@ -10,7 +10,7 @@
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
     <div class="row">
       <div class="ui segment">
-        <div id="board" class="ui cards"></div>
+        <div id="board" class="ui cards" style="overflow: scroll; display: flex; flex-flow: row nowrap;"></div>
       </div>
     </div>
     
@@ -36,7 +36,7 @@
     buckets.forEach(e => {
       $(containerSelector).append(
         `
-        <div class="card" style="width: 200px;">
+        <div class="card" style="width: 200px; flex: 0 0 auto;">
           <div class="content">
             ${e.name}
           </div>
