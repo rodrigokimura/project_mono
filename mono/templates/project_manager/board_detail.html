@@ -41,12 +41,13 @@
           <div class="content" style="flex: 0 0 auto;">
             <div class="header">
               ${e.name}
-              <div class="ui right floated tiny basic icon top left dropdown button">
+              <div class="ui right floated basic icon top left pointing dropdown button">
                 <i class="ellipsis horizontal icon"></i>
                 <div class="menu">
-                  <div class="item">Comfortable</div>
-                  <div class="item">Comfortable</div>
-                  <div class="item">Comfortable</div>
+                  <div class="item"><i class="add icon"></i>Add new card</div>
+                  <div class="divider"></div>
+                  <div class="item"><i class="edit icon"></i>Rename this bucket</div>
+                  <div class="item"><i class="delete icon"></i>Delete this bucket</div>
                 </div>
               </div>
             </div>
@@ -59,12 +60,12 @@
       $('.ui.dropdown').dropdown();
       getCards(e.id);
     });
-    $(containerSelector).append(
-      `
-      <div class="ui button">Add</div>
-      `
-    );
-
+    $(containerSelector).append(`<div class="ui add bucket button" style="flex: 0 0 auto">Add new bucket</div>`);
+    
+    e = $('.add.bucket.button').siblings().last()
+    $('.add.bucket.button').css('marginTop', e.css('marginTop'))
+    $('.add.bucket.button').css('marginBottom', e.css('marginBottom'))
+    {% comment %} $('.add.bucket.button').height(e.height()); {% endcomment %}
   };
 
   const renderCards = (containerSelector, cards) => {
