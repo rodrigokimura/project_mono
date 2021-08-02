@@ -369,7 +369,13 @@ class CardDetailAPIView(APIView):
         else:
             raise BadRequest
 
-    def delete(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'])
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'])
+        card = self.get_object(pk)
+        if request.user in card.allowed_users:
+            card.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            raise BadRequest

@@ -42,9 +42,23 @@
     </div>
   </div>
 </div>
+
+<div class="ui delete confirmation tiny modal">
+  <div class="header"></div>
+  <div class="content"></div>
+  <div class="actions">
+    <div class="ui black cancel button">
+      <i class="remove icon"></i>
+      No
+    </div>
+    <div class="ui green ok button">
+      <i class="checkmark icon"></i>
+      Yes
+    </div>
+  </div>
+</div>
   
 <script>
-  {% comment %} $('*.ui.dropdown').dropdown(); {% endcomment %}
   const PROJECT_ID = "{{ object.project.id }}";
   const BOARD_ID = "{{ object.id }}";
 
@@ -204,16 +218,25 @@
   };
 
   const deleteCard = (cardId, bucketId) => {
-    $('body').modal({
-      title: 'Important Notice',
-      class: 'mini',
-      closeIcon: true,
-      content: 'You will be logged out in 5 Minutes',
-      actions: [{
-        text: 'Alright, got it',
-        class: 'green'
-      }]
-    }).modal('show');
+    modal = $('.ui.delete.confirmation.modal')
+    modal
+      .modal({
+        onShow: () => {
+          modal.find('.header').text('Delete card');
+          modal.find('.content').text(`Are you sure you want to delete card ${cardId}?`);
+        },
+        onApprove: () => {
+          $.ajax({
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}`,
+            type: 'DELETE',
+            headers: {'X-CSRFToken': csrftoken},
+            success: function(result) {
+              getBuckets();
+            }
+          });
+        }
+      })
+      .modal('show');
   };
 
   adjustBoardHeight();
