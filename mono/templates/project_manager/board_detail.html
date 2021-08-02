@@ -8,17 +8,13 @@
   <div class="ui fluid container">
     
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
+
     <div class="row">
       <div class="ui segment">
         <div id="board" class="ui cards" style="overflow: auto; display: flex; flex-flow: row nowrap;"></div>
       </div>
     </div>
     
-    {% with object as b %}
-    {% for bucket in b.bucket_set.all %}
-    {% empty %}
-    {% endfor %}
-    {% endwith %}
   </div>
 </div>
   
@@ -27,22 +23,40 @@
   const PROJECT_ID = "{{ object.project.id }}";
   const BOARD_ID = "{{ object.id }}";
 
-  const adjustBoardHeight = () => {
-
+  const adjustBoardHeight = (boardSelector='#board') => {
+    $(boardSelector).height(
+      $(window).height()
+      -$(boardSelector).offset().top
+      -$(boardSelector).css('marginBottom').replace('px', '').replace('-', '')
+      // -50
+    );
   } 
 
-  let renderBuckets = (containerSelector, buckets) => {
+  const renderBuckets = (containerSelector, buckets) => {
     $(containerSelector).empty();
     buckets.forEach(e => {
       $(containerSelector).append(
         `
-        <div class="card" style="width: 200px; flex: 0 0 auto;" id="bucket-${e.id}">
-          <div class="content">
-            ${e.name}
+        <div class="ui card" style="width: 300px; flex: 0 0 auto; display: flex;">
+          <div class="content" style="flex: 0 0 auto;">
+            <div class="header">
+              ${e.name}
+              <div class="ui right floated tiny basic icon top left dropdown button">
+                <i class="ellipsis horizontal icon"></i>
+                <div class="menu">
+                  <div class="item">Comfortable</div>
+                  <div class="item">Comfortable</div>
+                  <div class="item">Comfortable</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="extra content" id="bucket-${e.id}" style="flex: 1 0 auto;">
           </div>
         </div>
         `
       );
+      $('.ui.dropdown').dropdown();
       getCards(e.id);
     });
     $(containerSelector).append(
@@ -51,6 +65,32 @@
       `
     );
 
+  };
+
+  const renderCards = (containerSelector, cards) => {
+    $(containerSelector).empty();
+    cards.forEach(e => {
+      console.log(e)
+      $(containerSelector).append(
+        `
+        <div class="ui card">
+          <div class="content">
+            <div class="header">
+              ${e.name}
+              <div class="ui right floated tiny basic icon button">
+                <i class="ellipsis horizontal icon"></i>
+              </div>
+            </div>
+            <div class="meta">
+              ${e.description}
+            </div>
+          </div>
+          <div class="extra content">
+          </div>
+        </div>
+        `
+      );
+    });
   };
 
   const getBuckets = () => {
@@ -65,12 +105,13 @@
   const getCards = bucketId => {
     $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`)
       .done(r => {
-        console.log(r);
+        renderCards(containerSelector=`#bucket-${bucketId}` , r);
       })
       .fail(e => { console.error(e) })
       .always()
   };
 
+  adjustBoardHeight();
   getBuckets();
 </script>
 {% endblock %}

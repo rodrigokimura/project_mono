@@ -54,6 +54,7 @@ class CardSerializer(ModelSerializer):
         model = Card
         fields = [
             'id',
+            'name',
             'bucket',
             'order',
             'assigned_to',
