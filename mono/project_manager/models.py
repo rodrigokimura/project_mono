@@ -32,6 +32,10 @@ class Board(BaseModel):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     assigned_to = models.ManyToManyField(User, related_name="assigned_boards")
 
+    @property
+    def allowed_users(self):
+        return self.assigned_to.union(User.objects.filter(id=self.created_by.id))
+
 
 class Bucket(BaseModel):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
@@ -46,6 +50,10 @@ class Card(BaseModel):
     files = models.FileField(upload_to=None, max_length=100, blank=True, null=True)
     completed_at = models.DateTimeField(blank=True, null=True)
     completed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="completed_cards", blank=True, null=True)
+
+    @property
+    def allowed_users(self):
+        return self.bucket.board.allowed_users
     # progress
 
 

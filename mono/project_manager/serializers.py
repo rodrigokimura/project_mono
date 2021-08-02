@@ -62,3 +62,8 @@ class CardSerializer(ModelSerializer):
             'completed_by',
             'completed_at',
         ]
+        extra_kwargs = {'created_by': {'read_only': True}}
+
+    # def save(self, user):
+    #     self.created_by = user
+    #     super().save()

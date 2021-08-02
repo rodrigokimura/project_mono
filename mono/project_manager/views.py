@@ -1,3 +1,4 @@
+from django.core.exceptions import BadRequest
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -270,7 +271,7 @@ class BucketListAPIView(APIView):
         serializer = BucketSerializer(buckets, many=True, context={'request': request})
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request, format=None, **kwargs):
         serializer = BucketSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -324,12 +325,18 @@ class CardListAPIView(APIView):
         serializer = CardSerializer(cards, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
-        serializer = CardSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'])
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'])
+        if request.user in board.allowed_users:
+            serializer = CardSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(created_by=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return BadRequest
 
 
 class CardDetailAPIView(APIView):
@@ -348,13 +355,19 @@ class CardDetailAPIView(APIView):
         serializer = CardSerializer(snippet)
         return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = CardSerializer(snippet, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'])
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'])
+        card = self.get_object(pk)
+        if request.user in card.allowed_users:
+            serializer = CardSerializer(card, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise BadRequest
 
     def delete(self, request, pk, format=None):
         snippet = self.get_object(pk)
