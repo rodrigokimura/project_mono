@@ -41,11 +41,11 @@ class Bucket(BaseModel):
 class Card(BaseModel):
     bucket = models.ForeignKey(Bucket, on_delete=models.CASCADE)
     order = models.IntegerField()
-    assigned_to = models.ManyToManyField(User, related_name="assigned_cards")
-    description = models.TextField(max_length=255)
-    files = models.FileField(upload_to=None, max_length=100)
-    completed_at = models.DateTimeField()
-    completed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="completed_cards")
+    assigned_to = models.ManyToManyField(User, related_name="assigned_cards", blank=True)
+    description = models.TextField(max_length=255, blank=True, null=True)
+    files = models.FileField(upload_to=None, max_length=100, blank=True, null=True)
+    completed_at = models.DateTimeField(blank=True, null=True)
+    completed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="completed_cards", blank=True, null=True)
     # progress
 
 

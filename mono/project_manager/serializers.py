@@ -40,6 +40,7 @@ class BucketSerializer(ModelSerializer):
     class Meta:
         model = Bucket
         fields = [
+            'id',
             'name',
             'created_by',
             'created_at',
@@ -52,9 +53,11 @@ class CardSerializer(ModelSerializer):
     class Meta:
         model = Card
         fields = [
-            'name',
-            'created_by',
-            'created_at',
-            'project',
+            'id',
+            'bucket',
+            'order',
             'assigned_to',
+            'description',
+            'completed_by',
+            'completed_at',
         ]

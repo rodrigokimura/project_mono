@@ -313,9 +313,15 @@ class CardListAPIView(APIView):
     List all snippets, or create a new snippet.
     """
 
-    def get(self, request, format=None):
-        snippets = Card.objects.all()
-        serializer = CardSerializer(snippets, many=True)
+    def get(self, request, format=None, **kwargs):
+        project_pk = kwargs.get('project_pk')
+        board_pk = kwargs.get('board_pk')
+        bucket_pk = kwargs.get('bucket_pk')
+        project = Project.objects.get(id=project_pk)
+        board = Board.objects.get(project=project, id=board_pk)
+        bucket = Bucket.objects.get(board=board, id=bucket_pk)
+        cards = Card.objects.filter(bucket=bucket)
+        serializer = CardSerializer(cards, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
