@@ -17,9 +17,34 @@
     
   </div>
 </div>
+
+<div class="ui card modal">
+  <i class="close icon"></i>
+  <div class="header">
+    <div class="ui fluid input">
+      <input type=text name="name" placeholder="Name">
+    </div>
+  </div>
+  <div class="content">
+    <div class="ui form">
+      <div class="field">
+        <input type="hidden" name="id">
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <input type="text" name="description" placeholder="Description">
+      </div>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui black deny labeled icon button"><i class="delete icon"></i>Cancel</div>
+    <div class="ui positive right labeled icon button">Save<i class="save icon"></i>
+    </div>
+  </div>
+</div>
   
 <script>
-  $('*.ui.dropdown').dropdown();
+  {% comment %} $('*.ui.dropdown').dropdown(); {% endcomment %}
   const PROJECT_ID = "{{ object.project.id }}";
   const BOARD_ID = "{{ object.id }}";
 
@@ -28,23 +53,22 @@
       $(window).height()
       -$(boardSelector).offset().top
       -$(boardSelector).css('marginBottom').replace('px', '').replace('-', '')
-      // -50
     );
   } 
 
   const renderBuckets = (containerSelector, buckets) => {
     $(containerSelector).empty();
-    buckets.forEach(e => {
+    buckets.forEach(bucket => {
       $(containerSelector).append(
         `
         <div class="ui card" style="width: 300px; flex: 0 0 auto; display: flex;">
           <div class="content" style="flex: 0 0 auto;">
             <div class="header">
-              ${e.name}
+              ${bucket.name}
               <div class="ui right floated basic icon top left pointing dropdown button">
                 <i class="ellipsis horizontal icon"></i>
                 <div class="menu">
-                  <div class="item"><i class="add icon"></i>Add new card</div>
+                  <div class="add card item" data-bucket-id="${bucket.id}"><i class="add icon"></i>Add new card</div>
                   <div class="divider"></div>
                   <div class="item"><i class="edit icon"></i>Rename this bucket</div>
                   <div class="item"><i class="delete icon"></i>Delete this bucket</div>
@@ -52,38 +76,43 @@
               </div>
             </div>
           </div>
-          <div class="extra content" id="bucket-${e.id}" style="flex: 1 0 auto;">
+          <div class="extra content" id="bucket-${bucket.id}" style="flex: 1 0 auto;">
           </div>
         </div>
         `
       );
-      $('.ui.dropdown').dropdown();
-      getCards(e.id);
+      $('.ui.dropdown').dropdown({action: 'hide'});
+      $(`.add.card.item[data-bucket-id=${bucket.id}]`).click(e => {showCardModal(card=null, bucket.id);});
+      getCards(bucket.id);
     });
     $(containerSelector).append(`<div class="ui add bucket button" style="flex: 0 0 auto">Add new bucket</div>`);
     
     e = $('.add.bucket.button').siblings().last()
     $('.add.bucket.button').css('marginTop', e.css('marginTop'))
     $('.add.bucket.button').css('marginBottom', e.css('marginBottom'))
-    {% comment %} $('.add.bucket.button').height(e.height()); {% endcomment %}
   };
 
-  const renderCards = (containerSelector, cards) => {
+  const renderCards = (containerSelector, cards, bucketId) => {
     $(containerSelector).empty();
-    cards.forEach(e => {
-      console.log(e)
+    cards.forEach(card => {
       $(containerSelector).append(
         `
         <div class="ui card">
           <div class="content">
             <div class="header">
-              ${e.name}
-              <div class="ui right floated tiny basic icon button">
+              ${card.name}
+              <div class="ui right floated basic icon top left pointing dropdown button">
                 <i class="ellipsis horizontal icon"></i>
+                <div class="menu">
+                  <div class="item"><i class="add icon"></i>Add new card</div>
+                  <div class="divider"></div>
+                  <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
+                  <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>Delete this card</div>
+                </div>
               </div>
             </div>
             <div class="meta">
-              ${e.description}
+              ${card.description}
             </div>
           </div>
           <div class="extra content">
@@ -91,6 +120,9 @@
         </div>
         `
       );
+      $('.ui.dropdown').dropdown({action: 'hide'});
+      $(`.edit.card.item[data-card-id=${card.id}]`).click(e => {showCardModal(card, bucketId);});
+      $(`.delete.card.item[data-card-id=${card.id}]`).click(e => {deleteCard(card.id, bucketId);});
     });
   };
 
@@ -106,10 +138,82 @@
   const getCards = bucketId => {
     $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`)
       .done(r => {
-        renderCards(containerSelector=`#bucket-${bucketId}` , r);
+        renderCards(containerSelector=`#bucket-${bucketId}` , r, bucketId);
       })
       .fail(e => { console.error(e) })
       .always()
+  };
+
+  const showCardModal = (card=null, bucketId) => {
+    var create;
+    modal = $('.ui.card.modal')
+    if (card!=null) {
+      create = false;
+      modal.find('input[name=id]').val(card.id);
+      modal.find('input[name=name]').val(card.name);
+      modal.find('input[name=description]').val(card.description);
+    } else {
+      create = true;
+      modal.find('input[name=id]').val('');
+      modal.find('input[name=name]').val('');
+      modal.find('input[name=description]').val('');
+    };
+    modal
+      .modal({
+        restoreFocus: false,
+        transition: 'scale',
+        duration: 400,
+        onApprove: el => {
+          name = modal.find('input[name=name]').val();
+          description = modal.find('input[name=description]').val();
+          if (create === true) {
+            $.ajax({
+              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
+              type: 'POST',
+              headers: {'X-CSRFToken': csrftoken},
+              data: {
+                name: name,
+                bucket: bucketId,
+                description: description,
+                order: 1
+              },
+              success: function(result) {
+                getBuckets();
+              }
+            });
+          } else {
+            id = modal.find('input[name=id]').val();
+            $.ajax({
+              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`,
+              type: 'PUT',
+              headers: {'X-CSRFToken': csrftoken},
+              data: {
+                name: name,
+                bucket: bucketId,
+                description: description,
+                order: 1
+              },
+              success: function(result) {
+                getBuckets();
+              }
+            });
+          }
+        }
+      })
+      .modal('show');
+  };
+
+  const deleteCard = (cardId, bucketId) => {
+    $('body').modal({
+      title: 'Important Notice',
+      class: 'mini',
+      closeIcon: true,
+      content: 'You will be logged out in 5 Minutes',
+      actions: [{
+        text: 'Alright, got it',
+        class: 'green'
+      }]
+    }).modal('show');
   };
 
   adjustBoardHeight();
