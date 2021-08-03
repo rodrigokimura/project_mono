@@ -19,5 +19,5 @@ def language_extras(request):
     }
 
 
-def analytical_app(request):
-    return {'CLICKY_SITE_ID': settings.CLICKY_SITE_ID}
+# def analytical_app(request):
+#     return {'CLICKY_SITE_ID': settings.CLICKY_SITE_ID}

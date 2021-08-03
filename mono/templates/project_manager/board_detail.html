@@ -3,44 +3,482 @@
 {% load i18n %}
 
 {% block body %}
+<script src="{% static 'js/dragula.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
 
 <div class="pusher">
-  
-  
-
-  <div class="ui middle aligned stackable grid container">
+  <div class="ui fluid container">
     
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
+
+    <div class="row">
+      <div class="ui segment">
+        <div id="board" class="ui cards buckets-drake" style="overflow: auto; display: flex; flex-flow: row nowrap;"></div>
+      </div>
+    </div>
     
-    {% with object as p %}
-    <div class="row">
-      <div class="column">
-        {{ p.name }}
+  </div>
+</div>
+
+<div class="ui card small modal">
+  <i class="close icon"></i>
+  <div class="header">
+    <div class="ui fluid input">
+      <input type=text name="name" placeholder="Name">
+    </div>
+  </div>
+  <div class="content">
+    <div class="ui form">
+      <div class="field">
+        <input type="hidden" name="id">
+      </div>
+      <div class="field">
+        <input type="hidden" name="order">
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <input type="text" name="description" placeholder="Description">
       </div>
     </div>
-    {% for board in p.board_set.all %}
-    <div class="row">
-      <div class="column">
-        {{ board.name }}
+  </div>
+  <div class="actions">
+    <div class="ui black deny labeled icon button"><i class="delete icon"></i>Cancel</div>
+    <div class="ui positive right labeled icon button">Save<i class="save icon"></i>
+    </div>
+  </div>
+</div>
+
+<div class="ui bucket small modal">
+  <i class="close icon"></i>
+  <div class="header">
+    <div class="ui fluid input">
+      <input type=text name="name" placeholder="Name">
+    </div>
+  </div>
+  <div class="content">
+    <div class="ui form">
+      <div class="field">
+        <input type="hidden" name="id">
+      </div>
+      <div class="field">
+        <input type="hidden" name="order">
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <input type="text" name="description" placeholder="Description">
       </div>
     </div>
-    {% empty %}
-    <div class="row">
-      <div class="column">
-        {% translate "No boards yet" %}
-      </div>
+  </div>
+  <div class="actions">
+    <div class="ui black deny labeled icon button"><i class="delete icon"></i>Cancel</div>
+    <div class="ui positive right labeled icon button">Save<i class="save icon"></i>
     </div>
-    {% endfor %}
-    <div class="row">
-      <div class="column">
-        <a href="" class="ui button">{% translate "New board" %}</a>
-      </div>
+  </div>
+</div>
+
+<div class="ui delete confirmation tiny modal">
+  <div class="header"></div>
+  <div class="content"></div>
+  <div class="actions">
+    <div class="ui black cancel button">
+      <i class="remove icon"></i>
+      No
     </div>
-    {% endwith %}
+    <div class="ui green ok button">
+      <i class="checkmark icon"></i>
+      Yes
+    </div>
   </div>
 </div>
   
 <script>
-  $('*.ui.dropdown').dropdown();
+  const PROJECT_ID = "{{ object.project.id }}";
+  const BOARD_ID = "{{ object.id }}";
+  var intervals = [];
+
+  var cardsDrake = dragula({
+    isContainer: el => $(el).hasClass('cards-drake'),
+    moves: (el, source, handle, sibling) => 
+      $(el).hasClass('card-el') 
+      && (
+        $(handle).hasClass('handle') // use button as handle
+        || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
+      ),
+    direction: 'vertical'
+  });
+
+  var bucketsDrake = dragula({
+    isContainer: el => $(el).hasClass('buckets-drake'),
+    moves: (el, source, handle, sibling) => 
+      $(el).hasClass('bucket-el') 
+      && (
+        $(handle).hasClass('handle') // use button as handle
+        || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
+      ),
+    invalid: (el, handle) => $(el).hasClass('card-el'),
+    direction: 'horizontal'
+  });
+
+  cardsDrake.on('drop', (el, target, source, sibling) => {
+    source_bucket = $(source).attr('id').replace('bucket-', '');
+    target_bucket = $(target).attr('id').replace('bucket-', '');
+    card = $(el).attr('data-card-id');
+    order = $(target).children().toArray().findIndex(e => e == el) + 1;
+    $.ajax({
+      url: `/pm/api/card_move/`,
+      type: 'POST',
+      headers: {'X-CSRFToken': csrftoken},
+      data: {
+        source_bucket: source_bucket,
+        target_bucket: target_bucket,
+        card: card,
+        order: order,
+      },
+      success: function(result) {}
+    });
+  });
+
+  bucketsDrake.on('drop', (el, target, source, sibling) => {
+    bucket = $(el).attr('data-bucket-id');
+    order = $(target).children().toArray().findIndex(e => e == el) + 1;
+    $.ajax({
+      url: `/pm/api/bucket_move/`,
+      type: 'POST',
+      headers: {'X-CSRFToken': csrftoken},
+      data: {
+        bucket: bucket,
+        board: BOARD_ID,
+        order: order,
+      },
+      success: function(result) {}
+    });
+  });
+
+  const adjustBoardHeight = (boardSelector='#board') => {
+    $(boardSelector).height(
+      $(window).height()
+      -$(boardSelector).offset().top
+      -$(boardSelector).css('marginBottom').replace('px', '').replace('-', '')
+    );
+  };
+
+  const str = seconds => {
+    function pad(num, size=2) {
+      num = num.toString();
+      while (num.length < size) num = "0" + num;
+      return num;
+    }
+
+    var d = Math.floor((seconds % 31536000) / 86400) + 'd'; 
+    var h = Math.floor(((seconds % 31536000) % 86400) / 3600);
+    var m = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
+    var s = Math.floor((((seconds % 31536000) % 86400) % 3600) % 60);
+    return `${d > 0 ? d : ''} ${pad(h)}:${pad(m)}:${pad(s)}`;
+  };
+
+  const incrementSecond = (cardId) => {
+    element = $(`.total-time[data-card-id=${cardId}]`)
+    time = element.attr('data-time')
+    time++
+    element.attr('data-time', time)
+    element.text(str(time))
+  };
+
+  const clearIntervals = () => {
+    intervals.forEach(el => {clearInterval(el)});
+    intervals = [];
+  };
+
+  const loadBoard = () => {
+    adjustBoardHeight();
+    clearIntervals();
+    getBuckets();
+  };
+
+  const renderBuckets = (containerSelector, buckets) => {
+    $(containerSelector).empty();
+    buckets.forEach(bucket => {
+      $(containerSelector).append(
+        `
+        <div class="ui card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex;">
+          <div class="content" style="flex: 0 0 auto;">
+            <div class="header">
+              ${bucket.name}
+              <div class="ui right floated basic icon top left pointing dropdown handle button">
+                <i class="ellipsis horizontal icon"></i>
+                <div class="menu">
+                  <div class="add card item" data-bucket-id="${bucket.id}"><i class="add icon"></i>Add new card</div>
+                  <div class="divider"></div>
+                  <div class="edit bucket item" data-bucket-id="${bucket.id}"><i class="edit icon"></i>Edit this bucket</div>
+                  <div class="delete bucket item" data-bucket-id="${bucket.id}"><i class="delete icon"></i>Delete this bucket</div>
+                </div>
+              </div>
+            </div>
+            <div class="meta">
+              ${bucket.description ? bucket.description : ''}
+            </div>
+          </div>
+          <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 0 auto;">
+          </div>
+        </div>
+        `
+      );
+      $('.ui.dropdown').dropdown({action: 'hide'});
+      $(`.add.card.item[data-bucket-id=${bucket.id}]`).click(e => {showCardModal(card=null, bucket.id);});
+      $(`.edit.bucket.item[data-bucket-id=${bucket.id}]`).click(e => {showBucketModal(bucket);});
+      $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).click(e => {deleteBucket(bucket.id);});
+      getCards(bucket.id);
+    });
+    $(containerSelector).append(`<div class="ui add bucket button" style="flex: 0 0 auto">Add new bucket</div>`);
+    $(`.add.bucket.button`).click(e => {showBucketModal();});
+    
+    e = $('.add.bucket.button').siblings().last()
+    $('.add.bucket.button').css('marginTop', e.css('marginTop'))
+    $('.add.bucket.button').css('marginBottom', e.css('marginBottom'))
+  };
+
+  const renderCards = (containerSelector, cards, bucketId) => {
+    $(containerSelector).empty();
+    cards.forEach(card => {
+      $(containerSelector).append(
+        `
+        <div class="ui raised ${card.is_running ? 'red ' : ''}card card-el" data-card-id="${card.id}">
+          <div class="content">
+            <div class="header">
+              ${card.name}
+              <div class="ui right floated basic icon top left pointing dropdown handle button">
+                <i class="ellipsis horizontal icon"></i>
+                <div class="menu">
+                  <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
+                  <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>Delete this card</div>
+                  <div class="divider"></div>
+                  <div class="start-stop-timer card item" data-card-id="${card.id}"><i class="stopwatch icon"></i>Start/stop timer</div>
+                </div>
+              </div>
+            </div>
+            <div class="meta">
+              ${card.description ? card.description : ''}
+            </div>
+          </div>
+          <div class="extra content">
+            <span class="right floated total-time" data-card-id="${card.id}" data-time="${card.total_time}">${card.total_time > 0 ? str(card.total_time) : ''}</span>
+          </div>
+        </div>
+        `
+      );
+      $('.ui.dropdown').dropdown({action: 'hide'});
+      $(`.edit.card.item[data-card-id=${card.id}]`).click(e => {showCardModal(card, bucketId);});
+      $(`.delete.card.item[data-card-id=${card.id}]`).click(e => {deleteCard(card.id, bucketId);});
+      $(`.start-stop-timer.card.item[data-card-id=${card.id}]`).click(e => {startStopTimer(card.id, bucketId);});
+      if (card.is_running) {
+        intervals.push(setInterval(() => {incrementSecond(card.id)}, 1000));
+      };
+    });
+  };
+
+  const getBuckets = () => {
+    $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`)
+      .done(r => {
+        renderBuckets(containerSelector='#board', r);
+      })
+      .fail(e => { console.error(e) })
+      .always()
+  };
+
+  const getCards = bucketId => {
+    $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`)
+      .done(r => {
+        renderCards(containerSelector=`#bucket-${bucketId}` , r, bucketId);
+      })
+      .fail(e => { console.error(e) })
+      .always()
+  };
+
+  const showCardModal = (card=null, bucketId) => {
+    var create;
+    modal = $('.ui.card.modal')
+    if (card!=null) {
+      create = false;
+      modal.find('input[name=id]').val(card.id);
+      modal.find('input[name=name]').val(card.name);
+      modal.find('input[name=description]').val(card.description);
+      modal.find('input[name=order]').val(card.order);
+    } else {
+      create = true;
+      modal.find('input[name=id]').val('');
+      modal.find('input[name=name]').val('');
+      modal.find('input[name=description]').val('');
+      modal.find('input[name=order]').val('');
+    };
+    modal
+      .modal({
+        restoreFocus: false,
+        transition: 'scale',
+        duration: 400,
+        onApprove: el => {
+          name = modal.find('input[name=name]').val();
+          description = modal.find('input[name=description]').val();
+          order = modal.find('input[name=order]').val();
+          if (create === true) {
+            $.ajax({
+              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
+              type: 'POST',
+              headers: {'X-CSRFToken': csrftoken},
+              data: {
+                name: name,
+                bucket: bucketId,
+                description: description,
+                order: 0,
+              },
+              success: function(result) {
+                loadBoard();
+              }
+            });
+          } else {
+            id = modal.find('input[name=id]').val();
+            $.ajax({
+              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`,
+              type: 'PUT',
+              headers: {'X-CSRFToken': csrftoken},
+              data: {
+                name: name,
+                bucket: bucketId,
+                description: description,
+                order: order
+              },
+              success: function(result) {
+                loadBoard();
+              }
+            });
+          }
+        }
+      })
+      .modal('show');
+  };
+
+  const deleteCard = (cardId, bucketId) => {
+    modal = $('.ui.delete.confirmation.modal')
+    modal
+      .modal({
+        onShow: () => {
+          modal.find('.header').text('Delete card');
+          modal.find('.content').text(`Are you sure you want to delete card ${cardId}?`);
+        },
+        onApprove: () => {
+          $.ajax({
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}`,
+            type: 'DELETE',
+            headers: {'X-CSRFToken': csrftoken},
+            success: function(result) {
+              loadBoard();
+            }
+          });
+        }
+      })
+      .modal('show');
+  };
+
+  const showBucketModal = (bucket=null) => {
+    var create;
+    const modal = $('.ui.bucket.modal');
+    if (bucket != null) {
+      create = false;
+      modal.find('input[name=id]').val(bucket.id);
+      modal.find('input[name=name]').val(bucket.name);
+      modal.find('input[name=description]').val(bucket.description);
+      modal.find('input[name=order]').val(bucket.order);
+    } else {
+      create = true;
+      modal.find('input[name=id]').val('');
+      modal.find('input[name=name]').val('');
+      modal.find('input[name=description]').val('');
+      modal.find('input[name=order]').val('');
+    };
+    modal
+      .modal({
+        restoreFocus: false,
+        transition: 'scale',
+        duration: 400,
+        onApprove: el => {
+          name = modal.find('input[name=name]').val();
+          description = modal.find('input[name=description]').val();
+          order = modal.find('input[name=order]').val();
+          if (create === true) {
+            $.ajax({
+              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`,
+              type: 'POST',
+              headers: {'X-CSRFToken': csrftoken},
+              data: {
+                name: name,
+                board: BOARD_ID,
+                description: description,
+                order: 0,
+              },
+              success: function(result) {
+                loadBoard();
+              }
+            });
+          } else {
+            id = modal.find('input[name=id]').val();
+            $.ajax({
+              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${id}/`,
+              type: 'PUT',
+              headers: {'X-CSRFToken': csrftoken},
+              data: {
+                name: name,
+                board: BOARD_ID,
+                description: description,
+                order: order
+              },
+              success: function(result) {
+                loadBoard();
+              }
+            });
+          }
+        }
+      })
+      .modal('show');
+  };
+
+  const deleteBucket = (bucketId) => {
+    modal = $('.ui.delete.confirmation.modal')
+    modal
+      .modal({
+        onShow: () => {
+          modal.find('.header').text('Delete bucket');
+          modal.find('.content').text(`Are you sure you want to delete bucket ${bucketId}?`);
+        },
+        onApprove: () => {
+          $.ajax({
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/`,
+            type: 'DELETE',
+            headers: {'X-CSRFToken': csrftoken},
+            success: function(result) {
+              loadBoard();
+            }
+          });
+        }
+      })
+      .modal('show');
+  };
+
+  const startStopTimer = (cardId, bucketId) => {
+    $.ajax({
+      url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/timer/`,
+      type: 'POST',
+      headers: {'X-CSRFToken': csrftoken},
+      success: function(result) {
+        if (result.action == 'start') {
+          $('body').toast({message: `Timer started for card ${cardId}.`});
+        } else if (result.action == 'stop') {
+          $('body').toast({message: `Timer stopped for card ${cardId}.`});
+        };
+        loadBoard();
+      }
+    });
+  };
+
+  loadBoard();
+
 </script>
 {% endblock %}

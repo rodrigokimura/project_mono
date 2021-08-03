@@ -1,5 +1,11 @@
+from datetime import timedelta
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
+from django.db.models import Sum, Value as V, DurationField
+from django.db.models.functions import Coalesce
+
 
 User = get_user_model()
 
@@ -32,24 +38,113 @@ class Board(BaseModel):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     assigned_to = models.ManyToManyField(User, related_name="assigned_boards")
 
+    @property
+    def allowed_users(self):
+        return self.assigned_to.union(User.objects.filter(id=self.created_by.id))
+
+    @property
+    def max_order(self):
+        return max([bucket.order for bucket in self.bucket_set.all()])
+
 
 class Bucket(BaseModel):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     order = models.IntegerField()
+    description = models.TextField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        ordering = [
+            "board__project",
+            "board",
+            "order",
+        ]
+
+    @property
+    def max_order(self):
+        return max([card.order for card in self.card_set.all()])
+
+    def sort(self):
+        for index, card in enumerate(self.card_set.all()):
+            card.order = index + 1
+            card.save()
 
 
 class Card(BaseModel):
     bucket = models.ForeignKey(Bucket, on_delete=models.CASCADE)
     order = models.IntegerField()
-    assigned_to = models.ManyToManyField(User, related_name="assigned_cards")
-    description = models.TextField(max_length=255)
-    files = models.FileField(upload_to=None, max_length=100)
-    completed_at = models.DateTimeField()
-    completed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="completed_cards")
-    # progress
+    assigned_to = models.ManyToManyField(User, related_name="assigned_cards", blank=True)
+    description = models.TextField(max_length=255, blank=True, null=True)
+    files = models.FileField(upload_to=None, max_length=100, blank=True, null=True)
+    completed_at = models.DateTimeField(blank=True, null=True)
+    completed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="completed_cards", blank=True, null=True)
+
+    @property
+    def allowed_users(self):
+        return self.bucket.board.allowed_users
+
+    @property
+    def is_running(self):
+        return self.timeentry_set.filter(stopped_at__isnull=True).exists()
+
+    @property
+    def total_time(self):
+        stopped_entries = self.timeentry_set.filter(
+            stopped_at__isnull=False
+        )
+        running_entries = self.timeentry_set.filter(
+            stopped_at__isnull=True
+        )
+        stopped_entries_duration = stopped_entries.aggregate(
+            duration=Coalesce(Sum("duration"), V(0), output_field=DurationField())
+        )['duration']
+        running_entries_duration = sum([timezone.now() - entry.started_at for entry in running_entries], timedelta())
+        return stopped_entries_duration + running_entries_duration
+
+    def start_stop_timer(self, user):
+        running_time_entries = self.timeentry_set.filter(stopped_at__isnull=True)
+        if running_time_entries.exists():
+            for time_entry in running_time_entries:
+                time_entry.stopped_at = timezone.now()
+                time_entry.save()
+            return {'action': 'stop'}
+        else:
+            TimeEntry.objects.create(
+                name="Time entry",
+                card=self,
+                started_at=timezone.now(),
+                created_by=user
+            )
+            return {'action': 'start'}
+
+    class Meta:
+        ordering = [
+            "bucket__board__project",
+            "bucket__board",
+            "bucket",
+            "order",
+        ]
 
 
 class Item(BaseModel):
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
     checked_at = models.DateTimeField()
     checked_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="checked_items")
+
+
+class TimeEntry(BaseModel):
+    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    started_at = models.DateTimeField()
+    stopped_at = models.DateTimeField(blank=True, null=True)
+    duration = models.DurationField(blank=True, null=True, editable=False)
+
+    class Meta:
+        verbose_name = _("time entry")
+        verbose_name_plural = _("time entries")
+
+    @property
+    def is_running(self):
+        return self.stopped_at is None
+
+    @property
+    def is_stoppped(self):
+        return self.stopped_at is not None

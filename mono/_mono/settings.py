@@ -133,7 +133,7 @@ TEMPLATES = [
             'context_processors': [
                 '_mono.context_processors.environment',
                 '_mono.context_processors.language_extras',
-                '_mono.context_processors.analytical_app',
+                # '_mono.context_processors.analytical_app',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -282,7 +282,7 @@ REST_FRAMEWORK = {
 }
 
 # ANALYTICAL APP CONFIG
-CLICKY_SITE_ID = '101311237'
+# CLICKY_SITE_ID = '101311237'
 GOOGLE_ANALYTICS_GTAG_PROPERTY_ID = 'G-7MZ1SHW9YC'
 GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-194514221-1'
 
