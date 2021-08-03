@@ -14,7 +14,7 @@
 
     <div class="row">
       <div class="ui segment">
-        <div id="board" class="ui cards" style="overflow: auto; display: flex; flex-flow: row nowrap;"></div>
+        <div id="board" class="ui cards buckets-drake" style="overflow: auto; display: flex; flex-flow: row nowrap;"></div>
       </div>
     </div>
     
@@ -69,7 +69,15 @@
   const BOARD_ID = "{{ object.id }}";
 
   var cardsDrake = dragula({
-    isContainer: el => $(el).hasClass('cards-drake')
+    isContainer: el => $(el).hasClass('cards-drake'),
+    direction: 'vertical'
+  })
+
+  var bucketsDrake = dragula({
+    isContainer: el => $(el).hasClass('buckets-drake'),
+    moves: (el, source, handle, sibling) => $(el).hasClass('bucket-el'),
+    invalid: (el, handle) => $(el).hasClass('card-el'),
+    direction: 'horizontal'
   })
 
   cardsDrake.on('drop', (el, target, source, sibling) => {
@@ -104,7 +112,7 @@
     buckets.forEach(bucket => {
       $(containerSelector).append(
         `
-        <div class="ui card" style="width: 300px; flex: 0 0 auto; display: flex;">
+        <div class="ui card bucket-el" style="width: 300px; flex: 0 0 auto; display: flex;">
           <div class="content" style="flex: 0 0 auto;">
             <div class="header">
               ${bucket.name}
@@ -140,7 +148,7 @@
     cards.forEach(card => {
       $(containerSelector).append(
         `
-        <div class="ui card" data-card-id="${card.id}">
+        <div class="ui card card-el" data-card-id="${card.id}">
           <div class="content">
             <div class="header">
               ${card.name}
