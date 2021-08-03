@@ -99,25 +99,7 @@ class ProjectDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(ProjectDeleteView, self).delete(request, *args, **kwargs)
-
-
-class BoardListView(ListView):
-    model = Board
-    paginate_by = 100
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('Project Manager', reverse('project_manager:projects')),
-            ('Boards', None),
-        ]
-        return context
-
-    def get_queryset(self, **kwargs):
-        qs = super().get_queryset()
-        return qs
+        return super().delete(request, *args, **kwargs)
 
 
 class BoardDetailView(DetailView):
@@ -140,6 +122,10 @@ class BoardCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     success_url = reverse_lazy('project_manager:boards')
     success_message = "%(name)s was created successfully"
 
+    def get_success_url(self, **kwargs) -> str:
+        success_url = reverse_lazy('project_manager:project_detail', args=[str(self.request.POST.get('project'))])
+        return success_url
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = [
@@ -155,6 +141,10 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     form_class = BoardForm
     success_url = reverse_lazy('project_manager:boards')
     success_message = "%(name)s was updated successfully"
+
+    def get_success_url(self, **kwargs) -> str:
+        success_url = reverse_lazy('project_manager:project_detail', args=[str(self.request.POST.get('project'))])
+        return success_url
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -172,11 +162,15 @@ class BoardDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     success_message = "Board was deleted successfully"
 
     def test_func(self):
-        return self.get_object().owned_by == self.request.user
+        return self.request.user in self.get_object().allowed_users
+
+    def get_success_url(self, **kwargs) -> str:
+        success_url = reverse_lazy('project_manager:project_detail', args=[self.object.project.id])
+        return success_url
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(ProjectDeleteView, self).delete(request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
 # API Views

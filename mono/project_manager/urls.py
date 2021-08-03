@@ -19,7 +19,6 @@ urlpatterns = [
     path('board/<int:pk>/', views.BoardDetailView.as_view(), name='board_detail'),
     path('board/<int:pk>/edit/', views.BoardUpdateView.as_view(), name='board_update'),
     path('board/<int:pk>/delete/', views.BoardDeleteView.as_view(), name='board_delete'),
-    path('boards/', views.BoardListView.as_view(), name='boards'),
 
     # API Routes
     path('api/projects/', views.ProjectListAPIView.as_view()),
