@@ -424,3 +424,29 @@ class BucketMoveApiView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StartStopTimerAPIView(APIView):
+    """
+    Start or stop timer of a given card.
+    """
+
+    def get_object(self, pk):
+        try:
+            return Card.objects.get(pk=pk)
+        except Card.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        card = self.get_object(pk)
+        if request.user in card.allowed_users:
+            result = card.start_stop_timer(user=request.user)
+            return Response({
+                'success': True,
+                'action': result['action']
+            })
+        else:
+            raise BadRequest

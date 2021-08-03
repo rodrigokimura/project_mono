@@ -44,3 +44,22 @@ class CardAdmin(admin.ModelAdmin):
         'created_at',
         'active',
     ]
+
+
+@admin.register(models.TimeEntry)
+class TimeEntryAdmin(admin.ModelAdmin):
+    list_display = [
+        'name',
+        'created_by',
+        'created_at',
+        'active',
+        'card',
+        'started_at',
+        'stopped_at',
+        'duration',
+    ]
+    list_filter = [
+        'created_by',
+        'created_at',
+        'active',
+    ]

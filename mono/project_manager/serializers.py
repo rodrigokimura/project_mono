@@ -31,7 +31,6 @@ class BoardSerializer(ModelSerializer):
         model = Board
         fields = [
             'name',
-            'created_by',
             'created_at',
             'project',
             'assigned_to',
@@ -46,7 +45,6 @@ class BucketSerializer(ModelSerializer):
             'id',
             'name',
             'description',
-            'created_by',
             'created_at',
             'board',
             'order',
@@ -55,6 +53,9 @@ class BucketSerializer(ModelSerializer):
 
 
 class CardSerializer(ModelSerializer):
+    is_running = serializers.ReadOnlyField()
+    total_time = serializers.ReadOnlyField()
+
     class Meta:
         model = Card
         fields = [
@@ -66,8 +67,12 @@ class CardSerializer(ModelSerializer):
             'description',
             'completed_by',
             'completed_at',
+            'is_running',
+            'total_time',
         ]
-        extra_kwargs = {'created_by': {'read_only': True}}
+        extra_kwargs = {
+            'created_by': {'read_only': True},
+        }
 
 
 class CardMoveSerializer(Serializer):
