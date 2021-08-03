@@ -1,6 +1,8 @@
 from datetime import timedelta
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.db.models.aggregates import Max
+from django.db.models.fields import IntegerField
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Sum, Value as V, DurationField
@@ -33,6 +35,10 @@ class Project(BaseModel):
     # milestones =
     assigned_to = models.ManyToManyField(User, related_name="assigned_projects")
 
+    @property
+    def allowed_users(self):
+        return self.assigned_to.union(User.objects.filter(id=self.created_by.id))
+
 
 class Board(BaseModel):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -44,7 +50,9 @@ class Board(BaseModel):
 
     @property
     def max_order(self):
-        return max([bucket.order for bucket in self.bucket_set.all()])
+        return self.bucket_set.all().aggregate(
+            max_order=Coalesce(Max('order'), V(0), output_field=IntegerField())
+        )['max_order']
 
 
 class Bucket(BaseModel):
@@ -61,7 +69,9 @@ class Bucket(BaseModel):
 
     @property
     def max_order(self):
-        return max([card.order for card in self.card_set.all()])
+        return self.card_set.all().aggregate(
+            max_order=Coalesce(Max('order'), V(0), output_field=IntegerField())
+        )['max_order']
 
     def sort(self):
         for index, card in enumerate(self.card_set.all()):

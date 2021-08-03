@@ -10,42 +10,63 @@
     
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
     
-    {% with object as p %}
-      <div class="row">
-        <div class="column">
-          <p class="ui header">{% translate "Project: " %}{{ p.name }}</p>
+    <div class="row">
+      <div class="column">
+        <div class="ui header">{% translate "Project: " %}{{ object.name }}
+          <a href="{% url 'project_manager:board_create' %}" class="ui right floated icon labeled green button">
+            <i class="add icon"></i>
+            {% translate "New board" %}
+          </a>
         </div>
       </div>
-      {% for board in p.board_set.all %}
-        <div class="row">
-          <div class="column">
-            <div class="ui grid secondary grey segment" data-toggle="segments">
-              <div class="eight wide column">
-                {{ board.name }}
-              </div>
-              <div class="eight wide right aligned column">
-                <div class="ui tiny buttons">
-                  <a class="ui button" href="{% url 'project_manager:board_detail' pk=board.pk %}">{% translate "View" %}</a>
-                  <a class="ui button" href="{% url 'project_manager:board_update' pk=board.pk %}">{% translate "Edit" %}</a>
-                </div>
-              </div>
-            </div>
+    </div>
 
+    <div class="ui grid">
+
+      <div class="ui stackable cards">
+        {% for board in object.board_set.all %}
+      
+        <div class="card">
+          <div class="content">
+            <div class="header">
+              {{ board.name }}
+            </div>
+            <div class="meta">
+              {% translate "Created at " %}{{ board.created_at }}
+            </div>
+            <div class="description">
+              {% if board.assigned_to.all %}
+                {% translate "Assigned to: " %}
+                <div class="ui bulleted list">
+                {% for u in board.assigned_to.all %}
+                  <div class="item">{{ u.username }}</div>
+                {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="extra content">
+            <div class="ui two buttons">
+              <a class="ui primary button" href="{% url 'project_manager:board_detail' pk=board.pk %}">
+                <i class="eye icon"></i>
+                {% translate "View" %}
+              </a>
+              <a class="ui yellow button" href="{% url 'project_manager:board_update' pk=board.pk %}">
+                <i class="edit icon"></i>
+                {% translate "Edit" %}
+              </a>
+            </div>
           </div>
         </div>
-      {% empty %}
+        {% empty %}
         <div class="row">
           <div class="column">
             {% translate "No boards yet" %}
           </div>
         </div>
-      {% endfor %}
-      <div class="row">
-        <div class="column">
-          <a href="{% url 'project_manager:board_create' %}" class="ui button">{% translate "New board" %}</a>
-        </div>
+        {% endfor %}
       </div>
-    {% endwith %}
+    </div>
   </div>
 </div>
   

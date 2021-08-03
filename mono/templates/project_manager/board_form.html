@@ -12,16 +12,16 @@
       <div class="row">
         <div class="eight wide column">
           <div class="ui container">
-            <form method="post" class="ui {% if form.errors %}error{% endif %} form" id="project_form">
+            <form method="post" class="ui {% if form.errors %}error{% endif %} form" id="board_form">
               {% csrf_token %}
               {% include "_form.html" with form=form %}
               <div class="fluid ui big buttons">
-                <button class="ui button primary" type="submit" form="project_form">
+                <button class="ui button primary" type="submit" form="board_form">
                   {% translate "Save" %}
                 </button>
                 <div class="or"></div>
                 {% if object %}
-                <a class="ui button red" href="{% url 'project_manager:project_delete' pk=object.pk %}">
+                <a class="ui button red" href="{% url 'project_manager:board_delete' pk=object.pk %}">
                   {% translate "Delete" %}
                 </a>
                 <div class="or"></div>

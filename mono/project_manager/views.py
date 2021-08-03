@@ -1,5 +1,6 @@
+from typing import Optional
 from django.core.exceptions import BadRequest
-from django.utils import timezone
+from django.db.models.query import QuerySet
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -17,13 +18,15 @@ from .mixins import PassRequestToFormViewMixin
 from .serializers import BucketMoveSerializer, CardMoveSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
 
 
-class ProjectListView(ListView):
+class ProjectListView(LoginRequiredMixin, ListView):
     model = Project
     paginate_by = 100
 
+    def get_queryset(self) -> QuerySet[Project]:
+        return super().get_queryset().filter(created_by=self.request.user)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()
         context['breadcrumb'] = [
             ('Home', reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
@@ -32,8 +35,12 @@ class ProjectListView(ListView):
         return context
 
 
-class ProjectDetailView(DetailView):
+class ProjectDetailView(UserPassesTestMixin, DetailView):
     model = Project
+
+    def test_func(self) -> Optional[bool]:
+        project = self.get_object()
+        return self.request.user in project.allowed_users
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -43,6 +50,11 @@ class ProjectDetailView(DetailView):
             ('Project: view', None),
         ]
         return context
+
+    def get_object(self):
+        obj = super().get_object()
+        print(obj)
+        return obj
 
 
 class ProjectCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
@@ -87,21 +99,7 @@ class ProjectDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(ProjectDeleteView, self).delete(request, *args, **kwargs)
-
-
-class BoardListView(ListView):
-    model = Board
-    paginate_by = 100
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('Project Manager', reverse('project_manager:projects')),
-            ('Boards', None),
-        ]
-        return context
+        return super().delete(request, *args, **kwargs)
 
 
 class BoardDetailView(DetailView):
@@ -124,6 +122,10 @@ class BoardCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     success_url = reverse_lazy('project_manager:boards')
     success_message = "%(name)s was created successfully"
 
+    def get_success_url(self, **kwargs) -> str:
+        success_url = reverse_lazy('project_manager:project_detail', args=[str(self.request.POST.get('project'))])
+        return success_url
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = [
@@ -139,6 +141,10 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     form_class = BoardForm
     success_url = reverse_lazy('project_manager:boards')
     success_message = "%(name)s was updated successfully"
+
+    def get_success_url(self, **kwargs) -> str:
+        success_url = reverse_lazy('project_manager:project_detail', args=[str(self.request.POST.get('project'))])
+        return success_url
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -156,23 +162,27 @@ class BoardDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     success_message = "Board was deleted successfully"
 
     def test_func(self):
-        return self.get_object().owned_by == self.request.user
+        return self.request.user in self.get_object().allowed_users
+
+    def get_success_url(self, **kwargs) -> str:
+        success_url = reverse_lazy('project_manager:project_detail', args=[self.object.project.id])
+        return success_url
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(ProjectDeleteView, self).delete(request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
 # API Views
 
-class ProjectListAPIView(APIView):
+class ProjectListAPIView(LoginRequiredMixin, APIView):
     """
     List all snippets, or create a new snippet.
     """
 
     def get(self, request, format=None):
-        snippets = Project.objects.all()
-        serializer = ProjectSerializer(snippets, many=True)
+        projects = Project.objects.filter(created_by=request.user)
+        serializer = ProjectSerializer(projects, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
@@ -183,7 +193,7 @@ class ProjectListAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ProjectDetailAPIView(APIView):
+class ProjectDetailAPIView(LoginRequiredMixin, APIView):
     """
     Retrieve, update or delete a snippet instance.
     """
@@ -195,8 +205,8 @@ class ProjectDetailAPIView(APIView):
             raise Http404
 
     def get(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = ProjectSerializer(snippet)
+        project = self.get_object(pk)
+        serializer = ProjectSerializer(project)
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):
@@ -213,14 +223,14 @@ class ProjectDetailAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class BoardListAPIView(APIView):
+class BoardListAPIView(LoginRequiredMixin, APIView):
     """
     List all snippets, or create a new snippet.
     """
 
     def get(self, request, format=None):
-        snippets = Board.objects.all()
-        serializer = BoardSerializer(snippets, many=True)
+        boards = Board.objects.filter(created_by=request.user)
+        serializer = BoardSerializer(boards, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
@@ -231,9 +241,9 @@ class BoardListAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class BoardDetailAPIView(APIView):
+class BoardDetailAPIView(LoginRequiredMixin, APIView):
     """
-    Retrieve, update or delete a snippet instance.
+    Retrieve, update or delete a board instance.
     """
 
     def get_object(self, pk):
@@ -243,31 +253,32 @@ class BoardDetailAPIView(APIView):
             raise Http404
 
     def get(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = BoardSerializer(snippet)
+        board = self.get_object(pk)
+        serializer = BoardSerializer(board)
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = BoardSerializer(snippet, data=request.data)
+        board = self.get_object(pk)
+        serializer = BoardSerializer(board, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        snippet.delete()
+        board = self.get_object(pk)
+        board.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class BucketListAPIView(APIView):
+class BucketListAPIView(LoginRequiredMixin, APIView):
     """
-    List all snippets, or create a new snippet.
+    List all buckets, or create a new bucket.
     """
 
     def get(self, request, format=None, **kwargs):
-        buckets = Bucket.objects.all()
+        board = Board.objects.get(id=kwargs['board_pk'])
+        buckets = Bucket.objects.filter(created_by=request.user, board=board)
         serializer = BucketSerializer(buckets, many=True, context={'request': request})
         return Response(serializer.data)
 
@@ -284,9 +295,9 @@ class BucketListAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class BucketDetailAPIView(APIView):
+class BucketDetailAPIView(LoginRequiredMixin, APIView):
     """
-    Retrieve, update or delete a snippet instance.
+    Retrieve, update or delete a bucket instance.
     """
 
     def get_object(self, pk):
@@ -325,7 +336,7 @@ class BucketDetailAPIView(APIView):
             return BadRequest
 
 
-class CardListAPIView(APIView):
+class CardListAPIView(LoginRequiredMixin, APIView):
     """
     List all snippets, or create a new snippet.
     """
@@ -358,7 +369,7 @@ class CardListAPIView(APIView):
             return BadRequest
 
 
-class CardDetailAPIView(APIView):
+class CardDetailAPIView(LoginRequiredMixin, APIView):
     """
     Retrieve, update or delete a snippet instance.
     """
@@ -400,7 +411,7 @@ class CardDetailAPIView(APIView):
             raise BadRequest
 
 
-class CardMoveApiView(APIView):
+class CardMoveApiView(LoginRequiredMixin, APIView):
     """
     Move card from one bucket to another bucket in given order.
     """
@@ -413,7 +424,7 @@ class CardMoveApiView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class BucketMoveApiView(APIView):
+class BucketMoveApiView(LoginRequiredMixin, APIView):
     """
     Change bucket order in a board.
     """
@@ -426,7 +437,7 @@ class BucketMoveApiView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class StartStopTimerAPIView(APIView):
+class StartStopTimerAPIView(LoginRequiredMixin, APIView):
     """
     Start or stop timer of a given card.
     """
