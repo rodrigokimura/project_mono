@@ -2,7 +2,10 @@
 {% load static %}
 {% load i18n %}
 
+
 {% block body %}
+<script src="{% static 'js/dragula.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
 
 <div class="pusher">
   <div class="ui fluid container">
@@ -18,7 +21,7 @@
   </div>
 </div>
 
-<div class="ui card modal">
+<div class="ui card small modal">
   <i class="close icon"></i>
   <div class="header">
     <div class="ui fluid input">
@@ -29,6 +32,9 @@
     <div class="ui form">
       <div class="field">
         <input type="hidden" name="id">
+      </div>
+      <div class="field">
+        <input type="hidden" name="order">
       </div>
       <div class="field">
         <label>Description</label>
@@ -62,6 +68,29 @@
   const PROJECT_ID = "{{ object.project.id }}";
   const BOARD_ID = "{{ object.id }}";
 
+  var cardsDrake = dragula({
+    isContainer: el => $(el).hasClass('cards-drake')
+  })
+
+  cardsDrake.on('drop', (el, target, source, sibling) => {
+    source_bucket = $(source).attr('id').replace('bucket-', '');
+    target_bucket = $(target).attr('id').replace('bucket-', '');
+    card = $(el).attr('data-card-id');
+    order = $(target).children().toArray().findIndex(e => e == el) + 1;
+    $.ajax({
+      url: `/pm/api/card_move/`,
+      type: 'POST',
+      headers: {'X-CSRFToken': csrftoken},
+      data: {
+        source_bucket: source_bucket,
+        target_bucket: target_bucket,
+        card: card,
+        order: order,
+      },
+      success: function(result) {}
+    });
+  })
+
   const adjustBoardHeight = (boardSelector='#board') => {
     $(boardSelector).height(
       $(window).height()
@@ -90,7 +119,7 @@
               </div>
             </div>
           </div>
-          <div class="extra content" id="bucket-${bucket.id}" style="flex: 1 0 auto;">
+          <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 0 auto;">
           </div>
         </div>
         `
@@ -111,7 +140,7 @@
     cards.forEach(card => {
       $(containerSelector).append(
         `
-        <div class="ui card">
+        <div class="ui card" data-card-id="${card.id}">
           <div class="content">
             <div class="header">
               ${card.name}
@@ -166,11 +195,13 @@
       modal.find('input[name=id]').val(card.id);
       modal.find('input[name=name]').val(card.name);
       modal.find('input[name=description]').val(card.description);
+      modal.find('input[name=order]').val(card.order);
     } else {
       create = true;
       modal.find('input[name=id]').val('');
       modal.find('input[name=name]').val('');
       modal.find('input[name=description]').val('');
+      modal.find('input[name=order]').val('');
     };
     modal
       .modal({
@@ -180,6 +211,7 @@
         onApprove: el => {
           name = modal.find('input[name=name]').val();
           description = modal.find('input[name=description]').val();
+          order = modal.find('input[name=order]').val();
           if (create === true) {
             $.ajax({
               url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
@@ -189,7 +221,7 @@
                 name: name,
                 bucket: bucketId,
                 description: description,
-                order: 1
+                order: 0,
               },
               success: function(result) {
                 getBuckets();
@@ -205,7 +237,7 @@
                 name: name,
                 bucket: bucketId,
                 description: description,
-                order: 1
+                order: order
               },
               success: function(result) {
                 getBuckets();
@@ -241,5 +273,7 @@
 
   adjustBoardHeight();
   getBuckets();
+
+  
 </script>
 {% endblock %}

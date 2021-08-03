@@ -41,6 +41,15 @@ class Bucket(BaseModel):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     order = models.IntegerField()
 
+    @property
+    def max_order(self):
+        return max([card.order for card in self.card_set.all()])
+
+    def sort(self):
+        for index, card in enumerate(self.card_set.all()):
+            card.order = index + 1
+            card.save()
+
 
 class Card(BaseModel):
     bucket = models.ForeignKey(Bucket, on_delete=models.CASCADE)
@@ -54,7 +63,14 @@ class Card(BaseModel):
     @property
     def allowed_users(self):
         return self.bucket.board.allowed_users
-    # progress
+
+    class Meta:
+        ordering = [
+            "bucket__board__project",
+            "bucket__board",
+            "bucket",
+            "order",
+        ]
 
 
 class Item(BaseModel):
