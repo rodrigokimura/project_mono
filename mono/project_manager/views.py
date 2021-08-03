@@ -89,19 +89,6 @@ class ProjectUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
         return context
 
 
-class ProjectDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
-    model = Project
-    success_url = reverse_lazy('project_manager:projects')
-    success_message = "Project was deleted successfully"
-
-    def test_func(self):
-        return self.get_object().owned_by == self.request.user
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
-
-
 class BoardDetailView(DetailView):
     model = Board
 
@@ -156,23 +143,6 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
         return context
 
 
-class BoardDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
-    model = Board
-    success_url = reverse_lazy('project_manager:boards')
-    success_message = "Board was deleted successfully"
-
-    def test_func(self):
-        return self.request.user in self.get_object().allowed_users
-
-    def get_success_url(self, **kwargs) -> str:
-        success_url = reverse_lazy('project_manager:project_detail', args=[self.object.project.id])
-        return success_url
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
-
-
 # API Views
 
 class ProjectListAPIView(LoginRequiredMixin, APIView):
@@ -217,10 +187,16 @@ class ProjectDetailAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, pk, format=None, **kwargs):
+        project = self.get_object(pk)
+        if request.user in project.allowed_users:
+            project.delete()
+            return Response({
+                'success': True,
+                'url': reverse_lazy('project_manager:projects')
+            })
+        else:
+            return BadRequest
 
 
 class BoardListAPIView(LoginRequiredMixin, APIView):
@@ -265,10 +241,17 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
+    def delete(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
         board = self.get_object(pk)
-        board.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.user in board.allowed_users:
+            board.delete()
+            return Response({
+                'success': True,
+                'url': reverse_lazy('project_manager:project_detail', args=[project.id])
+            })
+        else:
+            return BadRequest
 
 
 class BucketListAPIView(LoginRequiredMixin, APIView):
