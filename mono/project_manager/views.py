@@ -14,7 +14,7 @@ from rest_framework import status
 from .models import Project, Board, Bucket, Card
 from .forms import ProjectForm, BoardForm
 from .mixins import PassRequestToFormViewMixin
-from .serializers import ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
+from .serializers import CardMoveSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
 
 
 class ProjectListView(ListView):
@@ -327,12 +327,15 @@ class CardListAPIView(APIView):
 
     def post(self, request, format=None, **kwargs):
         project = Project.objects.get(id=kwargs['project_pk'])
-        board = Board.objects.get(id=kwargs['board_pk'])
-        bucket = Bucket.objects.get(id=kwargs['bucket_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
         if request.user in board.allowed_users:
             serializer = CardSerializer(data=request.data)
             if serializer.is_valid():
-                serializer.save(created_by=request.user)
+                serializer.save(
+                    created_by=request.user,
+                    order=bucket.max_order + 1,
+                )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -357,8 +360,8 @@ class CardDetailAPIView(APIView):
 
     def put(self, request, pk, format=None, **kwargs):
         project = Project.objects.get(id=kwargs['project_pk'])
-        board = Board.objects.get(id=kwargs['board_pk'])
-        bucket = Bucket.objects.get(id=kwargs['bucket_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
         card = self.get_object(pk)
         if request.user in card.allowed_users:
             serializer = CardSerializer(card, data=request.data)
@@ -379,3 +382,16 @@ class CardDetailAPIView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             raise BadRequest
+
+
+class CardMoveApiView(APIView):
+    """
+    Move card from one bucket to another bucket in given order.
+    """
+
+    def post(self, request, format=None):
+        serializer = CardMoveSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
