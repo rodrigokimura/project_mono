@@ -51,6 +51,7 @@ class PullRequest(models.Model):
     class Meta:
         verbose_name = 'Pull Request'
         verbose_name_plural = 'Pull Requests'
+        get_latest_by = "number"
 
     def __str__(self) -> str:
         return f'PR #{self.number}'

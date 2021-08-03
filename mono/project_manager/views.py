@@ -1,3 +1,4 @@
+from django.core.exceptions import BadRequest
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -13,7 +14,7 @@ from rest_framework import status
 from .models import Project, Board, Bucket, Card
 from .forms import ProjectForm, BoardForm
 from .mixins import PassRequestToFormViewMixin
-from .serializers import ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
+from .serializers import BucketMoveSerializer, CardMoveSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
 
 
 class ProjectListView(ListView):
@@ -265,15 +266,20 @@ class BucketListAPIView(APIView):
     List all snippets, or create a new snippet.
     """
 
-    def get(self, request, format=None):
-        snippets = Bucket.objects.all()
-        serializer = BucketSerializer(snippets, many=True)
+    def get(self, request, format=None, **kwargs):
+        buckets = Bucket.objects.all()
+        serializer = BucketSerializer(buckets, many=True, context={'request': request})
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
         serializer = BucketSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(
+                created_by=request.user,
+                order=board.max_order + 1,
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -290,22 +296,33 @@ class BucketDetailAPIView(APIView):
             raise Http404
 
     def get(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = BucketSerializer(snippet)
+        bucket = self.get_object(pk)
+        serializer = BucketSerializer(bucket)
         return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = BucketSerializer(snippet, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
+        bucket = self.get_object(pk)
 
-    def delete(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.user in board.allowed_users:
+            serializer = BucketSerializer(bucket, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return BadRequest
+
+    def delete(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
+        if request.user in board.allowed_users:
+            bucket = self.get_object(pk)
+            bucket.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return BadRequest
 
 
 class CardListAPIView(APIView):
@@ -313,17 +330,32 @@ class CardListAPIView(APIView):
     List all snippets, or create a new snippet.
     """
 
-    def get(self, request, format=None):
-        snippets = Card.objects.all()
-        serializer = CardSerializer(snippets, many=True)
+    def get(self, request, format=None, **kwargs):
+        project_pk = kwargs.get('project_pk')
+        board_pk = kwargs.get('board_pk')
+        bucket_pk = kwargs.get('bucket_pk')
+        project = Project.objects.get(id=project_pk)
+        board = Board.objects.get(project=project, id=board_pk)
+        bucket = Bucket.objects.get(board=board, id=bucket_pk)
+        cards = Card.objects.filter(bucket=bucket)
+        serializer = CardSerializer(cards, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
-        serializer = CardSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        if request.user in board.allowed_users:
+            serializer = CardSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(
+                    created_by=request.user,
+                    order=bucket.max_order + 1,
+                )
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return BadRequest
 
 
 class CardDetailAPIView(APIView):
@@ -342,15 +374,79 @@ class CardDetailAPIView(APIView):
         serializer = CardSerializer(snippet)
         return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = CardSerializer(snippet, data=request.data)
+    def put(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        card = self.get_object(pk)
+        if request.user in card.allowed_users:
+            serializer = CardSerializer(card, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise BadRequest
+
+    def delete(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        card = self.get_object(pk)
+        if request.user in card.allowed_users:
+            card.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            raise BadRequest
+
+
+class CardMoveApiView(APIView):
+    """
+    Move card from one bucket to another bucket in given order.
+    """
+
+    def post(self, request, format=None):
+        serializer = CardMoveSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class BucketMoveApiView(APIView):
+    """
+    Change bucket order in a board.
+    """
+
+    def post(self, request, format=None):
+        serializer = BucketMoveSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StartStopTimerAPIView(APIView):
+    """
+    Start or stop timer of a given card.
+    """
+
+    def get_object(self, pk):
+        try:
+            return Card.objects.get(pk=pk)
+        except Card.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        card = self.get_object(pk)
+        if request.user in card.allowed_users:
+            result = card.start_stop_timer(user=request.user)
+            return Response({
+                'success': True,
+                'action': result['action']
+            })
+        else:
+            raise BadRequest

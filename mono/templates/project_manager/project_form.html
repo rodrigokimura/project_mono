@@ -15,16 +15,14 @@
             <form method="post" class="ui {% if form.errors %}error{% endif %} form" id="project_form">
               {% csrf_token %}
               {% include "_form.html" with form=form %}
-              <div class="fluid ui big buttons">
+              <div class="fluid ui buttons">
                 <button class="ui button primary" type="submit" form="project_form">
                   {% translate "Save" %}
                 </button>
-                <div class="or"></div>
                 {% if object %}
                 <a class="ui button red" href="{% url 'project_manager:project_delete' pk=object.pk %}">
                   {% translate "Delete" %}
                 </a>
-                <div class="or"></div>
                 {% endif %}
                 <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
                   {% translate "Cancel" %}

@@ -13,13 +13,12 @@
     {% with object as p %}
       <div class="row">
         <div class="column">
-          {{ p.name }}
+          <p class="ui header">{% translate "Project: " %}{{ p.name }}</p>
         </div>
       </div>
       {% for board in p.board_set.all %}
         <div class="row">
           <div class="column">
-
             <div class="ui grid secondary grey segment" data-toggle="segments">
               <div class="eight wide column">
                 {{ board.name }}

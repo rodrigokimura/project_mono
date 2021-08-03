@@ -37,13 +37,13 @@
 		{
 			"type": "shell",
 			"label": "Django - Make migrations",
-			"command": "source ${workspaceFolder}/venv/bin/activate; python mono/manage.py makemigrations",
+			"command": "source ${workspaceFolder}/venv/bin/activate; export APP_ENV=DEV; python mono/manage.py makemigrations",
 			"problemMatcher": []
 		},
 		{
 			"type": "shell",
 			"label": "Django - Migrate",
-			"command": "source ${workspaceFolder}/venv/bin/activate; python mono/manage.py migrate",
+			"command": "source ${workspaceFolder}/venv/bin/activate; export APP_ENV=DEV; python mono/manage.py migrate",
 			"problemMatcher": []
 		},
 		{
