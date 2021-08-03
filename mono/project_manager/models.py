@@ -36,10 +36,15 @@ class Board(BaseModel):
     def allowed_users(self):
         return self.assigned_to.union(User.objects.filter(id=self.created_by.id))
 
+    @property
+    def max_order(self):
+        return max([bucket.order for bucket in self.bucket_set.all()])
+
 
 class Bucket(BaseModel):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     order = models.IntegerField()
+    description = models.TextField(max_length=255, blank=True, null=True)
 
     @property
     def max_order(self):

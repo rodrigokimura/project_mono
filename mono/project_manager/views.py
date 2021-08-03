@@ -272,9 +272,14 @@ class BucketListAPIView(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
         serializer = BucketSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(
+                created_by=request.user,
+                order=board.max_order + 1,
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -295,18 +300,29 @@ class BucketDetailAPIView(APIView):
         serializer = BucketSerializer(bucket)
         return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
+    def put(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
         bucket = self.get_object(pk)
-        serializer = BucketSerializer(bucket, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.user in board.allowed_users:
+            serializer = BucketSerializer(bucket, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return BadRequest
+
+    def delete(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
+        if request.user in board.allowed_users:
+            bucket = self.get_object(pk)
+            bucket.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return BadRequest
 
 
 class CardListAPIView(APIView):
@@ -361,7 +377,7 @@ class CardDetailAPIView(APIView):
     def put(self, request, pk, format=None, **kwargs):
         project = Project.objects.get(id=kwargs['project_pk'])
         board = Board.objects.get(id=kwargs['board_pk'], project=project)
-        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
         card = self.get_object(pk)
         if request.user in card.allowed_users:
             serializer = CardSerializer(card, data=request.data)
@@ -374,8 +390,8 @@ class CardDetailAPIView(APIView):
 
     def delete(self, request, pk, format=None, **kwargs):
         project = Project.objects.get(id=kwargs['project_pk'])
-        board = Board.objects.get(id=kwargs['board_pk'])
-        bucket = Bucket.objects.get(id=kwargs['bucket_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
         card = self.get_object(pk)
         if request.user in card.allowed_users:
             card.delete()
