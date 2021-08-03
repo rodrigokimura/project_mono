@@ -14,7 +14,7 @@ from rest_framework import status
 from .models import Project, Board, Bucket, Card
 from .forms import ProjectForm, BoardForm
 from .mixins import PassRequestToFormViewMixin
-from .serializers import CardMoveSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
+from .serializers import BucketMoveSerializer, CardMoveSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
 
 
 class ProjectListView(ListView):
@@ -407,6 +407,19 @@ class CardMoveApiView(APIView):
 
     def post(self, request, format=None):
         serializer = CardMoveSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BucketMoveApiView(APIView):
+    """
+    Change bucket order in a board.
+    """
+
+    def post(self, request, format=None):
+        serializer = BucketMoveSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
