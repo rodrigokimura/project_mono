@@ -3,7 +3,6 @@ from . import models
 
 # Register your models here.
 admin.site.register(models.Board)
-admin.site.register(models.Bucket)
 admin.site.register(models.Item)
 
 
@@ -11,6 +10,23 @@ admin.site.register(models.Item)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ['deadline', 'name', 'created_by', 'created_at', 'active']
     list_filter = ('created_by', 'created_at', 'active')
+
+
+@admin.register(models.Bucket)
+class BucketAdmin(admin.ModelAdmin):
+    list_display = [
+        'name',
+        'created_by',
+        'created_at',
+        'active',
+        'board',
+        'order',
+    ]
+    list_filter = [
+        'created_by',
+        'created_at',
+        'active',
+    ]
 
 
 @admin.register(models.Card)

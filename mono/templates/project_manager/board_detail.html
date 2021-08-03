@@ -138,6 +138,22 @@
     });
   })
 
+  bucketsDrake.on('drop', (el, target, source, sibling) => {
+    bucket = $(el).attr('data-bucket-id');
+    order = $(target).children().toArray().findIndex(e => e == el) + 1;
+    $.ajax({
+      url: `/pm/api/bucket_move/`,
+      type: 'POST',
+      headers: {'X-CSRFToken': csrftoken},
+      data: {
+        bucket: bucket,
+        board: BOARD_ID,
+        order: order,
+      },
+      success: function(result) {}
+    });
+  })
+
   const adjustBoardHeight = (boardSelector='#board') => {
     $(boardSelector).height(
       $(window).height()
@@ -151,7 +167,7 @@
     buckets.forEach(bucket => {
       $(containerSelector).append(
         `
-        <div class="ui card bucket-el" style="width: 300px; flex: 0 0 auto; display: flex;">
+        <div class="ui card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex;">
           <div class="content" style="flex: 0 0 auto;">
             <div class="header">
               ${bucket.name}

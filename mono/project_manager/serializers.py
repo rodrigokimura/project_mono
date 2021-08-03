@@ -145,3 +145,58 @@ class CardMoveSerializer(Serializer):
             for i, c in enumerate(source_bucket.card_set.all()):
                 c.order = i + 1
                 c.save()
+
+
+class BucketMoveSerializer(Serializer):
+    board = serializers.IntegerField()
+    bucket = serializers.IntegerField()
+    order = serializers.IntegerField()
+
+    def validate_board(self, value):
+        if Board.objects.filter(id=value).exists():
+            return value
+        else:
+            raise serializers.ValidationError("Invalid board")
+
+    def validate_bucket(self, value):
+        if Bucket.objects.filter(id=value).exists():
+            return value
+        else:
+            raise serializers.ValidationError("Invalid bucket")
+
+    def validate_order(self, value):
+        if value > 0:
+            return value
+        else:
+            raise serializers.ValidationError("Invalid order")
+
+    def validate(self, data):
+        bucket = Bucket.objects.get(id=data['bucket'])
+        board = Board.objects.get(id=data['board'])
+
+        if self.context['request'].user not in board.allowed_users:
+            raise serializers.ValidationError("User not allowed")
+
+        if bucket not in board.bucket_set.all():
+            raise serializers.ValidationError("Bucket outside board")
+
+        return data
+
+    def save(self):
+        bucket = Bucket.objects.get(
+            id=self.validated_data['bucket']
+        )
+        board = Board.objects.get(
+            id=self.validated_data['board']
+        )
+        order = self.validated_data['order']
+
+        for i, b in enumerate(board.bucket_set.exclude(id=self.validated_data['bucket'])):
+            if i + 1 < order:
+                b.order = i + 1
+                b.save()
+            else:
+                b.order = i + 2
+                b.save()
+        bucket.order = order
+        bucket.save()

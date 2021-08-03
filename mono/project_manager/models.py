@@ -46,6 +46,13 @@ class Bucket(BaseModel):
     order = models.IntegerField()
     description = models.TextField(max_length=255, blank=True, null=True)
 
+    class Meta:
+        ordering = [
+            "board__project",
+            "board",
+            "order",
+        ]
+
     @property
     def max_order(self):
         return max([card.order for card in self.card_set.all()])
