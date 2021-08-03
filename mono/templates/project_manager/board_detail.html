@@ -70,12 +70,23 @@
 
   var cardsDrake = dragula({
     isContainer: el => $(el).hasClass('cards-drake'),
+    moves: (el, source, handle, sibling) => 
+      $(el).hasClass('card-el') 
+      && (
+        $(handle).hasClass('handle') // use button as handle
+        || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
+      ),
     direction: 'vertical'
   })
 
   var bucketsDrake = dragula({
     isContainer: el => $(el).hasClass('buckets-drake'),
-    moves: (el, source, handle, sibling) => $(el).hasClass('bucket-el'),
+    moves: (el, source, handle, sibling) => 
+      $(el).hasClass('bucket-el') 
+      && (
+        $(handle).hasClass('handle') // use button as handle
+        || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
+      ),
     invalid: (el, handle) => $(el).hasClass('card-el'),
     direction: 'horizontal'
   })
@@ -116,7 +127,7 @@
           <div class="content" style="flex: 0 0 auto;">
             <div class="header">
               ${bucket.name}
-              <div class="ui right floated basic icon top left pointing dropdown button">
+              <div class="ui right floated basic icon top left pointing dropdown handle button">
                 <i class="ellipsis horizontal icon"></i>
                 <div class="menu">
                   <div class="add card item" data-bucket-id="${bucket.id}"><i class="add icon"></i>Add new card</div>
@@ -152,7 +163,7 @@
           <div class="content">
             <div class="header">
               ${card.name}
-              <div class="ui right floated basic icon top left pointing dropdown button">
+              <div class="ui right floated basic icon top left pointing dropdown handle button">
                 <i class="ellipsis horizontal icon"></i>
                 <div class="menu">
                   <div class="item"><i class="add icon"></i>Add new card</div>
