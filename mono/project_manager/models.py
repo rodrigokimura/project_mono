@@ -56,6 +56,11 @@ class Board(BaseModel):
 
 
 class Bucket(BaseModel):
+    DEFAULT_BUCKETS = [
+        (_('To do'), _('Stuff to do'), 1),
+        (_('Doing'), _('Stuff being done'), 2),
+        (_('Done'), _('Stuff already finished'), 3),
+    ]
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     order = models.IntegerField()
     description = models.TextField(max_length=255, blank=True, null=True)
