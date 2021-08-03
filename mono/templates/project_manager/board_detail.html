@@ -95,6 +95,7 @@
 <script>
   const PROJECT_ID = "{{ object.project.id }}";
   const BOARD_ID = "{{ object.id }}";
+  var intervals = [];
 
   var cardsDrake = dragula({
     isContainer: el => $(el).hasClass('cards-drake'),
@@ -105,7 +106,7 @@
         || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
       ),
     direction: 'vertical'
-  })
+  });
 
   var bucketsDrake = dragula({
     isContainer: el => $(el).hasClass('buckets-drake'),
@@ -117,7 +118,7 @@
       ),
     invalid: (el, handle) => $(el).hasClass('card-el'),
     direction: 'horizontal'
-  })
+  });
 
   cardsDrake.on('drop', (el, target, source, sibling) => {
     source_bucket = $(source).attr('id').replace('bucket-', '');
@@ -136,7 +137,7 @@
       },
       success: function(result) {}
     });
-  })
+  });
 
   bucketsDrake.on('drop', (el, target, source, sibling) => {
     bucket = $(el).attr('data-bucket-id');
@@ -152,7 +153,7 @@
       },
       success: function(result) {}
     });
-  })
+  });
 
   const adjustBoardHeight = (boardSelector='#board') => {
     $(boardSelector).height(
@@ -160,7 +161,40 @@
       -$(boardSelector).offset().top
       -$(boardSelector).css('marginBottom').replace('px', '').replace('-', '')
     );
-  } 
+  };
+
+  const str = seconds => {
+    function pad(num, size=2) {
+      num = num.toString();
+      while (num.length < size) num = "0" + num;
+      return num;
+    }
+
+    var d = Math.floor((seconds % 31536000) / 86400) + 'd'; 
+    var h = Math.floor(((seconds % 31536000) % 86400) / 3600);
+    var m = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
+    var s = Math.floor((((seconds % 31536000) % 86400) % 3600) % 60);
+    return `${d > 0 ? d : ''} ${pad(h)}:${pad(m)}:${pad(s)}`;
+  };
+
+  const incrementSecond = (cardId) => {
+    element = $(`.total-time[data-card-id=${cardId}]`)
+    time = element.attr('data-time')
+    time++
+    element.attr('data-time', time)
+    element.text(str(time))
+  };
+
+  const clearIntervals = () => {
+    intervals.forEach(el => {clearInterval(el)});
+    intervals = [];
+  };
+
+  const loadBoard = () => {
+    adjustBoardHeight();
+    clearIntervals();
+    getBuckets();
+  };
 
   const renderBuckets = (containerSelector, buckets) => {
     $(containerSelector).empty();
@@ -209,7 +243,7 @@
     cards.forEach(card => {
       $(containerSelector).append(
         `
-        <div class="ui card card-el" data-card-id="${card.id}">
+        <div class="ui raised ${card.is_running ? 'red ' : ''}card card-el" data-card-id="${card.id}">
           <div class="content">
             <div class="header">
               ${card.name}
@@ -218,6 +252,8 @@
                 <div class="menu">
                   <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
                   <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>Delete this card</div>
+                  <div class="divider"></div>
+                  <div class="start-stop-timer card item" data-card-id="${card.id}"><i class="stopwatch icon"></i>Start/stop timer</div>
                 </div>
               </div>
             </div>
@@ -226,6 +262,7 @@
             </div>
           </div>
           <div class="extra content">
+            <span class="right floated total-time" data-card-id="${card.id}" data-time="${card.total_time}">${card.total_time > 0 ? str(card.total_time) : ''}</span>
           </div>
         </div>
         `
@@ -233,6 +270,10 @@
       $('.ui.dropdown').dropdown({action: 'hide'});
       $(`.edit.card.item[data-card-id=${card.id}]`).click(e => {showCardModal(card, bucketId);});
       $(`.delete.card.item[data-card-id=${card.id}]`).click(e => {deleteCard(card.id, bucketId);});
+      $(`.start-stop-timer.card.item[data-card-id=${card.id}]`).click(e => {startStopTimer(card.id, bucketId);});
+      if (card.is_running) {
+        intervals.push(setInterval(() => {incrementSecond(card.id)}, 1000));
+      };
     });
   };
 
@@ -291,7 +332,7 @@
                 order: 0,
               },
               success: function(result) {
-                getBuckets();
+                loadBoard();
               }
             });
           } else {
@@ -307,7 +348,7 @@
                 order: order
               },
               success: function(result) {
-                getBuckets();
+                loadBoard();
               }
             });
           }
@@ -330,7 +371,7 @@
             type: 'DELETE',
             headers: {'X-CSRFToken': csrftoken},
             success: function(result) {
-              getBuckets();
+              loadBoard();
             }
           });
         }
@@ -375,7 +416,7 @@
                 order: 0,
               },
               success: function(result) {
-                getBuckets();
+                loadBoard();
               }
             });
           } else {
@@ -391,7 +432,7 @@
                 order: order
               },
               success: function(result) {
-                getBuckets();
+                loadBoard();
               }
             });
           }
@@ -414,7 +455,7 @@
             type: 'DELETE',
             headers: {'X-CSRFToken': csrftoken},
             success: function(result) {
-              getBuckets();
+              loadBoard();
             }
           });
         }
@@ -422,8 +463,23 @@
       .modal('show');
   };
 
-  adjustBoardHeight();
-  getBuckets();
+  const startStopTimer = (cardId, bucketId) => {
+    $.ajax({
+      url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/timer/`,
+      type: 'POST',
+      headers: {'X-CSRFToken': csrftoken},
+      success: function(result) {
+        if (result.action == 'start') {
+          $('body').toast({message: `Timer started for card ${cardId}.`});
+        } else if (result.action == 'stop') {
+          $('body').toast({message: `Timer stopped for card ${cardId}.`});
+        };
+        loadBoard();
+      }
+    });
+  };
+
+  loadBoard();
 
 </script>
 {% endblock %}
