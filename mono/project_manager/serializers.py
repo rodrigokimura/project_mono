@@ -23,6 +23,7 @@ class ProjectSerializer(ModelSerializer):
             'created_at',
             'assigned_to',
         ]
+        extra_kwargs = {'created_by': {'read_only': True}}
 
 
 class BoardSerializer(ModelSerializer):
@@ -35,6 +36,7 @@ class BoardSerializer(ModelSerializer):
             'project',
             'assigned_to',
         ]
+        extra_kwargs = {'created_by': {'read_only': True}}
 
 
 class BucketSerializer(ModelSerializer):
@@ -43,11 +45,13 @@ class BucketSerializer(ModelSerializer):
         fields = [
             'id',
             'name',
+            'description',
             'created_by',
             'created_at',
             'board',
             'order',
         ]
+        extra_kwargs = {'created_by': {'read_only': True}}
 
 
 class CardSerializer(ModelSerializer):

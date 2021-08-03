@@ -49,6 +49,34 @@
   </div>
 </div>
 
+<div class="ui bucket small modal">
+  <i class="close icon"></i>
+  <div class="header">
+    <div class="ui fluid input">
+      <input type=text name="name" placeholder="Name">
+    </div>
+  </div>
+  <div class="content">
+    <div class="ui form">
+      <div class="field">
+        <input type="hidden" name="id">
+      </div>
+      <div class="field">
+        <input type="hidden" name="order">
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <input type="text" name="description" placeholder="Description">
+      </div>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui black deny labeled icon button"><i class="delete icon"></i>Cancel</div>
+    <div class="ui positive right labeled icon button">Save<i class="save icon"></i>
+    </div>
+  </div>
+</div>
+
 <div class="ui delete confirmation tiny modal">
   <div class="header"></div>
   <div class="content"></div>
@@ -132,10 +160,13 @@
                 <div class="menu">
                   <div class="add card item" data-bucket-id="${bucket.id}"><i class="add icon"></i>Add new card</div>
                   <div class="divider"></div>
-                  <div class="item"><i class="edit icon"></i>Rename this bucket</div>
-                  <div class="item"><i class="delete icon"></i>Delete this bucket</div>
+                  <div class="edit bucket item" data-bucket-id="${bucket.id}"><i class="edit icon"></i>Edit this bucket</div>
+                  <div class="delete bucket item" data-bucket-id="${bucket.id}"><i class="delete icon"></i>Delete this bucket</div>
                 </div>
               </div>
+            </div>
+            <div class="meta">
+              ${bucket.description ? bucket.description : ''}
             </div>
           </div>
           <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 0 auto;">
@@ -145,9 +176,12 @@
       );
       $('.ui.dropdown').dropdown({action: 'hide'});
       $(`.add.card.item[data-bucket-id=${bucket.id}]`).click(e => {showCardModal(card=null, bucket.id);});
+      $(`.edit.bucket.item[data-bucket-id=${bucket.id}]`).click(e => {showBucketModal(bucket);});
+      $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).click(e => {deleteBucket(bucket.id);});
       getCards(bucket.id);
     });
     $(containerSelector).append(`<div class="ui add bucket button" style="flex: 0 0 auto">Add new bucket</div>`);
+    $(`.add.bucket.button`).click(e => {showBucketModal();});
     
     e = $('.add.bucket.button').siblings().last()
     $('.add.bucket.button').css('marginTop', e.css('marginTop'))
@@ -166,15 +200,13 @@
               <div class="ui right floated basic icon top left pointing dropdown handle button">
                 <i class="ellipsis horizontal icon"></i>
                 <div class="menu">
-                  <div class="item"><i class="add icon"></i>Add new card</div>
-                  <div class="divider"></div>
                   <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
                   <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>Delete this card</div>
                 </div>
               </div>
             </div>
             <div class="meta">
-              ${card.description}
+              ${card.description ? card.description : ''}
             </div>
           </div>
           <div class="extra content">
@@ -290,9 +322,92 @@
       .modal('show');
   };
 
+  const showBucketModal = (bucket=null) => {
+    var create;
+    const modal = $('.ui.bucket.modal');
+    if (bucket != null) {
+      create = false;
+      modal.find('input[name=id]').val(bucket.id);
+      modal.find('input[name=name]').val(bucket.name);
+      modal.find('input[name=description]').val(bucket.description);
+      modal.find('input[name=order]').val(bucket.order);
+    } else {
+      create = true;
+      modal.find('input[name=id]').val('');
+      modal.find('input[name=name]').val('');
+      modal.find('input[name=description]').val('');
+      modal.find('input[name=order]').val('');
+    };
+    modal
+      .modal({
+        restoreFocus: false,
+        transition: 'scale',
+        duration: 400,
+        onApprove: el => {
+          name = modal.find('input[name=name]').val();
+          description = modal.find('input[name=description]').val();
+          order = modal.find('input[name=order]').val();
+          if (create === true) {
+            $.ajax({
+              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`,
+              type: 'POST',
+              headers: {'X-CSRFToken': csrftoken},
+              data: {
+                name: name,
+                board: BOARD_ID,
+                description: description,
+                order: 0,
+              },
+              success: function(result) {
+                getBuckets();
+              }
+            });
+          } else {
+            id = modal.find('input[name=id]').val();
+            $.ajax({
+              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${id}/`,
+              type: 'PUT',
+              headers: {'X-CSRFToken': csrftoken},
+              data: {
+                name: name,
+                board: BOARD_ID,
+                description: description,
+                order: order
+              },
+              success: function(result) {
+                getBuckets();
+              }
+            });
+          }
+        }
+      })
+      .modal('show');
+  };
+
+  const deleteBucket = (bucketId) => {
+    modal = $('.ui.delete.confirmation.modal')
+    modal
+      .modal({
+        onShow: () => {
+          modal.find('.header').text('Delete bucket');
+          modal.find('.content').text(`Are you sure you want to delete bucket ${bucketId}?`);
+        },
+        onApprove: () => {
+          $.ajax({
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/`,
+            type: 'DELETE',
+            headers: {'X-CSRFToken': csrftoken},
+            success: function(result) {
+              getBuckets();
+            }
+          });
+        }
+      })
+      .modal('show');
+  };
+
   adjustBoardHeight();
   getBuckets();
 
-  
 </script>
 {% endblock %}
