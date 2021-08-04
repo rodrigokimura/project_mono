@@ -100,6 +100,7 @@ class BoardDetailView(DetailView):
             ('Board: view', None),
         ]
         context['card_statuses'] = Card.STATUSES
+        context['bucket_auto_statuses'] = Bucket.STATUSES
         return context
 
 
@@ -402,8 +403,8 @@ class CardMoveApiView(LoginRequiredMixin, APIView):
     def post(self, request, format=None):
         serializer = CardMoveSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+            result = serializer.move()
+            return Response(result)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
