@@ -85,15 +85,15 @@ class CardSerializer(ModelSerializer):
     def update(self, instance, validated_data):
         super().update(instance, validated_data)
         status = validated_data.get('status', instance.status)
-        if status == Card.COMPLETED:
+        if status == Bucket.COMPLETED:
             instance.mark_as_completed(
                 user=self.context['request'].user
             )
-        elif status == Card.IN_PROGRESS:
+        elif status == Bucket.IN_PROGRESS:
             instance.mark_as_in_progress(
                 user=self.context['request'].user
             )
-        elif status == Card.NOT_STARTED:
+        elif status == Bucket.NOT_STARTED:
             instance.mark_as_not_started()
         return instance
 
