@@ -114,13 +114,13 @@ class Card(BaseModel):
     completed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="completed_cards", blank=True, null=True)
 
     def mark_as_completed(self, user):
-        self.status = Card.COMPLETED
+        self.status = Bucket.COMPLETED
         self.completed_at = timezone.now()
         self.completed_by = user
         self.save()
 
     def mark_as_in_progress(self, user):
-        self.status = Card.IN_PROGRESS
+        self.status = Bucket.IN_PROGRESS
         self.started_at = timezone.now()
         self.started_by = user
         self.completed_at = None
@@ -128,7 +128,7 @@ class Card(BaseModel):
         self.save()
 
     def mark_as_not_started(self):
-        self.status = Card.NOT_STARTED
+        self.status = Bucket.NOT_STARTED
         self.started_at = None
         self.started_by = None
         self.completed_at = None

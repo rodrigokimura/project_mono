@@ -535,6 +535,7 @@
     var create;
     const modal = $('.ui.card.modal');
     modal.form('reset');
+    modal.off();
     if (card!=null) {
       create = false;
       modal.find('input[name=id]').val(card.id);
@@ -550,57 +551,60 @@
       modal.find('input[name=order]').val('');
       modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
     };
-    modal
-      .modal({
-        restoreFocus: false,
-        transition: 'scale',
-        duration: 400,
-        onApprove: el => {
-          modal.form('validate form');
-          if (!modal.form('is valid')) {
-            return false;
-          };
-          name = modal.find('input[name=name]').val();
-          description = modal.find('textarea[name=description]').val();
-          order = modal.find('input[name=order]').val();
-          status = modal.find('.ui.status.dropdown').dropdown('get value');
-          if (create === true) {
-            $.ajax({
-              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
-              type: 'POST',
-              headers: {'X-CSRFToken': csrftoken},
-              data: {
-                name: name,
-                bucket: bucketId,
-                description: description,
-                status: status,
-                order: 0,
-              },
-              success: function(result) {
-                loadBoard();
-              }
-            });
-          } else {
-            id = modal.find('input[name=id]').val();
-            $.ajax({
-              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`,
-              type: 'PUT',
-              headers: {'X-CSRFToken': csrftoken},
-              data: {
-                name: name,
-                bucket: bucketId,
-                description: description,
-                status: status,
-                order: order
-              },
-              success: function(result) {
-                loadBoard();
-              }
-            });
-          }
+    modal.modal({
+      restoreFocus: false,
+      transition: 'scale',
+      duration: 400,
+      onApprove: el => {
+        modal.form('validate form');
+        if (!modal.form('is valid')) {
+          return false;
+        };
+        name = modal.find('input[name=name]').val();
+        description = modal.find('textarea[name=description]').val();
+        order = modal.find('input[name=order]').val();
+        status = modal.find('.ui.status.dropdown').dropdown('get value');
+        if (create === true) {
+          $.ajax({
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
+            type: 'POST',
+            headers: {'X-CSRFToken': csrftoken},
+            data: {
+              name: name,
+              bucket: bucketId,
+              description: description,
+              status: status,
+              order: 0,
+            },
+            success: function(result) {
+              loadBoard();
+            }
+          });
+        } else {
+          id = modal.find('input[name=id]').val();
+          $.ajax({
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`,
+            type: 'PUT',
+            headers: {'X-CSRFToken': csrftoken},
+            data: {
+              name: name,
+              bucket: bucketId,
+              description: description,
+              status: status,
+              order: order
+            },
+            success: function(result) {
+              loadBoard();
+            }
+          });
         }
-      })
-      .modal('show');
+      }
+    });
+    modal.submit(e => {
+      e.preventDefault();
+      modal.find('.positive.button').click();
+    });
+    modal.modal('show');
   };
 
   const deleteCard = (cardId, bucketId) => {
@@ -629,6 +633,7 @@
     var create;
     const modal = $('.ui.bucket.modal');
     modal.form('reset');
+    modal.off();
     if (bucket != null) {
       create = false;
       modal.find('input[name=id]').val(bucket.id);
@@ -644,57 +649,60 @@
       modal.find('input[name=order]').val('');
       modal.find('.ui.auto-status.dropdown').dropdown('set selected', 'N');
     };
-    modal
-      .modal({
-        restoreFocus: false,
-        transition: 'scale',
-        duration: 400,
-        onApprove: el => {
-          modal.form('validate form');
-          if (!modal.form('is valid')) {
-            return false;
-          };
-          name = modal.find('input[name=name]').val();
-          description = modal.find('textarea[name=description]').val();
-          order = modal.find('input[name=order]').val();
-          autoStatus = modal.find('.ui.auto-status.dropdown').dropdown('get value');
-          if (create === true) {
-            $.ajax({
-              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`,
-              type: 'POST',
-              headers: {'X-CSRFToken': csrftoken},
-              data: {
-                name: name,
-                board: BOARD_ID,
-                description: description,
-                auto_status: autoStatus,
-                order: 0,
-              },
-              success: function(result) {
-                loadBoard();
-              }
-            });
-          } else {
-            id = modal.find('input[name=id]').val();
-            $.ajax({
-              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${id}/`,
-              type: 'PUT',
-              headers: {'X-CSRFToken': csrftoken},
-              data: {
-                name: name,
-                board: BOARD_ID,
-                description: description,
-                auto_status: autoStatus,
-                order: order
-              },
-              success: function(result) {
-                loadBoard();
-              }
-            });
-          }
+    modal.modal({
+      restoreFocus: false,
+      transition: 'scale',
+      duration: 400,
+      onApprove: el => {
+        modal.form('validate form');
+        if (!modal.form('is valid')) {
+          return false;
+        };
+        name = modal.find('input[name=name]').val();
+        description = modal.find('textarea[name=description]').val();
+        order = modal.find('input[name=order]').val();
+        autoStatus = modal.find('.ui.auto-status.dropdown').dropdown('get value');
+        if (create === true) {
+          $.ajax({
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`,
+            type: 'POST',
+            headers: {'X-CSRFToken': csrftoken},
+            data: {
+              name: name,
+              board: BOARD_ID,
+              description: description,
+              auto_status: autoStatus,
+              order: 0,
+            },
+            success: function(result) {
+              loadBoard();
+            }
+          });
+        } else {
+          id = modal.find('input[name=id]').val();
+          $.ajax({
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${id}/`,
+            type: 'PUT',
+            headers: {'X-CSRFToken': csrftoken},
+            data: {
+              name: name,
+              board: BOARD_ID,
+              description: description,
+              auto_status: autoStatus,
+              order: order
+            },
+            success: function(result) {
+              loadBoard();
+            }
+          });
         }
-      })
-      .modal('show');
+      }
+    });
+    modal.submit(e => {
+      e.preventDefault();
+      modal.find('.positive.button').click();
+    });
+    modal.modal('show');
   };
 
   const deleteBucket = (bucketId) => {
