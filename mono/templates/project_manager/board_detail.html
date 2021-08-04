@@ -3,7 +3,18 @@
 {% load i18n %}
 
 {% block head %}
-{% comment %} <META name="viewport" content="initial-scale=0.66, user-scalable=no"> {% endcomment %}
+  {% comment %} <META name="viewport" content="initial-scale=0.66, user-scalable=no"> {% endcomment %}
+  <style>
+    .completed.card {
+      opacity: .5;
+      transition: all 0.5s;
+      -webkit-transition: all 0.5s;
+      -moz-transition: all 0.5s;
+    }
+    .completed.card:hover {
+      opacity: 1;
+    }
+  </style>
 {% endblock head %}
 
 {% block body %}
@@ -24,70 +35,124 @@
   </div>
 </div>
 
-<div class="ui card small modal">
+<form class="ui card small modal form">
   <i class="close icon"></i>
   <div class="header">
-    <div class="ui fluid input">
+    <div class="field">
       <input type=text name="name" placeholder="Name">
     </div>
   </div>
   <div class="content">
-    <div class="ui form">
-      <div class="field">
-        <input type="hidden" name="id">
-      </div>
-      <div class="field">
-        <input type="hidden" name="order">
-      </div>
-      <div class="field">
-        <label>Description</label>
-        <input type="text" name="description" placeholder="Description">
-      </div>
-      <div class="field">
-        <label>Status</label>
-        <select class="ui status selection dropdown">
-          {% for value, text in card_statuses %}
-          <option value="{{ value }}">{{ text }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <script>$('.ui.status.dropdown').dropdown();</script>
+    <div class="field">
+      <input type="hidden" name="id">
     </div>
+    <div class="field">
+      <input type="hidden" name="order">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <input type="text" name="description" placeholder="Description">
+    </div>
+    <div class="field">
+      <label>Status</label>
+      <select class="ui status selection dropdown">
+        {% for value, text in card_statuses %}
+        <option value="{{ value }}">{{ text }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <script>$('.ui.status.dropdown').dropdown();</script>
+    <div class="ui error message"></div>
   </div>
   <div class="actions">
     <div class="ui black deny labeled icon button"><i class="delete icon"></i>Cancel</div>
     <div class="ui positive right labeled icon button">Save<i class="save icon"></i>
     </div>
   </div>
-</div>
+</form>
+<script>
+  $('form.card.modal').form({
+    fields: {
+      name: {
+        identifier: 'name',
+        rules: [
+          {
+            type   : 'empty',
+            prompt : `{% translate "Please, enter a name for your card." %}`
+          },
+          {
+            type   : 'maxLength[50]',
+            prompt : `{% translate "Card's name must have less than 50 characters." %}`
+          }
+        ]
+      },
+      description: {
+        identifier: 'description',
+        rules: [
+          {
+            type   : 'maxLength[255]',
+            prompt : `{% translate "Card's description must have less than 255 characters." %}`
+          }
+        ]
+      },
+    }
+  })
+</script>
 
-<div class="ui bucket small modal">
+<form class="ui bucket small modal form">
   <i class="close icon"></i>
   <div class="header">
-    <div class="ui fluid input">
+    <div class="field">
       <input type=text name="name" placeholder="Name">
     </div>
   </div>
   <div class="content">
-    <div class="ui form">
-      <div class="field">
-        <input type="hidden" name="id">
-      </div>
-      <div class="field">
-        <input type="hidden" name="order">
-      </div>
-      <div class="field">
-        <label>Description</label>
-        <input type="text" name="description" placeholder="Description">
-      </div>
+    <div class="field">
+      <input type="hidden" name="id">
     </div>
+    <div class="field">
+      <input type="hidden" name="order">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <input type="text" name="description" placeholder="Description">
+    </div>
+    <div class="ui error message"></div>
   </div>
   <div class="actions">
     <div class="ui black deny labeled icon button"><i class="delete icon"></i>Cancel</div>
     <div class="ui positive right labeled icon button">Save<i class="save icon"></i>
     </div>
   </div>
-</div>
+</form>
+<script>
+  $('form.bucket.modal').form({
+    fields: {
+      name: {
+        identifier: 'name',
+        rules: [
+          {
+            type   : 'empty',
+            prompt : `{% translate "Please, enter a name for your bucket." %}`
+          },
+          {
+            type   : 'maxLength[50]',
+            prompt : `{% translate "Bucket's name must have less than 50 characters." %}`
+          }
+        ]
+      },
+      description: {
+        identifier: 'description',
+        rules: [
+          {
+            type   : 'maxLength[255]',
+            prompt : `{% translate "Bucket's description must have less than 255 characters." %}`
+          }
+        ]
+      },
+    }
+  })
+</script>
 
 <div class="ui delete confirmation tiny modal">
   <div class="header"></div>
@@ -103,7 +168,7 @@
     </div>
   </div>
 </div>
-  
+
 <script>
   const PROJECT_ID = "{{ object.project.id }}";
   const BOARD_ID = "{{ object.id }}";
@@ -332,7 +397,8 @@
     cards.forEach(card => {
       $(containerSelector).append(
         `
-        <div class="ui raised ${card.is_running ? 'red ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;">
+        
+        <div class="ui raised ${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;">
           <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;" data-card-id="${card.id}">
             <i class="grip lines small icon"></i>
           </div>
@@ -451,7 +517,8 @@
 
   const showCardModal = (card=null, bucketId) => {
     var create;
-    modal = $('.ui.card.modal')
+    const modal = $('.ui.card.modal');
+    modal.form('reset');
     if (card!=null) {
       create = false;
       modal.find('input[name=id]').val(card.id);
@@ -473,6 +540,10 @@
         transition: 'scale',
         duration: 400,
         onApprove: el => {
+          modal.form('validate form');
+          if (!modal.form('is valid')) {
+            return false;
+          };
           name = modal.find('input[name=name]').val();
           description = modal.find('input[name=description]').val();
           order = modal.find('input[name=order]').val();
@@ -541,6 +612,7 @@
   const showBucketModal = (bucket=null) => {
     var create;
     const modal = $('.ui.bucket.modal');
+    modal.form('reset');
     if (bucket != null) {
       create = false;
       modal.find('input[name=id]').val(bucket.id);
@@ -560,6 +632,10 @@
         transition: 'scale',
         duration: 400,
         onApprove: el => {
+          modal.form('validate form');
+          if (!modal.form('is valid')) {
+            return false;
+          };
           name = modal.find('input[name=name]').val();
           description = modal.find('input[name=description]').val();
           order = modal.find('input[name=order]').val();
