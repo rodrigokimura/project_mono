@@ -3,7 +3,12 @@
 {% load i18n %}
 
 {% block head %}
-<META name="viewport" content="initial-scale=0.66, user-scalable=no">
+{% comment %} <META name="viewport" content="initial-scale=0.66, user-scalable=no"> {% endcomment %}
+<style>
+{% comment %} * { touch-action: pan-y; } {% endcomment %}
+  {% comment %} AVOID  Unable to preventDefault inside passive event listener on dragula.js{% endcomment %}
+  {% comment %} .handle {touch-action: none} {% endcomment %}
+</style>
 {% endblock head %}
 
 {% block body %}
@@ -16,7 +21,7 @@
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
 
     <div class="row">
-      <div class="ui segment">
+      <div class="ui basic segment">
         <div id="board" class="ui cards buckets-drake" style="overflow-y: hidden; overflow-x: auto; display: flex; flex-flow: row nowrap;"></div>
       </div>
     </div>
@@ -99,6 +104,27 @@
   const PROJECT_ID = "{{ object.project.id }}";
   const BOARD_ID = "{{ object.id }}";
   var intervals = [];
+  var cardBeingDragged;
+  var containerCardIsOver;
+  var bucketBeingDragged;
+  var containerBucketIsOver;
+  var scrollIntervalID;
+  var isScrolling = false;
+
+  const startElementScroll = (directionX, directionY, elementToScroll, increment, delay) => {
+    let scroll = () => {
+      elementToScroll.scrollBy(directionX * increment, directionY * increment);
+    };
+    if (!isScrolling) {
+      scrollIntervalID = setInterval(scroll, delay);
+      isScrolling = true;
+    };
+  };
+
+  const stopElementScroll = intID => {
+    clearInterval(intID);
+    isScrolling = false;
+  };
 
   var cardsDrake = dragula({
     isContainer: el => $(el).hasClass('cards-drake'),
@@ -123,40 +149,68 @@
     direction: 'horizontal'
   });
 
-  cardsDrake.on('drop', (el, target, source, sibling) => {
-    source_bucket = $(source).attr('id').replace('bucket-', '');
-    target_bucket = $(target).attr('id').replace('bucket-', '');
-    card = $(el).attr('data-card-id');
-    order = $(target).children().toArray().findIndex(e => e == el) + 1;
-    $.ajax({
-      url: `/pm/api/card_move/`,
-      type: 'POST',
-      headers: {'X-CSRFToken': csrftoken},
-      data: {
-        source_bucket: source_bucket,
-        target_bucket: target_bucket,
-        card: card,
-        order: order,
-      },
-      success: function(result) {}
+  cardsDrake
+    .on('drop', (el, target, source, sibling) => {
+      source_bucket = $(source).attr('id').replace('bucket-', '');
+      target_bucket = $(target).attr('id').replace('bucket-', '');
+      card = $(el).attr('data-card-id');
+      order = $(target).children().toArray().findIndex(e => e == el) + 1;
+      $.ajax({
+        url: `/pm/api/card_move/`,
+        type: 'POST',
+        headers: {'X-CSRFToken': csrftoken},
+        data: {
+          source_bucket: source_bucket,
+          target_bucket: target_bucket,
+          card: card,
+          order: order,
+        },
+        success: function(result) {}
+      });
+    })
+    .on('drag', (el, source) => {
+      cardBeingDragged = el;
+    })
+    .on('dragend', (el) => {
+      cardBeingDragged = null;
+      stopElementScroll(scrollIntervalID);
+    })
+    .on('over', (el, container, source) => {
+      containerCardIsOver = container;
+    })
+    .on('out', (el, container, source) => {
+      containerCardIsOver = null;
     });
-  });
 
-  bucketsDrake.on('drop', (el, target, source, sibling) => {
-    bucket = $(el).attr('data-bucket-id');
-    order = $(target).children().toArray().findIndex(e => e == el) + 1;
-    $.ajax({
-      url: `/pm/api/bucket_move/`,
-      type: 'POST',
-      headers: {'X-CSRFToken': csrftoken},
-      data: {
-        bucket: bucket,
-        board: BOARD_ID,
-        order: order,
-      },
-      success: function(result) {}
+  bucketsDrake
+    .on('drop', (el, target, source, sibling) => {
+      bucket = $(el).attr('data-bucket-id');
+      order = $(target).children().toArray().findIndex(e => e == el) + 1;
+      $.ajax({
+        url: `/pm/api/bucket_move/`,
+        type: 'POST',
+        headers: {'X-CSRFToken': csrftoken},
+        data: {
+          bucket: bucket,
+          board: BOARD_ID,
+          order: order,
+        },
+        success: function(result) {}
+      });
+    })
+    .on('drag', (el, source) => {
+      bucketBeingDragged = el;
+    })
+    .on('dragend', (el) => {
+      bucketBeingDragged = null;
+      stopElementScroll(scrollIntervalID);
+    })
+    .on('over', (el, container, source) => {
+      containerBucketIsOver = container;
+    })
+    .on('out', (el, container, source) => {
+      containerBucketIsOver = null;
     });
-  });
 
   const adjustBoardHeight = (boardSelector='#board') => {
     $(boardSelector).height(
@@ -180,7 +234,7 @@
     return `${d > 0 ? d : ''} ${pad(h)}:${pad(m)}:${pad(s)}`;
   };
 
-  const incrementSecond = (cardId) => {
+  const incrementSecond = cardId => {
     element = $(`.total-time[data-card-id=${cardId}]`)
     time = element.attr('data-time')
     time++
@@ -197,6 +251,7 @@
     adjustBoardHeight();
     clearIntervals();
     getBuckets();
+    enableProximityScroll();
   };
 
   const renderBuckets = (containerSelector, buckets) => {
@@ -227,10 +282,32 @@
         </div>
         `
       );
+      document.querySelectorAll(`.handle[data-bucket-id='${bucket.id}']`)[0].addEventListener(
+        'touchmove', e => {
+          e.preventDefault();
+          const board = document.getElementById('board');
+          if (bucketsDrake.dragging && containerBucketIsOver !== null && bucketBeingDragged !== null) {
+            var threshold = 50
+            if ((e.touches[0].pageY - threshold) < containerBucketIsOver.getBoundingClientRect().top) {
+              startElementScroll(0, -1, containerBucketIsOver, 50, 100);
+            } else if ((e.touches[0].pageY + threshold) > containerBucketIsOver.getBoundingClientRect().bottom) {
+              startElementScroll(0, 1, containerBucketIsOver, 50, 100);
+            } else if ((e.touches[0].pageX + threshold) > board.getBoundingClientRect().right) {
+              startElementScroll(1, 0, board, 50, 100);
+            } else if ((e.touches[0].pageX - threshold) < board.getBoundingClientRect().left) {
+              startElementScroll(-1, 0, board, 50, 100);
+            } else {
+              stopElementScroll(scrollIntervalID);
+            }
+          } else {
+            stopElementScroll(scrollIntervalID);
+          };
+        },
+        { passive: false }
+      );
       $(`.ui.dropdown[data-bucket-id=${bucket.id}]`).dropdown({
         action: 'hide', 
         onShow: () => ! bucketsDrake.dragging,
-        showOnFocus: false,
       });
       $(`.add.card.item[data-bucket-id=${bucket.id}]`).click(e => {showCardModal(card=null, bucket.id);});
       $(`.edit.bucket.item[data-bucket-id=${bucket.id}]`).click(e => {showBucketModal(bucket);});
@@ -274,7 +351,33 @@
         </div>
         `
       );
-      $(`.ui.dropdown[data-card-id=${card.id}]`).dropdown({action: 'hide'});
+      document.querySelectorAll(`.handle[data-card-id='${card.id}']`)[0].addEventListener(
+        'touchmove', e => {
+          e.preventDefault();
+          const board = document.getElementById('board');
+          if (cardsDrake.dragging && containerCardIsOver !== null && cardBeingDragged !== null) {
+            var threshold = 50
+            if ((e.touches[0].pageY - threshold) < containerCardIsOver.getBoundingClientRect().top) {
+              startElementScroll(0, -1, containerCardIsOver, 50, 100);
+            } else if ((e.touches[0].pageY + threshold) > containerCardIsOver.getBoundingClientRect().bottom) {
+              startElementScroll(0, 1, containerCardIsOver, 50, 100);
+            } else if ((e.touches[0].pageX + threshold) > board.getBoundingClientRect().right) {
+              startElementScroll(1, 0, board, 50, 100);
+            } else if ((e.touches[0].pageX - threshold) < board.getBoundingClientRect().left) {
+              startElementScroll(-1, 0, board, 50, 100);
+            } else {
+              stopElementScroll(scrollIntervalID);
+            }
+          } else {
+            stopElementScroll(scrollIntervalID);
+          };
+        },
+        { passive: false }
+      );
+      $(`.ui.dropdown[data-card-id=${card.id}]`).dropdown({
+        action: 'hide', 
+        onShow: () => ! cardsDrake.dragging,
+      });
       $(`.edit.card.item[data-card-id=${card.id}]`).click(e => {showCardModal(card, bucketId);});
       $(`.delete.card.item[data-card-id=${card.id}]`).click(e => {deleteCard(card.id, bucketId);});
       $(`.start-stop-timer.card.item[data-card-id=${card.id}]`).click(e => {startStopTimer(card.id, bucketId);});
@@ -282,6 +385,38 @@
         intervals.push(setInterval(() => {incrementSecond(card.id)}, 1000));
       };
     });
+  };
+
+  const enableProximityScroll = () => {
+    function proximityScroll(e) {
+      if (cardsDrake.dragging && containerCardIsOver !== null && cardBeingDragged !== null) {
+        var boardBody = document.getElementById("board")
+        var threshold = 50
+        if ((e.pageY - threshold) < containerCardIsOver.getBoundingClientRect().top) {
+          startElementScroll(0, -1, containerCardIsOver, 50, 100);
+        } else if ((e.pageY + threshold) > containerCardIsOver.getBoundingClientRect().bottom) {
+          startElementScroll(0, 1, containerCardIsOver, 50, 100);
+        } else if ((e.pageX + threshold) > boardBody.getBoundingClientRect().right) {
+          startElementScroll(1, 0, boardBody, 50, 100);
+        } else if ((e.pageX - threshold) < boardBody.getBoundingClientRect().left) {
+          startElementScroll(-1, 0, boardBody, 50, 100);
+        } else {
+          stopElementScroll(scrollIntervalID);
+        }
+      } else if (bucketsDrake.dragging && containerBucketIsOver !== null && bucketBeingDragged !== null) {
+        var threshold = 50
+        if ((e.pageX - threshold) < containerBucketIsOver.getBoundingClientRect().left) {
+          startElementScroll(-1, 0, containerBucketIsOver, 50, 100);
+        } else if ((e.pageX + threshold) > containerBucketIsOver.getBoundingClientRect().right) {
+          startElementScroll(1, 0, containerBucketIsOver, 50, 100);
+        } else {
+          stopElementScroll(scrollIntervalID);
+        }
+      } else {
+        stopElementScroll(scrollIntervalID);
+      };
+    }
+    document.addEventListener("mousemove", proximityScroll);
   };
 
   const getBuckets = () => {
