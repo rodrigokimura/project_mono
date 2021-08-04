@@ -134,7 +134,9 @@
         $(handle).hasClass('handle') // use button as handle
         || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
       ),
-    direction: 'vertical'
+    direction: 'vertical',
+    slideFactorX: '50px',
+    slideFactorY: '50px',
   });
 
   var bucketsDrake = dragula({
@@ -260,6 +262,9 @@
       $(containerSelector).append(
         `
         <div class="ui card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible;">
+          <div class="center aligned handle content" style="padding: 0; margin: 0; cursor: move;" data-bucket-id="${bucket.id}">
+            <i class="grip lines icon"></i>
+          </div>
           <div class="content" style="flex: 0 1 auto;">
             <div class="header">
               ${bucket.name}
@@ -305,10 +310,7 @@
         },
         { passive: false }
       );
-      $(`.ui.dropdown[data-bucket-id=${bucket.id}]`).dropdown({
-        action: 'hide', 
-        onShow: () => ! bucketsDrake.dragging,
-      });
+      $(`.ui.dropdown[data-bucket-id=${bucket.id}]`).dropdown({action: 'hide'});
       $(`.add.card.item[data-bucket-id=${bucket.id}]`).click(e => {showCardModal(card=null, bucket.id);});
       $(`.edit.bucket.item[data-bucket-id=${bucket.id}]`).click(e => {showBucketModal(bucket);});
       $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).click(e => {deleteBucket(bucket.id);});
@@ -328,10 +330,13 @@
       $(containerSelector).append(
         `
         <div class="ui raised ${card.is_running ? 'red ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;">
+          <div class="center aligned handle content" style="padding: 0; margin: 0; cursor: move;" data-card-id="${card.id}">
+            <i class="grip lines icon"></i>
+          </div>
           <div class="content">
             <div class="header">
               ${card.name}
-              <div class="ui right floated basic icon top left pointing dropdown handle button" data-card-id="${card.id}">
+              <div class="ui right floated basic icon top left pointing dropdown button" data-card-id="${card.id}">
                 <i class="ellipsis horizontal icon"></i>
                 <div class="menu">
                   <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
@@ -374,10 +379,7 @@
         },
         { passive: false }
       );
-      $(`.ui.dropdown[data-card-id=${card.id}]`).dropdown({
-        action: 'hide', 
-        onShow: () => ! cardsDrake.dragging,
-      });
+      $(`.ui.dropdown[data-card-id=${card.id}]`).dropdown({action: 'hide'});
       $(`.edit.card.item[data-card-id=${card.id}]`).click(e => {showCardModal(card, bucketId);});
       $(`.delete.card.item[data-card-id=${card.id}]`).click(e => {deleteCard(card.id, bucketId);});
       $(`.start-stop-timer.card.item[data-card-id=${card.id}]`).click(e => {startStopTimer(card.id, bucketId);});
