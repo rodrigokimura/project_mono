@@ -13,7 +13,7 @@
 
     <div class="row">
       <div class="ui segment">
-        <div id="board" class="ui cards buckets-drake" style="overflow: auto; display: flex; flex-flow: row nowrap;"></div>
+        <div id="board" class="ui cards buckets-drake" style="overflow-y: hidden; overflow-x: auto; display: flex; flex-flow: row nowrap;"></div>
       </div>
     </div>
     
@@ -200,7 +200,7 @@
     buckets.forEach(bucket => {
       $(containerSelector).append(
         `
-        <div class="ui card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex;">
+        <div class="ui card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex; overflow-y: hidden;">
           <div class="content" style="flex: 0 0 auto;">
             <div class="header">
               ${bucket.name}
@@ -218,7 +218,7 @@
               ${bucket.description ? bucket.description : ''}
             </div>
           </div>
-          <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 0 auto;">
+          <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 0 1 auto; display: flex; flex-flow: column nowrap; overflow-y: scroll;">
           </div>
         </div>
         `
@@ -242,7 +242,7 @@
     cards.forEach(card => {
       $(containerSelector).append(
         `
-        <div class="ui raised ${card.is_running ? 'red ' : ''}card card-el" data-card-id="${card.id}">
+        <div class="ui raised ${card.is_running ? 'red ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;">
           <div class="content">
             <div class="header">
               ${card.name}
