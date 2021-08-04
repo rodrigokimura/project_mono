@@ -1,13 +1,12 @@
 from typing import Optional
 from django.core.exceptions import BadRequest
 from django.db.models.query import QuerySet
-from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls.base import reverse, reverse_lazy
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
