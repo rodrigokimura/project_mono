@@ -200,8 +200,8 @@
     buckets.forEach(bucket => {
       $(containerSelector).append(
         `
-        <div class="ui card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex; overflow-y: hidden;">
-          <div class="content" style="flex: 0 0 auto;">
+        <div class="ui card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible;">
+          <div class="content" style="flex: 0 1 auto;">
             <div class="header">
               ${bucket.name}
               <div class="ui right floated basic icon top left pointing dropdown handle button">
@@ -218,7 +218,7 @@
               ${bucket.description ? bucket.description : ''}
             </div>
           </div>
-          <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 0 1 auto; display: flex; flex-flow: column nowrap; overflow-y: scroll;">
+          <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 1 auto; display: flex; flex-flow: column nowrap; overflow-y: auto;">
           </div>
         </div>
         `
