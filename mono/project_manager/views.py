@@ -99,6 +99,7 @@ class BoardDetailView(DetailView):
             (f'Project: {self.object}', reverse('project_manager:project_detail', args=[self.object.id])),
             ('Board: view', None),
         ]
+        context['card_statuses'] = Card.STATUSES
         return context
 
 
@@ -339,7 +340,7 @@ class CardListAPIView(LoginRequiredMixin, APIView):
         board = Board.objects.get(id=kwargs['board_pk'], project=project)
         bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
         if request.user in board.allowed_users:
-            serializer = CardSerializer(data=request.data)
+            serializer = CardSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
                 serializer.save(
                     created_by=request.user,
@@ -373,7 +374,7 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
         Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
         card = self.get_object(pk)
         if request.user in card.allowed_users:
-            serializer = CardSerializer(card, data=request.data)
+            serializer = CardSerializer(card, data=request.data, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
