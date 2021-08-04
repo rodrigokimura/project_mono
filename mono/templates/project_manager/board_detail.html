@@ -262,7 +262,7 @@
       $(containerSelector).append(
         `
         <div class="ui card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible;">
-          <div class="center aligned handle content" style="padding: 0; margin: 0; cursor: move;" data-bucket-id="${bucket.id}">
+          <div class="center aligned handle content" style="flex: 0 0 auto; padding: 0; margin: 0; cursor: move;" data-bucket-id="${bucket.id}">
             <i class="grip lines icon"></i>
           </div>
           <div class="content" style="flex: 0 1 auto;">
@@ -330,7 +330,7 @@
       $(containerSelector).append(
         `
         <div class="ui raised ${card.is_running ? 'red ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;">
-          <div class="center aligned handle content" style="padding: 0; margin: 0; cursor: move;" data-card-id="${card.id}">
+          <div class="center aligned handle content" style="flex: 0 0 auto; padding: 0; margin: 0; cursor: move;" data-card-id="${card.id}">
             <i class="grip lines icon"></i>
           </div>
           <div class="content">
