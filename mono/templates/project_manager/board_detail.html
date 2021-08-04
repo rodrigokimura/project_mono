@@ -262,13 +262,15 @@
       $(containerSelector).append(
         `
         <div class="ui card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible;">
-          <div class="center aligned handle content" style="flex: 0 0 auto; padding: 0; margin: 0; cursor: move;" data-bucket-id="${bucket.id}">
+          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;" data-bucket-id="${bucket.id}">
             <i class="grip lines icon"></i>
           </div>
           <div class="content" style="flex: 0 1 auto;">
-            <div class="header">
-              ${bucket.name}
-              <div class="ui right floated basic icon top left pointing dropdown handle button" data-bucket-id="${bucket.id}">
+            <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
+              <div style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
+                ${bucket.name}
+              </div>
+              <div class="ui basic icon top right pointing dropdown button" data-bucket-id="${bucket.id}" style="flex: 0 0 auto; align-self: flex-start;">
                 <i class="ellipsis horizontal icon"></i>
                 <div class="menu">
                   <div class="add card item" data-bucket-id="${bucket.id}"><i class="add icon"></i>Add new card</div>
@@ -330,13 +332,15 @@
       $(containerSelector).append(
         `
         <div class="ui raised ${card.is_running ? 'red ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;">
-          <div class="center aligned handle content" style="flex: 0 0 auto; padding: 0; margin: 0; cursor: move;" data-card-id="${card.id}">
-            <i class="grip lines icon"></i>
+          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;" data-card-id="${card.id}">
+            <i class="grip lines small icon"></i>
           </div>
           <div class="content">
-            <div class="header">
-              ${card.name}
-              <div class="ui right floated basic icon top left pointing dropdown button" data-card-id="${card.id}">
+            <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
+              <div style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
+                ${card.name}
+              </div>
+              <div class="ui basic icon top right pointing dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;">
                 <i class="ellipsis horizontal icon"></i>
                 <div class="menu">
                   <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
@@ -351,7 +355,12 @@
             </div>
           </div>
           <div class="extra content">
-            <span class="right floated total-time" data-card-id="${card.id}" data-time="${card.total_time}">${card.total_time > 0 ? str(card.total_time) : ''}</span>
+            <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
+              ${card.is_running ? '<i class="hourglass half icon"></i>' : ''}
+              <span class="total-time" data-card-id="${card.id}" data-time="${card.total_time}">
+                ${card.total_time > 0 ? str(card.total_time) : ''}
+              </span>
+            </span>
           </div>
         </div>
         `
