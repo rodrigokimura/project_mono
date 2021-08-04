@@ -48,6 +48,7 @@ class BucketSerializer(ModelSerializer):
             'created_at',
             'board',
             'order',
+            'auto_status',
         ]
         extra_kwargs = {'created_by': {'read_only': True}}
 
@@ -139,7 +140,9 @@ class CardMoveSerializer(Serializer):
 
         return data
 
-    def save(self):
+    def move(self):
+        status_changed = False
+        timer_action = 'none'
         source_bucket = Bucket.objects.get(
             id=self.validated_data['source_bucket']
         )
@@ -172,6 +175,22 @@ class CardMoveSerializer(Serializer):
             for i, c in enumerate(source_bucket.card_set.all()):
                 c.order = i + 1
                 c.save()
+
+            # Apply auto_status
+            auto_status = target_bucket.auto_status
+            if auto_status != Bucket.NONE:
+                if auto_status in [Bucket.COMPLETED, Bucket.NOT_STARTED]:
+                    timer_action = card.stop_timer().get('action', 'none')
+                elif auto_status == Bucket.IN_PROGRESS:
+                    timer_action = card.start_timer(self.context['request'].user).get('action', 'none')
+                card.status = auto_status
+                card.save()
+                status_changed = True
+        return {
+            'success': True,
+            'status_changed': status_changed,
+            'timer_action': timer_action,
+        }
 
 
 class BucketMoveSerializer(Serializer):
