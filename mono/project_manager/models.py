@@ -61,9 +61,20 @@ class Bucket(BaseModel):
         (_('Doing'), _('Stuff being done'), 2),
         (_('Done'), _('Stuff already finished'), 3),
     ]
+    NONE = 'N'
+    NOT_STARTED = 'NS'
+    IN_PROGRESS = 'IP'
+    COMPLETED = 'C'
+    STATUSES = [
+        (NONE, _('No automatic status')),
+        (NOT_STARTED, _('Not started')),
+        (IN_PROGRESS, _('In progress')),
+        (COMPLETED, _('Completed')),
+    ]
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     order = models.IntegerField()
     description = models.TextField(max_length=255, blank=True, null=True)
+    auto_status = models.CharField(_("status"), max_length=2, choices=STATUSES, default=NONE)
 
     class Meta:
         ordering = [
@@ -85,13 +96,10 @@ class Bucket(BaseModel):
 
 
 class Card(BaseModel):
-    NOT_STARTED = 'NS'
-    IN_PROGRESS = 'IP'
-    COMPLETED = 'C'
     STATUSES = [
-        (NOT_STARTED, _('Not started')),
-        (IN_PROGRESS, _('In progress')),
-        (COMPLETED, _('Completed')),
+        (Bucket.NOT_STARTED, _('Not started')),
+        (Bucket.IN_PROGRESS, _('In progress')),
+        (Bucket.COMPLETED, _('Completed')),
     ]
 
     bucket = models.ForeignKey(Bucket, on_delete=models.CASCADE)
@@ -99,7 +107,7 @@ class Card(BaseModel):
     assigned_to = models.ManyToManyField(User, related_name="assigned_cards", blank=True)
     description = models.TextField(max_length=255, blank=True, null=True)
     files = models.FileField(upload_to=None, max_length=100, blank=True, null=True)
-    status = models.CharField(_("status"), max_length=2, choices=STATUSES, default=NOT_STARTED)
+    status = models.CharField(_("status"), max_length=2, choices=STATUSES, default=Bucket.NOT_STARTED)
     started_at = models.DateTimeField(blank=True, null=True)
     started_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="started_cards", blank=True, null=True)
     completed_at = models.DateTimeField(blank=True, null=True)
@@ -148,6 +156,35 @@ class Card(BaseModel):
         )['duration']
         running_entries_duration = sum([timezone.now() - entry.started_at for entry in running_entries], timedelta())
         return stopped_entries_duration + running_entries_duration
+
+    def start_timer(self, user):
+        """
+            Create new time entry if no running entry is found.
+        """
+        running_time_entries = self.timeentry_set.filter(stopped_at__isnull=True)
+        if running_time_entries.exists():
+            return {'action': 'none'}
+        else:
+            TimeEntry.objects.create(
+                name="Time entry",
+                card=self,
+                started_at=timezone.now(),
+                created_by=user
+            )
+            return {'action': 'start'}
+
+    def stop_timer(self):
+        """
+            Stop any running time entry.
+        """
+        running_time_entries = self.timeentry_set.filter(stopped_at__isnull=True)
+        if running_time_entries.exists():
+            for time_entry in running_time_entries:
+                time_entry.stopped_at = timezone.now()
+                time_entry.save()
+            return {'action': 'stop'}
+        else:
+            return {'action': 'none'}
 
     def start_stop_timer(self, user):
         running_time_entries = self.timeentry_set.filter(stopped_at__isnull=True)
