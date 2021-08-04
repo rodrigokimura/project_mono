@@ -4,11 +4,6 @@
 
 {% block head %}
 {% comment %} <META name="viewport" content="initial-scale=0.66, user-scalable=no"> {% endcomment %}
-<style>
-{% comment %} * { touch-action: pan-y; } {% endcomment %}
-  {% comment %} AVOID  Unable to preventDefault inside passive event listener on dragula.js{% endcomment %}
-  {% comment %} .handle {touch-action: none} {% endcomment %}
-</style>
 {% endblock head %}
 
 {% block body %}
@@ -48,6 +43,15 @@
         <label>Description</label>
         <input type="text" name="description" placeholder="Description">
       </div>
+      <div class="field">
+        <label>Status</label>
+        <select class="ui status selection dropdown">
+          {% for value, text in card_statuses %}
+          <option value="{{ value }}">{{ text }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <script>$('.ui.status.dropdown').dropdown();</script>
     </div>
   </div>
   <div class="actions">
@@ -126,32 +130,58 @@
     isScrolling = false;
   };
 
-  var cardsDrake = dragula({
-    isContainer: el => $(el).hasClass('cards-drake'),
-    moves: (el, source, handle, sibling) => 
-      $(el).hasClass('card-el') 
-      && (
-        $(handle).hasClass('handle') // use button as handle
-        || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
-      ),
-    direction: 'vertical',
-    slideFactorX: '50px',
-    slideFactorY: '50px',
-  });
-
   var bucketsDrake = dragula({
-    isContainer: el => $(el).hasClass('buckets-drake'),
-    moves: (el, source, handle, sibling) => 
-      $(el).hasClass('bucket-el') 
-      && (
-        $(handle).hasClass('handle') // use button as handle
-        || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
-      ),
-    invalid: (el, handle) => $(el).hasClass('card-el'),
-    direction: 'horizontal'
+      isContainer: el => $(el).hasClass('buckets-drake'),
+      moves: (el, source, handle, sibling) => 
+        $(el).hasClass('bucket-el') 
+        && (
+          $(handle).hasClass('handle') // use button as handle
+          || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
+        ),
+      invalid: (el, handle) => $(el).hasClass('card-el'),
+      direction: 'horizontal'
+    })
+    .on('drop', (el, target, source, sibling) => {
+      bucket = $(el).attr('data-bucket-id');
+      order = $(target).children().toArray().findIndex(e => e == el) + 1;
+      $.ajax({
+        url: `/pm/api/bucket_move/`,
+        type: 'POST',
+        headers: {'X-CSRFToken': csrftoken},
+        data: {
+          bucket: bucket,
+          board: BOARD_ID,
+          order: order,
+        },
+        success: function(result) {}
+      });
+    })
+    .on('drag', (el, source) => {
+      bucketBeingDragged = el;
+    })
+    .on('dragend', (el) => {
+      bucketBeingDragged = null;
+      stopElementScroll(scrollIntervalID);
+    })
+    .on('over', (el, container, source) => {
+      containerBucketIsOver = container;
+    })
+    .on('out', (el, container, source) => {
+      containerBucketIsOver = null;
   });
 
-  cardsDrake
+  var cardsDrake = dragula({
+      isContainer: el => $(el).hasClass('cards-drake'),
+      moves: (el, source, handle, sibling) => 
+        $(el).hasClass('card-el') 
+        && (
+          $(handle).hasClass('handle') // use button as handle
+          || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
+        ),
+      direction: 'vertical',
+      slideFactorX: '50px',
+      slideFactorY: '50px',
+    })
     .on('drop', (el, target, source, sibling) => {
       source_bucket = $(source).attr('id').replace('bucket-', '');
       target_bucket = $(target).attr('id').replace('bucket-', '');
@@ -182,37 +212,7 @@
     })
     .on('out', (el, container, source) => {
       containerCardIsOver = null;
-    });
-
-  bucketsDrake
-    .on('drop', (el, target, source, sibling) => {
-      bucket = $(el).attr('data-bucket-id');
-      order = $(target).children().toArray().findIndex(e => e == el) + 1;
-      $.ajax({
-        url: `/pm/api/bucket_move/`,
-        type: 'POST',
-        headers: {'X-CSRFToken': csrftoken},
-        data: {
-          bucket: bucket,
-          board: BOARD_ID,
-          order: order,
-        },
-        success: function(result) {}
-      });
-    })
-    .on('drag', (el, source) => {
-      bucketBeingDragged = el;
-    })
-    .on('dragend', (el) => {
-      bucketBeingDragged = null;
-      stopElementScroll(scrollIntervalID);
-    })
-    .on('over', (el, container, source) => {
-      containerBucketIsOver = container;
-    })
-    .on('out', (el, container, source) => {
-      containerBucketIsOver = null;
-    });
+  });
 
   const adjustBoardHeight = (boardSelector='#board') => {
     $(boardSelector).height(
@@ -220,6 +220,7 @@
       -$(boardSelector).offset().top
       -$(boardSelector).css('marginBottom').replace('px', '').replace('-', '')
     );
+    document.body.style.height = `${window.innerHeight - 20}px`
   };
 
   const str = seconds => {
@@ -457,12 +458,14 @@
       modal.find('input[name=name]').val(card.name);
       modal.find('input[name=description]').val(card.description);
       modal.find('input[name=order]').val(card.order);
+      modal.find('.ui.status.dropdown').dropdown('set selected', card.status);
     } else {
       create = true;
       modal.find('input[name=id]').val('');
       modal.find('input[name=name]').val('');
       modal.find('input[name=description]').val('');
       modal.find('input[name=order]').val('');
+      modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
     };
     modal
       .modal({
@@ -473,6 +476,7 @@
           name = modal.find('input[name=name]').val();
           description = modal.find('input[name=description]').val();
           order = modal.find('input[name=order]').val();
+          status = modal.find('.ui.status.dropdown').dropdown('get value');
           if (create === true) {
             $.ajax({
               url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
@@ -482,6 +486,7 @@
                 name: name,
                 bucket: bucketId,
                 description: description,
+                status: status,
                 order: 0,
               },
               success: function(result) {
@@ -498,6 +503,7 @@
                 name: name,
                 bucket: bucketId,
                 description: description,
+                status: status,
                 order: order
               },
               success: function(result) {

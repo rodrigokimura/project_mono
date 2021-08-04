@@ -38,10 +38,12 @@ class CardAdmin(admin.ModelAdmin):
         'active',
         'bucket',
         'order',
+        'status',
     ]
     list_filter = [
         'created_by',
         'created_at',
+        'status',
         'active',
     ]
 

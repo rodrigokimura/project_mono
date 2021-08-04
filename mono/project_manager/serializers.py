@@ -65,14 +65,36 @@ class CardSerializer(ModelSerializer):
             'order',
             'assigned_to',
             'description',
+            'started_by',
+            'started_at',
             'completed_by',
             'completed_at',
+            'status',
             'is_running',
             'total_time',
         ]
         extra_kwargs = {
             'created_by': {'read_only': True},
+            'started_by': {'read_only': True},
+            'started_at': {'read_only': True},
+            'completed_by': {'read_only': True},
+            'completed_at': {'read_only': True},
         }
+
+    def update(self, instance, validated_data):
+        super().update(instance, validated_data)
+        status = validated_data.get('status', instance.status)
+        if status == Card.COMPLETED:
+            instance.mark_as_completed(
+                user=self.context['request'].user
+            )
+        elif status == Card.IN_PROGRESS:
+            instance.mark_as_in_progress(
+                user=self.context['request'].user
+            )
+        elif status == Card.NOT_STARTED:
+            instance.mark_as_not_started()
+        return instance
 
 
 class CardMoveSerializer(Serializer):

@@ -85,13 +85,47 @@ class Bucket(BaseModel):
 
 
 class Card(BaseModel):
+    NOT_STARTED = 'NS'
+    IN_PROGRESS = 'IP'
+    COMPLETED = 'C'
+    STATUSES = [
+        (NOT_STARTED, _('Not started')),
+        (IN_PROGRESS, _('In progress')),
+        (COMPLETED, _('Completed')),
+    ]
+
     bucket = models.ForeignKey(Bucket, on_delete=models.CASCADE)
     order = models.IntegerField()
     assigned_to = models.ManyToManyField(User, related_name="assigned_cards", blank=True)
     description = models.TextField(max_length=255, blank=True, null=True)
     files = models.FileField(upload_to=None, max_length=100, blank=True, null=True)
+    status = models.CharField(_("status"), max_length=2, choices=STATUSES, default=NOT_STARTED)
+    started_at = models.DateTimeField(blank=True, null=True)
+    started_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="started_cards", blank=True, null=True)
     completed_at = models.DateTimeField(blank=True, null=True)
     completed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="completed_cards", blank=True, null=True)
+
+    def mark_as_completed(self, user):
+        self.status = Card.COMPLETED
+        self.completed_at = timezone.now()
+        self.completed_by = user
+        self.save()
+
+    def mark_as_in_progress(self, user):
+        self.status = Card.IN_PROGRESS
+        self.started_at = timezone.now()
+        self.started_by = user
+        self.completed_at = None
+        self.completed_by = None
+        self.save()
+
+    def mark_as_not_started(self):
+        self.status = Card.NOT_STARTED
+        self.started_at = None
+        self.started_by = None
+        self.completed_at = None
+        self.completed_by = None
+        self.save()
 
     @property
     def allowed_users(self):
