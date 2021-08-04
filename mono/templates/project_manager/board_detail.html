@@ -3,12 +3,18 @@
 {% load i18n %}
 
 {% block head %}
-{% comment %} <META name="viewport" content="initial-scale=0.66, user-scalable=no"> {% endcomment %}
-<style>
-{% comment %} * { touch-action: pan-y; } {% endcomment %}
-  {% comment %} AVOID  Unable to preventDefault inside passive event listener on dragula.js{% endcomment %}
-  {% comment %} .handle {touch-action: none} {% endcomment %}
-</style>
+  {% comment %} <META name="viewport" content="initial-scale=0.66, user-scalable=no"> {% endcomment %}
+  <style>
+    .completed.card {
+      opacity: .5;
+      transition: all 0.5s;
+      -webkit-transition: all 0.5s;
+      -moz-transition: all 0.5s;
+    }
+    .completed.card:hover {
+      opacity: 1;
+    }
+  </style>
 {% endblock head %}
 
 {% block body %}
@@ -29,61 +35,124 @@
   </div>
 </div>
 
-<div class="ui card small modal">
+<form class="ui card small modal form">
   <i class="close icon"></i>
   <div class="header">
-    <div class="ui fluid input">
+    <div class="field">
       <input type=text name="name" placeholder="Name">
     </div>
   </div>
   <div class="content">
-    <div class="ui form">
-      <div class="field">
-        <input type="hidden" name="id">
-      </div>
-      <div class="field">
-        <input type="hidden" name="order">
-      </div>
-      <div class="field">
-        <label>Description</label>
-        <input type="text" name="description" placeholder="Description">
-      </div>
+    <div class="field">
+      <input type="hidden" name="id">
     </div>
+    <div class="field">
+      <input type="hidden" name="order">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <input type="text" name="description" placeholder="Description">
+    </div>
+    <div class="field">
+      <label>Status</label>
+      <select class="ui status selection dropdown">
+        {% for value, text in card_statuses %}
+        <option value="{{ value }}">{{ text }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <script>$('.ui.status.dropdown').dropdown();</script>
+    <div class="ui error message"></div>
   </div>
   <div class="actions">
     <div class="ui black deny labeled icon button"><i class="delete icon"></i>Cancel</div>
     <div class="ui positive right labeled icon button">Save<i class="save icon"></i>
     </div>
   </div>
-</div>
+</form>
+<script>
+  $('form.card.modal').form({
+    fields: {
+      name: {
+        identifier: 'name',
+        rules: [
+          {
+            type   : 'empty',
+            prompt : `{% translate "Please, enter a name for your card." %}`
+          },
+          {
+            type   : 'maxLength[50]',
+            prompt : `{% translate "Card's name must have less than 50 characters." %}`
+          }
+        ]
+      },
+      description: {
+        identifier: 'description',
+        rules: [
+          {
+            type   : 'maxLength[255]',
+            prompt : `{% translate "Card's description must have less than 255 characters." %}`
+          }
+        ]
+      },
+    }
+  })
+</script>
 
-<div class="ui bucket small modal">
+<form class="ui bucket small modal form">
   <i class="close icon"></i>
   <div class="header">
-    <div class="ui fluid input">
+    <div class="field">
       <input type=text name="name" placeholder="Name">
     </div>
   </div>
   <div class="content">
-    <div class="ui form">
-      <div class="field">
-        <input type="hidden" name="id">
-      </div>
-      <div class="field">
-        <input type="hidden" name="order">
-      </div>
-      <div class="field">
-        <label>Description</label>
-        <input type="text" name="description" placeholder="Description">
-      </div>
+    <div class="field">
+      <input type="hidden" name="id">
     </div>
+    <div class="field">
+      <input type="hidden" name="order">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <input type="text" name="description" placeholder="Description">
+    </div>
+    <div class="ui error message"></div>
   </div>
   <div class="actions">
     <div class="ui black deny labeled icon button"><i class="delete icon"></i>Cancel</div>
     <div class="ui positive right labeled icon button">Save<i class="save icon"></i>
     </div>
   </div>
-</div>
+</form>
+<script>
+  $('form.bucket.modal').form({
+    fields: {
+      name: {
+        identifier: 'name',
+        rules: [
+          {
+            type   : 'empty',
+            prompt : `{% translate "Please, enter a name for your bucket." %}`
+          },
+          {
+            type   : 'maxLength[50]',
+            prompt : `{% translate "Bucket's name must have less than 50 characters." %}`
+          }
+        ]
+      },
+      description: {
+        identifier: 'description',
+        rules: [
+          {
+            type   : 'maxLength[255]',
+            prompt : `{% translate "Bucket's description must have less than 255 characters." %}`
+          }
+        ]
+      },
+    }
+  })
+</script>
 
 <div class="ui delete confirmation tiny modal">
   <div class="header"></div>
@@ -99,7 +168,7 @@
     </div>
   </div>
 </div>
-  
+
 <script>
   const PROJECT_ID = "{{ object.project.id }}";
   const BOARD_ID = "{{ object.id }}";
@@ -126,32 +195,58 @@
     isScrolling = false;
   };
 
-  var cardsDrake = dragula({
-    isContainer: el => $(el).hasClass('cards-drake'),
-    moves: (el, source, handle, sibling) => 
-      $(el).hasClass('card-el') 
-      && (
-        $(handle).hasClass('handle') // use button as handle
-        || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
-      ),
-    direction: 'vertical',
-    slideFactorX: '50px',
-    slideFactorY: '50px',
-  });
-
   var bucketsDrake = dragula({
-    isContainer: el => $(el).hasClass('buckets-drake'),
-    moves: (el, source, handle, sibling) => 
-      $(el).hasClass('bucket-el') 
-      && (
-        $(handle).hasClass('handle') // use button as handle
-        || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
-      ),
-    invalid: (el, handle) => $(el).hasClass('card-el'),
-    direction: 'horizontal'
+      isContainer: el => $(el).hasClass('buckets-drake'),
+      moves: (el, source, handle, sibling) => 
+        $(el).hasClass('bucket-el') 
+        && (
+          $(handle).hasClass('handle') // use button as handle
+          || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
+        ),
+      invalid: (el, handle) => $(el).hasClass('card-el'),
+      direction: 'horizontal'
+    })
+    .on('drop', (el, target, source, sibling) => {
+      bucket = $(el).attr('data-bucket-id');
+      order = $(target).children().toArray().findIndex(e => e == el) + 1;
+      $.ajax({
+        url: `/pm/api/bucket_move/`,
+        type: 'POST',
+        headers: {'X-CSRFToken': csrftoken},
+        data: {
+          bucket: bucket,
+          board: BOARD_ID,
+          order: order,
+        },
+        success: function(result) {}
+      });
+    })
+    .on('drag', (el, source) => {
+      bucketBeingDragged = el;
+    })
+    .on('dragend', (el) => {
+      bucketBeingDragged = null;
+      stopElementScroll(scrollIntervalID);
+    })
+    .on('over', (el, container, source) => {
+      containerBucketIsOver = container;
+    })
+    .on('out', (el, container, source) => {
+      containerBucketIsOver = null;
   });
 
-  cardsDrake
+  var cardsDrake = dragula({
+      isContainer: el => $(el).hasClass('cards-drake'),
+      moves: (el, source, handle, sibling) => 
+        $(el).hasClass('card-el') 
+        && (
+          $(handle).hasClass('handle') // use button as handle
+          || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
+        ),
+      direction: 'vertical',
+      slideFactorX: '50px',
+      slideFactorY: '50px',
+    })
     .on('drop', (el, target, source, sibling) => {
       source_bucket = $(source).attr('id').replace('bucket-', '');
       target_bucket = $(target).attr('id').replace('bucket-', '');
@@ -182,37 +277,7 @@
     })
     .on('out', (el, container, source) => {
       containerCardIsOver = null;
-    });
-
-  bucketsDrake
-    .on('drop', (el, target, source, sibling) => {
-      bucket = $(el).attr('data-bucket-id');
-      order = $(target).children().toArray().findIndex(e => e == el) + 1;
-      $.ajax({
-        url: `/pm/api/bucket_move/`,
-        type: 'POST',
-        headers: {'X-CSRFToken': csrftoken},
-        data: {
-          bucket: bucket,
-          board: BOARD_ID,
-          order: order,
-        },
-        success: function(result) {}
-      });
-    })
-    .on('drag', (el, source) => {
-      bucketBeingDragged = el;
-    })
-    .on('dragend', (el) => {
-      bucketBeingDragged = null;
-      stopElementScroll(scrollIntervalID);
-    })
-    .on('over', (el, container, source) => {
-      containerBucketIsOver = container;
-    })
-    .on('out', (el, container, source) => {
-      containerBucketIsOver = null;
-    });
+  });
 
   const adjustBoardHeight = (boardSelector='#board') => {
     $(boardSelector).height(
@@ -220,6 +285,7 @@
       -$(boardSelector).offset().top
       -$(boardSelector).css('marginBottom').replace('px', '').replace('-', '')
     );
+    document.body.style.height = `${window.innerHeight - 20}px`
   };
 
   const str = seconds => {
@@ -331,7 +397,8 @@
     cards.forEach(card => {
       $(containerSelector).append(
         `
-        <div class="ui raised ${card.is_running ? 'red ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;">
+        
+        <div class="ui raised ${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;">
           <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;" data-card-id="${card.id}">
             <i class="grip lines small icon"></i>
           </div>
@@ -450,19 +517,22 @@
 
   const showCardModal = (card=null, bucketId) => {
     var create;
-    modal = $('.ui.card.modal')
+    const modal = $('.ui.card.modal');
+    modal.form('reset');
     if (card!=null) {
       create = false;
       modal.find('input[name=id]').val(card.id);
       modal.find('input[name=name]').val(card.name);
       modal.find('input[name=description]').val(card.description);
       modal.find('input[name=order]').val(card.order);
+      modal.find('.ui.status.dropdown').dropdown('set selected', card.status);
     } else {
       create = true;
       modal.find('input[name=id]').val('');
       modal.find('input[name=name]').val('');
       modal.find('input[name=description]').val('');
       modal.find('input[name=order]').val('');
+      modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
     };
     modal
       .modal({
@@ -470,9 +540,14 @@
         transition: 'scale',
         duration: 400,
         onApprove: el => {
+          modal.form('validate form');
+          if (!modal.form('is valid')) {
+            return false;
+          };
           name = modal.find('input[name=name]').val();
           description = modal.find('input[name=description]').val();
           order = modal.find('input[name=order]').val();
+          status = modal.find('.ui.status.dropdown').dropdown('get value');
           if (create === true) {
             $.ajax({
               url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
@@ -482,6 +557,7 @@
                 name: name,
                 bucket: bucketId,
                 description: description,
+                status: status,
                 order: 0,
               },
               success: function(result) {
@@ -498,6 +574,7 @@
                 name: name,
                 bucket: bucketId,
                 description: description,
+                status: status,
                 order: order
               },
               success: function(result) {
@@ -535,6 +612,7 @@
   const showBucketModal = (bucket=null) => {
     var create;
     const modal = $('.ui.bucket.modal');
+    modal.form('reset');
     if (bucket != null) {
       create = false;
       modal.find('input[name=id]').val(bucket.id);
@@ -554,6 +632,10 @@
         transition: 'scale',
         duration: 400,
         onApprove: el => {
+          modal.form('validate form');
+          if (!modal.form('is valid')) {
+            return false;
+          };
           name = modal.find('input[name=name]').val();
           description = modal.find('input[name=description]').val();
           order = modal.find('input[name=order]').val();
