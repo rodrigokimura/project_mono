@@ -51,7 +51,7 @@
     </div>
     <div class="field">
       <label>Description</label>
-      <input type="text" name="description" placeholder="Description">
+      <textarea name="description" placeholder="Description"></textarea>
     </div>
     <div class="field">
       <label>Status</label>
@@ -115,8 +115,17 @@
     </div>
     <div class="field">
       <label>Description</label>
-      <input type="text" name="description" placeholder="Description">
+      <textarea name="description" placeholder="Description"></textarea>
     </div>
+    <div class="field">
+      <label><i class="robot icon"></i>Automatic status</label>
+      <select class="ui auto-status selection dropdown">
+        {% for value, text in bucket_auto_statuses %}
+        <option value="{{ value }}">{{ text }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <script>$('.ui.auto-status').dropdown();</script>
     <div class="ui error message"></div>
   </div>
   <div class="actions">
@@ -262,7 +271,15 @@
           card: card,
           order: order,
         },
-        success: function(result) {}
+        success: r => {
+          if (r.success) {
+            status_changed = r.status_changed;
+            timer_action = r.timer_action;
+            if (status_changed || timer_action != 'none') {
+              loadBoard();
+            };
+          };
+        }
       });
     })
     .on('drag', (el, source) => {
@@ -347,7 +364,8 @@
               </div>
             </div>
             <div class="meta">
-              ${bucket.description ? bucket.description : ''}
+              ${bucket.auto_status !== 'N' ? '<span class="ui icon label"><i class="robot icon"></i></span><br>' : '' }
+              <span style="white-space: pre-line;">${bucket.description ? bucket.description : ''}</span>
             </div>
           </div>
           <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 1 auto; display: flex; flex-flow: column nowrap; overflow-y: auto;">
@@ -417,9 +435,7 @@
                 </div>
               </div>
             </div>
-            <div class="meta">
-              ${card.description ? card.description : ''}
-            </div>
+            <div class="meta" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
           </div>
           <div class="extra content">
             <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
@@ -523,14 +539,14 @@
       create = false;
       modal.find('input[name=id]').val(card.id);
       modal.find('input[name=name]').val(card.name);
-      modal.find('input[name=description]').val(card.description);
+      modal.find('textarea[name=description]').val(card.description);
       modal.find('input[name=order]').val(card.order);
       modal.find('.ui.status.dropdown').dropdown('set selected', card.status);
     } else {
       create = true;
       modal.find('input[name=id]').val('');
       modal.find('input[name=name]').val('');
-      modal.find('input[name=description]').val('');
+      modal.find('textarea[name=description]').val('');
       modal.find('input[name=order]').val('');
       modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
     };
@@ -545,7 +561,7 @@
             return false;
           };
           name = modal.find('input[name=name]').val();
-          description = modal.find('input[name=description]').val();
+          description = modal.find('textarea[name=description]').val();
           order = modal.find('input[name=order]').val();
           status = modal.find('.ui.status.dropdown').dropdown('get value');
           if (create === true) {
@@ -617,14 +633,16 @@
       create = false;
       modal.find('input[name=id]').val(bucket.id);
       modal.find('input[name=name]').val(bucket.name);
-      modal.find('input[name=description]').val(bucket.description);
+      modal.find('textarea[name=description]').val(bucket.description);
       modal.find('input[name=order]').val(bucket.order);
+      modal.find('.ui.auto-status.dropdown').dropdown('set selected', bucket.auto_status);
     } else {
       create = true;
       modal.find('input[name=id]').val('');
       modal.find('input[name=name]').val('');
-      modal.find('input[name=description]').val('');
+      modal.find('textarea[name=description]').val('');
       modal.find('input[name=order]').val('');
+      modal.find('.ui.auto-status.dropdown').dropdown('set selected', 'N');
     };
     modal
       .modal({
@@ -637,8 +655,9 @@
             return false;
           };
           name = modal.find('input[name=name]').val();
-          description = modal.find('input[name=description]').val();
+          description = modal.find('textarea[name=description]').val();
           order = modal.find('input[name=order]').val();
+          autoStatus = modal.find('.ui.auto-status.dropdown').dropdown('get value');
           if (create === true) {
             $.ajax({
               url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`,
@@ -648,6 +667,7 @@
                 name: name,
                 board: BOARD_ID,
                 description: description,
+                auto_status: autoStatus,
                 order: 0,
               },
               success: function(result) {
@@ -664,6 +684,7 @@
                 name: name,
                 board: BOARD_ID,
                 description: description,
+                auto_status: autoStatus,
                 order: order
               },
               success: function(result) {

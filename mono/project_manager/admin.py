@@ -21,11 +21,13 @@ class BucketAdmin(admin.ModelAdmin):
         'active',
         'board',
         'order',
+        'auto_status',
     ]
     list_filter = [
         'created_by',
         'created_at',
         'active',
+        'auto_status',
     ]
 
 
