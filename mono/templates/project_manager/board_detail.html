@@ -211,7 +211,8 @@
         && (
           $(handle).hasClass('handle') // use button as handle
           || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
-        ),
+      ),
+      accepts: (el, target, source, sibling) => sibling !== null,
       invalid: (el, handle) => $(el).hasClass('card-el'),
       direction: 'horizontal'
     })
