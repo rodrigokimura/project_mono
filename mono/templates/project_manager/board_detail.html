@@ -35,6 +35,11 @@
     }
 
   </style>
+  <script>
+    if(typeof(String.prototype.trim) === "undefined") {
+        String.prototype.trim = () => String(this).replace(/^\s+|\s+$/g, '');
+    };
+  </script>
 {% endblock head %}
 
 {% block body %}
@@ -46,7 +51,6 @@
   id="zoom-button">
   <i class="search minus icon"></i>
 </div>
-
 <script>
   $('#zoom-button').click(e => {
     let buckets = $('.bucket-el');
@@ -89,7 +93,7 @@
   </div>
 </div>
 
-<form class="ui card small modal form">
+<form class="ui card tiny top aligned modal form">
   <i class="close icon"></i>
   <div class="header">
     <div class="field">
@@ -153,7 +157,7 @@
   })
 </script>
 
-<form class="ui bucket small modal form">
+<form class="ui bucket tiny top aligned modal form">
   <i class="close icon"></i>
   <div class="header">
     <div class="field">
@@ -271,6 +275,7 @@
       direction: 'horizontal'
     })
     .on('drop', (el, target, source, sibling) => {
+      $(el).removeClass('card').addClass('loading card');
       bucket = $(el).attr('data-bucket-id');
       order = $(target).children().toArray().findIndex(e => e == el) + 1;
       $.ajax({
@@ -282,7 +287,8 @@
           board: BOARD_ID,
           order: order,
         },
-        success: function(result) {}
+        success: result => {},
+        complete: () => {$(el).removeClass('loading');}
       });
     })
     .on('drag', (el, source) => {
@@ -312,6 +318,7 @@
       slideFactorY: '50px',
     })
     .on('drop', (el, target, source, sibling) => {
+      $(el).removeClass('card').addClass('loading card');
       source_bucket = $(source).attr('id').replace('bucket-', '');
       target_bucket = $(target).attr('id').replace('bucket-', '');
       card = $(el).attr('data-card-id');
@@ -334,7 +341,8 @@
               loadBoard();
             };
           };
-        }
+        },
+        conplete: () => {$(el).removeClass('loading');}
       });
     })
     .on('drag', (el, source) => {
@@ -503,6 +511,10 @@
         </div>
         `
       );
+      let extraContent = $(`.card-el[data-card-id=${card.id}] .extra.content`);
+      if (extraContent.text().trim() === '') {
+        extraContent.remove();
+      };
       document.querySelectorAll(`.handle[data-card-id='${card.id}']`)[0].addEventListener(
         'touchmove', e => {
           e.preventDefault();
