@@ -9,11 +9,12 @@ def calculate_duration(sender, instance, **kwargs):
 
 def create_default_buckets(sender, instance, created, **kwargs):
     if sender == Board and created:
-        for name, desc, order in Bucket.DEFAULT_BUCKETS:
+        for name, desc, order, auto_status in Bucket.DEFAULT_BUCKETS:
             Bucket.objects.create(
                 name=name,
                 description=desc,
                 order=order,
                 created_by=instance.created_by,
                 board=instance,
+                auto_status=auto_status,
             )

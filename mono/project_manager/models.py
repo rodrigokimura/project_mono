@@ -56,11 +56,6 @@ class Board(BaseModel):
 
 
 class Bucket(BaseModel):
-    DEFAULT_BUCKETS = [
-        (_('To do'), _('Stuff to do'), 1),
-        (_('Doing'), _('Stuff being done'), 2),
-        (_('Done'), _('Stuff already finished'), 3),
-    ]
     NONE = 'N'
     NOT_STARTED = 'NS'
     IN_PROGRESS = 'IP'
@@ -70,6 +65,11 @@ class Bucket(BaseModel):
         (NOT_STARTED, _('Not started')),
         (IN_PROGRESS, _('In progress')),
         (COMPLETED, _('Completed')),
+    ]
+    DEFAULT_BUCKETS = [
+        (_('To do'), _('Stuff to do'), 1, NOT_STARTED),
+        (_('Doing'), _('Stuff being done'), 2, IN_PROGRESS),
+        (_('Done'), _('Stuff already finished'), 3, COMPLETED),
     ]
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     order = models.IntegerField()
