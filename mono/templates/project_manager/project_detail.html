@@ -12,8 +12,11 @@
     
     <div class="row">
       <div class="column">
-        <div class="ui header">{% translate "Project: " %}{{ object.name }}
-          <a href="{% url 'project_manager:board_create' %}" class="ui right floated icon labeled green button">
+        <div class="ui header" style="display: flex; flex-flow: row nowrap;">
+          <div style="flex: 1 0 auto;">
+            {% translate "Project: " %}{{ object.name }}
+          </div>
+          <a href="{% url 'project_manager:board_create' %}" class="ui right floated icon labeled green button" style="flex: 0 0 auto;">
             <i class="add icon"></i>
             {% translate "New board" %}
           </a>
@@ -23,7 +26,7 @@
 
     <div class="ui grid">
 
-      <div class="ui stackable cards">
+      <div class="ui stackable cards" style="margin-top: 1em;">
         {% for board in object.board_set.all %}
       
         <div class="card">

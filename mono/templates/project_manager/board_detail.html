@@ -4,6 +4,8 @@
 
 {% block head %}
   {% comment %} <META name="viewport" content="initial-scale=0.66, user-scalable=no"> {% endcomment %}
+
+
   <style>
     .completed.card {
       opacity: .5;
@@ -14,12 +16,64 @@
     .completed.card:hover {
       opacity: 1;
     }
+    .hidden{
+      display: none !important;
+    }
+
+    #zoom-button {
+      display: none;
+    }
+
+    @media only screen and (max-width: 768px) {
+      #zoom-button {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        right: 1rem;
+        z-index: 10;
+      }
+    }
+
   </style>
 {% endblock head %}
 
 {% block body %}
 <script src="{% static 'js/dragula.min.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
+
+<div class="ui primary circular huge teal icon mobile only button" 
+  style="margin-bottom: 1rem;"
+  id="zoom-button">
+  <i class="search minus icon"></i>
+</div>
+
+<script>
+  $('#zoom-button').click(e => {
+    let buckets = $('.bucket-el');
+    buckets.each(i => {
+      let bucket = $(buckets[i]);
+      bucket.width('100px');
+      if (bucket.hasClass('zoomed-out')) {
+        $('#zoom-button').find('i').removeClass('plus').addClass('minus');
+        bucket.removeClass('zoomed-out');
+        bucket.width('300px');
+        bucket.css('font-size', '1em');
+        bucket.css('line-height', '20px');
+        bucket.find('.dropdown.button').removeClass('mini')
+        bucket.find('.label').removeClass('mini')
+      } else {
+        $('#zoom-button').find('i').removeClass('minus').addClass('plus');
+        bucket.addClass('zoomed-out');
+        bucket.width('200px');
+        bucket.css('font-size', '.6em');
+        bucket.css('line-height', '13px');
+        bucket.find('.dropdown.button').addClass('mini')
+        bucket.find('.label').addClass('mini')
+      }
+    });
+    $('.add.bucket.button').css('font-size', '.6em');
+  })
+</script>
 
 <div class="pusher">
   <div class="ui fluid container">
@@ -211,7 +265,8 @@
         && (
           $(handle).hasClass('handle') // use button as handle
           || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
-        ),
+      ),
+      accepts: (el, target, source, sibling) => sibling !== null,
       invalid: (el, handle) => $(el).hasClass('card-el'),
       direction: 'horizontal'
     })
