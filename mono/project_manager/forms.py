@@ -11,7 +11,6 @@ class ProjectForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['deadline'].widget.type = 'date'
         self.fields['deadline'].widget.format = 'n/d/Y'
-        self.fields['assigned_to'].widget.attrs.update({'class': 'ui dropdown'})
 
     def save(self, *args, **kwargs):
         project = self.instance
@@ -23,7 +22,6 @@ class ProjectForm(forms.ModelForm):
         model = Project
         fields = [
             'name',
-            'assigned_to',
             'deadline',
             'active',
         ]
