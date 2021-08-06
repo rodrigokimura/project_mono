@@ -11,7 +11,7 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Project, Board, Bucket, Card
+from .models import Project, Board, Bucket, Card, Theme
 from .forms import ProjectForm, BoardForm
 from .mixins import PassRequestToFormViewMixin
 from .serializers import BucketMoveSerializer, CardMoveSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
@@ -88,7 +88,7 @@ class ProjectUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
         return context
 
 
-class BoardDetailView(DetailView):
+class BoardDetailView(LoginRequiredMixin, DetailView):
     model = Board
 
     def get_context_data(self, **kwargs):
@@ -101,6 +101,7 @@ class BoardDetailView(DetailView):
         ]
         context['card_statuses'] = Card.STATUSES
         context['bucket_auto_statuses'] = Bucket.STATUSES
+        context['colors'] = Theme.objects.all()
         return context
 
 
@@ -271,10 +272,20 @@ class BucketListAPIView(LoginRequiredMixin, APIView):
         board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
         serializer = BucketSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(
-                created_by=request.user,
-                order=board.max_order + 1,
-            )
+            theme_id = request.data.get('color')
+            if theme_id != '':
+                color = Theme.objects.get(id=theme_id)
+                serializer.save(
+                    created_by=request.user,
+                    order=board.max_order + 1,
+                    color=color,
+                )
+            else:
+                serializer.save(
+                    created_by=request.user,
+                    order=board.max_order + 1,
+                    color=None,
+                )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -304,6 +315,14 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
             serializer = BucketSerializer(bucket, data=request.data)
             if serializer.is_valid():
                 serializer.save()
+                theme_id = request.data.get('color')
+                if theme_id != '':
+                    color = Theme.objects.get(id=theme_id)
+                    bucket.color = color
+                    bucket.save()
+                else:
+                    bucket.color = None
+                    bucket.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -343,10 +362,19 @@ class CardListAPIView(LoginRequiredMixin, APIView):
         if request.user in board.allowed_users:
             serializer = CardSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
-                serializer.save(
-                    created_by=request.user,
-                    order=bucket.max_order + 1,
-                )
+                theme_id = request.data.get('color')
+                if theme_id != '':
+                    color = Theme.objects.get(id=theme_id)
+                    serializer.save(
+                        created_by=request.user,
+                        order=bucket.max_order + 1,
+                        color=color
+                    )
+                else:
+                    serializer.save(
+                        created_by=request.user,
+                        order=bucket.max_order + 1,
+                    )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -378,6 +406,11 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
             serializer = CardSerializer(card, data=request.data, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
+                theme_id = request.data.get('color')
+                if theme_id != '':
+                    color = Theme.objects.get(id=theme_id)
+                    card.color = color
+                    card.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:

@@ -4,6 +4,7 @@ from . import models
 # Register your models here.
 admin.site.register(models.Board)
 admin.site.register(models.Item)
+admin.site.register(models.Theme)
 
 
 @admin.register(models.Project)

@@ -75,6 +75,7 @@ class Bucket(BaseModel):
     order = models.IntegerField()
     description = models.TextField(max_length=255, blank=True, null=True)
     auto_status = models.CharField(_("status"), max_length=2, choices=STATUSES, default=NONE)
+    color = models.ForeignKey('Theme', on_delete=models.CASCADE, blank=True, null=True, default=None)
 
     class Meta:
         ordering = [
@@ -112,6 +113,7 @@ class Card(BaseModel):
     started_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="started_cards", blank=True, null=True)
     completed_at = models.DateTimeField(blank=True, null=True)
     completed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="completed_cards", blank=True, null=True)
+    color = models.ForeignKey('Theme', on_delete=models.CASCADE, blank=True, null=True, default=None)
 
     def mark_as_completed(self, user):
         self.status = Bucket.COMPLETED
@@ -234,3 +236,29 @@ class TimeEntry(BaseModel):
     @property
     def is_stoppped(self):
         return self.stopped_at is not None
+
+
+class Theme(models.Model):
+    DEFAULT_THEMES = [
+        ('Red', '#db2828', '#E16C6C', '#db2828'),
+        ('Orange', '#f2711c', '#f2711c', '#f2711c'),
+        ('Yellow', '#fbbd08', '#fbbd08', '#fbbd08'),
+        ('Olive', '#b5cc18', '#b5cc18', '#b5cc18'),
+        ('Green', '#21ba45', '#21ba45', '#21ba45'),
+        ('Teal', '#00b5ad', '#00b5ad', '#00b5ad'),
+        ('Blue', '#2185d0', '#2185d0', '#2185d0'),
+        ('Violet', '#6435c9', '#6435c9', '#6435c9'),
+        ('Purple', '#a333c8', '#a333c8', '#a333c8'),
+        ('Pink', '#e03997', '#e03997', '#e03997'),
+        ('Brown', '#a5673f', '#a5673f', '#a5673f'),
+        ('Grey', '#767676', '#767676', '#767676'),
+        ('Black', '#1b1c1d', '#1b1c1d', '#1b1c1d'),
+    ]
+    name = models.CharField(_('name'), max_length=50, unique=True)
+    primary = models.CharField(_('primary'), max_length=7)
+    secondary = models.CharField(_('secondary'), max_length=7)
+    tertiary = models.CharField(_('tertiary'), max_length=7)
+    active = models.BooleanField(default=True)
+
+    def __str__(self) -> str:
+        return self.name

@@ -120,6 +120,25 @@
       </select>
     </div>
     <script>$('.ui.status.dropdown').dropdown();</script>
+    <div class="field">
+      <label>Color</label>
+      <select class="ui card color selection dropdown">
+      </select>
+    </div>
+    <script>
+      $('.ui.card.color.dropdown').dropdown({
+        clearable: true,
+        values: [
+          {% for color in colors %}
+          {
+            "name": "{{ color.name }}",
+            "value": {{ color.id }},
+            "icon": "{{ color.name|lower }} circle",
+          },
+          {% endfor %}
+        ],
+      });
+    </script>
     <div class="ui error message"></div>
   </div>
   <div class="actions">
@@ -184,6 +203,25 @@
       </select>
     </div>
     <script>$('.ui.auto-status').dropdown();</script>
+    <div class="field">
+      <label>Color</label>
+      <select class="ui bucket color selection dropdown">
+      </select>
+    </div>
+    <script>
+      $('.ui.bucket.color.dropdown').dropdown({
+        clearable: true,
+        values: [
+          {% for color in colors %}
+          {
+            "name": "{{ color.name }}",
+            "value": {{ color.id }},
+            "icon": "{{ color.name|lower }} circle",
+          },
+          {% endfor %}
+        ],
+      });
+    </script>
     <div class="ui error message"></div>
   </div>
   <div class="actions">
@@ -407,14 +445,17 @@
     buckets.forEach(bucket => {
       $(containerSelector).append(
         `
-        <div class="ui card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible;">
-          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;" data-bucket-id="${bucket.id}">
+        <div class="ui loading card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible;">
+          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${ bucket.color !== null ? `background-color: ${bucket.color.primary}; color: ${bucket.color.tertiary}` : '' }; " data-bucket-id="${bucket.id}">
             <i class="grip lines icon"></i>
           </div>
-          <div class="content" style="flex: 0 1 auto;">
+          <div class="content" style="flex: 0 1 auto; ${ bucket.color !== null ? `background-color: ${bucket.color.tertiary};` : '' };">
             <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
-              <div style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
+              <div style="flex: 1 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
                 ${bucket.name}
+              </div>
+              <div style="flex: 0 0 auto;">
+                ${bucket.auto_status !== 'N' ? '<span class="ui small text" style="margin-right: .5em; opacity: .6;"><i class="robot icon"></i></span><br>' : '' }
               </div>
               <div class="ui basic icon top right pointing dropdown button" data-bucket-id="${bucket.id}" style="flex: 0 0 auto; align-self: flex-start;">
                 <i class="ellipsis horizontal icon"></i>
@@ -427,7 +468,6 @@
               </div>
             </div>
             <div class="meta">
-              ${bucket.auto_status !== 'N' ? '<span class="ui icon label"><i class="robot icon"></i></span><br>' : '' }
               <span style="white-space: pre-line;">${bucket.description ? bucket.description : ''}</span>
             </div>
           </div>
@@ -468,9 +508,10 @@
     $(containerSelector).append(`<div class="ui add bucket button" style="flex: 0 0 auto">Add new bucket</div>`);
     $(`.add.bucket.button`).click(e => {showBucketModal();});
     
-    e = $('.add.bucket.button').siblings().last()
-    $('.add.bucket.button').css('marginTop', e.css('marginTop'))
-    $('.add.bucket.button').css('marginBottom', e.css('marginBottom'))
+    e = $('.add.bucket.button').siblings().last();
+    $('.add.bucket.button').css('marginTop', e.css('marginTop'));
+    $('.add.bucket.button').css('marginBottom', e.css('marginBottom'));
+    $('.bucket-el').removeClass('loading');
   };
 
   const renderCards = (containerSelector, cards, bucketId) => {
@@ -479,11 +520,11 @@
       $(containerSelector).append(
         `
         
-        <div class="ui raised ${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;">
-          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;" data-card-id="${card.id}">
+        <div class="ui raised loading ${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;">
+          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${ card.color !== null ? `background-color: ${card.color.primary}; color: ${card.color.tertiary}` : '' };" data-card-id="${card.id}">
             <i class="grip lines small icon"></i>
           </div>
-          <div class="content">
+          <div class="content" style="${ card.color !== null ? `background-color: ${card.color.tertiary};` : '' };">
             <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
               <div style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
                 ${card.name}
@@ -500,7 +541,7 @@
             </div>
             <div class="meta" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
           </div>
-          <div class="extra content">
+          <div class="extra content" style="${ card.color !== null ? `background-color: ${card.color.tertiary};` : '' };">
             <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
               ${card.is_running ? '<i class="hourglass half icon"></i>' : ''}
               <span class="total-time" data-card-id="${card.id}" data-time="${card.total_time}">
@@ -546,6 +587,7 @@
         intervals.push(setInterval(() => {incrementSecond(card.id)}, 1000));
       };
     });
+    $('.card-el').removeClass('loading');
   };
 
   const enableProximityScroll = () => {
@@ -610,6 +652,7 @@
       modal.find('textarea[name=description]').val(card.description);
       modal.find('input[name=order]').val(card.order);
       modal.find('.ui.status.dropdown').dropdown('set selected', card.status);
+      modal.find('.ui.color.dropdown').dropdown('set selected', card.color !== null ? card.color.id : '');
     } else {
       create = true;
       modal.find('input[name=id]').val('');
@@ -617,6 +660,7 @@
       modal.find('textarea[name=description]').val('');
       modal.find('input[name=order]').val('');
       modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
+      modal.find('.ui.color.dropdown').dropdown('set selected', '');
     };
     modal.modal({
       restoreFocus: false,
@@ -631,6 +675,7 @@
         description = modal.find('textarea[name=description]').val();
         order = modal.find('input[name=order]').val();
         status = modal.find('.ui.status.dropdown').dropdown('get value');
+        color = modal.find('.ui.color.dropdown').dropdown('get value');
         if (create === true) {
           $.ajax({
             url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
@@ -641,6 +686,7 @@
               bucket: bucketId,
               description: description,
               status: status,
+              color: color,
               order: 0,
             },
             success: function(result) {
@@ -658,6 +704,7 @@
               bucket: bucketId,
               description: description,
               status: status,
+              color: color,
               order: order
             },
             success: function(result) {
@@ -708,6 +755,7 @@
       modal.find('textarea[name=description]').val(bucket.description);
       modal.find('input[name=order]').val(bucket.order);
       modal.find('.ui.auto-status.dropdown').dropdown('set selected', bucket.auto_status);
+      modal.find('.ui.color.dropdown').dropdown('set selected', bucket.color !== null ? bucket.color.id : '');
     } else {
       create = true;
       modal.find('input[name=id]').val('');
@@ -715,6 +763,7 @@
       modal.find('textarea[name=description]').val('');
       modal.find('input[name=order]').val('');
       modal.find('.ui.auto-status.dropdown').dropdown('set selected', 'N');
+      modal.find('.ui.color.dropdown').dropdown('set selected', '');
     };
     modal.modal({
       restoreFocus: false,
@@ -729,6 +778,7 @@
         description = modal.find('textarea[name=description]').val();
         order = modal.find('input[name=order]').val();
         autoStatus = modal.find('.ui.auto-status.dropdown').dropdown('get value');
+        color = modal.find('.ui.color.dropdown').dropdown('get value');
         if (create === true) {
           $.ajax({
             url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`,
@@ -739,6 +789,7 @@
               board: BOARD_ID,
               description: description,
               auto_status: autoStatus,
+              color: color,
               order: 0,
             },
             success: function(result) {
@@ -756,6 +807,7 @@
               board: BOARD_ID,
               description: description,
               auto_status: autoStatus,
+              color: color,
               order: order
             },
             success: function(result) {
