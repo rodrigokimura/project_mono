@@ -446,12 +446,12 @@
       $(containerSelector).append(
         `
         <div class="ui loading card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible;">
-          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${ bucket.color !== null ? `background-color: ${bucket.color.primary}; color: ${bucket.color.tertiary}` : '' }; " data-bucket-id="${bucket.id}">
+          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${ bucket.color !== null ? `background-color: ${bucket.color.primary}; color: ${bucket.color.light}` : '' }; " data-bucket-id="${bucket.id}">
             <i class="grip lines icon"></i>
           </div>
-          <div class="content" style="flex: 0 1 auto; ${ bucket.color !== null ? `background-color: ${bucket.color.tertiary};` : '' };">
+          <div class="content" style="flex: 0 1 auto; ${ bucket.color !== null ? `background-color: ${bucket.color.light};` : '' };">
             <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
-              <div style="flex: 1 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
+              <div style="flex: 1 1 auto; overflow-wrap: anywhere; padding-right: .5em; ${ bucket.color !== null ? `color: ${bucket.color.dark};` : '' }">
                 ${bucket.name}
               </div>
               <div style="flex: 0 0 auto;">
@@ -521,11 +521,11 @@
         `
         
         <div class="ui raised loading ${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;">
-          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${ card.color !== null ? `background-color: ${card.color.primary}; color: ${card.color.tertiary}` : '' };" data-card-id="${card.id}">
+          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${ card.color !== null ? `background-color: ${card.color.primary}; color: ${card.color.light}` : '' };" data-card-id="${card.id}">
             <i class="grip lines small icon"></i>
           </div>
-          <div class="content" style="${ card.color !== null ? `background-color: ${card.color.tertiary};` : '' };">
-            <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
+          <div class="content" style="${ card.color !== null ? `background-color: ${card.color.light};` : '' };">
+            <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between; ${ card.color !== null ? `color: ${card.color.dark};` : '' }">
               <div style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
                 ${card.name}
               </div>
@@ -541,7 +541,7 @@
             </div>
             <div class="meta" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
           </div>
-          <div class="extra content" style="${ card.color !== null ? `background-color: ${card.color.tertiary};` : '' };">
+          <div class="extra content" style="${ card.color !== null ? `background-color: ${card.color.light};` : '' };">
             <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
               ${card.is_running ? '<i class="hourglass half icon"></i>' : ''}
               <span class="total-time" data-card-id="${card.id}" data-time="${card.total_time}">

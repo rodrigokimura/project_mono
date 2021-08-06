@@ -52,7 +52,6 @@ class ProjectDetailView(UserPassesTestMixin, DetailView):
 
     def get_object(self):
         obj = super().get_object()
-        print(obj)
         return obj
 
 
@@ -182,12 +181,14 @@ class ProjectDetailAPIView(LoginRequiredMixin, APIView):
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = ProjectSerializer(snippet, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        project = self.get_object(pk)
+        if request.user in project.allowed_users:
+            serializer = ProjectSerializer(project, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return BadRequest
 
     def delete(self, request, pk, format=None, **kwargs):
         project = self.get_object(pk)
@@ -197,8 +198,7 @@ class ProjectDetailAPIView(LoginRequiredMixin, APIView):
                 'success': True,
                 'url': reverse_lazy('project_manager:projects')
             })
-        else:
-            return BadRequest
+        return BadRequest
 
 
 class BoardListAPIView(LoginRequiredMixin, APIView):
@@ -211,12 +211,15 @@ class BoardListAPIView(LoginRequiredMixin, APIView):
         serializer = BoardSerializer(boards, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
         serializer = BoardSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if request.user in project.allowed_users:
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return BadRequest
 
 
 class BoardDetailAPIView(LoginRequiredMixin, APIView):
@@ -238,10 +241,12 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
     def put(self, request, pk, format=None):
         board = self.get_object(pk)
         serializer = BoardSerializer(board, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if request.user in board.allowed_users:
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return BadRequest
 
     def delete(self, request, pk, format=None, **kwargs):
         project = Project.objects.get(id=kwargs.get('project_pk'))
@@ -252,8 +257,7 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
                 'success': True,
                 'url': reverse_lazy('project_manager:project_detail', args=[project.id])
             })
-        else:
-            return BadRequest
+        return BadRequest
 
 
 class BucketListAPIView(LoginRequiredMixin, APIView):
@@ -271,23 +275,25 @@ class BucketListAPIView(LoginRequiredMixin, APIView):
         project = Project.objects.get(id=kwargs.get('project_pk'))
         board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
         serializer = BucketSerializer(data=request.data)
-        if serializer.is_valid():
-            theme_id = request.data.get('color')
-            if theme_id != '':
-                color = Theme.objects.get(id=theme_id)
-                serializer.save(
-                    created_by=request.user,
-                    order=board.max_order + 1,
-                    color=color,
-                )
-            else:
-                serializer.save(
-                    created_by=request.user,
-                    order=board.max_order + 1,
-                    color=None,
-                )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if request.user in board.allowed_users:
+            if serializer.is_valid():
+                theme_id = request.data.get('color')
+                if theme_id != '':
+                    color = Theme.objects.get(id=theme_id)
+                    serializer.save(
+                        created_by=request.user,
+                        order=board.max_order + 1,
+                        color=color,
+                    )
+                else:
+                    serializer.save(
+                        created_by=request.user,
+                        order=board.max_order + 1,
+                        color=None,
+                    )
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return BadRequest
 
 
 class BucketDetailAPIView(LoginRequiredMixin, APIView):
@@ -325,8 +331,7 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
                     bucket.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return BadRequest
+        return BadRequest
 
     def delete(self, request, pk, format=None, **kwargs):
         project = Project.objects.get(id=kwargs.get('project_pk'))
@@ -335,8 +340,7 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
             bucket = self.get_object(pk)
             bucket.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return BadRequest
+        return BadRequest
 
 
 class CardListAPIView(LoginRequiredMixin, APIView):
@@ -377,8 +381,7 @@ class CardListAPIView(LoginRequiredMixin, APIView):
                     )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return BadRequest
+        return BadRequest
 
 
 class CardDetailAPIView(LoginRequiredMixin, APIView):
@@ -413,8 +416,7 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
                     card.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            raise BadRequest
+        raise BadRequest
 
     def delete(self, request, pk, format=None, **kwargs):
         project = Project.objects.get(id=kwargs['project_pk'])
@@ -424,8 +426,7 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in card.allowed_users:
             card.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            raise BadRequest
+        raise BadRequest
 
 
 class CardMoveApiView(LoginRequiredMixin, APIView):
@@ -476,5 +477,4 @@ class StartStopTimerAPIView(LoginRequiredMixin, APIView):
                 'success': True,
                 'action': result['action']
             })
-        else:
-            raise BadRequest
+        raise BadRequest

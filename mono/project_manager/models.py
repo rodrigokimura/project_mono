@@ -31,18 +31,22 @@ class BaseModel(models.Model):
 
 
 class Project(BaseModel):
-    deadline = models.DateTimeField()
-    # milestones =
-    assigned_to = models.ManyToManyField(User, related_name="assigned_projects")
+    deadline = models.DateTimeField(null=True, blank=True)
+    assigned_to = models.ManyToManyField(User, related_name="assigned_projects", blank=True)
 
     @property
     def allowed_users(self):
         return self.assigned_to.union(User.objects.filter(id=self.created_by.id))
 
+    class Meta:
+        ordering = [
+            "created_at",
+        ]
+
 
 class Board(BaseModel):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    assigned_to = models.ManyToManyField(User, related_name="assigned_boards")
+    assigned_to = models.ManyToManyField(User, related_name="assigned_boards", blank=True)
 
     @property
     def allowed_users(self):
@@ -53,6 +57,12 @@ class Board(BaseModel):
         return self.bucket_set.all().aggregate(
             max_order=Coalesce(Max('order'), V(0), output_field=IntegerField())
         )['max_order']
+
+    class Meta:
+        ordering = [
+            "project",
+            "created_at",
+        ]
 
 
 class Bucket(BaseModel):
@@ -240,25 +250,84 @@ class TimeEntry(BaseModel):
 
 class Theme(models.Model):
     DEFAULT_THEMES = [
-        ('Red', '#db2828', '#E16C6C', '#db2828'),
-        ('Orange', '#f2711c', '#f2711c', '#f2711c'),
-        ('Yellow', '#fbbd08', '#fbbd08', '#fbbd08'),
-        ('Olive', '#b5cc18', '#b5cc18', '#b5cc18'),
-        ('Green', '#21ba45', '#21ba45', '#21ba45'),
-        ('Teal', '#00b5ad', '#00b5ad', '#00b5ad'),
-        ('Blue', '#2185d0', '#2185d0', '#2185d0'),
-        ('Violet', '#6435c9', '#6435c9', '#6435c9'),
-        ('Purple', '#a333c8', '#a333c8', '#a333c8'),
-        ('Pink', '#e03997', '#e03997', '#e03997'),
-        ('Brown', '#a5673f', '#a5673f', '#a5673f'),
-        ('Grey', '#767676', '#767676', '#767676'),
-        ('Black', '#1b1c1d', '#1b1c1d', '#1b1c1d'),
+        ('Red', '#f44336', '#b71c1c', '#ffebee'),
+        ('Orange', '#ff9800', '#e65100', '#fff3e0'),
+        ('Yellow', '#ffeb3b', '#f57f17', '#fffde7'),
+        ('Olive', '#cddc39', '#827717', '#f9fbe7'),
+        ('Green', '#4caf50', '#1b5e20', '#e8f5e9'),
+        ('Teal', '#009688', '#004d40', '#e0f2f1'),
+        ('Blue', '#2196f3', '#2185d0', '#e3f2fd'),
+        ('Violet', '#673ab7', '#311b92', '#ede7f6'),
+        ('Purple', '#9c27b0', '#a333c8', '#f3e5f5'),
+        ('Pink', '#e91e63', '#880e4f', '#fce4ec'),
+        ('Brown', '#795548', '#3e2723', '#efebe9'),
+        ('Grey', '#9e9e9e', '#212121', '#fafafa'),
+        ('Black', '#263238', '#000a12', '#eceff1'),
     ]
     name = models.CharField(_('name'), max_length=50, unique=True)
     primary = models.CharField(_('primary'), max_length=7)
-    secondary = models.CharField(_('secondary'), max_length=7)
-    tertiary = models.CharField(_('tertiary'), max_length=7)
+    dark = models.CharField(_('dark'), max_length=7)
+    light = models.CharField(_('light'), max_length=7)
     active = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         return self.name
+
+    def _create_defaults():
+        for theme in Theme.DEFAULT_THEMES:
+            Theme.objects.update_or_create(
+                name=theme[0],
+                defaults={
+                    'primary': theme[1],
+                    'dark': theme[2],
+                    'light': theme[3],
+                }
+            )
+
+
+class Icon(models.Model):
+    DEFAULT_ICONS = [
+        'home',
+        'exclamation',
+    ]
+    markup = models.CharField(max_length=50, unique=True)
+
+    def __str__(self) -> str:
+        return self.markup
+
+    def _create_defaults():
+        for markup in Icon.DEFAULT_ICONS:
+            Icon.objects.update_or_create(markup=markup)
+
+    class Meta:
+        verbose_name = _("icon")
+        verbose_name_plural = _("icons")
+
+
+class Notification(models.Model):
+    title = models.CharField(max_length=50)
+    message = models.CharField(max_length=255)
+    icon = models.ForeignKey(Icon, on_delete=models.SET_NULL, null=True, default=None)
+    to = models.ForeignKey(User, on_delete=models.CASCADE, related_name="project_manager_notifications")
+    read_at = models.DateTimeField(blank=True, null=True, default=None)
+    action = models.CharField(max_length=1000, blank=True, null=True, default=None)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = _("notification")
+        verbose_name_plural = _("notifications")
+
+    def __str__(self) -> str:
+        return self.title
+
+    @property
+    def read(self):
+        return self.read_at is not None
+
+    def mark_as_read(self):
+        self.read_at = timezone.now()
+        self.save()
+
+    def set_icon_by_markup(self, markup):
+        self.icon = Icon.objects.filter(markup=markup).first()
+        self.save()

@@ -21,8 +21,8 @@ class ThemeSerializer(ModelSerializer):
             'id',
             'name',
             'primary',
-            'secondary',
-            'tertiary',
+            'dark',
+            'light',
         ]
 
 

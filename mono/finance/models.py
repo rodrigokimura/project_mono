@@ -726,7 +726,7 @@ class Invite(models.Model):
         self.save()
         Notification.objects.create(
             title="Group invitation",
-            message=f"{user} accepted you invite.",
+            message=f"{user} accepted your invite.",
             icon=Icon.objects.get(markup="exclamation"),
             to=self.created_by,
             action=reverse("finance:groups"),
