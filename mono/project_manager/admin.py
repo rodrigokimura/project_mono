@@ -4,13 +4,21 @@ from . import models
 # Register your models here.
 admin.site.register(models.Board)
 admin.site.register(models.Item)
-admin.site.register(models.Theme)
+admin.site.register(models.Icon)
+admin.site.register(models.Notification)
+admin.site.register(models.Invite)
 
 
 @admin.register(models.Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ['deadline', 'name', 'created_by', 'created_at', 'active']
     list_filter = ('created_by', 'created_at', 'active')
+
+
+@admin.register(models.Theme)
+class ThemeAdmin(admin.ModelAdmin):
+    list_display = ['name', 'primary', 'dark', 'light']
+    list_filter = ['name']
 
 
 @admin.register(models.Bucket)
