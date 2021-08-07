@@ -6,6 +6,7 @@ admin.site.register(models.Board)
 admin.site.register(models.Item)
 admin.site.register(models.Icon)
 admin.site.register(models.Notification)
+admin.site.register(models.Invite)
 
 
 @admin.register(models.Project)

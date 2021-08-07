@@ -1,4 +1,4 @@
-from datetime import timedelta
+from django.conf import settings
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models.aggregates import Max
@@ -7,6 +7,11 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Sum, Value as V, DurationField
 from django.db.models.functions import Coalesce
+from django.urls import reverse
+from django.template.loader import get_template
+from django.core.mail import EmailMultiAlternatives
+import jwt
+from datetime import timedelta
 
 
 User = get_user_model()
@@ -331,3 +336,84 @@ class Notification(models.Model):
     def set_icon_by_markup(self, markup):
         self.icon = Icon.objects.filter(markup=markup).first()
         self.save()
+
+
+class Invite(models.Model):
+    email = models.EmailField(max_length=1000)
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True, related_name="created_project_invites")
+    created_at = models.DateTimeField(auto_now_add=True)
+    accepted_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True, related_name="accepted_project_invites")
+    accepted_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("invite")
+        verbose_name_plural = _("invites")
+
+    @property
+    def accepted(self):
+        return self.accepted_by is not None
+
+    def accept(self, user):
+        project = self.project
+        project.assigned_to.add(user)
+        self.accepted_by = user
+        self.accepted_at = timezone.now()
+        self.save()
+        Notification.objects.create(
+            title="Project invitation",
+            message=f"{user} accepted your invite.",
+            icon=Icon.objects.get(markup="exclamation"),
+            to=self.created_by,
+            action=reverse("project_manager:project_detail", args={'pk': project.id}),
+        )
+
+    @property
+    def link(self):
+        token = jwt.encode(
+            {
+                "exp": timezone.now() + timedelta(days=1),
+                "id": self.pk
+            },
+            settings.SECRET_KEY,
+            algorithm="HS256"
+        )
+        return f"{reverse('project_manager:invite_acceptance')}?t={token}"
+
+    def send(self, request):
+        print('Sending email')
+
+        template_html = 'email/invitation.html'
+        template_text = 'email/invitation.txt'
+
+        text = get_template(template_text)
+        html = get_template(template_html)
+
+        site = f"{request.scheme}://{request.get_host()}"
+
+        full_link = site + self.link
+
+        d = {
+            'site': site,
+            'link': full_link
+        }
+
+        subject, from_email, to = _('Invite'), settings.EMAIL_HOST_USER, self.email
+        msg = EmailMultiAlternatives(
+            subject=subject,
+            body=text.render(d),
+            from_email=from_email,
+            to=[to])
+        msg.attach_alternative(html.render(d), "text/html")
+        msg.send(fail_silently=False)
+        if User.objects.filter(email=self.email).exists():
+            Notification.objects.create(
+                title=_("Project invitation"),
+                message=_("You were invited to be part of a project."),
+                icon=Icon.objects.get(markup="exclamation"),
+                to=User.objects.get(email=self.email),
+                action=full_link
+            )
+
+    def __str__(self) -> str:
+        return f'{str(self.project)} -> {self.email}'
