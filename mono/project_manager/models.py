@@ -391,6 +391,7 @@ class Invite(models.Model):
         html = get_template(template_html)
 
         # site = f"{request.scheme}://{request.get_host()}"
+        site = settings.SITE
 
         full_link = self.link
 
