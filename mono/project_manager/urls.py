@@ -18,7 +18,7 @@ urlpatterns = [
     path('board/<int:pk>/', views.BoardDetailView.as_view(), name='board_detail'),
     path('board/<int:pk>/edit/', views.BoardUpdateView.as_view(), name='board_update'),
 
-    path('invites/<int:pk>/accept/', views.InviteAcceptanceView.as_view(), name='invite_acceptance'),
+    path('invites/accept/', views.InviteAcceptanceView.as_view(), name='invite_acceptance'),
 
     # API Routes
     path('api/projects/', views.ProjectListAPIView.as_view()),

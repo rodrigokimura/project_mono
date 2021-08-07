@@ -10,7 +10,7 @@ class UserSerializer(ModelSerializer):
         fields = [
             'username',
             'email',
-            'is_staff'
+            'is_staff',
         ]
 
 
@@ -27,6 +27,9 @@ class ThemeSerializer(ModelSerializer):
 
 
 class InviteSerializer(ModelSerializer):
+    created_by = UserSerializer(many=False, read_only=True)
+    accepted_by = UserSerializer(many=False, read_only=True)
+    link = serializers.ReadOnlyField()
     class Meta:
         model = Invite
         fields = [
@@ -36,12 +39,14 @@ class InviteSerializer(ModelSerializer):
             'created_at',
             'accepted_by',
             'accepted_at',
+            'link',
         ]
         extra_kwargs = {
             'created_by': {'read_only': True},
             'created_at': {'read_only': True},
             'accepted_by': {'read_only': True},
             'accepted_at': {'read_only': True},
+            'link': {'read_only': True},
         }
 
 

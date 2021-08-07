@@ -339,7 +339,7 @@ class Notification(models.Model):
 
 
 class Invite(models.Model):
-    email = models.EmailField(max_length=1000)
+    email = models.EmailField(max_length=1000, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True, related_name="created_project_invites")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -378,9 +378,10 @@ class Invite(models.Model):
             settings.SECRET_KEY,
             algorithm="HS256"
         )
-        return f"{reverse('project_manager:invite_acceptance')}?t={token}"
+        site = settings.SITE
+        return f"{site}{reverse('project_manager:invite_acceptance')}?t={token}"
 
-    def send(self, request):
+    def send(self):
         print('Sending email')
 
         template_html = 'email/invitation.html'
@@ -389,9 +390,9 @@ class Invite(models.Model):
         text = get_template(template_text)
         html = get_template(template_html)
 
-        site = f"{request.scheme}://{request.get_host()}"
+        # site = f"{request.scheme}://{request.get_host()}"
 
-        full_link = site + self.link
+        full_link = self.link
 
         d = {
             'site': site,

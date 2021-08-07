@@ -1,6 +1,6 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_save
-from .models import Board, Bucket, TimeEntry
+from .models import Board, Bucket, TimeEntry, Invite
 
 
 @receiver(pre_save, sender=TimeEntry, dispatch_uid="calculate_duration")
@@ -22,3 +22,10 @@ def create_default_buckets(sender, instance, created, **kwargs):
                 board=instance,
                 auto_status=auto_status,
             )
+
+
+@receiver(post_save, sender=Invite, dispatch_uid="send_project_invite")
+def send_invite(sender, instance, created, **kwargs):
+    if sender == Invite:
+        if instance.email is not None:
+            instance.send()

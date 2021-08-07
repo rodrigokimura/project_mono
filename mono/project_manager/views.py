@@ -520,7 +520,10 @@ class InviteListAPIView(LoginRequiredMixin, APIView):
         project_pk = kwargs.get('project_pk')
         project = Project.objects.get(id=project_pk)
         if request.user in project.allowed_users:
-            invites = Invite.objects.filter(project=project)
+            invites = Invite.objects.filter(
+                project=project,
+                email__isnull=False,
+            ).exclude(email__exact='')
             serializer = InviteSerializer(invites, many=True)
             return Response(serializer.data)
         return BadRequest
