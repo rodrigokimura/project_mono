@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
 from django.contrib.auth.models import User
-from .models import Project, Board, Bucket, Card, Theme
+from .models import Project, Board, Bucket, Card, Theme, Invite
 
 
 class UserSerializer(ModelSerializer):
@@ -24,6 +24,25 @@ class ThemeSerializer(ModelSerializer):
             'dark',
             'light',
         ]
+
+
+class InviteSerializer(ModelSerializer):
+    class Meta:
+        model = Invite
+        fields = [
+            'email',
+            'project',
+            'created_by',
+            'created_at',
+            'accepted_by',
+            'accepted_at',
+        ]
+        extra_kwargs = {
+            'created_by': {'read_only': True},
+            'created_at': {'read_only': True},
+            'accepted_by': {'read_only': True},
+            'accepted_at': {'read_only': True},
+        }
 
 
 class ProjectSerializer(ModelSerializer):

@@ -9,7 +9,7 @@
   <div class="ui middle aligned stackable grid container">
     
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
-    
+
     <div class="row">
       <div class="column">
         <div class="ui header" style="display: flex; flex-flow: row nowrap;">
@@ -25,7 +25,6 @@
     </div>
 
     <div class="ui grid">
-
       <div class="ui stackable cards" style="margin-top: 1em;">
         {% for board in object.board_set.all %}
       
@@ -70,10 +69,99 @@
         {% endfor %}
       </div>
     </div>
+
+    <div class="row" style="margin-top: 2em;">
+      <div class="column">
+        <div class="ui header">
+          {% translate "Your team: " %}
+        </div>
+        <table class="ui celled table">
+          <thead>
+            <tr><th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+          </tr></thead>
+          <tbody>
+
+            {% for user in object.assigned_to.all %}
+            <tr>
+              <td>{{ user.first_name }} {{ user.last_name }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% translate "No members yet" %}
+      </div>
+    </div>
+
+    <div class="row" style="margin-top: 2em;">
+      <div class="column">
+        <div class="ui header">
+          {% translate "Your invites: " %}
+        </div>
+        <div class="ui action input">
+          <input type="email" placeholder="Type an email to invite">
+          <button class="ui teal right labeled icon button">
+            <i class="envelope icon"></i>
+            {% translate "Send" %}
+          </button>
+        </div>
+        <div id="invites" style="margin-top: 1em;">
+        </div>
+      </div>
+    </div>
   </div>
 </div>
   
 <script>
-  $('*.ui.dropdown').dropdown();
+  const PROJECT_ID = "{{ object.id }}";
+
+  const loadInvites = () => {
+    $('#invites').empty();
+    $.get(
+      url=`/pm/api/projects/${PROJECT_ID}/invites/`
+    )
+    .done(r => {
+      console.log(r);
+      if (r.length === 0) {
+        $('#invites').append('No invites yet')
+      } else {
+        $('#invites').append(
+          `
+            <table class="ui celled table">
+              <thead>
+                <tr><th>Email</th>
+                <th>Created by</th>
+                <th>Created at</th>
+                <th>Accepted by</th>
+                <th>Accepted at</th>
+              </tr></thead>
+              <tbody>
+              </tbody>
+            </table>
+          `
+        );
+        r.forEach(invite => {
+          $('#invites tbody').append(
+            `
+              <tr>
+                <td>${invite.email}</td>
+                <td>${invite.created_by}</td>
+                <td>${invite.created_at}</td>
+                <td>${invite.accepted_by}</td>
+                <td>${invite.accepted_at}</td>
+              </tr>
+            `
+          );
+        })
+
+      }
+    })
+  };
+
+  loadInvites();
+
 </script>
 {% endblock %}
