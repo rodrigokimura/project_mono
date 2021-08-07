@@ -9,7 +9,7 @@
   <div class="ui middle aligned stackable grid container">
     
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
-    
+
     <div class="row">
       <div class="column">
         <div class="ui header" style="display: flex; flex-flow: row nowrap;">
@@ -25,7 +25,6 @@
     </div>
 
     <div class="ui grid">
-
       <div class="ui stackable cards" style="margin-top: 1em;">
         {% for board in object.board_set.all %}
       
@@ -70,10 +69,154 @@
         {% endfor %}
       </div>
     </div>
+
+    <div class="row" style="margin-top: 2em;">
+      <div class="column">
+        <div class="ui header">
+          {% translate "Your team: " %}
+        </div>
+        {% if object.assigned_to.all %}
+        <div style="overflow-x: auto;">
+          <table class="ui unstackable striped celled single line table">
+            <thead>
+              <tr><th>Name</th>
+              <th>Username</th>
+              <th>Email</th>
+            </tr></thead>
+            <tbody>
+  
+              {% for user in object.assigned_to.all %}
+              <tr>
+                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        {% translate "No members yet" %}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="row" style="margin-top: 2em;">
+      <div class="column">
+        <div class="ui header">
+          {% translate "Your invites: " %}
+        </div>
+        <div class="ui action input">
+          <input class="invite" type="email" placeholder="Type an email to invite">
+          <button class="ui teal right labeled icon send invite button">
+            <i class="envelope icon"></i>
+            {% translate "Send" %}
+          </button>
+        </div>
+        <div id="invites" style="margin-top: 1em;">
+        </div>
+      </div>
+    </div>
+    
+    <div class="row" style="margin-top: 2em;">
+      <div class="column">
+        <div class="ui header">
+          {% translate "Share link: " %}
+        </div>
+        <button class="ui teal right labeled icon generate link button" style="margin-bottom:  1em;">
+          <i class="copy icon"></i>
+          {% translate "Generate link" %}
+        </button>
+        <div class="ui fluid action input">
+          <input class="link" type="text" readonly>
+          <button class="ui teal icon copy button">
+            <i class="copy icon"></i>
+          </button>
+        </div>
+        <div id="invites" style="margin-top: 1em;">
+        </div>
+      </div>
+    </div>
+    
   </div>
 </div>
   
 <script>
-  $('*.ui.dropdown').dropdown();
+  const PROJECT_ID = "{{ object.id }}";
+  
+  $('.generate.link.button').api({
+    url: `/pm/api/projects/${PROJECT_ID}/invites/`,
+    method: "POST",
+    mode: 'same-origin',
+    headers: {'X-CSRFToken': csrftoken},
+    data: {
+      project: PROJECT_ID,
+    },
+    onSuccess: r => {
+      $('input.link[type=text]').val(r.link);
+    },
+    onFailure: (response, element, xhr) => {console.log("Something went wrong.");},
+    onError: (errorMessage, element, xhr) => {console.log(`Request error: ${errorMessage}`);},
+  });
+  
+  $('.send.invite.button').api({
+    url: `/pm/api/projects/${PROJECT_ID}/invites/`,
+    method: "POST",
+    mode: 'same-origin',
+    headers: {'X-CSRFToken': csrftoken},
+    data: {
+      email: $('input.invite[type=email]').val(),
+      project: PROJECT_ID,
+    },
+    onSuccess: r => {
+      loadInvites();
+      $('input.invite[type=email]').val('');
+    },
+    onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
+    onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+  });
+
+  const loadInvites = () => {
+    $('#invites').empty();
+    $.get(
+      url=`/pm/api/projects/${PROJECT_ID}/invites/`
+    )
+    .done(r => {
+      console.log(r);
+      if (r.length === 0) {
+        $('#invites').append('No invites yet')
+      } else {
+        $('#invites').append(
+          `
+            <div style="overflow-x: auto;">
+              <table class="ui unstackable striped table">
+                <thead>
+                  <tr><th>Email</th>
+                  <th>Accepted</th>
+                </tr></thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          `
+        );
+        r.forEach(invite => {
+          if (invite.email !== null && invite.email !== '') {
+            $('#invites tbody').append(
+              `
+                <tr class="${invite.accepted_by !== null ? 'positive' : 'negative'}">
+                  <td>${invite.email}</td>
+                  <td class="center aligned">${invite.accepted_by !== null ? '<i class="checkmark icon"></i>' : '<i class="delete icon"></i>'}</td>
+                </tr>
+              `
+            );
+          };
+        })
+      }
+    })
+  };
+
+  loadInvites();
+
 </script>
 {% endblock %}

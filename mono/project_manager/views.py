@@ -1,20 +1,25 @@
 from typing import Optional
+from django.conf import settings
 from django.core.exceptions import BadRequest
 from django.db.models.query import QuerySet
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http.response import HttpResponse
 from django.urls.base import reverse, reverse_lazy
 from django.views.generic import ListView
+from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Project, Board, Bucket, Card, Theme
+import jwt
+from .models import Project, Board, Bucket, Card, Theme, Invite
 from .forms import ProjectForm, BoardForm
 from .mixins import PassRequestToFormViewMixin
-from .serializers import BucketMoveSerializer, CardMoveSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
+from .serializers import BucketMoveSerializer, CardMoveSerializer, InviteSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
 
 
 class ProjectListView(LoginRequiredMixin, ListView):
@@ -52,7 +57,6 @@ class ProjectDetailView(UserPassesTestMixin, DetailView):
 
     def get_object(self):
         obj = super().get_object()
-        print(obj)
         return obj
 
 
@@ -145,7 +149,33 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
         return context
 
 
+class InviteAcceptanceView(LoginRequiredMixin, TemplateView):
+    template_name = "project_manager/invite_acceptance.html"
+
+    def get(self, request):
+        token = request.GET.get('t', None)
+
+        if token is None:
+            return HttpResponse("error")
+        else:
+            payload = jwt.decode(
+                token,
+                settings.SECRET_KEY,
+                algorithms=["HS256"]
+            )
+
+            invite = get_object_or_404(Invite, pk=payload['id'])
+            user_already_member = request.user in invite.project.assigned_to.all()
+            if not invite.accepted and not user_already_member:
+                invite.accept(request.user)
+                invite.save()
+            return self.render_to_response({
+                "accepted": invite.accepted,
+                "user_already_member": user_already_member,
+            })
+
 # API Views
+
 
 class ProjectListAPIView(LoginRequiredMixin, APIView):
     """
@@ -182,12 +212,14 @@ class ProjectDetailAPIView(LoginRequiredMixin, APIView):
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):
-        snippet = self.get_object(pk)
-        serializer = ProjectSerializer(snippet, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        project = self.get_object(pk)
+        if request.user in project.allowed_users:
+            serializer = ProjectSerializer(project, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return BadRequest
 
     def delete(self, request, pk, format=None, **kwargs):
         project = self.get_object(pk)
@@ -197,8 +229,7 @@ class ProjectDetailAPIView(LoginRequiredMixin, APIView):
                 'success': True,
                 'url': reverse_lazy('project_manager:projects')
             })
-        else:
-            return BadRequest
+        return BadRequest
 
 
 class BoardListAPIView(LoginRequiredMixin, APIView):
@@ -211,12 +242,15 @@ class BoardListAPIView(LoginRequiredMixin, APIView):
         serializer = BoardSerializer(boards, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
         serializer = BoardSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if request.user in project.allowed_users:
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return BadRequest
 
 
 class BoardDetailAPIView(LoginRequiredMixin, APIView):
@@ -238,10 +272,12 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
     def put(self, request, pk, format=None):
         board = self.get_object(pk)
         serializer = BoardSerializer(board, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if request.user in board.allowed_users:
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return BadRequest
 
     def delete(self, request, pk, format=None, **kwargs):
         project = Project.objects.get(id=kwargs.get('project_pk'))
@@ -252,8 +288,7 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
                 'success': True,
                 'url': reverse_lazy('project_manager:project_detail', args=[project.id])
             })
-        else:
-            return BadRequest
+        return BadRequest
 
 
 class BucketListAPIView(LoginRequiredMixin, APIView):
@@ -271,23 +306,25 @@ class BucketListAPIView(LoginRequiredMixin, APIView):
         project = Project.objects.get(id=kwargs.get('project_pk'))
         board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
         serializer = BucketSerializer(data=request.data)
-        if serializer.is_valid():
-            theme_id = request.data.get('color')
-            if theme_id != '':
-                color = Theme.objects.get(id=theme_id)
-                serializer.save(
-                    created_by=request.user,
-                    order=board.max_order + 1,
-                    color=color,
-                )
-            else:
-                serializer.save(
-                    created_by=request.user,
-                    order=board.max_order + 1,
-                    color=None,
-                )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if request.user in board.allowed_users:
+            if serializer.is_valid():
+                theme_id = request.data.get('color')
+                if theme_id != '':
+                    color = Theme.objects.get(id=theme_id)
+                    serializer.save(
+                        created_by=request.user,
+                        order=board.max_order + 1,
+                        color=color,
+                    )
+                else:
+                    serializer.save(
+                        created_by=request.user,
+                        order=board.max_order + 1,
+                        color=None,
+                    )
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return BadRequest
 
 
 class BucketDetailAPIView(LoginRequiredMixin, APIView):
@@ -325,8 +362,7 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
                     bucket.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return BadRequest
+        return BadRequest
 
     def delete(self, request, pk, format=None, **kwargs):
         project = Project.objects.get(id=kwargs.get('project_pk'))
@@ -335,8 +371,7 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
             bucket = self.get_object(pk)
             bucket.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return BadRequest
+        return BadRequest
 
 
 class CardListAPIView(LoginRequiredMixin, APIView):
@@ -377,8 +412,7 @@ class CardListAPIView(LoginRequiredMixin, APIView):
                     )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return BadRequest
+        return BadRequest
 
 
 class CardDetailAPIView(LoginRequiredMixin, APIView):
@@ -413,8 +447,7 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
                     card.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            raise BadRequest
+        raise BadRequest
 
     def delete(self, request, pk, format=None, **kwargs):
         project = Project.objects.get(id=kwargs['project_pk'])
@@ -424,8 +457,7 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in card.allowed_users:
             card.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            raise BadRequest
+        raise BadRequest
 
 
 class CardMoveApiView(LoginRequiredMixin, APIView):
@@ -476,5 +508,71 @@ class StartStopTimerAPIView(LoginRequiredMixin, APIView):
                 'success': True,
                 'action': result['action']
             })
-        else:
-            raise BadRequest
+        raise BadRequest
+
+
+class InviteListAPIView(LoginRequiredMixin, APIView):
+    """
+    List all invites, or create a new invite.
+    """
+
+    def get(self, request, format=None, **kwargs):
+        project_pk = kwargs.get('project_pk')
+        project = Project.objects.get(id=project_pk)
+        if request.user in project.allowed_users:
+            invites = Invite.objects.filter(
+                project=project,
+                email__isnull=False,
+            ).exclude(email__exact='')
+            serializer = InviteSerializer(invites, many=True)
+            return Response(serializer.data)
+        return BadRequest
+
+    def post(self, request, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        serializer = InviteSerializer(data=request.data, context={'request': request})
+        if request.user in project.allowed_users:
+            if serializer.is_valid():
+                serializer.save(created_by=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return BadRequest
+
+
+class InviteDetailAPIView(LoginRequiredMixin, APIView):
+    """
+    Retrieve, update or delete a invite instance.
+    """
+
+    def get_object(self, pk):
+        try:
+            return Invite.objects.get(pk=pk)
+        except Invite.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        if request.user in project.allowed_users:
+            invite = self.get_object(pk)
+            serializer = InviteSerializer(invite)
+            return Response(serializer.data)
+        return BadRequest
+
+    def put(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        invite = self.get_object(pk)
+        if request.user in project.allowed_users:
+            serializer = InviteSerializer(invite, data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise BadRequest
+
+    def delete(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        invite = self.get_object(pk)
+        if request.user in project.allowed_users:
+            invite.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        raise BadRequest
