@@ -17,7 +17,3 @@ def language_extras(request):
         'LANGUAGE_EXTRAS': settings.LANGUAGE_EXTRAS,
         'tinyMCE_language': tinyMCE_language
     }
-
-
-# def analytical_app(request):
-#     return {'CLICKY_SITE_ID': settings.CLICKY_SITE_ID}

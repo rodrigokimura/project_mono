@@ -55,15 +55,9 @@
 		{
 			"type": "shell",
 			"label": "Django - Coverage",
-			"command": "source ${workspaceFolder}/venv/bin/activate; export APP_ENV=DEV; cd mono; coverage run --source='.' manage.py test; coverage report",
+			"command": "source ${workspaceFolder}/venv/bin/activate; export APP_ENV=DEV; cd mono; coverage run --source='.' manage.py test; coverage report -m",
 			"problemMatcher": []
 		},
-		// {
-		// 	"type": "shell",
-		// 	"label": "Django - Migrate to Prod",
-		// 	"command": "source ${workspaceFolder}/venv/bin/activate; export USE_CLOUD_SQL_AUTH_PROXY=true; python mono/manage.py migrate",
-		// 	"problemMatcher": []
-		// },
 		{
 			"type": "shell",
 			"label": "Django - Collect Static Files",

@@ -1,4 +1,3 @@
-import io
 import os
 from pathlib import Path
 from django.urls import reverse_lazy
@@ -6,49 +5,24 @@ from dotenv import load_dotenv
 from django.utils.translation import gettext_lazy as _
 
 
-def get_secret(secret_id, version_id="latest"):
-    """
-    Access the payload for the given secret version if one exists. The version
-    can be a version number as a string (e.g. "5") or an alias (e.g. "latest").
-    """
-
-    # Import the Secret Manager client library.
-    from google.cloud import secretmanager
-
-    # Create the Secret Manager client.
-    client = secretmanager.SecretManagerServiceClient()
-
-    # Build the resource name of the secret version.
-    name = f"projects/{os.getenv('GOOGLE_CLOUD_PROJECT_ID')}/secrets/{secret_id}/versions/{version_id}"
-
-    # Access the secret version.
-    response = client.access_secret_version(request={"name": name})
-
-    return response.payload.data.decode("UTF-8")
-
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv()
+
 APP_ENV = os.getenv('APP_ENV', 'PRD')
-
-if os.path.isfile(os.path.join(BASE_DIR, "_mono", ".env")):
-    load_dotenv()
-elif APP_ENV == 'PRD':
-    load_dotenv(stream=io.StringIO(get_secret('ENV_FILE')))
-
 
 GITHUB_SECRET = os.getenv('GITHUB_SECRET')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 if APP_ENV in ['DEV', 'TEST']:
     SECRET_KEY = 'devkeyprojectmono'
-else:
+else:  # pragma: no cover
     SECRET_KEY = os.getenv('APP_SECRET')
 
 # For django-recaptcha
 if APP_ENV in ['DEV', 'TEST']:
     SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
-else:
+else:  # pragma: no cover
     RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY')
     RECAPTCHA_PRIVATE_KEY = os.getenv('RECAPTCHA_PRIVATE_KEY')
 
@@ -60,12 +34,12 @@ SESSION_COOKIE_SECURE = APP_ENV == 'PRD'
 if APP_ENV in ['DEV', 'TEST']:
     ALLOWED_HOSTS = ['*']
 else:
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')  # pragma: no cover
 
 if APP_ENV in ['DEV', 'TEST']:
     SITE = "http://dev.monoproject.info"
 else:
-    SITE = "https://www.monoproject.info"
+    SITE = "https://www.monoproject.info"  # pragma: no cover
 
 # Application definition
 INSTALLED_APPS = [
@@ -161,7 +135,7 @@ if APP_ENV in ['DEV', 'TEST']:
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
-else:
+else:  # pragma: no cover
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -244,7 +218,7 @@ LOGIN_REDIRECT_URL = reverse_lazy('finance:index')
 
 if APP_ENV in ['DEV', 'TEST']:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
+else:  # pragma: no cover
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = os.getenv('EMAIL_HOST')
     EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
@@ -299,28 +273,28 @@ SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 MAINTENANCE_MODE_IGNORE_SUPERUSER = True
 
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'filters': {
-#         'require_debug_true': {
-#             '()': 'django.utils.log.RequireDebugTrue',
-#         },
-#     },
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#             'filters': ['require_debug_true'],
-#         },
-#     },
-#     'loggers': {
-#         'mylogger': {
-#             'handlers': ['console'],
-#             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-#             'propagate': True,
-#         },
-#     },
-# }
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'filters': ['require_debug_true'],
+        },
+    },
+    'loggers': {
+        'mylogger': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': True,
+        },
+    },
+}
 
 
 TINYMCE_DEFAULT_CONFIG = {

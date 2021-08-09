@@ -114,6 +114,11 @@ class BoardCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
         success_url = reverse_lazy('project_manager:project_detail', args=[str(self.request.POST.get('project'))])
         return success_url
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['project_pk'] = self.kwargs['project_pk']
+        return kwargs
+
     def get_context_data(self, **kwargs):
         project = Project.objects.get(id=self.kwargs['project_pk'])
         context = super().get_context_data(**kwargs)
@@ -136,6 +141,11 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     def get_success_url(self, **kwargs) -> str:
         success_url = reverse_lazy('project_manager:project_detail', args=[str(self.request.POST.get('project'))])
         return success_url
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['project_pk'] = self.kwargs['project_pk']
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
