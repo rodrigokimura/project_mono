@@ -3,9 +3,6 @@
 {% load i18n %}
 
 {% block head %}
-  {% comment %} <META name="viewport" content="initial-scale=0.66, user-scalable=no"> {% endcomment %}
-
-
   <style>
     .completed.card {
       opacity: .5;
@@ -65,6 +62,7 @@
         bucket.css('line-height', '20px');
         bucket.find('.dropdown.button').removeClass('mini')
         bucket.find('.label').removeClass('mini')
+        $('.add.bucket.button').css('font-size', '1em');
       } else {
         $('#zoom-button').find('i').removeClass('minus').addClass('plus');
         bucket.addClass('zoomed-out');
@@ -73,9 +71,9 @@
         bucket.css('line-height', '13px');
         bucket.find('.dropdown.button').addClass('mini')
         bucket.find('.label').addClass('mini')
+        $('.add.bucket.button').css('font-size', '.6em');
       }
     });
-    $('.add.bucket.button').css('font-size', '.6em');
   })
 </script>
 
@@ -85,8 +83,8 @@
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
 
     <div class="row">
-      <div class="ui basic segment">
-        <div id="board" class="ui cards buckets-drake" style="overflow-y: hidden; overflow-x: auto; display: flex; flex-flow: row nowrap;"></div>
+      <div class="ui basic segment" style="padding-top: 0;">
+        <div id="board" class="ui cards buckets-drake" style="padding-top: 0; overflow-y: hidden; overflow-x: auto; display: flex; flex-flow: row nowrap;"></div>
       </div>
     </div>
     

@@ -14,9 +14,9 @@ urlpatterns = [
     path('project/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name='project_update'),
     path('projects/', views.ProjectListView.as_view(), name='projects'),
 
-    path('board/', views.BoardCreateView.as_view(), name='board_create'),
-    path('board/<int:pk>/', views.BoardDetailView.as_view(), name='board_detail'),
-    path('board/<int:pk>/edit/', views.BoardUpdateView.as_view(), name='board_update'),
+    path('project/<int:project_pk>/board/', views.BoardCreateView.as_view(), name='board_create'),
+    path('project/<int:project_pk>/board/<int:pk>/', views.BoardDetailView.as_view(), name='board_detail'),
+    path('project/<int:project_pk>/board/<int:pk>/edit/', views.BoardUpdateView.as_view(), name='board_update'),
 
     path('invites/accept/', views.InviteAcceptanceView.as_view(), name='invite_acceptance'),
 

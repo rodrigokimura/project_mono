@@ -5,18 +5,15 @@
 {% block body %}
 
 <div class="pusher">
-  
+  {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
   <div class="ui middle aligned stackable grid container">
-    
-    {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
-
     <div class="row">
       <div class="column">
         <div class="ui header" style="display: flex; flex-flow: row nowrap;">
           <div style="flex: 1 0 auto;">
             {% translate "Project: " %}{{ object.name }}
           </div>
-          <a href="{% url 'project_manager:board_create' %}" class="ui right floated icon labeled green button" style="flex: 0 0 auto;">
+          <a href="{% url 'project_manager:board_create' project_pk=object.id %}" class="ui right floated icon labeled green button" style="flex: 0 0 auto;">
             <i class="add icon"></i>
             {% translate "New board" %}
           </a>
@@ -49,11 +46,11 @@
           </div>
           <div class="extra content">
             <div class="ui two buttons">
-              <a class="ui primary button" href="{% url 'project_manager:board_detail' pk=board.pk %}">
+              <a class="ui primary button" href="{% url 'project_manager:board_detail' project_pk=object.id pk=board.pk %}">
                 <i class="eye icon"></i>
                 {% translate "View" %}
               </a>
-              <a class="ui yellow button" href="{% url 'project_manager:board_update' pk=board.pk %}">
+              <a class="ui yellow button" href="{% url 'project_manager:board_update' project_pk=object.id pk=board.pk %}">
                 <i class="edit icon"></i>
                 {% translate "Edit" %}
               </a>

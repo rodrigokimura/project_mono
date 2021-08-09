@@ -4,53 +4,29 @@
 
 {% block body %}
 <div class="pusher">
+  {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
   <div class="ui stackable grid container" style="margin-bottom: 1em;">
-    
-    {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
-
     <div class="four wide column">
-      {% comment %} <form class="ui fluid form" method="GET" id="filter">
-        <div class="field">
-          <label>{% translate "Group" %}</label>
-          <div class="ui search selection dropdown" data-name="group">
-            <input type="hidden" name="group">
-            <div class="text"></div>
-            <i class="dropdown icon"></i>
-          </div>
-        </div>
-        <div class="field">
-          <label>{% translate "Member" %}</label>
-          <div class="ui search selection dropdown" data-name="member">
-            <input type="hidden" name="member">
-            <div class="text"></div>
-            <i class="dropdown icon"></i>
-          </div>
-        </div>
-        <div class="ui fluid buttons">
-          <button class="ui button primary" type="submit" form="filter">{% translate "Filter" %}</button>
-          <a class="ui button" href="{% url 'project_manager:projects' %}">{% translate "Clear" %}</a>
-        </div>
-      </form> {% endcomment %}
     </div>
     
     <div class="eight wide column">
-      
-      
-      
-      
       <div class="ui horizontal divider"><i class="table icon"></i> {% translate "Projects" %}</div>
       {% for project in object_list %}
       {% if not project.is_shared %}
       <div class="ui segments">
-        <div class="ui grid secondary grey segment" data-toggle="segments">
-          <div class="eight wide column">
+        <div class="ui secondary grey segment" data-toggle="segments" style="display: flex; flex-flow: row nowrap; align-items: center; justify-content: space-between;">
+          <div style="flex: 1 1 auto; overflow-wrap: anywhere;">
             {{ project.name }}
           </div>
-          <div class="eight wide right aligned column">
-            <div class="ui tiny buttons">
-              <a class="ui button" href="{% url 'project_manager:project_detail' pk=project.pk %}">{% translate "View" %}</a>
-              <a class="ui button" href="{% url 'project_manager:project_update' pk=project.pk %}">{% translate "Edit" %}</a>
-            </div>
+          <div class="ui tiny buttons" style="flex: 0 0 auto;">
+            <a class="ui primary button" href="{% url 'project_manager:project_detail' pk=project.pk %}">
+              <i class="eye icon"></i>
+              {% translate "View" %}
+            </a>
+            <a class="ui yellow button" href="{% url 'project_manager:project_update' pk=project.pk %}">
+              <i class="edit icon"></i>
+              {% translate "Edit" %}
+            </a>
           </div>
         </div>
         <div class="ui grid segment">
@@ -77,7 +53,10 @@
     </div>
       
     <div class="four wide column">
-        <a class="ui fluid button primary" href="{% url "project_manager:project_create" %}">{% translate "Add project" %}</a>
+        <a class="ui fluid icon labeled green button" href="{% url "project_manager:project_create" %}">
+          <i class="add icon"></i>
+          {% translate "Add project" %}
+        </a>
     </div>
   </div>
 </div>
