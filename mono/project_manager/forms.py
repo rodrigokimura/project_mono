@@ -39,9 +39,9 @@ class BoardForm(forms.ModelForm):
         project = Project.objects.get(id=kwargs.pop("project_pk"))
         super().__init__(*args, **kwargs)
         self.fields['assigned_to'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['assigned_to'].widget.queryset = project.allowed_users.all()
+        self.fields['assigned_to'].queryset = project.allowed_users
         self.fields['project'].widget.attrs.update({'class': 'ui project dropdown'})
-        self.fields['project'].widget.queryset = Project.objects.filter(created_by=self.request.user)
+        self.fields['project'].queryset = Project.objects.filter(created_by=self.request.user)
 
     def save(self, *args, **kwargs):
         board = self.instance
