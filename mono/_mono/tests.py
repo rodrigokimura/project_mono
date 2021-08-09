@@ -101,11 +101,3 @@ class ContextProcessorsTest(TestCase):
         context = language_extras(request=request)
         self.assertIn('LANGUAGE_EXTRAS', context)
         self.assertIn('tinyMCE_language', context)
-
-
-class SettingsTest(TestCase):
-
-    def test_secret_key(self):
-        with self.settings(APP_ENV='PRD'):
-            secret_key = settings.SECRET_KEY
-            print(secret_key)
