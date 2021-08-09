@@ -34,7 +34,6 @@ class ProjectListView(LoginRequiredMixin, ListView):
         context['breadcrumb'] = [
             ('Home', reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
-            ('Projects', None),
         ]
         return context
 
@@ -51,13 +50,9 @@ class ProjectDetailView(UserPassesTestMixin, DetailView):
         context['breadcrumb'] = [
             ('Home', reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
-            ('Project: view', None),
+            (self.object.name, None),
         ]
         return context
-
-    def get_object(self):
-        obj = super().get_object()
-        return obj
 
 
 class ProjectCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
@@ -71,7 +66,7 @@ class ProjectCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
         context['breadcrumb'] = [
             ('Home', reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
-            ('Project: create', None),
+            ('Create project', None),
         ]
         return context
 
@@ -87,7 +82,7 @@ class ProjectUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
         context['breadcrumb'] = [
             ('Home', reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
-            ('Project: edit', None),
+            ('Edit project', None),
         ]
         return context
 
@@ -100,8 +95,8 @@ class BoardDetailView(LoginRequiredMixin, DetailView):
         context['breadcrumb'] = [
             ('Home', reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
-            (f'Project: {self.object}', reverse('project_manager:project_detail', args=[self.object.id])),
-            ('Board: view', None),
+            (self.object.project.name, reverse('project_manager:project_detail', args=[self.object.project.id])),
+            (self.object.name, None),
         ]
         context['card_statuses'] = Card.STATUSES
         context['bucket_auto_statuses'] = Bucket.STATUSES
@@ -119,12 +114,20 @@ class BoardCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
         success_url = reverse_lazy('project_manager:project_detail', args=[str(self.request.POST.get('project'))])
         return success_url
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['project_pk'] = self.kwargs['project_pk']
+        return kwargs
+
     def get_context_data(self, **kwargs):
+        project = Project.objects.get(id=self.kwargs['project_pk'])
         context = super().get_context_data(**kwargs)
+        context['project'] = project
         context['breadcrumb'] = [
             ('Home', reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
-            ('Board: create', None),
+            (project.name, reverse('project_manager:project_detail', args=[project.id])),
+            ('Create board', None),
         ]
         return context
 
@@ -138,6 +141,11 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     def get_success_url(self, **kwargs) -> str:
         success_url = reverse_lazy('project_manager:project_detail', args=[str(self.request.POST.get('project'))])
         return success_url
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['project_pk'] = self.kwargs['project_pk']
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

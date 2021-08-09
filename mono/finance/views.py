@@ -49,14 +49,8 @@ from datetime import datetime
 from social_django.models import UserSocialAuth
 
 
-class HomePageView(TemplateView):
+class HomePageView(LoginRequiredMixin, TemplateView):
     template_name = "finance/index.html"
-
-    def get(self, request, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            return super().get(request, *args, **kwargs)
-        else:
-            return redirect(reverse("finance:login"))
 
     def get_context_data(self, **kwargs):
         context = super(HomePageView, self).get_context_data(**kwargs)

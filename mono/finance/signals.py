@@ -25,7 +25,9 @@ def initial_setup(sender, instance, created, **kwargs):
             )
 
         # Initial configuration
-        Configuration.objects.create(user=instance)
+        config = Configuration.objects.create(user=instance)
+        config.cards = '1,2,3'
+        config.save()
 
 
 def group_initial_setup(sender, instance, created, **kwargs):

@@ -1,6 +1,6 @@
 <div class="row">
   <div class="column">
-    <div class="ui segment" style="margin-top: 1em;">
+    <div class="ui segment" style="margin: 1em;">
       <div class="ui breadcrumb">
 
         {% for name, url in breadcrumb %}
@@ -11,9 +11,9 @@
             <i class="right chevron icon divider"></i>
           {% endif %}
           {% if url %}
-            <a class="section" href="{{ url }}">{{ name }}</a>
+            <a class="{% if forloop.last %}active {% endif %}section" href="{{ url }}">{{ name }}</a>
           {% else %}
-            <div class="section">{{ name }}</div>
+            <div class="{% if forloop.last %}active {% endif %}section">{{ name }}</div>
           {% endif %}
         {% endfor %}
       </div>
