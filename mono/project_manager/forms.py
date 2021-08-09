@@ -1,5 +1,5 @@
 from django import forms
-from .models import User, Project, Board
+from .models import Project, Board
 from .widgets import CalendarWidget, ToggleWidget
 
 
