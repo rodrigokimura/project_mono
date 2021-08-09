@@ -40,7 +40,6 @@ class BoardForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['assigned_to'].widget.attrs.update({'class': 'ui dropdown'})
         self.fields['assigned_to'].queryset = project.allowed_users
-        print(project.allowed_users)
         self.fields['project'].widget.attrs.update({'class': 'ui project dropdown'})
         self.fields['project'].queryset = Project.objects.filter(created_by=self.request.user)
 
