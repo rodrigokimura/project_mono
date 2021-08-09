@@ -38,7 +38,7 @@ class BoardForm(forms.ModelForm):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
         self.fields['assigned_to'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['project'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['project'].widget.attrs.update({'class': 'ui project dropdown'})
         self.fields['project'].widget.queryset = Project.objects.filter(created_by=self.request.user)
 
     def save(self, *args, **kwargs):
