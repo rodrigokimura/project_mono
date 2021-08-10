@@ -12,7 +12,6 @@ from django.views.generic.detail import DetailView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordResetDoneView, PasswordResetView,
@@ -157,11 +156,6 @@ class SignUp(SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
     template_name = "finance/signup.html"
     success_url = reverse_lazy('finance:index')
     success_message = "%(username)s user created successfully"
-
-    def save(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        login(self.request, self.get_user())
-        return super(SignUp, self).save(request, *args, **kwargs)
 
 
 class Login(LoginView):
