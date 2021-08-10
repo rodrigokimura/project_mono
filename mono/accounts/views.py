@@ -15,7 +15,7 @@ class AccountVerificationView(TemplateView):
     def get(self, request):
         token = request.GET.get('t', None)
 
-        if token is None:
+        if token is None or token == '':
             return HttpResponse("error")
 
         payload = jwt.decode(
