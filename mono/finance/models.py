@@ -745,7 +745,6 @@ class Invite(models.Model):
         return f"{reverse('finance:invite_acceptance')}?t={token}"
 
     def send(self, request):
-        print('Sending email')
 
         template_html = 'email/invitation.html'
         template_text = 'email/invitation.txt'

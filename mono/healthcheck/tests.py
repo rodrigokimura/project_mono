@@ -24,7 +24,10 @@ class MigrationsTests(TestCase):
         for app in apps_exception:
             apps.remove(app)
         for app in apps:
-            self.assertFalse(is_there_migrations_to_make(app), "You have migrations to make. Run 'manage.py makemigrations'.")
+            self.assertFalse(
+                is_there_migrations_to_make(app_label=app, silent=True),
+                "You have migrations to make. Run 'manage.py makemigrations'."
+            )
 
 
 class PullRequestModelTests(TestCase):

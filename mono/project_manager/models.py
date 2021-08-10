@@ -382,7 +382,6 @@ class Invite(models.Model):
         return f"{site}{reverse('project_manager:invite_acceptance')}?t={token}"
 
     def send(self):
-        print('Sending email')
 
         template_html = 'email/invitation.html'
         template_text = 'email/invitation.txt'
