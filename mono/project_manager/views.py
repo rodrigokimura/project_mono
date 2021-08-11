@@ -1,9 +1,11 @@
-from typing import Optional
+from typing import Any, Optional
 from django.conf import settings
 from django.core.exceptions import BadRequest
 from django.db.models.query import QuerySet
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.urls.base import reverse, reverse_lazy
 from django.views.generic import ListView
@@ -11,7 +13,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -92,6 +94,14 @@ class ProjectUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
 
 class BoardDetailView(LoginRequiredMixin, DetailView):
     model = Board
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        board = self.get_object()
+        if request.user in board.allowed_users:
+            return super().get(request, *args, **kwargs)
+        else:
+            messages.error(request, 'You are not assigned to this board!')
+            return redirect(to=reverse('project_manager:project_detail', args=[board.project.id]))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
