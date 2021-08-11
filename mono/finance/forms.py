@@ -168,25 +168,25 @@ class UniversalTransactionForm(forms.Form):
         errors = {}
         if type == 'TRF':
             # if Transfer, from and to accounts are required
-            if self.cleaned_data['from_account'] is None:
+            if self.cleaned_data.get('from_account') is None:
                 errors['from_account'] = ValidationError(_('This field is required.'))
-            if self.cleaned_data['to_account'] is None:
+            if self.cleaned_data.get('to_account') is None:
                 errors['to_account'] = ValidationError(_('This field is required.'))
         elif self.cleaned_data['is_recurrent_or_installment']:
             # if Recurrent, Installment or Transaction, account and category are required
-            if self.cleaned_data['account'] is None:
+            if self.cleaned_data.get('account') is None:
                 errors['account'] = ValidationError(_('This field is required.'))
-            if self.cleaned_data['category'] is None:
+            if self.cleaned_data.get('category') is None:
                 errors['category'] = ValidationError(_('This field is required.'))
-            if self.cleaned_data['recurrent_or_installment'] == "R":
+            if self.cleaned_data.get('recurrent_or_installment') == "R":
                 if self.cleaned_data['frequency'] is None:
                     errors['frequency'] = ValidationError(_('This field is required.'))
-            elif self.cleaned_data['recurrent_or_installment'] == "I":
+            elif self.cleaned_data.get('recurrent_or_installment') == "I":
                 if self.cleaned_data['months'] is None:
                     errors['months'] = ValidationError(_('This field is required.'))
-                if self.cleaned_data['handle_remainder'] is None:
+                if self.cleaned_data.get('handle_remainder') is None:
                     errors['handle_remainder'] = ValidationError(_('This field is required.'))
-            elif self.cleaned_data['recurrent_or_installment'] == "":
+            elif self.cleaned_data.get('recurrent_or_installment') == "":
                 errors['recurrent_or_installment'] = ValidationError(_('This field is required.'))
         if len(errors) > 0:
             raise ValidationError(errors)

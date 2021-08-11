@@ -103,13 +103,18 @@
         <div class="ui header">
           {% translate "Your invites: " %}
         </div>
-        <div class="ui action input">
-          <input class="invite" type="email" placeholder="Type an email to invite">
-          <button class="ui teal right labeled icon send invite button">
-            <i class="envelope icon"></i>
-            {% translate "Send" %}
-          </button>
-        </div>
+        <form class="ui invite form">
+          <div class="fluid field">
+            <div class="ui fluid action input">
+              <input type="email" name="first-name" placeholder="Type an email to invite here" class="action invite">
+              <button class="ui teal right labeled icon send invite button" type="submit">
+                <i class="envelope icon"></i>
+                {% translate "Send" %}
+              </button>
+            </div>
+          </div>
+          <div class="ui error message"></div>
+        </form>
         <div id="invites" style="margin-top: 1em;">
         </div>
       </div>
@@ -156,21 +161,44 @@
     onError: (errorMessage, element, xhr) => {console.log(`Request error: ${errorMessage}`);},
   });
   
-  $('.send.invite.button').api({
-    url: `/pm/api/projects/${PROJECT_ID}/invites/`,
-    method: "POST",
-    mode: 'same-origin',
-    headers: {'X-CSRFToken': csrftoken},
-    data: {
-      email: $('input.invite[type=email]').val(),
-      project: PROJECT_ID,
+  const INVITE_FORM = $('.ui.invite.form');
+  INVITE_FORM.form({
+    fields: {
+      email: {
+        identifier  : 'email',
+        rules: [
+          {
+            type   : 'email',
+            prompt : 'Please enter a valid e-mail'
+          }
+        ]
+      },
     },
-    onSuccess: r => {
-      loadInvites();
-      $('input.invite[type=email]').val('');
-    },
-    onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
-    onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+    onSuccess: () => {
+      $.api({
+        url: `/pm/api/projects/${PROJECT_ID}/invites/`,
+        on: 'now',
+        method: "POST",
+        mode: 'same-origin',
+        headers: {'X-CSRFToken': csrftoken},
+        data: {
+          email: $('input.invite[type=email]').val(),
+          project: PROJECT_ID,
+        },
+        onSuccess: r => {
+          console.log(r);
+          loadInvites();
+          $('input.invite[type=email]').val('');
+        },
+        onFailure: (response, element, xhr) => {
+          $('body').toast({ message: response.email });
+        },
+        onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+      });
+    }
+  });
+  INVITE_FORM.submit(e => {
+    e.preventDefault();
   });
 
   const loadInvites = () => {

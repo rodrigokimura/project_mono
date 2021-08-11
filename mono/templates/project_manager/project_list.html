@@ -5,16 +5,15 @@
 {% block body %}
 <div class="pusher">
   {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
-  <div class="ui stackable grid container" style="margin-bottom: 1em;">
+  <div class="ui stackable grid container" style="margin-y: .5em;">
     <div class="four wide column">
     </div>
-    
     <div class="eight wide column">
       <div class="ui horizontal divider"><i class="table icon"></i> {% translate "Projects" %}</div>
       {% for project in object_list %}
       {% if not project.is_shared %}
       <div class="ui segments">
-        <div class="ui secondary grey segment" data-toggle="segments" style="display: flex; flex-flow: row nowrap; align-items: center; justify-content: space-between;">
+        <div class="ui secondary grey segment" data-toggle="segments" style="display: flex; align-items: flex-start; justify-content: space-between;">
           <div style="flex: 1 1 auto; overflow-wrap: anywhere;">
             {{ project.name }}
           </div>
@@ -51,12 +50,10 @@
       {% endif %}
       {% endfor %}
     </div>
-      
     <div class="four wide column">
-        <a class="ui fluid icon labeled green button" href="{% url "project_manager:project_create" %}">
-          <i class="add icon"></i>
-          {% translate "Add project" %}
-        </a>
+      <a class="ui fluid icon labeled green button" href="{% url 'project_manager:project_create' %}">
+        <i class="add icon"></i>{% translate "New project" %}
+      </a>
     </div>
   </div>
 </div>
