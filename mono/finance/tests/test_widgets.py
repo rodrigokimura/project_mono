@@ -1,8 +1,6 @@
 from django.conf import settings
-from django.test import TestCase, RequestFactory
-from django.views.generic.edit import FormView
-from .widgets import CalendarWidget, CategoryWidget, ToggleWidget
-from .mixins import PassRequestToFormViewMixin
+from django.test import TestCase
+from ..widgets import CalendarWidget, CategoryWidget, RadioWidget, ToggleWidget
 
 
 class WidgetTests(TestCase):
@@ -41,6 +39,30 @@ class WidgetTests(TestCase):
         render = widget.render(name='bool', value='1')
         self.assertIn('name="bool"', str(render))
 
+    def test_radio_widget_get_context_method(self):
+        choices = choices = [
+            ("R", "Recurrent"),
+            ("I", "Installment"),
+        ]
+        widget = RadioWidget(choices=choices)
+        context = widget.get_context(name='radio', value='1')
+        self.assertEqual(context, {
+            'widget': {
+                'name': 'radio',
+                'value': '1',
+                'choices': choices,
+            },
+        })
+
+    def test_radio_widget_render_method(self):
+        choices = choices = [
+            ("R", "Recurrent"),
+            ("I", "Installment"),
+        ]
+        widget = RadioWidget(choices=choices)
+        render = widget.render(name='radio', value='1')
+        self.assertIn('name="radio"', str(render))
+
     def test_category_widget_get_context_method(self):
         widget = CategoryWidget()
         widget.queryset = None
@@ -55,15 +77,3 @@ class WidgetTests(TestCase):
         widget.queryset = None
         render = widget.render(name='bool', value='1')
         self.assertIn('name="bool"', str(render))
-
-
-class MixinTests(TestCase):
-    def test_pass_request_to_form_mixin(self):
-        class CustomFormView(PassRequestToFormViewMixin, FormView):
-            pass
-
-        request = RequestFactory().get('/')
-        view = CustomFormView()
-        view.setup(request)
-        kwargs = view.get_form_kwargs()
-        self.assertIn('request', kwargs)

@@ -1,12 +1,12 @@
 from django.utils import timezone
 from django.http.response import JsonResponse
 from django.test import TestCase, RequestFactory
-from django.contrib.auth.models import AnonymousUser, User
 from django.test.client import Client
+from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.messages.storage.fallback import FallbackStorage
 from ..views import HomePageView, CardOrderView, TransactionCreateView
 from ..models import Account, Category, Goal, Group, Icon, Installment, Invite, RecurrentTransaction, Transaction
 from ..forms import UniversalTransactionForm
-from django.contrib.messages.storage.fallback import FallbackStorage
 
 
 class HomePageViewTests(TestCase):
@@ -509,3 +509,16 @@ class InviteTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['success'])
         self.assertEqual(response.json()['message'], "You've already invited test3@test.com to this group.")
+
+
+class ViewsetTests(TestCase):
+    fixtures = ['icon.json']
+
+    def setUp(self) -> None:
+        self.user = User.objects.create(username='test', email='test@test.com')
+
+    def test_viewset(self):
+        c = Client()
+        c.force_login(self.user)
+        r = c.get('/fn/api/transactions/')
+        self.assertEqual(r.status_code, 200)
