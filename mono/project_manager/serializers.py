@@ -30,6 +30,7 @@ class InviteSerializer(ModelSerializer):
     created_by = UserSerializer(many=False, read_only=True)
     accepted_by = UserSerializer(many=False, read_only=True)
     link = serializers.ReadOnlyField()
+
     class Meta:
         model = Invite
         fields = [
