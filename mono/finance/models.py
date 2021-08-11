@@ -255,11 +255,11 @@ class Transference(models.Model):
                 timestamp=self.timestamp,
                 amount=self.amount,
                 transference=self,
-                category=Category.objects.get(
+                category=Category.objects.filter(
                     created_by=self.created_by,
                     internal_type=Category.TRANSFER,
                     type=Category.EXPENSE,
-                ),
+                ).last(),
             )
             Transaction.objects.create(
                 description=self.description,
@@ -268,11 +268,11 @@ class Transference(models.Model):
                 timestamp=self.timestamp,
                 amount=self.amount,
                 transference=self,
-                category=Category.objects.get(
+                category=Category.objects.filter(
                     created_by=self.created_by,
                     internal_type=Category.TRANSFER,
                     type=Category.INCOME,
-                ),
+                ).last(),
             )
 
 

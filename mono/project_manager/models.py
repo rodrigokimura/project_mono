@@ -41,7 +41,7 @@ class Project(BaseModel):
 
     @property
     def allowed_users(self):
-        return self.assigned_to.union(User.objects.filter(id=self.created_by.id))
+        return (User.objects.filter(id=self.created_by.id) | self.assigned_to.all()).distinct()
 
     class Meta:
         ordering = [
@@ -55,7 +55,7 @@ class Board(BaseModel):
 
     @property
     def allowed_users(self):
-        return self.assigned_to.union(User.objects.filter(id=self.created_by.id))
+        return (User.objects.filter(id=self.created_by.id) | self.assigned_to.all()).distinct()
 
     @property
     def max_order(self):
