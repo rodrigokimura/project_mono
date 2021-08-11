@@ -54,6 +54,27 @@
   {% block body %}
   {% endblock body %}
   {% analytical_body_bottom %}
+  <script>
+  {% if messages %}
+    {% for message in messages %}
+    let messageClass = 
+    {% if message.tags %}
+      {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+        "error";
+      {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+        null;
+      {% else %}
+        "{{ message.tags }}";
+      {% endif %}
+    {% endif %}
+
+    $('body').toast({
+      message: "{{ message }}",
+      class: messageClass,
+    });
+    {% endfor %}
+  {% endif %}
+  </script>
 </body>
 
 </html>
