@@ -8,12 +8,16 @@ from django.template.loader import get_template
 from django.db.migrations.executor import MigrationExecutor
 from django.db import connections, DEFAULT_DB_ALIAS
 from django.core.management import execute_from_command_line
+import logging
 
 
-def is_there_migrations_to_make(app_label):
+def is_there_migrations_to_make(app_label, silent=False):
     # This doesn's work when a third-party app requires migrations
     try:
-        execute_from_command_line(["manage.py", "makemigrations", app_label, "--check", "--dry-run", "--verbosity", "3"])
+        if silent:
+            execute_from_command_line(["manage.py", "makemigrations", app_label, "--check", "--dry-run", "--verbosity", "0"])
+        else:
+            execute_from_command_line(["manage.py", "makemigrations", app_label, "--check", "--dry-run", "--verbosity", "3"])
         system_exit = 0
     except SystemExit as e:
         system_exit = e
@@ -112,24 +116,22 @@ class PullRequest(models.Model):
         """If in production, reloads the app and notifies admins."""
         try:
             if is_database_synchronized():
-                print("All migrations have been applied.")
+                logging.info("All migrations have been applied.")
                 migrations = []
             else:
-                print("Unapplied migrations found.")
+                logging.info("Unapplied migrations found.")
                 migrations = pending_migrations()
                 execute_from_command_line(["manage.py", "migrate"])
                 self.migrations = len(migrations)
                 self.save()
 
             if settings.APP_ENV == 'PRD':
-                # execute_from_command_line(["cd", "~/project_mono"])
-                # execute_from_command_line(["pip3.8", "install", "-r", "requirements.txt", "--user"])
                 wsgi_file = '/var/www/www_monoproject_info_wsgi.py'
                 Path(wsgi_file).touch()
-                print(f"{wsgi_file} has been touched.")
+                logging.info(f"{wsgi_file} has been touched.")
                 execute_from_command_line(["manage.py", "collectstatic", "--noinput"])
 
-            print(f"Successfully deployed {self}.")
+            logging.info(f"Successfully deployed {self}.")
             self.deployed_at = timezone.now()
             self.save()
 
@@ -164,12 +166,12 @@ class PullRequest(models.Model):
                 'unsubscribe_link': None,
             }
 
-            print("Notifying admins about the deployment.")
+            logging.info("Notifying admins about the deployment.")
             mail_admins(
                 subject='Deploy Notification',
                 message=get_template('email/alert.txt').render(d),
                 html_message=get_template('email/alert.html').render(d)
             )
         except Exception as e:
-            print("An error ocurred during deployment.")
-            print(e)
+            logging.error("An error ocurred during deployment.")
+            logging.error(e)

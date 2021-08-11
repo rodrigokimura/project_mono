@@ -42,7 +42,6 @@ class UserProfile(models.Model):
         )
 
     def send_verification_email(self):
-        print('Sending email')
 
         token = jwt.encode(
             {

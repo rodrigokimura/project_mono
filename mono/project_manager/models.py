@@ -41,7 +41,7 @@ class Project(BaseModel):
 
     @property
     def allowed_users(self):
-        return self.assigned_to.union(User.objects.filter(id=self.created_by.id))
+        return (User.objects.filter(id=self.created_by.id) | self.assigned_to.all()).distinct()
 
     class Meta:
         ordering = [
@@ -55,7 +55,7 @@ class Board(BaseModel):
 
     @property
     def allowed_users(self):
-        return self.assigned_to.union(User.objects.filter(id=self.created_by.id))
+        return (User.objects.filter(id=self.created_by.id) | self.assigned_to.all()).distinct()
 
     @property
     def max_order(self):
@@ -382,7 +382,6 @@ class Invite(models.Model):
         return f"{site}{reverse('project_manager:invite_acceptance')}?t={token}"
 
     def send(self):
-        print('Sending email')
 
         template_html = 'email/invitation.html'
         template_text = 'email/invitation.txt'
@@ -390,7 +389,6 @@ class Invite(models.Model):
         text = get_template(template_text)
         html = get_template(template_html)
 
-        # site = f"{request.scheme}://{request.get_host()}"
         site = settings.SITE
 
         full_link = self.link

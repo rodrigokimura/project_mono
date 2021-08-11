@@ -255,11 +255,11 @@ class Transference(models.Model):
                 timestamp=self.timestamp,
                 amount=self.amount,
                 transference=self,
-                category=Category.objects.get(
+                category=Category.objects.filter(
                     created_by=self.created_by,
                     internal_type=Category.TRANSFER,
                     type=Category.EXPENSE,
-                ),
+                ).last(),
             )
             Transaction.objects.create(
                 description=self.description,
@@ -268,11 +268,11 @@ class Transference(models.Model):
                 timestamp=self.timestamp,
                 amount=self.amount,
                 transference=self,
-                category=Category.objects.get(
+                category=Category.objects.filter(
                     created_by=self.created_by,
                     internal_type=Category.TRANSFER,
                     type=Category.INCOME,
-                ),
+                ).last(),
             )
 
 
@@ -745,7 +745,6 @@ class Invite(models.Model):
         return f"{reverse('finance:invite_acceptance')}?t={token}"
 
     def send(self, request):
-        print('Sending email')
 
         template_html = 'email/invitation.html'
         template_text = 'email/invitation.txt'
