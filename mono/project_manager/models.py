@@ -365,7 +365,7 @@ class Invite(models.Model):
             message=f"{user} accepted your invite.",
             icon=Icon.objects.get(markup="exclamation"),
             to=self.created_by,
-            action=reverse("project_manager:project_detail", args={'pk': project.id}),
+            action=reverse("project_manager:project_detail", args=[project.id]),
         )
 
     @property
