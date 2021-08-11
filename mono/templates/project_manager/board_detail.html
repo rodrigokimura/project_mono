@@ -687,8 +687,7 @@
           });
         } else {
           id = modal.find('input[name=id]').val();
-          card_el = $(`.card-el[data-card-id=${card.id}]`)
-          order = card_el.parent().children().toArray().findIndex(e => e == card_el) + 1;
+          order = $(`.card-el[data-card-id=${card.id}]`).index() + 1;
           $.ajax({
             url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`,
             type: 'PUT',
@@ -790,8 +789,7 @@
           });
         } else {
           id = modal.find('input[name=id]').val();
-          bucket_el = $(`.bucket-el[data-bucket-id=${bucket.id}]`)
-          order = bucket_el.parent().children().toArray().findIndex(e => e == bucket_el) + 1;
+          order = $(`.bucket-el[data-bucket-id=${bucket.id}]`).index() + 1;
           $.ajax({
             url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${id}/`,
             type: 'PUT',

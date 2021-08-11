@@ -124,7 +124,6 @@ class Deploy(UserPassesTestMixin, TemplateView):
         repo = git.Repo(path)
         local_master = repo.commit("master")
         remote_master = repo.commit("origin/master")
-        # diff_index = remote_master.diff(local_master)
         diff_index = local_master.diff(remote_master)
         context['diff_items'] = _get_diff_context(diff_index)
         return context
