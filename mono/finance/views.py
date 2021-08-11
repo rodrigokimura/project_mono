@@ -682,12 +682,8 @@ class CategoryDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
         return self.get_object().created_by == self.request.user
 
     def delete(self, request, *args, **kwargs):
-        if self.get_object().is_deletable:
-            messages.success(self.request, self.success_message)
-            return super(CategoryDeleteView, self).delete(request, *args, **kwargs)
-        else:
-            messages.warning(self.request, "Standard categories cannot be deleted.")
-            return redirect('finance:categories')
+        messages.success(self.request, self.success_message)
+        return super(CategoryDeleteView, self).delete(request, *args, **kwargs)
 
 
 class IconListView(UserPassesTestMixin, ListView):
