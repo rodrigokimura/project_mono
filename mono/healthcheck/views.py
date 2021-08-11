@@ -60,12 +60,14 @@ def update_app(request):
 
                     pull_request, created = PullRequest.objects.update_or_create(
                         number=body['pull_request']["number"],
-                        author=body['pull_request']["user"]['login'],
-                        commits=body['pull_request']["commits"],
-                        additions=body['pull_request']["additions"],
-                        deletions=body['pull_request']["deletions"],
-                        changed_files=body['pull_request']["changed_files"],
-                        merged_at=string_to_localized_datetime(body['pull_request']["merged_at"])
+                        defaults={
+                            'author': body['pull_request']["user"]['login'],
+                            'commits': body['pull_request']["commits"],
+                            'additions': body['pull_request']["additions"],
+                            'deletions': body['pull_request']["deletions"],
+                            'changed_files': body['pull_request']["changed_files"],
+                            'merged_at': string_to_localized_datetime(body['pull_request']["merged_at"])
+                        }
                     )
 
                     link = body['pull_request']["html_url"]

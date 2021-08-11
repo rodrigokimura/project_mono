@@ -644,7 +644,6 @@
       modal.find('input[name=id]').val(card.id);
       modal.find('input[name=name]').val(card.name);
       modal.find('textarea[name=description]').val(card.description);
-      modal.find('input[name=order]').val(card.order);
       modal.find('.ui.status.dropdown').dropdown('set selected', card.status);
       modal.find('.ui.color.dropdown').dropdown('set selected', card.color !== null ? card.color.id : '');
     } else {
@@ -652,7 +651,6 @@
       modal.find('input[name=id]').val('');
       modal.find('input[name=name]').val('');
       modal.find('textarea[name=description]').val('');
-      modal.find('input[name=order]').val('');
       modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
       modal.find('.ui.color.dropdown').dropdown('set selected', '');
     };
@@ -668,7 +666,6 @@
         };
         name = modal.find('input[name=name]').val();
         description = modal.find('textarea[name=description]').val();
-        order = modal.find('input[name=order]').val();
         status = modal.find('.ui.status.dropdown').dropdown('get value');
         color = modal.find('.ui.color.dropdown').dropdown('get value');
         if (create === true) {
@@ -690,6 +687,8 @@
           });
         } else {
           id = modal.find('input[name=id]').val();
+          card_el = $(`.card-el[data-card-id=${card.id}]`)
+          order = card_el.parent().children().toArray().findIndex(e => e == card_el) + 1;
           $.ajax({
             url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`,
             type: 'PUT',
@@ -748,7 +747,6 @@
       modal.find('input[name=id]').val(bucket.id);
       modal.find('input[name=name]').val(bucket.name);
       modal.find('textarea[name=description]').val(bucket.description);
-      modal.find('input[name=order]').val(bucket.order);
       modal.find('.ui.auto-status.dropdown').dropdown('set selected', bucket.auto_status);
       modal.find('.ui.color.dropdown').dropdown('set selected', bucket.color !== null ? bucket.color.id : '');
     } else {
@@ -756,7 +754,6 @@
       modal.find('input[name=id]').val('');
       modal.find('input[name=name]').val('');
       modal.find('textarea[name=description]').val('');
-      modal.find('input[name=order]').val('');
       modal.find('.ui.auto-status.dropdown').dropdown('set selected', 'N');
       modal.find('.ui.color.dropdown').dropdown('set selected', '');
     };
@@ -772,7 +769,6 @@
         };
         name = modal.find('input[name=name]').val();
         description = modal.find('textarea[name=description]').val();
-        order = modal.find('input[name=order]').val();
         autoStatus = modal.find('.ui.auto-status.dropdown').dropdown('get value');
         color = modal.find('.ui.color.dropdown').dropdown('get value');
         if (create === true) {
@@ -794,6 +790,8 @@
           });
         } else {
           id = modal.find('input[name=id]').val();
+          bucket_el = $(`.bucket-el[data-bucket-id=${bucket.id}]`)
+          order = bucket_el.parent().children().toArray().findIndex(e => e == bucket_el) + 1;
           $.ajax({
             url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${id}/`,
             type: 'PUT',
