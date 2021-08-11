@@ -6,7 +6,6 @@ admin.site.register(models.Board)
 admin.site.register(models.Item)
 admin.site.register(models.Icon)
 admin.site.register(models.Notification)
-admin.site.register(models.Invite)
 
 
 @admin.register(models.Project)
@@ -75,4 +74,22 @@ class TimeEntryAdmin(admin.ModelAdmin):
         'created_by',
         'created_at',
         'active',
+    ]
+
+
+@admin.register(models.Invite)
+class InviteAdmin(admin.ModelAdmin):
+    list_display = [
+        'email',
+        'project',
+        'created_by',
+        'accepted_by',
+        'accepted_at',
+    ]
+    list_filter = [
+        'email',
+        'project',
+        'created_by',
+        'accepted_by',
+        'accepted_at',
     ]
