@@ -6,7 +6,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .ascii_arts import ascii_art_1
 from finance.urls import router as finance_router
-# from project_manager.urls import router as project_manager_router
 # from filebrowser.sites import site
 # import debug_toolbar
 
@@ -25,7 +24,6 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('ms/', include('messenger.urls')),
     path('pm/', include('project_manager.urls')),
-    # path('pm/api/', include(project_manager_router.urls)),
     path('hc/', include('healthcheck.urls')),
     path('fb/', include('feedback.urls')),
     path('fn/', include('finance.urls')),
