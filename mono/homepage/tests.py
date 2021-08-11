@@ -1,3 +1,8 @@
-# from django.test import TestCase
+from django.test import TestCase
+from .models import Module
 
-# Create your tests here.
+
+class ModelTests(TestCase):
+    def test_module(self):
+        module = Module.objects.create(name='test')
+        self.assertEqual(str(module), 'test')

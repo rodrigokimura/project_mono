@@ -349,7 +349,7 @@ class Category(models.Model):
 
     @property
     def is_deletable(self):
-        return self.is_group_defined or self.created_by
+        return self.is_group_defined or self.is_user_defined
 
 
 class Group(models.Model):
