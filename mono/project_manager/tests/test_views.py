@@ -31,6 +31,34 @@ class ViewTests(TestCase):
         self.assertEqual(r.status_code, 201)
         self.assertTrue(Invite.objects.filter(email='teste.teste@teste.com').exists())
 
+    def test_project_list_view(self):
+        c = Client()
+        c.force_login(self.user)
+        r = c.get('/pm/projects/')
+        self.assertEqual(r.status_code, 200)
+
+    def test_project_detail_view(self):
+        project = Project.objects.create(name='test project 2', created_by=self.user)
+        c = Client()
+        c.force_login(self.user)
+        r = c.get(f'/pm/project/{project.id}/')
+        self.assertEqual(r.status_code, 200)
+
+    def test_project_update_view_get(self):
+        project = Project.objects.create(name='test test', created_by=self.user)
+        c = Client()
+        c.force_login(self.user)
+        r = c.get(f'/pm/project/{project.id}/edit/')
+        self.assertEqual(r.status_code, 200)
+
+    def test_project_update_view_post(self):
+        project = Project.objects.create(name='test test', created_by=self.user)
+        c = Client()
+        c.force_login(self.user)
+        r = c.post(f'/pm/project/{project.id}/edit/', {'name': 'test test 2'})
+        self.assertEqual(r.status_code, 302)
+        self.assertTrue(Project.objects.filter(name='test test 2').exists())
+
 
 class PermissionTests(TestCase):
 

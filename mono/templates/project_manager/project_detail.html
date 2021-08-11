@@ -24,8 +24,7 @@
     <div class="ui grid">
       <div class="ui stackable cards" style="margin-top: 1em;">
         {% for board in object.board_set.all %}
-      
-        <div class="card">
+        <div class="ui {% if request.user not in board.allowed_users %}disabled {% endif %}card">
           <div class="content">
             <div class="header">
               {{ board.name }}
@@ -214,7 +213,7 @@
         $('#invites').append(
           `
             <div style="overflow-x: auto;">
-              <table class="ui unstackable striped table">
+              <table class="ui unstackable celled table">
                 <thead>
                   <tr><th>Email</th>
                   <th>Accepted</th>
@@ -231,7 +230,7 @@
               `
                 <tr class="${invite.accepted_by !== null ? 'positive' : 'negative'}">
                   <td>${invite.email}</td>
-                  <td class="center aligned">${invite.accepted_by !== null ? '<i class="checkmark icon"></i>' : '<i class="delete icon"></i>'}</td>
+                  <td>${invite.accepted_by !== null ? '<i class="checkmark icon"></i>' : '<i class="delete icon"></i>'}</td>
                 </tr>
               `
             );
