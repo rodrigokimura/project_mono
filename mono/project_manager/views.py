@@ -27,7 +27,10 @@ class ProjectListView(LoginRequiredMixin, ListView):
     paginate_by = 100
 
     def get_queryset(self) -> QuerySet[Project]:
-        return super().get_queryset().filter(created_by=self.request.user)
+        qs = super().get_queryset()
+        created_projects = qs.filter(created_by=self.request.user)
+        assigned_projects = qs.filter(assigned_to=self.request.user)
+        return (created_projects | assigned_projects).distinct()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -306,9 +309,11 @@ class BucketListAPIView(LoginRequiredMixin, APIView):
 
     def get(self, request, format=None, **kwargs):
         board = Board.objects.get(id=kwargs['board_pk'])
-        buckets = Bucket.objects.filter(created_by=request.user, board=board)
-        serializer = BucketSerializer(buckets, many=True, context={'request': request})
-        return Response(serializer.data)
+        buckets = Bucket.objects.filter(board=board)
+        if request.user in board.allowed_users:
+            serializer = BucketSerializer(buckets, many=True, context={'request': request})
+            return Response(serializer.data)
+        return BadRequest
 
     def post(self, request, format=None, **kwargs):
         project = Project.objects.get(id=kwargs.get('project_pk'))
