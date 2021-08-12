@@ -1,0 +1,225 @@
+[{
+    "model": "project_manager.icon",
+    "pk": 1,
+    "fields": {
+      "markup": "heartbeat"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 2,
+    "fields": {
+      "markup": "beer"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 3,
+    "fields": {
+      "markup": "coffee"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 4,
+    "fields": {
+      "markup": "bath"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 5,
+    "fields": {
+      "markup": "bed"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 6,
+    "fields": {
+      "markup": "bicycle"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 7,
+    "fields": {
+      "markup": "book"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 8,
+    "fields": {
+      "markup": "car"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 9,
+    "fields": {
+      "markup": "gamepad"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 10,
+    "fields": {
+      "markup": "graduation cap"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 11,
+    "fields": {
+      "markup": "home"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 12,
+    "fields": {
+      "markup": "money bill alternate outline"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 13,
+    "fields": {
+      "markup": "plug"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 14,
+    "fields": {
+      "markup": "utensils"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 15,
+    "fields": {
+      "markup": "wrench"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 16,
+    "fields": {
+      "markup": "bell"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 17,
+    "fields": {
+      "markup": "exclamation"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 18,
+    "fields": {
+      "markup": "cart"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 19,
+    "fields": {
+      "markup": "university"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 20,
+    "fields": {
+      "markup": "chart bar"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 21,
+    "fields": {
+      "markup": "birthday cake"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 22,
+    "fields": {
+      "markup": "plane"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 23,
+    "fields": {
+      "markup": "globe"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 24,
+    "fields": {
+      "markup": "tasks"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 25,
+    "fields": {
+      "markup": "tag"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 26,
+    "fields": {
+      "markup": "tags"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 27,
+    "fields": {
+      "markup": "gift"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 28,
+    "fields": {
+      "markup": "mobile alternate"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 29,
+    "fields": {
+      "markup": "tv"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 30,
+    "fields": {
+      "markup": "credit card"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 31,
+    "fields": {
+      "markup": "suitcase"
+    }
+  },
+  {
+    "model": "project_manager.icon",
+    "pk": 32,
+    "fields": {
+      "markup": "shopping basket"
+    }
+  }
+]

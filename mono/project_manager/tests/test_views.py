@@ -1,21 +1,30 @@
-from django.test import TestCase, RequestFactory
+from datetime import timedelta
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
+from django.test import TestCase, RequestFactory
 from django.test.client import Client
-from ..models import Project, Invite
+from django.utils import timezone
+import jwt
+from ..models import Board, Project, Invite
 # from ..views import BoardCreateView
 
 
 class ViewTests(TestCase):
-    fixtures = ["icon.json"]
+    fixtures = ["icon", "project_manager_icons"]
 
     def setUp(self) -> None:
         self.user = User.objects.create(username="test", email="test@test.com")
 
-    def test_create_project_view(self):
+    def test_create_project_view_get(self):
         c = Client()
         c.force_login(self.user)
         response = c.get('/pm/project/')
         self.assertEqual(response.status_code, 200)
+
+    def test_create_project_view_post(self):
+        c = Client()
+        c.force_login(self.user)
         response = c.post('/pm/project/', {'name': 'test'})
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Project.objects.filter(name='test', created_by=self.user).exists())
@@ -59,10 +68,144 @@ class ViewTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertTrue(Project.objects.filter(name='test test 2').exists())
 
+    def test_board_detail_view(self):
+        project = Project.objects.create(name='test project', created_by=self.user)
+        board = Board.objects.create(
+            name='test board',
+            created_by=self.user,
+            project=project,
+        )
+        c = Client()
+        c.force_login(self.user)
+        r = c.get(f'/pm/project/{project.id}/board/{board.id}/')
+        self.assertEqual(r.status_code, 200)
+
+    def test_board_detail_view_not_assigned_user(self):
+        project = Project.objects.create(name='test project', created_by=self.user)
+        board = Board.objects.create(
+            name='test board',
+            created_by=self.user,
+            project=project,
+        )
+        c = Client()
+        user_2 = User.objects.create(username="test_2", email="test@test2.com")
+        c.force_login(user_2)
+        r = c.get(f'/pm/project/{project.id}/board/{board.id}/')
+        messages = list(get_messages(r.wsgi_request))
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), 'You are not assigned to this board!')
+
+    def test_board_create_view_get(self):
+        project = Project.objects.create(name='test project', created_by=self.user)
+        c = Client()
+        c.force_login(self.user)
+        response = c.get(f'/pm/project/{project.id}/board/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_board_create_view_post(self):
+        project = Project.objects.create(name='test project', created_by=self.user)
+        c = Client()
+        c.force_login(self.user)
+        response = c.post(f'/pm/project/{project.id}/board/', {
+            'name': 'test board creation',
+            'project': project.id,
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Board.objects.filter(name='test board creation', created_by=self.user).exists())
+
+    def test_board_update_view_get(self):
+        project = Project.objects.create(name='test project', created_by=self.user)
+        board = Board.objects.create(
+            name='test project',
+            project=project,
+            created_by=self.user,
+        )
+        c = Client()
+        c.force_login(self.user)
+        response = c.get(f'/pm/project/{project.id}/board/{board.id}/edit/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_board_update_view_post(self):
+        project = Project.objects.create(name='test project', created_by=self.user)
+        board = Board.objects.create(
+            name='test project',
+            project=project,
+            created_by=self.user,
+        )
+        c = Client()
+        c.force_login(self.user)
+        response = c.post(f'/pm/project/{project.id}/board/{board.id}/edit/', {
+            'name': 'test board modification',
+            'project': project.id,
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Board.objects.filter(name='test board modification', created_by=self.user).exists())
+
+    def test_invite_acceptance_view(self):
+        project = Project.objects.create(name='test project', created_by=self.user)
+        invite = Invite.objects.create(
+            project=project,
+            email='test3@test.com',
+            created_by=self.user,
+        )
+        token = jwt.encode(
+            {
+                "exp": timezone.now() + timedelta(days=1),
+                "id": invite.id,
+            },
+            settings.SECRET_KEY,
+            algorithm="HS256"
+        )
+        c = Client()
+        c.force_login(self.user)
+        r = c.get(f'/pm/invites/accept/?t={token}')
+        self.assertEqual(r.status_code, 200)
+
+    def test_invite_acceptance_view_no_token(self):
+        c = Client()
+        c.force_login(self.user)
+        r = c.get('/pm/invites/accept/')
+        self.assertContains(r, 'error')
+
+    def test_invite_acceptance_view_invalid_token(self):
+        c = Client()
+        c.force_login(self.user)
+        self.assertRaises(
+            jwt.exceptions.DecodeError,
+            c.get,
+            path='/pm/invites/accept/?t=invalid_token'
+        )
+
+
+class ApiViewTests(TestCase):
+    fixtures = ["icon", "project_manager_icons"]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create(username="test", email="test@test.com")
+
+    def test_project_list_view_get(self):
+        c = Client()
+        c.force_login(self.user)
+        response = c.get('/pm/api/projects/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_project_list_view_post(self):
+        c = Client()
+        c.force_login(self.user)
+        response = c.post('/pm/api/projects/', {'name': 'test'})
+        self.assertEqual(response.status_code, 201)
+
+    def test_project_list_view_post_invalid_data(self):
+        c = Client()
+        c.force_login(self.user)
+        response = c.post('/pm/api/projects/', {'name': ''})
+        self.assertEqual(response.status_code, 400)
+
 
 class PermissionTests(TestCase):
 
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.factory = RequestFactory()
