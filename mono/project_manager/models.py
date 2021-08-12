@@ -373,7 +373,7 @@ class Invite(models.Model):
         token = jwt.encode(
             {
                 "exp": timezone.now() + timedelta(days=1),
-                "id": self.pk
+                "id": self.pk,
             },
             settings.SECRET_KEY,
             algorithm="HS256"

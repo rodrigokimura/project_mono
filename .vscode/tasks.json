@@ -49,13 +49,13 @@
 		{
 			"type": "shell",
 			"label": "Django - Run tests",
-			"command": "source ${workspaceFolder}/venv/bin/activate; export APP_ENV=DEV; cd mono; python manage.py test",
+			"command": "source ${workspaceFolder}/venv/bin/activate; export APP_ENV=DEV; cd mono; python manage.py test --timing --parallel 12",
 			"problemMatcher": []
 		},
 		{
 			"type": "shell",
 			"label": "Django - Coverage",
-			"command": "source ${workspaceFolder}/venv/bin/activate; export APP_ENV=DEV; cd mono; coverage run --source='.' manage.py test; coverage html; firefox htmlcov/index.html;",
+			"command": "source ${workspaceFolder}/venv/bin/activate; export APP_ENV=DEV; cd mono; coverage run --source='.' manage.py test -b --timing; coverage html; firefox htmlcov/index.html;",
 			"problemMatcher": []
 		},
 		{

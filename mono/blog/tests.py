@@ -5,7 +5,7 @@ from .models import Post, User
 
 class BlogViewTests(TestCase):
 
-    fixtures = ['icon.json']
+    fixtures = ['icon']
 
     def setUp(self):
         self.user = User.objects.create(

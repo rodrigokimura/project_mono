@@ -23,9 +23,6 @@ Faker==8.1.1
 flake8==3.9.2
 gitdb==4.0.7
 GitPython==3.1.14
-google-api-core==1.31.0
-google-auth==1.33.1
-google-cloud-secret-manager==2.6.0
 googleapis-common-protos==1.53.0
 grpc-google-iam-v1==0.12.3
 grpcio==1.39.0
@@ -63,6 +60,7 @@ social-auth-app-django==4.0.0
 social-auth-core==4.1.0
 sqlparse==0.4.1
 stripe==2.56.0
+tblib==1.7.0
 text-unidecode==1.3
 toml==0.10.2
 typing-extensions==3.10.0.0

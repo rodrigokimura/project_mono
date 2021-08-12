@@ -7,7 +7,7 @@ from ..models import Notification, User
 
 class AdminTests(TestCase):
 
-    fixtures = ['icon.json']
+    fixtures = ['icon']
 
     def test_notification_mark_as_unread_action(self):
         user = User.objects.create(username='test', email='test@test.com')

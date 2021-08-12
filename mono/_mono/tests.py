@@ -13,7 +13,7 @@ User = get_user_model()
 
 class AdminTest(TestCase):
 
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     @classmethod
     def setUpTestData(cls):
@@ -50,7 +50,7 @@ class WsgiTest(TestCase):
 
 class AuthBackEndsTest(TestCase):
 
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     @classmethod
     def setUpTestData(cls):

@@ -26,7 +26,7 @@ class TransactionModelTests(TestCase):
 
 class UserModelTests(TestCase):
 
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user = User.objects.create(
@@ -44,7 +44,7 @@ class UserModelTests(TestCase):
 
 class AccountModelTests(TestCase):
 
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user = User.objects.create(
@@ -64,7 +64,7 @@ class AccountModelTests(TestCase):
 
 class AccountFormTests(TestCase):
 
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user = User.objects.create(username="teste")
@@ -90,7 +90,7 @@ class AccountFormTests(TestCase):
 
 class UserCreationTests(TestCase):
 
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user_1 = User.objects.create(username="User_1")
@@ -137,7 +137,7 @@ class UserCreationTests(TestCase):
 
 # class TestView(TestCase):
 
-#     fixtures = ["icon.json"]
+#     fixtures = ["icon"]
 
 #     def setUp(self):
 #         self.user = User.objects.create(
@@ -157,7 +157,7 @@ class UserCreationTests(TestCase):
 
 class StripeTests(TestCase):
     stripe.api_key = settings.STRIPE_SECRET_KEY
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user = User.objects.create(username="user")
