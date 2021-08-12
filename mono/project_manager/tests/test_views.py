@@ -465,6 +465,103 @@ class BucketListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 400)
 
 
+class BucketDetailApiViewTests(APITestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+        self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
+        self.bucket = Bucket.objects.create(
+            name='test',
+            created_by=self.user,
+            board=self.board,
+            order=1,
+        )
+        self.theme = Theme.objects.first()
+
+    def test_bucket_detail_view_get(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_bucket_detail_view_get_invalid_bucket(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/99999999/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_bucket_detail_view_get_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/')
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+    def test_bucket_detail_view_put(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.put(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/',
+            {'name': 'test', 'board': self.board.id, 'order': 1})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['name'], 'test')
+
+    def test_bucket_detail_view_put_with_color(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.put(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/',
+            {'name': 'test', 'board': self.board.id, 'order': 1, 'color': self.theme.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['name'], 'test')
+
+    def test_bucket_detail_view_put_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.put(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/',
+            {'name': 'test', 'project': self.project.id})
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+    def test_bucket_detail_view_put_invalid_data(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.put(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/',
+            {'name': ''})
+        self.assertEqual(response.status_code, 400)
+
+    def test_bucket_detail_view_delete(self):
+        bucket = Bucket.objects.create(
+            name='test bucket to delete',
+            created_by=self.user,
+            board=self.board,
+            order=1,
+        )
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.delete(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{bucket.id}/')
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(Bucket.objects.filter(id=bucket.id).exists())
+
+    def test_bucket_detail_view_delete_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.delete(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/')
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+
 class PermissionTests(TestCase):
 
     fixtures = ["icon"]
