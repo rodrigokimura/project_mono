@@ -49,7 +49,7 @@
 		{
 			"type": "shell",
 			"label": "Django - Run tests",
-			"command": "source ${workspaceFolder}/venv/bin/activate; export APP_ENV=DEV; cd mono; python manage.py test --timing --parallel 12",
+			"command": "source ${workspaceFolder}/venv/bin/activate; export APP_ENV=DEV; cd mono; python manage.py test --parallel 12",
 			"problemMatcher": []
 		},
 		{
