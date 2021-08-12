@@ -376,9 +376,8 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 
-    def put(self, request, project_pk, pk, format=None, **kwargs):
-        # project = Project.objects.get(id=kwargs.get('project_pk'))
-        project = Project.objects.get(id=project_pk)
+    def put(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
         board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
         bucket = self.get_object(pk)
         if request.user in board.allowed_users:
@@ -386,7 +385,7 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
             if serializer.is_valid():
                 serializer.save()
                 theme_id = request.data.get('color')
-                if theme_id != '':
+                if theme_id not in ['', None]:
                     color = Theme.objects.get(id=theme_id)
                     bucket.color = color
                     bucket.save()
@@ -409,7 +408,7 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
 
 class CardListAPIView(LoginRequiredMixin, APIView):
     """
-    List all snippets, or create a new snippet.
+    List all cards, or create a new card.
     """
 
     def get(self, request, format=None, **kwargs):
