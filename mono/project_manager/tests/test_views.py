@@ -5,9 +5,12 @@ from django.contrib.messages import get_messages
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
 from django.utils import timezone
+# from rest_framework.test import APIRequestFactory
+# from rest_framework.test import force_authenticate
+from rest_framework.test import APIClient
 import jwt
 from ..models import Board, Project, Invite
-# from ..views import BoardCreateView
+from ..views import ProjectDetailAPIView
 
 
 class ViewTests(TestCase):
@@ -201,6 +204,52 @@ class ApiViewTests(TestCase):
         c.force_login(self.user)
         response = c.post('/pm/api/projects/', {'name': ''})
         self.assertEqual(response.status_code, 400)
+
+    def test_project_detail_view_get(self):
+        project = Project.objects.create(name='test project', created_by=self.user)
+        c = Client()
+        c.force_login(self.user)
+        response = c.get(f'/pm/api/projects/{project.id}/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_project_detail_view_get_invalid_project(self):
+        c = Client()
+        c.force_login(self.user)
+        response = c.get('/pm/api/projects/999999999/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_project_detail_view_put(self):
+        project = Project.objects.create(name='test project', created_by=self.user)
+        c = Client()
+        c.force_login(self.user)
+        response = c.put(
+            path=f'/pm/api/projects/{project.id}/',
+            content_type='application/json',
+            data={'name': 'test project changed'},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['name'], 'test project changed')
+
+    def test_project_detail_view_put_invalid_data(self):
+        project = Project.objects.create(name='test project', created_by=self.user)
+        c = Client()
+        c.force_login(self.user)
+        response = c.put(
+            path=f'/pm/api/projects/{project.id}/',
+            content_type='application/json',
+            data={'name': ''},
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_project_detail_view_put_non_allowed_user(self):
+        project = Project.objects.create(name='test project', created_by=self.user)
+        user_2 = User.objects.create(username="test2", email="test2@test.com")
+        c = APIClient()
+        c.force_authenticate(user_2)
+        r = c.put(f'/pm/api/projects/{project.id}/', {'name': ''}, format='json')
+        print(r)
+        # print(response.json())
+        # self.assertEqual(response.status_code, 200)
 
 
 class PermissionTests(TestCase):
