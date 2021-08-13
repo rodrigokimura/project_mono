@@ -407,11 +407,10 @@
       return num;
     }
 
-    var d = Math.floor((seconds % 31536000) / 86400) + 'd'; 
-    var h = Math.floor(((seconds % 31536000) % 86400) / 3600);
+    var h = Math.floor((seconds % 31536000) / 3600);
     var m = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
     var s = Math.floor((((seconds % 31536000) % 86400) % 3600) % 60);
-    return `${d > 0 ? d : ''} ${pad(h)}:${pad(m)}:${pad(s)}`;
+    return `${pad(h)}:${pad(m)}:${pad(s)}`;
   };
 
   const incrementSecond = cardId => {
