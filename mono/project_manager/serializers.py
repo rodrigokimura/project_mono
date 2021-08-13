@@ -43,6 +43,7 @@ class InviteSerializer(ModelSerializer):
             'link',
         ]
         extra_kwargs = {
+            'project': {'required': True},
             'created_by': {'read_only': True},
             'created_at': {'read_only': True},
             'accepted_by': {'read_only': True},
