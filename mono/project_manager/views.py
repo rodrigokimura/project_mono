@@ -460,7 +460,7 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
         except Card.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk, format=None):
+    def get(self, request, pk, format=None, **kwargs):
         card = self.get_object(pk)
         if request.user in card.allowed_users:
             serializer = CardSerializer(card)
@@ -477,7 +477,7 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
             if serializer.is_valid():
                 serializer.save()
                 theme_id = request.data.get('color')
-                if theme_id != '':
+                if theme_id not in ['', None]:
                     color = Theme.objects.get(id=theme_id)
                     card.color = color
                     card.save()

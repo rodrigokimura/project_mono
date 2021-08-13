@@ -340,7 +340,7 @@ class Notification(models.Model):
 
 class Invite(models.Model):
     email = models.EmailField(max_length=1000, blank=True, null=True)
-    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, blank=True)
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True, related_name="created_project_invites")
     created_at = models.DateTimeField(auto_now_add=True)
     accepted_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True, related_name="accepted_project_invites")

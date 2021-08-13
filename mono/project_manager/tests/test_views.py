@@ -7,7 +7,7 @@ from django.test.client import Client
 from django.utils import timezone
 from rest_framework.test import APIClient, APITestCase
 import jwt
-from ..models import Board, Bucket, Project, Invite, Theme
+from ..models import Board, Bucket, Card, Project, Invite, Theme
 
 
 class ViewTests(TestCase):
@@ -35,7 +35,10 @@ class ViewTests(TestCase):
         c.force_login(self.user)
         request = c.post(
             path=f'/pm/api/projects/{project.id}/invites/',
-            data={'email': 'teste.teste@teste.com'}
+            data={
+                'email': 'teste.teste@teste.com',
+                'project': project.id,
+            }
         )
         self.assertEqual(request.status_code, 201)
         self.assertTrue(Invite.objects.filter(email='teste.teste@teste.com').exists())
@@ -560,6 +563,450 @@ class BucketDetailApiViewTests(APITestCase):
         response = c.delete(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/')
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
+
+
+class CardListApiViewTests(APITestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+        self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
+        self.bucket = Bucket.objects.create(name='test', created_by=self.user, board=self.board, order=1)
+        self.theme = Theme.objects.first()
+
+    def test_card_list_view_get(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_card_list_view_get_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/')
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+    def test_card_list_view_post(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/',
+            {'name': 'test', 'bucket': self.bucket.id, 'order': 1, 'color': self.theme.id})
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()['name'], 'test')
+
+    def test_card_list_view_post_empty_color(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/',
+            {'name': 'test', 'bucket': self.bucket.id, 'order': 1, 'color': ''})
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()['name'], 'test')
+
+    def test_card_list_view_post_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.post(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/',
+            {'name': 'test', 'bucket': self.bucket.id})
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+    def test_card_list_view_post_invalid_data(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/',
+            {'name': ''})
+        self.assertEqual(response.status_code, 400)
+
+
+class CardDetailApiViewTests(APITestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+        self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
+        self.bucket = Bucket.objects.create(
+            name='test',
+            created_by=self.user,
+            board=self.board,
+            order=1,
+        )
+        self.card = Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=self.bucket,
+            order=1,
+        )
+        self.theme = Theme.objects.first()
+
+    def test_card_detail_view_get(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_card_detail_view_get_invalid_card(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/9999999/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_card_detail_view_get_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/')
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+    def test_card_detail_view_put(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.put(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/',
+            {'name': 'test', 'bucket': self.bucket.id, 'order': 1})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['name'], 'test')
+
+    def test_card_detail_view_put_with_color(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.put(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/',
+            {'name': 'test', 'bucket': self.bucket.id, 'order': 1, 'color': self.theme.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['name'], 'test')
+
+    def test_card_detail_view_put_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.put(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/',
+            {'name': 'test', 'bucket': self.bucket.id})
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+    def test_card_detail_view_put_invalid_data(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.put(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/',
+            {'name': ''})
+        self.assertEqual(response.status_code, 400)
+
+    def test_card_detail_view_delete(self):
+        card = Card.objects.create(
+            name='test bucket to delete',
+            created_by=self.user,
+            bucket=self.bucket,
+            order=1,
+        )
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.delete(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{card.id}/')
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(Card.objects.filter(id=card.id).exists())
+
+    def test_card_detail_view_delete_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.delete(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/')
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+
+class CardMoveApiViewTests(APITestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+        self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
+        self.source_bucket = Bucket.objects.create(
+            name='source',
+            created_by=self.user,
+            board=self.board,
+            order=1,
+        )
+        self.target_bucket = Bucket.objects.create(
+            name='target',
+            created_by=self.user,
+            board=self.board,
+            order=2,
+        )
+        self.card = Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=self.source_bucket,
+            order=1,
+        )
+        self.theme = Theme.objects.first()
+
+    def test_card_move(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/card_move/',
+            data={
+                'source_bucket': self.source_bucket.id,
+                'target_bucket': self.target_bucket.id,
+                'order': 2,
+                'card': self.card.id
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['success'])
+
+    def test_card_move_invalid_order(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/card_move/',
+            data={
+                'source_bucket': self.source_bucket.id,
+                'target_bucket': self.target_bucket.id,
+                'order': -1,
+                'card': self.card.id
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['order'][0], 'Invalid order')
+
+
+class BucketMoveApiViewTests(APITestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+        self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
+        self.bucket = Bucket.objects.create(
+            name='bucket',
+            created_by=self.user,
+            board=self.board,
+            order=1,
+        )
+        self.theme = Theme.objects.first()
+
+    def test_bucket_move(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/bucket_move/',
+            data={
+                'board': self.board.id,
+                'order': 2,
+                'bucket': self.bucket.id
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['order'], 2)
+
+    def test_bucket_move_invalid_order(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/bucket_move/',
+            data={
+                'board': self.board.id,
+                'order': -1,
+                'bucket': self.bucket.id
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['order'][0], 'Invalid order')
+
+
+class StartStopTimerAPIViewTests(APITestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+        self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
+        self.bucket = Bucket.objects.create(
+            name='bucket',
+            created_by=self.user,
+            board=self.board,
+            order=1,
+        )
+        self.card = Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=self.bucket,
+            order=1,
+        )
+        self.theme = Theme.objects.first()
+
+    def test_start_stop_timer(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path=f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/timer/',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['success'])
+
+    def test_start_stop_timer_invalid_card(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path=f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/99999/timer/',
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_start_stop_timer_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.post(
+            path=f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/timer/',
+        )
+        self.assertEqual(response.status_code, 403)
+
+
+class InviteListApiViewTests(APITestCase):
+    fixtures = ["icon", "project_manager_icons"]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+
+    def test_invite_list_view_get(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/invites/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_invite_list_view_get_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/invites/')
+        self.assertEqual(response.status_code, 403)
+
+    def test_invite_list_view_post(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(f'/pm/api/projects/{self.project.id}/invites/',
+                          {'email': 'test@test.com', 'project': self.project.id})
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()['email'], 'test@test.com')
+
+    def test_invite_list_view_post_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.post(f'/pm/api/projects/{self.project.id}/invites/',
+                          {'email': 'test@test.com', 'project': self.project.id})
+        self.assertEqual(response.status_code, 403)
+
+    def test_invite_list_view_post_invalid_data(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(f'/pm/api/projects/{self.project.id}/invites/')
+        self.assertEqual(response.status_code, 400)
+
+
+class InviteDetailApiViewTests(APITestCase):
+    fixtures = ["icon", "project_manager_icons"]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+        self.invite = Invite.objects.create(email="test@test.com", project=self.project)
+
+    def test_invite_detail_view_get(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/invites/{self.invite.id}/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_invite_detail_view_get_invalid_invite(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/invites/999999/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_invite_detail_view_get_not_allowed(self):
+        User.objects.create_user(username="test2", email="test2@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test2', password='supersecret')
+        request = c.get(f'/pm/api/projects/{self.project.id}/invites/{self.invite.id}/')
+        self.assertEqual(request.status_code, 403)
+        self.assertEqual(str(request.json()), 'User not allowed')
+
+    def test_invite_detail_view_put(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.put(
+            path=f'/pm/api/projects/{self.project.id}/invites/{self.invite.id}/',
+            data={'email': 'asd@asd.com', 'project': self.project.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['email'], 'asd@asd.com')
+
+    def test_invite_detail_view_put_invalid_data(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.put(
+            path=f'/pm/api/projects/{self.project.id}/invites/{self.invite.id}/',
+            data={'name': 'verylongstringverylongstringverylongstringverylongstringverylongstring'},
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_invite_detail_view_put_not_allowed(self):
+        User.objects.create_user(username="test4", email="test4@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test4', password='supersecret')
+        request = c.put(f'/pm/api/projects/{self.project.id}/invites/{self.invite.id}/', {'name': 'sdasdasd'})
+        self.assertEqual(request.status_code, 403)
+        self.assertEqual(str(request.json()), 'User not allowed')
+
+    def test_invite_detail_view_delete(self):
+        invite = Invite.objects.create(email="test_delete@test.com", project=self.project)
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        request = c.delete(f'/pm/api/projects/{self.project.id}/invites/{invite.id}/')
+        self.assertEqual(request.status_code, 204)
+
+    def test_invite_detail_view_delete_not_allowed(self):
+        User.objects.create_user(username="test5", email="test5@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test5', password='supersecret')
+        request = c.delete(f'/pm/api/projects/{self.project.id}/invites/{self.invite.id}/')
+        self.assertEqual(request.status_code, 403)
+        self.assertEqual(str(request.json()), 'User not allowed')
 
 
 class PermissionTests(TestCase):
