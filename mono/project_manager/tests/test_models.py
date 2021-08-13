@@ -4,7 +4,7 @@ from ..models import Board, Bucket, Card, Project, card_directory_path, BaseMode
 
 
 class FunctionTests(TestCase):
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user = User.objects.create(username="test_user")
@@ -33,7 +33,7 @@ class FunctionTests(TestCase):
 
 
 class BaseModelTest(TestCase):
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user = User.objects.create(username="test_user")
@@ -45,7 +45,7 @@ class BaseModelTest(TestCase):
 
 
 class ProjectTests(TestCase):
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user_1 = User.objects.create(username="test_user_1")
@@ -58,7 +58,7 @@ class ProjectTests(TestCase):
 
 
 class BoardTests(TestCase):
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user_1 = User.objects.create(username="test_user_1")
@@ -100,7 +100,7 @@ class BoardTests(TestCase):
 
 
 class BucketTests(TestCase):
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user_1 = User.objects.create(username="test_user_1")
@@ -168,7 +168,7 @@ class BucketTests(TestCase):
         self.assertEqual(self.bucket_2.max_order, 3)
 
         # class ProjectModelTest(TestCase):
-        #     fixtures = ["icon.json"]
+        #     fixtures = ["icon"]
 
         #     def setUp(self):
         #         self.user = User.objects.create(username="test_user")
@@ -196,7 +196,7 @@ class BucketTests(TestCase):
         #     #     self.assertEqual(allowed_users, queryset)
 
         # class BoardModelTest(TestCase):
-        #     fixtures = ["icon.json"]
+        #     fixtures = ["icon"]
 
         #     def setUp(self):
         #         self.user = User.objects.create(username="test_user")

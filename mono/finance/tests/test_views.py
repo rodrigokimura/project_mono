@@ -10,7 +10,7 @@ from ..forms import UniversalTransactionForm
 
 
 class HomePageViewTests(TestCase):
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user = User.objects.create(
@@ -42,7 +42,7 @@ class HomePageViewTests(TestCase):
 
 
 class CardOrderViewTests(TestCase):
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user = User.objects.create(
@@ -89,7 +89,7 @@ class CardOrderViewTests(TestCase):
 
 class TransactionListViewTests(TestCase):
 
-    fixtures = ['icon.json']
+    fixtures = ['icon']
 
     def setUp(self):
         self.user = User.objects.create(username='test', email='test.test@test.com')
@@ -433,7 +433,7 @@ class TransactionListViewTests(TestCase):
 
 class IconViewTests(TestCase):
 
-    fixtures = ['icon.json']
+    fixtures = ['icon']
 
     def setUp(self) -> None:
         self.superuser = User.objects.create(username='test', email='test.test@test.com')
@@ -471,7 +471,7 @@ class IconViewTests(TestCase):
 
 
 class InviteTests(TestCase):
-    fixtures = ['icon.json']
+    fixtures = ['icon']
 
     def setUp(self) -> None:
         self.user = User.objects.create(username='test', email='test@test.com')
@@ -512,7 +512,7 @@ class InviteTests(TestCase):
 
 
 class ViewsetTests(TestCase):
-    fixtures = ['icon.json']
+    fixtures = ['icon']
 
     def setUp(self) -> None:
         self.user = User.objects.create(username='test', email='test@test.com')

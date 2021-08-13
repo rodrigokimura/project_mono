@@ -8,7 +8,7 @@ from .widgets import ButtonsWidget, SliderWidget
 
 class FeedbackViewTests(TestCase):
 
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user = User.objects.create(username="User")

@@ -11,7 +11,7 @@ from .forms import UserCreateForm, UserProfileForm
 
 class UserCreateFormTest(TestCase):
 
-    fixtures = ["icon.json"]
+    fixtures = ["icon"]
 
     def setUp(self):
         self.user = User.objects.create(
@@ -56,7 +56,7 @@ class UserProfileFormTest(TestCase):
 
 class UserProfileModelTests(TestCase):
 
-    fixtures = ['icon.json']
+    fixtures = ['icon']
 
     def setUp(self):
         self.user = User.objects.create(
@@ -93,7 +93,7 @@ class UserProfileModelTests(TestCase):
 
 class UserProfileViewTests(TestCase):
 
-    fixtures = ['icon.json']
+    fixtures = ['icon']
 
     def setUp(self):
         self.user = User.objects.create(
