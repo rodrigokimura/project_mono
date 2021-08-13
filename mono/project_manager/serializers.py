@@ -148,7 +148,7 @@ class CardMoveSerializer(Serializer):
     order = serializers.IntegerField()
     card = serializers.IntegerField()
 
-    def validate_souce_bucket(self, value):
+    def validate_source_bucket(self, value):
         if Bucket.objects.filter(id=value).exists():
             return value
         else:
@@ -164,7 +164,7 @@ class CardMoveSerializer(Serializer):
         if Card.objects.filter(id=value).exists():
             return value
         else:
-            raise serializers.ValidationError("Invalid bucket")
+            raise serializers.ValidationError("Invalid card")
 
     def validate_order(self, value):
         if value > 0:

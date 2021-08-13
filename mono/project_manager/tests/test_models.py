@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from ..models import Board, Bucket, Card, Project, card_directory_path, BaseModel
+from ..models import Board, Bucket, Card, Icon, Invite, Notification, Project, Theme, TimeEntry, card_directory_path, BaseModel
 
 
 class FunctionTests(TestCase):
@@ -167,58 +167,180 @@ class BucketTests(TestCase):
         self.bucket_2.sort()
         self.assertEqual(self.bucket_2.max_order, 3)
 
-        # class ProjectModelTest(TestCase):
-        #     fixtures = ["icon"]
 
-        #     def setUp(self):
-        #         self.user = User.objects.create(username="test_user")
-        #         Project.objects.create(name='test_project', created_by=self.user)
+class CardTests(TestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
 
-        #     # def test_name_label(self):
-        #     #     project = Project.objects.get(id=1)
-        #     #     field_label = project._meta.get_field('name').verbose_name
-        #     #     self.assertEqual(field_label, 'name')
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+        self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
+        self.bucket = Bucket.objects.create(
+            name='bucket',
+            created_by=self.user,
+            board=self.board,
+            order=1,
+        )
+        self.card = Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=self.bucket,
+            order=1,
+        )
+        self.theme = Theme.objects.first()
 
-        #     # def test_name_max_length(self):
-        #     #     project = Project.objects.get(id=1)
-        #     #     max_length = project._meta.get_field('name').max_length
-        #     #     self.assertEqual(max_length, 50)
+    def test_start_timer_twice(self):
+        response = self.card.start_timer(self.user)
+        self.assertEqual(response['action'], 'start')
+        response = self.card.start_timer(self.user)
+        self.assertEqual(response['action'], 'none')
 
-        #     # def test_assigned_to_related_name(self):
-        #     #     project = Project.objects.get(id=1)
-        #     #     related_name = project._meta.get_field('name').related_name
-        #     #     self.assertEqual(related_name, 'assigned_projects')
+    def test_stop_timer(self):
+        response = self.card.start_timer(self.user)
+        self.assertEqual(response['action'], 'start')
+        response = self.card.stop_timer()
+        self.assertEqual(response['action'], 'stop')
 
-        #     # def test_allowed_users(self):
-        #     #     project = Project.objects.get(id=1)
-        #     #     allowed_users = project.allowed_users
-        #     #     queryset = project.assigned_to.union(User.objects.filter(id=self.created_by.id))
-        #     #     self.assertEqual(allowed_users, queryset)
 
-        # class BoardModelTest(TestCase):
-        #     fixtures = ["icon"]
+class TimeEntryTests(TestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
 
-        #     def setUp(self):
-        #         self.user = User.objects.create(username="test_user")
-        #         Board.objects.create(name='test_board', created_by=self.user)
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+        self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
+        self.bucket = Bucket.objects.create(
+            name='bucket',
+            created_by=self.user,
+            board=self.board,
+            order=1,
+        )
+        self.card = Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=self.bucket,
+            order=1,
+        )
+        self.time_entry = TimeEntry.objects.create(created_by=self.user, card=self.card)
+        self.theme = Theme.objects.first()
 
-        #     # def test_name_label(self):
-        #     #     board = Board.objects.get(id=1)
-        #     #     field_label = board._meta.get_field('name').verbose_name
-        #     #     self.assertEqual(field_label, 'name')
+    def test_is_running(self):
+        self.assertTrue(self.time_entry.is_running)
 
-        #     # def test_name_max_length(self):
-        #     #     board = Board.objects.get(id=1)
-        #     #     max_length = board._meta.get_field('name').max_length
-        #     #     self.assertEqual(max_length, 50)
+    def test_is_stopped(self):
+        self.assertFalse(self.time_entry.is_stopped)
 
-        #     # def test_assigned_to_related_name(self):
-        #     #     board = Board.objects.get(id=1)
-        #     #     related_name = board._meta.get_field('name').related_name
-        #     #     self.assertEqual(related_name, 'assigned_boards')
 
-        #     # def test_allowed_users(self):
-        #     #     board = Board.objects.get(id=1)
-        #     #     allowed_users = board.allowed_users
-        #     #     queryset = board.assigned_to.union(User.objects.filter(id=self.created_by.id))
-        #     #     self.assertEqual(allowed_users, queryset)
+class ThemeTests(TestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+        self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
+        self.bucket = Bucket.objects.create(
+            name='bucket',
+            created_by=self.user,
+            board=self.board,
+            order=1,
+        )
+        self.card = Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=self.bucket,
+            order=1,
+        )
+        self.time_entry = TimeEntry.objects.create(created_by=self.user, card=self.card)
+        self.theme = Theme.objects.first()
+
+    def test_theme_name(self):
+        self.assertEqual(str(self.theme), 'Red')
+
+
+class IconTests(TestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
+
+    def setUp(self) -> None:
+        self.icon = Icon.objects.first()
+
+    def test_icon_str(self):
+        self.assertEqual(str(self.icon), 'heartbeat')
+
+
+class NotificationTests(TestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.notification = Notification.objects.create(
+            title='test',
+            message='message',
+            to=self.user,
+        )
+
+    def test_str(self):
+        self.assertEqual(str(self.notification), 'test')
+
+    def test_read(self):
+        self.assertFalse(self.notification.read)
+
+    def test_mark_as_read(self):
+        self.notification.mark_as_read()
+        self.assertIsNotNone(self.notification.read_at)
+
+    def test_set_icon_by_markup(self):
+        self.notification.set_icon_by_markup('coffee')
+        self.assertEqual(self.notification.icon.markup, 'coffee')
+
+
+class CreateDefaultsTest(TestCase):
+
+    def test_create_default_themes(self):
+        Theme._create_defaults()
+        for theme in Theme.DEFAULT_THEMES:
+            name = theme[0]
+            self.assertTrue(Theme.objects.filter(name=name).exists())
+
+    def test_create_default_icons(self):
+        Icon._create_defaults()
+        for icon in Icon.DEFAULT_ICONS:
+            self.assertTrue(Icon.objects.filter(markup=icon).exists())
+
+
+class InviteTests(TestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+        self.invite = Invite.objects.create(
+            email='test2@test.com',
+            project=self.project,
+        )
+
+    def test_str(self):
+        self.assertIsNotNone(str(self.invite))
