@@ -684,6 +684,24 @@ class CardDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['name'], 'test')
 
+    def test_card_detail_view_put_completed(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.put(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/',
+            {'name': 'test', 'bucket': self.bucket.id, 'order': 1, 'status': Bucket.COMPLETED})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], Bucket.COMPLETED)
+
+    def test_card_detail_view_put_in_progress(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.put(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/',
+            {'name': 'test', 'bucket': self.bucket.id, 'order': 1, 'status': Bucket.IN_PROGRESS})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], Bucket.IN_PROGRESS)
+
     def test_card_detail_view_put_with_color(self):
         c = APIClient()
         c.login(username='test', password='supersecret')
@@ -779,6 +797,183 @@ class CardMoveApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['success'])
 
+    def test_card_move_auto_status_completed(self):
+        target_bucket_auto_status = Bucket.objects.create(
+            name='target',
+            created_by=self.user,
+            board=self.board,
+            order=2,
+            auto_status=Bucket.COMPLETED,
+        )
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/card_move/',
+            data={
+                'source_bucket': self.source_bucket.id,
+                'target_bucket': target_bucket_auto_status.id,
+                'order': 2,
+                'card': self.card.id
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['success'])
+
+    def test_card_move_auto_status_not_started(self):
+        target_bucket_auto_status = Bucket.objects.create(
+            name='target',
+            created_by=self.user,
+            board=self.board,
+            order=2,
+            auto_status=Bucket.NOT_STARTED,
+        )
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/card_move/',
+            data={
+                'source_bucket': self.source_bucket.id,
+                'target_bucket': target_bucket_auto_status.id,
+                'order': 2,
+                'card': self.card.id
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['success'])
+
+    def test_card_move_auto_status_in_progress(self):
+        target_bucket_auto_status = Bucket.objects.create(
+            name='target',
+            created_by=self.user,
+            board=self.board,
+            order=2,
+            auto_status=Bucket.IN_PROGRESS,
+        )
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/card_move/',
+            data={
+                'source_bucket': self.source_bucket.id,
+                'target_bucket': target_bucket_auto_status.id,
+                'order': 2,
+                'card': self.card.id
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['success'])
+
+    def test_card_move_more_cards_same_bucket(self):
+        bucket = Bucket.objects.create(
+            name='test',
+            created_by=self.user,
+            board=self.board,
+            order=1,
+        )
+        card_1 = Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=bucket,
+            order=1,
+        )
+        Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=bucket,
+            order=2,
+        )
+        Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=bucket,
+            order=3,
+        )
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/card_move/',
+            data={
+                'source_bucket': bucket.id,
+                'target_bucket': bucket.id,
+                'order': 2,
+                'card': card_1.id
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['success'])
+
+    def test_card_move_more_cards_different_buckets(self):
+        source_bucket = Bucket.objects.create(
+            name='source_bucket_2',
+            created_by=self.user,
+            board=self.board,
+            order=1,
+        )
+        target_bucket = Bucket.objects.create(
+            name='target_bucket_2',
+            created_by=self.user,
+            board=self.board,
+            order=1,
+        )
+        card_1 = Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=source_bucket,
+            order=1,
+        )
+        Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=source_bucket,
+            order=2,
+        )
+        Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=source_bucket,
+            order=3,
+        )
+        Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=target_bucket,
+            order=1,
+        )
+        Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=target_bucket,
+            order=2,
+        )
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/card_move/',
+            data={
+                'source_bucket': source_bucket.id,
+                'target_bucket': target_bucket.id,
+                'order': 2,
+                'card': card_1.id
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['success'])
+
+    def test_card_move_invalid_card(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/card_move/',
+            data={
+                'source_bucket': self.source_bucket.id,
+                'target_bucket': self.target_bucket.id,
+                'order': 2,
+                'card': 9999999
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['card'][0], 'Invalid card')
+
     def test_card_move_invalid_order(self):
         c = APIClient()
         c.login(username='test', password='supersecret')
@@ -793,6 +988,84 @@ class CardMoveApiViewTests(APITestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['order'][0], 'Invalid order')
+
+    def test_card_move_invalid_source_bucket(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/card_move/',
+            data={
+                'source_bucket': 999999,
+                'target_bucket': self.target_bucket.id,
+                'order': 1,
+                'card': self.card.id
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['source_bucket'][0], 'Invalid bucket')
+
+    def test_card_move_invalid_target_bucket(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/card_move/',
+            data={
+                'source_bucket': self.source_bucket.id,
+                'target_bucket': 99999,
+                'order': 1,
+                'card': self.card.id
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['target_bucket'][0], 'Invalid bucket')
+
+    def test_card_move_user_not_allowed_in_source_bucket(self):
+        user = User.objects.create_user(username="not_allowed_source_bucket", email="test@test.com", password="supersecret")
+        project = Project.objects.create(name='not_allowed_source_bucket', created_by=user)
+        board = Board.objects.create(name='not_allowed_source_bucket', created_by=user, project=project)
+        not_allowed_source_bucket = Bucket.objects.create(
+            name='not_allowed_source_bucket',
+            created_by=user,
+            board=board,
+            order=1,
+        )
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/card_move/',
+            data={
+                'source_bucket': not_allowed_source_bucket.id,
+                'target_bucket': self.target_bucket.id,
+                'order': 1,
+                'card': self.card.id
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['non_field_errors'][0], 'User not allowed')
+
+    def test_card_move_user_not_allowed_in_target_bucket(self):
+        user = User.objects.create_user(username="not_allowed_target_bucket", email="test@test.com", password="supersecret")
+        project = Project.objects.create(name='not_allowed_target_bucket', created_by=user)
+        board = Board.objects.create(name='not_allowed_target_bucket', created_by=user, project=project)
+        not_allowed_target_bucket = Bucket.objects.create(
+            name='not_allowed_target_bucket',
+            created_by=user,
+            board=board,
+            order=1,
+        )
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/card_move/',
+            data={
+                'source_bucket': self.source_bucket.id,
+                'target_bucket': not_allowed_target_bucket.id,
+                'order': 1,
+                'card': self.card.id
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['non_field_errors'][0], 'User not allowed')
 
 
 class BucketMoveApiViewTests(APITestCase):
@@ -828,6 +1101,34 @@ class BucketMoveApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['order'], 2)
 
+    def test_bucket_move_invalid_bucket(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/bucket_move/',
+            data={
+                'board': self.board.id,
+                'order': 2,
+                'bucket': 99999
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['bucket'][0], 'Invalid bucket')
+
+    def test_bucket_move_invalid_board(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/bucket_move/',
+            data={
+                'board': 99999,
+                'order': 2,
+                'bucket': self.bucket.id
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['board'][0], 'Invalid board')
+
     def test_bucket_move_invalid_order(self):
         c = APIClient()
         c.login(username='test', password='supersecret')
@@ -841,6 +1142,36 @@ class BucketMoveApiViewTests(APITestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['order'][0], 'Invalid order')
+
+    def test_bucket_move_user_not_allowed(self):
+        User.objects.create_user(username="not_allowed", email="not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='not_allowed', password='supersecret')
+        response = c.post(
+            path='/pm/api/bucket_move/',
+            data={
+                'board': self.board.id,
+                'order': 1,
+                'bucket': self.bucket.id
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['non_field_errors'][0], 'User not allowed')
+
+    def test_bucket_move_bucket_outside_board(self):
+        outside_board = Board.objects.create(name='outside_board', created_by=self.user, project=self.project)
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            path='/pm/api/bucket_move/',
+            data={
+                'board': outside_board.id,
+                'order': 1,
+                'bucket': self.bucket.id
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['non_field_errors'][0], 'Bucket outside board')
 
 
 class StartStopTimerAPIViewTests(APITestCase):
@@ -869,8 +1200,14 @@ class StartStopTimerAPIViewTests(APITestCase):
         self.theme = Theme.objects.first()
 
     def test_start_stop_timer(self):
+        """Test timer starting and then stopping"""
         c = APIClient()
         c.login(username='test', password='supersecret')
+        response = c.post(
+            path=f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/timer/',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['success'])
         response = c.post(
             path=f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/timer/',
         )

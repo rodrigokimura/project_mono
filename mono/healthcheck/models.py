@@ -83,7 +83,7 @@ class PullRequest(models.Model):
         path = Path(settings.BASE_DIR).resolve().parent
         repo = git.Repo(path)
         repo.git.reset('--hard', 'origin/master')
-        repo.remotes.pull()
+        repo.remotes.origin.pull()
         print("Successfully pulled from remote.")
         self.pulled_at = timezone.now()
         self.save()
