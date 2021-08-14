@@ -236,7 +236,7 @@ class Item(BaseModel):
 
 class TimeEntry(BaseModel):
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
-    started_at = models.DateTimeField()
+    started_at = models.DateTimeField(auto_now_add=True)
     stopped_at = models.DateTimeField(blank=True, null=True)
     duration = models.DurationField(blank=True, null=True, editable=False)
 
@@ -249,7 +249,7 @@ class TimeEntry(BaseModel):
         return self.stopped_at is None
 
     @property
-    def is_stoppped(self):
+    def is_stopped(self):
         return self.stopped_at is not None
 
 
