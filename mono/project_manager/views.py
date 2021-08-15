@@ -305,6 +305,16 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+    
+    def patch(self, request, pk, format=None, **kwargs):
+        board = self.get_object(pk)
+        serializer = BoardSerializer(board, data=request.data, partial=True)
+        if request.user in board.allowed_users:
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk, format=None, **kwargs):
         project = Project.objects.get(id=kwargs.get('project_pk'))

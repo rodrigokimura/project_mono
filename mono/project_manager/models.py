@@ -52,6 +52,8 @@ class Project(BaseModel):
 class Board(BaseModel):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     assigned_to = models.ManyToManyField(User, related_name="assigned_boards", blank=True)
+    fullscreen = models.BooleanField(default=False)
+    compact = models.BooleanField(default=False)
 
     @property
     def allowed_users(self):
