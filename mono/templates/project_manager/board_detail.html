@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "project_manager/base.html" %}
 {% load static %}
 {% load i18n %}
 
@@ -38,7 +38,26 @@
   </script>
 {% endblock head %}
 
-{% block body %}
+{% block menu %}
+  <a class="toc item"><i class="sidebar icon"></i></a>
+  <a class="refresh item"><i class="refresh icon"></i></a>
+  <a class="fullscreen item"><i class="expand alternate icon"></i></a>
+  <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
+  </div>
+{% endblock menu %}
+
+{% block sidebar %}
+  <div class="ui sidebar inverted vertical menu">
+    <div class="item">
+      <div class="ui inverted slider checkbox board-compact">
+        <input type="checkbox">
+        <label>Compact</label>
+      </div>
+    </div>
+  </div>
+{% endblock sidebar %}
+
+{% block main %}
 <script src="{% static 'js/dragula.min.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
 
@@ -77,14 +96,10 @@
 
 <div class="pusher">
   <div class="ui fluid container">
-    
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
-
-    <div class="ui basic segment" style="margin-top:  0; mar">
+    <div class="ui basic segment" style="margin:  0;">
       <div id="board" class="ui cards buckets-drake" style="overflow-y: hidden; overflow-x: auto; display: flex; flex-flow: row nowrap; scroll-snap-type: y mandatory; scroll-padding: .8em;"></div>
     </div>
-    
-    
   </div>
 </div>
 
@@ -270,6 +285,7 @@
 </div>
 
 <script>
+
   const PROJECT_ID = "{{ object.project.id }}";
   const BOARD_ID = "{{ object.id }}";
   var intervals = [];
@@ -279,6 +295,48 @@
   var containerBucketIsOver;
   var scrollIntervalID;
   var isScrolling = false;
+
+  const setFullscreen = bool => {
+    $.api({
+      on: 'now',
+      url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+      method: 'PATCH',
+      headers: {'X-CSRFToken': csrftoken},
+      data: { fullscreen: bool },
+      success: r => {
+        let icon = $('.fullscreen.item i.icon');
+        if (r.fullscreen) {
+          icon.removeClass('expand alternate icon').addClass('compress alternate icon');
+          $('.breadcrumb').parent().parent().parent().hide();
+          adjustBoardHeight();
+        } else {
+          icon.removeClass('compress alternate icon').addClass('expand alternate icon');
+          $('.breadcrumb').parent().parent().parent().show();
+          adjustBoardHeight();
+        };
+      },
+      error: r => {alert(JSON.stringify(r))},
+    });
+  };
+  
+  const setCompact = bool => {
+    $.api({
+      on: 'now',
+      url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+      method: 'PATCH',
+      headers: {'X-CSRFToken': csrftoken},
+      data: { compact: bool },
+      success: r => {
+        loadBoard(r.compact);
+      },
+      error: r => {alert(JSON.stringify(r))},
+    });
+  };
+
+  const toggleFullscreen = () => {
+    let icon = $('.fullscreen.item i.icon');
+    setFullscreen(icon.hasClass('expand alternate icon'));
+  };
 
   const startElementScroll = (directionX, directionY, elementToScroll, increment, delay) => {
     let scroll = () => {
@@ -396,9 +454,8 @@
     $(boardSelector).height(
       $(window).height()
       -$(boardSelector).offset().top
-      -$(boardSelector).css('marginBottom').replace('px', '').replace('-', '')
+      //-$(boardSelector).css('marginBottom').replace('px', '').replace('-', '')
     );
-    document.body.style.height = `${window.innerHeight - 20}px`
   };
 
   const str = seconds => {
@@ -427,23 +484,28 @@
     intervals = [];
   };
 
-  const loadBoard = () => {
+  const loadBoard = (compact=false) => {
     adjustBoardHeight();
     clearIntervals();
-    getBuckets();
+    getBuckets(compact);
     enableProximityScroll();
   };
 
-  const renderBuckets = (containerSelector, buckets) => {
+  const renderBuckets = (containerSelector, buckets, compact=true) => {
     $(containerSelector).empty();
+    if (compact) {
+      $(containerSelector).parent().css('padding','.5em')
+    } else {
+      $(containerSelector).parent().css('padding','1em')
+    };
     buckets.forEach(bucket => {
       $(containerSelector).append(
         `
-        <div class="ui loading card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;">
+        <div class="ui loading card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em;' : ''}">
           <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${ bucket.color !== null ? `background-color: ${bucket.color.primary}; color: ${bucket.color.light}` : '' }; " data-bucket-id="${bucket.id}">
             <i class="grip lines icon"></i>
           </div>
-          <div class="content" style="flex: 0 1 auto; ${ bucket.color !== null ? `background-color: ${bucket.color.light};` : '' };">
+          <div class="content" style="flex: 0 1 auto; ${ bucket.color !== null ? `background-color: ${bucket.color.light};` : '' };${compact ? ' padding: .5em;' : ''}">
             <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
               <div style="flex: 1 1 auto; overflow-wrap: anywhere; padding-right: .5em; ${ bucket.color !== null ? `color: ${bucket.color.dark};` : '' }">
                 ${bucket.name}
@@ -451,7 +513,7 @@
               <div style="flex: 0 0 auto;">
                 ${bucket.auto_status !== 'N' ? '<span class="ui small text" style="margin-right: .5em; opacity: .6;"><i class="robot icon"></i></span><br>' : '' }
               </div>
-              <div class="ui basic icon top right pointing dropdown button" data-bucket-id="${bucket.id}" style="flex: 0 0 auto; align-self: flex-start;">
+              <div class="ui basic icon top right pointing dropdown button" data-bucket-id="${bucket.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 2em; padding: .5em; margin: 0;' : ''}">
                 <i class="ellipsis horizontal icon"></i>
                 <div class="menu">
                   <div class="add card item" data-bucket-id="${bucket.id}"><i class="add icon"></i>Add new card</div>
@@ -465,7 +527,7 @@
               <span style="white-space: pre-line;">${bucket.description ? bucket.description : ''}</span>
             </div>
           </div>
-          <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 1 auto; display: flex; flex-flow: column nowrap; overflow-y: auto;">
+          <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 1 auto; display: flex; flex-flow: column nowrap; overflow-y: auto;${compact ? ' padding: .5em;' : ''}">
           </div>
         </div>
         `
@@ -497,7 +559,7 @@
       $(`.add.card.item[data-bucket-id=${bucket.id}]`).click(e => {showCardModal(card=null, bucket.id);});
       $(`.edit.bucket.item[data-bucket-id=${bucket.id}]`).click(e => {showBucketModal(bucket);});
       $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).click(e => {deleteBucket(bucket.id);});
-      getCards(bucket.id);
+      getCards(bucket.id, compact);
     });
     $(containerSelector).append(`<div class="ui add bucket button" style="flex: 0 0 auto">Add new bucket</div>`);
     $(`.add.bucket.button`).click(e => {showBucketModal();});
@@ -508,22 +570,21 @@
     $('.bucket-el').removeClass('loading');
   };
 
-  const renderCards = (containerSelector, cards, bucketId) => {
+  const renderCards = (containerSelector, cards, bucketId, compact=false) => {
     $(containerSelector).empty();
     cards.forEach(card => {
       $(containerSelector).append(
         `
-        
-        <div class="ui raised loading ${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;">
+        <div class="ui raised loading ${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;${compact ? ' margin-bottom: -.25em;' : 'margin-bottom: .25em;'}">
           <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${ card.color !== null ? `background-color: ${card.color.primary}; color: ${card.color.light}` : '' };" data-card-id="${card.id}">
             <i class="grip lines small icon"></i>
           </div>
-          <div class="content" style="${ card.color !== null ? `background-color: ${card.color.light};` : '' };">
+          <div class="content" style="${ card.color !== null ? `background-color: ${card.color.light};` : '' };${compact ? ' padding: .5em;' : ''}">
             <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between; ${ card.color !== null ? `color: ${card.color.dark};` : '' }">
               <div style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
                 ${card.name}
               </div>
-              <div class="ui basic icon top right pointing dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;">
+              <div class="ui basic icon top right pointing dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 2em; padding: .5em; margin: 0;' : ''}">
                 <i class="ellipsis horizontal icon"></i>
                 <div class="menu">
                   <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
@@ -535,7 +596,7 @@
             </div>
             <div class="meta" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
           </div>
-          <div class="extra content" style="${ card.color !== null ? `background-color: ${card.color.light};` : '' };">
+          <div class="extra content" style="${ card.color !== null ? `background-color: ${card.color.light};` : '' };;${compact ? ' padding: .5em;' : ''}">
             <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
               ${card.is_running ? '<i class="hourglass half icon"></i>' : ''}
               <span class="total-time" data-card-id="${card.id}" data-time="${card.total_time}">
@@ -616,19 +677,28 @@
     document.addEventListener("mousemove", proximityScroll);
   };
 
-  const getBuckets = () => {
+  const getBuckets = (compact=false) => {
     $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`)
       .done(r => {
-        renderBuckets(containerSelector='#board', r);
+        renderBuckets(
+          containerSelector='#board', 
+          buckets=r,
+          compact=compact
+        );
       })
       .fail(e => { console.error(e) })
       .always()
   };
 
-  const getCards = bucketId => {
+  const getCards = (bucketId, compact=false) => {
     $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`)
       .done(r => {
-        renderCards(containerSelector=`#bucket-${bucketId}` , r, bucketId);
+        renderCards(
+          containerSelector=`#bucket-${bucketId}` , 
+          cards=r, 
+          bucketId=bucketId,
+          compact=compact
+        );
       })
       .fail(e => { console.error(e) })
       .always()
@@ -854,7 +924,23 @@
     });
   };
 
-  loadBoard();
+  $(document).ready(e => {
+    $('.ui.sidebar')
+      .sidebar('setting', 'transition', 'slide along')
+      .sidebar('setting', 'mobileTransition', 'slide along')
+      .sidebar('attach events', '.toc.item');
+    $('.board-compact.checkbox').checkbox({
+      onChecked: () => { setCompact(true); },
+      onUnchecked: () => { setCompact(false); },
+    })
+    $('.refresh.item').click(() => { 
+      loadBoard($('.board-compact.checkbox').checkbox('is checked'));
+    });
+    $('.fullscreen.item').click(toggleFullscreen);
+    {% if object.fullscreen %}setFullscreen(true);{% endif %}
+    {% if object.compact %}$('.board-compact.checkbox').checkbox('set checked');{% endif %}
+    loadBoard($('.board-compact.checkbox').checkbox('is checked'));
+  })
 
 </script>
 {% endblock %}
