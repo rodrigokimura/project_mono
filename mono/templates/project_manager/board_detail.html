@@ -30,6 +30,9 @@
         z-index: 10;
       }
     }
+    .item-checked {
+      text-decoration: line-through;
+    }
   </style>
   <script>
     if(typeof(String.prototype.trim) === "undefined") {
@@ -734,12 +737,13 @@
         `
           <div class="checklist-item" data-item-id="${item.id}" style="display: flex; flex-flow: row nowrap; align-items: center;">
             <div class="ui ${dark ? 'inverted ' : ' '}fitted checkbox" style="flex: 0 0 auto;" data-item-id="${item.id}">
-              <input type="checkbox">
+              <input type="checkbox" ${item.checked ? 'checked' : ''}>
               <label></label>
             </div>
             <div class="ui ${dark ? 'inverted ' : ' '}transparent input" style="flex: 1 0 auto;">
-              <input data-item-id="${item.id}" type="text" placeholder="Enter text here" data-text="${item.name}" value="${item.name}">
+              <input class="${item.checked ? 'item-checked' : ''}" data-item-id="${item.id}" type="text" placeholder="Enter text here" data-text="${item.name}" value="${item.name}">
             </div>
+            <div data-item-id="${item.id}" class="ui mini icon basic delete-item button"><i data-item-id="${item.id}" class="trash alternate outline icon"></i></div>
           </div>
         `
       );
@@ -772,6 +776,51 @@
         });
       };
     });
+    $('.delete-item.button').click(e => {
+      let itemId = $(e.target).attr('data-item-id');
+      $.api({
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/`,
+        method: 'DELETE',
+        headers: {'X-CSRFToken': csrftoken},
+        on: 'now',
+        onSuccess: r => { 
+          getItems(bucketId, cardId, dark); 
+        },
+      });
+    });
+
+    $('.checklist-item .checkbox').toArray().forEach(el => {
+      $(el).checkbox({
+        onChange: () => {
+          let itemId = $(el).attr('data-item-id');
+          let checked = $(el).checkbox('is checked');
+          console.log(checked);
+          $.api({
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/check/`,
+            method: 'POST',
+            data: { checked: checked },
+            headers: {'X-CSRFToken': csrftoken},
+            on: 'now',
+            onSuccess: r => { 
+              getItems(bucketId, cardId, dark); 
+            },
+          });
+        }
+      })
+    });
+      
+      
+    {% comment %} e => {
+    let itemId = $(e.target).attr('data-item-id');
+    $.api({
+      url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/`,
+      method: 'DELETE',
+      headers: {'X-CSRFToken': csrftoken},
+      on: 'now',
+      onSuccess: r => { 
+        getItems(bucketId, cardId, dark); 
+      },
+    }); {% endcomment %}
   };
 
   const enableProximityScroll = () => {

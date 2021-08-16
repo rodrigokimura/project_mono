@@ -605,6 +605,34 @@ class ItemDetailAPIView(LoginRequiredMixin, APIView):
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 
 
+class ItemCheckAPIView(LoginRequiredMixin, APIView):
+    """
+    Mark an item instance as checked or unchecked.
+    """
+
+    def get_object(self, pk):
+        try:
+            return Item.objects.get(pk=pk)
+        except Item.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        item = self.get_object(pk)
+        if request.user in item.allowed_users:
+            if request.data.get('checked') == 'true':
+                item.mark_as_checked(request.user)
+            elif request.data.get('checked') == 'false':
+                item.mark_as_unchecked()
+            else:
+                Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
 class CardMoveApiView(LoginRequiredMixin, APIView):
     """
     Move card from one bucket to another bucket in given order.
