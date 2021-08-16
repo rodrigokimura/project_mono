@@ -551,19 +551,11 @@
       $(containerSelector).parent().css('padding','1em');
     };
     if (dark) {
-      $(containerSelector).parent().addClass('inverted');
-      $(containerSelector).parent().parent().parent().parent().parent().addClass('inverted');
-      $(containerSelector).parent().parent().parent().parent().parent().parent().addClass('inverted');
-      $(containerSelector).css('background-color', 'black')
-      $(containerSelector).parent().css('background-color', 'black')
-      $(containerSelector).parent().parent().css('background-color', 'black')
+      $(containerSelector).parents().addClass('inverted');
+      $(containerSelector).parents().css('background-color', 'black');
     } else {
-      $(containerSelector).parent().removeClass('inverted');
-      $(containerSelector).parent().parent().parent().parent().parent().removeClass('inverted');
-      $(containerSelector).parent().parent().parent().parent().parent().parent().removeClass('inverted');
-      $(containerSelector).css('background-color', 'white')
-      $(containerSelector).parent().css('background-color', 'white')
-      $(containerSelector).parent().parent().css('background-color', 'white')
+      $(containerSelector).parents().removeClass('inverted');
+      $(containerSelector).parents().css('background-color', 'white');
     };
     buckets.forEach(bucket => {
       $(containerSelector).append(
