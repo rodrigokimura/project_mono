@@ -246,17 +246,26 @@ class Item(BaseModel):
 
     class Meta:
         ordering = [
-            # "card__bucket__board__project",
-            # "card__bucket__board",
-            # "card__bucket",
-            # "card",
             "order",
-            # "id",
         ]
+
+    @property
+    def checked(self):
+        return self.checked_at is not None
 
     @property
     def allowed_users(self):
         return self.card.bucket.board.allowed_users
+
+    def mark_as_checked(self, user):
+        self.checked_at = timezone.now()
+        self.checked_by = user
+        self.save()
+
+    def mark_as_unchecked(self):
+        self.checked_at = None
+        self.checked_by = None
+        self.save()
 
 
 class TimeEntry(BaseModel):

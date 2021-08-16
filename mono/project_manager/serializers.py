@@ -147,6 +147,7 @@ class CardSerializer(ModelSerializer):
 
 
 class ItemSerializer(ModelSerializer):
+    checked = serializers.ReadOnlyField()
 
     class Meta:
         model = Item
@@ -157,11 +158,13 @@ class ItemSerializer(ModelSerializer):
             'order',
             'checked_by',
             'checked_at',
+            'checked',
         ]
         extra_kwargs = {
             'created_by': {'read_only': True},
             'checked_by': {'read_only': True},
             'checked_at': {'read_only': True},
+            'checked': {'read_only': True},
         }
 
 
