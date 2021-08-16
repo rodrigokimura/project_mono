@@ -5,11 +5,11 @@ from . import models
 
 
 @admin.register(models.PullRequest)
-class BudgetAdmin(admin.ModelAdmin):
+class PullRequestAdmin(admin.ModelAdmin):
     # Admin Action Functions
     def deploy(modeladmin, request, queryset):
         for pr in queryset:
-            pr.pull()
+            pr.pull(link='')
             pr.deploy()
     # Action description
     deploy.short_description = "Pull and deploy"
