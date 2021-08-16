@@ -3,7 +3,6 @@ from . import models
 
 # Register your models here.
 admin.site.register(models.Board)
-admin.site.register(models.Item)
 admin.site.register(models.Icon)
 admin.site.register(models.Notification)
 
@@ -55,6 +54,27 @@ class CardAdmin(admin.ModelAdmin):
         'created_at',
         'status',
         'active',
+    ]
+
+
+@admin.register(models.Item)
+class ItemAdmin(admin.ModelAdmin):
+    list_display = [
+        'name',
+        'created_by',
+        'created_at',
+        'active',
+        'card',
+        'order',
+        'checked_by',
+        'checked_at',
+    ]
+    list_filter = [
+        'created_by',
+        'created_at',
+        'active',
+        'checked_by',
+        'checked_at',
     ]
 
 

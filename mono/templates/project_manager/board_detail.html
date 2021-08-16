@@ -124,10 +124,10 @@
   </div>
 </div>
 
-<form class="ui card tiny top aligned modal form">
+<form class="ui card-form tiny top aligned card modal form">
   <i class="close icon"></i>
   <div class="header">
-    <div class="field">
+    <div class="transparent field">
       <input type=text name="name" placeholder="Name">
     </div>
   </div>
@@ -172,6 +172,19 @@
     </script>
     <div class="ui error message"></div>
   </div>
+  <div class="extra content">
+    <div class="ui inverted item">
+      <div class="header">Checklist</div>
+      <div class="content">
+        <div class="checklist-drake">
+        </div>
+        <div class="ui fluid transparent icon add-item input">
+          <i class="add icon"></i>
+          <input type="text" placeholder="Insert new item to checklist">
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="actions">
     <div class="ui black deny labeled icon button"><i class="delete icon"></i>Cancel</div>
     <div class="ui positive right labeled icon button">Save<i class="save icon"></i>
@@ -207,7 +220,7 @@
   })
 </script>
 
-<form class="ui bucket tiny top aligned modal form">
+<form class="ui bucket-form tiny top aligned card modal form">
   <i class="close icon"></i>
   <div class="header">
     <div class="field">
@@ -347,10 +360,10 @@
       method: 'PATCH',
       headers: {'X-CSRFToken': csrftoken},
       data: { bucket_width: width },
-      success: r => {
+      onSuccess: r => {
        loadBoard();
       },
-      error: r => {alert(JSON.stringify(r))},
+      onError: r => {alert(JSON.stringify(r))},
     });
   };
   
@@ -361,10 +374,10 @@
       method: 'PATCH',
       headers: {'X-CSRFToken': csrftoken},
       data: { compact: bool },
-      success: r => {
+      onSuccess: r => {
         loadBoard(r.compact);
       },
-      error: r => {alert(JSON.stringify(r))},
+      onError: r => {alert(JSON.stringify(r))},
     });
   };
 
@@ -380,10 +393,10 @@
       method: 'PATCH',
       headers: {'X-CSRFToken': csrftoken},
       data: { dark: bool },
-      success: r => {
+      onSuccess: r => {
         loadBoard(r.dark);
       },
-      error: r => {alert(JSON.stringify(r))},
+      onError: r => {alert(JSON.stringify(r))},
     });
   };
 
@@ -544,6 +557,11 @@
   };
 
   const renderBuckets = (containerSelector, buckets, dark=false, compact=false, width) => {
+    if (dark) {
+      $('.bucket-form.modal.form').addClass('inverted');
+    } else {
+      $('.bucket-form.modal.form').removeClass('inverted');
+    };
     $(containerSelector).empty();
     if (compact) {
       $(containerSelector).parent().css('padding','.5em');
@@ -630,6 +648,11 @@
   };
 
   const renderCards = (containerSelector, cards, bucketId, dark=false, compact=false) => {
+    if (dark) {
+      $('.card-form.modal.form').addClass('inverted');
+    } else {
+      $('.card-form.modal.form').removeClass('inverted');
+    };
     $(containerSelector).empty();
     cards.forEach(card => {
       $(containerSelector).append(
@@ -704,6 +727,53 @@
     $('.card-el').removeClass('loading');
   };
 
+  const renderItems = (containerSelector, items, bucketId, cardId, dark=false) => {
+    $(containerSelector).empty();
+    items.forEach(item => {
+      $(containerSelector).append(
+        `
+          <div class="checklist-item" data-item-id="${item.id}" style="display: flex; flex-flow: row nowrap; align-items: center;">
+            <div class="ui ${dark ? 'inverted ' : ' '}fitted checkbox" style="flex: 0 0 auto;" data-item-id="${item.id}">
+              <input type="checkbox">
+              <label></label>
+            </div>
+            <div class="ui ${dark ? 'inverted ' : ' '}transparent input" style="flex: 1 0 auto;">
+              <input data-item-id="${item.id}" type="text" placeholder="Enter text here" data-text="${item.name}" value="${item.name}">
+            </div>
+          </div>
+        `
+      );
+    });
+    $('.checklist-item input').on('keypress', e => {
+      if (e.which == 13) { 
+        let index = $(e.target).parent().parent().index() + 1;
+        let nextElement = $(e.target).parent().parent().parent().children().toArray()[index]
+        if (nextElement !== undefined) {
+          $(nextElement).find('input[type=text]').focus();
+        }
+      }
+    });
+    $('.checklist-item input').blur(e => {
+      if (e.target.value != $(e.target).attr('data-text')) {
+        let itemId = $(e.target).attr('data-item-id');
+        $(this).attr("disabled", "disabled");
+        $.api({
+          url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/`,
+          method: 'PATCH',
+          headers: {'X-CSRFToken': csrftoken},
+          data: { 
+            name: e.target.value, 
+          },
+          on: 'now',
+          onSuccess: r => { 
+            getItems(bucketId, cardId, dark); 
+          },
+          onComplete: () => { $(this).removeAttr("disabled"); },
+        });
+      };
+    });
+  };
+
   const enableProximityScroll = () => {
     function proximityScroll(e) {
       if (cardsDrake.dragging && containerCardIsOver !== null && cardBeingDragged !== null) {
@@ -766,11 +836,27 @@
       .always()
   };
 
+  const getItems = (bucketId, cardId, dark=false) => {
+    $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/`)
+      .done(r => {
+        renderItems(
+          containerSelector=".checklist-drake" , 
+          items=r, 
+          bucketId=bucketId,
+          cardId=cardId,
+          dark=dark,
+        );
+      })
+      .fail(e => { console.error(e) })
+      .always()
+  };
+
   const showCardModal = (card=null, bucketId) => {
     var create;
-    const modal = $('.ui.card.modal');
+    const modal = $('.ui.card-form.modal');
     modal.form('reset');
     modal.off();
+    let dark = modal.hasClass('inverted');
     if (card!=null) {
       create = false;
       modal.find('input[name=id]').val(card.id);
@@ -791,6 +877,39 @@
       autofocus: false,
       transition: 'scale',
       duration: 400,
+      onShow: () => {
+        if (dark) {
+          $('.add-item.input').addClass('inverted');
+        } else {
+          $('.add-item.input').removeClass('inverted');
+        };
+        getItems(bucketId, card.id, dark);
+        $('.add-item.input input').off();
+        $('.add-item.input input').on('keypress', e => {
+            if (e.which == 13) { 
+              $(this).attr("disabled", "disabled");
+              $.api({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
+                method: 'POST',
+                headers: {'X-CSRFToken': csrftoken},
+                data: { 
+                  name: e.target.value, 
+                  card: card.id,
+                  order: 1 
+                },
+                on: 'now',
+                onSuccess: r => { 
+                  e.target.value = '';
+                  getItems(bucketId, card.id, dark); 
+                },
+                onComplete: () => { $(this).removeAttr("disabled"); },
+              });
+            };
+        });
+        
+        /*
+        */
+      },
       onApprove: el => {
         modal.form('validate form');
         if (!modal.form('is valid')) {
@@ -870,7 +989,7 @@
 
   const showBucketModal = (bucket=null) => {
     var create;
-    const modal = $('.ui.bucket.modal');
+    const modal = $('.ui.bucket-form.modal');
     modal.form('reset');
     modal.off();
     if (bucket != null) {
@@ -1017,7 +1136,7 @@
     {% if object.compact %}$('.board-compact.checkbox').checkbox('set checked');{% endif %}
     {% if object.dark %}$('.board-dark.checkbox').checkbox('set checked');{% endif %}
     loadBoard();
-  })
+  });
 
 </script>
 {% endblock %}

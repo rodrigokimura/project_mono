@@ -223,6 +223,12 @@ class Card(BaseModel):
             )
             return {'action': 'start'}
 
+    @property
+    def max_order(self):
+        return self.item_set.all().aggregate(
+            max_order=Coalesce(Max('order'), V(0), output_field=IntegerField())
+        )['max_order']
+
     class Meta:
         ordering = [
             "bucket__board__project",
@@ -233,9 +239,24 @@ class Card(BaseModel):
 
 
 class Item(BaseModel):
+    order = models.IntegerField()
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
-    checked_at = models.DateTimeField()
-    checked_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="checked_items")
+    checked_at = models.DateTimeField(null=True, blank=True, default=None)
+    checked_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="checked_items", default=None, null=True, blank=True)
+
+    class Meta:
+        ordering = [
+            # "card__bucket__board__project",
+            # "card__bucket__board",
+            # "card__bucket",
+            # "card",
+            "order",
+            # "id",
+        ]
+
+    @property
+    def allowed_users(self):
+        return self.card.bucket.board.allowed_users
 
 
 class TimeEntry(BaseModel):

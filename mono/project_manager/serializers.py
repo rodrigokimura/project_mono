@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
 from django.contrib.auth.models import User
-from .models import Project, Board, Bucket, Card, Theme, Invite
+from .models import Item, Project, Board, Bucket, Card, Theme, Invite
 
 
 class UserSerializer(ModelSerializer):
@@ -144,6 +144,25 @@ class CardSerializer(ModelSerializer):
         elif status == Bucket.NOT_STARTED:
             instance.mark_as_not_started()
         return instance
+
+
+class ItemSerializer(ModelSerializer):
+
+    class Meta:
+        model = Item
+        fields = [
+            'id',
+            'name',
+            'card',
+            'order',
+            'checked_by',
+            'checked_at',
+        ]
+        extra_kwargs = {
+            'created_by': {'read_only': True},
+            'checked_by': {'read_only': True},
+            'checked_at': {'read_only': True},
+        }
 
 
 class CardMoveSerializer(Serializer):

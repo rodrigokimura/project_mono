@@ -6,4 +6,4 @@ class ProjectManagerConfig(AppConfig):
 
     def ready(self):
         import project_manager.signals
-        print(f'Connecting signals from: {project_manager.signals.__name__}')
+        project_manager.signals.__name__

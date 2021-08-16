@@ -17,10 +17,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import jwt
-from .models import Project, Board, Bucket, Card, Theme, Invite
+from .models import Item, Project, Board, Bucket, Card, Theme, Invite
 from .forms import ProjectForm, BoardForm
 from .mixins import PassRequestToFormViewMixin
-from .serializers import BucketMoveSerializer, CardMoveSerializer, InviteSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
+from .serializers import BucketMoveSerializer, CardMoveSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
 
 
 class ProjectListView(LoginRequiredMixin, ListView):
@@ -305,7 +305,7 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
-    
+
     def patch(self, request, pk, format=None, **kwargs):
         board = self.get_object(pk)
         serializer = BoardSerializer(board, data=request.data, partial=True)
@@ -502,6 +502,105 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
         card = self.get_object(pk)
         if request.user in card.allowed_users:
             card.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class ItemListAPIView(LoginRequiredMixin, APIView):
+    """
+    List all items, or create a new item.
+    """
+
+    def get(self, request, format=None, **kwargs):
+        project_pk = kwargs.get('project_pk')
+        board_pk = kwargs.get('board_pk')
+        bucket_pk = kwargs.get('bucket_pk')
+        card_pk = kwargs.get('card_pk')
+        project = Project.objects.get(id=project_pk)
+        board = Board.objects.get(project=project, id=board_pk)
+        bucket = Bucket.objects.get(board=board, id=bucket_pk)
+        card = Card.objects.get(bucket=bucket, id=card_pk)
+        items = Item.objects.filter(card=card)
+        if request.user in board.allowed_users:
+            serializer = ItemSerializer(items, many=True)
+            return Response(serializer.data)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        card = Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        if request.user in card.allowed_users:
+            serializer = ItemSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save(
+                    created_by=request.user,
+                    order=card.max_order + 1,
+                )
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class ItemDetailAPIView(LoginRequiredMixin, APIView):
+    """
+    Retrieve, update or delete an item instance.
+    """
+
+    def get_object(self, pk):
+        try:
+            return Item.objects.get(pk=pk)
+        except Item.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        item = self.get_object(pk)
+        if request.user in item.allowed_users:
+            serializer = ItemSerializer(item)
+            return Response(serializer.data)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def put(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        item = self.get_object(pk)
+        if request.user in item.allowed_users:
+            serializer = ItemSerializer(item, data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def patch(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        item = self.get_object(pk)
+        if request.user in item.allowed_users:
+            serializer = ItemSerializer(item, data=request.data, partial=True, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        item = self.get_object(pk)
+        if request.user in item.allowed_users:
+            item.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 

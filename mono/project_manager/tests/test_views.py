@@ -387,6 +387,33 @@ class BoardDetailApiViewTests(APITestCase):
             {'name': ''})
         self.assertEqual(response.status_code, 400)
 
+    def test_board_detail_view_patch(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.patch(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/',
+            {'name': 'test', 'project': self.project.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['name'], 'test')
+
+    def test_board_detail_view_patch_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.patch(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/',
+            {'name': 'test', 'project': self.project.id})
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+    def test_board_detail_view_patch_invalid_data(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.patch(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/',
+            {'name': ''})
+        self.assertEqual(response.status_code, 400)
+
     def test_board_detail_view_delete(self):
         board = Board.objects.create(name='test board to delete', created_by=self.user, project=self.project)
         c = APIClient()
