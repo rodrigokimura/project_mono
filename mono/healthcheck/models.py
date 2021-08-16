@@ -80,11 +80,12 @@ class PullRequest(models.Model):
 
     def pull(self, **kwargs):
         """Pulls from remote repository and notifies admins."""
-        path = Path(settings.BASE_DIR).resolve().parent
-        repo = git.Repo(path)
-        repo.git.reset('--hard', 'origin/master')
-        repo.remotes.origin.pull()
-        print("Successfully pulled from remote.")
+        if settings.APP_ENV == 'PRD':  # pragma: no cover
+            path = Path(settings.BASE_DIR).resolve().parent
+            repo = git.Repo(path)
+            repo.git.reset('--hard', 'origin/master')
+            repo.remotes.origin.pull()
+            print("Successfully pulled from remote.")
         self.pulled_at = timezone.now()
         self.save()
 
