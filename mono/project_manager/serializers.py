@@ -74,6 +74,8 @@ class BoardSerializer(ModelSerializer):
             'assigned_to',
             'fullscreen',
             'compact',
+            'dark',
+            'bucket_width',
         ]
         extra_kwargs = {'created_by': {'read_only': True}}
 

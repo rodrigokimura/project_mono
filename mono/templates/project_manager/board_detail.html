@@ -49,9 +49,30 @@
 {% block sidebar %}
   <div class="ui sidebar inverted vertical menu">
     <div class="item">
-      <div class="ui inverted slider checkbox board-compact">
-        <input type="checkbox">
-        <label>Compact</label>
+      <div class="header">{% translate 'Appearance' %}
+      </div>
+      <div class="menu">
+        <div class="item">
+          <div class="header">Compact mode</div>
+          <div class="ui inverted slider checkbox board-compact">
+            <input type="checkbox">
+            <label>Compact</label>
+          </div>
+        </div>
+        <div class="item">
+          <div class="header">Dark mode</div>
+          <div class="ui inverted slider checkbox board-dark">
+            <input type="checkbox">
+            <label>Dark</label>
+          </div>
+        </div>
+        <div class="item">
+          <div class="header">Bucket width</div>
+          <div class="content">
+            
+          <div class="ui inverted width labeled slider" id="slider-1"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -318,6 +339,20 @@
       error: r => {alert(JSON.stringify(r))},
     });
   };
+
+  const changeBucketWidth = width => {
+    $.api({
+      on: 'now',
+      url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+      method: 'PATCH',
+      headers: {'X-CSRFToken': csrftoken},
+      data: { bucket_width: width },
+      success: r => {
+       loadBoard();
+      },
+      error: r => {alert(JSON.stringify(r))},
+    });
+  };
   
   const setCompact = bool => {
     $.api({
@@ -336,6 +371,20 @@
   const toggleFullscreen = () => {
     let icon = $('.fullscreen.item i.icon');
     setFullscreen(icon.hasClass('expand alternate icon'));
+  };
+
+  const setDarkMode = bool => {
+    $.api({
+      on: 'now',
+      url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+      method: 'PATCH',
+      headers: {'X-CSRFToken': csrftoken},
+      data: { dark: bool },
+      success: r => {
+        loadBoard(r.dark);
+      },
+      error: r => {alert(JSON.stringify(r))},
+    });
   };
 
   const startElementScroll = (directionX, directionY, elementToScroll, increment, delay) => {
@@ -484,36 +533,54 @@
     intervals = [];
   };
 
-  const loadBoard = (compact=false) => {
+  const loadBoard = () => {
+    let compact = $('.board-compact.checkbox').checkbox('is checked');
+    let dark = $('.board-dark.checkbox').checkbox('is checked');
+    let width = $('.ui.width.slider').slider('get value');
     adjustBoardHeight();
     clearIntervals();
-    getBuckets(compact);
+    getBuckets(dark, compact, width);
     enableProximityScroll();
   };
 
-  const renderBuckets = (containerSelector, buckets, compact=true) => {
+  const renderBuckets = (containerSelector, buckets, dark=false, compact=false, width) => {
     $(containerSelector).empty();
     if (compact) {
-      $(containerSelector).parent().css('padding','.5em')
+      $(containerSelector).parent().css('padding','.5em');
     } else {
-      $(containerSelector).parent().css('padding','1em')
+      $(containerSelector).parent().css('padding','1em');
+    };
+    if (dark) {
+      $(containerSelector).parent().addClass('inverted');
+      $(containerSelector).parent().parent().parent().parent().parent().addClass('inverted');
+      $(containerSelector).parent().parent().parent().parent().parent().parent().addClass('inverted');
+      $(containerSelector).css('background-color', 'black')
+      $(containerSelector).parent().css('background-color', 'black')
+      $(containerSelector).parent().parent().css('background-color', 'black')
+    } else {
+      $(containerSelector).parent().removeClass('inverted');
+      $(containerSelector).parent().parent().parent().parent().parent().removeClass('inverted');
+      $(containerSelector).parent().parent().parent().parent().parent().parent().removeClass('inverted');
+      $(containerSelector).css('background-color', 'white')
+      $(containerSelector).parent().css('background-color', 'white')
+      $(containerSelector).parent().parent().css('background-color', 'white')
     };
     buckets.forEach(bucket => {
       $(containerSelector).append(
         `
-        <div class="ui loading card bucket-el" data-bucket-id="${bucket.id}" style="width: 300px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em;' : ''}">
-          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${ bucket.color !== null ? `background-color: ${bucket.color.primary}; color: ${bucket.color.light}` : '' }; " data-bucket-id="${bucket.id}">
+        <div class="ui loading ${dark ? 'inverted ' : ' '}card bucket-el" data-bucket-id="${bucket.id}" style="width: ${width}px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em;' : ''}">
+          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${ bucket.color !== null ? `background-color: ${dark ? bucket.color.dark : bucket.color.primary}; color: ${bucket.color.light}` : '' }; " data-bucket-id="${bucket.id}">
             <i class="grip lines icon"></i>
           </div>
-          <div class="content" style="flex: 0 1 auto; ${ bucket.color !== null ? `background-color: ${bucket.color.light};` : '' };${compact ? ' padding: .5em;' : ''}">
+          <div class="content" style="flex: 0 1 auto; ${ bucket.color !== null ? `background-color: ${dark ? bucket.color.dark : bucket.color.light};` : '' };${compact ? ' padding: .5em;' : ''}">
             <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
-              <div style="flex: 1 1 auto; overflow-wrap: anywhere; padding-right: .5em; ${ bucket.color !== null ? `color: ${bucket.color.dark};` : '' }">
+              <div style="flex: 1 1 auto; overflow-wrap: anywhere; padding-right: .5em; ${ bucket.color !== null ? `color: ${dark ? bucket.color.light : bucket.color.dark};` : '' }">
                 ${bucket.name}
               </div>
               <div style="flex: 0 0 auto;">
                 ${bucket.auto_status !== 'N' ? '<span class="ui small text" style="margin-right: .5em; opacity: .6;"><i class="robot icon"></i></span><br>' : '' }
               </div>
-              <div class="ui basic icon top right pointing dropdown button" data-bucket-id="${bucket.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 2em; padding: .5em; margin: 0;' : ''}">
+              <div class="ui basic icon top right pointing dropdown ${dark ? 'inverted ' : ' '}button" data-bucket-id="${bucket.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 2em; padding: .5em; margin: 0;' : ''}">
                 <i class="ellipsis horizontal icon"></i>
                 <div class="menu">
                   <div class="add card item" data-bucket-id="${bucket.id}"><i class="add icon"></i>Add new card</div>
@@ -527,7 +594,7 @@
               <span style="white-space: pre-line;">${bucket.description ? bucket.description : ''}</span>
             </div>
           </div>
-          <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 1 auto; display: flex; flex-flow: column nowrap; overflow-y: auto;${compact ? ' padding: .5em;' : ''}">
+          <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 1 auto; display: flex; flex-flow: column nowrap; align-items: stretch; overflow-y: auto;${compact ? ' padding: .5em;' : ''}">
           </div>
         </div>
         `
@@ -559,9 +626,9 @@
       $(`.add.card.item[data-bucket-id=${bucket.id}]`).click(e => {showCardModal(card=null, bucket.id);});
       $(`.edit.bucket.item[data-bucket-id=${bucket.id}]`).click(e => {showBucketModal(bucket);});
       $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).click(e => {deleteBucket(bucket.id);});
-      getCards(bucket.id, compact);
+      getCards(bucket.id, dark, compact);
     });
-    $(containerSelector).append(`<div class="ui add bucket button" style="flex: 0 0 auto">Add new bucket</div>`);
+    $(containerSelector).append(`<div class="ui add bucket basic ${dark ? 'inverted ' : ' '}button" style="flex: 0 0 auto">Add new bucket</div>`);
     $(`.add.bucket.button`).click(e => {showBucketModal();});
     
     e = $('.add.bucket.button').siblings().last();
@@ -570,21 +637,21 @@
     $('.bucket-el').removeClass('loading');
   };
 
-  const renderCards = (containerSelector, cards, bucketId, compact=false) => {
+  const renderCards = (containerSelector, cards, bucketId, dark=false, compact=false) => {
     $(containerSelector).empty();
     cards.forEach(card => {
       $(containerSelector).append(
         `
-        <div class="ui raised loading ${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;${compact ? ' margin-bottom: -.25em;' : 'margin-bottom: .25em;'}">
-          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${ card.color !== null ? `background-color: ${card.color.primary}; color: ${card.color.light}` : '' };" data-card-id="${card.id}">
+        <div class="ui raised loading ${dark ? 'inverted ' : ' '}${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}card card-el" data-card-id="${card.id}" style="width: 100%; flex: 0 0 auto;${compact ? ' margin-bottom: -.25em;' : 'margin-bottom: .25em;'}">
+          <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${ card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.primary}; color: ${card.color.light}` : '' };" data-card-id="${card.id}">
             <i class="grip lines small icon"></i>
           </div>
-          <div class="content" style="${ card.color !== null ? `background-color: ${card.color.light};` : '' };${compact ? ' padding: .5em;' : ''}">
-            <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between; ${ card.color !== null ? `color: ${card.color.dark};` : '' }">
+          <div class="content" style="${ card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : '' };${compact ? ' padding: .5em;' : ''}">
+            <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between; ${ card.color !== null ? `color: ${dark ? card.color.light : card.color.dark};` : '' }">
               <div style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
                 ${card.name}
               </div>
-              <div class="ui basic icon top right pointing dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 2em; padding: .5em; margin: 0;' : ''}">
+              <div class="ui basic icon top right pointing ${dark ? 'inverted ' : ' '}dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 2em; padding: .5em; margin: 0;' : ''}">
                 <i class="ellipsis horizontal icon"></i>
                 <div class="menu">
                   <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
@@ -596,7 +663,7 @@
             </div>
             <div class="meta" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
           </div>
-          <div class="extra content" style="${ card.color !== null ? `background-color: ${card.color.light};` : '' };;${compact ? ' padding: .5em;' : ''}">
+          <div class="extra content" style="${ card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : '' };;${compact ? ' padding: .5em;' : ''}">
             <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
               ${card.is_running ? '<i class="hourglass half icon"></i>' : ''}
               <span class="total-time" data-card-id="${card.id}" data-time="${card.total_time}">
@@ -677,26 +744,29 @@
     document.addEventListener("mousemove", proximityScroll);
   };
 
-  const getBuckets = (compact=false) => {
+  const getBuckets = (dark=false, compact=false, width) => {
     $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`)
       .done(r => {
         renderBuckets(
           containerSelector='#board', 
           buckets=r,
-          compact=compact
+          dark=dark,
+          compact=compact,
+          width=width
         );
       })
       .fail(e => { console.error(e) })
       .always()
   };
 
-  const getCards = (bucketId, compact=false) => {
+  const getCards = (bucketId, dark=false, compact=false) => {
     $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`)
       .done(r => {
         renderCards(
           containerSelector=`#bucket-${bucketId}` , 
           cards=r, 
           bucketId=bucketId,
+          dark=dark,
           compact=compact
         );
       })
@@ -932,14 +1002,29 @@
     $('.board-compact.checkbox').checkbox({
       onChecked: () => { setCompact(true); },
       onUnchecked: () => { setCompact(false); },
-    })
+    });
+    $('.board-dark.checkbox').checkbox({
+      onChecked: () => { setDarkMode(true); },
+      onUnchecked: () => { setDarkMode(false); },
+    });
+    $('.ui.width.slider').slider({ 
+      min: 100, 
+      max: 500, 
+      step: 100,
+      onChange: value => {
+        changeBucketWidth(value);
+      },
+    });
+    $('.ui.width.slider').slider('set value', {{ object.bucket_width }}, false);
+    
     $('.refresh.item').click(() => { 
-      loadBoard($('.board-compact.checkbox').checkbox('is checked'));
+      loadBoard();
     });
     $('.fullscreen.item').click(toggleFullscreen);
     {% if object.fullscreen %}setFullscreen(true);{% endif %}
     {% if object.compact %}$('.board-compact.checkbox').checkbox('set checked');{% endif %}
-    loadBoard($('.board-compact.checkbox').checkbox('is checked'));
+    {% if object.dark %}$('.board-dark.checkbox').checkbox('set checked');{% endif %}
+    loadBoard();
   })
 
 </script>

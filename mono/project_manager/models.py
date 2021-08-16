@@ -54,6 +54,8 @@ class Board(BaseModel):
     assigned_to = models.ManyToManyField(User, related_name="assigned_boards", blank=True)
     fullscreen = models.BooleanField(default=False)
     compact = models.BooleanField(default=False)
+    dark = models.BooleanField(default=False)
+    bucket_width = models.IntegerField(default=300)
 
     @property
     def allowed_users(self):
