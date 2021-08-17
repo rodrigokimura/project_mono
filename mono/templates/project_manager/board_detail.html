@@ -332,6 +332,7 @@
   var containerBucketIsOver;
   var scrollIntervalID;
   var isScrolling = false;
+  var itemEdited = false;
 
   const setFullscreen = bool => {
     $.api({
@@ -793,6 +794,7 @@
         on: 'now',
         onSuccess: r => { 
           getItems(bucketId, cardId, dark); 
+          itemEdited = true;
         },
       });
     });
@@ -811,6 +813,7 @@
             on: 'now',
             onSuccess: r => { 
               getItems(bucketId, cardId, dark); 
+              itemEdited = true;
             },
           });
         }
@@ -896,7 +899,7 @@
   };
 
   const showCardModal = (card=null, bucketId) => {
-    var create;
+    let create;
     const modal = $('.ui.card-form.modal');
     modal.form('reset');
     modal.off();
@@ -922,6 +925,7 @@
       transition: 'scale',
       duration: 400,
       onShow: () => {
+        itemEdited = false;
         if (dark) {
           $('.add-item.input').addClass('inverted');
         } else {
@@ -944,14 +948,15 @@
                 on: 'now',
                 onSuccess: r => { 
                   e.target.value = '';
-                  getItems(bucketId, card.id, dark); 
+                  getItems(bucketId, card.id, dark);
+                  itemEdited = true;
                 },
                 onComplete: () => { $(this).removeAttr("disabled"); },
               });
             };
         });
       },
-      onHidden: loadBoard,
+      onHidden: () => { if (itemEdited) { loadBoard(); } },
       onApprove: el => {
         modal.form('validate form');
         if (!modal.form('is valid')) {
