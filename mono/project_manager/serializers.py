@@ -102,6 +102,8 @@ class BucketSerializer(ModelSerializer):
 class CardSerializer(ModelSerializer):
     is_running = serializers.ReadOnlyField()
     total_time = serializers.ReadOnlyField()
+    checked_items = serializers.ReadOnlyField()
+    total_items = serializers.ReadOnlyField()
     color = ThemeSerializer(many=False, read_only=True)
 
     class Meta:
@@ -120,6 +122,8 @@ class CardSerializer(ModelSerializer):
             'status',
             'is_running',
             'total_time',
+            'checked_items',
+            'total_items',
             'color',
         ]
         extra_kwargs = {

@@ -127,14 +127,14 @@
   </div>
 </div>
 
-<form class="ui card-form tiny top aligned card modal form">
+<form class="ui card-form tiny top aligned card longer modal form">
   <i class="close icon"></i>
   <div class="header">
     <div class="transparent field">
       <input type=text name="name" placeholder="Name">
     </div>
   </div>
-  <div class="content">
+  <div class="scrolling content">
     <div class="field">
       <input type="hidden" name="id">
     </div>
@@ -143,7 +143,7 @@
     </div>
     <div class="field">
       <label>Description</label>
-      <textarea name="description" placeholder="Description"></textarea>
+      <textarea name="description" placeholder="Description" rows="2"></textarea>
     </div>
     <div class="field">
       <label>Status</label>
@@ -174,16 +174,16 @@
       });
     </script>
     <div class="ui error message"></div>
-  </div>
-  <div class="extra content">
-    <div class="ui inverted item">
-      <div class="header">Checklist</div>
-      <div class="content">
-        <div class="checklist-drake">
-        </div>
-        <div class="ui fluid transparent icon add-item input">
-          <i class="add icon"></i>
-          <input type="text" placeholder="Insert new item to checklist">
+    <div class="extra content">
+      <div class="ui inverted item">
+        <div class="header">Checklist</div>
+        <div class="content">
+          <div class="checklist-drake">
+          </div>
+          <div class="ui fluid transparent icon add-item input">
+            <i class="add icon"></i>
+            <input type="text" placeholder="Insert new item to checklist">
+          </div>
         </div>
       </div>
     </div>
@@ -332,6 +332,7 @@
   var containerBucketIsOver;
   var scrollIntervalID;
   var isScrolling = false;
+  var itemEdited = false;
 
   const setFullscreen = bool => {
     $.api({
@@ -519,7 +520,6 @@
     $(boardSelector).height(
       $(window).height()
       -$(boardSelector).offset().top
-      //-$(boardSelector).css('marginBottom').replace('px', '').replace('-', '')
     );
   };
 
@@ -681,7 +681,7 @@
             </div>
             <div class="meta" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
           </div>
-          <div class="extra content" style="${ card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : '' };;${compact ? ' padding: .5em;' : ''}">
+          <div data-card-id="${card.id}" class="extra content" style="${ card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : '' };;${compact ? ' padding: .5em;' : ''}">
             <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
               ${card.is_running ? '<i class="hourglass half icon"></i>' : ''}
               <span class="total-time" data-card-id="${card.id}" data-time="${card.total_time}">
@@ -692,6 +692,15 @@
         </div>
         `
       );
+      if (card.total_items > 0) {
+        $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`).append(
+          `
+            <span class="ui left floated text">
+              ${card.checked_items}/${card.total_items}
+            </span>
+          `
+        );
+      }
       let extraContent = $(`.card-el[data-card-id=${card.id}] .extra.content`);
       if (extraContent.text().trim() === '') {
         extraContent.remove();
@@ -743,7 +752,7 @@
             <div class="ui ${dark ? 'inverted ' : ' '}transparent input" style="flex: 1 0 auto;">
               <input class="${item.checked ? 'item-checked' : ''}" data-item-id="${item.id}" type="text" placeholder="Enter text here" data-text="${item.name}" value="${item.name}">
             </div>
-            <div data-item-id="${item.id}" class="ui mini icon basic delete-item button"><i data-item-id="${item.id}" class="trash alternate outline icon"></i></div>
+            <div data-item-id="${item.id}" class="ui mini icon basic delete-item ${dark ? 'inverted ' : ' '}button"><i data-item-id="${item.id}" class="trash alternate outline icon"></i></div>
           </div>
         `
       );
@@ -785,6 +794,7 @@
         on: 'now',
         onSuccess: r => { 
           getItems(bucketId, cardId, dark); 
+          itemEdited = true;
         },
       });
     });
@@ -803,24 +813,12 @@
             on: 'now',
             onSuccess: r => { 
               getItems(bucketId, cardId, dark); 
+              itemEdited = true;
             },
           });
         }
       })
     });
-      
-      
-    {% comment %} e => {
-    let itemId = $(e.target).attr('data-item-id');
-    $.api({
-      url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/`,
-      method: 'DELETE',
-      headers: {'X-CSRFToken': csrftoken},
-      on: 'now',
-      onSuccess: r => { 
-        getItems(bucketId, cardId, dark); 
-      },
-    }); {% endcomment %}
   };
 
   const enableProximityScroll = () => {
@@ -901,7 +899,7 @@
   };
 
   const showCardModal = (card=null, bucketId) => {
-    var create;
+    let create;
     const modal = $('.ui.card-form.modal');
     modal.form('reset');
     modal.off();
@@ -927,6 +925,7 @@
       transition: 'scale',
       duration: 400,
       onShow: () => {
+        itemEdited = false;
         if (dark) {
           $('.add-item.input').addClass('inverted');
         } else {
@@ -949,16 +948,15 @@
                 on: 'now',
                 onSuccess: r => { 
                   e.target.value = '';
-                  getItems(bucketId, card.id, dark); 
+                  getItems(bucketId, card.id, dark);
+                  itemEdited = true;
                 },
                 onComplete: () => { $(this).removeAttr("disabled"); },
               });
             };
         });
-        
-        /*
-        */
       },
+      onHidden: () => { if (itemEdited) { loadBoard(); } },
       onApprove: el => {
         modal.form('validate form');
         if (!modal.form('is valid')) {
