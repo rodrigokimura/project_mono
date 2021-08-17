@@ -127,14 +127,14 @@
   </div>
 </div>
 
-<form class="ui card-form tiny top aligned card modal form">
+<form class="ui card-form tiny top aligned card longer modal form">
   <i class="close icon"></i>
   <div class="header">
     <div class="transparent field">
       <input type=text name="name" placeholder="Name">
     </div>
   </div>
-  <div class="content">
+  <div class="scrolling content">
     <div class="field">
       <input type="hidden" name="id">
     </div>
@@ -143,7 +143,7 @@
     </div>
     <div class="field">
       <label>Description</label>
-      <textarea name="description" placeholder="Description"></textarea>
+      <textarea name="description" placeholder="Description" rows="2"></textarea>
     </div>
     <div class="field">
       <label>Status</label>
@@ -174,16 +174,16 @@
       });
     </script>
     <div class="ui error message"></div>
-  </div>
-  <div class="extra content">
-    <div class="ui inverted item">
-      <div class="header">Checklist</div>
-      <div class="content">
-        <div class="checklist-drake">
-        </div>
-        <div class="ui fluid transparent icon add-item input">
-          <i class="add icon"></i>
-          <input type="text" placeholder="Insert new item to checklist">
+    <div class="extra content">
+      <div class="ui inverted item">
+        <div class="header">Checklist</div>
+        <div class="content">
+          <div class="checklist-drake">
+          </div>
+          <div class="ui fluid transparent icon add-item input">
+            <i class="add icon"></i>
+            <input type="text" placeholder="Insert new item to checklist">
+          </div>
         </div>
       </div>
     </div>
@@ -519,7 +519,6 @@
     $(boardSelector).height(
       $(window).height()
       -$(boardSelector).offset().top
-      //-$(boardSelector).css('marginBottom').replace('px', '').replace('-', '')
     );
   };
 
@@ -681,7 +680,7 @@
             </div>
             <div class="meta" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
           </div>
-          <div class="extra content" style="${ card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : '' };;${compact ? ' padding: .5em;' : ''}">
+          <div data-card-id="${card.id}" class="extra content" style="${ card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : '' };;${compact ? ' padding: .5em;' : ''}">
             <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
               ${card.is_running ? '<i class="hourglass half icon"></i>' : ''}
               <span class="total-time" data-card-id="${card.id}" data-time="${card.total_time}">
@@ -692,6 +691,15 @@
         </div>
         `
       );
+      if (card.total_items > 0) {
+        $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`).append(
+          `
+            <span class="ui left floated text">
+              ${card.checked_items}/${card.total_items}
+            </span>
+          `
+        );
+      }
       let extraContent = $(`.card-el[data-card-id=${card.id}] .extra.content`);
       if (extraContent.text().trim() === '') {
         extraContent.remove();
@@ -808,19 +816,6 @@
         }
       })
     });
-      
-      
-    {% comment %} e => {
-    let itemId = $(e.target).attr('data-item-id');
-    $.api({
-      url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/`,
-      method: 'DELETE',
-      headers: {'X-CSRFToken': csrftoken},
-      on: 'now',
-      onSuccess: r => { 
-        getItems(bucketId, cardId, dark); 
-      },
-    }); {% endcomment %}
   };
 
   const enableProximityScroll = () => {
@@ -955,10 +950,8 @@
               });
             };
         });
-        
-        /*
-        */
       },
+      onHidden: loadBoard,
       onApprove: el => {
         modal.form('validate form');
         if (!modal.form('is valid')) {
