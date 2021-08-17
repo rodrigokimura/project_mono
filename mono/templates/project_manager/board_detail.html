@@ -56,24 +56,23 @@
       </div>
       <div class="menu">
         <div class="item">
-          <div class="header">Compact mode</div>
+          <div class="header">{% translate 'Compact mode' %}</div>
           <div class="ui inverted slider checkbox board-compact">
             <input type="checkbox">
-            <label>Compact</label>
+            <label></label>
           </div>
         </div>
         <div class="item">
-          <div class="header">Dark mode</div>
+          <div class="header">{% translate 'Dark mode' %}</div>
           <div class="ui inverted slider checkbox board-dark">
             <input type="checkbox">
-            <label>Dark</label>
+            <label></label>
           </div>
         </div>
         <div class="item">
-          <div class="header">Bucket width</div>
+          <div class="header">{% translate 'Bucket width' %}</div>
           <div class="content">
-            
-          <div class="ui inverted width labeled slider" id="slider-1"></div>
+            <div class="ui inverted width labeled slider" id="slider-1"></div>
           </div>
         </div>
       </div>
@@ -931,30 +930,36 @@
         } else {
           $('.add-item.input').removeClass('inverted');
         };
-        getItems(bucketId, card.id, dark);
-        $('.add-item.input input').off();
-        $('.add-item.input input').on('keypress', e => {
-            if (e.which == 13) { 
-              $(this).attr("disabled", "disabled");
-              $.api({
-                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
-                method: 'POST',
-                headers: {'X-CSRFToken': csrftoken},
-                data: { 
-                  name: e.target.value, 
-                  card: card.id,
-                  order: 1 
-                },
-                on: 'now',
-                onSuccess: r => { 
-                  e.target.value = '';
-                  getItems(bucketId, card.id, dark);
-                  itemEdited = true;
-                },
-                onComplete: () => { $(this).removeAttr("disabled"); },
-              });
-            };
-        });
+        if (card !== null) {
+          modal.find('.extra.content .item').show();
+          getItems(bucketId, card.id, dark);
+          $('.add-item.input input').off();
+          $('.add-item.input input').on('keypress', e => {
+              if (e.which == 13) { 
+                $(this).attr("disabled", "disabled");
+                $.api({
+                  url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
+                  method: 'POST',
+                  headers: {'X-CSRFToken': csrftoken},
+                  data: { 
+                    name: e.target.value, 
+                    card: card.id,
+                    order: 1 
+                  },
+                  on: 'now',
+                  onSuccess: r => { 
+                    e.target.value = '';
+                    getItems(bucketId, card.id, dark);
+                    itemEdited = true;
+                  },
+                  onComplete: () => { $(this).removeAttr("disabled"); },
+                });
+              };
+          });
+        } else {
+          // Prevent users from inserting checklists before card object creation
+          modal.find('.extra.content .item').hide();
+        }
       },
       onHidden: () => { if (itemEdited) { loadBoard(); } },
       onApprove: el => {
