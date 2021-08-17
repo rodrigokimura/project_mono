@@ -395,13 +395,12 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
             if serializer.is_valid():
                 serializer.save()
                 theme_id = request.data.get('color')
-                if theme_id not in ['', None]:
+                if theme_id in ['', None]:
+                    bucket.color = None
+                else:
                     color = Theme.objects.get(id=theme_id)
                     bucket.color = color
-                    bucket.save()
-                else:
-                    bucket.color = None
-                    bucket.save()
+                bucket.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
@@ -487,10 +486,12 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
             if serializer.is_valid():
                 serializer.save()
                 theme_id = request.data.get('color')
-                if theme_id not in ['', None]:
+                if theme_id in ['', None]:
+                    card.color = None
+                else:
                     color = Theme.objects.get(id=theme_id)
                     card.color = color
-                    card.save()
+                card.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
@@ -625,11 +626,12 @@ class ItemCheckAPIView(LoginRequiredMixin, APIView):
         if request.user in item.allowed_users:
             if request.data.get('checked') == 'true':
                 item.mark_as_checked(request.user)
+                return Response(status=status.HTTP_204_NO_CONTENT)
             elif request.data.get('checked') == 'false':
                 item.mark_as_unchecked()
+                return Response(status=status.HTTP_204_NO_CONTENT)
             else:
-                Response(status=status.HTTP_400_BAD_REQUEST)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 
 
