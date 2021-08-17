@@ -142,11 +142,11 @@
       <input type="hidden" name="order">
     </div>
     <div class="field">
-      <label>Description</label>
+      <label>{% translate 'Description' %}</label>
       <textarea name="description" placeholder="Description" rows="2"></textarea>
     </div>
     <div class="field">
-      <label>Status</label>
+      <label>{% translate 'Status' %}</label>
       <select class="ui status selection dropdown">
         {% for value, text in card_statuses %}
         <option value="{{ value }}">{{ text }}</option>
@@ -155,7 +155,7 @@
     </div>
     <script>$('.ui.status.dropdown').dropdown();</script>
     <div class="field">
-      <label>Color</label>
+      <label>{% translate 'Color' %}</label>
       <select class="ui card color selection dropdown">
       </select>
     </div>
@@ -176,7 +176,7 @@
     <div class="ui error message"></div>
     <div class="extra content">
       <div class="ui inverted item">
-        <div class="header">Checklist</div>
+        <div class="header">{% translate 'Checklist' %}</div>
         <div class="content">
           <div class="checklist-drake">
           </div>
@@ -189,8 +189,8 @@
     </div>
   </div>
   <div class="actions">
-    <div class="ui black deny labeled icon button"><i class="delete icon"></i>Cancel</div>
-    <div class="ui positive right labeled icon button">Save<i class="save icon"></i>
+    <div class="ui black deny labeled icon button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
+    <div class="ui positive right labeled icon button">{% translate 'Save' %}<i class="save icon"></i>
     </div>
   </div>
 </form>
@@ -238,11 +238,11 @@
       <input type="hidden" name="order">
     </div>
     <div class="field">
-      <label>Description</label>
+      <label>{% translate 'Description' %}</label>
       <textarea name="description" placeholder="Description"></textarea>
     </div>
     <div class="field">
-      <label><i class="robot icon"></i>Automatic status</label>
+      <label><i class="robot icon"></i>{% translate 'Automatic status' %}</label>
       <select class="ui auto-status selection dropdown">
         {% for value, text in bucket_auto_statuses %}
         <option value="{{ value }}">{{ text }}</option>
@@ -251,7 +251,7 @@
     </div>
     <script>$('.ui.auto-status').dropdown();</script>
     <div class="field">
-      <label>Color</label>
+      <label>{% translate 'Color' %}</label>
       <select class="ui bucket color selection dropdown">
       </select>
     </div>
@@ -272,8 +272,8 @@
     <div class="ui error message"></div>
   </div>
   <div class="actions">
-    <div class="ui black deny labeled icon button"><i class="delete icon"></i>Cancel</div>
-    <div class="ui positive right labeled icon button">Save<i class="save icon"></i>
+    <div class="ui black deny labeled icon button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
+    <div class="ui positive right labeled icon button">{% translate 'Save' %}<i class="save icon"></i>
     </div>
   </div>
 </form>
@@ -312,11 +312,11 @@
   <div class="actions">
     <div class="ui black cancel button">
       <i class="remove icon"></i>
-      No
+      {% translate 'No'%}
     </div>
     <div class="ui green ok button">
       <i class="checkmark icon"></i>
-      Yes
+      {% translate 'Yes' %}
     </div>
   </div>
 </div>
