@@ -229,6 +229,14 @@ class Card(BaseModel):
             max_order=Coalesce(Max('order'), V(0), output_field=IntegerField())
         )['max_order']
 
+    @property
+    def checked_items(self):
+        return self.item_set.filter(checked_at__isnull=False).count()
+
+    @property
+    def total_items(self):
+        return self.item_set.all().count()
+
     class Meta:
         ordering = [
             "bucket__board__project",
