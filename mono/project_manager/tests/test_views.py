@@ -875,7 +875,7 @@ class ItemDetailApiViewTests(APITestCase):
     def test_item_detail_view_get_invalid_item(self):
         c = APIClient()
         c.login(username='test', password='supersecret')
-        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/${self.card.id}/items/999999/')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/999999/')
         self.assertEqual(response.status_code, 404)
 
     def test_item_detail_view_get_not_allowed(self):
@@ -1025,14 +1025,14 @@ class ItemCheckApiViewTests(APITestCase):
             {'checked': 'None'})
         self.assertEqual(response.status_code, 400)
 
-    def test_item_check_view_not_user(self):
-        user = User.objects.create_user(username="forbidden", email="forbidden@test.com", password="supersecret")
+    def test_item_check_view_not_allowed_user(self):
+        User.objects.create_user(username="forbidden", email="forbidden@test.com", password="supersecret")
         c = APIClient()
         c.login(username='forbidden', password='supersecret')
         response = c.post(
             f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/{self.item.id}/check/',
             {'checked': 'true'})
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
 
 
 class CardMoveApiViewTests(APITestCase):
