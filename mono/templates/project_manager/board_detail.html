@@ -752,7 +752,7 @@
             <div class="ui ${dark ? 'inverted ' : ' '}transparent input" style="flex: 1 0 auto;">
               <input class="${item.checked ? 'item-checked' : ''}" data-item-id="${item.id}" type="text" placeholder="Enter text here" data-text="${item.name}" value="${item.name}">
             </div>
-            <div data-item-id="${item.id}" class="ui mini icon basic delete-item button"><i data-item-id="${item.id}" class="trash alternate outline icon"></i></div>
+            <div data-item-id="${item.id}" class="ui mini icon basic delete-item ${dark ? 'inverted ' : ' '}button"><i data-item-id="${item.id}" class="trash alternate outline icon"></i></div>
           </div>
         `
       );

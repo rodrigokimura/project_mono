@@ -7,7 +7,7 @@ from django.test.client import Client
 from django.utils import timezone
 from rest_framework.test import APIClient, APITestCase
 import jwt
-from ..models import Board, Bucket, Card, Project, Invite, Theme
+from ..models import Board, Bucket, Card, Item, Project, Invite, Theme
 
 
 class ViewTests(TestCase):
@@ -778,6 +778,163 @@ class CardDetailApiViewTests(APITestCase):
         self.assertEqual(str(response.json()), 'User not allowed')
 
 
+class ItemListApiViewTests(APITestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+        self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
+        self.bucket = Bucket.objects.create(name='test', created_by=self.user, board=self.board, order=1)
+        self.card = Card.objects.create(name='test', created_by=self.user, bucket=self.bucket, order=1)
+        self.theme = Theme.objects.first()
+
+    def test_item_list_view_get(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_item_list_view_get_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/')
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+    def test_item_list_view_post(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/',
+            {'name': 'test', 'card': self.card.id, 'order': 1})
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()['name'], 'test')
+
+    def test_item_list_view_post_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.post(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/',
+            {'name': 'test', 'card': self.card.id})
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+    def test_item_list_view_post_invalid_data(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.post(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/',
+            {'name': ''})
+        self.assertEqual(response.status_code, 400)
+
+
+class ItemDetailApiViewTests(APITestCase):
+    fixtures = [
+        "icon",
+        "project_manager_icons",
+        "project_manager_themes",
+    ]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
+        self.project = Project.objects.create(name='test', created_by=self.user)
+        self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
+        self.bucket = Bucket.objects.create(
+            name='test',
+            created_by=self.user,
+            board=self.board,
+            order=1,
+        )
+        self.card = Card.objects.create(
+            name='test',
+            created_by=self.user,
+            bucket=self.bucket,
+            order=1,
+        )
+        self.item = Item.objects.create(
+            name='test',
+            created_by=self.user,
+            card=self.card,
+            order=1,
+        )
+        self.theme = Theme.objects.first()
+
+    def test_item_detail_view_get(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/{self.item.id}/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_item_detail_view_get_invalid_item(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/${self.card.id}/items/999999/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_item_detail_view_get_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/{self.item.id}/')
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+    def test_item_detail_view_put(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.put(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/{self.item.id}/',
+            {'name': 'test', 'card': self.card.id, 'order': 1})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['name'], 'test')
+
+    def test_item_detail_view_put_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.put(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/{self.item.id}/',
+            {'name': 'test', 'card': self.card.id})
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+    def test_item_detail_view_put_invalid_data(self):
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.put(
+            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/{self.item.id}/',
+            {'name': ''})
+        self.assertEqual(response.status_code, 400)
+
+    def test_item_detail_view_delete(self):
+        item = Item.objects.create(
+            name='test item to delete',
+            created_by=self.user,
+            card=self.card,
+            order=1,
+        )
+        c = APIClient()
+        c.login(username='test', password='supersecret')
+        response = c.delete(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/{item.id}/')
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(Item.objects.filter(id=item.id).exists())
+
+    def test_item_detail_view_delete_not_allowed(self):
+        User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
+        c = APIClient()
+        c.login(username='test_not_allowed', password='supersecret')
+        response = c.delete(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/{self.item.id}/')
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(str(response.json()), 'User not allowed')
+
+
 class CardMoveApiViewTests(APITestCase):
     fixtures = [
         "icon",
@@ -1388,17 +1545,3 @@ class PermissionTests(TestCase):
         )
         self.assertIsNotNone(project)
         self.assertTrue(Project.objects.filter(created_by=user).exists())
-
-    # def test_only_allowed_users_can_create_boards(self):
-    #     user = User.objects.create(
-    #         username="test_user_2")
-    #       .post(
-    #         path='/pm/project/1/board/',
-    #         data={
-    #             'name': 'board',
-    #             'project': 1,
-    #         }
-    #     )
-    #     request.user = user
-    #     response = BoardCreateView.as_view()(request)
-        # self.assertEqual(response.status_code, 200)
