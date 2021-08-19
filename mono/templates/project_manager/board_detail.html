@@ -199,7 +199,7 @@
             onResponse: r => {
               let objs = []
               for (obj of Object.values(r)) {
-                obj.value = obj.id;
+                obj.value = obj.name;
                 objs.push(obj);
               }
               return { success: true, results: objs }
@@ -388,7 +388,6 @@
   </div>
 
   <script>
-
     var intervals = [];
     var cardBeingDragged;
     var containerCardIsOver;
@@ -757,13 +756,11 @@
           `
         );
         if (card.total_items > 0) {
-          $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`).append(
-            `
-              <span class="ui left floated text">
-                ${card.checked_items}/${card.total_items}
-              </span>
-            `
-          );
+          $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`).append(`
+            <span class="ui left floated text">
+              ${card.checked_items}/${card.total_items}
+            </span>
+          `);
         }
         let extraContent = $(`.card-el[data-card-id=${card.id}] .extra.content`);
         if (extraContent.text().trim() === '') {
@@ -968,13 +965,44 @@
       modal.form('reset');
       modal.off();
       let dark = modal.hasClass('inverted');
-      if (card!=null) {
+      if (card !== null) {
         create = false;
         modal.find('input[name=id]').val(card.id);
         modal.find('input[name=name]').val(card.name);
         modal.find('textarea[name=description]').val(card.description);
         modal.find('.ui.status.dropdown').dropdown('set selected', card.status);
         modal.find('.ui.color.dropdown').dropdown('set selected', card.color !== null ? card.color.id : '');
+        modal.find('.extra.content .item').show();
+        modal.find('.ui.tags.dropdown').dropdown('clear');
+        for (tag of card.tag) {
+          modal.find('.ui.tags.dropdown').dropdown('set selected', tag.name);
+        }
+        {
+          getItems(bucketId, card.id, dark);
+          $('.add-item.input input').off();
+          $('.add-item.input input').on('keypress', e => {
+            if (e.which == 13) { 
+              $(this).attr("disabled", "disabled");
+              $.api({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
+                method: 'POST',
+                headers: {'X-CSRFToken': csrftoken},
+                data: { 
+                  name: e.target.value, 
+                  card: card.id,
+                  order: 1 
+                },
+                on: 'now',
+                onSuccess: r => { 
+                  e.target.value = '';
+                  getItems(bucketId, card.id, dark);
+                  itemEdited = true;
+                },
+                onComplete: () => { $(this).removeAttr("disabled"); },
+              });
+            };
+          });
+        }
       } else {
         create = true;
         modal.find('input[name=id]').val('');
@@ -982,6 +1010,9 @@
         modal.find('textarea[name=description]').val('');
         modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
         modal.find('.ui.color.dropdown').dropdown('set selected', '');
+        modal.find('.ui.tags.dropdown').dropdown('clear');
+        // Prevent users from inserting checklists before card object creation
+        modal.find('.extra.content .item').hide();
       };
       modal.modal({
         restoreFocus: false,
@@ -995,36 +1026,6 @@
           } else {
             $('.add-item.input').removeClass('inverted');
           };
-          if (card !== null) {
-            modal.find('.extra.content .item').show();
-            getItems(bucketId, card.id, dark);
-            $('.add-item.input input').off();
-            $('.add-item.input input').on('keypress', e => {
-              if (e.which == 13) { 
-                $(this).attr("disabled", "disabled");
-                $.api({
-                  url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
-                  method: 'POST',
-                  headers: {'X-CSRFToken': csrftoken},
-                  data: { 
-                    name: e.target.value, 
-                    card: card.id,
-                    order: 1 
-                  },
-                  on: 'now',
-                  onSuccess: r => { 
-                    e.target.value = '';
-                    getItems(bucketId, card.id, dark);
-                    itemEdited = true;
-                  },
-                  onComplete: () => { $(this).removeAttr("disabled"); },
-                });
-              };
-            });
-          } else {
-            // Prevent users from inserting checklists before card object creation
-            modal.find('.extra.content .item').hide();
-          }
         },
         onHidden: () => { 
           if (itemEdited) { loadBoard(); };
@@ -1039,50 +1040,41 @@
           description = modal.find('textarea[name=description]').val();
           status = modal.find('.ui.status.dropdown').dropdown('get value');
           color = modal.find('.ui.color.dropdown').dropdown('get value');
+          tagsString = modal.find('.ui.tags.dropdown').dropdown('get value');
+          tags = tagsString.split(",").map(tag => ({name: tag}));
+          console.log(tags)
           if (create === true) {
-            $.ajax({
-              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
-              type: 'POST',
-              headers: {'X-CSRFToken': csrftoken},
-              data: {
-                name: name,
-                bucket: bucketId,
-                description: description,
-                status: status,
-                color: color,
-                order: 0,
-              },
-              success: function(result) {
-                loadBoard();
-              }
-            });
+            method = 'POST';
+            url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`;
+            order = 0;
           } else {
+            method = 'PUT';
             id = modal.find('input[name=id]').val();
             order = $(`.card-el[data-card-id=${card.id}]`).index() + 1;
-            $.ajax({
-              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`,
-              type: 'PUT',
-              headers: {'X-CSRFToken': csrftoken},
-              data: {
-                name: name,
-                bucket: bucketId,
-                description: description,
-                status: status,
-                color: color,
-                order: order
-              },
-              success: function(result) {
-                loadBoard();
-              }
-            });
+            url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`;
           }
+          $.ajax({
+            url: url,
+            type: method,
+            headers: {'X-CSRFToken': csrftoken},
+            data: {
+              name: name,
+              bucket: bucketId,
+              description: description,
+              status: status,
+              color: color,
+              order: order,
+              tag: JSON.stringify(tags),
+            },
+            success: function(result) {
+              loadBoard();
+            }
+          });
         }
-      });
-      modal.submit(e => {
+      }).modal('show').submit(e => {
         e.preventDefault();
         modal.find('.positive.button').click();
       });
-      modal.modal('show');
     };
 
     const deleteCard = (cardId, bucketId) => {
