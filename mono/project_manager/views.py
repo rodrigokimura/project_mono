@@ -18,7 +18,7 @@ from rest_framework.response import Response
 from rest_framework import status
 import jwt
 from .models import Item, Project, Board, Bucket, Card, Tag, Theme, Invite
-from .forms import ProjectForm, BoardForm
+from .forms import ProjectForm, BoardForm, TagForm
 from .mixins import PassRequestToFormViewMixin
 from .serializers import BucketMoveSerializer, CardMoveSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer, TagSerializer
 
@@ -165,6 +165,56 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
             ('Home', reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
             ('Board: edit', None),
+        ]
+        return context
+
+
+class TagListView(LoginRequiredMixin, ListView):
+    model = Tag
+    paginate_by = 100
+
+    def get_queryset(self, **kwargs) -> QuerySet[Tag]:
+        board = Board.objects.get(id=self.kwargs['board_pk'])
+        qs = super().get_queryset()
+        return qs.filter(board=board.id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumb'] = [
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
+        ]
+        return context
+
+
+class TagCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    model = Tag
+    form_class = TagForm
+    success_url = reverse_lazy('project_manager:projects')
+    success_message = "%(name)s was created successfully"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumb'] = [
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
+            ('Create project', None),
+        ]
+        return context
+
+
+class TagUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    model = Tag
+    form_class = TagForm
+    success_url = reverse_lazy('project_manager:projects')
+    success_message = "%(name)s was updated successfully"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumb'] = [
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
+            ('Edit project', None),
         ]
         return context
 

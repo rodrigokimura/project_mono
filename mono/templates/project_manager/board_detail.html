@@ -742,7 +742,11 @@
                   </div>
                 </div>
               </div>
-              <div class="meta" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
+              <div class="meta" style="display: flex; flex-flow: column nowrap;">
+                <div class="tags" style="flex: 0 0 auto; padding-top: .5em;" data-card-id="${card.id}">
+                </div>
+                <div class="description" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
+              </div>
             </div>
             <div data-card-id="${card.id}" class="extra content" style="${ card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : '' };;${compact ? ' padding: .5em;' : ''}">
               <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
@@ -755,14 +759,29 @@
           </div>
           `
         );
+        let extraContent = $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`);
+        let tags = $(containerSelector).find(`.meta .tags[data-card-id=${card.id}]`);
         if (card.total_items > 0) {
-          $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`).append(`
+          extraContent.prepend(`
             <span class="ui left floated text">
               ${card.checked_items}/${card.total_items}
             </span>
           `);
-        }
-        let extraContent = $(`.card-el[data-card-id=${card.id}] .extra.content`);
+        };
+        if (card.tag.length > 0) {
+          for (tag of card.tag) {
+            console.log(tag.name)
+            if (tag.icon !== null) {
+              tags.append(`
+                <span class="ui left floated mini label"><i class="${tag.icon.markup} icon"></i> ${tag.name}</span>
+              `);
+            } else {
+              tags.append(`
+                <span class="ui left floated mini label">${tag.name}</span>
+              `);
+            }
+          }
+        };
         if (extraContent.text().trim() === '') {
           extraContent.remove();
         };

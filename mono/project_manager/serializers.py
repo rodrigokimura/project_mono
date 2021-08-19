@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
 from django.contrib.auth.models import User
 import json
-from .models import Item, Project, Board, Bucket, Card, Tag, Theme, Invite
+from .models import Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite
 
 
 class UserSerializer(ModelSerializer):
@@ -100,7 +100,18 @@ class BucketSerializer(ModelSerializer):
         extra_kwargs = {'created_by': {'read_only': True}}
 
 
+class IconSerializer(ModelSerializer):
+    class Meta:
+        model = Icon
+        fields = [
+            'markup',
+        ]
+
+
 class TagSerializer(ModelSerializer):
+
+    icon = IconSerializer(many=False, read_only=True)
+
     class Meta:
         model = Tag
         fields = [
