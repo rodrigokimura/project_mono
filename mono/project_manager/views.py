@@ -17,10 +17,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import jwt
-from .models import Item, Project, Board, Bucket, Card, Theme, Invite
+from .models import Item, Project, Board, Bucket, Card, Tag, Theme, Invite
 from .forms import ProjectForm, BoardForm
 from .mixins import PassRequestToFormViewMixin
-from .serializers import BucketMoveSerializer, CardMoveSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
+from .serializers import BucketMoveSerializer, CardMoveSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer, TagSerializer
 
 
 class ProjectListView(LoginRequiredMixin, ListView):
@@ -411,6 +411,76 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in board.allowed_users:
             bucket = self.get_object(pk)
             bucket.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class TagListAPIView(LoginRequiredMixin, APIView):
+    """
+    List all tags, or create a new tag.
+    """
+
+    def get(self, request, format=None, **kwargs):
+        board = Board.objects.get(id=kwargs['board_pk'])
+        tags = Tag.objects.filter(board=board)
+        if request.user in board.allowed_users:
+            serializer = TagSerializer(tags, many=True, context={'request': request})
+            return Response(serializer.data)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
+        serializer = TagSerializer(data=request.data)
+        if request.user in board.allowed_users:
+            if serializer.is_valid():
+                serializer.save(
+                    board=board,
+                    created_by=request.user,
+                )
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class TagDetailAPIView(LoginRequiredMixin, APIView):
+    """
+    Retrieve, update or delete a tag instance.
+    """
+
+    def get_object(self, pk):
+        try:
+            return Tag.objects.get(pk=pk)
+        except Tag.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
+        tag = self.get_object(pk)
+        if request.user in board.allowed_users:
+            serializer = TagSerializer(tag)
+            return Response(serializer.data)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def put(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
+        tag = self.get_object(pk)
+        if request.user in board.allowed_users:
+            serializer = TagSerializer(tag, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
+        if request.user in board.allowed_users:
+            tag = self.get_object(pk)
+            tag.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 

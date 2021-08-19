@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
 from django.contrib.auth.models import User
-from .models import Item, Project, Board, Bucket, Card, Theme, Invite
+from .models import Item, Project, Board, Bucket, Card, Tag, Theme, Invite
 
 
 class UserSerializer(ModelSerializer):
@@ -99,17 +99,29 @@ class BucketSerializer(ModelSerializer):
         extra_kwargs = {'created_by': {'read_only': True}}
 
 
+class TagSerializer(ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = [
+            'id',
+            'name',
+            'icon',
+        ]
+
+
 class CardSerializer(ModelSerializer):
     is_running = serializers.ReadOnlyField()
     total_time = serializers.ReadOnlyField()
     checked_items = serializers.ReadOnlyField()
     total_items = serializers.ReadOnlyField()
     color = ThemeSerializer(many=False, read_only=True)
+    tag = TagSerializer(many=True, required=False)
 
     class Meta:
         model = Card
         fields = [
             'id',
+            'tag',
             'name',
             'bucket',
             'order',
