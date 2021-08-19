@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
 from django.contrib.auth.models import User
+import json
 from .models import Item, Project, Board, Bucket, Card, Tag, Theme, Invite
 
 
@@ -147,6 +148,26 @@ class CardSerializer(ModelSerializer):
         }
 
     def update(self, instance, validated_data):
+        if 'tag' in validated_data:
+            del validated_data['tag']
+
+        requested_tags = self.context['request'].data.get('tag')
+        if requested_tags is not None:
+            requested_tags = json.loads(requested_tags)
+        else:
+            requested_tags = []
+
+        tags = []
+        for tag_dict in requested_tags:
+            tag, created = Tag.objects.update_or_create(
+                name=tag_dict['name'],
+                defaults={
+                    'created_by': self.context['request'].user,
+                    'board': validated_data['bucket'].board,
+                }
+            )
+            tags.append(tag)
+
         super().update(instance, validated_data)
         status = validated_data.get('status', instance.status)
         if status == Bucket.COMPLETED:
@@ -159,6 +180,7 @@ class CardSerializer(ModelSerializer):
             )
         elif status == Bucket.NOT_STARTED:
             instance.mark_as_not_started()
+        instance.tag.set(tags)
         return instance
 
 

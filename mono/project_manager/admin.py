@@ -81,6 +81,7 @@ class ItemAdmin(admin.ModelAdmin):
 @admin.register(models.Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = [
+        'id',
         'name',
         'created_by',
         'created_at',
