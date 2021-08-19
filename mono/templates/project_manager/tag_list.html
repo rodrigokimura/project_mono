@@ -1,0 +1,55 @@
+{% extends "project_manager/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+<div class="pusher">
+  {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
+  <div class="ui stackable grid container">
+      <div class="ui horizontal divider"><i class="table icon"></i> {% translate "Projects" %}</div>
+      
+      <table class="ui fluid celled striped table">
+        <thead>
+          <tr>
+            <th>Icon</th>
+            <th>Name</th>
+            <th>Created by</th>
+            <th>Created at</th>
+            <th>Active</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tag in object_list %}
+          <tr>
+            <td>
+              {% if tag.icon %}
+              <i class="{{ tag.icon }} icon"></i>
+              {% endif %} 
+            </td>
+            <td>{{ tag.name }}</td>
+            <td>{{ tag.created_by }}</td>
+            <td>{{ tag.created_at }}</td>
+            <td>{{ tag.active }}</td>
+            <td>
+              <div class="ui icon yellow button"><i class="edit icon"></i></div>
+              <div class="ui icon red button"><i class="delete icon"></i></div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {{project_pk}}
+
+      <a class="ui fluid icon labeled green button" href="{% url 'project_manager:tag_create' project_pk=project_pk board_pk=board_pk %}">
+        <i class="add icon"></i>{% translate "New project" %}
+      </a>
+  </div>
+</div>
+
+
+<script>
+</script>
+
+{% endblock %}
