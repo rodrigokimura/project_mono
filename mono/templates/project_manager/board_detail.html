@@ -141,6 +141,16 @@
         <input type="hidden" name="order">
       </div>
       <div class="field">
+        <label>{% translate 'Tags' %}</label>
+        <div class="ui tags search multiple selection dropdown">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
+        </div>
+      </div>
+      <script>
+
+      </script>
+      <div class="field">
         <label>{% translate 'Description' %}</label>
         <textarea name="description" placeholder="Description" rows="2"></textarea>
       </div>
@@ -514,6 +524,23 @@
       .on('out', (el, container, source) => {
         containerCardIsOver = null;
     });
+
+    const createTag = (text) => {
+      var tagId;
+      $.ajax({
+        method: 'POST',
+        headers: {'X-CSRFToken': csrftoken},
+        async: false,
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
+        data: {
+          name: text
+        },
+      })
+      .done(r => {
+        tagId = r.id;
+      })
+      return tagId;
+    };
 
     const adjustBoardHeight = (boardSelector='#board') => {
       $(boardSelector).height(
@@ -918,6 +945,40 @@
         modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
         modal.find('.ui.color.dropdown').dropdown('set selected', '');
       };
+      modal.find('.ui.tags.dropdown').dropdown({
+        allowAdditions: true,
+        forceSelection: false,
+        match: 'text',
+        apiSettings: {
+          url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
+          method: 'GET',
+          cache: false,
+          defaultData: false,
+          loadingDuration: 500,
+          successTest: r => {
+            if (r && r.success) {
+              return r.success;
+            }
+            return false;
+          },
+          onResponse: r => {
+            let objs = []
+            for (obj of Object.values(r)) {
+              obj.value = obj.id;
+              objs.push(obj);
+            }
+            return { success: true, results: objs }
+          }
+        },
+        filterRemoteData: true,
+        saveRemoteData: false,
+        onLabelCreate: (value, text) => {
+          id = createTag(text)
+          value = id;
+          return $(`<a class="ui label" data-value="${value}" style="display: inline-block !important;">${text}<i class="delete icon"></i></a>`)
+        },
+        onLabelSelect: ($selectedLabels) => { console.log($selectedLabels) },
+      });
       modal.modal({
         restoreFocus: false,
         autofocus: false,
