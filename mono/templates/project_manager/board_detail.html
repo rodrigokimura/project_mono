@@ -148,368 +148,448 @@
         </div>
       </div>
       <script>
-
-      </script>
-      <div class="field">
-        <label>{% translate 'Description' %}</label>
-        <textarea name="description" placeholder="Description" rows="2"></textarea>
-      </div>
-      <div class="field">
-        <label>{% translate 'Status' %}</label>
-        <select class="ui status selection dropdown">
-          {% for value, text in card_statuses %}
-          <option value="{{ value }}">{{ text }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <script>$('.ui.status.dropdown').dropdown();</script>
-      <div class="field">
-        <label>{% translate 'Color' %}</label>
-        <select class="ui card color selection dropdown">
-        </select>
-      </div>
-      <script>
-        $('.ui.card.color.dropdown').dropdown({
-          clearable: true,
-          values: [
-            {% for color in colors %}
-            {
-              "name": "{{ color.name }}",
-              "value": {{ color.id }},
-              "icon": "{{ color.name|lower }} circle",
+        const createTag = (text) => {
+          var tagId;
+          $.ajax({
+            method: 'POST',
+            headers: {'X-CSRFToken': csrftoken},
+            async: false,
+            url: `/pm/api/projects/{{ object.project.id }}/boards/{{ object.id }/tags/`,
+            data: {
+              name: text
             },
-            {% endfor %}
-          ],
+          })
+          .done(r => {
+            tagId = r.id;
+          })
+          return tagId;
+        };
+        $('.ui.tags.dropdown').dropdown({
+          allowAdditions: true,
+          filterRemoteData: true,
+          apiSettings: {
+            url: `/pm/api/projects/{{ object.project.id }}/boards/{{ object.id }}/tags/`,
+            method: 'GET',
+            cache: false,
+            // defaultData: false,
+            loadingDuration: 500,
+            successTest: r => {
+              if (r && r.success) {
+                return r.success;
+              }
+              return false;
+            },
+            onResponse: r => {
+              let objs = []
+              for (obj of Object.values(r)) {
+                obj.value = obj.id;
+                objs.push(obj);
+              }
+              return { success: true, results: objs }
+            }
+          },
+        // $('.ui.tags.dropdown').dropdown({
+        //   allowAdditions: true,
+        //   useLabels: true,
+        //   forceSelection: false,
+        //   ignoreSearchCase: false,
+        //   // match: 'text',
+        //   apiSettings: {
+        //     url: `/pm/api/projects/{{ object.project.id }}/boards/{{ object.id }}/tags/`,
+        //     method: 'GET',
+        //     cache: false,
+        //     // defaultData: false,
+        //     loadingDuration: 500,
+        //     successTest: r => {
+        //       if (r && r.success) {
+        //         return r.success;
+        //       }
+        //       return false;
+        //     },
+        //     onResponse: r => {
+        //       let objs = []
+        //       for (obj of Object.values(r)) {
+        //         obj.value = obj.id;
+        //         objs.push(obj);
+        //       }
+        //       return { success: true, results: objs }
+        //     }
+        //   },
+        //   filterRemoteData: false,
+        //   saveRemoteData: false,
+          // onLabelCreate: (value, text) => {
+          //   id = createTag(text)
+          //   value = id;
+          //   return $(`<a class="ui label" data-value="${value}" style="display: inline-block !important;">${text}<i class="delete icon"></i></a>`)
+          // },
+          // onAdd: (value, text, $choice) => {
+          //   id = createTag(text)
+          //   value = id;
+          //   $choice.attr('data-value', value)
+          // },
+          // onLabelSelect: ($selectedLabels) => { console.log($selectedLabels) },
         });
-      </script>
-      <div class="ui error message"></div>
-      <div class="extra content">
-        <div class="ui inverted item">
-          <div class="header">{% translate 'Checklist' %}</div>
-          <div class="content">
-            <div class="checklist-drake">
-            </div>
-            <div class="ui fluid transparent icon add-item input">
-              <i class="add icon"></i>
-              <input type="text" placeholder="Insert new item to checklist">
+        </script>
+        <div class="field">
+          <label>{% translate 'Description' %}</label>
+          <textarea name="description" placeholder="Description" rows="2"></textarea>
+        </div>
+        <div class="field">
+          <label>{% translate 'Status' %}</label>
+          <select class="ui status selection dropdown">
+            {% for value, text in card_statuses %}
+            <option value="{{ value }}">{{ text }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <script>$('.ui.status.dropdown').dropdown();</script>
+        <div class="field">
+          <label>{% translate 'Color' %}</label>
+          <select class="ui card color selection dropdown">
+          </select>
+        </div>
+        <script>
+          $('.ui.card.color.dropdown').dropdown({
+            clearable: true,
+            values: [
+              {% for color in colors %}
+              {
+                "name": "{{ color.name }}",
+                "value": {{ color.id }},
+                "icon": "{{ color.name|lower }} circle",
+              },
+              {% endfor %}
+            ],
+          });
+        </script>
+        <div class="ui error message"></div>
+        <div class="extra content">
+          <div class="ui inverted item">
+            <div class="header">{% translate 'Checklist' %}</div>
+            <div class="content">
+              <div class="checklist-drake">
+              </div>
+              <div class="ui fluid transparent icon add-item input">
+                <i class="add icon"></i>
+                <input type="text" placeholder="Insert new item to checklist">
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="actions">
-      <div class="ui black deny labeled icon button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
-      <div class="ui positive right labeled icon button">{% translate 'Save' %}<i class="save icon"></i>
+      <div class="actions">
+        <div class="ui black deny labeled icon button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
+        <div class="ui positive right labeled icon button">{% translate 'Save' %}<i class="save icon"></i>
+        </div>
       </div>
-    </div>
-  </form>
-  <script>
-    $('form.card.modal').form({
-      fields: {
-        name: {
-          identifier: 'name',
-          rules: [
-            {
-              type   : 'empty',
-              prompt : `{% translate "Please, enter a name for your card." %}`
-            },
-            {
-              type   : 'maxLength[50]',
-              prompt : `{% translate "Card's name must have less than 50 characters." %}`
-            }
-          ]
-        },
-        description: {
-          identifier: 'description',
-          rules: [
-            {
-              type   : 'maxLength[255]',
-              prompt : `{% translate "Card's description must have less than 255 characters." %}`
-            }
-          ]
-        },
-      }
-    })
-  </script>
-
-  <form class="ui bucket-form tiny top aligned card modal form">
-    <i class="close icon"></i>
-    <div class="header">
-      <div class="field">
-        <input type=text name="name" placeholder="Name">
+    </form>
+    <script>
+      $('form.card.modal').form({
+        fields: {
+          name: {
+            identifier: 'name',
+            rules: [
+              {
+                type   : 'empty',
+                prompt : `{% translate "Please, enter a name for your card." %}`
+              },
+              {
+                type   : 'maxLength[50]',
+                prompt : `{% translate "Card's name must have less than 50 characters." %}`
+              }
+            ]
+          },
+          description: {
+            identifier: 'description',
+            rules: [
+              {
+                type   : 'maxLength[255]',
+                prompt : `{% translate "Card's description must have less than 255 characters." %}`
+              }
+            ]
+          },
+        }
+      })
+    </script>
+  
+    <form class="ui bucket-form tiny top aligned card modal form">
+      <i class="close icon"></i>
+      <div class="header">
+        <div class="field">
+          <input type=text name="name" placeholder="Name">
+        </div>
       </div>
-    </div>
-    <div class="content">
-      <div class="field">
-        <input type="hidden" name="id">
-      </div>
-      <div class="field">
-        <input type="hidden" name="order">
-      </div>
-      <div class="field">
-        <label>{% translate 'Description' %}</label>
-        <textarea name="description" placeholder="Description"></textarea>
-      </div>
-      <div class="field">
-        <label><i class="robot icon"></i>{% translate 'Automatic status' %}</label>
-        <select class="ui auto-status selection dropdown">
-          {% for value, text in bucket_auto_statuses %}
-          <option value="{{ value }}">{{ text }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <script>$('.ui.auto-status').dropdown();</script>
-      <div class="field">
-        <label>{% translate 'Color' %}</label>
-        <select class="ui bucket color selection dropdown">
-        </select>
-      </div>
-      <script>
-        $('.ui.bucket.color.dropdown').dropdown({
-          clearable: true,
-          values: [
-            {% for color in colors %}
-            {
-              "name": "{{ color.name }}",
-              "value": {{ color.id }},
-              "icon": "{{ color.name|lower }} circle",
-            },
+      <div class="content">
+        <div class="field">
+          <input type="hidden" name="id">
+        </div>
+        <div class="field">
+          <input type="hidden" name="order">
+        </div>
+        <div class="field">
+          <label>{% translate 'Description' %}</label>
+          <textarea name="description" placeholder="Description"></textarea>
+        </div>
+        <div class="field">
+          <label><i class="robot icon"></i>{% translate 'Automatic status' %}</label>
+          <select class="ui auto-status selection dropdown">
+            {% for value, text in bucket_auto_statuses %}
+            <option value="{{ value }}">{{ text }}</option>
             {% endfor %}
-          ],
-        });
-      </script>
-      <div class="ui error message"></div>
-    </div>
-    <div class="actions">
-      <div class="ui black deny labeled icon button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
-      <div class="ui positive right labeled icon button">{% translate 'Save' %}<i class="save icon"></i>
+          </select>
+        </div>
+        <script>$('.ui.auto-status').dropdown();</script>
+        <div class="field">
+          <label>{% translate 'Color' %}</label>
+          <select class="ui bucket color selection dropdown">
+          </select>
+        </div>
+        <script>
+          $('.ui.bucket.color.dropdown').dropdown({
+            clearable: true,
+            values: [
+              {% for color in colors %}
+              {
+                "name": "{{ color.name }}",
+                "value": {{ color.id }},
+                "icon": "{{ color.name|lower }} circle",
+              },
+              {% endfor %}
+            ],
+          });
+        </script>
+        <div class="ui error message"></div>
       </div>
-    </div>
-  </form>
-  <script>
-    $('form.bucket.modal').form({
-      fields: {
-        name: {
-          identifier: 'name',
-          rules: [
-            {
-              type   : 'empty',
-              prompt : `{% translate "Please, enter a name for your bucket." %}`
-            },
-            {
-              type   : 'maxLength[50]',
-              prompt : `{% translate "Bucket's name must have less than 50 characters." %}`
-            }
-          ]
-        },
-        description: {
-          identifier: 'description',
-          rules: [
-            {
-              type   : 'maxLength[255]',
-              prompt : `{% translate "Bucket's description must have less than 255 characters." %}`
-            }
-          ]
-        },
-      }
-    })
-  </script>
-
-  <div class="ui delete confirmation tiny modal">
-    <div class="header"></div>
-    <div class="content"></div>
-    <div class="actions">
-      <div class="ui black cancel button">
-        <i class="remove icon"></i>
-        {% translate 'No'%}
+      <div class="actions">
+        <div class="ui black deny labeled icon button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
+        <div class="ui positive right labeled icon button">{% translate 'Save' %}<i class="save icon"></i>
+        </div>
       </div>
-      <div class="ui green ok button">
-        <i class="checkmark icon"></i>
-        {% translate 'Yes' %}
-      </div>
-    </div>
-  </div>
-
-  <script>
-
-    const PROJECT_ID = "{{ object.project.id }}";
-    const BOARD_ID = "{{ object.id }}";
-    var intervals = [];
-    var cardBeingDragged;
-    var containerCardIsOver;
-    var bucketBeingDragged;
-    var containerBucketIsOver;
-    var scrollIntervalID;
-    var isScrolling = false;
-    var itemEdited = false;
-
-    const setFullscreen = bool => {
-      $.api({
-        on: 'now',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-        method: 'PATCH',
-        headers: {'X-CSRFToken': csrftoken},
-        data: { fullscreen: bool },
-        success: r => {
-          let icon = $('.fullscreen.item i.icon');
-          if (r.fullscreen) {
-            icon.removeClass('expand alternate icon').addClass('compress alternate icon');
-            $('.breadcrumb').parent().parent().parent().hide();
-            adjustBoardHeight();
-          } else {
-            icon.removeClass('compress alternate icon').addClass('expand alternate icon');
-            $('.breadcrumb').parent().parent().parent().show();
-            adjustBoardHeight();
-          };
-        },
-        error: r => {alert(JSON.stringify(r))},
-      });
-    };
-
-    const changeBucketWidth = width => {
-      $.api({
-        on: 'now',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-        method: 'PATCH',
-        headers: {'X-CSRFToken': csrftoken},
-        data: { bucket_width: width },
-        onSuccess: r => {
-        loadBoard();
-        },
-        onError: r => {alert(JSON.stringify(r))},
-      });
-    };
-    
-    const setCompact = bool => {
-      $.api({
-        on: 'now',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-        method: 'PATCH',
-        headers: {'X-CSRFToken': csrftoken},
-        data: { compact: bool },
-        onSuccess: r => {
-          loadBoard(r.compact);
-        },
-        onError: r => {alert(JSON.stringify(r))},
-      });
-    };
-
-    const toggleFullscreen = () => {
-      let icon = $('.fullscreen.item i.icon');
-      setFullscreen(icon.hasClass('expand alternate icon'));
-    };
-
-    const setDarkMode = bool => {
-      $.api({
-        on: 'now',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-        method: 'PATCH',
-        headers: {'X-CSRFToken': csrftoken},
-        data: { dark: bool },
-        onSuccess: r => {
-          loadBoard(r.dark);
-        },
-        onError: r => {alert(JSON.stringify(r))},
-      });
-    };
-
-    const startElementScroll = (directionX, directionY, elementToScroll, increment, delay) => {
-      let scroll = () => {
-        elementToScroll.scrollBy(directionX * increment, directionY * increment);
-      };
-      if (!isScrolling) {
-        scrollIntervalID = setInterval(scroll, delay);
-        isScrolling = true;
-      };
-    };
-
-    const stopElementScroll = intID => {
-      clearInterval(intID);
-      isScrolling = false;
-    };
-
-    var bucketsDrake = dragula({
-        isContainer: el => $(el).hasClass('buckets-drake'),
-        moves: (el, source, handle, sibling) => 
-          $(el).hasClass('bucket-el') 
-          && (
-            $(handle).hasClass('handle') // use button as handle
-            || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
-        ),
-        accepts: (el, target, source, sibling) => sibling !== null,
-        invalid: (el, handle) => $(el).hasClass('card-el'),
-        direction: 'horizontal'
-      })
-      .on('drop', (el, target, source, sibling) => {
-        $(el).removeClass('card').addClass('loading card');
-        bucket = $(el).attr('data-bucket-id');
-        order = $(target).children().toArray().findIndex(e => e == el) + 1;
-        $.ajax({
-          url: `/pm/api/bucket_move/`,
-          type: 'POST',
-          headers: {'X-CSRFToken': csrftoken},
-          data: {
-            bucket: bucket,
-            board: BOARD_ID,
-            order: order,
+    </form>
+    <script>
+      $('form.bucket.modal').form({
+        fields: {
+          name: {
+            identifier: 'name',
+            rules: [
+              {
+                type   : 'empty',
+                prompt : `{% translate "Please, enter a name for your bucket." %}`
+              },
+              {
+                type   : 'maxLength[50]',
+                prompt : `{% translate "Bucket's name must have less than 50 characters." %}`
+              }
+            ]
           },
-          success: result => {},
-          complete: () => {$(el).removeClass('loading');}
-        });
-      })
-      .on('drag', (el, source) => {
-        bucketBeingDragged = el;
-      })
-      .on('dragend', (el) => {
-        bucketBeingDragged = null;
-        stopElementScroll(scrollIntervalID);
-      })
-      .on('over', (el, container, source) => {
-        containerBucketIsOver = container;
-      })
-      .on('out', (el, container, source) => {
-        containerBucketIsOver = null;
-    });
-
-    var cardsDrake = dragula({
-        isContainer: el => $(el).hasClass('cards-drake'),
-        moves: (el, source, handle, sibling) => 
-          $(el).hasClass('card-el') 
-          && (
-            $(handle).hasClass('handle') // use button as handle
-            || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
-          ),
-        direction: 'vertical',
-        slideFactorX: '50px',
-        slideFactorY: '50px',
-      })
-      .on('drop', (el, target, source, sibling) => {
-        $(el).removeClass('card').addClass('loading card');
-        source_bucket = $(source).attr('id').replace('bucket-', '');
-        target_bucket = $(target).attr('id').replace('bucket-', '');
-        card = $(el).attr('data-card-id');
-        order = $(target).children().toArray().findIndex(e => e == el) + 1;
-        $.ajax({
-          url: `/pm/api/card_move/`,
-          type: 'POST',
-          headers: {'X-CSRFToken': csrftoken},
-          data: {
-            source_bucket: source_bucket,
-            target_bucket: target_bucket,
-            card: card,
-            order: order,
+          description: {
+            identifier: 'description',
+            rules: [
+              {
+                type   : 'maxLength[255]',
+                prompt : `{% translate "Bucket's description must have less than 255 characters." %}`
+              }
+            ]
           },
+        }
+      })
+    </script>
+  
+    <div class="ui delete confirmation tiny modal">
+      <div class="header"></div>
+      <div class="content"></div>
+      <div class="actions">
+        <div class="ui black cancel button">
+          <i class="remove icon"></i>
+          {% translate 'No'%}
+        </div>
+        <div class="ui green ok button">
+          <i class="checkmark icon"></i>
+          {% translate 'Yes' %}
+        </div>
+      </div>
+    </div>
+  
+    <script>
+  
+      const PROJECT_ID = "{{ object.project.id }}";
+      const BOARD_ID = "{{ object.id }}";
+      var intervals = [];
+      var cardBeingDragged;
+      var containerCardIsOver;
+      var bucketBeingDragged;
+      var containerBucketIsOver;
+      var scrollIntervalID;
+      var isScrolling = false;
+      var itemEdited = false;
+  
+      const setFullscreen = bool => {
+        $.api({
+          on: 'now',
+          url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+          method: 'PATCH',
+          headers: {'X-CSRFToken': csrftoken},
+          data: { fullscreen: bool },
           success: r => {
-            if (r.success) {
-              status_changed = r.status_changed;
-              timer_action = r.timer_action;
-              if (status_changed || timer_action != 'none') {
-                loadBoard();
-              };
+            let icon = $('.fullscreen.item i.icon');
+            if (r.fullscreen) {
+              icon.removeClass('expand alternate icon').addClass('compress alternate icon');
+              $('.breadcrumb').parent().parent().parent().hide();
+              adjustBoardHeight();
+            } else {
+              icon.removeClass('compress alternate icon').addClass('expand alternate icon');
+              $('.breadcrumb').parent().parent().parent().show();
+              adjustBoardHeight();
             };
           },
-          complete: () => {$(el).removeClass('loading');}
+          error: r => {alert(JSON.stringify(r))},
         });
+      };
+  
+      const changeBucketWidth = width => {
+        $.api({
+          on: 'now',
+          url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+          method: 'PATCH',
+          headers: {'X-CSRFToken': csrftoken},
+          data: { bucket_width: width },
+          onSuccess: r => {
+          loadBoard();
+          },
+          onError: r => {alert(JSON.stringify(r))},
+        });
+      };
+      
+      const setCompact = bool => {
+        $.api({
+          on: 'now',
+          url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+          method: 'PATCH',
+          headers: {'X-CSRFToken': csrftoken},
+          data: { compact: bool },
+          onSuccess: r => {
+            loadBoard(r.compact);
+          },
+          onError: r => {alert(JSON.stringify(r))},
+        });
+      };
+  
+      const toggleFullscreen = () => {
+        let icon = $('.fullscreen.item i.icon');
+        setFullscreen(icon.hasClass('expand alternate icon'));
+      };
+  
+      const setDarkMode = bool => {
+        $.api({
+          on: 'now',
+          url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+          method: 'PATCH',
+          headers: {'X-CSRFToken': csrftoken},
+          data: { dark: bool },
+          onSuccess: r => {
+            loadBoard(r.dark);
+          },
+          onError: r => {alert(JSON.stringify(r))},
+        });
+      };
+  
+      const startElementScroll = (directionX, directionY, elementToScroll, increment, delay) => {
+        let scroll = () => {
+          elementToScroll.scrollBy(directionX * increment, directionY * increment);
+        };
+        if (!isScrolling) {
+          scrollIntervalID = setInterval(scroll, delay);
+          isScrolling = true;
+        };
+      };
+  
+      const stopElementScroll = intID => {
+        clearInterval(intID);
+        isScrolling = false;
+      };
+  
+      var bucketsDrake = dragula({
+          isContainer: el => $(el).hasClass('buckets-drake'),
+          moves: (el, source, handle, sibling) => 
+            $(el).hasClass('bucket-el') 
+            && (
+              $(handle).hasClass('handle') // use button as handle
+              || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
+          ),
+          accepts: (el, target, source, sibling) => sibling !== null,
+          invalid: (el, handle) => $(el).hasClass('card-el'),
+          direction: 'horizontal'
+        })
+        .on('drop', (el, target, source, sibling) => {
+          $(el).removeClass('card').addClass('loading card');
+          bucket = $(el).attr('data-bucket-id');
+          order = $(target).children().toArray().findIndex(e => e == el) + 1;
+          $.ajax({
+            url: `/pm/api/bucket_move/`,
+            type: 'POST',
+            headers: {'X-CSRFToken': csrftoken},
+            data: {
+              bucket: bucket,
+              board: BOARD_ID,
+              order: order,
+            },
+            success: result => {},
+            complete: () => {$(el).removeClass('loading');}
+          });
+        })
+        .on('drag', (el, source) => {
+          bucketBeingDragged = el;
+        })
+        .on('dragend', (el) => {
+          bucketBeingDragged = null;
+          stopElementScroll(scrollIntervalID);
+        })
+        .on('over', (el, container, source) => {
+          containerBucketIsOver = container;
+        })
+        .on('out', (el, container, source) => {
+          containerBucketIsOver = null;
+      });
+  
+      var cardsDrake = dragula({
+          isContainer: el => $(el).hasClass('cards-drake'),
+          moves: (el, source, handle, sibling) => 
+            $(el).hasClass('card-el') 
+            && (
+              $(handle).hasClass('handle') // use button as handle
+              || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
+            ),
+          direction: 'vertical',
+          slideFactorX: '50px',
+          slideFactorY: '50px',
+        })
+        .on('drop', (el, target, source, sibling) => {
+          $(el).removeClass('card').addClass('loading card');
+          source_bucket = $(source).attr('id').replace('bucket-', '');
+          target_bucket = $(target).attr('id').replace('bucket-', '');
+          card = $(el).attr('data-card-id');
+          order = $(target).children().toArray().findIndex(e => e == el) + 1;
+          $.ajax({
+            url: `/pm/api/card_move/`,
+            type: 'POST',
+            headers: {'X-CSRFToken': csrftoken},
+            data: {
+              source_bucket: source_bucket,
+              target_bucket: target_bucket,
+              card: card,
+              order: order,
+            },
+            success: r => {
+              if (r.success) {
+                status_changed = r.status_changed;
+                timer_action = r.timer_action;
+                if (status_changed || timer_action != 'none') {
+                  loadBoard();
+                };
+              };
+            },
+            complete: () => {$(el).removeClass('loading');}
+          });
       })
       .on('drag', (el, source) => {
         cardBeingDragged = el;
@@ -524,23 +604,6 @@
       .on('out', (el, container, source) => {
         containerCardIsOver = null;
     });
-
-    const createTag = (text) => {
-      var tagId;
-      $.ajax({
-        method: 'POST',
-        headers: {'X-CSRFToken': csrftoken},
-        async: false,
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
-        data: {
-          name: text
-        },
-      })
-      .done(r => {
-        tagId = r.id;
-      })
-      return tagId;
-    };
 
     const adjustBoardHeight = (boardSelector='#board') => {
       $(boardSelector).height(
@@ -945,40 +1008,6 @@
         modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
         modal.find('.ui.color.dropdown').dropdown('set selected', '');
       };
-      modal.find('.ui.tags.dropdown').dropdown({
-        allowAdditions: true,
-        forceSelection: false,
-        match: 'text',
-        apiSettings: {
-          url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
-          method: 'GET',
-          cache: false,
-          defaultData: false,
-          loadingDuration: 500,
-          successTest: r => {
-            if (r && r.success) {
-              return r.success;
-            }
-            return false;
-          },
-          onResponse: r => {
-            let objs = []
-            for (obj of Object.values(r)) {
-              obj.value = obj.id;
-              objs.push(obj);
-            }
-            return { success: true, results: objs }
-          }
-        },
-        filterRemoteData: true,
-        saveRemoteData: false,
-        onLabelCreate: (value, text) => {
-          id = createTag(text)
-          value = id;
-          return $(`<a class="ui label" data-value="${value}" style="display: inline-block !important;">${text}<i class="delete icon"></i></a>`)
-        },
-        onLabelSelect: ($selectedLabels) => { console.log($selectedLabels) },
-      });
       modal.modal({
         restoreFocus: false,
         autofocus: false,
@@ -996,26 +1025,26 @@
             getItems(bucketId, card.id, dark);
             $('.add-item.input input').off();
             $('.add-item.input input').on('keypress', e => {
-                if (e.which == 13) { 
-                  $(this).attr("disabled", "disabled");
-                  $.api({
-                    url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
-                    method: 'POST',
-                    headers: {'X-CSRFToken': csrftoken},
-                    data: { 
-                      name: e.target.value, 
-                      card: card.id,
-                      order: 1 
-                    },
-                    on: 'now',
-                    onSuccess: r => { 
-                      e.target.value = '';
-                      getItems(bucketId, card.id, dark);
-                      itemEdited = true;
-                    },
-                    onComplete: () => { $(this).removeAttr("disabled"); },
-                  });
-                };
+              if (e.which == 13) { 
+                $(this).attr("disabled", "disabled");
+                $.api({
+                  url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
+                  method: 'POST',
+                  headers: {'X-CSRFToken': csrftoken},
+                  data: { 
+                    name: e.target.value, 
+                    card: card.id,
+                    order: 1 
+                  },
+                  on: 'now',
+                  onSuccess: r => { 
+                    e.target.value = '';
+                    getItems(bucketId, card.id, dark);
+                    itemEdited = true;
+                  },
+                  onComplete: () => { $(this).removeAttr("disabled"); },
+                });
+              };
             });
           } else {
             // Prevent users from inserting checklists before card object creation
