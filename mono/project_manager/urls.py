@@ -18,6 +18,10 @@ urlpatterns = [
     path('project/<int:project_pk>/board/<int:pk>/', views.BoardDetailView.as_view(), name='board_detail'),
     path('project/<int:project_pk>/board/<int:pk>/edit/', views.BoardUpdateView.as_view(), name='board_update'),
 
+    path('project/<int:project_pk>/board/<int:board_pk>/tag/', views.TagCreateView.as_view(), name='tag_create'),
+    path('project/<int:project_pk>/board/<int:board_pk>/tag/<int:pk>/', views.TagUpdateView.as_view(), name='tag_update'),
+    path('project/<int:project_pk>/board/<int:board_pk>/tags/', views.TagListView.as_view(), name='tags'),
+
     path('invites/accept/', views.InviteAcceptanceView.as_view(), name='invite_acceptance'),
 
     # API Routes
@@ -25,6 +29,8 @@ urlpatterns = [
     path('api/projects/<int:pk>/', views.ProjectDetailAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/', views.BoardListAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:pk>/', views.BoardDetailAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:board_pk>/tags/', views.TagListAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:board_pk>/tags/<int:pk>/', views.TagDetailAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/', views.BucketListAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:pk>/', views.BucketDetailAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/', views.CardListAPIView.as_view()),

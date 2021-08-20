@@ -78,6 +78,25 @@ class ItemAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(models.Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'name',
+        'color',
+        'created_by',
+        'created_at',
+        'active',
+        'board',
+    ]
+    list_filter = [
+        'created_by',
+        'created_at',
+        'active',
+        'board',
+    ]
+
+
 @admin.register(models.TimeEntry)
 class TimeEntryAdmin(admin.ModelAdmin):
     list_display = [

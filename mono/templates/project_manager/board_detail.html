@@ -38,6 +38,8 @@
     if(typeof(String.prototype.trim) === "undefined") {
         String.prototype.trim = () => String(this).replace(/^\s+|\s+$/g, '');
     };
+    const PROJECT_ID = "{{ object.project.id }}";
+    const BOARD_ID = "{{ object.id }}";
   </script>
 {% endblock head %}
 
@@ -77,6 +79,206 @@
         </div>
       </div>
     </div>
+    <div class="item">
+      <div class="ui button" id="edit-tags">Edit tags</div>
+    </div>
+    <script>
+      const addNewTagInput = (containerElement) => {
+        el = containerElement.append(`
+          <form class="ui unstackable form" data-tag-id="" style="width: 100%; margin-bottom: .5em;">
+            <div class="" style="display: flex; flex-flow: row nowrap;">
+              <input type="hidden" name="id" value="">
+              <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
+                <select class="ui tag-icon new-tag clearable compact dropdown" data-tag-id="">
+                </select>
+              </div>
+              <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
+                <select class="ui tag-color new-tag clearable compact dropdown" data-tag-id="">
+                </select>
+              </div>
+              <div style="flex: 1 1 auto; margin-right: .5em;">
+                <input class="tag-name" type="text" placeholder="Name" data-tag-id="">
+              </div>
+              <div style="">
+                <div class="ui icon red delete new-tag button"><i class="delete icon"></i></div>
+              </div>
+            </div>
+          </form>
+        `);
+        let iconDropdown = $(`.tag-icon.new-tag.dropdown`);
+        iconDropdown.dropdown({
+          values: [
+          {% for icon in icons %}
+          {
+            "value": "{{ icon.id }}",
+            "icon": "{{ icon.markup }}",
+          },
+          {% endfor %}
+          ]
+        });
+        let colorDropdown = $(`.tag-color.new-tag.dropdown`);
+        colorDropdown.dropdown({
+          values: [
+          {% for color in colors %}
+          {
+            "value": "{{ color.id }}",
+            "icon": "{{ color.name|lower }} circle",
+          },
+          {% endfor %}
+          ]
+        });
+        el.find('.delete.button.new-tag').off();
+        el.find('.delete.button.new-tag').click(e => {
+          $(e.target).closest('form').remove();
+        })
+      }
+
+      const renderTags = (containerElement, tag) => {
+        containerElement.append(`
+          <form class="ui unstackable form" data-tag-id="${tag.id}" style="width: 100%; margin-bottom: .5em;">
+            <div class="" style="display: flex; flex-flow: row nowrap;">
+              <input type="hidden" name="id" value="${tag.id}">
+              <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
+                <select class="ui tag-icon clearable compact dropdown" data-tag-id="${tag.id}">
+                </select>
+              </div>
+              <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
+                <select class="ui tag-color clearable compact dropdown" data-tag-id="${tag.id}">
+                </select>
+              </div>
+              <div style="flex: 1 1 auto; margin-right: .5em;">
+                <input class="tag-name" type="text" placeholder="Name" data-tag-id="${tag.id}">
+              </div>
+              <div style="">
+                <div class="ui icon red delete button" data-tag-id="${tag.id}"><i class="delete icon"></i></div>
+              </div>
+            </div>
+          </form>
+        `);
+        let iconDropdown = $(`.tag-icon.dropdown[data-tag-id=${tag.id}]`);
+        iconDropdown.dropdown({
+          values: [
+          {% for icon in icons %}
+          {
+            "value": "{{ icon.id }}",
+            "icon": "{{ icon.markup }}",
+          },
+          {% endfor %}
+          ]
+        });
+        if (tag.icon !== null) {
+          iconDropdown.dropdown('set selected', tag.icon.id);
+        };
+        let colorDropdown = $(`.tag-color.dropdown[data-tag-id=${tag.id}]`);
+        colorDropdown.dropdown({
+          values: [
+          {% for color in colors %}
+          {
+            "value": "{{ color.id }}",
+            "icon": "{{ color.name|lower }} circle",
+          },
+          {% endfor %}
+          ]
+        });
+        if (tag.color !== null) {
+          colorDropdown.dropdown('set selected', tag.color.id);
+        };
+        $(`input[type=text][data-tag-id=${tag.id}]`).val(tag.name);
+        $(`.delete.button[data-tag-id=${tag.id}]`).click(() => {
+          $('body').modal({ 
+            title: 'Deletion confirmation', 
+            class: 'mini', 
+            closeIcon: true, 
+            content: `Are you sure yo want to delete tag ${tag.name}?`, 
+            allowMultiple: true,
+            actions: [
+              { 
+                text: 'Yes', 
+                class: 'positive'
+              },
+              { 
+                text: 'Cancel', 
+                class: 'deny'
+              },
+            ],
+            onApprove: () => {
+              $.ajax({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${tag.id}`,
+                method: 'DELETE',
+                headers: {'X-CSRFToken': csrftoken},
+              }).done(r => {
+                $(`form[data-tag-id=${tag.id}]`).remove();
+                loadBoard();
+              })
+            }
+          }).modal('show');
+        })
+      };
+      $('#edit-tags').click(() => {
+        // Close sidebar
+        $('.ui.sidebar').sidebar('hide');
+        let tagsModal = $('.ui.tags.modal');
+        tagsModal.modal({
+          autofocus: false,
+          allowMultiple: true,
+          onShow: () => {
+            el = tagsModal.find('.scrolling.content');
+            el.empty();
+            el.append(`
+              <div class="ui new-tag icon labeled green button" style="margin-bottom: 1em;">
+                <i class="add icon"></i>
+                Add new tag
+              </div>
+            `)
+            el.find('.new-tag').click(() => {
+              addNewTagInput(el);
+            })
+            $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`)
+              .done(r => {
+                for (tag of r) {
+                  renderTags(el, tag);
+                };
+              })
+              .fail(e => { console.error(e) })
+              .always(() => {
+              })
+          },
+          onApprove: () => {
+            el.find('.ui.form').each((index, form) => {
+              id = $(form).find('input[name=id]').val();
+              icon = $(form).find('.tag-icon').dropdown('get value');
+              color = $(form).find('.tag-color').dropdown('get value');
+              name = $(form).find('.tag-name').val();
+              if (id == '') {
+                $.ajax({
+                  url:`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
+                  method: 'POST',
+                  headers: {'X-CSRFToken': csrftoken},
+                  data: {
+                    icon: icon,
+                    color: color,
+                    name: name,
+                  }
+                })
+              } else {
+                $.ajax({
+                  url:`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${id}/`,
+                  method: 'PUT',
+                  headers: {'X-CSRFToken': csrftoken},
+                  data: {
+                    icon: icon,
+                    color: color,
+                    name: name,
+                  }
+                })
+              }
+            });
+            loadBoard();
+          },
+        });
+        tagsModal.modal('show');
+      })
+    </script>
   </div>
 {% endblock sidebar %}
 
@@ -140,6 +342,74 @@
       <div class="field">
         <input type="hidden" name="order">
       </div>
+      <div class="field">
+        <label>{% translate 'Tags' %}</label>
+        <div class="ui tags search multiple selection dropdown">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
+        </div>
+      </div>
+      <script>
+        const tagExists = (id) => {
+          var exists = false;
+          $.ajax({
+            method: 'GET',
+            headers: {'X-CSRFToken': csrftoken},
+            async: false,
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${id}`,
+          })
+          .done(r => {
+            exists = true;
+          })
+          return exists;
+        };
+        const createTag = (id, name) => {
+          if (!tagExists(id)) {
+            $.ajax({
+              method: 'POST',
+              headers: {'X-CSRFToken': csrftoken},
+              async: false,
+              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
+              data: {
+                name: name
+              },
+            })
+            .done(r => {
+              id = r.id;
+            })
+          }
+          return id;
+        };
+        $('.ui.tags.dropdown').dropdown({
+          allowAdditions: true,
+          filterRemoteData: true,
+          forceSelection: false,
+          saveRemoteData: false,
+          apiSettings: {
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
+            method: 'GET',
+            cache: false,
+            loadingDuration: 500,
+            successTest: r => {
+              if (r && r.success) {
+                return r.success;
+              }
+              return false;
+            },
+            onResponse: r => {
+              let objs = []
+              for (obj of Object.values(r)) {
+                obj.value = obj.name;
+                if (obj.icon !== null) {
+                  obj.icon = obj.icon.markup;
+                }
+                objs.push(obj);
+              }
+              return { success: true, results: objs }
+            }
+          },
+        });
+      </script>
       <div class="field">
         <label>{% translate 'Description' %}</label>
         <textarea name="description" placeholder="Description" rows="2"></textarea>
@@ -320,10 +590,23 @@
     </div>
   </div>
 
-  <script>
+  <div class="ui tags top aligned tiny modal">
+    <div class="header"></div>
+    <div class="scrolling content">
+    </div>
+    <div class="actions">
+      <div class="ui black cancel button">
+        <i class="remove icon"></i>
+        {% translate 'Close'%}
+      </div>
+      <div class="ui green ok button">
+        <i class="checkmark icon"></i>
+        {% translate 'Save' %}
+      </div>
+    </div>
+  </div>
 
-    const PROJECT_ID = "{{ object.project.id }}";
-    const BOARD_ID = "{{ object.id }}";
+  <script>
     var intervals = [];
     var cardBeingDragged;
     var containerCardIsOver;
@@ -678,7 +961,11 @@
                   </div>
                 </div>
               </div>
-              <div class="meta" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
+              <div class="meta" style="display: flex; flex-flow: column nowrap;">
+                <div class="tags" style="flex: 0 0 auto; padding-top: .5em;" data-card-id="${card.id}">
+                </div>
+                <div class="description" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
+              </div>
             </div>
             <div data-card-id="${card.id}" class="extra content" style="${ card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : '' };;${compact ? ' padding: .5em;' : ''}">
               <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
@@ -691,16 +978,28 @@
           </div>
           `
         );
+        let extraContent = $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`);
+        let tags = $(containerSelector).find(`.meta .tags[data-card-id=${card.id}]`);
         if (card.total_items > 0) {
-          $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`).append(
-            `
-              <span class="ui left floated text">
-                ${card.checked_items}/${card.total_items}
-              </span>
-            `
-          );
-        }
-        let extraContent = $(`.card-el[data-card-id=${card.id}] .extra.content`);
+          extraContent.prepend(`
+            <span class="ui left floated text">
+              ${card.checked_items}/${card.total_items}
+            </span>
+          `);
+        };
+        if (card.tag.length > 0) {
+          for (tag of card.tag) {
+            if (tag.icon !== null) {
+              tags.append(`
+                <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label"><i class="${tag.icon.markup} icon"></i> ${tag.name}</span>
+              `);
+            } else {
+              tags.append(`
+                <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label">${tag.name}</span>
+              `);
+            }
+          }
+        };
         if (extraContent.text().trim() === '') {
           extraContent.remove();
         };
@@ -803,7 +1102,6 @@
           onChange: () => {
             let itemId = $(el).attr('data-item-id');
             let checked = $(el).checkbox('is checked');
-            console.log(checked);
             $.api({
               url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/check/`,
               method: 'POST',
@@ -903,13 +1201,44 @@
       modal.form('reset');
       modal.off();
       let dark = modal.hasClass('inverted');
-      if (card!=null) {
+      if (card !== null) {
         create = false;
         modal.find('input[name=id]').val(card.id);
         modal.find('input[name=name]').val(card.name);
         modal.find('textarea[name=description]').val(card.description);
         modal.find('.ui.status.dropdown').dropdown('set selected', card.status);
         modal.find('.ui.color.dropdown').dropdown('set selected', card.color !== null ? card.color.id : '');
+        modal.find('.extra.content .item').show();
+        modal.find('.ui.tags.dropdown').dropdown('clear');
+        for (tag of card.tag) {
+          modal.find('.ui.tags.dropdown').dropdown('set selected', tag.name);
+        }
+        {
+          getItems(bucketId, card.id, dark);
+          $('.add-item.input input').off();
+          $('.add-item.input input').on('keypress', e => {
+            if (e.which == 13) { 
+              $(this).attr("disabled", "disabled");
+              $.api({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
+                method: 'POST',
+                headers: {'X-CSRFToken': csrftoken},
+                data: { 
+                  name: e.target.value, 
+                  card: card.id,
+                  order: 1 
+                },
+                on: 'now',
+                onSuccess: r => { 
+                  e.target.value = '';
+                  getItems(bucketId, card.id, dark);
+                  itemEdited = true;
+                },
+                onComplete: () => { $(this).removeAttr("disabled"); },
+              });
+            };
+          });
+        }
       } else {
         create = true;
         modal.find('input[name=id]').val('');
@@ -917,6 +1246,9 @@
         modal.find('textarea[name=description]').val('');
         modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
         modal.find('.ui.color.dropdown').dropdown('set selected', '');
+        modal.find('.ui.tags.dropdown').dropdown('clear');
+        // Prevent users from inserting checklists before card object creation
+        modal.find('.extra.content .item').hide();
       };
       modal.modal({
         restoreFocus: false,
@@ -930,36 +1262,6 @@
           } else {
             $('.add-item.input').removeClass('inverted');
           };
-          if (card !== null) {
-            modal.find('.extra.content .item').show();
-            getItems(bucketId, card.id, dark);
-            $('.add-item.input input').off();
-            $('.add-item.input input').on('keypress', e => {
-                if (e.which == 13) { 
-                  $(this).attr("disabled", "disabled");
-                  $.api({
-                    url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
-                    method: 'POST',
-                    headers: {'X-CSRFToken': csrftoken},
-                    data: { 
-                      name: e.target.value, 
-                      card: card.id,
-                      order: 1 
-                    },
-                    on: 'now',
-                    onSuccess: r => { 
-                      e.target.value = '';
-                      getItems(bucketId, card.id, dark);
-                      itemEdited = true;
-                    },
-                    onComplete: () => { $(this).removeAttr("disabled"); },
-                  });
-                };
-            });
-          } else {
-            // Prevent users from inserting checklists before card object creation
-            modal.find('.extra.content .item').hide();
-          }
         },
         onHidden: () => { 
           if (itemEdited) { loadBoard(); };
@@ -974,50 +1276,40 @@
           description = modal.find('textarea[name=description]').val();
           status = modal.find('.ui.status.dropdown').dropdown('get value');
           color = modal.find('.ui.color.dropdown').dropdown('get value');
+          tagsString = modal.find('.ui.tags.dropdown').dropdown('get value');
+          tags = tagsString.split(",").map(tag => ({name: tag}));
           if (create === true) {
-            $.ajax({
-              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
-              type: 'POST',
-              headers: {'X-CSRFToken': csrftoken},
-              data: {
-                name: name,
-                bucket: bucketId,
-                description: description,
-                status: status,
-                color: color,
-                order: 0,
-              },
-              success: function(result) {
-                loadBoard();
-              }
-            });
+            method = 'POST';
+            url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`;
+            order = 0;
           } else {
+            method = 'PUT';
             id = modal.find('input[name=id]').val();
             order = $(`.card-el[data-card-id=${card.id}]`).index() + 1;
-            $.ajax({
-              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`,
-              type: 'PUT',
-              headers: {'X-CSRFToken': csrftoken},
-              data: {
-                name: name,
-                bucket: bucketId,
-                description: description,
-                status: status,
-                color: color,
-                order: order
-              },
-              success: function(result) {
-                loadBoard();
-              }
-            });
+            url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`;
           }
+          $.ajax({
+            url: url,
+            type: method,
+            headers: {'X-CSRFToken': csrftoken},
+            data: {
+              name: name,
+              bucket: bucketId,
+              description: description,
+              status: status,
+              color: color,
+              order: order,
+              tag: JSON.stringify(tags),
+            },
+            success: function(result) {
+              loadBoard();
+            }
+          });
         }
-      });
-      modal.submit(e => {
+      }).modal('show').submit(e => {
         e.preventDefault();
         modal.find('.positive.button').click();
       });
-      modal.modal('show');
     };
 
     const deleteCard = (cardId, bucketId) => {

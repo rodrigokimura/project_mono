@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
 from django.contrib.auth.models import User
-from .models import Item, Project, Board, Bucket, Card, Theme, Invite
+import json
+from .models import Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite
 
 
 class UserSerializer(ModelSerializer):
@@ -99,17 +100,63 @@ class BucketSerializer(ModelSerializer):
         extra_kwargs = {'created_by': {'read_only': True}}
 
 
+class IconSerializer(ModelSerializer):
+    class Meta:
+        model = Icon
+        fields = [
+            'id',
+            'markup',
+        ]
+
+
+class TagSerializer(ModelSerializer):
+
+    icon = IconSerializer(many=False, read_only=True, required=False)
+    color = ThemeSerializer(many=False, read_only=True, required=False)
+
+    class Meta:
+        model = Tag
+        fields = [
+            'id',
+            'name',
+            'icon',
+            'color',
+        ]
+
+    def update(self, instance, validated_data):
+        if 'icon' in validated_data:
+            del validated_data['icon']
+        icon_id = self.context['request'].data.get('icon')
+        if icon_id not in ['', None]:
+            icon = Icon.objects.get(id=int(icon_id))
+            instance.icon = icon
+        else:
+            instance.icon = None
+        theme_id = self.context['request'].data.get('color')
+        if theme_id not in ['', None]:
+            theme = Theme.objects.get(id=int(theme_id))
+            instance.color = theme
+        else:
+            instance.color = None
+        instance.save()
+            
+        super().update(instance, validated_data)
+        return instance
+
+
 class CardSerializer(ModelSerializer):
     is_running = serializers.ReadOnlyField()
     total_time = serializers.ReadOnlyField()
     checked_items = serializers.ReadOnlyField()
     total_items = serializers.ReadOnlyField()
     color = ThemeSerializer(many=False, read_only=True)
+    tag = TagSerializer(many=True, required=False)
 
     class Meta:
         model = Card
         fields = [
             'id',
+            'tag',
             'name',
             'bucket',
             'order',
@@ -135,6 +182,26 @@ class CardSerializer(ModelSerializer):
         }
 
     def update(self, instance, validated_data):
+        if 'tag' in validated_data:
+            del validated_data['tag']
+
+        requested_tags = self.context['request'].data.get('tag')
+        if requested_tags is not None:
+            requested_tags = json.loads(requested_tags)
+        else:
+            requested_tags = []
+
+        tags = []
+        for tag_dict in requested_tags:
+            tag, created = Tag.objects.update_or_create(
+                name=tag_dict['name'],
+                defaults={
+                    'created_by': self.context['request'].user,
+                    'board': validated_data['bucket'].board,
+                }
+            )
+            tags.append(tag)
+
         super().update(instance, validated_data)
         status = validated_data.get('status', instance.status)
         if status == Bucket.COMPLETED:
@@ -147,6 +214,7 @@ class CardSerializer(ModelSerializer):
             )
         elif status == Bucket.NOT_STARTED:
             instance.mark_as_not_started()
+        instance.tag.set(tags)
         return instance
 
 
