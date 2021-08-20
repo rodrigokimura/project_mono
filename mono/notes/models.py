@@ -69,6 +69,7 @@ class Tag(models.Model):
     created_by = models.ForeignKey(
         User, on_delete=models.CASCADE,
         verbose_name=_("created by"),
+        related_name="note_tags",
         help_text="Identifies who created the tag.")
     created_at = models.DateTimeField(
         _("created at"),

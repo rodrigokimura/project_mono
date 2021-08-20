@@ -17,10 +17,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import jwt
-from .models import Item, Project, Board, Bucket, Card, Theme, Invite
-from .forms import ProjectForm, BoardForm
+from .models import Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite
+from .forms import ProjectForm, BoardForm, TagForm
 from .mixins import PassRequestToFormViewMixin
-from .serializers import BucketMoveSerializer, CardMoveSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer
+from .serializers import BucketMoveSerializer, CardMoveSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer, TagSerializer
 
 
 class ProjectListView(LoginRequiredMixin, ListView):
@@ -113,6 +113,7 @@ class BoardDetailView(LoginRequiredMixin, DetailView):
         context['card_statuses'] = Card.STATUSES
         context['bucket_auto_statuses'] = Bucket.STATUSES
         context['colors'] = Theme.objects.all()
+        context['icons'] = Icon.objects.all()
         return context
 
 
@@ -165,6 +166,56 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
             ('Home', reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
             ('Board: edit', None),
+        ]
+        return context
+
+
+class TagListView(LoginRequiredMixin, ListView):
+    model = Tag
+    paginate_by = 100
+
+    def get_queryset(self, **kwargs) -> QuerySet[Tag]:
+        board = Board.objects.get(id=self.kwargs['board_pk'])
+        qs = super().get_queryset()
+        return qs.filter(board=board.id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumb'] = [
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
+        ]
+        return context
+
+
+class TagCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    model = Tag
+    form_class = TagForm
+    success_url = reverse_lazy('project_manager:projects')
+    success_message = "%(name)s was created successfully"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumb'] = [
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
+            ('Create project', None),
+        ]
+        return context
+
+
+class TagUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    model = Tag
+    form_class = TagForm
+    success_url = reverse_lazy('project_manager:projects')
+    success_message = "%(name)s was updated successfully"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumb'] = [
+            ('Home', reverse('home')),
+            ('Project Manager', reverse('project_manager:projects')),
+            ('Edit project', None),
         ]
         return context
 
@@ -411,6 +462,92 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in board.allowed_users:
             bucket = self.get_object(pk)
             bucket.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class TagListAPIView(LoginRequiredMixin, APIView):
+    """
+    List all tags, or create a new tag.
+    """
+
+    def get(self, request, format=None, **kwargs):
+        board = Board.objects.get(id=kwargs['board_pk'])
+        tags = Tag.objects.filter(board=board)
+        if request.user in board.allowed_users:
+            serializer = TagSerializer(tags, many=True, context={'request': request})
+            return Response(serializer.data)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
+        serializer = TagSerializer(data=request.data)
+        if request.user in board.allowed_users:
+            icon_id = request.data.get('icon')
+            theme_id = request.data.get('color')
+            if serializer.is_valid():
+                extra_fields = {}
+                if icon_id not in ['', None]:
+                    icon = Icon.objects.get(id=int(icon_id))
+                    extra_fields['icon'] = icon
+                if theme_id not in ['', None]:
+                    color = Theme.objects.get(id=int(theme_id))
+                    extra_fields['color'] = color
+                
+                serializer.save(
+                    board=board,
+                    created_by=request.user,
+                    **extra_fields
+                )
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class TagDetailAPIView(LoginRequiredMixin, APIView):
+    """
+    Retrieve, update or delete a tag instance.
+    """
+
+    def get_object(self, pk):
+        try:
+            return Tag.objects.get(pk=pk)
+        except Tag.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
+        tag = self.get_object(pk)
+        if request.user in board.allowed_users:
+            serializer = TagSerializer(tag)
+            return Response(serializer.data)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def put(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
+        tag = self.get_object(pk)
+        if request.user in board.allowed_users:
+            icon_id = request.data.get('icon')
+            serializer = TagSerializer(tag, data=request.data, context={'request': request})
+            if serializer.is_valid():
+                if icon_id not in ['', None]:
+                    icon = Icon.objects.get(id=int(icon_id))
+                    serializer.save(icon=icon)
+                else:
+                    serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
+        if request.user in board.allowed_users:
+            tag = self.get_object(pk)
+            tag.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 

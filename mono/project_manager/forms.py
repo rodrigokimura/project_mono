@@ -1,6 +1,6 @@
 from django import forms
-from .models import Project, Board
-from .widgets import CalendarWidget, ToggleWidget
+from .models import Project, Board, Tag
+from .widgets import CalendarWidget, IconWidget, ToggleWidget
 
 
 class ProjectForm(forms.ModelForm):
@@ -58,5 +58,31 @@ class BoardForm(forms.ModelForm):
             'active',
         ]
         widgets = {
+            'active': ToggleWidget,
+        }
+
+
+class TagForm(forms.ModelForm):
+    error_css_class = 'error'
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super().__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        tag = self.instance
+        if tag.pk is None:
+            tag.created_by = self.request.user
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        model = Tag
+        fields = [
+            'name',
+            'icon',
+            'active',
+        ]
+        widgets = {
+            'icon': IconWidget,
             'active': ToggleWidget,
         }

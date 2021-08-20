@@ -115,6 +115,17 @@ class Bucket(BaseModel):
             card.save()
 
 
+class Tag(BaseModel):
+    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    icon = models.ForeignKey('Icon', on_delete=models.SET_NULL, default=None, null=True, blank=True)
+    color = models.ForeignKey('Theme', on_delete=models.SET_NULL, default=None, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['board', 'name'], name='unique_tag'),
+        ]
+
+
 class Card(BaseModel):
     STATUSES = [
         (Bucket.NOT_STARTED, _('Not started')),
@@ -133,6 +144,7 @@ class Card(BaseModel):
     completed_at = models.DateTimeField(blank=True, null=True)
     completed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="completed_cards", blank=True, null=True)
     color = models.ForeignKey('Theme', on_delete=models.CASCADE, blank=True, null=True, default=None)
+    tag = models.ManyToManyField(Tag, blank=True, default=None)
 
     def mark_as_completed(self, user):
         self.status = Bucket.COMPLETED
