@@ -1,17 +1,30 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
 from django.contrib.auth.models import User
+from accounts.models import UserProfile
 import json
-from .models import Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite
+from .models import Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite
+
+
+class ProfileSerializer(ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+        fields = [
+            'avatar'
+        ]
 
 
 class UserSerializer(ModelSerializer):
+    profile = ProfileSerializer(many=False, read_only=True)
+
     class Meta:
         model = User
+
         fields = [
             'username',
             'email',
-            'is_staff',
+            'profile',
         ]
 
 
@@ -139,7 +152,7 @@ class TagSerializer(ModelSerializer):
         else:
             instance.color = None
         instance.save()
-            
+
         super().update(instance, validated_data)
         return instance
 
@@ -149,6 +162,7 @@ class CardSerializer(ModelSerializer):
     total_time = serializers.ReadOnlyField()
     checked_items = serializers.ReadOnlyField()
     total_items = serializers.ReadOnlyField()
+    comments = serializers.ReadOnlyField()
     color = ThemeSerializer(many=False, read_only=True)
     tag = TagSerializer(many=True, required=False)
 
@@ -171,6 +185,7 @@ class CardSerializer(ModelSerializer):
             'total_time',
             'checked_items',
             'total_items',
+            'comments',
             'color',
         ]
         extra_kwargs = {
@@ -237,6 +252,24 @@ class ItemSerializer(ModelSerializer):
             'checked_by': {'read_only': True},
             'checked_at': {'read_only': True},
             'checked': {'read_only': True},
+        }
+
+
+class CommentSerializer(ModelSerializer):
+    created_by = UserSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = [
+            'id',
+            'text',
+            'card',
+            'created_by',
+            'created_at',
+        ]
+        extra_kwargs = {
+            'created_by': {'read_only': True},
+            'created_at': {'read_only': True},
         }
 
 
