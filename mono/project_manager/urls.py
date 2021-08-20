@@ -18,10 +18,6 @@ urlpatterns = [
     path('project/<int:project_pk>/board/<int:pk>/', views.BoardDetailView.as_view(), name='board_detail'),
     path('project/<int:project_pk>/board/<int:pk>/edit/', views.BoardUpdateView.as_view(), name='board_update'),
 
-    path('project/<int:project_pk>/board/<int:board_pk>/tag/', views.TagCreateView.as_view(), name='tag_create'),
-    path('project/<int:project_pk>/board/<int:board_pk>/tag/<int:pk>/', views.TagUpdateView.as_view(), name='tag_update'),
-    path('project/<int:project_pk>/board/<int:board_pk>/tags/', views.TagListView.as_view(), name='tags'),
-
     path('invites/accept/', views.InviteAcceptanceView.as_view(), name='invite_acceptance'),
 
     # API Routes
@@ -38,6 +34,8 @@ urlpatterns = [
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/items/', views.ItemListAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/items/<int:pk>/', views.ItemDetailAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/items/<int:pk>/check/', views.ItemCheckAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/comments/', views.CommentListAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/comments/<int:pk>/', views.CommentDetailAPIView.as_view()),
     path('api/card_move/', views.CardMoveApiView.as_view()),
     path('api/bucket_move/', views.BucketMoveApiView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:pk>/timer/', views.StartStopTimerAPIView.as_view()),

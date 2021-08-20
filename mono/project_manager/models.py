@@ -249,6 +249,10 @@ class Card(BaseModel):
     def total_items(self):
         return self.item_set.all().count()
 
+    @property
+    def comments(self):
+        return self.comment_set.all().count()
+
     class Meta:
         ordering = [
             "bucket__board__project",
@@ -286,6 +290,23 @@ class Item(BaseModel):
         self.checked_at = None
         self.checked_by = None
         self.save()
+
+
+class Comment(models.Model):
+    text = models.TextField(max_length=1000, null=False, blank=False)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="card_comments")
+    created_at = models.DateTimeField(auto_now_add=True)
+    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return self.text
+
+    class Meta:
+        ordering = ['created_at']
+
+    @property
+    def allowed_users(self):
+        return self.card.bucket.board.allowed_users
 
 
 class TimeEntry(BaseModel):

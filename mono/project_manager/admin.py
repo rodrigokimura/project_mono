@@ -97,6 +97,22 @@ class TagAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(models.Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'text',
+        'created_by',
+        'created_at',
+        'card',
+    ]
+    list_filter = [
+        'created_by',
+        'created_at',
+        'card',
+    ]
+
+
 @admin.register(models.TimeEntry)
 class TimeEntryAdmin(admin.ModelAdmin):
     list_display = [
