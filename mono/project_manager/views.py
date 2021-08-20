@@ -484,13 +484,20 @@ class TagListAPIView(LoginRequiredMixin, APIView):
         board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
         serializer = TagSerializer(data=request.data)
         if request.user in board.allowed_users:
-            icon = Icon.objects.get(id=request.data.get('icon'))
+            icon_id = request.data.get('icon')
             if serializer.is_valid():
-                serializer.save(
-                    icon=icon,
-                    board=board,
-                    created_by=request.user,
-                )
+                if icon_id not in ['', None]:
+                    icon = Icon.objects.get(id=int(icon_id))
+                    serializer.save(
+                        icon=icon,
+                        board=board,
+                        created_by=request.user,
+                    )
+                else:
+                    serializer.save(
+                        board=board,
+                        created_by=request.user,
+                    )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
@@ -521,13 +528,14 @@ class TagDetailAPIView(LoginRequiredMixin, APIView):
         board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
         tag = self.get_object(pk)
         if request.user in board.allowed_users:
-            icon = Icon.objects.get(id=request.data.get('icon'))
-            serializer = TagSerializer(tag, data=request.data)
+            icon_id = request.data.get('icon')
+            serializer = TagSerializer(tag, data=request.data, context={'request': request})
             if serializer.is_valid():
-                if icon in ['', None]:
-                    serializer.save()
-                else:
+                if icon_id not in ['', None]:
+                    icon = Icon.objects.get(id=int(icon_id))
                     serializer.save(icon=icon)
+                else:
+                    serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)

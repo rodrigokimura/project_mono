@@ -111,7 +111,7 @@ class IconSerializer(ModelSerializer):
 
 class TagSerializer(ModelSerializer):
 
-    icon = IconSerializer(many=False, read_only=True)
+    icon = IconSerializer(many=False, read_only=True, required=False)
 
     class Meta:
         model = Tag
@@ -124,7 +124,14 @@ class TagSerializer(ModelSerializer):
     def update(self, instance, validated_data):
         if 'icon' in validated_data:
             del validated_data['icon']
-
+        icon_id = self.context['request'].data.get('icon')
+        if icon_id not in ['', None]:
+            icon = Icon.objects.get(id=int(icon_id))
+            instance.icon = icon
+        else:
+            instance.icon = None
+        instance.save()
+            
         super().update(instance, validated_data)
         return instance
 
