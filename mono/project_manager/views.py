@@ -17,7 +17,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import jwt
-from .models import Item, Project, Board, Bucket, Card, Tag, Theme, Invite
+from .models import Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite
 from .forms import ProjectForm, BoardForm, TagForm
 from .mixins import PassRequestToFormViewMixin
 from .serializers import BucketMoveSerializer, CardMoveSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer, TagSerializer
@@ -113,6 +113,7 @@ class BoardDetailView(LoginRequiredMixin, DetailView):
         context['card_statuses'] = Card.STATUSES
         context['bucket_auto_statuses'] = Bucket.STATUSES
         context['colors'] = Theme.objects.all()
+        context['icons'] = Icon.objects.all()
         return context
 
 
@@ -483,8 +484,10 @@ class TagListAPIView(LoginRequiredMixin, APIView):
         board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
         serializer = TagSerializer(data=request.data)
         if request.user in board.allowed_users:
+            icon = Icon.objects.get(id=request.data.get('icon'))
             if serializer.is_valid():
                 serializer.save(
+                    icon=icon,
                     board=board,
                     created_by=request.user,
                 )
@@ -518,9 +521,13 @@ class TagDetailAPIView(LoginRequiredMixin, APIView):
         board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
         tag = self.get_object(pk)
         if request.user in board.allowed_users:
+            icon = Icon.objects.get(id=request.data.get('icon'))
             serializer = TagSerializer(tag, data=request.data)
             if serializer.is_valid():
-                serializer.save()
+                if icon in ['', None]:
+                    serializer.save()
+                else:
+                    serializer.save(icon=icon)
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
