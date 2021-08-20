@@ -485,19 +485,21 @@ class TagListAPIView(LoginRequiredMixin, APIView):
         serializer = TagSerializer(data=request.data)
         if request.user in board.allowed_users:
             icon_id = request.data.get('icon')
+            theme_id = request.data.get('color')
             if serializer.is_valid():
+                extra_fields = {}
                 if icon_id not in ['', None]:
                     icon = Icon.objects.get(id=int(icon_id))
-                    serializer.save(
-                        icon=icon,
-                        board=board,
-                        created_by=request.user,
-                    )
-                else:
-                    serializer.save(
-                        board=board,
-                        created_by=request.user,
-                    )
+                    extra_fields['icon'] = icon
+                if theme_id not in ['', None]:
+                    color = Theme.objects.get(id=int(theme_id))
+                    extra_fields['color'] = color
+                
+                serializer.save(
+                    board=board,
+                    created_by=request.user,
+                    **extra_fields
+                )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)

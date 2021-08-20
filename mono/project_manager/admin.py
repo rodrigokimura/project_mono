@@ -83,6 +83,7 @@ class TagAdmin(admin.ModelAdmin):
     list_display = [
         'id',
         'name',
+        'color',
         'created_by',
         'created_at',
         'active',
