@@ -170,56 +170,6 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
         return context
 
 
-class TagListView(LoginRequiredMixin, ListView):
-    model = Tag
-    paginate_by = 100
-
-    def get_queryset(self, **kwargs) -> QuerySet[Tag]:
-        board = Board.objects.get(id=self.kwargs['board_pk'])
-        qs = super().get_queryset()
-        return qs.filter(board=board.id)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('Project Manager', reverse('project_manager:projects')),
-        ]
-        return context
-
-
-class TagCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
-    model = Tag
-    form_class = TagForm
-    success_url = reverse_lazy('project_manager:projects')
-    success_message = "%(name)s was created successfully"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('Project Manager', reverse('project_manager:projects')),
-            ('Create project', None),
-        ]
-        return context
-
-
-class TagUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
-    model = Tag
-    form_class = TagForm
-    success_url = reverse_lazy('project_manager:projects')
-    success_message = "%(name)s was updated successfully"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('Project Manager', reverse('project_manager:projects')),
-            ('Edit project', None),
-        ]
-        return context
-
-
 class InviteAcceptanceView(LoginRequiredMixin, TemplateView):
     template_name = "project_manager/invite_acceptance.html"
 
@@ -494,7 +444,7 @@ class TagListAPIView(LoginRequiredMixin, APIView):
                 if theme_id not in ['', None]:
                     color = Theme.objects.get(id=int(theme_id))
                     extra_fields['color'] = color
-                
+
                 serializer.save(
                     board=board,
                     created_by=request.user,

@@ -18,10 +18,6 @@ urlpatterns = [
     path('project/<int:project_pk>/board/<int:pk>/', views.BoardDetailView.as_view(), name='board_detail'),
     path('project/<int:project_pk>/board/<int:pk>/edit/', views.BoardUpdateView.as_view(), name='board_update'),
 
-    path('project/<int:project_pk>/board/<int:board_pk>/tag/', views.TagCreateView.as_view(), name='tag_create'),
-    path('project/<int:project_pk>/board/<int:board_pk>/tag/<int:pk>/', views.TagUpdateView.as_view(), name='tag_update'),
-    path('project/<int:project_pk>/board/<int:board_pk>/tags/', views.TagListView.as_view(), name='tags'),
-
     path('invites/accept/', views.InviteAcceptanceView.as_view(), name='invite_acceptance'),
 
     # API Routes
