@@ -104,6 +104,7 @@ class IconSerializer(ModelSerializer):
     class Meta:
         model = Icon
         fields = [
+            'id',
             'markup',
         ]
 
@@ -119,6 +120,13 @@ class TagSerializer(ModelSerializer):
             'name',
             'icon',
         ]
+
+    def update(self, instance, validated_data):
+        if 'icon' in validated_data:
+            del validated_data['icon']
+
+        super().update(instance, validated_data)
+        return instance
 
 
 class CardSerializer(ModelSerializer):
