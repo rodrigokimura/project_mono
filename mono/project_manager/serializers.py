@@ -112,6 +112,7 @@ class IconSerializer(ModelSerializer):
 class TagSerializer(ModelSerializer):
 
     icon = IconSerializer(many=False, read_only=True, required=False)
+    color = ThemeSerializer(many=False, read_only=True, required=False)
 
     class Meta:
         model = Tag
@@ -119,6 +120,7 @@ class TagSerializer(ModelSerializer):
             'id',
             'name',
             'icon',
+            'color',
         ]
 
     def update(self, instance, validated_data):
@@ -130,6 +132,12 @@ class TagSerializer(ModelSerializer):
             instance.icon = icon
         else:
             instance.icon = None
+        theme_id = self.context['request'].data.get('color')
+        if theme_id not in ['', None]:
+            theme = Theme.objects.get(id=int(theme_id))
+            instance.color = theme
+        else:
+            instance.color = None
         instance.save()
             
         super().update(instance, validated_data)

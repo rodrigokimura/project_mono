@@ -118,6 +118,7 @@ class Bucket(BaseModel):
 class Tag(BaseModel):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     icon = models.ForeignKey('Icon', on_delete=models.SET_NULL, default=None, null=True, blank=True)
+    color = models.ForeignKey('Theme', on_delete=models.SET_NULL, default=None, null=True, blank=True)
 
     class Meta:
         constraints = [

@@ -89,11 +89,15 @@
             <div class="" style="display: flex; flex-flow: row nowrap;">
               <input type="hidden" name="id" value="">
               <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
-                <select class="ui tag-icon new-tag clearable compact dropdown" data-tag-id="${tag.id}">
+                <select class="ui tag-icon new-tag clearable compact dropdown" data-tag-id="">
+                </select>
+              </div>
+              <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
+                <select class="ui tag-color new-tag clearable compact dropdown" data-tag-id="">
                 </select>
               </div>
               <div style="flex: 1 1 auto; margin-right: .5em;">
-                <input class="tag-name" type="text" placeholder="Name" data-tag-id="${tag.id}">
+                <input class="tag-name" type="text" placeholder="Name" data-tag-id="">
               </div>
               <div style="">
                 <div class="ui icon red delete new-tag button"><i class="delete icon"></i></div>
@@ -112,6 +116,17 @@
           {% endfor %}
           ]
         });
+        let colorDropdown = $(`.tag-color.new-tag.dropdown`);
+        colorDropdown.dropdown({
+          values: [
+          {% for color in colors %}
+          {
+            "value": "{{ color.id }}",
+            "icon": "{{ color.name|lower }} circle",
+          },
+          {% endfor %}
+          ]
+        });
         el.find('.delete.button.new-tag').off();
         el.find('.delete.button.new-tag').click(e => {
           $(e.target).closest('form').remove();
@@ -125,6 +140,10 @@
               <input type="hidden" name="id" value="${tag.id}">
               <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
                 <select class="ui tag-icon clearable compact dropdown" data-tag-id="${tag.id}">
+                </select>
+              </div>
+              <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
+                <select class="ui tag-color clearable compact dropdown" data-tag-id="${tag.id}">
                 </select>
               </div>
               <div style="flex: 1 1 auto; margin-right: .5em;">
@@ -149,6 +168,20 @@
         });
         if (tag.icon !== null) {
           iconDropdown.dropdown('set selected', tag.icon.id);
+        };
+        let colorDropdown = $(`.tag-color.dropdown[data-tag-id=${tag.id}]`);
+        colorDropdown.dropdown({
+          values: [
+          {% for color in colors %}
+          {
+            "value": "{{ color.id }}",
+            "icon": "{{ color.name|lower }} circle",
+          },
+          {% endfor %}
+          ]
+        });
+        if (tag.color !== null) {
+          colorDropdown.dropdown('set selected', tag.color.id);
         };
         $(`input[type=text][data-tag-id=${tag.id}]`).val(tag.name);
         $(`.delete.button[data-tag-id=${tag.id}]`).click(() => {
@@ -175,6 +208,7 @@
                 headers: {'X-CSRFToken': csrftoken},
               }).done(r => {
                 $(`form[data-tag-id=${tag.id}]`).remove();
+                loadBoard();
               })
             }
           }).modal('show');
@@ -213,6 +247,7 @@
             el.find('.ui.form').each((index, form) => {
               id = $(form).find('input[name=id]').val();
               icon = $(form).find('.tag-icon').dropdown('get value');
+              color = $(form).find('.tag-color').dropdown('get value');
               name = $(form).find('.tag-name').val();
               if (id == '') {
                 $.ajax({
@@ -221,6 +256,7 @@
                   headers: {'X-CSRFToken': csrftoken},
                   data: {
                     icon: icon,
+                    color: color,
                     name: name,
                   }
                 })
@@ -231,11 +267,13 @@
                   headers: {'X-CSRFToken': csrftoken},
                   data: {
                     icon: icon,
+                    color: color,
                     name: name,
                   }
                 })
               }
-            })
+            });
+            loadBoard();
           },
         });
         tagsModal.modal('show');
@@ -362,6 +400,9 @@
               let objs = []
               for (obj of Object.values(r)) {
                 obj.value = obj.name;
+                if (obj.icon !== null) {
+                  obj.icon = obj.icon.markup;
+                }
                 objs.push(obj);
               }
               return { success: true, results: objs }
@@ -950,11 +991,11 @@
           for (tag of card.tag) {
             if (tag.icon !== null) {
               tags.append(`
-                <span class="ui left floated mini label"><i class="${tag.icon.markup} icon"></i> ${tag.name}</span>
+                <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label"><i class="${tag.icon.markup} icon"></i> ${tag.name}</span>
               `);
             } else {
               tags.append(`
-                <span class="ui left floated mini label">${tag.name}</span>
+                <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label">${tag.name}</span>
               `);
             }
           }
