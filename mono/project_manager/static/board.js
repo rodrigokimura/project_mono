@@ -532,7 +532,7 @@ const renderComments = (containerSelector, comments, bucketId, cardId, dark = fa
                 `
                 <div class="comment">
                     <div class="avatar">
-                        <img src="${comment.created_by.profile.avatar != null ? comment.created_by.profile.avatar : ''}">
+                        <img class="ui small image" src="${comment.created_by.profile.avatar != null ? comment.created_by.profile.avatar : '/static/image/avatar-1577909.svg'}">
                     </div>
                     <div class="content">
                         <span class="author">${comment.created_by.username}</span>
