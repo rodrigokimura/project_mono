@@ -33,6 +33,13 @@
     .item-checked {
       text-decoration: line-through;
     }
+    .delete-item.button {
+      transition: .5s;
+      opacity: 0;
+    }
+    .checklist-item:hover .delete-item.button {
+      opacity: 1;
+    }
   </style>
   <script>
     if(typeof(String.prototype.trim) === "undefined") {
@@ -40,6 +47,7 @@
     };
     const PROJECT_ID = "{{ object.project.id }}";
     const BOARD_ID = "{{ object.id }}";
+    const USERNAME = "{{ request.user.username }}";
   </script>
 {% endblock head %}
 
@@ -445,22 +453,34 @@
       <div class="ui error message"></div>
       <div class="extra content">
         <div class="ui inverted item">
-          <div class="header">{% translate 'Checklist' %}</div>
-          <div class="content">
-            <div class="checklist-drake">
+          <div class="ui checklist segment">
+            <h4 class="ui dividing header">{% translate 'Checklist' %}</h4>
+            <div class="content">
+              <div class="checklist-drake"></div>
+              <div class="ui fluid transparent icon add-item input">
+                <i class="add icon"></i>
+                <input type="text" placeholder="Insert new item to checklist">
+              </div>
             </div>
-            <div class="ui fluid transparent icon add-item input">
-              <i class="add icon"></i>
-              <input type="text" placeholder="Insert new item to checklist">
-            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ui comments-segment segment">
+        <h4 class="ui dividing header">{% translate 'Comments' %}</h4>
+        <div class="ui minimal comments" id="card-comments"></div>
+        <div class="ui reply form">
+          <div class="field">
+            <textarea class="add-reply" rows="2" placeholder="Type a new comment"></textarea>
+          </div>
+          <div class="ui blue labeled add-reply submit icon button">
+            <i class="icon edit"></i> Add comment
           </div>
         </div>
       </div>
     </div>
     <div class="actions">
       <div class="ui black deny labeled icon button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
-      <div class="ui positive right labeled icon button">{% translate 'Save' %}<i class="save icon"></i>
-      </div>
+      <div class="ui positive right labeled icon button">{% translate 'Save' %}<i class="save icon"></i></div>
     </div>
   </form>
   <script>
@@ -586,6 +606,27 @@
       <div class="ui green ok button">
         <i class="checkmark icon"></i>
         {% translate 'Yes' %}
+      </div>
+    </div>
+  </div>
+
+  <div class="ui comment-edit tiny modal">
+    <div class="header">Comment edit</div>
+    <div class="content">
+      <div class="ui reply form">
+        <div class="field">
+          <textarea class="comment-edit" rows="2" placeholder="Edit comment"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <div class="ui black cancel button">
+        <i class="remove icon"></i>
+        {% translate 'Cancel'%}
+      </div>
+      <div class="ui green ok button">
+        <i class="checkmark icon"></i>
+        {% translate 'Save' %}
       </div>
     </div>
   </div>
