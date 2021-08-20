@@ -83,19 +83,56 @@
       <div class="ui button" id="edit-tags">Edit tags</div>
     </div>
     <script>
-      const renderTags = (containerElement, tag) => {
-        containerElement.append(`
-          <form class="ui form" data-tag-id="${tag.id}">
-            <div class="fields">
-              <input type="hidden" name="id" value="${tag.id}">
-              <div class="four wide field">
-                <select class="ui tag-icon dropdown" data-tag-id="${tag.id}">
+      const addNewTagInput = (containerElement) => {
+        el = containerElement.append(`
+          <form class="ui unstackable form" data-tag-id="" style="width: 100%; margin-bottom: .5em;">
+            <div class="" style="display: flex; flex-flow: row nowrap;">
+              <input type="hidden" name="id" value="">
+              <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
+                <select class="ui tag-icon new-tag clearable compact dropdown" data-tag-id="${tag.id}">
                 </select>
               </div>
-              <div class="twelve wide field">
+              <div style="flex: 1 1 auto; margin-right: .5em;">
                 <input class="tag-name" type="text" placeholder="Name" data-tag-id="${tag.id}">
               </div>
-              <div class="ui icon red button"><i class="delete icon"></i></div>
+              <div style="">
+                <div class="ui icon red delete new-tag button"><i class="delete icon"></i></div>
+              </div>
+            </div>
+          </form>
+        `);
+        let iconDropdown = $(`.tag-icon.new-tag.dropdown`);
+        iconDropdown.dropdown({
+          values: [
+          {% for icon in icons %}
+          {
+            "value": "{{ icon.id }}",
+            "icon": "{{ icon.markup }}",
+          },
+          {% endfor %}
+          ]
+        });
+        el.find('.delete.button.new-tag').off();
+        el.find('.delete.button.new-tag').click(e => {
+          $(e.target).closest('form').remove();
+        })
+      }
+
+      const renderTags = (containerElement, tag) => {
+        containerElement.append(`
+          <form class="ui unstackable form" data-tag-id="${tag.id}" style="width: 100%; margin-bottom: .5em;">
+            <div class="" style="display: flex; flex-flow: row nowrap;">
+              <input type="hidden" name="id" value="${tag.id}">
+              <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
+                <select class="ui tag-icon clearable compact dropdown" data-tag-id="${tag.id}">
+                </select>
+              </div>
+              <div style="flex: 1 1 auto; margin-right: .5em;">
+                <input class="tag-name" type="text" placeholder="Name" data-tag-id="${tag.id}">
+              </div>
+              <div style="">
+                <div class="ui icon red delete button" data-tag-id="${tag.id}"><i class="delete icon"></i></div>
+              </div>
             </div>
           </form>
         `);
@@ -113,31 +150,70 @@
         if (tag.icon !== null) {
           iconDropdown.dropdown('set selected', tag.icon.id);
         };
-        $(`input[type=text][data-tag-id=${tag.id}]`).val(tag.name)
+        $(`input[type=text][data-tag-id=${tag.id}]`).val(tag.name);
+        $(`.delete.button[data-tag-id=${tag.id}]`).click(() => {
+          $('body').modal({ 
+            title: 'Deletion confirmation', 
+            class: 'mini', 
+            closeIcon: true, 
+            content: `Are you sure yo want to delete tag ${tag.name}?`, 
+            allowMultiple: true,
+            actions: [
+              { 
+                text: 'Yes', 
+                class: 'positive'
+              },
+              { 
+                text: 'Cancel', 
+                class: 'deny'
+              },
+            ],
+            onApprove: () => {
+              $.ajax({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${tag.id}`,
+                method: 'DELETE',
+                headers: {'X-CSRFToken': csrftoken},
+              }).done(r => {
+                $(`form[data-tag-id=${tag.id}]`).remove();
+              })
+            }
+          }).modal('show');
+        })
       };
       $('#edit-tags').click(() => {
+        // Close sidebar
+        $('.ui.sidebar').sidebar('hide');
         let tagsModal = $('.ui.tags.modal');
         tagsModal.modal({
           autofocus: false,
+          allowMultiple: true,
           onShow: () => {
             el = tagsModal.find('.scrolling.content');
+            el.empty();
+            el.append(`
+              <div class="ui new-tag icon labeled green button" style="margin-bottom: 1em;">
+                <i class="add icon"></i>
+                Add new tag
+              </div>
+            `)
+            el.find('.new-tag').click(() => {
+              addNewTagInput(el);
+            })
             $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`)
               .done(r => {
-                el.empty();
                 for (tag of r) {
                   renderTags(el, tag);
-                }
+                };
               })
               .fail(e => { console.error(e) })
-              .always()
+              .always(() => {
+              })
           },
           onApprove: () => {
             el.find('.ui.form').each((index, form) => {
               id = $(form).find('input[name=id]').val();
               icon = $(form).find('.tag-icon').dropdown('get value');
               name = $(form).find('.tag-name').val();
-              console.log(icon)
-              console.log(name)
               if (id == '') {
                 $.ajax({
                   url:`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
@@ -480,11 +556,11 @@
     <div class="actions">
       <div class="ui black cancel button">
         <i class="remove icon"></i>
-        {% translate 'No'%}
+        {% translate 'Close'%}
       </div>
       <div class="ui green ok button">
         <i class="checkmark icon"></i>
-        {% translate 'Yes' %}
+        {% translate 'Save' %}
       </div>
     </div>
   </div>
