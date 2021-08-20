@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from typing import Any, Optional
 from django.conf import settings
 from django.db.models.query import QuerySet
@@ -7,20 +8,117 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.urls.base import reverse, reverse_lazy
+from django.utils.timezone import is_aware, utc
+from django.utils.translation import gettext_lazy, ngettext_lazy, npgettext_lazy
+from django.template import defaultfilters
 from django.views.generic import ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
+from django.utils import dateparse
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import jwt
-from .models import Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite
-from .forms import ProjectForm, BoardForm, TagForm
+from .models import Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite
+from .forms import ProjectForm, BoardForm
 from .mixins import PassRequestToFormViewMixin
-from .serializers import BucketMoveSerializer, CardMoveSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer, TagSerializer
+from .serializers import BucketMoveSerializer, CardMoveSerializer, CommentSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer, TagSerializer
+
+
+def naturaltime(value):
+    """
+    For date and time values show how many seconds, minutes, or hours ago
+    compared to current timestamp return representing string.
+    """
+    return NaturalTimeFormatter.string_for(value)
+
+
+class NaturalTimeFormatter:
+    time_strings = {
+        # Translators: delta will contain a string like '2 months' or '1 month, 2 weeks'
+        'past-day': gettext_lazy('%(delta)s ago'),
+        # Translators: please keep a non-breaking space (U+00A0) between count
+        # and time unit.
+        'past-hour': ngettext_lazy('an hour ago', '%(count)s hours ago', 'count'),
+        # Translators: please keep a non-breaking space (U+00A0) between count
+        # and time unit.
+        'past-minute': ngettext_lazy('a minute ago', '%(count)s minutes ago', 'count'),
+        # Translators: please keep a non-breaking space (U+00A0) between count
+        # and time unit.
+        'past-second': ngettext_lazy('a second ago', '%(count)s seconds ago', 'count'),
+        'now': gettext_lazy('now'),
+        # Translators: please keep a non-breaking space (U+00A0) between count
+        # and time unit.
+        'future-second': ngettext_lazy('a second from now', '%(count)s seconds from now', 'count'),
+        # Translators: please keep a non-breaking space (U+00A0) between count
+        # and time unit.
+        'future-minute': ngettext_lazy('a minute from now', '%(count)s minutes from now', 'count'),
+        # Translators: please keep a non-breaking space (U+00A0) between count
+        # and time unit.
+        'future-hour': ngettext_lazy('an hour from now', '%(count)s hours from now', 'count'),
+        # Translators: delta will contain a string like '2 months' or '1 month, 2 weeks'
+        'future-day': gettext_lazy('%(delta)s from now'),
+    }
+    past_substrings = {
+        # Translators: 'naturaltime-past' strings will be included in '%(delta)s ago'
+        'year': npgettext_lazy('naturaltime-past', '%d year', '%d years'),
+        'month': npgettext_lazy('naturaltime-past', '%d month', '%d months'),
+        'week': npgettext_lazy('naturaltime-past', '%d week', '%d weeks'),
+        'day': npgettext_lazy('naturaltime-past', '%d day', '%d days'),
+        'hour': npgettext_lazy('naturaltime-past', '%d hour', '%d hours'),
+        'minute': npgettext_lazy('naturaltime-past', '%d minute', '%d minutes'),
+    }
+    future_substrings = {
+        # Translators: 'naturaltime-future' strings will be included in '%(delta)s from now'
+        'year': npgettext_lazy('naturaltime-future', '%d year', '%d years'),
+        'month': npgettext_lazy('naturaltime-future', '%d month', '%d months'),
+        'week': npgettext_lazy('naturaltime-future', '%d week', '%d weeks'),
+        'day': npgettext_lazy('naturaltime-future', '%d day', '%d days'),
+        'hour': npgettext_lazy('naturaltime-future', '%d hour', '%d hours'),
+        'minute': npgettext_lazy('naturaltime-future', '%d minute', '%d minutes'),
+    }
+
+    @classmethod
+    def string_for(cls, value):
+        if not isinstance(value, date):  # datetime is a subclass of date
+            return value
+
+        now = datetime.now(utc if is_aware(value) else None)
+        if value < now:
+            delta = now - value
+            if delta.days != 0:
+                return cls.time_strings['past-day'] % {
+                    'delta': defaultfilters.timesince(value, now, time_strings=cls.past_substrings),
+                }
+            elif delta.seconds == 0:
+                return cls.time_strings['now']
+            elif delta.seconds < 60:
+                return cls.time_strings['past-second'] % {'count': delta.seconds}
+            elif delta.seconds // 60 < 60:
+                count = delta.seconds // 60
+                return cls.time_strings['past-minute'] % {'count': count}
+            else:
+                count = delta.seconds // 60 // 60
+                return cls.time_strings['past-hour'] % {'count': count}
+        else:
+            delta = value - now
+            if delta.days != 0:
+                return cls.time_strings['future-day'] % {
+                    'delta': defaultfilters.timeuntil(value, now, time_strings=cls.future_substrings),
+                }
+            elif delta.seconds == 0:
+                return cls.time_strings['now']
+            elif delta.seconds < 60:
+                return cls.time_strings['future-second'] % {'count': delta.seconds}
+            elif delta.seconds // 60 < 60:
+                count = delta.seconds // 60
+                return cls.time_strings['future-minute'] % {'count': count}
+            else:
+                count = delta.seconds // 60 // 60
+                return cls.time_strings['future-hour'] % {'count': count}
 
 
 class ProjectListView(LoginRequiredMixin, ListView):
@@ -689,6 +787,95 @@ class ItemDetailAPIView(LoginRequiredMixin, APIView):
         item = self.get_object(pk)
         if request.user in item.allowed_users:
             item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class CommentListAPIView(LoginRequiredMixin, APIView):
+    """
+    List all comments, or create a new comment.
+    """
+
+    def get(self, request, format=None, **kwargs):
+        project_pk = kwargs.get('project_pk')
+        board_pk = kwargs.get('board_pk')
+        bucket_pk = kwargs.get('bucket_pk')
+        card_pk = kwargs.get('card_pk')
+        project = Project.objects.get(id=project_pk)
+        board = Board.objects.get(project=project, id=board_pk)
+        bucket = Bucket.objects.get(board=board, id=bucket_pk)
+        card = Card.objects.get(bucket=bucket, id=card_pk)
+        comments = Comment.objects.filter(card=card)
+        if request.user in board.allowed_users:
+            serializer = CommentSerializer(comments, many=True)
+            data = serializer.data
+            for c in data:
+                c['created_at'] = naturaltime(
+                    dateparse.parse_datetime(c['created_at'])
+                )
+            return Response(data)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        card = Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        if request.user in card.allowed_users:
+            serializer = CommentSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save(
+                    created_by=request.user,
+                )
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class CommentDetailAPIView(LoginRequiredMixin, APIView):
+    """
+    Retrieve, update or delete an comment instance.
+    """
+
+    def get_object(self, pk):
+        try:
+            return Comment.objects.get(pk=pk)
+        except Comment.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        comment = self.get_object(pk)
+        if request.user in comment.allowed_users:
+            serializer = CommentSerializer(comment)
+            return Response(serializer.data)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def patch(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        comment = self.get_object(pk)
+        if request.user == comment.created_by:
+            serializer = CommentSerializer(comment, data=request.data, partial=True, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        comment = self.get_object(pk)
+        if request.user == comment.created_by:
+            comment.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 

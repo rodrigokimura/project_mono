@@ -34,6 +34,8 @@ urlpatterns = [
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/items/', views.ItemListAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/items/<int:pk>/', views.ItemDetailAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/items/<int:pk>/check/', views.ItemCheckAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/comments/', views.CommentListAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/comments/<int:pk>/', views.CommentDetailAPIView.as_view()),
     path('api/card_move/', views.CardMoveApiView.as_view()),
     path('api/bucket_move/', views.BucketMoveApiView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:pk>/timer/', views.StartStopTimerAPIView.as_view()),

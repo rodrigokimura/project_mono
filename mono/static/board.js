@@ -362,7 +362,7 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
               <div data-card-id="${card.id}" class="extra content" style="${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : ''};;${compact ? ' padding: .5em;' : ''}">
                 <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
                   ${card.is_running ? '<i class="hourglass half icon"></i>' : ''}
-                  <span class="total-time" data-card-id="${card.id}" data-time="${card.total_time}">
+                  <span class="total-time" data-card-id="${card.id}" data-time="${card.total_time}" data-tooltip="Total time" data-variation="tiny basic">
                     ${card.total_time > 0 ? str(card.total_time) : ''}
                   </span>
                 </span>
@@ -374,8 +374,15 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
         let tags = $(containerSelector).find(`.meta .tags[data-card-id=${card.id}]`);
         if (card.total_items > 0) {
             extraContent.prepend(`
-              <span class="ui left floated text">
-                ${card.checked_items}/${card.total_items}
+              <span class="ui left floated text" style="margin-right: 1em;" data-tooltip="Checklist" data-variation="tiny basic">
+                <i class="tasks icon"></i> ${card.checked_items}/${card.total_items}
+              </span>
+            `);
+        };
+        if (card.comments > 0) {
+            extraContent.prepend(`
+              <span class="ui left floated text" style="margin-right: 1em;" data-tooltip="Comments" data-variation="tiny basic">
+                <i class="comment icon"></i> ${card.comments}
               </span>
             `);
         };
@@ -383,12 +390,12 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
             for (tag of card.tag) {
                 if (tag.icon !== null) {
                     tags.append(`
-                  <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label"><i class="${tag.icon.markup} icon"></i> ${tag.name}</span>
-                `);
+                        <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label"><i class="${tag.icon.markup} icon"></i> ${tag.name}</span>
+                    `);
                 } else {
                     tags.append(`
-                  <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label">${tag.name}</span>
-                `);
+                        <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label">${tag.name}</span>
+                    `);
                 }
             }
         };
@@ -510,6 +517,106 @@ const renderItems = (containerSelector, items, bucketId, cardId, dark = false) =
     });
 };
 
+const renderComments = (containerSelector, comments, bucketId, cardId, dark = false) => {
+    $(containerSelector).empty();
+    if (dark) {
+        $(containerSelector).addClass('inverted')
+        $(containerSelector).parent().addClass('inverted')
+    } else {
+        $(containerSelector).removeClass('inverted')
+        $(containerSelector).parent().removeClass('inverted')
+    }
+    comments.forEach(comment => {
+        if (comment.created_by.username === USERNAME) {
+            $(containerSelector).append(
+                `
+                <div class="comment">
+                    <div class="avatar">
+                        <img src="${comment.created_by.profile.avatar != null ? comment.created_by.profile.avatar : ''}">
+                    </div>
+                    <div class="content">
+                        <span class="author">${comment.created_by.username}</span>
+                        <div class="metadata">
+                            <span class="date">${comment.created_at}</span>
+                        </div>
+                        <div class="text" style="white-space: pre-line;">${comment.text}</div>
+                        <div class="actions">
+                            <a class="edit-comment" data-comment-id=${comment.id}>Edit</a>
+                            <a class="delete-comment" data-comment-id=${comment.id}>Delete</a>
+                        </div>
+                    </div>
+                </div>
+                `
+            );
+            $(`a.edit-comment[data-comment-id=${comment.id}]`).off().click(e => {
+                editCommentTextarea = $('textarea.comment-edit')
+                $('.comment-edit.modal').modal({
+                    onShow: () => {
+                        editCommentTextarea.val(comment.text);
+                    },
+                    onApprove: () => {
+                        $.ajax({
+                            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/${comment.id}/`,
+                            method: 'PATCH',
+                            data: { text: editCommentTextarea.val() },
+                            headers: { 'X-CSRFToken': csrftoken },
+                            success: r => {
+                                editCommentTextarea.val('');
+                                $('body').toast({ message: "Comment edited." });
+                            },
+                        })
+                    },
+                }).modal('show');
+            });
+            $(`a.delete-comment[data-comment-id=${comment.id}]`).off().click(e => {
+                $(containerSelector).modal({
+                    title: 'Deletion confirmation',
+                    class: 'mini',
+                    closeIcon: true,
+                    content: 'Are you sure you want to delete this comment?',
+                    actions: [
+                        {
+                            text: 'Cancel',
+                            class: 'deny'
+                        },
+                        {
+                            text: 'Confirm',
+                            class: 'positive'
+                        }
+                    ],
+                    onApprove: () => {
+                        $.ajax({
+                            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/${comment.id}/`,
+                            method: 'DELETE',
+                            headers: { 'X-CSRFToken': csrftoken },
+                            success: r => {
+                                $('body').toast({ message: "Comment deleted." });
+                            },
+                        });
+                    }
+                }).modal('show');
+            });
+        } else {
+            $(containerSelector).append(
+                `
+                <div class="right aligned comment" style="display: flex; flex-flow: row nowrap; align-items: start;">
+                    <div class="content" style="flex: 1 0 auto; margin-right: 1em;">
+                        <div class="metadata">
+                            <span class="date">${comment.created_at}</span>
+                        </div>
+                        <span class="author" style="margin-left: .5em;">${comment.created_by.username}</span>
+                        <div class="text" style="white-space: pre-line;">${comment.text}</div>
+                    </div>
+                    <div class=" avatar" style="flex: 0 0 auto;">
+                        <img class="ui small image" src="${comment.created_by.profile.avatar != null ? comment.created_by.profile.avatar : '/static/image/avatar-1577909.svg'}">
+                    </div>
+                </div>
+                `
+            );
+        }
+    });
+};
+
 const enableProximityScroll = () => {
     function proximityScroll(e) {
         if (cardsDrake.dragging && containerCardIsOver !== null && cardBeingDragged !== null) {
@@ -587,12 +694,37 @@ const getItems = (bucketId, cardId, dark = false) => {
         .always()
 };
 
+const getComments = (bucketId, cardId, dark = false) => {
+    $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/`)
+        .done(r => {
+            renderComments(
+                containerSelector = "#card-comments",
+                items = r,
+                bucketId = bucketId,
+                cardId = cardId,
+                dark = dark,
+            );
+        })
+        .fail(e => { console.error(e) })
+        .always()
+};
+
 const showCardModal = (card = null, bucketId) => {
     let create;
     const modal = $('.ui.card-form.modal');
     modal.form('reset');
     modal.off();
     let dark = modal.hasClass('inverted');
+    if (dark) {
+        modal.find('.checklist.segment').addClass('inverted');
+        modal.find('.add-item.input').addClass('inverted');
+        modal.find('.add-item.input').addClass('inverted');
+        modal.find('.ui.dividing.header').addClass('inverted');
+    } else {
+        modal.find('.checklist.segment').removeClass('inverted');
+        modal.find('.add-item.input').removeClass('inverted');
+        modal.find('.ui.dividing.header').removeClass('inverted');
+    };
     if (card !== null) {
         create = false;
         modal.find('input[name=id]').val(card.id);
@@ -601,6 +733,7 @@ const showCardModal = (card = null, bucketId) => {
         modal.find('.ui.status.dropdown').dropdown('set selected', card.status);
         modal.find('.ui.color.dropdown').dropdown('set selected', card.color !== null ? card.color.id : '');
         modal.find('.extra.content .item').show();
+        modal.find('.comments-segment.segment').show();
         modal.find('.ui.tags.dropdown').dropdown('clear');
         for (tag of card.tag) {
             modal.find('.ui.tags.dropdown').dropdown('set selected', tag.name);
@@ -631,6 +764,29 @@ const showCardModal = (card = null, bucketId) => {
                 };
             });
         }
+        {
+            getComments(bucketId, card.id, dark);
+            $('.add-reply.button').off();
+            $('.add-reply.button').click(e => {
+                $(this).attr("disabled", "disabled");
+                $.api({
+                    url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/comments/`,
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrftoken },
+                    data: {
+                        card: card.id,
+                        text: $('textarea.add-reply').val(),
+                    },
+                    on: 'now',
+                    onSuccess: r => {
+                        $('textarea.add-reply').val('');
+                        getComments(bucketId, card.id, dark);
+                        itemEdited = true;
+                    },
+                    onComplete: () => { $(this).removeAttr("disabled"); },
+                });
+            });
+        }
     } else {
         create = true;
         modal.find('input[name=id]').val('');
@@ -639,8 +795,9 @@ const showCardModal = (card = null, bucketId) => {
         modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
         modal.find('.ui.color.dropdown').dropdown('set selected', '');
         modal.find('.ui.tags.dropdown').dropdown('clear');
-        // Prevent users from inserting checklists before card object creation
+        // Prevent users from inserting checklists or comments before card object creation
         modal.find('.extra.content .item').hide();
+        modal.find('.comments-segment.segment').hide();
     };
     modal.modal({
         restoreFocus: false,
@@ -649,11 +806,6 @@ const showCardModal = (card = null, bucketId) => {
         duration: 400,
         onShow: () => {
             itemEdited = false;
-            if (dark) {
-                $('.add-item.input').addClass('inverted');
-            } else {
-                $('.add-item.input').removeClass('inverted');
-            };
         },
         onHidden: () => {
             if (itemEdited) { loadBoard(); };
