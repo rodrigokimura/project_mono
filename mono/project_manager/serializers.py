@@ -151,9 +151,9 @@ class TagSerializer(ModelSerializer):
             instance.color = theme
         else:
             instance.color = None
+        super().update(instance, validated_data)
         instance.save()
 
-        super().update(instance, validated_data)
         return instance
 
 
