@@ -40,6 +40,22 @@
     .checklist-item:hover .delete-item.button {
       opacity: 1;
     }
+    .assignee {
+      margin-right: -.75em !important;
+      transition: .5s;
+    }
+    .assignee:hover {
+      margin-right: 0 !important;
+    }
+    .noselect {
+      -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+         -khtml-user-select: none; /* Konqueror HTML */
+           -moz-user-select: none; /* Old versions of Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                      supported by Chrome, Edge, Opera and Firefox */
+    }
   </style>
   <script>
     if(typeof(String.prototype.trim) === "undefined") {
@@ -141,7 +157,7 @@
         })
       }
 
-      const renderTags = (containerElement, tag) => {
+      const renderTagForms = (containerElement, tag) => {
         containerElement.append(`
           <form class="ui unstackable form" data-tag-id="${tag.id}" style="width: 100%; margin-bottom: .5em;">
             <div class="" style="display: flex; flex-flow: row nowrap;">
@@ -244,7 +260,7 @@
             $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`)
               .done(r => {
                 for (tag of r) {
-                  renderTags(el, tag);
+                  renderTagForms(el, tag);
                 };
               })
               .fail(e => { console.error(e) })
@@ -353,6 +369,13 @@
       <div class="field">
         <label>{% translate 'Tags' %}</label>
         <div class="ui tags search multiple selection dropdown">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
+        </div>
+      </div>
+      <div class="field">
+        <label>{% translate 'Assigned to' %}</label>
+        <div class="ui assigned_to search multiple selection dropdown">
           <div class="text"></div>
           <i class="dropdown icon"></i>
         </div>
