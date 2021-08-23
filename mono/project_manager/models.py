@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.template.loader import get_template
 from django.core.mail import EmailMultiAlternatives
 import jwt
+import re
 from datetime import timedelta
 
 
@@ -307,6 +308,93 @@ class Comment(models.Model):
     @property
     def allowed_users(self):
         return self.card.bucket.board.allowed_users
+
+    @property
+    def mentioned_users(self):
+        users = []
+        for m in re.finditer(' @', self.text):
+            space = self.text.find(' ', m.start() + 2)
+            if space != -1:
+                username = self.text[m.start() + 2:space]
+            else:
+                username = self.text[m.start() + 2:]
+            try:
+                user = User.objects.get(username=username)
+                users.append(user)
+            except User.DoesNotExist:
+                pass
+        return users
+
+    def notify_mentioned_users(self):
+        text = get_template('email/card_comment.txt')
+        html = get_template('email/card_comment.html')
+
+        site = settings.SITE
+
+        full_link = f"{site}/card"
+
+        context = {
+            'mention': True,
+            'card': self.card.name,
+            'author': self.created_by.username,
+            'comment': self.text,
+            'link': full_link,
+        }
+
+        subject, from_email = _('Comment'), settings.EMAIL_HOST_USER
+        for user in self.mentioned_users:
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                body=text.render(context),
+                from_email=from_email,
+                to=[user.email])
+            context['user'] = user.username
+            msg.attach_alternative(html.render(context), "text/html")
+            msg.send(fail_silently=False)
+            Notification.objects.create(
+                title=_("Comment on card"),
+                message=_("Someone commented on a card and mentioned you."),
+                icon=Icon.objects.get(markup="exclamation"),
+                to=user,
+                action=full_link
+            )
+
+    def notify_assignees(self):
+
+        text = get_template('email/card_comment.txt')
+        html = get_template('email/card_comment.html')
+
+        site = settings.SITE
+
+        full_link = f"{site}/card"
+
+        context = {
+            'mention': False,
+            'card': self.card.name,
+            'author': self.created_by.username,
+            'comment': self.text,
+            'link': full_link,
+        }
+
+        subject, from_email = _('Comment'), settings.EMAIL_HOST_USER
+        for user in self.card.assigned_to.exclude(id=self.created_by.id):
+            if user in self.mentioned_users:
+                continue
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                body=text.render(context),
+                from_email=from_email,
+                to=[user.email])
+            context['user'] = user.username
+            msg.attach_alternative(html.render(context), "text/html")
+            msg.send(fail_silently=False)
+            Notification.objects.create(
+                title=_("Comment on card"),
+                message=_("Someone commented on a card assigned to you."),
+                icon=Icon.objects.get(markup="exclamation"),
+                to=user,
+                action=full_link
+            )
 
 
 class TimeEntry(BaseModel):

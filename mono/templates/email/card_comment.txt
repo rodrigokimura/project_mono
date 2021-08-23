@@ -1,0 +1,5 @@
+Hi, {{ user }}.
+User {{ author }} commented on card: {{ card }}
+Here's the comment: 
+{{ comment }}
+To view your card, go to: {{ link }}

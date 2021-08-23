@@ -357,47 +357,50 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
                   <div class="tags" style="flex: 0 0 auto; padding-top: .5em;" data-card-id="${card.id}">
                   </div>
                   <div class="description" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
+                  <div class="assignees" style="flex: 0 0 auto; padding-top: .5em;" data-card-id="${card.id}">
+                  </div>
                 </div>
               </div>
               <div data-card-id="${card.id}" class="extra content" style="${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : ''};;${compact ? ' padding: .5em;' : ''}">
-                <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
-                  ${card.is_running ? '<i class="hourglass half icon"></i>' : ''}
-                  <span class="total-time" data-card-id="${card.id}" data-time="${card.total_time}" data-tooltip="Total time" data-variation="tiny basic">
-                    ${card.total_time > 0 ? str(card.total_time) : ''}
-                  </span>
-                </span>
               </div>
             </div>
             `
         );
         let extraContent = $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`);
-        let tags = $(containerSelector).find(`.meta .tags[data-card-id=${card.id}]`);
+        let tagsContainer = $(containerSelector).find(`.meta .tags[data-card-id=${card.id}]`);
+        if (card.total_time > 0) {
+            extraContent.append(`
+                <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
+                    <a class="start-stop-timer cardlet" data-card-id="${card.id}" data-content="${card.is_running ? 'Stop timer' : 'Start timer'}" data-variation="tiny basic">
+                        ${card.is_running ? '<i class="stop circle icon"></i>' : '<i class="play circle icon"></i>'}
+                    </a>
+                    <span class="total-time noselect cardlet" data-card-id="${card.id}" data-time="${card.total_time}" data-content="Total tracked time." data-variation="tiny basic">
+                        ${str(card.total_time)}
+                    </span>
+                </span>
+            `)
+        };
         if (card.total_items > 0) {
             extraContent.prepend(`
-              <span class="ui left floated text" style="margin-right: 1em;" data-tooltip="Checklist" data-variation="tiny basic">
-                <i class="tasks icon"></i> ${card.checked_items}/${card.total_items}
-              </span>
+                <span class="ui left floated text noselect cardlet" style="margin-right: 1em;" data-title="Checklist items" data-content="${card.checked_items} checked, ${card.total_items} total." data-variation="tiny basic">
+                    <i class="tasks icon"></i> ${card.checked_items}/${card.total_items}
+                </span>
             `);
         };
         if (card.comments > 0) {
             extraContent.prepend(`
-              <span class="ui left floated text" style="margin-right: 1em;" data-tooltip="Comments" data-variation="tiny basic">
+              <span class="ui left floated text noselect cardlet" style="margin-right: 1em;" data-title="Comments" data-content="${card.comments}" data-variation="tiny basic">
                 <i class="comment icon"></i> ${card.comments}
               </span>
             `);
         };
+        $('.cardlet').popup();
         if (card.tag.length > 0) {
-            for (tag of card.tag) {
-                if (tag.icon !== null) {
-                    tags.append(`
-                        <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label"><i class="${tag.icon.markup} icon"></i> ${tag.name}</span>
-                    `);
-                } else {
-                    tags.append(`
-                        <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label">${tag.name}</span>
-                    `);
-                }
-            }
+            renderTags(tagsContainer, card.tag, dark);
+        };
+        let assigneesContainer = $(containerSelector).find(`.meta .assignees[data-card-id=${card.id}]`);
+        if (card.assigned_to.length > 0) {
+            renderAssignees(assigneesContainer, card.assigned_to, dark);
         };
         if (extraContent.text().trim() === '') {
             extraContent.remove();
@@ -428,7 +431,7 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
         $(`.ui.dropdown[data-card-id=${card.id}]`).dropdown({ action: 'hide' });
         $(`.edit.card.item[data-card-id=${card.id}]`).click(e => { showCardModal(card, bucketId); });
         $(`.delete.card.item[data-card-id=${card.id}]`).click(e => { deleteCard(card.id, bucketId); });
-        $(`.start-stop-timer.card.item[data-card-id=${card.id}]`).click(e => { startStopTimer(card.id, bucketId); });
+        $(`.start-stop-timer[data-card-id=${card.id}]`).click(e => { startStopTimer(card.id, bucketId); });
         if (card.is_running) {
             intervals.push(setInterval(() => { incrementSecond(card.id) }, 1000));
         };
@@ -517,7 +520,7 @@ const renderItems = (containerSelector, items, bucketId, cardId, dark = false) =
     });
 };
 
-const renderComments = (containerSelector, comments, bucketId, cardId, dark = false) => {
+const renderComments = (containerSelector, comments, bucketId, cardId, dark = false, allowedUsers) => {
     $(containerSelector).empty();
     if (dark) {
         $(containerSelector).addClass('inverted')
@@ -528,6 +531,26 @@ const renderComments = (containerSelector, comments, bucketId, cardId, dark = fa
     }
     comments.forEach(comment => {
         if (comment.created_by.username === USERNAME) {
+            text = comment.text;
+            text = text.replace(
+                /(https?:\/\/)([^ ]+)/g,
+                '<a target="_blank" href="$&">$2</a>'
+            );
+            const userRegex = /(\@)([^ ]+)/g;
+            const userMatches = text.match(userRegex);
+
+            if (userMatches !== null) {
+                for (username of userMatches) {
+                    username = username.substring(1);
+                    if (allowedUsers.map(user => user.username).includes(username)) {
+                        text = text.replace(
+                            `@${username}`,
+                            `<a data-content="${username}">@${username}</a>`
+                        );
+                    }
+                }
+            }
+
             $(containerSelector).append(
                 `
                 <div class="comment">
@@ -539,7 +562,7 @@ const renderComments = (containerSelector, comments, bucketId, cardId, dark = fa
                         <div class="metadata">
                             <span class="date">${comment.created_at}</span>
                         </div>
-                        <div class="text" style="white-space: pre-line;">${comment.text}</div>
+                        <div class="text" style="white-space: pre-line;">${text}</div>
                         <div class="actions">
                             <a class="edit-comment" data-comment-id=${comment.id}>Edit</a>
                             <a class="delete-comment" data-comment-id=${comment.id}>Delete</a>
@@ -615,6 +638,31 @@ const renderComments = (containerSelector, comments, bucketId, cardId, dark = fa
             );
         }
     });
+};
+
+const renderTags = (container, tags, dark = false) => {
+    for (tag of tags) {
+        if (tag.icon !== null) {
+            container.append(`
+                <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label"><i class="${tag.icon.markup} icon"></i> ${tag.name}</span>
+            `);
+        } else {
+            container.append(`
+                <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label">${tag.name}</span>
+            `);
+        }
+    }
+};
+
+const renderAssignees = (container, assignees, dark = false) => {
+    for (user of assignees) {
+        container.append(
+            `
+            <img data-username="${user.username}" data-content="${user.username}" data-variation="basic" class="ui avatar mini image assignee" src="${user.profile.avatar === null ? '/static/image/avatar-1577909.svg' : user.profile.avatar}">
+            `
+        );
+        $(`img[data-username='${user.username}']`).popup();
+    }
 };
 
 const enableProximityScroll = () => {
@@ -694,7 +742,7 @@ const getItems = (bucketId, cardId, dark = false) => {
         .always()
 };
 
-const getComments = (bucketId, cardId, dark = false) => {
+const getComments = (bucketId, cardId, dark = false, allowedUsers) => {
     $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/`)
         .done(r => {
             renderComments(
@@ -703,6 +751,7 @@ const getComments = (bucketId, cardId, dark = false) => {
                 bucketId = bucketId,
                 cardId = cardId,
                 dark = dark,
+                allowedUsers = allowedUsers,
             );
         })
         .fail(e => { console.error(e) })
@@ -734,9 +783,35 @@ const showCardModal = (card = null, bucketId) => {
         modal.find('.ui.color.dropdown').dropdown('set selected', card.color !== null ? card.color.id : '');
         modal.find('.extra.content .item').show();
         modal.find('.comments-segment.segment').show();
+        modal.find('.ui.tags.dropdown').parent().show();
         modal.find('.ui.tags.dropdown').dropdown('clear');
+        modal.find('.ui.assigned_to.dropdown').parent().show()
+        console.log(card.allowed_users)
+        allowed_users = card.allowed_users.map(user => {
+            if (user.profile.avatar !== null) {
+                return {
+                    value: user.username,
+                    name: user.username,
+                    image: user.profile.avatar,
+                    imageClass: 'ui avatar image',
+                }
+            } else {
+                return {
+                    value: user.username,
+                    name: user.username,
+                    image: '/static/image/avatar-1577909.svg',
+                    imageClass: 'ui avatar image',
+                }
+            }
+        })
+        modal.find('.ui.assigned_to.dropdown').dropdown({
+            values: allowed_users
+        }).dropdown('clear');
         for (tag of card.tag) {
             modal.find('.ui.tags.dropdown').dropdown('set selected', tag.name);
+        }
+        for (user of card.assigned_to) {
+            modal.find('.ui.assigned_to.dropdown').dropdown('set selected', user.username);
         }
         {
             getItems(bucketId, card.id, dark);
@@ -765,7 +840,7 @@ const showCardModal = (card = null, bucketId) => {
             });
         }
         {
-            getComments(bucketId, card.id, dark);
+            getComments(bucketId, card.id, dark, card.allowed_users);
             $('.add-reply.button').off();
             $('.add-reply.button').click(e => {
                 $(this).attr("disabled", "disabled");
@@ -780,7 +855,7 @@ const showCardModal = (card = null, bucketId) => {
                     on: 'now',
                     onSuccess: r => {
                         $('textarea.add-reply').val('');
-                        getComments(bucketId, card.id, dark);
+                        getComments(bucketId, card.id, dark, card.allowed_users);
                         itemEdited = true;
                     },
                     onComplete: () => { $(this).removeAttr("disabled"); },
@@ -794,10 +869,13 @@ const showCardModal = (card = null, bucketId) => {
         modal.find('textarea[name=description]').val('');
         modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
         modal.find('.ui.color.dropdown').dropdown('set selected', '');
-        modal.find('.ui.tags.dropdown').dropdown('clear');
         // Prevent users from inserting checklists or comments before card object creation
         modal.find('.extra.content .item').hide();
         modal.find('.comments-segment.segment').hide();
+        modal.find('.ui.tags.dropdown').dropdown('clear');
+        modal.find('.ui.tags.dropdown').parent().hide();
+        modal.find('.ui.assigned_to.dropdown').dropdown('clear');
+        modal.find('.ui.assigned_to.dropdown').parent().hide();
     };
     modal.modal({
         restoreFocus: false,
@@ -822,6 +900,8 @@ const showCardModal = (card = null, bucketId) => {
             color = modal.find('.ui.color.dropdown').dropdown('get value');
             tagsString = modal.find('.ui.tags.dropdown').dropdown('get value');
             tags = tagsString.split(",").map(tag => ({ name: tag }));
+            assigneesString = modal.find('.ui.assigned_to.dropdown').dropdown('get value');
+            assignees = assigneesString.split(",").map(username => ({ username: username }));
             if (create === true) {
                 method = 'POST';
                 url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`;
@@ -844,6 +924,7 @@ const showCardModal = (card = null, bucketId) => {
                     color: color,
                     order: order,
                     tag: JSON.stringify(tags),
+                    assigned_to: JSON.stringify(assignees),
                 },
                 success: function (result) {
                     loadBoard();
