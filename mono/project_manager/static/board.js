@@ -799,7 +799,6 @@ const showCardModal = (card = null, bucketId) => {
             "suggest",
             card.allowed_users.map(user => `@${user.username}`),
             {
-                // interval: 5000,
                 dispAllKey: true,
                 prefix: true,
                 highlight: true,
