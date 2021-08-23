@@ -990,7 +990,7 @@ class InviteListAPIView(LoginRequiredMixin, APIView):
 
 class InviteDetailAPIView(LoginRequiredMixin, APIView):
     """
-    Retrieve, update or delete a invite instance.
+    Retrieve, update or delete an invite instance.
     """
 
     def get_object(self, pk):

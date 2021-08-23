@@ -3,6 +3,8 @@
 {% load i18n %}
 
 {% block head %}
+  <script src="{% static '/suggest.js' %}"></script>
+  <script src="{% static '/caret.js' %}"></script>
   <style>
     .completed.card {
       opacity: .5;
@@ -39,6 +41,51 @@
     }
     .checklist-item:hover .delete-item.button {
       opacity: 1;
+    }
+    .assignee {
+      margin-right: -.75em !important;
+      transition: .5s;
+    }
+    .assignee:hover {
+      margin-right: 0 !important;
+    }
+    .noselect {
+      -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+         -khtml-user-select: none; /* Konqueror HTML */
+           -moz-user-select: none; /* Old versions of Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                      supported by Chrome, Edge, Opera and Firefox */
+    }
+    .mention {
+      color: #4183c4;
+      transition: .5s;
+    }
+    .mention:hover {
+      color: #1e70bf;
+    }
+    #suggest {
+        position: absolute;
+        background-color: #FFFFFF;
+        border: 1px solid #85b7d9;
+        border-radius: .3em;
+        // font-size: 90%;
+        width: 200px;
+        z-index: 2000;
+    }
+    #suggest div {
+        display: block;
+        width: 200px;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    #suggest div.select{ /* keydown, keyup */
+        color: #FFFFFF;
+        background-color: #2185D0;
+    }
+    #suggest div.over{ /* mouse over */
+        background-color: #CCE2FF;
     }
   </style>
   <script>
@@ -141,7 +188,7 @@
         })
       }
 
-      const renderTags = (containerElement, tag) => {
+      const renderTagForms = (containerElement, tag) => {
         containerElement.append(`
           <form class="ui unstackable form" data-tag-id="${tag.id}" style="width: 100%; margin-bottom: .5em;">
             <div class="" style="display: flex; flex-flow: row nowrap;">
@@ -244,7 +291,7 @@
             $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`)
               .done(r => {
                 for (tag of r) {
-                  renderTags(el, tag);
+                  renderTagForms(el, tag);
                 };
               })
               .fail(e => { console.error(e) })
@@ -353,6 +400,13 @@
       <div class="field">
         <label>{% translate 'Tags' %}</label>
         <div class="ui tags search multiple selection dropdown">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
+        </div>
+      </div>
+      <div class="field">
+        <label>{% translate 'Assigned to' %}</label>
+        <div class="ui assigned_to search multiple selection dropdown">
           <div class="text"></div>
           <i class="dropdown icon"></i>
         </div>
@@ -470,8 +524,21 @@
         <div class="ui minimal comments" id="card-comments"></div>
         <div class="ui reply form">
           <div class="field">
-            <textarea class="add-reply" rows="2" placeholder="Type a new comment"></textarea>
+            <textarea id="suggest-comment" class="add-reply" rows="2" placeholder="Type a new comment"></textarea>
           </div>
+          <div id="suggest" style="display:none;"></div>
+          <script>
+            document.getElementById('suggest-comment').addEventListener('input', function () {
+              var caret = getCaretCoordinates(this, this.selectionEnd);
+              var fontSize = $('#suggest').css('font-size').replace('px', '');
+              scrollHeight = document.getElementById('suggest-comment').scrollTop
+              $('#suggest').css({
+                top: caret.top - scrollHeight + caret.height, 
+                left: caret.left, 
+                position: 'absolute'
+              });
+            })
+          </script>
           <div class="ui blue labeled add-reply submit icon button">
             <i class="icon edit"></i> Add comment
           </div>
