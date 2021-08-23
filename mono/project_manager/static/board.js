@@ -6,6 +6,7 @@ var containerBucketIsOver;
 var scrollIntervalID;
 var isScrolling = false;
 var itemEdited = false;
+const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg';
 
 
 const setFullscreen = bool => {
@@ -520,6 +521,30 @@ const renderItems = (containerSelector, items, bucketId, cardId, dark = false) =
     });
 };
 
+const insertLinksAndMentions = (text, allowedUsers, commentId) => {
+    text = text.replace(
+        /(https?:\/\/)([^ ]+)/g,
+        '<a target="_blank" href="$&">$2</a>'
+    );
+    const userRegex = /(\@)([^ ]+)/g;
+    const userMatches = text.match(userRegex);
+
+    if (userMatches !== null) {
+        for (username of userMatches) {
+            username = username.substring(1);
+            user = allowedUsers.find(user => user.username == username);
+            if (user !== undefined) {
+                avatar = user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR;
+                text = text.replace(
+                    `@${username}`,
+                    `<span class="mention" data-html="<img class='ui avatar image' src='${avatar}'><span><b>${username}</b></span><p>${user.email}</p>" data-variation="tiny">@${username}</span>`
+                );
+            }
+        }
+    }
+    return text;
+}
+
 const renderComments = (containerSelector, comments, bucketId, cardId, dark = false, allowedUsers) => {
     $(containerSelector).empty();
     if (dark) {
@@ -530,32 +555,13 @@ const renderComments = (containerSelector, comments, bucketId, cardId, dark = fa
         $(containerSelector).parent().removeClass('inverted')
     }
     comments.forEach(comment => {
+        text = insertLinksAndMentions(comment.text, allowedUsers, comment.id);
         if (comment.created_by.username === USERNAME) {
-            text = comment.text;
-            text = text.replace(
-                /(https?:\/\/)([^ ]+)/g,
-                '<a target="_blank" href="$&">$2</a>'
-            );
-            const userRegex = /(\@)([^ ]+)/g;
-            const userMatches = text.match(userRegex);
-
-            if (userMatches !== null) {
-                for (username of userMatches) {
-                    username = username.substring(1);
-                    if (allowedUsers.map(user => user.username).includes(username)) {
-                        text = text.replace(
-                            `@${username}`,
-                            `<a data-content="${username}">@${username}</a>`
-                        );
-                    }
-                }
-            }
-
             $(containerSelector).append(
                 `
                 <div class="comment">
                     <div class="avatar">
-                        <img class="ui small image" src="${comment.created_by.profile.avatar != null ? comment.created_by.profile.avatar : '/static/image/avatar-1577909.svg'}">
+                        <img class="ui small image" src="${comment.created_by.profile.avatar != null ? comment.created_by.profile.avatar : PLACEHOLDER_AVATAR}">
                     </div>
                     <div class="content">
                         <span class="author">${comment.created_by.username}</span>
@@ -628,15 +634,16 @@ const renderComments = (containerSelector, comments, bucketId, cardId, dark = fa
                             <span class="date">${comment.created_at}</span>
                         </div>
                         <span class="author" style="margin-left: .5em;">${comment.created_by.username}</span>
-                        <div class="text" style="white-space: pre-line;">${comment.text}</div>
+                        <div class="text" style="white-space: pre-line;">${text}</div>
                     </div>
                     <div class=" avatar" style="flex: 0 0 auto;">
-                        <img class="ui small image" src="${comment.created_by.profile.avatar != null ? comment.created_by.profile.avatar : '/static/image/avatar-1577909.svg'}">
+                        <img class="ui small image" src="${comment.created_by.profile.avatar != null ? comment.created_by.profile.avatar : PLACEHOLDER_AVATAR}">
                     </div>
                 </div>
                 `
             );
-        }
+        };
+        $(`.mention`).popup();
     });
 };
 
@@ -658,7 +665,7 @@ const renderAssignees = (container, assignees, dark = false) => {
     for (user of assignees) {
         container.append(
             `
-            <img data-username="${user.username}" data-content="${user.username}" data-variation="basic" class="ui avatar mini image assignee" src="${user.profile.avatar === null ? '/static/image/avatar-1577909.svg' : user.profile.avatar}">
+            <img data-username="${user.username}" data-content="${user.username}" data-variation="basic" class="ui avatar mini image assignee" src="${user.profile.avatar === null ? PLACEHOLDER_AVATAR : user.profile.avatar}">
             `
         );
         $(`img[data-username='${user.username}']`).popup();
@@ -785,25 +792,28 @@ const showCardModal = (card = null, bucketId) => {
         modal.find('.comments-segment.segment').show();
         modal.find('.ui.tags.dropdown').parent().show();
         modal.find('.ui.tags.dropdown').dropdown('clear');
-        modal.find('.ui.assigned_to.dropdown').parent().show()
-        console.log(card.allowed_users)
-        allowed_users = card.allowed_users.map(user => {
-            if (user.profile.avatar !== null) {
-                return {
-                    value: user.username,
-                    name: user.username,
-                    image: user.profile.avatar,
-                    imageClass: 'ui avatar image',
-                }
-            } else {
-                return {
-                    value: user.username,
-                    name: user.username,
-                    image: '/static/image/avatar-1577909.svg',
-                    imageClass: 'ui avatar image',
-                }
+        modal.find('.ui.assigned_to.dropdown').parent().show();
+        modal.find('#suggest-comment').val('');
+        new Suggest.LocalMulti(
+            "suggest-comment",
+            "suggest",
+            card.allowed_users.map(user => `@${user.username}`),
+            {
+                // interval: 5000,
+                dispAllKey: true,
+                prefix: true,
+                highlight: true,
             }
-        })
+        );
+
+        allowed_users = card.allowed_users.map(user => (
+            {
+                value: user.username,
+                name: user.username,
+                image: user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR,
+                imageClass: 'ui avatar image',
+            }
+        ));
         modal.find('.ui.assigned_to.dropdown').dropdown({
             values: allowed_users
         }).dropdown('clear');

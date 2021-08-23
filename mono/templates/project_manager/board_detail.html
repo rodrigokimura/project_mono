@@ -3,6 +3,8 @@
 {% load i18n %}
 
 {% block head %}
+  <script src="{% static '/suggest.js' %}"></script>
+  <script src="{% static '/caret.js' %}"></script>
   <style>
     .completed.card {
       opacity: .5;
@@ -55,6 +57,34 @@
             -ms-user-select: none; /* Internet Explorer/Edge */
                 user-select: none; /* Non-prefixed version, currently
                                       supported by Chrome, Edge, Opera and Firefox */
+    }
+    .mention {
+      color: #4183c4;
+      transition: .5s;
+    }
+    .mention:hover {
+      color: #1e70bf;
+    }
+    #suggest {
+        position: absolute;
+        background-color: #FFFFFF;
+        border: 1px solid #CCCCFF;
+        font-size: 90%;
+        width: 200px;
+        z-index: 2000;
+    }
+    #suggest div {
+        display: block;
+        width: 200px;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    #suggest div.select{ /* keydown, keyup */
+        color: #FFFFFF;
+        background-color: #3366FF;
+    }
+    #suggest div.over{ /* mouse over */
+        background-color: #99CCFF;
     }
   </style>
   <script>
@@ -493,8 +523,21 @@
         <div class="ui minimal comments" id="card-comments"></div>
         <div class="ui reply form">
           <div class="field">
-            <textarea class="add-reply" rows="2" placeholder="Type a new comment"></textarea>
+            <textarea id="suggest-comment" class="add-reply" rows="2" placeholder="Type a new comment"></textarea>
           </div>
+          <div id="suggest" style="display:none;"></div>
+          <script>
+            document.getElementById('suggest-comment').addEventListener('input', function () {
+              var caret = getCaretCoordinates(this, this.selectionEnd);
+              var fontSize = $('#suggest').css('font-size').replace('px', '');
+              scrollHeight = document.getElementById('suggest-comment').scrollTop
+              $('#suggest').css({
+                top: caret.top - scrollHeight + caret.height, 
+                left: caret.left, 
+                position: 'absolute'
+              });
+            })
+          </script>
           <div class="ui blue labeled add-reply submit icon button">
             <i class="icon edit"></i> Add comment
           </div>
