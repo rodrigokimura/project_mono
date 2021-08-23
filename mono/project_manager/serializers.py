@@ -26,6 +26,11 @@ class UserSerializer(ModelSerializer):
             'email',
             'profile',
         ]
+        extra_kwargs = {
+            'username': {'read_only': True},
+            'email': {'read_only': True},
+            'profile': {'read_only': True},
+        }
 
 
 class ThemeSerializer(ModelSerializer):
@@ -151,13 +156,14 @@ class TagSerializer(ModelSerializer):
             instance.color = theme
         else:
             instance.color = None
+        super().update(instance, validated_data)
         instance.save()
 
-        super().update(instance, validated_data)
         return instance
 
 
 class CardSerializer(ModelSerializer):
+    allowed_users = UserSerializer(many=True, read_only=True)
     is_running = serializers.ReadOnlyField()
     total_time = serializers.ReadOnlyField()
     checked_items = serializers.ReadOnlyField()
@@ -165,6 +171,7 @@ class CardSerializer(ModelSerializer):
     comments = serializers.ReadOnlyField()
     color = ThemeSerializer(many=False, read_only=True)
     tag = TagSerializer(many=True, required=False)
+    assigned_to = UserSerializer(many=True, required=False)
 
     class Meta:
         model = Card
@@ -181,6 +188,7 @@ class CardSerializer(ModelSerializer):
             'completed_by',
             'completed_at',
             'status',
+            'allowed_users',
             'is_running',
             'total_time',
             'checked_items',
@@ -217,6 +225,20 @@ class CardSerializer(ModelSerializer):
             )
             tags.append(tag)
 
+        requested_assignees = self.context['request'].data.get('assigned_to')
+        if requested_assignees is not None:
+            requested_assignees = json.loads(requested_assignees)
+        else:
+            requested_assignees = []
+
+        assignees = []
+        for user_dict in requested_assignees:
+            qs = User.objects.filter(username=user_dict.get('username', ''))
+            if qs.exists():
+                user = qs.get()
+                if user in instance.allowed_users:
+                    assignees.append(user)
+
         super().update(instance, validated_data)
         status = validated_data.get('status', instance.status)
         if status == Bucket.COMPLETED:
@@ -230,6 +252,7 @@ class CardSerializer(ModelSerializer):
         elif status == Bucket.NOT_STARTED:
             instance.mark_as_not_started()
         instance.tag.set(tags)
+        instance.assigned_to.set(assignees)
         return instance
 
 
