@@ -312,12 +312,17 @@ class Comment(models.Model):
     @property
     def mentioned_users(self):
         users = []
-        for m in re.finditer(' @', self.text):
-            space = self.text.find(' ', m.start() + 2)
+        for m in re.finditer('@', self.text):
+            space = self.text.find(' ', m.start() + 1)
+            if m.start() > 0:
+                previous_char = self.text[m.start() - 1]
+                if previous_char not in [' ', '\n']:
+                    continue
             if space != -1:
-                username = self.text[m.start() + 2:space]
+                username = self.text[m.start() + 1:space]
             else:
-                username = self.text[m.start() + 2:]
+                username = self.text[m.start() + 1:]
+            print(username)
             try:
                 user = User.objects.get(username=username)
                 users.append(user)
