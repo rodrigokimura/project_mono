@@ -216,6 +216,8 @@ class CardSerializer(ModelSerializer):
 
         tags = []
         for tag_dict in requested_tags:
+            if tag_dict['name'].strip() == '':
+                continue
             tag, created = Tag.objects.update_or_create(
                 name=tag_dict['name'],
                 defaults={
