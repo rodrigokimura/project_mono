@@ -427,8 +427,8 @@ Suggest.LocalMulti.prototype.delim = ' '; // delimiter
 Suggest.LocalMulti.prototype.keyEventReturn = function () {
 
   this.clearSuggestArea();
-  this.input.value += this.delim;
-  this.moveEnd();
+  // this.input.value += this.delim;
+  // this.moveEnd();
 };
 
 Suggest.LocalMulti.prototype.keyEventOther = function (event) {
@@ -444,12 +444,12 @@ Suggest.LocalMulti.prototype.keyEventOther = function (event) {
       }
 
       this.clearSuggestArea();
-      this.input.value += this.delim;
-      if (window.opera) {
-        setTimeout(this._bind(this.moveEnd), 5);
-      } else {
-        this.moveEnd();
-      }
+      // this.input.value += this.delim;
+      // if (window.opera) {
+      //   setTimeout(this._bind(this.moveEnd), 5);
+      // } else {
+      //   this.moveEnd();
+      // }
     }
   }
 };
@@ -460,36 +460,42 @@ Suggest.LocalMulti.prototype.listClick = function (event, index) {
   this.activePosition = index;
   this.changeActive(index);
 
-  this.input.value += this.delim;
+  // this.input.value += this.delim;
 
   this.clearSuggestArea();
-  this.moveEnd();
+  // this.moveEnd();
 };
 
 Suggest.LocalMulti.prototype.getInputText = function () {
 
   var pos = this.getLastTokenPos();
+  var curPos = this.input.selectionStart;
 
   if (pos == -1) {
     return this.input.value;
   } else {
-    console.log(this.input.value.substr(pos + 1))
-    return this.input.value.substr(pos + 1);
+    return this.input.value.substr(pos + 1, curPos - (pos + 1));
   }
 };
 
 Suggest.LocalMulti.prototype.setInputText = function (text) {
 
   var pos = this.getLastTokenPos();
+  var curPos = this.input.selectionStart;
 
   if (pos == -1) {
     this.input.value = text;
   } else {
-    this.input.value = this.input.value.substr(0, pos + 1) + text;
+    this.input.value = this.input.value.substr(0, pos + 1) + text + this.input.value.substr(curPos);
+    this.input.selectionEnd = pos + 1 + text.length
   }
 };
 
 Suggest.LocalMulti.prototype.getLastTokenPos = function () {
-  return this.input.value.lastIndexOf(this.delim);
+  var text = this.input.value;
+  text = text.substr(0, this.input.selectionStart);
+  var delimIndex = text.lastIndexOf(this.delim);
+  var breakLineIndex = text.lastIndexOf('\n');
+  return Math.max(breakLineIndex, delimIndex);
 };
 
