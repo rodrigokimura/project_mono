@@ -521,28 +521,55 @@ const renderItems = (containerSelector, items, bucketId, cardId, dark = false) =
     });
 };
 
-const insertLinksAndMentions = (text, allowedUsers, commentId) => {
+function getIndicesOf(searchStr, str, caseSensitive) {
+    var searchStrLen = searchStr.length;
+    if (searchStrLen == 0) {
+        return [];
+    }
+    var startIndex = 0, index, indices = [];
+    if (!caseSensitive) {
+        str = str.toLowerCase();
+        searchStr = searchStr.toLowerCase();
+    }
+    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+        indices.push(index);
+        startIndex = index + searchStrLen;
+    }
+    return indices;
+}
+
+
+const insertLinksAndMentions = (text, allowedUsers) => {
     text = text.replace(
         /(https?:\/\/)([^ ]+)/g,
         '<a target="_blank" href="$&">$2</a>'
     );
-    const userRegex = /(\@)([^ ]+)/g;
-    const userMatches = text.match(userRegex);
-
-    if (userMatches !== null) {
-        for (username of userMatches) {
-            username = username.substring(1);
-            user = allowedUsers.find(user => user.username == username);
-            if (user !== undefined) {
-                avatar = user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR;
-                text = text.replace(
-                    `@${username}`,
-                    `<span class="mention" data-html="<img class='ui avatar image' src='${avatar}'><span><b>${username}</b></span><p>${user.email}</p>" data-variation="tiny">@${username}</span>`
-                );
+    var newText = text;
+    for (user of allowedUsers) {
+        username = `@${user.username}`;
+        usernameIndices = getIndicesOf(username, text);
+        validIndices = [];
+        offset = 0;
+        for (index of usernameIndices) {
+            nextChar = text.substr(index + username.length, 1);
+            if (",.!? ".includes(nextChar)) {
+                validIndices.push(index - offset);
+                newText = newText.substr(0, index - offset) + newText.substr(index - offset + username.length);
+                offset += username.length;
             }
         }
+        offset = 0;
+        for (index of validIndices) {
+            avatar = user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR;
+            span = `<span class="mention" data-html="<img class='ui avatar image' src='${avatar}'><span><b>${user.username}</b></span><p>${user.email}</p>" data-variation="tiny">@${user.username}</span>`
+            newText = newText.substr(0, index + offset)
+                + span
+                + newText.substr(index + offset);
+            offset += span.length;
+        }
+        text = newText;
     }
-    return text;
+    return newText;
 }
 
 const renderComments = (containerSelector, comments, bucketId, cardId, dark = false, allowedUsers) => {
@@ -555,7 +582,7 @@ const renderComments = (containerSelector, comments, bucketId, cardId, dark = fa
         $(containerSelector).parent().removeClass('inverted')
     }
     comments.forEach(comment => {
-        text = insertLinksAndMentions(comment.text, allowedUsers, comment.id);
+        text = insertLinksAndMentions(comment.text, allowedUsers);
         if (comment.created_by.username === USERNAME) {
             $(containerSelector).append(
                 `
