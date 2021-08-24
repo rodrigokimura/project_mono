@@ -108,8 +108,7 @@
   <a class="toc item"><i class="sidebar icon"></i></a>
   <a class="refresh item"><i class="refresh icon"></i></a>
   <a class="fullscreen item"><i class="expand alternate icon"></i></a>
-  <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
-  </div>
+  <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;"></div>
 {% endblock menu %}
 
 {% block sidebar %}
@@ -141,7 +140,7 @@
       </div>
     </div>
     <div class="item">
-      <div class="ui button" id="edit-tags">Edit tags</div>
+      <div class="ui fluid inverted button" id="edit-tags"><i class="tags icon"></i> {% translate "Manage tags" %}</div>
     </div>
     <script>
       const addNewTagInput = (containerElement) => {
