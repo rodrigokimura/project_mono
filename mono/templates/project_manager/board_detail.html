@@ -87,6 +87,12 @@
     #suggest div.over{ /* mouse over */
         background-color: #CCE2FF;
     }
+    .ui.progress.attached, .ui.progress.attached .bar {
+      height: .3rem;
+    }
+    .card-form {
+      max-width: 50em !important;
+    }
   </style>
   <script>
     if(typeof(String.prototype.trim) === "undefined") {
@@ -383,7 +389,7 @@
     </div>
   </div>
 
-  <form class="ui card-form tiny top aligned card longer modal form">
+  <form class="ui card-form top aligned card longer modal form">
     <i class="close icon"></i>
     <div class="header">
       <div class="transparent field">
@@ -576,10 +582,16 @@
           ]
         },
       }
-    })
+    });
+    $('form.card.modal').find('input[name=name]').on('keypress', e => {
+      if (e.which == 13) {
+        e.preventDefault();
+        $('form.card.modal').find('.positive.button').click();
+      }
+    });
   </script>
 
-  <form class="ui bucket-form tiny top aligned card modal form">
+  <form class="ui bucket-form top aligned card modal form">
     <i class="close icon"></i>
     <div class="header">
       <div class="field">
@@ -659,7 +671,13 @@
           ]
         },
       }
-    })
+    });
+    $('form.bucket.modal').find('input[name=name]').on('keypress', e => {
+      if (e.which == 13) {
+        e.preventDefault();
+        $('form.bucket.modal').find('.positive.button').click();
+      }
+    });
   </script>
 
   <div class="ui delete confirmation tiny modal">
