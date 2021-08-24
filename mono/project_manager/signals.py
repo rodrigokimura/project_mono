@@ -32,6 +32,5 @@ def send_invite(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Comment, dispatch_uid="send_email_on_comment")
 def send_email_on_comment(sender, instance, created, **kwargs):
     if created:
-        print(instance.mentioned_users)
         instance.notify_assignees()
         instance.notify_mentioned_users()
