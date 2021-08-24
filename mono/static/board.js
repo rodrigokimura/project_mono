@@ -174,7 +174,10 @@ var cardsDrake = dragula({
                     };
                 };
             },
-            complete: () => { $(el).removeClass('loading'); }
+            complete: () => {
+                $(el).removeClass('loading');
+                $('.cardlet').popup();
+            }
         });
     })
     .on('drag', (el, source) => {
@@ -204,7 +207,6 @@ const str = seconds => {
         while (num.length < size) num = "0" + num;
         return num;
     }
-
     var h = Math.floor((seconds % 31536000) / 3600);
     var m = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
     var s = Math.floor((((seconds % 31536000) % 86400) % 3600) % 60);
@@ -317,8 +319,7 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
         getCards(bucket.id, dark, compact);
     });
     $(containerSelector).append(`<div class="ui add bucket basic ${dark ? 'inverted ' : ' '}button" style="flex: 0 0 auto">Add new bucket</div>`);
-    $(`.add.bucket.button`).click(e => { showBucketModal(); });
-
+    $(`.add.bucket.button`).off().click(e => { showBucketModal(); });
     e = $('.add.bucket.button').siblings().last();
     $('.add.bucket.button').css('marginTop', e.css('marginTop'));
     $('.add.bucket.button').css('marginBottom', e.css('marginBottom'));
@@ -336,37 +337,39 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
         $(containerSelector).append(
             `
             <div class="ui loading ${dark ? 'inverted ' : ' '}${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}card card-el" data-card-id="${card.id}" style="width: 100%; flex: 0 0 auto;${compact ? ' margin-bottom: -.25em;' : 'margin-bottom: .25em;'}">
-              <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.primary}; color: ${card.color.light}` : ''};" data-card-id="${card.id}">
-                <i class="grip lines small icon"></i>
-              </div>
-              <div class="content" style="${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : ''};${compact ? ' padding: .5em;' : ''}">
-                <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between; ${card.color !== null ? `color: ${dark ? card.color.light : card.color.dark};` : ''}">
-                  <div style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
-                    ${card.name}
-                  </div>
-                  <div class="ui basic icon top right pointing ${dark ? 'inverted ' : ' '}dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 2em; padding: .5em; margin: 0;' : ''}">
-                    <i class="ellipsis horizontal icon"></i>
-                    <div class="menu">
-                      <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
-                      <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>Delete this card</div>
-                      <div class="divider"></div>
-                      <div class="start-stop-timer card item" data-card-id="${card.id}"><i class="stopwatch icon"></i>Start/stop timer</div>
+                <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.primary}; color: ${card.color.light}` : ''};" data-card-id="${card.id}">
+                    <i class="grip lines small icon"></i>
+                </div>
+                <div class="content" style="${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : ''};${compact ? ' padding: .5em;' : ''}">
+                    <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between; ${card.color !== null ? `color: ${dark ? card.color.light : card.color.dark};` : ''}">
+                    <div style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
+                        ${card.name}
                     </div>
-                  </div>
+                    <div class="ui basic icon top right pointing ${dark ? 'inverted ' : ' '}dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 1.5em; padding: .25em; margin: 0;' : ''}">
+                        <i class="ellipsis horizontal icon"></i>
+                        <div class="menu">
+                        <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
+                        <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>Delete this card</div>
+                        <div class="divider"></div>
+                        <div class="start-stop-timer card item" data-card-id="${card.id}"><i class="stopwatch icon"></i>Start/stop timer</div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="meta" style="display: flex; flex-flow: column nowrap;">
+                        <div class="tags" style="flex: 0 0 auto; padding-top: .5em;" data-card-id="${card.id}"></div>
+                        <div class="description" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
+                        <div class="assignees" style="flex: 0 0 auto; padding-top: .5em;" data-card-id="${card.id}"></div>
+                    </div>
                 </div>
-                <div class="meta" style="display: flex; flex-flow: column nowrap;">
-                  <div class="tags" style="flex: 0 0 auto; padding-top: .5em;" data-card-id="${card.id}">
-                  </div>
-                  <div class="description" style="white-space: pre-line;">${card.description ? card.description : ''}</div>
-                  <div class="assignees" style="flex: 0 0 auto; padding-top: .5em;" data-card-id="${card.id}">
-                  </div>
+                <div data-card-id="${card.id}" class="extra content" style="${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : ''};;${compact ? ' padding: .5em;' : ''}">
                 </div>
-              </div>
-              <div data-card-id="${card.id}" class="extra content" style="${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : ''};;${compact ? ' padding: .5em;' : ''}">
-              </div>
+                <div data-card-id="${card.id}" class="ui bottom attached progress" data-percent="${card.checked_items > 0 ? card.checked_items / card.total_items * 100 : 0}">
+                    <div class="bar"></div>
+                </div>
             </div>
             `
         );
+        $(`.ui.progress[data-card-id=${card.id}]`).progress();
         let extraContent = $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`);
         let tagsContainer = $(containerSelector).find(`.meta .tags[data-card-id=${card.id}]`);
         if (card.total_time > 0) {
@@ -656,7 +659,7 @@ const renderComments = (containerSelector, comments, bucketId, cardId, dark = fa
             $(containerSelector).append(
                 `
                 <div class="right aligned comment" style="display: flex; flex-flow: row nowrap; align-items: start;">
-                    <div class="content" style="flex: 1 0 auto; margin-right: 1em;">
+                    <div class="content" style="flex: 1 1 auto; margin-right: 1em;">
                         <div class="metadata">
                             <span class="date">${comment.created_at}</span>
                         </div>
