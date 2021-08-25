@@ -1,0 +1,203 @@
+<style>
+    @keyframes page {
+        0% { width: 0; height: 0; }
+        20% { width: 15em; height: 20em; }
+        100% { width: 15em; height: 20em; }
+    }
+    @keyframes block__circle {
+        0% { opacity: 0 }
+        30% { opacity: 0 }
+        100% { opacity: 1 }
+    }
+    @keyframes block__p1 {
+        0% { width: 0 }
+        50% { width: 9em }
+        100% { width: 9em }
+    }
+    @keyframes block__p2 {
+        0% { width: 0 }
+        60% { width: 9em }
+        100% { width: 9em }
+    }
+    @keyframes h {
+        0% { width: 0; }
+        40% { width: 0 }
+        100% { width: 10em }
+    }
+    @keyframes bullet1 {
+        0% { opacity: 0 }
+        60% { opacity: 0 }
+        100% { opacity: 1 }
+    }
+    @keyframes bullet2 {
+        0% { opacity: 0 }
+        70% { opacity: 0 }
+        100% { opacity: 1 }
+    }
+    @keyframes bullet3 {
+        0% { opacity: 0 }
+        80% { opacity: 0 }
+        100% { opacity: 1 }
+    }
+    @keyframes list__line1 {
+        0% { width: 0 }
+        60% { width: 0 }
+        100% { width: 11em }
+    }
+    @keyframes list__line2 {
+        0% { width: 0 }
+        70% { width: 0 }
+        100% { width: 11em }
+    }
+    @keyframes list__line3 {
+        0% { width: 0 }
+        80% { width: 0 }
+        100% { width: 11em }
+    }
+
+    .anim-notes, .anim-notes .anim {
+        animation-duration: 3s;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+        border-radius: .5em;
+    }
+    .anim .notes {
+        width: 100%;
+        padding: 1em;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .page {
+        margin: 0 auto;
+        position: relative;
+        width: 15em;
+        height: 20em;
+        padding: 1em;
+        background-color: #E6E6E6;
+        animation-name: page;
+        animation-direction: normal !important;
+        animation-iteration-count: 1 !important;
+    }
+    .block {
+        display: flex;
+        flex-flow: row nowrap;
+    }
+    .block__circle {
+        flex: 0 0 auto;
+        width: 3em;
+        height: 3em;
+        border-radius: 2em !important;
+        background-color: #6C63FF;
+        margin-right: 1em;
+        animation-name: block__circle;
+    }
+    .block__p {
+        display: flex;
+        width: 9em;
+        flex: 0 0 auto;
+        flex-flow: column nowrap;
+    }
+    .block__p-1 {
+        flex: 1 0 auto;
+        width: 9em;
+        height: .5 em;
+        background-color: white;
+        margin-top: .5em;
+        margin-bottom: .5em;
+        animation-name: block__p1;
+    }
+    .block__p-2 {
+        flex: 1 0 auto;
+        width: 9em;
+        height: .5 em;
+        background-color: white;
+        margin-bottom: .5em;
+        animation-name: block__p2;
+    }
+    .anim-notes .anim.h {
+        height: 1.5em;
+        width: 10em;
+        margin-top: 2em;
+        margin-bottom: 1em;
+        background-color: #6C63FF;
+        animation-name: h;
+    }
+    .anim-notes .anim.list {
+        display: flex;
+        flex-flow: row nowrap;
+        margin-bottom: 1em;
+    }
+    .anim-notes .anim.list__bullet-1 {
+        flex: 0 0 auto;
+        height: 1em;
+        width: 1em;
+        background-color: #2F2E41;
+        margin-right: 1em;
+        animation-name: bullet1;
+    }
+    .anim-notes .anim.list__bullet-2 {
+        flex: 0 0 auto;
+        height: 1em;
+        width: 1em;
+        background-color: #2F2E41;
+        margin-right: 1em;
+        animation-name: bullet2;
+    }
+    .anim-notes .anim.list__bullet-3 {
+        flex: 0 0 auto;
+        height: 1em;
+        width: 1em;
+        background-color: #2F2E41;
+        margin-right: 1em;
+        animation-name: bullet3;
+    }
+    .anim-notes .anim.list__line-1 {
+        flex: 0 0 auto;
+        height: 1em;
+        width: 11em;
+        background-color: white;
+        animation-name: list__line1;
+    }
+    .anim-notes .anim.list__line-2 {
+        flex: 0 0 auto;
+        height: 1em;
+        width: 11em;
+        background-color: white;
+        animation-name: list__line2;
+    }
+    .anim-notes .anim.list__line-3 {
+        flex: 0 0 auto;
+        height: 1em;
+        width: 11em;
+        background-color: white;
+        animation-name: list__line3;
+    }
+
+</style>
+<div class="anim-notes">
+    <div class="anim page">
+        <div class="anim block">
+            <div class="anim block__circle"></div>
+            <div class="anim block__p">
+                <div class="anim block__p-2"></div>
+                <div class="anim block__p-1"></div>
+            </div>
+        </div>
+        <div class="anim h"></div>
+        <div class="anim list">
+            <div class="anim list__bullet-1"></div>
+            <div class="anim list__line-1"></div>
+        </div>
+        <div class="anim list">
+            <div class="anim list__bullet-3"></div>
+            <div class="anim list__line-3"></div>
+        </div>
+        <div class="anim list">
+            <div class="anim list__bullet-2"></div>
+            <div class="anim list__line-2"></div>
+        </div>
+    </div>
+</div>
+<script>
+</script>
