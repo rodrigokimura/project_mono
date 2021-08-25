@@ -3,6 +3,10 @@
 
 {% block head %}
   <style type="text/css">
+    .ui.app.button {
+      margin-top: 1em;
+      margin-bottom: 1em;
+    }
     img.app {
       max-height: 250px;
       display:block;
@@ -61,6 +65,7 @@
     .quote.stripe.segment .grid .column {
       padding-top: 5em;
       padding-bottom: 5em;
+      height: 38em;
     }
 
     .footer.segment {
@@ -255,7 +260,8 @@
           <h3 class="ui header">We help you organize your life</h3>
           <p>Our goal is to build simple and powerful apps.</p>
           <h3 class="ui header">We are a small team</h3>
-          <p>Actually, it's just me - the developer.</p>
+          <p>But we have a few amazing people helping me... And you could do too! We'll be happy to here your suggestions! </p>
+          <a href="{% url 'feedback:feedback_create' %}" class="ui button">Give us your feedback</a>
         </div>
         <div class="six wide right floated column">
           <img src="{% static '/image/undraw_building_websites_i78t.png' %}" class="ui large image">
@@ -273,16 +279,19 @@
           <h3>Finance</h3>
           <p>Organize your personal finances</p>
           {% include 'homepage/_finance_animation.html' %}
+          <a href="{% url 'finance:index' %}" class="ui app primary big button">Check the app</a>
         </div>
         <div class="column">
           <h3>Project Manager</h3>
           <p>Manage projects using the power of cards</p>
           {% include 'homepage/_project_manager_animation.html' %}
+          <a href="{% url 'project_manager:index' %}" class="ui app primary big button">Check the app</a>
         </div>
         <div class="column">
           <h3>Notes</h3>
           <p>Take beautiful notes using markdown language</p>
           {% include 'homepage/_notes_animation.html' %}
+          <a href="{% url 'notes:index' %}" class="ui app primary big button">Check the app</a>
         </div>
       </div>
     </div>
@@ -294,25 +303,24 @@
         <div class="three wide column">
           <h4 class="ui inverted header">About</h4>
           <div class="ui inverted link list">
-            <a href="https://semantic-ui.com/examples/homepage.html#" class="item">Sitemap</a>
-            <a href="https://semantic-ui.com/examples/homepage.html#" class="item">Contact Us</a>
-            <a href="https://semantic-ui.com/examples/homepage.html#" class="item">Religious Ceremonies</a>
-            <a href="https://semantic-ui.com/examples/homepage.html#" class="item">Gazebo Plans</a>
+            {% comment %} <a href="#" class="item">Sitemap</a> {% endcomment %}
+            {% comment %} <a href="#" class="item">Contact Us</a> {% endcomment %}
+            <a href="{% url 'feedback:feedback_create' %}" class="item">Give us your feedback</a>
+            {% comment %} <a href="#" class="item">Gazebo Plans</a> {% endcomment %}
           </div>
         </div>
         <div class="three wide column">
           <h4 class="ui inverted header">Services</h4>
           <div class="ui inverted link list">
-            <a href="https://semantic-ui.com/examples/homepage.html#" class="item">Financial app</a>
-            <a href="https://semantic-ui.com/examples/homepage.html#" class="item">DNA FAQ</a>
-            <a href="https://semantic-ui.com/examples/homepage.html#" class="item">How To Access</a>
-            <a href="https://semantic-ui.com/examples/homepage.html#" class="item">Favorite X-Men</a>
+            <a href="{% url 'finance:index' %}" class="item">Financial App</a>
+            <a href="{% url 'project_manager:index' %}" class="item">Project Management App</a>
+            <a href="{% url 'notes:index' %}" class="item">Notes App</a>
           </div>
         </div>
-        <div class="seven wide column">
+        {% comment %} <div class="seven wide column">
           <h4 class="ui inverted header">Footer Header</h4>
           <p>Extra space for a call to action inside the footer that could help re-engage users.</p>
-        </div>
+        </div> {% endcomment %}
       </div>
     </div>
   </div>
