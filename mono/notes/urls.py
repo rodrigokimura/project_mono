@@ -4,6 +4,7 @@ from . import views
 app_name = 'notes'
 
 urlpatterns = [
+    path("", views.NoteListView.as_view(), name='index'),
     path("", views.NoteListView.as_view(), name='notes'),
     path("notes/", views.NoteCreateView.as_view(), name='note_create'),
     path("notes/<int:pk>/", views.NoteFormView.as_view(), name='note_edit'),
