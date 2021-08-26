@@ -22,10 +22,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import jwt
-from .models import Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite
+from .models import Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite, TimeEntry
 from .forms import ProjectForm, BoardForm
 from .mixins import PassRequestToFormViewMixin
-from .serializers import BucketMoveSerializer, CardMoveSerializer, CommentSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer, TagSerializer
+from .serializers import BucketMoveSerializer, CardMoveSerializer, CommentSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer, TagSerializer, TimeEntrySerializer
 
 
 def naturaltime(value):
@@ -787,6 +787,104 @@ class ItemDetailAPIView(LoginRequiredMixin, APIView):
         item = self.get_object(pk)
         if request.user in item.allowed_users:
             item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class TimeEntryListAPIView(LoginRequiredMixin, APIView):
+    """
+    List all time entries, or create a new time entry.
+    """
+
+    def get(self, request, format=None, **kwargs):
+        project_pk = kwargs.get('project_pk')
+        board_pk = kwargs.get('board_pk')
+        bucket_pk = kwargs.get('bucket_pk')
+        card_pk = kwargs.get('card_pk')
+        project = Project.objects.get(id=project_pk)
+        board = Board.objects.get(project=project, id=board_pk)
+        bucket = Bucket.objects.get(board=board, id=bucket_pk)
+        card = Card.objects.get(bucket=bucket, id=card_pk)
+        time_entries = TimeEntry.objects.filter(card=card)
+        if request.user in board.allowed_users:
+            serializer = TimeEntrySerializer(time_entries, many=True)
+            return Response(serializer.data)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        card = Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        if request.user in card.allowed_users:
+            serializer = ItemSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save(
+                    created_by=request.user,
+                )
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class TimeEntryDetailAPIView(LoginRequiredMixin, APIView):
+    """
+    Retrieve, update or delete a time entry instance.
+    """
+
+    def get_object(self, pk):
+        try:
+            return TimeEntry.objects.get(pk=pk)
+        except TimeEntry.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        tiem_entry = self.get_object(pk)
+        if request.user in tiem_entry.allowed_users:
+            serializer = TimeEntrySerializer(tiem_entry)
+            return Response(serializer.data)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def put(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        time_entry = self.get_object(pk)
+        if request.user in time_entry.allowed_users:
+            serializer = TimeEntrySerializer(time_entry, data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def patch(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        time_entry = self.get_object(pk)
+        if request.user in time_entry.allowed_users:
+            serializer = TimeEntrySerializer(time_entry, data=request.data, partial=True, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        time_entry = self.get_object(pk)
+        if request.user in time_entry.allowed_users:
+            time_entry.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 

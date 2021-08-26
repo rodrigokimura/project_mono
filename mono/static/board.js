@@ -111,7 +111,7 @@ var bucketsDrake = dragula({
         bucket = $(el).attr('data-bucket-id');
         order = $(target).children().toArray().findIndex(e => e == el) + 1;
         $.ajax({
-            url: `/pm/api/bucket_move/`,
+            url: `/pm/api/bucket-move/`,
             type: 'POST',
             headers: { 'X-CSRFToken': csrftoken },
             data: {
@@ -156,7 +156,7 @@ var cardsDrake = dragula({
         card = $(el).attr('data-card-id');
         order = $(target).children().toArray().findIndex(e => e == el) + 1;
         $.ajax({
-            url: `/pm/api/card_move/`,
+            url: `/pm/api/card-move/`,
             type: 'POST',
             headers: { 'X-CSRFToken': csrftoken },
             data: {
@@ -352,6 +352,7 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
                         <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>Delete this card</div>
                         <div class="divider"></div>
                         <div class="start-stop-timer card item" data-card-id="${card.id}"><i class="stopwatch icon"></i>Start/stop timer</div>
+                        <div class="edit-time-entries card item" data-card-id="${card.id}"><i class="Edit icon"></i>Edit time entries</div>
                         </div>
                     </div>
                     </div>
@@ -436,6 +437,7 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
         $(`.edit.card.item[data-card-id=${card.id}]`).click(e => { showCardModal(card, bucketId); });
         $(`.delete.card.item[data-card-id=${card.id}]`).click(e => { deleteCard(card.id, bucketId); });
         $(`.start-stop-timer[data-card-id=${card.id}]`).click(e => { startStopTimer(card.id, bucketId); });
+        $(`.edit-time-entries[data-card-id=${card.id}]`).click(e => { showTimeEntriesModal(card.id, bucketId, dark); });
         if (card.is_running) {
             intervals.push(setInterval(() => { incrementSecond(card.id) }, 1000));
         };
@@ -524,25 +526,144 @@ const renderItems = (containerSelector, items, bucketId, cardId, dark = false) =
     });
 };
 
-function getIndicesOf(searchStr, str, caseSensitive) {
-    var searchStrLen = searchStr.length;
-    if (searchStrLen == 0) {
-        return [];
-    }
-    var startIndex = 0, index, indices = [];
-    if (!caseSensitive) {
-        str = str.toLowerCase();
-        searchStr = searchStr.toLowerCase();
-    }
-    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
-        indices.push(index);
-        startIndex = index + searchStrLen;
-    }
-    return indices;
-}
+const renderTimeEntries = (containerSelector, timeEntries, bucketId, cardId, dark = false) => {
+    $(containerSelector).empty();
+    timeEntries.forEach(timeEntry => {
+        $(containerSelector).append(`
+            <div data-time-entry-id="${timeEntry.id}" class="ui form segment">
+                <div class="field">
+                    <label>Name</label>
+                    <input type="text" name="name" placeholder="Name" value="${timeEntry.name}" data-time-entry-id="${timeEntry.id}">
+                </div>
+                <div class="two fields">
+                    <div class="field">
+                        <label>Started at</label>
+                        <div class="ui time-entry start-date calendar" data-time-entry-id="${timeEntry.id}">
+                            <div class="ui input left icon">
+                                <i class="calendar icon"></i>
+                                <input type="text" placeholder="Date/Time">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Stopped at</label>
+                        <div class="ui time-entry stop-date calendar" data-time-entry-id="${timeEntry.id}">
+                            <div class="ui input left icon">
+                                <i class="calendar icon"></i>
+                                <input type="text" placeholder="Date/Time">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="height: 2.5em;">
+                    <div class="ui left floated red icon labeled delete button" data-time-entry-id="${timeEntry.id}">
+                        <i class="delete icon"></i>
+                        Delete
+                        </div>
+                        <div class="ui right floated icon labeled primary save button" data-time-entry-id="${timeEntry.id}">
+                        <i class="save icon"></i>
+                        Save
+                    </div>
+                </div>
+            </div>
+        `);
+        let startDate = $(`.time-entry.start-date[data-time-entry-id=${timeEntry.id}]`);
+        startDate.calendar({
+            type: 'datetime',
+            today: true,
+            ampm: false,
+            formatInput: true,
+            formatter: {
+                date: (date, settings) => {
+                    if (!date) return '';
+                    return date.toLocaleDateString(LANGUAGE_CODE);
+                }
+            }
+        });
+        let stopDate = $(`.time-entry.stop-date[data-time-entry-id=${timeEntry.id}]`);
+        stopDate.calendar({
+            type: 'datetime',
+            today: true,
+            ampm: false,
+            formatInput: true,
+            formatter: {
+                date: (date, settings) => {
+                    if (!date) return '';
+                    return date.toLocaleDateString(LANGUAGE_CODE);
+                }
+            }
+        });
 
+        if (timeEntry.started_at !== null) {
+            let startedAt = new Date(timeEntry.started_at);
+            startDate.calendar('set date', startedAt);
+        }
+
+        if (timeEntry.stopped_at !== null) {
+            let stoppedAt = new Date(timeEntry.stopped_at);
+            stopDate.calendar('set date', stoppedAt);
+        }
+        let timeEntrySegment = $(`.ui.form.segment[data-time-entry-id=${timeEntry.id}]`);
+        $(`.delete.button[data-time-entry-id=${timeEntry.id}]`).click(e => {
+            timeEntrySegment.addClass('loading');
+            $.ajax({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/time-entries/${timeEntry.id}/`,
+                headers: { 'X-CSRFToken': csrftoken },
+                method: 'DELETE',
+                success: r => {
+                    timeEntrySegment.remove();
+                    $('body').toast({
+                        class: 'warning',
+                        message: `Time entry deleted!`
+                    })
+                },
+                complete: () => {
+                    timeEntrySegment.removeClass('loading');
+                }
+            })
+        });
+        $(`.save.button[data-time-entry-id=${timeEntry.id}]`).click(e => {
+            timeEntrySegment.addClass('loading');
+            $.ajax({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/time-entries/${timeEntry.id}/`,
+                headers: { 'X-CSRFToken': csrftoken },
+                method: 'PATCH',
+                data: {
+                    name: $(`input[name=name][data-time-entry-id=${timeEntry.id}]`).val(),
+                    started_at: startDate.calendar('get date').toISOString(),
+                    stopped_at: stopDate.calendar('get date').toISOString(),
+                },
+                success: r => {
+                    $('body').toast({
+                        class: 'success',
+                        message: `Time entry successfully updated!`
+                    })
+                },
+                complete: () => {
+                    timeEntrySegment.removeClass('loading');
+                }
+            })
+        });
+    });
+};
 
 const insertLinksAndMentions = (text, allowedUsers) => {
+    function getIndicesOf(searchStr, str, caseSensitive) {
+        var searchStrLen = searchStr.length;
+        if (searchStrLen == 0) {
+            return [];
+        }
+        var startIndex = 0, index, indices = [];
+        if (!caseSensitive) {
+            str = str.toLowerCase();
+            searchStr = searchStr.toLowerCase();
+        }
+        while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+            indices.push(index);
+            startIndex = index + searchStrLen;
+        }
+        return indices;
+    }
     text = text.replace(
         /(https?:\/\/)([^ ]+)/g,
         '<a target="_blank" href="$&">$2</a>'
@@ -789,6 +910,21 @@ const getComments = (bucketId, cardId, dark = false, allowedUsers) => {
                 cardId = cardId,
                 dark = dark,
                 allowedUsers = allowedUsers,
+            );
+        })
+        .fail(e => { console.error(e) })
+        .always()
+};
+
+const getTimeEntries = (bucketId, cardId, dark = false) => {
+    $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/time-entries/`)
+        .done(r => {
+            renderTimeEntries(
+                containerSelector = "#time-entries .scrolling.content",
+                timeEntryes = r,
+                bucketId = bucketId,
+                cardId = cardId,
+                dark = dark,
             );
         })
         .fail(e => { console.error(e) })
@@ -1077,6 +1213,18 @@ const showBucketModal = (bucket = null) => {
     });
     modal.modal('show');
 };
+
+const showTimeEntriesModal = (cardId, bucketId, dark) => {
+    const modal = $('#time-entries.modal');
+    modal.modal({
+        onShow: () => {
+            getTimeEntries(bucketId, cardId, dark);
+        },
+        onHidden: () => {
+            loadBoard();
+        },
+    }).modal('show');
+}
 
 const deleteBucket = (bucketId) => {
     modal = $('.ui.delete.confirmation.modal')

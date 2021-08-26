@@ -1,6 +1,9 @@
 {% extends "project_manager/base.html" %}
 {% load static %}
 {% load i18n %}
+{% load tz %}
+{% get_current_language as LANGUAGE_CODE %}
+
 
 {% block head %}
   <script src="{% static '/suggest.js' %}"></script>
@@ -101,6 +104,11 @@
     const PROJECT_ID = "{{ object.project.id }}";
     const BOARD_ID = "{{ object.id }}";
     const USERNAME = "{{ request.user.username }}";
+    {% for code, name, flag, js_locale in LANGUAGE_EXTRAS %}
+    {% if code == LANGUAGE_CODE %}
+    const LANGUAGE_CODE = "{{ js_locale }}";
+    {% endif %}
+    {% endfor %}
   </script>
 {% endblock head %}
 
@@ -716,7 +724,7 @@
   </div>
 
   <div class="ui tags top aligned tiny modal">
-    <div class="header"></div>
+    <div class="header">Managing tags</div>
     <div class="scrolling content">
     </div>
     <div class="actions">
@@ -724,15 +732,11 @@
         <i class="remove icon"></i>
         {% translate 'Close'%}
       </div>
-      <div class="ui green ok button">
-        <i class="checkmark icon"></i>
-        {% translate 'Save' %}
-      </div>
     </div>
   </div>
 
   <div class="ui top aligned tiny modal" id="time-entries">
-    <div class="header"></div>
+    <div class="header">Editing time entries</div>
     <div class="scrolling content">
     </div>
     <div class="actions">
@@ -749,7 +753,7 @@
 
   <script src="{% static 'board.js' %}"></script>
 
-  <script>    
+  <script>
     $(document).ready(e => {
       $('.ui.sidebar')
         .sidebar('setting', 'transition', 'slide along')
