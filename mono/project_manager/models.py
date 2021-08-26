@@ -404,7 +404,7 @@ class Comment(models.Model):
 
 class TimeEntry(BaseModel):
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
-    started_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(default=timezone.now)
     stopped_at = models.DateTimeField(blank=True, null=True)
     duration = models.DurationField(blank=True, null=True, editable=False)
 
@@ -419,6 +419,10 @@ class TimeEntry(BaseModel):
     @property
     def is_stopped(self):
         return self.stopped_at is not None
+
+    @property
+    def allowed_users(self):
+        return self.card.bucket.board.allowed_users
 
 
 class Theme(models.Model):

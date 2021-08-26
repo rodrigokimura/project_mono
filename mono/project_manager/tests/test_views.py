@@ -1070,7 +1070,7 @@ class CardMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/card_move/',
+            path='/pm/api/card-move/',
             data={
                 'source_bucket': self.source_bucket.id,
                 'target_bucket': self.target_bucket.id,
@@ -1092,7 +1092,7 @@ class CardMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/card_move/',
+            path='/pm/api/card-move/',
             data={
                 'source_bucket': self.source_bucket.id,
                 'target_bucket': target_bucket_auto_status.id,
@@ -1114,7 +1114,7 @@ class CardMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/card_move/',
+            path='/pm/api/card-move/',
             data={
                 'source_bucket': self.source_bucket.id,
                 'target_bucket': target_bucket_auto_status.id,
@@ -1136,7 +1136,7 @@ class CardMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/card_move/',
+            path='/pm/api/card-move/',
             data={
                 'source_bucket': self.source_bucket.id,
                 'target_bucket': target_bucket_auto_status.id,
@@ -1175,7 +1175,7 @@ class CardMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/card_move/',
+            path='/pm/api/card-move/',
             data={
                 'source_bucket': bucket.id,
                 'target_bucket': bucket.id,
@@ -1232,7 +1232,7 @@ class CardMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/card_move/',
+            path='/pm/api/card-move/',
             data={
                 'source_bucket': source_bucket.id,
                 'target_bucket': target_bucket.id,
@@ -1247,7 +1247,7 @@ class CardMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/card_move/',
+            path='/pm/api/card-move/',
             data={
                 'source_bucket': self.source_bucket.id,
                 'target_bucket': self.target_bucket.id,
@@ -1262,7 +1262,7 @@ class CardMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/card_move/',
+            path='/pm/api/card-move/',
             data={
                 'source_bucket': self.source_bucket.id,
                 'target_bucket': self.target_bucket.id,
@@ -1277,7 +1277,7 @@ class CardMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/card_move/',
+            path='/pm/api/card-move/',
             data={
                 'source_bucket': 999999,
                 'target_bucket': self.target_bucket.id,
@@ -1292,7 +1292,7 @@ class CardMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/card_move/',
+            path='/pm/api/card-move/',
             data={
                 'source_bucket': self.source_bucket.id,
                 'target_bucket': 99999,
@@ -1316,7 +1316,7 @@ class CardMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/card_move/',
+            path='/pm/api/card-move/',
             data={
                 'source_bucket': not_allowed_source_bucket.id,
                 'target_bucket': self.target_bucket.id,
@@ -1340,7 +1340,7 @@ class CardMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/card_move/',
+            path='/pm/api/card-move/',
             data={
                 'source_bucket': self.source_bucket.id,
                 'target_bucket': not_allowed_target_bucket.id,
@@ -1375,7 +1375,7 @@ class BucketMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/bucket_move/',
+            path='/pm/api/bucket-move/',
             data={
                 'board': self.board.id,
                 'order': 2,
@@ -1389,7 +1389,7 @@ class BucketMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/bucket_move/',
+            path='/pm/api/bucket-move/',
             data={
                 'board': self.board.id,
                 'order': 2,
@@ -1403,7 +1403,7 @@ class BucketMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/bucket_move/',
+            path='/pm/api/bucket-move/',
             data={
                 'board': 99999,
                 'order': 2,
@@ -1417,7 +1417,7 @@ class BucketMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/bucket_move/',
+            path='/pm/api/bucket-move/',
             data={
                 'board': self.board.id,
                 'order': -1,
@@ -1432,7 +1432,7 @@ class BucketMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='not_allowed', password='supersecret')
         response = c.post(
-            path='/pm/api/bucket_move/',
+            path='/pm/api/bucket-move/',
             data={
                 'board': self.board.id,
                 'order': 1,
@@ -1447,7 +1447,7 @@ class BucketMoveApiViewTests(APITestCase):
         c = APIClient()
         c.login(username='test', password='supersecret')
         response = c.post(
-            path='/pm/api/bucket_move/',
+            path='/pm/api/bucket-move/',
             data={
                 'board': outside_board.id,
                 'order': 1,
