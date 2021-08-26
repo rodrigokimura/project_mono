@@ -3,7 +3,7 @@ from rest_framework.serializers import ModelSerializer, Serializer
 from django.contrib.auth.models import User
 from accounts.models import UserProfile
 import json
-from .models import Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite
+from .models import Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite, TimeEntry
 
 
 class ProfileSerializer(ModelSerializer):
@@ -277,6 +277,22 @@ class ItemSerializer(ModelSerializer):
             'checked_by': {'read_only': True},
             'checked_at': {'read_only': True},
             'checked': {'read_only': True},
+        }
+
+
+class TimeEntrySerializer(ModelSerializer):
+
+    class Meta:
+        model = TimeEntry
+        fields = [
+            'id',
+            'name',
+            'card',
+            'started_at',
+            'stopped_at',
+        ]
+        extra_kwargs = {
+            'created_by': {'read_only': True},
         }
 
 
