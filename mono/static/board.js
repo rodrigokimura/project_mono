@@ -1218,10 +1218,15 @@ const showTimeEntriesModal = (cardId, bucketId, dark) => {
     const modal = $('#time-entries.modal');
     modal.modal({
         onShow: () => {
+            modal.addClass('loading');
             getTimeEntries(bucketId, cardId, dark);
+        },
+        onVisible: () => {
+            modal.removeClass('loading');
         },
         onHidden: () => {
             loadBoard();
+            modal.find('.content').empty();
         },
     }).modal('show');
 }
