@@ -11,7 +11,20 @@
         display: none !important;
       }
     }
+    a.content {
+      color: inherit;
+      text-decoration: underline 0.1em rgba(0, 0, 0, 0);
+      transition: text-decoration-color 300ms;
+    }
+    a.content:hover {
+      text-decoration-color: rgba(0, 0, 0, 1);
+    }
+
   </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/mathtex-script-type.min.js" defer></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js"></script>
 {% endblock head %}
 
 {% block menu %}
@@ -50,7 +63,6 @@
       </div>
     </div>
   </div>
-      
 
   <script>
     $('*[data-notes-list=true]').html(
@@ -67,12 +79,12 @@
     );
 
     const getNote = id => {
+      $('.ui.note.segment').addClass('loading');
       $.get(
         url=`/nt/api/notes/${id}/`
       )
       .done(r => {
         $(".note.segment").html(r.html);
-        console.log(r.url);
         $('.ui.note.segment').removeClass('hidden');
         $('.ui.edit.button')
           .removeClass('disabled')
@@ -80,6 +92,9 @@
         $('.ui.delete.button')
           .removeClass('disabled')
           .attr('href', r.delete_url);
+      })
+      .always(() => {
+        $('.ui.note.segment').removeClass('loading');
       })
     }
     
@@ -95,6 +110,16 @@
       .sidebar('setting', 'transition', 'slide along')
       .sidebar('setting', 'mobileTransition', 'slide along')
       .sidebar('attach events', '.toc.item');
+
+    MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+    var observer = new MutationObserver(function(mutations, observer) {
+      $('table').addClass('ui table');
+    });
+    observer.observe(document, {
+      subtree: true,
+      attributes: true
+    });
+
   </script>
 
   {{ form.media }}
