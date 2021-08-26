@@ -10,6 +10,19 @@
     </form>
   </div>
 </div>
+<script>
+
+  $('textarea[name=text]').change(() => {
+    $('table').addClass('ui table');
+  });
+
+  const formatTable = () => {
+    $('table').addClass('ui table');
+    setTimeout(formatTable, 200);
+  }
+  setTimeout(formatTable, 200);
+
+</script>
 
 {{ form.media }}
 {% endblock main %}

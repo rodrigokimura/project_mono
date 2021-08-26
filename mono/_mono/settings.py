@@ -321,3 +321,8 @@ TINYMCE_JS_ROOT = os.path.join(STATIC_ROOT, "tinymce")
 
 FILEBROWSER_DIRECTORY = os.path.join(MEDIA_ROOT, 'uploads')
 DIRECTORY = ""
+
+# MARKDOWNX
+MARKDOWNX_MARKDOWN_EXTENSIONS = [
+    'markdown.extensions.extra',
+]
