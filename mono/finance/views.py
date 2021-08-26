@@ -154,7 +154,7 @@ class CardOrderView(LoginRequiredMixin, TemplateView):
 class SignUp(SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
     form_class = UserForm
     template_name = "finance/signup.html"
-    success_url = reverse_lazy('finance:index')
+    success_url = reverse_lazy('home')
     success_message = "%(username)s user created successfully"
 
 
@@ -163,7 +163,7 @@ class Login(LoginView):
 
 
 class Logout(LogoutView):
-    next_page = reverse_lazy('finance:index')
+    next_page = reverse_lazy('home')
 
 
 class PasswordResetView(PasswordResetView):
