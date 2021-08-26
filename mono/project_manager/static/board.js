@@ -352,7 +352,7 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
                         <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>Delete this card</div>
                         <div class="divider"></div>
                         <div class="start-stop-timer card item" data-card-id="${card.id}"><i class="stopwatch icon"></i>Start/stop timer</div>
-                        <div class="edit-time-entries card item" data-card-id="${card.id}"><i class="Edit icon"></i>Edit time entries</div>
+                        <div class="edit-time-entries card item" data-card-id="${card.id}"><i class="history icon"></i>Edit time entries</div>
                         </div>
                     </div>
                     </div>
@@ -1218,10 +1218,15 @@ const showTimeEntriesModal = (cardId, bucketId, dark) => {
     const modal = $('#time-entries.modal');
     modal.modal({
         onShow: () => {
+            modal.addClass('loading');
             getTimeEntries(bucketId, cardId, dark);
+        },
+        onVisible: () => {
+            modal.removeClass('loading');
         },
         onHidden: () => {
             loadBoard();
+            modal.find('.content').empty();
         },
     }).modal('show');
 }
