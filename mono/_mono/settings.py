@@ -215,8 +215,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGIN_URL = reverse_lazy('finance:login')
-LOGOUT_URL = reverse_lazy('finance:index')
-LOGIN_REDIRECT_URL = reverse_lazy('finance:index')
+LOGOUT_URL = reverse_lazy('home')
+LOGIN_REDIRECT_URL = reverse_lazy('home')
 
 if APP_ENV in ['DEV', 'TEST']:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
