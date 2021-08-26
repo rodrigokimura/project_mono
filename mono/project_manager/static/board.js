@@ -1016,7 +1016,7 @@ const showBucketModal = (bucket = null) => {
         modal.find('input[name=name]').val('');
         modal.find('textarea[name=description]').val('');
         modal.find('.ui.auto-status.dropdown').dropdown('set selected', 'N');
-        modal.find('.ui.color.dropdown').dropdown('set selected', '');
+        modal.find('.ui.color.dropdown').dropdown('clear');
     };
     modal.modal({
         restoreFocus: false,
