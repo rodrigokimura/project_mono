@@ -79,13 +79,13 @@
     );
 
     const getNote = id => {
-      $('.ui.note.segment').addClass('loading');
+      var noteSegment = $('.ui.note.segment');
+      noteSegment.removeClass('hidden').addClass('loading');
       $.get(
         url=`/nt/api/notes/${id}/`
       )
       .done(r => {
         $(".note.segment").html(r.html);
-        $('.ui.note.segment').removeClass('hidden');
         $('.ui.edit.button')
           .removeClass('disabled')
           .attr('href', r.url);
@@ -93,8 +93,11 @@
           .removeClass('disabled')
           .attr('href', r.delete_url);
       })
+      .fail(() => {
+        noteSegment.addClass('hidden');
+      })
       .always(() => {
-        $('.ui.note.segment').removeClass('loading');
+        noteSegment.removeClass('loading');
       })
     }
     
