@@ -73,7 +73,6 @@
         background-color: #FFFFFF;
         border: 1px solid #85b7d9;
         border-radius: .3em;
-        // font-size: 90%;
         width: 200px;
         z-index: 2000;
     }
@@ -109,6 +108,12 @@
     a.card-name:hover {
       color: rgba(33, 133, 208, 1) !important;
       text-decoration-color: rgba(33, 133, 208, 1) !important;
+    }
+    .ui.allowed_users.avatar.image { 
+      height: 1em;
+      width: 1em;
+      margin-top: auto !important;
+      margin-bottom: auto !important;
     }
   </style>
   <script>
@@ -424,113 +429,117 @@
       <div class="field">
         <input type="hidden" name="order">
       </div>
-      <div class="field">
-        <label>{% translate 'Tags' %}</label>
-        <div class="ui tags search multiple selection dropdown">
-          <div class="text"></div>
-          <i class="dropdown icon"></i>
+      <div class="two fields">
+        <div class="field">
+          <label>{% translate 'Tags' %}</label>
+          <div class="ui tags search multiple selection dropdown">
+            <div class="text"></div>
+            <i class="dropdown icon"></i>
+          </div>
         </div>
-      </div>
-      <div class="field">
-        <label>{% translate 'Assigned to' %}</label>
-        <div class="ui assigned_to search multiple selection dropdown">
-          <div class="text"></div>
-          <i class="dropdown icon"></i>
-        </div>
-      </div>
-      <script>
-        const tagExists = (id) => {
-          var exists = false;
-          $.ajax({
-            method: 'GET',
-            headers: {'X-CSRFToken': csrftoken},
-            async: false,
-            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${id}`,
-          })
-          .done(r => {
-            exists = true;
-          })
-          return exists;
-        };
-        const createTag = (id, name) => {
-          if (!tagExists(id)) {
+        <script>
+          const tagExists = (id) => {
+            var exists = false;
             $.ajax({
-              method: 'POST',
+              method: 'GET',
               headers: {'X-CSRFToken': csrftoken},
               async: false,
-              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
-              data: {
-                name: name
-              },
+              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${id}`,
             })
             .done(r => {
-              id = r.id;
+              exists = true;
             })
-          }
-          return id;
-        };
-        $('.ui.tags.dropdown').dropdown({
-          allowAdditions: true,
-          filterRemoteData: true,
-          forceSelection: false,
-          saveRemoteData: false,
-          apiSettings: {
-            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
-            method: 'GET',
-            cache: false,
-            loadingDuration: 500,
-            successTest: r => {
-              if (r && r.success) {
-                return r.success;
-              }
-              return false;
-            },
-            onResponse: r => {
-              let objs = []
-              for (obj of Object.values(r)) {
-                obj.value = obj.name;
-                if (obj.icon !== null) {
-                  obj.icon = obj.icon.markup;
-                }
-                objs.push(obj);
-              }
-              return { success: true, results: objs }
+            return exists;
+          };
+          const createTag = (id, name) => {
+            if (!tagExists(id)) {
+              $.ajax({
+                method: 'POST',
+                headers: {'X-CSRFToken': csrftoken},
+                async: false,
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
+                data: {
+                  name: name
+                },
+              })
+              .done(r => {
+                id = r.id;
+              })
             }
-          },
-        });
-      </script>
+            return id;
+          };
+          $('.ui.tags.dropdown').dropdown({
+            allowAdditions: true,
+            filterRemoteData: true,
+            forceSelection: false,
+            saveRemoteData: false,
+            apiSettings: {
+              url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
+              method: 'GET',
+              cache: false,
+              loadingDuration: 500,
+              successTest: r => {
+                if (r && r.success) {
+                  return r.success;
+                }
+                return false;
+              },
+              onResponse: r => {
+                let objs = []
+                for (obj of Object.values(r)) {
+                  obj.value = obj.name;
+                  if (obj.icon !== null) {
+                    obj.icon = obj.icon.markup;
+                  }
+                  objs.push(obj);
+                }
+                return { success: true, results: objs }
+              }
+            },
+          });
+        </script>
+        <div class="field">
+          <label>{% translate 'Color' %}</label>
+          <select class="ui card-color selection dropdown">
+          </select>
+        </div>
+        <script>
+          $('.ui.card-color.dropdown').dropdown({
+            clearable: true,
+            values: [
+              {% for color in colors %}
+              {
+                "name": "{{ color.name }}",
+                "value": {{ color.id }},
+                "icon": "{{ color.name|lower }} circle",
+              },
+              {% endfor %}
+            ],
+          });
+        </script>
+      </div>
       <div class="field">
         <label>{% translate 'Description' %}</label>
         <textarea name="description" placeholder="Description" rows="2"></textarea>
       </div>
-      <div class="field">
-        <label>{% translate 'Status' %}</label>
-        <select class="ui status selection dropdown">
-          {% for value, text in card_statuses %}
-          <option value="{{ value }}">{{ text }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <script>$('.ui.status.dropdown').dropdown();</script>
-      <div class="field">
-        <label>{% translate 'Color' %}</label>
-        <select class="ui card color selection dropdown">
-        </select>
-      </div>
-      <script>
-        $('.ui.card.color.dropdown').dropdown({
-          clearable: true,
-          values: [
-            {% for color in colors %}
-            {
-              "name": "{{ color.name }}",
-              "value": {{ color.id }},
-              "icon": "{{ color.name|lower }} circle",
-            },
+      <div class="two fields">
+        <div class="field">
+          <label>{% translate 'Status' %}</label>
+          <select class="ui status selection dropdown">
+            {% for value, text in card_statuses %}
+            <option value="{{ value }}">{{ text }}</option>
             {% endfor %}
-          ],
-        });
-      </script>
+          </select>
+        </div>
+        <script>$('.ui.status.dropdown').dropdown();</script>
+        <div class="field">
+          <label>{% translate 'Assigned to' %}</label>
+          <div class="ui assigned_to search multiple selection dropdown">
+            <div class="text"></div>
+            <i class="dropdown icon"></i>
+          </div>
+        </div>
+      </div>
       <div class="ui error message"></div>
       <div class="extra content">
         <div class="ui inverted item">
