@@ -528,6 +528,14 @@ const renderItems = (containerSelector, items, bucketId, cardId, dark = false) =
 
 const renderTimeEntries = (containerSelector, timeEntries, bucketId, cardId, dark = false) => {
     $(containerSelector).empty();
+    if (timeEntries.length == 0) {
+        $(containerSelector).append(`
+            <div class="ui header">
+                No time entries for this card.
+            </div>
+        `);
+        return;
+    }
     timeEntries.forEach(timeEntry => {
         $(containerSelector).append(`
             <div data-time-entry-id="${timeEntry.id}" class="ui form segment">
@@ -1217,6 +1225,7 @@ const showBucketModal = (bucket = null) => {
 const showTimeEntriesModal = (cardId, bucketId, dark) => {
     const modal = $('#time-entries.modal');
     modal.modal({
+        autofocus: false,
         onShow: () => {
             modal.addClass('loading');
             getTimeEntries(bucketId, cardId, dark);
