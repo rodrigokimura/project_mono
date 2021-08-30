@@ -334,17 +334,16 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
     };
     $(containerSelector).empty();
     cards.forEach(card => {
-        $(containerSelector).append(
-            `
+        $(containerSelector).append(`
             <div class="ui loading ${dark ? 'inverted ' : ' '}${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}card card-el" data-card-id="${card.id}" style="width: 100%; flex: 0 0 auto;${compact ? ' margin-bottom: -.25em;' : 'margin-bottom: .25em;'}">
                 <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.primary}; color: ${card.color.light}` : ''};" data-card-id="${card.id}">
                     <i class="grip lines small icon"></i>
                 </div>
                 <div class="content" style="${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : ''};${compact ? ' padding: .5em;' : ''}">
                     <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between; ${card.color !== null ? `color: ${dark ? card.color.light : card.color.dark};` : ''}">
-                    <div style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
+                    <a class="${dark ? 'dark ' : ' '}card-name" style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;" data-card-id="${card.id}">
                         ${card.name}
-                    </div>
+                    </a>
                     <div class="ui basic icon top right pointing ${dark ? 'inverted ' : ' '}dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 1.5em; padding: .25em; margin: 0;' : ''}">
                         <i class="ellipsis horizontal icon"></i>
                         <div class="menu">
@@ -368,8 +367,7 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
                     <div class="bar"></div>
                 </div>
             </div>
-            `
-        );
+        `);
         $(`.ui.progress[data-card-id=${card.id}]`).progress();
         let extraContent = $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`);
         let tagsContainer = $(containerSelector).find(`.meta .tags[data-card-id=${card.id}]`);
@@ -434,6 +432,7 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
             { passive: false }
         );
         $(`.ui.dropdown[data-card-id=${card.id}]`).dropdown({ action: 'hide' });
+        $(`.card-name[data-card-id=${card.id}]`).click(e => { showCardModal(card, bucketId); });
         $(`.edit.card.item[data-card-id=${card.id}]`).click(e => { showCardModal(card, bucketId); });
         $(`.delete.card.item[data-card-id=${card.id}]`).click(e => { deleteCard(card.id, bucketId); });
         $(`.start-stop-timer[data-card-id=${card.id}]`).click(e => { startStopTimer(card.id, bucketId); });
