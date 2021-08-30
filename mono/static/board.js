@@ -447,20 +447,18 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
 const renderItems = (containerSelector, items, bucketId, cardId, dark = false) => {
     $(containerSelector).empty();
     items.forEach(item => {
-        $(containerSelector).append(
-            `
-              <div class="checklist-item" data-item-id="${item.id}" style="display: flex; flex-flow: row nowrap; align-items: center;">
+        $(containerSelector).append(`
+            <div class="checklist-item" data-item-id="${item.id}" style="display: flex; flex-flow: row nowrap; align-items: center;">
                 <div class="ui ${dark ? 'inverted ' : ' '}fitted checkbox" style="flex: 0 0 auto;" data-item-id="${item.id}">
-                  <input type="checkbox" ${item.checked ? 'checked' : ''}>
-                  <label></label>
+                    <input type="checkbox" ${item.checked ? 'checked' : ''}>
+                    <label></label>
                 </div>
                 <div class="ui ${dark ? 'inverted ' : ' '}transparent input" style="flex: 1 0 auto;">
-                  <input class="${item.checked ? 'item-checked' : ''}" data-item-id="${item.id}" type="text" placeholder="Enter text here" data-text="${item.name}" value="${item.name}">
+                    <input class="${item.checked ? 'item-checked' : ''}" data-item-id="${item.id}" type="text" placeholder="Enter text here" data-text="${item.name}" value="${item.name}">
                 </div>
                 <div data-item-id="${item.id}" class="ui mini icon basic delete-item ${dark ? 'inverted ' : ' '}button"><i data-item-id="${item.id}" class="trash alternate outline icon"></i></div>
-              </div>
-            `
-        );
+            </div>
+        `);
     });
     $('.checklist-item input').on('keypress', e => {
         if (e.which == 13) {
@@ -566,8 +564,8 @@ const renderTimeEntries = (containerSelector, timeEntries, bucketId, cardId, dar
                     <div class="ui left floated red icon labeled delete button" data-time-entry-id="${timeEntry.id}">
                         <i class="delete icon"></i>
                         Delete
-                        </div>
-                        <div class="ui right floated icon labeled primary save button" data-time-entry-id="${timeEntry.id}">
+                    </div>
+                    <div class="ui right floated icon labeled primary save button" data-time-entry-id="${timeEntry.id}">
                         <i class="save icon"></i>
                         Save
                     </div>
@@ -960,7 +958,7 @@ const showCardModal = (card = null, bucketId) => {
         modal.find('input[name=name]').val(card.name);
         modal.find('textarea[name=description]').val(card.description);
         modal.find('.ui.status.dropdown').dropdown('set selected', card.status);
-        modal.find('.ui.color.dropdown').dropdown('set selected', card.color !== null ? card.color.id : '');
+        modal.find('.ui.card-color.dropdown').dropdown('set selected', card.color !== null ? card.color.id : '');
         modal.find('.extra.content .item').show();
         modal.find('.comments-segment.segment').show();
         modal.find('.ui.tags.dropdown').parent().show();
@@ -983,7 +981,7 @@ const showCardModal = (card = null, bucketId) => {
                 value: user.username,
                 name: user.username,
                 image: user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR,
-                imageClass: 'ui avatar image',
+                imageClass: 'ui allowed_users avatar image',
             }
         ));
         modal.find('.ui.assigned_to.dropdown').dropdown({
@@ -1050,7 +1048,7 @@ const showCardModal = (card = null, bucketId) => {
         modal.find('input[name=name]').val('');
         modal.find('textarea[name=description]').val('');
         modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
-        modal.find('.ui.color.dropdown').dropdown('set selected', '');
+        modal.find('.ui.card-color.dropdown').dropdown('set selected', '');
         // Prevent users from inserting checklists or comments before card object creation
         modal.find('.extra.content .item').hide();
         modal.find('.comments-segment.segment').hide();
@@ -1079,7 +1077,7 @@ const showCardModal = (card = null, bucketId) => {
             name = modal.find('input[name=name]').val();
             description = modal.find('textarea[name=description]').val();
             status = modal.find('.ui.status.dropdown').dropdown('get value');
-            color = modal.find('.ui.color.dropdown').dropdown('get value');
+            color = modal.find('.ui.card-color.dropdown').dropdown('get value');
             tagsString = modal.find('.ui.tags.dropdown').dropdown('get value');
             tags = tagsString.split(",").map(tag => ({ name: tag }));
             assigneesString = modal.find('.ui.assigned_to.dropdown').dropdown('get value');
