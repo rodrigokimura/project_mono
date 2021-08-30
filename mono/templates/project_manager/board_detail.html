@@ -423,15 +423,11 @@
       </div>
     </div>
     <div class="scrolling content">
-      <div class="field">
-        <input type="hidden" name="id">
-      </div>
-      <div class="field">
-        <input type="hidden" name="order">
-      </div>
+      <input type="hidden" name="id">
+      <input type="hidden" name="order">
       <div class="two fields">
         <div class="field">
-          <label>{% translate 'Tags' %}</label>
+          <label><i class="tags icon"></i>{% translate 'Tags' %}</label>
           <div class="ui tags search multiple selection dropdown">
             <div class="text"></div>
             <i class="dropdown icon"></i>
@@ -488,9 +484,9 @@
                 let objs = []
                 for (obj of Object.values(r)) {
                   obj.value = obj.name;
-                  if (obj.icon !== null) {
-                    obj.icon = obj.icon.markup;
-                  }
+                  obj.icon = obj.icon === null ? '' : obj.icon.markup;
+                  obj.iconClass = obj.color === null ? '' : `${obj.color.name.toLowerCase()} icon`
+                  obj.name = `<span class="ui ${obj.color === null ? '' : obj.color.name.toLowerCase()} text">${obj.name}</span>`;
                   objs.push(obj);
                 }
                 return { success: true, results: objs }
@@ -499,7 +495,7 @@
           });
         </script>
         <div class="field">
-          <label>{% translate 'Color' %}</label>
+          <label><i class="palette icon"></i>{% translate 'Color' %}</label>
           <select class="ui card-color selection dropdown">
           </select>
         </div>
@@ -519,12 +515,12 @@
         </script>
       </div>
       <div class="field">
-        <label>{% translate 'Description' %}</label>
+        <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
         <textarea name="description" placeholder="Description" rows="2"></textarea>
       </div>
       <div class="two fields">
         <div class="field">
-          <label>{% translate 'Status' %}</label>
+          <label><i class="spinner icon"></i>{% translate 'Status' %}</label>
           <select class="ui status selection dropdown">
             {% for value, text in card_statuses %}
             <option value="{{ value }}">{{ text }}</option>
@@ -533,7 +529,7 @@
         </div>
         <script>$('.ui.status.dropdown').dropdown();</script>
         <div class="field">
-          <label>{% translate 'Assigned to' %}</label>
+          <label><i class="user circle icon"></i>{% translate 'Assigned to' %}</label>
           <div class="ui assigned_to search multiple selection dropdown">
             <div class="text"></div>
             <i class="dropdown icon"></i>
@@ -544,7 +540,7 @@
       <div class="extra content">
         <div class="ui inverted item">
           <div class="ui checklist segment">
-            <h4 class="ui dividing header">{% translate 'Checklist' %}</h4>
+            <h4 class="ui dividing header"><i class="tasks icon"></i>{% translate 'Checklist' %}</h4>
             <div class="content">
               <div class="checklist-drake"></div>
               <div class="ui fluid transparent icon add-item input">
@@ -556,7 +552,7 @@
         </div>
       </div>
       <div class="ui comments-segment segment">
-        <h4 class="ui dividing header">{% translate 'Comments' %}</h4>
+        <h4 class="ui dividing header"><i class="comments icon"></i>{% translate 'Comments' %}</h4>
         <div class="ui minimal comments" id="card-comments"></div>
         <div class="ui reply form">
           <div class="field">
