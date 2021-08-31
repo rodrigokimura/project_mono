@@ -45,11 +45,21 @@
     .checklist-item:hover .delete-item.button {
       opacity: 1;
     }
-    .assignee {
+    img.assignee {
+      border-style: solid;
+      border-width: .2em;
+      border-color: #FFFFFF;
       margin-right: -.75em !important;
       transition: .5s;
     }
-    .assignee:hover {
+    img.assignee.dark {
+      border-style: solid;
+      border-width: .2em;
+      border-color: #141516;
+      margin-right: -.75em !important;
+      transition: .5s;
+    }
+    img.assignee:hover {
       margin-right: 0 !important;
     }
     .noselect {
@@ -100,7 +110,6 @@
       text-decoration: underline 0.1em rgba(233, 233, 233, 0);
     }
     a.card-name {
-      // color: inherit;
       color: rgba(38, 38, 38, 1) !important;
       text-decoration: underline 0.1em rgba(33, 133, 208, 0) !important;
       transition: 300ms !important;
@@ -114,6 +123,23 @@
       width: 1em;
       margin-top: auto !important;
       margin-bottom: auto !important;
+    }
+    /* Works on Firefox */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #888888 rgba(0,0,0,0);
+    }
+
+    /* Works on Chrome, Edge, and Safari */
+    *::-webkit-scrollbar {
+      width: .25em !important;
+      height: .25em !important;
+    }
+    *::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0) !important;
+    }
+    *::-webkit-scrollbar-thumb {
+      background: #888888 !important;
     }
   </style>
   <script>
@@ -503,7 +529,7 @@
     </div>
   </div>
 
-  <div class="ui tags top aligned tiny modal">
+  <div class="ui tags tiny modal">
     <div class="header">Managing tags</div>
     <div class="scrolling content">
     </div>
