@@ -84,6 +84,8 @@ class ProjectSerializer(ModelSerializer):
 
 
 class BoardSerializer(ModelSerializer):
+    allowed_users = UserSerializer(many=True, read_only=True)
+
     class Meta:
         model = Board
         fields = [
@@ -95,6 +97,7 @@ class BoardSerializer(ModelSerializer):
             'compact',
             'dark',
             'bucket_width',
+            'allowed_users',
         ]
         extra_kwargs = {'created_by': {'read_only': True}}
 
@@ -203,6 +206,59 @@ class CardSerializer(ModelSerializer):
             'completed_by': {'read_only': True},
             'completed_at': {'read_only': True},
         }
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        if 'tag' in validated_data:
+            del validated_data['tag']
+
+        requested_tags = self.context['request'].data.get('tag')
+        if requested_tags is not None:
+            requested_tags = json.loads(requested_tags)
+        else:
+            requested_tags = []
+
+        tags = []
+        for tag_dict in requested_tags:
+            if tag_dict['name'].strip() == '':
+                continue
+            tag, created = Tag.objects.update_or_create(
+                name=tag_dict['name'],
+                defaults={
+                    'created_by': self.context['request'].user,
+                    'board': validated_data['bucket'].board,
+                }
+            )
+            tags.append(tag)
+
+        requested_assignees = self.context['request'].data.get('assigned_to')
+        if requested_assignees is not None:
+            requested_assignees = json.loads(requested_assignees)
+        else:
+            requested_assignees = []
+
+        assignees = []
+        for user_dict in requested_assignees:
+            qs = User.objects.filter(username=user_dict.get('username', ''))
+            if qs.exists():
+                user = qs.get()
+                if user in instance.allowed_users:
+                    assignees.append(user)
+
+        status = validated_data.get('status', instance.status)
+        if status == Bucket.COMPLETED:
+            instance.mark_as_completed(
+                user=self.context['request'].user
+            )
+        elif status == Bucket.IN_PROGRESS:
+            instance.mark_as_in_progress(
+                user=self.context['request'].user
+            )
+        elif status == Bucket.NOT_STARTED:
+            instance.mark_as_not_started()
+        instance.tag.set(tags)
+        instance.assigned_to.set(assignees)
+        return instance
 
     def update(self, instance, validated_data):
         if 'tag' in validated_data:
