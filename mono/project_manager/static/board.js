@@ -403,7 +403,12 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
         };
         let assigneesContainer = $(containerSelector).find(`.meta .assignees[data-card-id=${card.id}]`);
         if (card.assigned_to.length > 0) {
-            renderAssignees(assigneesContainer, card.assigned_to, dark);
+            renderAssignees(
+                assigneesContainer,
+                card.assigned_to,
+                card.color !== null ? dark ? card.color.dark : card.color.light : null,
+                dark
+            );
         };
         if (extraContent.text().trim() === '') {
             extraContent.remove();
@@ -817,14 +822,21 @@ const renderTags = (container, tags, dark = false) => {
     }
 };
 
-const renderAssignees = (container, assignees, dark = false) => {
-    for (user of assignees) {
-        container.append(
-            `
-            <img data-username="${user.username}" data-content="${user.username}" data-variation="basic" class="ui avatar mini image assignee" src="${user.profile.avatar === null ? PLACEHOLDER_AVATAR : user.profile.avatar}">
-            `
-        );
-        $(`img[data-username='${user.username}']`).popup();
+const renderAssignees = (container, assignees, borderColor = null, dark = false) => {
+    if (borderColor === null) {
+        for (user of assignees) {
+            container.append(`
+                <img data-username="${user.username}" data-content="${user.username}" data-variation="basic" class="ui avatar mini image assignee${dark ? ' dark' : ''}" src="${user.profile.avatar === null ? PLACEHOLDER_AVATAR : user.profile.avatar}"">
+            `);
+            $(`img[data-username='${user.username}']`).popup();
+        }
+    } else {
+        for (user of assignees) {
+            container.append(`
+                <img data-username="${user.username}" data-content="${user.username}" data-variation="basic" class="ui avatar mini image assignee${dark ? ' dark' : ''}" src="${user.profile.avatar === null ? PLACEHOLDER_AVATAR : user.profile.avatar}" style="border-color: ${borderColor};">
+            `);
+            $(`img[data-username='${user.username}']`).popup();
+        }
     }
 };
 
@@ -1449,12 +1461,11 @@ const renderTagForms = (containerElement, tag) => {
     })
 };
 const showManageTagsModal = (allowMultiple = false, fromCardModal = false, callback = undefined) => {
-
-    // Close sidebar
     $('.ui.sidebar').sidebar('hide');
     let tagsModal = $('.ui.tags.modal');
     tagsModal.modal({
         autofocus: false,
+        // context: fromCardModal ? '.card-form' : 'body',
         allowMultiple: allowMultiple,
         onShow: () => {
             el = tagsModal.find('.scrolling.content');
@@ -1479,10 +1490,10 @@ const showManageTagsModal = (allowMultiple = false, fromCardModal = false, callb
         },
         onApprove: () => {
             el.find('.ui.form').each((index, form) => {
-                id = $(form).find('input[name=id]').val();
-                icon = $(form).find('.tag-icon').dropdown('get value');
-                color = $(form).find('.tag-color').dropdown('get value');
-                name = $(form).find('.tag-name').val();
+                var id = $(form).find('input[name=id]').val();
+                var icon = $(form).find('.tag-icon').dropdown('get value');
+                var color = $(form).find('.tag-color').dropdown('get value');
+                var name = $(form).find('.tag-name').val();
                 if (id == '') {
                     $.ajax({
                         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
