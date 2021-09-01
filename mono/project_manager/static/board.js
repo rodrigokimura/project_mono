@@ -986,6 +986,7 @@ const initializeTagsDropdown = dropdown => {
         }
     });
     dropdown.dropdown('refresh').dropdown({
+        placeholder: 'Select tags to this card',
         values: tags,
         clearable: true,
         allowAdditions: false,
@@ -1013,8 +1014,7 @@ const getBoardAllowedUsers = () => {
 const showCardModal = (card = null, bucketId) => {
     let create;
     const modal = $('.ui.card-form.modal');
-    modal.form('reset');
-    modal.off();
+    modal.off().form('reset');
     let dark = modal.hasClass('inverted');
     if (dark) {
         modal.find('.checklist.segment').addClass('inverted');
@@ -1076,8 +1076,7 @@ const showCardModal = (card = null, bucketId) => {
         }
         {
             getItems(bucketId, card.id, dark);
-            $('.add-item.input input').off();
-            $('.add-item.input input').on('keypress', e => {
+            $('.add-item.input input').off().on('keypress', e => {
                 if (e.which == 13) {
                     $(this).attr("disabled", "disabled");
                     $.api({
@@ -1102,8 +1101,7 @@ const showCardModal = (card = null, bucketId) => {
         }
         {
             getComments(bucketId, card.id, dark, card.allowed_users);
-            $('.add-reply.button').off();
-            $('.add-reply.button').click(e => {
+            $('.add-reply.button').off().click(e => {
                 $(this).attr("disabled", "disabled");
                 $.api({
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/comments/`,
@@ -1144,6 +1142,7 @@ const showCardModal = (card = null, bucketId) => {
         ));
     };
     modal.find('.ui.assigned_to.dropdown').dropdown({
+        placeholder: 'Assign users to this card',
         values: allowed_users
     }).dropdown('clear');
     modal.modal({
@@ -1154,6 +1153,7 @@ const showCardModal = (card = null, bucketId) => {
         onShow: () => {
             itemEdited = false;
             modal.find('.manage-tags').popup();
+            modal.find('.scrolling.content').animate({ scrollTop: 0 });
         },
         onHidden: () => {
             if (itemEdited) { loadBoard(); };
@@ -1172,7 +1172,7 @@ const showCardModal = (card = null, bucketId) => {
             tags = tagsString.split(",").map(tag => ({ name: tag }));
             assigneesString = modal.find('.ui.assigned_to.dropdown').dropdown('get value');
             assignees = assigneesString.split(",").map(username => ({ username: username }));
-            if (create === true) {
+            if (create) {
                 method = 'POST';
                 url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`;
                 order = 0;
@@ -1420,7 +1420,10 @@ const renderTagForms = (containerElement, tag) => {
       </form>
     `);
     let iconDropdown = $(`.tag-icon.dropdown[data-tag-id=${tag.id}]`);
-    iconDropdown.dropdown({ values: ICON_VALUES });
+    iconDropdown.dropdown({
+        values: ICON_VALUES,
+        context: '.tags.modal .content'
+    });
     if (tag.icon !== null) {
         iconDropdown.dropdown('set selected', tag.icon.id);
     };
@@ -1460,15 +1463,15 @@ const renderTagForms = (containerElement, tag) => {
         }).modal('show');
     })
 };
+
 const showManageTagsModal = (allowMultiple = false, fromCardModal = false, callback = undefined) => {
     $('.ui.sidebar').sidebar('hide');
     let tagsModal = $('.ui.tags.modal');
     tagsModal.modal({
         autofocus: false,
-        // context: fromCardModal ? '.card-form' : 'body',
         allowMultiple: allowMultiple,
         onShow: () => {
-            el = tagsModal.find('.scrolling.content');
+            el = tagsModal.find('.content');
             el.empty();
             el.append(`
                 <div class="ui new-tag icon labeled green button" style="margin-bottom: 1em;">
