@@ -9,16 +9,10 @@
   <script src="{% static '/suggest.js' %}"></script>
   <script src="{% static '/caret.js' %}"></script>
   <style>
-    .completed.card {
-      opacity: .5;
-      transition: all 0.5s;
-      -webkit-transition: all 0.5s;
-      -moz-transition: all 0.5s;
-    }
-    .menu {
-      opacity: 1 !important;
-    }
     .completed.card:hover {
+      opacity: 1;
+    }
+    .completed.card .card-name:hover {
       opacity: 1;
     }
     .hidden{
@@ -108,12 +102,6 @@
     .card-form {
       max-width: 50em !important;
     }
-    .card-name {
-      text-decoration: underline 0.1em !important;
-      text-decoration-color: transparent !important;
-      cursor: pointer;
-      transition: 300ms !important;
-    }
     .card-status.icon {
       cursor: pointer;
       transition: 300ms !important;
@@ -125,17 +113,29 @@
     .card-status.icon.dark:hover {
       color: #90caf9 !important;
       text-decoration-color: #90caf9 !important;
+    }    
+    .card-name {
+      text-decoration: underline 0.1em !important;
+      text-decoration-color: transparent !important;
+      cursor: pointer;
+      transition: 300ms !important;
+    }
+    .completed.card .card-name {
+      text-decoration: line-through 0.1em !important;
+      transition: 300ms !important;
     }
     .card-name.dark {
       text-decoration: underline 0.1em;
       text-decoration-color: transparent !important;
     }
-    .card-name:hover {
+    .card-name:hover, .completed.card .card-name:hover {
+      text-decoration: underline 0.1em !important;
       color: rgba(33, 133, 208, 1) !important;
       text-decoration-color: rgba(33, 133, 208, 1) !important;
     }
     .card-name.dark:hover {
       color: #90caf9 !important;
+      text-decoration: underline 0.1em;
       text-decoration-color: #90caf9 !important;
     }
     .ui.allowed_users.avatar.image { 
