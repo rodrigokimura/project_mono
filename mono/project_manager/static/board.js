@@ -313,8 +313,8 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
             { passive: false }
         );
         $(`.ui.dropdown[data-bucket-id=${bucket.id}]`).dropdown({ action: 'hide' });
-        $(`.add.card.item[data-bucket-id=${bucket.id}]`).on('click', e => { showCardModal(card = null, bucket.id); });
-        $(`#bucket-${bucket.id}`).on('dblclick', e => { showCardModal(card = null, bucket.id); })
+        $(`.add.card.item[data-bucket-id=${bucket.id}]`).on('click', e => { showCardModal(card = null, bucket.id, compact); });
+        $(`#bucket-${bucket.id}`).on('dblclick', e => { showCardModal(card = null, bucket.id, compact); })
         $(`.edit.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { showBucketModal(bucket); });
         $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { deleteBucket(bucket.id); });
         getCards(bucket.id, dark, compact);
@@ -354,7 +354,7 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
                 <div class="content" style="${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : ''};${compact ? ' padding: .5em;' : ''}">
                     <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between; ${card.color !== null ? `color: ${dark ? card.color.light : card.color.dark};` : ''}">
                         <div class="" style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
-                            <i class="${status_icon} icon"></i>
+                            <i class="card-status ${dark ? 'dark ' : ' '}${status_icon} icon" data-status="${card.status}" data-card-id="${card.id}"></i>
                             <span class="${dark ? 'dark ' : ' '}card-name" data-card-id="${card.id}" style="${card.color !== null ? `color: ${dark ? card.color.light : card.color.dark};` : ''}">${card.name}</span>
                         </div>
                         <div class="ui basic icon top right pointing ${dark ? 'inverted ' : ' '}dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 1.5em; padding: .25em; margin: 0;' : ''}">
@@ -450,11 +450,14 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
             { passive: false }
         );
         $(`.ui.dropdown[data-card-id=${card.id}]`).dropdown({ action: 'hide' });
-        $(`.card-name[data-card-id=${card.id}]`).click(e => { showCardModal(card, bucketId); });
-        $(`.edit.card.item[data-card-id=${card.id}]`).click(e => { showCardModal(card, bucketId); });
-        $(`.delete.card.item[data-card-id=${card.id}]`).click(e => { deleteCard(card.id, bucketId); });
-        $(`.start-stop-timer[data-card-id=${card.id}]`).click(e => { startStopTimer(card.id, bucketId); });
-        $(`.edit-time-entries[data-card-id=${card.id}]`).click(e => { showTimeEntriesModal(card.id, bucketId, dark); });
+        $(`.card-name[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact); });
+        $(`.edit.card.item[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact); });
+        $(`.delete.card.item[data-card-id=${card.id}]`).on('click', e => { deleteCard(card.id, bucketId, dark, compact); });
+        $(`.start-stop-timer[data-card-id=${card.id}]`).on('click', e => { startStopTimer(card.id, bucketId, dark, compact); });
+        $(`.edit-time-entries[data-card-id=${card.id}]`).on('click', e => { showTimeEntriesModal(card.id, bucketId, dark, compact); });
+        $(`.card-status.icon[data-card-id=${card.id}]`).on('click', e => {
+            toggleCardStatus(card.id, bucketId, $(e.target).attr('data-status'), dark, compact);
+        });
         if (card.is_running) {
             intervals.push(setInterval(() => { incrementSecond(card.id) }, 1000));
         };
@@ -1033,7 +1036,7 @@ const getBoardAllowedUsers = () => {
     return allowed_users;
 }
 
-const showCardModal = (card = null, bucketId) => {
+const showCardModal = (card = null, bucketId, compact) => {
     let create;
     const modal = $('.ui.card-form.modal');
     modal.off().form('reset');
@@ -1090,12 +1093,6 @@ const showCardModal = (card = null, bucketId) => {
                 imageClass: 'ui allowed_users avatar image',
             }
         ));
-        for (tag of card.tag) {
-            modal.find('.ui.tags.dropdown').dropdown('set selected', tag.name);
-        }
-        for (user of card.assigned_to) {
-            modal.find('.ui.assigned_to.dropdown').dropdown('set selected', user.username);
-        }
         {
             getItems(bucketId, card.id, dark);
             $('.add-item.input input').off().on('keypress', e => {
@@ -1154,6 +1151,7 @@ const showCardModal = (card = null, bucketId) => {
         modal.find('.extra.content .item').hide();
         modal.find('.comments-segment.segment').hide();
         modal.find('.ui.tags.dropdown').dropdown('clear');
+        modal.find('.ui.assigned_to.dropdown').dropdown('clear');
         allowed_users = getBoardAllowedUsers().map(user => (
             {
                 value: user.username,
@@ -1166,7 +1164,7 @@ const showCardModal = (card = null, bucketId) => {
     modal.find('.ui.assigned_to.dropdown').dropdown({
         placeholder: 'Assign users to this card',
         values: allowed_users
-    }).dropdown('clear');
+    });
     modal.modal({
         restoreFocus: false,
         autofocus: false,
@@ -1176,9 +1174,13 @@ const showCardModal = (card = null, bucketId) => {
             itemEdited = false;
             modal.find('.manage-tags').popup();
             modal.find('.scrolling.content').animate({ scrollTop: 0 });
+            if (card !== null) {
+                modal.find('.ui.assigned_to.dropdown').dropdown('set exactly', card.assigned_to.map(user => user.username));
+                modal.find('.ui.tags.dropdown').dropdown('set exactly', card.tag.map(tag => tag.name));
+            }
         },
         onHidden: () => {
-            if (itemEdited) { loadBoard(); };
+            if (itemEdited) { getCards(bucketId, dark, compact); };
             $('.checklist-drake').empty();
         },
         onApprove: el => {
@@ -1219,7 +1221,7 @@ const showCardModal = (card = null, bucketId) => {
                     assigned_to: JSON.stringify(assignees),
                 },
                 success: function (result) {
-                    loadBoard();
+                    getCards(bucketId, dark, compact);
                 }
             });
         }
@@ -1229,7 +1231,7 @@ const showCardModal = (card = null, bucketId) => {
     });
 };
 
-const deleteCard = (cardId, bucketId) => {
+const deleteCard = (cardId, bucketId, dark, compact) => {
     modal = $('.ui.delete.confirmation.modal')
     modal
         .modal({
@@ -1243,12 +1245,46 @@ const deleteCard = (cardId, bucketId) => {
                     type: 'DELETE',
                     headers: { 'X-CSRFToken': csrftoken },
                     success: function (result) {
-                        loadBoard();
+                        getCards(bucketId, dark, compact);
                     }
                 });
             }
         })
         .modal('show');
+};
+
+const toggleCardStatus = (cardId, bucketId, currentStatus, dark, compact) => {
+    switch (currentStatus) {
+        case 'NS':
+            status = 'IP';
+            status_name = 'In Progress';
+            status_icon = 'dot circle outline';
+            break;
+        case 'IP':
+            status = 'C';
+            status_name = 'Completed';
+            status_icon = 'check circle outline';
+            break;
+        case 'C':
+            status = 'NS';
+            status_name = 'Not Started';
+            status_icon = 'circle outline';
+            break;
+    }
+    $.ajax({
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/`,
+        type: 'PATCH',
+        headers: { 'X-CSRFToken': csrftoken },
+        data: { status: status },
+    })
+        .done(r => {
+            $('body').toast({
+                title: 'Card status changed',
+                message: `Card was marked as <strong>${status_name}<i class="${status_icon} icon"></i></strong>`,
+                showProgress: 'bottom'
+            });
+            getCards(bucketId, dark, compact)
+        })
 };
 
 const showBucketModal = (bucket = null) => {
@@ -1331,7 +1367,7 @@ const showBucketModal = (bucket = null) => {
     modal.modal('show');
 };
 
-const showTimeEntriesModal = (cardId, bucketId, dark) => {
+const showTimeEntriesModal = (cardId, bucketId, dark, compact) => {
     const modal = $('#time-entries.modal');
     modal.modal({
         autofocus: false,
@@ -1343,7 +1379,7 @@ const showTimeEntriesModal = (cardId, bucketId, dark) => {
             modal.removeClass('loading');
         },
         onHidden: () => {
-            loadBoard();
+            getCards(bucketId, dark, compact);
             modal.find('.content').empty();
         },
     }).modal('show');
@@ -1371,7 +1407,7 @@ const deleteBucket = (bucketId) => {
         .modal('show');
 };
 
-const startStopTimer = (cardId, bucketId) => {
+const startStopTimer = (cardId, bucketId, dark, compact) => {
     $.ajax({
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/timer/`,
         type: 'POST',
@@ -1382,7 +1418,7 @@ const startStopTimer = (cardId, bucketId) => {
             } else if (result.action == 'stop') {
                 $('body').toast({ message: `Timer stopped for card ${cardId}.` });
             };
-            loadBoard();
+            getCards(bucketId, dark, compact);
         }
     });
 };
@@ -1455,9 +1491,6 @@ const renderTagForms = (containerElement, tag) => {
     colorDropdown.dropdown({
         placeholder: 'Color',
         values: COLOR_VALUES,
-        keepOnScreen: false,
-        preserve: true,
-        // direction: 'upward',
         context: '.tags.modal .content',
     });
     if (tag.color !== null) {

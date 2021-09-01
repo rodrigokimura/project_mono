@@ -267,35 +267,33 @@ class CardSerializer(ModelSerializer):
         requested_tags = self.context['request'].data.get('tag')
         if requested_tags is not None:
             requested_tags = json.loads(requested_tags)
-        else:
-            requested_tags = []
 
         tags = []
-        for tag_dict in requested_tags:
-            if tag_dict['name'].strip() == '':
-                continue
-            tag, created = Tag.objects.update_or_create(
-                name=tag_dict['name'],
-                defaults={
-                    'created_by': self.context['request'].user,
-                    'board': validated_data['bucket'].board,
-                }
-            )
-            tags.append(tag)
+        if requested_tags is not None:
+            for tag_dict in requested_tags:
+                if tag_dict['name'].strip() == '':
+                    continue
+                tag, created = Tag.objects.update_or_create(
+                    name=tag_dict['name'],
+                    defaults={
+                        'created_by': self.context['request'].user,
+                        'board': validated_data['bucket'].board,
+                    }
+                )
+                tags.append(tag)
 
         requested_assignees = self.context['request'].data.get('assigned_to')
         if requested_assignees is not None:
             requested_assignees = json.loads(requested_assignees)
-        else:
-            requested_assignees = []
 
         assignees = []
-        for user_dict in requested_assignees:
-            qs = User.objects.filter(username=user_dict.get('username', ''))
-            if qs.exists():
-                user = qs.get()
-                if user in instance.allowed_users:
-                    assignees.append(user)
+        if requested_assignees is not None:
+            for user_dict in requested_assignees:
+                qs = User.objects.filter(username=user_dict.get('username', ''))
+                if qs.exists():
+                    user = qs.get()
+                    if user in instance.allowed_users:
+                        assignees.append(user)
 
         super().update(instance, validated_data)
         status = validated_data.get('status', instance.status)
@@ -309,8 +307,10 @@ class CardSerializer(ModelSerializer):
             )
         elif status == Bucket.NOT_STARTED:
             instance.mark_as_not_started()
-        instance.tag.set(tags)
-        instance.assigned_to.set(assignees)
+        if requested_tags is not None:
+            instance.tag.set(tags)
+        if requested_assignees is not None:
+            instance.assigned_to.set(assignees)
         return instance
 
 
