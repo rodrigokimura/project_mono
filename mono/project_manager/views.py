@@ -695,6 +695,20 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 
+    def patch(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        card = self.get_object(pk)
+        if request.user in card.allowed_users:
+            serializer = CardSerializer(card, data=request.data, context={'request': request}, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                card.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
     def delete(self, request, pk, format=None, **kwargs):
         project = Project.objects.get(id=kwargs['project_pk'])
         board = Board.objects.get(id=kwargs['board_pk'], project=project)
