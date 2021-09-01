@@ -15,6 +15,9 @@
       -webkit-transition: all 0.5s;
       -moz-transition: all 0.5s;
     }
+    .menu {
+      opacity: 1 !important;
+    }
     .completed.card:hover {
       opacity: 1;
     }
@@ -105,18 +108,23 @@
     .card-form {
       max-width: 50em !important;
     }
-    a.card-name.dark {
-      color: rgba(233, 233, 233, 1) !important;
-      text-decoration: underline 0.1em rgba(233, 233, 233, 0);
-    }
-    a.card-name {
-      color: rgba(38, 38, 38, 1) !important;
-      text-decoration: underline 0.1em rgba(33, 133, 208, 0) !important;
+    .card-name {
+      text-decoration: underline 0.1em !important;
+      text-decoration-color: transparent !important;
+      cursor: pointer;
       transition: 300ms !important;
     }
-    a.card-name:hover {
+    .card-name.dark {
+      text-decoration: underline 0.1em;
+      text-decoration-color: transparent !important;
+    }
+    .card-name:hover {
       color: rgba(33, 133, 208, 1) !important;
       text-decoration-color: rgba(33, 133, 208, 1) !important;
+    }
+    .card-name.dark:hover {
+      color: #90caf9 !important;
+      text-decoration-color: #90caf9 !important;
     }
     .ui.allowed_users.avatar.image { 
       height: 1em;
@@ -270,6 +278,10 @@
     <div class="scrolling content">
       <input type="hidden" name="id">
       <input type="hidden" name="order">
+      <div class="field">
+        <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
+        <textarea name="description" placeholder="Description" rows="2"></textarea>
+      </div>
       <div class="two fields">
         <div class="field">
           <label><i class="tags icon"></i>{% translate 'Tags' %}</label>
@@ -289,6 +301,7 @@
         <script>
           $('.ui.card-color.dropdown').dropdown({
             clearable: true,
+            placeholder: 'Select a color theme to this card',
             values: [
               {% for color in colors %}
               {
@@ -301,20 +314,32 @@
           });
         </script>
       </div>
-      <div class="field">
-        <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
-        <textarea name="description" placeholder="Description" rows="2"></textarea>
-      </div>
       <div class="two fields">
         <div class="field">
           <label><i class="spinner icon"></i>{% translate 'Status' %}</label>
-          <select class="ui status selection dropdown">
+          <div class="ui status selection dropdown">
+            <div class="text"></div>
+            <i class="dropdown icon"></i>
+          </div>
+          {% comment %} <select class="ui status selection dropdown">
             {% for value, text in card_statuses %}
-            <option value="{{ value }}">{{ text }}</option>
+            <option data-icon="add" value="{{ value }}">{{ text }}</option>
             {% endfor %}
-          </select>
+          </select> {% endcomment %}
         </div>
-        <script>$('.ui.status.dropdown').dropdown();</script>
+        <script>
+          $('.ui.status.dropdown').dropdown({
+            values: [
+            {% for icon, value, text in card_statuses %}
+            {
+              value: "{{ value }}",
+              name: "{{ text }}",
+              icon: "{{ icon }}",
+            },
+            {% endfor %}
+            ]
+          });
+        </script>
         <div class="field">
           <label><i class="user circle icon"></i>{% translate 'Assigned to' %}</label>
           <div class="ui assigned_to search multiple selection dropdown">
@@ -530,9 +555,9 @@
   </div>
 
   <div class="ui tags tiny modal">
+    <i class="close icon"></i>
     <div class="header">Managing tags</div>
-    <div class="scrolling content">
-    </div>
+    <div class="content"></div>
     <div class="actions">
       <div class="ui black cancel button">
         <i class="remove icon"></i>
@@ -546,8 +571,9 @@
   </div>
 
   <div class="ui top aligned tiny modal" id="time-entries">
+    <i class="close icon"></i>
     <div class="header">Editing time entries</div>
-    <div class="scrolling content">
+    <div class="content">
     </div>
     <div class="actions">
       <div class="ui black cancel button">
