@@ -208,7 +208,21 @@ class BoardDetailView(LoginRequiredMixin, DetailView):
             (self.object.project.name, reverse('project_manager:project_detail', args=[self.object.project.id])),
             (self.object.name, None),
         ]
-        context['card_statuses'] = Card.STATUSES
+        card_statuses = []
+        for value, name in Card.STATUSES:
+            if value == Bucket.NOT_STARTED:
+                card_statuses.append(
+                    ('circle outline', value, name)
+                )
+            elif value == Bucket.IN_PROGRESS:
+                card_statuses.append(
+                    ('dot circle outline', value, name)
+                )
+            elif value == Bucket.COMPLETED:
+                card_statuses.append(
+                    ('check circle outline', value, name)
+                )
+        context['card_statuses'] = card_statuses
         context['bucket_auto_statuses'] = Bucket.STATUSES
         context['colors'] = Theme.objects.all()
         context['icons'] = Icon.objects.all()

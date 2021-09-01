@@ -313,9 +313,10 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
             { passive: false }
         );
         $(`.ui.dropdown[data-bucket-id=${bucket.id}]`).dropdown({ action: 'hide' });
-        $(`.add.card.item[data-bucket-id=${bucket.id}]`).click(e => { showCardModal(card = null, bucket.id); });
-        $(`.edit.bucket.item[data-bucket-id=${bucket.id}]`).click(e => { showBucketModal(bucket); });
-        $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).click(e => { deleteBucket(bucket.id); });
+        $(`.add.card.item[data-bucket-id=${bucket.id}]`).on('click', e => { showCardModal(card = null, bucket.id); });
+        $(`#bucket-${bucket.id}`).on('dblclick', e => { showCardModal(card = null, bucket.id); })
+        $(`.edit.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { showBucketModal(bucket); });
+        $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { deleteBucket(bucket.id); });
         getCards(bucket.id, dark, compact);
     });
     $(containerSelector).append(`<div class="ui add bucket basic ${dark ? 'inverted ' : ' '}button" style="flex: 0 0 auto">Add new bucket</div>`);
@@ -334,6 +335,17 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
     };
     $(containerSelector).empty();
     cards.forEach(card => {
+        switch (card.status) {
+            case 'NS':
+                status_icon = 'circle outline'
+                break;
+            case 'IP':
+                status_icon = 'dot circle outline'
+                break;
+            case 'C':
+                status_icon = 'check circle outline'
+                break;
+        }
         $(containerSelector).append(`
             <div class="ui loading ${dark ? 'inverted ' : ' '}${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}card card-el" data-card-id="${card.id}" style="width: 100%; flex: 0 0 auto;${compact ? ' margin-bottom: -.25em;' : 'margin-bottom: .25em;'}">
                 <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.primary}; color: ${card.color.light}` : ''};" data-card-id="${card.id}">
@@ -341,19 +353,20 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
                 </div>
                 <div class="content" style="${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.light};` : ''};${compact ? ' padding: .5em;' : ''}">
                     <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between; ${card.color !== null ? `color: ${dark ? card.color.light : card.color.dark};` : ''}">
-                    <a class="${dark ? 'dark ' : ' '}card-name" style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;" data-card-id="${card.id}">
-                        ${card.name}
-                    </a>
-                    <div class="ui basic icon top right pointing ${dark ? 'inverted ' : ' '}dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 1.5em; padding: .25em; margin: 0;' : ''}">
-                        <i class="ellipsis horizontal icon"></i>
-                        <div class="menu">
-                        <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
-                        <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>Delete this card</div>
-                        <div class="divider"></div>
-                        <div class="start-stop-timer card item" data-card-id="${card.id}"><i class="stopwatch icon"></i>Start/stop timer</div>
-                        <div class="edit-time-entries card item" data-card-id="${card.id}"><i class="history icon"></i>Edit time entries</div>
+                        <div class="" style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
+                            <i class="${status_icon} icon"></i>
+                            <span class="${dark ? 'dark ' : ' '}card-name" data-card-id="${card.id}" style="${card.color !== null ? `color: ${dark ? card.color.light : card.color.dark};` : ''}">${card.name}</span>
                         </div>
-                    </div>
+                        <div class="ui basic icon top right pointing ${dark ? 'inverted ' : ' '}dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 1.5em; padding: .25em; margin: 0;' : ''}">
+                            <i class="ellipsis horizontal icon"></i>
+                            <div class="menu">
+                            <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
+                            <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>Delete this card</div>
+                            <div class="divider"></div>
+                            <div class="start-stop-timer card item" data-card-id="${card.id}"><i class="stopwatch icon"></i>Start/stop timer</div>
+                            <div class="edit-time-entries card item" data-card-id="${card.id}"><i class="history icon"></i>Edit time entries</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="meta" style="display: flex; flex-flow: column nowrap;">
                         <div class="tags" style="flex: 0 0 auto; padding-top: .5em;" data-card-id="${card.id}"></div>
@@ -578,7 +591,12 @@ const renderTimeEntries = (containerSelector, timeEntries, bucketId, cardId, dar
             </div>
         `);
         let startDate = $(`.time-entry.start-date[data-time-entry-id=${timeEntry.id}]`);
+        console.log(containerSelector)
         startDate.calendar({
+            popupOptions: {
+                boundary: containerSelector,
+                preserve: true
+            },
             type: 'datetime',
             today: true,
             ampm: false,
@@ -592,6 +610,10 @@ const renderTimeEntries = (containerSelector, timeEntries, bucketId, cardId, dar
         });
         let stopDate = $(`.time-entry.stop-date[data-time-entry-id=${timeEntry.id}]`);
         stopDate.calendar({
+            popupOptions: {
+                boundary: containerSelector,
+                preserve: true
+            },
             type: 'datetime',
             today: true,
             ampm: false,
@@ -937,7 +959,7 @@ const getTimeEntries = (bucketId, cardId, dark = false) => {
     $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/time-entries/`)
         .done(r => {
             renderTimeEntries(
-                containerSelector = "#time-entries .scrolling.content",
+                containerSelector = "#time-entries .content",
                 timeEntryes = r,
                 bucketId = bucketId,
                 cardId = cardId,
@@ -986,6 +1008,7 @@ const initializeTagsDropdown = dropdown => {
         }
     });
     dropdown.dropdown('refresh').dropdown({
+        placeholder: 'Select tags to this card',
         values: tags,
         clearable: true,
         allowAdditions: false,
@@ -1013,8 +1036,7 @@ const getBoardAllowedUsers = () => {
 const showCardModal = (card = null, bucketId) => {
     let create;
     const modal = $('.ui.card-form.modal');
-    modal.form('reset');
-    modal.off();
+    modal.off().form('reset');
     let dark = modal.hasClass('inverted');
     if (dark) {
         modal.find('.checklist.segment').addClass('inverted');
@@ -1076,8 +1098,7 @@ const showCardModal = (card = null, bucketId) => {
         }
         {
             getItems(bucketId, card.id, dark);
-            $('.add-item.input input').off();
-            $('.add-item.input input').on('keypress', e => {
+            $('.add-item.input input').off().on('keypress', e => {
                 if (e.which == 13) {
                     $(this).attr("disabled", "disabled");
                     $.api({
@@ -1102,8 +1123,7 @@ const showCardModal = (card = null, bucketId) => {
         }
         {
             getComments(bucketId, card.id, dark, card.allowed_users);
-            $('.add-reply.button').off();
-            $('.add-reply.button').click(e => {
+            $('.add-reply.button').off().click(e => {
                 $(this).attr("disabled", "disabled");
                 $.api({
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/comments/`,
@@ -1144,6 +1164,7 @@ const showCardModal = (card = null, bucketId) => {
         ));
     };
     modal.find('.ui.assigned_to.dropdown').dropdown({
+        placeholder: 'Assign users to this card',
         values: allowed_users
     }).dropdown('clear');
     modal.modal({
@@ -1154,6 +1175,7 @@ const showCardModal = (card = null, bucketId) => {
         onShow: () => {
             itemEdited = false;
             modal.find('.manage-tags').popup();
+            modal.find('.scrolling.content').animate({ scrollTop: 0 });
         },
         onHidden: () => {
             if (itemEdited) { loadBoard(); };
@@ -1172,7 +1194,7 @@ const showCardModal = (card = null, bucketId) => {
             tags = tagsString.split(",").map(tag => ({ name: tag }));
             assigneesString = modal.find('.ui.assigned_to.dropdown').dropdown('get value');
             assignees = assigneesString.split(",").map(username => ({ username: username }));
-            if (create === true) {
+            if (create) {
                 method = 'POST';
                 url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`;
                 order = 0;
@@ -1402,30 +1424,42 @@ const renderTagForms = (containerElement, tag) => {
       <form class="ui unstackable form" data-tag-id="${tag.id}" style="width: 100%; margin-bottom: .5em;">
         <div class="" style="display: flex; flex-flow: row nowrap;">
           <input type="hidden" name="id" value="${tag.id}">
-          <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
-            <select class="ui tag-icon clearable compact dropdown" data-tag-id="${tag.id}">
+          <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
+            <select class="ui tag-icon clearable compact two column mini dropdown" data-tag-id="${tag.id}">
             </select>
           </div>
-          <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
-            <select class="ui tag-color clearable compact dropdown" data-tag-id="${tag.id}">
+          <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
+            <select class="ui tag-color clearable compact two column mini dropdown" data-tag-id="${tag.id}">
             </select>
           </div>
-          <div style="flex: 1 1 auto; margin-right: .5em;">
+          <div style="flex: 1 1 auto; margin-right: .5em;" class="ui mini input">
             <input class="tag-name" type="text" placeholder="Name" data-tag-id="${tag.id}">
           </div>
           <div style="">
-            <div class="ui icon red delete button" data-tag-id="${tag.id}"><i class="delete icon"></i></div>
+            <div class="ui icon red delete mini button" data-content="Delete tag" data-tag-id="${tag.id}"><i class="delete icon"></i></div>
           </div>
         </div>
       </form>
     `);
+    $(`.delete.button[data-tag-id=${tag.id}]`).popup();
     let iconDropdown = $(`.tag-icon.dropdown[data-tag-id=${tag.id}]`);
-    iconDropdown.dropdown({ values: ICON_VALUES });
+    iconDropdown.dropdown({
+        placeholder: 'Icon',
+        values: ICON_VALUES,
+        context: '.tags.modal .content'
+    });
     if (tag.icon !== null) {
         iconDropdown.dropdown('set selected', tag.icon.id);
     };
     let colorDropdown = $(`.tag-color.dropdown[data-tag-id=${tag.id}]`);
-    colorDropdown.dropdown({ values: COLOR_VALUES });
+    colorDropdown.dropdown({
+        placeholder: 'Color',
+        values: COLOR_VALUES,
+        keepOnScreen: false,
+        preserve: true,
+        // direction: 'upward',
+        context: '.tags.modal .content',
+    });
     if (tag.color !== null) {
         colorDropdown.dropdown('set selected', tag.color.id);
     };
@@ -1460,15 +1494,15 @@ const renderTagForms = (containerElement, tag) => {
         }).modal('show');
     })
 };
+
 const showManageTagsModal = (allowMultiple = false, fromCardModal = false, callback = undefined) => {
     $('.ui.sidebar').sidebar('hide');
     let tagsModal = $('.ui.tags.modal');
     tagsModal.modal({
         autofocus: false,
-        // context: fromCardModal ? '.card-form' : 'body',
         allowMultiple: allowMultiple,
         onShow: () => {
-            el = tagsModal.find('.scrolling.content');
+            el = tagsModal.find('.content');
             el.empty();
             el.append(`
                 <div class="ui new-tag icon labeled green button" style="margin-bottom: 1em;">
