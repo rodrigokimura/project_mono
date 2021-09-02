@@ -9,6 +9,10 @@
   <script src="{% static '/suggest.js' %}"></script>
   <script src="{% static '/caret.js' %}"></script>
   <style>
+    .overdue.card {
+      // border: .2em solid red;
+      outline: red solid .2em;
+    }
     .completed.card:hover {
       opacity: 1;
     }
@@ -280,7 +284,7 @@
     </div>
   </div>
 
-  <form class="ui card-form top aligned card longer modal form">
+  <form class="ui card-form top aligned card longer large modal form">
     <i class="close icon"></i>
     <div class="header">
       <div class="transparent field">
@@ -294,7 +298,7 @@
         <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
         <textarea name="description" placeholder="Description" rows="2"></textarea>
       </div>
-      <div class="two fields">
+      <div class="three fields">
         <div class="field">
           <label><i class="tags icon"></i>{% translate 'Tags' %}</label>
           <div class="ui action input">
@@ -313,7 +317,7 @@
         <script>
           $('.ui.card-color.dropdown').dropdown({
             clearable: true,
-            placeholder: 'Select a color theme to this card',
+            placeholder: 'Select a color theme',
             values: [
               {% for color in colors %}
               {
@@ -325,6 +329,15 @@
             ],
           });
         </script>
+        <div class="field">
+          <label><i class="calendar day icon"></i>Due date</label>
+          <div class="ui card-due-date calendar">
+            <div class="ui input left icon">
+              <i class="calendar icon"></i>
+              <input type="text" placeholder="Pick a due date">
+            </div>
+          </div>
+        </div>
       </div>
       <div class="two fields">
         <div class="field">
@@ -333,11 +346,6 @@
             <div class="text"></div>
             <i class="dropdown icon"></i>
           </div>
-          {% comment %} <select class="ui status selection dropdown">
-            {% for value, text in card_statuses %}
-            <option data-icon="add" value="{{ value }}">{{ text }}</option>
-            {% endfor %}
-          </select> {% endcomment %}
         </div>
         <script>
           $('.ui.status.dropdown').dropdown({
