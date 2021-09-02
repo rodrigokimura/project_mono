@@ -140,6 +140,7 @@ class Card(BaseModel):
     description = models.TextField(max_length=255, blank=True, null=True)
     files = models.FileField(upload_to=card_directory_path, max_length=100, blank=True, null=True)
     status = models.CharField(_("status"), max_length=2, choices=STATUSES, default=Bucket.NOT_STARTED)
+    due_date = models.DateField(blank=True, null=True, default=None)
     started_at = models.DateTimeField(blank=True, null=True)
     started_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="started_cards", blank=True, null=True)
     completed_at = models.DateTimeField(blank=True, null=True)
