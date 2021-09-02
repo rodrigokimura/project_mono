@@ -1223,7 +1223,8 @@ const showCardModal = (card = null, bucketId, compact) => {
             tags = tagsString.split(",").map(tag => ({ name: tag }));
             assigneesString = modal.find('.ui.assigned_to.dropdown').dropdown('get value');
             assignees = assigneesString.split(",").map(username => ({ username: username }));
-            due_date = modal.find('.ui.card-due-date.calendar').calendar('get date').toISOString().split("T")[0];
+            dueDate = modal.find('.ui.card-due-date.calendar').calendar('get date'); // If not null, dueDate is a Date object
+            if (dueDate !== null) { dueDate.toISOString().split("T")[0] } // Convert to string in correct format
             if (create) {
                 method = 'POST';
                 url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`;
@@ -1245,7 +1246,7 @@ const showCardModal = (card = null, bucketId, compact) => {
                     status: status,
                     color: color,
                     order: order,
-                    due_date: due_date,
+                    due_date: dueDate,
                     tag: JSON.stringify(tags),
                     assigned_to: JSON.stringify(assignees),
                 },
