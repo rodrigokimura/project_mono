@@ -24,7 +24,7 @@ class Command(BaseCommand):
             for line in icons_file.readlines():
                 print(line)
                 if line.strip() != '':
-                    Icon.objects.update_or_create(markup=line)
+                    Icon.objects.update_or_create(markup=line.strip())
 
         except Exception as e:
             CommandError(repr(e))
