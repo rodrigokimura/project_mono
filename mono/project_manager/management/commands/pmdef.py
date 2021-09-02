@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            # Theme._create_defaults()
+            Theme._create_defaults()
             # Icon._create_defaults()
             print('ok')
             path = os.path.join(
