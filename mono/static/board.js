@@ -346,8 +346,16 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
                 status_icon = 'check circle outline'
                 break;
         }
+        var overdue = false;
+        var dueDate = null;
+        if (card.due_date !== null) {
+            var now = new Date();
+            dueDate = card.due_date.split('-');
+            dueDate = new Date(dueDate[0], dueDate[1] - 1, dueDate[2]);
+            overdue = now > dueDate;
+        }
         $(containerSelector).append(`
-            <div class="ui loading ${dark ? 'inverted ' : ' '}${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}card card-el" data-card-id="${card.id}" style="width: 100%; flex: 0 0 auto;${compact ? ' margin-bottom: -.25em;' : 'margin-bottom: .25em;'}">
+            <div class="ui loading ${dark ? 'inverted ' : ' '}${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}${overdue ? 'overdue ' : ''}card card-el" data-card-id="${card.id}" style="width: 100%; flex: 0 0 auto;${compact ? ' margin-bottom: -.25em;' : 'margin-bottom: .25em;'}">
                 <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.primary}; color: ${card.color.light}` : ''};" data-card-id="${card.id}">
                     <i class="grip lines small icon"></i>
                 </div>
@@ -408,6 +416,11 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
               <span class="ui left floated text noselect cardlet" style="margin-right: 1em;" data-title="Comments" data-content="${card.comments}" data-variation="tiny basic">
                 <i class="comment icon"></i> ${card.comments}
               </span>
+            `);
+        };
+        if (card.due_date !== null) {
+            extraContent.prepend(`
+              <span class="ui left floated${overdue ? ' red' : ''} text noselect cardlet" style="margin-right: 1em;" data-title="Due date" data-content="${dueDate.toLocaleDateString(LANGUAGE_CODE)}${overdue ? ' - This card is overdue!' : ''}" data-variation="tiny red basic"><i class="calendar day icon"></i></span>
             `);
         };
         $('.cardlet').popup();
@@ -1072,6 +1085,7 @@ const showCardModal = (card = null, bucketId, compact) => {
         modal.find('.ui.card-color.dropdown').dropdown('set selected', card.color !== null ? card.color.id : '');
         modal.find('.extra.content .item').show();
         modal.find('.comments-segment.segment').show();
+        modal.find('.ui.card-due-date.calendar').calendar('set date', card.due_date);
         modal.find('.ui.tags.dropdown').dropdown('clear');
         modal.find('.ui.assigned_to.dropdown').parent().show();
         modal.find('#suggest-comment').val('');
@@ -1152,6 +1166,7 @@ const showCardModal = (card = null, bucketId, compact) => {
         modal.find('.comments-segment.segment').hide();
         modal.find('.ui.tags.dropdown').dropdown('clear');
         modal.find('.ui.assigned_to.dropdown').dropdown('clear');
+        modal.find('.ui.card-due-date.calendar').calendar('clear');
         allowed_users = getBoardAllowedUsers().map(user => (
             {
                 value: user.username,
@@ -1165,6 +1180,7 @@ const showCardModal = (card = null, bucketId, compact) => {
         placeholder: 'Assign users to this card',
         values: allowed_users
     });
+
     modal.modal({
         restoreFocus: false,
         autofocus: false,
@@ -1174,6 +1190,17 @@ const showCardModal = (card = null, bucketId, compact) => {
             itemEdited = false;
             modal.find('.manage-tags').popup();
             modal.find('.scrolling.content').animate({ scrollTop: 0 });
+            modal.find('.ui.card-due-date.calendar').calendar({
+                type: 'date',
+                today: true,
+                formatInput: true,
+                formatter: {
+                    date: (date, settings) => {
+                        if (!date) return '';
+                        return date.toLocaleDateString(LANGUAGE_CODE);
+                    }
+                }
+            });
             if (card !== null) {
                 modal.find('.ui.assigned_to.dropdown').dropdown('set exactly', card.assigned_to.map(user => user.username));
                 modal.find('.ui.tags.dropdown').dropdown('set exactly', card.tag.map(tag => tag.name));
@@ -1196,6 +1223,7 @@ const showCardModal = (card = null, bucketId, compact) => {
             tags = tagsString.split(",").map(tag => ({ name: tag }));
             assigneesString = modal.find('.ui.assigned_to.dropdown').dropdown('get value');
             assignees = assigneesString.split(",").map(username => ({ username: username }));
+            due_date = modal.find('.ui.card-due-date.calendar').calendar('get date').toISOString().split("T")[0];
             if (create) {
                 method = 'POST';
                 url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`;
@@ -1217,6 +1245,7 @@ const showCardModal = (card = null, bucketId, compact) => {
                     status: status,
                     color: color,
                     order: order,
+                    due_date: due_date,
                     tag: JSON.stringify(tags),
                     assigned_to: JSON.stringify(assignees),
                 },
