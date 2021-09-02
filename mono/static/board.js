@@ -436,7 +436,8 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
                 dark
             );
         };
-        if (extraContent.text().trim() === '') {
+        if (extraContent.html().trim() === '') {
+            // If no extra content is found, remove the element
             extraContent.remove();
         };
         document.querySelectorAll(`.handle[data-card-id='${card.id}']`)[0].addEventListener(
