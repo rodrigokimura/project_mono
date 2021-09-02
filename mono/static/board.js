@@ -607,7 +607,6 @@ const renderTimeEntries = (containerSelector, timeEntries, bucketId, cardId, dar
             </div>
         `);
         let startDate = $(`.time-entry.start-date[data-time-entry-id=${timeEntry.id}]`);
-        console.log(containerSelector)
         startDate.calendar({
             popupOptions: {
                 boundary: containerSelector,
@@ -1224,7 +1223,7 @@ const showCardModal = (card = null, bucketId, compact) => {
             assigneesString = modal.find('.ui.assigned_to.dropdown').dropdown('get value');
             assignees = assigneesString.split(",").map(username => ({ username: username }));
             dueDate = modal.find('.ui.card-due-date.calendar').calendar('get date'); // If not null, dueDate is a Date object
-            if (dueDate !== null) { dueDate.toISOString().split("T")[0] } // Convert to string in correct format
+            if (dueDate !== null) { dueDate = dueDate.toISOString().split("T")[0] } // Convert to string in correct format
             if (create) {
                 method = 'POST';
                 url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`;
