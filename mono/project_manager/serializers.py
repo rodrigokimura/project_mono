@@ -186,6 +186,7 @@ class CardSerializer(ModelSerializer):
             'order',
             'assigned_to',
             'description',
+            'due_date',
             'started_by',
             'started_at',
             'completed_by',
