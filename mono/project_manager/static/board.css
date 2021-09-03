@@ -1,3 +1,8 @@
+/* to set to fullscreen */
+.pusher {
+    padding-top: 0 !important;
+}
+
 .overdue.card {
     outline: red solid .2em;
 }
