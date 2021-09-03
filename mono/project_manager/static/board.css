@@ -1,0 +1,195 @@
+.overdue.card {
+    outline: red solid .2em;
+}
+
+.completed.card:hover {
+    opacity: 1;
+}
+
+.completed.card .card-name:hover {
+    opacity: 1;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#zoom-button {
+    display: none;
+}
+
+@media only screen and (max-width: 768px) {
+    #zoom-button {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        right: 1rem;
+        z-index: 10;
+    }
+}
+
+.item-checked {
+    text-decoration: line-through;
+}
+
+.delete-item.button {
+    transition: .5s;
+    opacity: 0;
+}
+
+.checklist-item:hover .delete-item.button {
+    opacity: 1;
+}
+
+img.assignee {
+    border-style: solid;
+    border-width: .2em;
+    border-color: #FFFFFF;
+    margin-right: -.75em !important;
+    transition: .5s;
+}
+
+img.assignee.dark {
+    border-style: solid;
+    border-width: .2em;
+    border-color: #141516;
+    margin-right: -.75em !important;
+    transition: .5s;
+}
+
+img.assignee:hover {
+    margin-right: 0 !important;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Safari */
+    -khtml-user-select: none;
+    /* Konqueror HTML */
+    -moz-user-select: none;
+    /* Old versions of Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+}
+
+.mention {
+    color: #4183c4;
+    transition: .5s;
+}
+
+.mention:hover {
+    color: #1e70bf;
+}
+
+#suggest {
+    position: absolute;
+    background-color: #FFFFFF;
+    border: 1px solid #85b7d9;
+    border-radius: .3em;
+    width: 200px;
+    z-index: 2000;
+}
+
+#suggest div {
+    display: block;
+    width: 200px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+#suggest div.select {
+    /* keydown, keyup */
+    color: #FFFFFF;
+    background-color: #2185D0;
+}
+
+#suggest div.over {
+    /* mouse over */
+    background-color: #CCE2FF;
+}
+
+.ui.progress.attached,
+.ui.progress.attached .bar {
+    height: .3rem;
+}
+
+.card-form .header input {
+    padding: .5em !important;
+}
+
+.card-status.icon {
+    cursor: pointer;
+    transition: 300ms !important;
+}
+
+.card-status.icon:hover {
+    color: rgba(33, 133, 208, 1) !important;
+    text-decoration-color: rgba(33, 133, 208, 1) !important;
+}
+
+.card-status.icon.dark:hover {
+    color: #90caf9 !important;
+    text-decoration-color: #90caf9 !important;
+}
+
+.card-name {
+    text-decoration: underline 0.1em !important;
+    text-decoration-color: transparent !important;
+    cursor: pointer;
+    transition: 300ms !important;
+}
+
+.completed.card .card-name {
+    text-decoration: line-through 0.1em !important;
+    transition: 300ms !important;
+}
+
+.card-name.dark {
+    text-decoration: underline 0.1em;
+    text-decoration-color: transparent !important;
+}
+
+.card-name:hover,
+.completed.card .card-name:hover {
+    text-decoration: underline 0.1em !important;
+    color: rgba(33, 133, 208, 1) !important;
+    text-decoration-color: rgba(33, 133, 208, 1) !important;
+}
+
+.card-name.dark:hover {
+    color: #90caf9 !important;
+    text-decoration: underline 0.1em;
+    text-decoration-color: #90caf9 !important;
+}
+
+.ui.allowed_users.avatar.image {
+    height: 1em;
+    width: 1em;
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+}
+
+/* Works on Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #888888 rgba(0, 0, 0, 0);
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+    width: .25em !important;
+    height: .25em !important;
+}
+
+*::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0) !important;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: #888888 !important;
+}
