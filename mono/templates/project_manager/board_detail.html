@@ -41,13 +41,23 @@
 {% endblock head %}
 
 {% block menu %}
-  <a class="toc item"><i class="sidebar icon"></i></a>
+  <a class="left-sidebar item"><i class="sidebar icon"></i></a>
   <a class="refresh item"><i class="refresh icon"></i></a>
-  <a class="fullscreen item"><i class="expand alternate icon"></i></a>
+  <div class="right item">
+  </div>
   <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;"></div>
 {% endblock menu %}
 
-{% block sidebar %}
+{% block right_menu %}
+  <a class="right-sidebar item"><i class="cog icon"></i></a>
+{% endblock right_menu %}
+
+{% block sidebars %}
+  <div class="ui left sidebar inverted vertical menu">
+    {% comment %} <a class="item" href="{% url 'project_manager:index' %}">Home</a> {% endcomment %}
+    <a class="item" href="{% url 'project_manager:projects' %}">Projects</a>
+    <a class="item" href="{% url 'project_manager:project_detail' pk=object.project.id %}">Boards</a>
+  </div>
   <div class="ui right sidebar inverted vertical menu">
     <div class="item">
       <div class="header">{% translate 'Appearance' %}
@@ -79,7 +89,7 @@
       <div class="ui fluid inverted button" id="manage-tags"><i class="tags icon"></i> {% translate "Manage tags" %}</div>
     </div>
   </div>
-{% endblock sidebar %}
+{% endblock sidebars %}
 
 {% block main %}
   <script src="{% static 'js/dragula.min.js' %}"></script>
@@ -120,9 +130,8 @@
 
   <div class="pusher">
     <div class="ui fluid container">
-      {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
-      <div class="ui basic segment" style="margin:  0;">
-        <div id="board" class="ui cards buckets-drake" style="overflow-y: hidden; overflow-x: auto; display: flex; flex-flow: row nowrap; scroll-snap-type: y mandatory; scroll-padding: .8em;"></div>
+      <div class="ui basic segment" style="margin: 0; max-height: 100vh;">
+        <div id="board" class="ui cards buckets-drake" style="height: 100vh; padding-top: 3em; overflow-y: hidden; overflow-x: auto; display: flex; flex-flow: row nowrap; scroll-snap-type: y mandatory; scroll-padding: .8em;"></div>
       </div>
     </div>
   </div>
@@ -228,7 +237,7 @@
       </div>
       <div class="ui comments-segment segment">
         <h4 class="ui dividing header"><i class="comments icon"></i>{% translate 'Comments' %}</h4>
-        <div class="ui minimal comments" id="card-comments"></div>
+        <div class="ui comments" id="card-comments" style="max-width: 100%;"></div>
         <div class="ui reply form">
           <div class="field">
             <textarea id="suggest-comment" class="add-reply" rows="2" placeholder="Type a new comment"></textarea>
@@ -450,10 +459,15 @@
 
   <script>
     $(document).ready(e => {
-      $('.ui.sidebar')
+      $('.ui.left.sidebar')
         .sidebar('setting', 'transition', 'slide along')
         .sidebar('setting', 'mobileTransition', 'slide along')
-        .sidebar('attach events', '.toc.item')
+        .sidebar('attach events', '.left-sidebar.item')
+        .find('#manage-tags').click(showManageTagsModal);
+      $('.ui.right.sidebar')
+        .sidebar('setting', 'transition', 'slide along')
+        .sidebar('setting', 'mobileTransition', 'slide along')
+        .sidebar('attach events', '.right-sidebar.item')
         .find('#manage-tags').click(showManageTagsModal);
       $('.board-compact.checkbox').checkbox({
         onChecked: () => { setCompact(true); },
@@ -476,8 +490,6 @@
       $('.refresh.item').click(() => { 
         loadBoard();
       });
-      $('.fullscreen.item').click(toggleFullscreen);
-      {% if object.fullscreen %}setFullscreen(true);{% endif %}
       {% if object.compact %}$('.board-compact.checkbox').checkbox('set checked');{% endif %}
       {% if object.dark %}$('.board-dark.checkbox').checkbox('set checked');{% endif %}
       loadBoard();
