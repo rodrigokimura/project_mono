@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from ..models import Board, Bucket, Card, Icon, Invite, Notification, Project, Theme, TimeEntry, card_directory_path, BaseModel
+from ..models import Board, Bucket, Card, Icon, Invite, Notification, Project, Theme, TimeEntry, BaseModel
 
 
 class FunctionTests(TestCase):
@@ -28,7 +28,7 @@ class FunctionTests(TestCase):
             bucket=self.bucket,
             order=1,
         )
-        path = card_directory_path(card, 'filename')
+        path = Card._card_directory_path(card, 'filename')
         self.assertEqual(path, f'project_{self.project.id}/filename')
 
 

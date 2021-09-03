@@ -18,11 +18,6 @@ from datetime import timedelta
 User = get_user_model()
 
 
-def card_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/project_<id>/<filename>
-    return 'project_{0}/{1}'.format(instance.bucket.board.project.id, filename)
-
-
 class BaseModel(models.Model):
     name = models.CharField(max_length=50, null=False, blank=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -128,6 +123,11 @@ class Tag(BaseModel):
 
 
 class Card(BaseModel):
+
+    def _card_directory_path(instance, filename):
+        # file will be uploaded to MEDIA_ROOT/project_<id>/<filename>
+        return 'project_{0}/{1}'.format(instance.bucket.board.project.id, filename)
+
     STATUSES = [
         (Bucket.NOT_STARTED, _('Not started')),
         (Bucket.IN_PROGRESS, _('In progress')),
@@ -138,7 +138,7 @@ class Card(BaseModel):
     order = models.IntegerField()
     assigned_to = models.ManyToManyField(User, related_name="assigned_cards", blank=True)
     description = models.TextField(max_length=255, blank=True, null=True)
-    files = models.FileField(upload_to=card_directory_path, max_length=100, blank=True, null=True)
+    files = models.FileField(upload_to=_card_directory_path, max_length=100, blank=True, null=True)
     status = models.CharField(_("status"), max_length=2, choices=STATUSES, default=Bucket.NOT_STARTED)
     due_date = models.DateField(blank=True, null=True, default=None)
     started_at = models.DateTimeField(blank=True, null=True)

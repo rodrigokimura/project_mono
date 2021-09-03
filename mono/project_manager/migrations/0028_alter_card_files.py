@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='card',
             name='files',
-            field=models.FileField(blank=True, null=True, upload_to=project_manager.models.card_directory_path),
+            field=models.FileField(blank=True, null=True, upload_to=project_manager.models.Card._card_directory_path),
         ),
     ]
