@@ -9,29 +9,6 @@ var itemEdited = false;
 const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg';
 
 
-const setFullscreen = bool => {
-    $.api({
-        on: 'now',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-        method: 'PATCH',
-        headers: { 'X-CSRFToken': csrftoken },
-        data: { fullscreen: bool },
-        success: r => {
-            let icon = $('.fullscreen.item i.icon');
-            if (r.fullscreen) {
-                icon.removeClass('expand alternate icon').addClass('compress alternate icon');
-                $('.breadcrumb').parent().parent().parent().hide();
-                adjustBoardHeight();
-            } else {
-                icon.removeClass('compress alternate icon').addClass('expand alternate icon');
-                $('.breadcrumb').parent().parent().parent().show();
-                adjustBoardHeight();
-            };
-        },
-        error: r => { alert(JSON.stringify(r)) },
-    });
-};
-
 const changeBucketWidth = width => {
     $.api({
         on: 'now',
@@ -54,15 +31,10 @@ const setCompact = bool => {
         headers: { 'X-CSRFToken': csrftoken },
         data: { compact: bool },
         onSuccess: r => {
-            loadBoard(r.compact);
+            loadBoard();
         },
         onError: r => { alert(JSON.stringify(r)) },
     });
-};
-
-const toggleFullscreen = () => {
-    let icon = $('.fullscreen.item i.icon');
-    setFullscreen(icon.hasClass('expand alternate icon'));
 };
 
 const setDarkMode = bool => {
@@ -195,10 +167,10 @@ var cardsDrake = dragula({
     });
 
 const adjustBoardHeight = (boardSelector = '#board') => {
-    $(boardSelector).height(
-        $(window).height()
-        - $(boardSelector).offset().top
-    );
+    // $(boardSelector).height(
+    //     $(window).height()
+    //     - $(boardSelector).offset().top
+    // );
 };
 
 const str = seconds => {
@@ -258,7 +230,7 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
     buckets.forEach(bucket => {
         $(containerSelector).append(
             `
-            <div class="ui loading ${dark ? 'inverted ' : ' '}card bucket-el" data-bucket-id="${bucket.id}" style="width: ${width}px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em;' : ''}">
+            <div class="ui loading ${dark ? 'inverted ' : ' '}card bucket-el" data-bucket-id="${bucket.id}" style="width: ${width}px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em; margin-top: .5em; margin-bottom: 0;' : ''}">
               <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${bucket.color !== null ? `background-color: ${dark ? bucket.color.dark : bucket.color.primary}; color: ${bucket.color.light}` : ''}; " data-bucket-id="${bucket.id}">
                 <i class="grip lines icon"></i>
               </div>
