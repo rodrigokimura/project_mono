@@ -52,6 +52,7 @@ class Board(BaseModel):
     compact = models.BooleanField(default=False)
     dark = models.BooleanField(default=False)
     bucket_width = models.IntegerField(default=300)
+    updated_at = models.DateTimeField(auto_now=True)
 
     @property
     def allowed_users(self):
@@ -62,6 +63,9 @@ class Board(BaseModel):
         return self.bucket_set.all().aggregate(
             max_order=Coalesce(Max('order'), V(0), output_field=IntegerField())
         )['max_order']
+
+    def touch(self):
+        self.save()
 
     class Meta:
         ordering = [
@@ -91,6 +95,7 @@ class Bucket(BaseModel):
     description = models.TextField(max_length=255, blank=True, null=True)
     auto_status = models.CharField(_("status"), max_length=2, choices=STATUSES, default=NONE)
     color = models.ForeignKey('Theme', on_delete=models.CASCADE, blank=True, null=True, default=None)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = [
@@ -104,6 +109,9 @@ class Bucket(BaseModel):
         return self.card_set.all().aggregate(
             max_order=Coalesce(Max('order'), V(0), output_field=IntegerField())
         )['max_order']
+
+    def touch(self):
+        self.save()
 
     def sort(self):
         for index, card in enumerate(self.card_set.all()):
@@ -200,12 +208,13 @@ class Card(BaseModel):
         if running_time_entries.exists():
             return {'action': 'none'}
         else:
-            TimeEntry.objects.create(
+            time_entry = TimeEntry.objects.create(
                 name="Time entry",
                 card=self,
                 started_at=timezone.now(),
                 created_by=user
             )
+            time_entry.card.bucket.touch()
             return {'action': 'start'}
 
     def stop_timer(self):
@@ -217,6 +226,7 @@ class Card(BaseModel):
             for time_entry in running_time_entries:
                 time_entry.stopped_at = timezone.now()
                 time_entry.save()
+                time_entry.card.bucket.touch()
             return {'action': 'stop'}
         else:
             return {'action': 'none'}
@@ -227,14 +237,16 @@ class Card(BaseModel):
             for time_entry in running_time_entries:
                 time_entry.stopped_at = timezone.now()
                 time_entry.save()
+                time_entry.card.bucket.touch()
             return {'action': 'stop'}
         else:
-            TimeEntry.objects.create(
+            time_entry = TimeEntry.objects.create(
                 name="Time entry",
                 card=self,
                 started_at=timezone.now(),
                 created_by=user
             )
+            time_entry.card.bucket.touch()
             return {'action': 'start'}
 
     @property
