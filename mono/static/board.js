@@ -48,7 +48,7 @@ const checkUpdates = () => {
                     bucketIdDOM = parseInt(bucketEl.attr('data-bucket-id'));
                     if (b.id === bucketIdDOM) {
                         // Compare timestamps
-                        darkMode = $('.ui.slider.board-compact').checkbox('is checked');
+                        darkMode = $('.ui.slider.board-dark').checkbox('is checked');
                         compactMode = $('.ui.slider.board-compact').checkbox('is checked');
                         bucketTimestampDOM = new Date(bucketEl.attr('data-bucket-updated-at'));
                         if (bucketTimestamp > bucketTimestampDOM) {
