@@ -6,8 +6,66 @@ var containerBucketIsOver;
 var scrollIntervalID;
 var isScrolling = false;
 var itemEdited = false;
+var boardTimestamp = new Date();
+var autoRefresh = null;
 const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg';
 
+const startAutoRfresh = (period = 1000) => {
+    if (autoRefresh !== null) {
+        clearInterval(autoRefresh);
+    }
+    autoRefresh = setInterval(checkUpdates, period);
+}
+
+const checkUpdates = () => {
+    $.api({
+        on: 'now',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/last-updated/`,
+        method: 'GET',
+        headers: { 'X-CSRFToken': csrftoken },
+        onSuccess: r => {
+            // handle board
+            currentBoardTimestamp = new Date(r.board);
+            if (currentBoardTimestamp > boardTimestamp) {
+                loadBoard();
+                return;
+            }
+            // handle buckets
+            bucketIds = r.buckets.map(b => b.id);
+            // Is there any bucket in DOM not in response?
+            for (b of $('.bucket-el')) {
+                bucketIdDOM = parseInt($(b).attr('data-bucket-id'));
+                if (!bucketIds.includes(bucketIdDOM)) {
+                    loadBoard();
+                    return;
+                }
+            }
+            for (b of r.buckets) {
+                bucketTimestamp = new Date(b.ts);
+                // Check if bucket exists in DOM
+                bucketEl = $(`.bucket-el[data-bucket-id=${b.id}]`);
+                if (bucketEl.length) {
+                    bucketIdDOM = parseInt(bucketEl.attr('data-bucket-id'));
+                    if (b.id === bucketIdDOM) {
+                        // Compare timestamps
+                        darkMode = $('.ui.slider.board-compact').checkbox('is checked');
+                        compactMode = $('.ui.slider.board-compact').checkbox('is checked');
+                        bucketTimestampDOM = new Date(bucketEl.attr('data-bucket-updated-at'));
+                        if (bucketTimestamp > bucketTimestampDOM) {
+                            console.log('Updating bucket in DOM');
+                            bucketEl.attr('data-bucket-updated-at', b.ts);
+                            getCards(b.id, darkMode, compactMode);
+                        }
+                    }
+                } else {
+                    // If bucket not in DOM
+                    loadBoard();
+                }
+            }
+        },
+        onError: r => { alert(JSON.stringify(r)) },
+    });
+}
 
 const changeBucketWidth = width => {
     $.api({
@@ -194,7 +252,7 @@ const incrementSecond = cardId => {
 };
 
 const clearIntervals = () => {
-    intervals.forEach(el => { clearInterval(el) });
+    intervals.forEach(i => { clearInterval(i.interval) });
     intervals = [];
 };
 
@@ -202,6 +260,7 @@ const loadBoard = () => {
     let compact = $('.board-compact.checkbox').checkbox('is checked');
     let dark = $('.board-dark.checkbox').checkbox('is checked');
     let width = $('.ui.width.slider').slider('get value');
+    boardTimestamp = new Date();
     adjustBoardHeight();
     clearIntervals();
     getBuckets(dark, compact, width);
@@ -230,7 +289,7 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
     buckets.forEach(bucket => {
         $(containerSelector).append(
             `
-            <div class="ui loading ${dark ? 'inverted ' : ' '}card bucket-el" data-bucket-id="${bucket.id}" style="width: ${width}px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em; margin-top: .5em; margin-bottom: 0;' : ''}">
+            <div class="ui loading ${dark ? 'inverted ' : ' '}card bucket-el" data-bucket-id="${bucket.id}" data-bucket-updated-at="${bucket.updated_at}" style="width: ${width}px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em; margin-top: .5em; margin-bottom: 0;' : ''}">
               <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${bucket.color !== null ? `background-color: ${dark ? bucket.color.dark : bucket.color.primary}; color: ${bucket.color.light}` : ''}; " data-bucket-id="${bucket.id}">
                 <i class="grip lines icon"></i>
               </div>
@@ -323,6 +382,12 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
         }
         var overdue = false;
         var dueDate = null;
+        // Clear intervals (for running timers)
+        intervalIndex = intervals.findIndex(i => i.card === card.id);
+        if (intervalIndex > -1) {
+            clearInterval(intervals[intervalIndex].interval);
+            intervals.splice(intervalIndex);
+        }
         if (card.due_date !== null) {
             var now = new Date();
             dueDate = card.due_date.split('-');
@@ -441,9 +506,7 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
         $(`.ui.dropdown[data-card-id=${card.id}]`).dropdown({ action: 'hide' });
         $(`.card-name[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact); });
         $(`.edit.card.item[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact); });
-        $(`.card-el[data-card-id=${card.id}]`).on('dblclick', e => {
-            showCardModal(card, bucketId, compact);
-        })
+        $(`.card-el[data-card-id=${card.id}]`).on('dblclick', e => { showCardModal(card, bucketId, compact); })
         $(`.delete.card.item[data-card-id=${card.id}]`).on('click', e => { deleteCard(card.id, bucketId, dark, compact); });
         $(`.start-stop-timer[data-card-id=${card.id}]`).on('click', e => { startStopTimer(card.id, bucketId, dark, compact); });
         $(`.edit-time-entries[data-card-id=${card.id}]`).on('click', e => { showTimeEntriesModal(card.id, bucketId, dark, compact); });
@@ -451,7 +514,12 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
             toggleCardStatus(card.id, bucketId, $(e.target).attr('data-status'), dark, compact);
         });
         if (card.is_running) {
-            intervals.push(setInterval(() => { incrementSecond(card.id) }, 1000));
+            intervals.push(
+                {
+                    card: card.id,
+                    interval: setInterval(() => { incrementSecond(card.id) }, 1000)
+                }
+            );
         };
     });
     $('.card-el').removeClass('loading');
