@@ -166,6 +166,13 @@ var cardsDrake = dragula({
         containerCardIsOver = null;
     });
 
+const adjustBoardHeight = (boardSelector = '#board') => {
+    // $(boardSelector).height(
+    //     $(window).height()
+    //     - $(boardSelector).offset().top
+    // );
+};
+
 const str = seconds => {
     function pad(num, size = 2) {
         num = num.toString();
@@ -195,6 +202,7 @@ const loadBoard = () => {
     let compact = $('.board-compact.checkbox').checkbox('is checked');
     let dark = $('.board-dark.checkbox').checkbox('is checked');
     let width = $('.ui.width.slider').slider('get value');
+    adjustBoardHeight();
     clearIntervals();
     getBuckets(dark, compact, width);
     enableProximityScroll();
@@ -278,7 +286,10 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
         );
         $(`.ui.dropdown[data-bucket-id=${bucket.id}]`).dropdown({ action: 'hide' });
         $(`.add.card.item[data-bucket-id=${bucket.id}]`).on('click', e => { showCardModal(card = null, bucket.id, compact); });
-        $(`#bucket-${bucket.id}`).on('dblclick', e => { showCardModal(card = null, bucket.id, compact); })
+        $(`#bucket-${bucket.id}`).on('dblclick', e => {
+            const isCard = $(e.target).parents('.card-el').length > 0;
+            if (!isCard) { showCardModal(card = null, bucket.id, compact); }
+        })
         $(`.edit.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { showBucketModal(bucket); });
         $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { deleteBucket(bucket.id); });
         getCards(bucket.id, dark, compact);
@@ -430,6 +441,9 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
         $(`.ui.dropdown[data-card-id=${card.id}]`).dropdown({ action: 'hide' });
         $(`.card-name[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact); });
         $(`.edit.card.item[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact); });
+        $(`.card-el[data-card-id=${card.id}]`).on('dblclick', e => {
+            showCardModal(card, bucketId, compact);
+        })
         $(`.delete.card.item[data-card-id=${card.id}]`).on('click', e => { deleteCard(card.id, bucketId, dark, compact); });
         $(`.start-stop-timer[data-card-id=${card.id}]`).on('click', e => { startStopTimer(card.id, bucketId, dark, compact); });
         $(`.edit-time-entries[data-card-id=${card.id}]`).on('click', e => { showTimeEntriesModal(card.id, bucketId, dark, compact); });
