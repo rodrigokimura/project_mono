@@ -113,12 +113,22 @@ class BucketSerializer(ModelSerializer):
             'name',
             'description',
             'created_at',
+            'updated_at',
             'board',
             'order',
             'auto_status',
             'color',
         ]
         extra_kwargs = {'created_by': {'read_only': True}}
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        instance.board.touch()
+        return instance
+
+    def update(self, instance, validated_data):
+        instance.board.touch()
+        return super().update(instance, validated_data)
 
 
 class IconSerializer(ModelSerializer):
@@ -144,6 +154,10 @@ class TagSerializer(ModelSerializer):
             'color',
         ]
 
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        instance.board.touch()
+
     def update(self, instance, validated_data):
         if 'icon' in validated_data:
             del validated_data['icon']
@@ -161,6 +175,7 @@ class TagSerializer(ModelSerializer):
             instance.color = None
         super().update(instance, validated_data)
         instance.save()
+        instance.board.touch()
 
         return instance
 
@@ -210,6 +225,7 @@ class CardSerializer(ModelSerializer):
 
     def create(self, validated_data):
         instance = super().create(validated_data)
+        instance.bucket.touch()
         if 'tag' in validated_data:
             del validated_data['tag']
 
@@ -262,6 +278,7 @@ class CardSerializer(ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
+        instance.bucket.touch()
         if 'tag' in validated_data:
             del validated_data['tag']
 
@@ -336,6 +353,11 @@ class ItemSerializer(ModelSerializer):
             'checked': {'read_only': True},
         }
 
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        instance.card.bucket.touch()
+        return instance
+
 
 class TimeEntrySerializer(ModelSerializer):
 
@@ -351,6 +373,15 @@ class TimeEntrySerializer(ModelSerializer):
         extra_kwargs = {
             'created_by': {'read_only': True},
         }
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        instance.card.bucket.touch()
+        return instance
+
+    def update(self, instance, validated_data):
+        instance.card.bucket.touch()
+        return super().update(instance, validated_data)
 
 
 class CommentSerializer(ModelSerializer):
@@ -369,6 +400,11 @@ class CommentSerializer(ModelSerializer):
             'created_by': {'read_only': True},
             'created_at': {'read_only': True},
         }
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        instance.card.bucket.touch()
+        return instance
 
 
 class CardMoveSerializer(Serializer):
@@ -459,6 +495,8 @@ class CardMoveSerializer(Serializer):
                 card.status = auto_status
                 card.save()
                 status_changed = True
+        source_bucket.touch()
+        target_bucket.touch()
         return {
             'success': True,
             'status_changed': status_changed,
@@ -519,3 +557,4 @@ class BucketMoveSerializer(Serializer):
                 b.save()
         bucket.order = order
         bucket.save()
+        bucket.board.touch()

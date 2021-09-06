@@ -441,6 +441,29 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 
 
+class BoardLastUpdatedAPIView(LoginRequiredMixin, APIView):
+    """
+    Retrieve, update or delete a board instance.
+    """
+
+    def get_object(self, pk):
+        try:
+            return Board.objects.get(pk=pk)
+        except Board.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None, **kwargs):
+        board = self.get_object(pk)
+        if request.user in board.allowed_users:
+            board_timestamp = board.updated_at
+            buckets_timestamp = [{'id': b.id, 'ts': b.updated_at} for b in board.bucket_set.all()]
+            return Response({
+                'board': board_timestamp,
+                'buckets': buckets_timestamp
+            })
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
 class BucketListAPIView(LoginRequiredMixin, APIView):
     """
     List all buckets, or create a new bucket.
