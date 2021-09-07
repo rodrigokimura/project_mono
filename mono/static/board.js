@@ -11,9 +11,7 @@ var autoRefresh = null;
 const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg';
 
 const startAutoRfresh = (period = 1000) => {
-    if (autoRefresh !== null) {
-        clearInterval(autoRefresh);
-    }
+    if (autoRefresh !== null) { clearInterval(autoRefresh); }
     autoRefresh = setInterval(checkUpdates, period);
 }
 
@@ -275,9 +273,11 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
     };
     $(containerSelector).empty();
     if (compact) {
-        $(containerSelector).parent().css('padding', '.5em');
+        $(containerSelector).css('padding-left', '.5em');
+        $(containerSelector).css('padding-right', '.5em');
     } else {
-        $(containerSelector).parent().css('padding', '1em');
+        $(containerSelector).css('padding-left', '.75em');
+        $(containerSelector).css('padding-right', '.75em');
     };
     if (dark) {
         $(containerSelector).parents().addClass('inverted');
@@ -289,7 +289,7 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
     buckets.forEach(bucket => {
         $(containerSelector).append(
             `
-            <div class="ui loading ${dark ? 'inverted ' : ' '}card bucket-el" data-bucket-id="${bucket.id}" data-bucket-updated-at="${bucket.updated_at}" style="width: ${width}px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em; margin-top: .5em; margin-bottom: 0;' : ''}">
+            <div class="ui loading ${dark ? 'inverted ' : ' '}card bucket-el" data-bucket-id="${bucket.id}" data-bucket-updated-at="${bucket.updated_at}" style="width: ${width}px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em; margin-top: .5em; margin-bottom: .5em;' : ''}">
               <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${bucket.color !== null ? `background-color: ${dark ? bucket.color.dark : bucket.color.primary}; color: ${bucket.color.light}` : ''}; " data-bucket-id="${bucket.id}">
                 <i class="grip lines icon"></i>
               </div>
