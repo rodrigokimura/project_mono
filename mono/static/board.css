@@ -3,6 +3,31 @@
     padding-top: 0 !important;
 }
 
+.pusher,
+.pusher .ui.container,
+.pusher .ui.container .ui.segment,
+.pusher .ui.container .ui.segment .buckets-drake {
+    margin: 0 !important;
+    padding-bottom: 0 !important;
+    height: 100vh !important;
+}
+
+.pusher .ui.container .ui.segment {
+    padding: 0 !important;
+}
+
+.pusher .ui.container .ui.segment .buckets-drake {
+    padding-top: 3em;
+    padding-bottom: 0;
+    overflow-y: hidden;
+    overflow-x: auto;
+    scroll-snap-type: y mandatory;
+    scroll-padding: .8em;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: stretch;
+}
+
 .overdue.card {
     outline: red solid .2em;
 }
@@ -51,7 +76,7 @@ img.assignee {
     border-width: .2em;
     border-color: #FFFFFF;
     margin-right: -.75em !important;
-    transition: .5s;
+    transition: .3s;
 }
 
 img.assignee.dark {
@@ -59,11 +84,11 @@ img.assignee.dark {
     border-width: .2em;
     border-color: #141516;
     margin-right: -.75em !important;
-    transition: .5s;
+    transition: .3s;
 }
 
 img.assignee:hover {
-    margin-right: 0 !important;
+    margin-right: -.5em !important;
 }
 
 .noselect {
