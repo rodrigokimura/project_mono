@@ -37,6 +37,11 @@
       },
       {% endfor %}
     ];
+    {% if object.background_image %}
+      var wallpaper = "{{ object.background_image.url }}";
+    {% else %}
+      var wallpaper = "";
+    {% endif %}
   </script>
 {% endblock head %}
 
@@ -83,12 +88,68 @@
             <div class="ui inverted width labeled slider" id="slider-1"></div>
           </div>
         </div>
+        <div class="item">
+          <div class="header">{% translate 'Background image' %}</div>
+          <div class="content">
+            <div class="ui fluid action input">
+              <input  id="wallpaper-upload-input"type="file" placeholder="Search...">
+              <div class="ui button" id="wallpaper-upload-btn">{% translate 'Save' %}</div>
+            </div>
+            <div class="ui small button" id="wallpaper-remove-btn" style="margin-top: .5em;">{% translate 'Remove' %}</div>      
+          </div>
+        </div>
       </div>
     </div>
     <div class="item">
       <div class="ui fluid inverted button" id="manage-tags"><i class="tags icon"></i> {% translate "Manage tags" %}</div>
     </div>
+        
+      </div>
+    </div>
   </div>
+  <script>
+    $("#wallpaper-upload-btn").click(function(){
+      var fd = new FormData();
+      var files = $('#wallpaper-upload-input')[0].files;
+      if(files.length > 0 ){
+        fd.append('background_image', files[0]);
+        $.ajax({
+          url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+          type: 'PATCH',
+          headers: { 'X-CSRFToken': csrftoken },
+          data: fd,
+          contentType: false,
+          processData: false,
+          success: function(r){
+            if(r != 0){
+              wallpaper = r.background_image;
+              setWallpaper();
+            }else{
+              alert('file not uploaded');
+            }
+          },
+        });
+      }else{
+          alert("Please select a file.");
+      }
+    });
+    $("#wallpaper-remove-btn").click(function(){
+      $.ajax({
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+        type: 'PATCH',
+        headers: { 'X-CSRFToken': csrftoken },
+        data: {'background_image': null},
+        success: function(r){
+          if(r != 0){
+            wallpaper = '';
+            setWallpaper();
+          }else{
+            alert('file not uploaded');
+          }
+        },
+      });
+    });
+  </script>
 {% endblock sidebars %}
 
 {% block main %}
