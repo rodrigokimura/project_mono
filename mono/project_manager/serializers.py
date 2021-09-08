@@ -103,8 +103,9 @@ class BoardSerializer(ModelSerializer):
         extra_kwargs = {'created_by': {'read_only': True}}
 
     def update(self, instance, validated_data):
-        if validated_data['background_image'] is None:
-            instance.background_image = None
+        if 'background_image' in validated_data:
+            if validated_data['background_image'] is None:
+                instance.background_image = None
         return super().update(instance, validated_data)
 
 
