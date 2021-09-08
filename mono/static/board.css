@@ -1,3 +1,10 @@
+img.background-img {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1000;
+}
+
 /* to set to fullscreen */
 .pusher {
     padding-top: 0 !important;
@@ -29,7 +36,8 @@
 }
 
 .overdue.card {
-    outline: red solid .2em;
+    /* outline: red solid .2em; */
+    border-color: red;
 }
 
 .completed.card:hover {

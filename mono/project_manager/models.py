@@ -46,6 +46,10 @@ class Project(BaseModel):
 
 
 class Board(BaseModel):
+
+    def _background_image_path(instance, filename):
+        return 'project_{0}/board_{1}/{2}'.format(instance.project.id, instance.id, filename)
+
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     assigned_to = models.ManyToManyField(User, related_name="assigned_boards", blank=True)
     fullscreen = models.BooleanField(default=False)
@@ -53,6 +57,7 @@ class Board(BaseModel):
     dark = models.BooleanField(default=False)
     bucket_width = models.IntegerField(default=300)
     updated_at = models.DateTimeField(auto_now=True)
+    background_image = models.ImageField(upload_to=_background_image_path, blank=True, null=True)
 
     @property
     def allowed_users(self):

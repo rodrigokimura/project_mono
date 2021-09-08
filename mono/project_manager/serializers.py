@@ -98,8 +98,14 @@ class BoardSerializer(ModelSerializer):
             'dark',
             'bucket_width',
             'allowed_users',
+            'background_image',
         ]
         extra_kwargs = {'created_by': {'read_only': True}}
+
+    def update(self, instance, validated_data):
+        if validated_data['background_image'] is None:
+            instance.background_image = None
+        return super().update(instance, validated_data)
 
 
 class BucketSerializer(ModelSerializer):
