@@ -10,6 +10,44 @@ var boardTimestamp = new Date();
 var autoRefresh = null;
 const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg';
 
+const setWallpaper = () => {
+    if (wallpaper) {
+        $('#board').css('background-image', `url('${wallpaper}')`);
+    } else {
+        $('#board').css('background-image', '');
+    }
+}
+
+const setCardGlassEffect = (blur = false, blurness = 5, opacity = 50) => {
+    if (wallpaper) {
+        for (el of $('.card-el')) {
+            color = $(el).css('background-color');
+            if (color.split('(')[0] === 'rgb') {
+                newColor = `${color.replace('rgb(', '').replace(')', '')}, ${opacity / 100}`;
+                $(el).css('background-color', `rgba(${newColor})`);
+                if (blur) {
+                    $(el).css('backdrop-filter', `blur(${blurness}px)`);
+                }
+            }
+        }
+    }
+}
+
+const setBucketGlassEffect = (blur = false, blurness = 5, opacity = 50) => {
+    if (wallpaper) {
+        for (el of $('.bucket-el')) {
+            color = $(el).css('background-color');
+            if (color.split('(')[0] === 'rgb') {
+                newColor = `${color.replace('rgb(', '').replace(')', '')}, ${opacity / 100}`;
+                $(el).css('background-color', `rgba(${newColor})`);
+                if (blur) {
+                    $(el).css('backdrop-filter', `blur(${blurness}px)`);
+                }
+            }
+        }
+    }
+}
+
 const startAutoRfresh = (period = 1000) => {
     if (autoRefresh !== null) { clearInterval(autoRefresh); }
     autoRefresh = setInterval(checkUpdates, period);
@@ -263,6 +301,7 @@ const loadBoard = () => {
     clearIntervals();
     getBuckets(dark, compact, width);
     enableProximityScroll();
+    setWallpaper();
 };
 
 const renderBuckets = (containerSelector, buckets, dark = false, compact = false, width) => {
@@ -359,6 +398,7 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
     $('.add.bucket.button').css('marginTop', e.css('marginTop'));
     $('.add.bucket.button').css('marginBottom', e.css('marginBottom'));
     $('.bucket-el').removeClass('loading');
+    setBucketGlassEffect();
 };
 
 const renderCards = (containerSelector, cards, bucketId, dark = false, compact = false) => {
@@ -523,6 +563,7 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
         };
     });
     $('.card-el').removeClass('loading');
+    setCardGlassEffect();
 };
 
 const renderItems = (containerSelector, items, bucketId, cardId, dark = false) => {
