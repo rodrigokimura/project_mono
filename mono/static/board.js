@@ -11,10 +11,14 @@ var autoRefresh = null;
 const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg';
 
 const setWallpaper = () => {
-    if (wallpaper) { $('#board').css('background-image', `url('${wallpaper}')`); }
+    if (wallpaper) {
+        $('#board').css('background-image', `url('${wallpaper}')`);
+    } else {
+        $('#board').css('background-image', '');
+    }
 }
 
-const setCardGlassEffect = (blur = true, blurness = 5, opacity = 50) => {
+const setCardGlassEffect = (blur = false, blurness = 5, opacity = 50) => {
     if (wallpaper) {
         for (el of $('.card-el')) {
             color = $(el).css('background-color');
@@ -29,7 +33,7 @@ const setCardGlassEffect = (blur = true, blurness = 5, opacity = 50) => {
     }
 }
 
-const setBucketGlassEffect = (blur = true, blurness = 5, opacity = 50) => {
+const setBucketGlassEffect = (blur = false, blurness = 5, opacity = 50) => {
     if (wallpaper) {
         for (el of $('.bucket-el')) {
             color = $(el).css('background-color');
