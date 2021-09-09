@@ -1,5 +1,6 @@
+import os
 from django.dispatch import receiver
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_delete, pre_save
 from .models import Board, Bucket, Comment, TimeEntry, Invite
 
 
@@ -34,3 +35,12 @@ def send_email_on_comment(sender, instance, created, **kwargs):
     if created:
         instance.notify_assignees()
         instance.notify_mentioned_users()
+
+
+@receiver(pre_delete, sender=Board, dispatch_uid="delete_background_image")
+def delete_background_image(sender, instance, using, **kwargs):
+    def _delete_file(path):
+        """ Deletes file from filesystem. """
+        if os.path.isfile(path):
+            os.remove(path)
+    _delete_file(instance.background_image.path)
