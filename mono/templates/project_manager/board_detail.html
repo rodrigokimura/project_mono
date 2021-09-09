@@ -108,44 +108,54 @@
     </div>
   </div>
   <script>
-    $("#wallpaper-upload-btn").click(function(){
+    $("#wallpaper-upload-btn").on('click', e => {
       var fd = new FormData();
       var files = $('#wallpaper-upload-input')[0].files;
       if(files.length > 0 ){
         fd.append('background_image', files[0]);
-        $.ajax({
+        $(e.target).api({
           url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-          type: 'PATCH',
+          on: 'now',
+          method: 'PATCH',
           headers: { 'X-CSRFToken': csrftoken },
           data: fd,
           contentType: false,
           processData: false,
-          success: function(r){
-            if(r != 0){
-              wallpaper = r.background_image;
-              setWallpaper();
-            }else{
-              alert('file not uploaded');
-            }
+          successTest: r => r != 0,
+          onSuccess: r => {
+            wallpaper = r.background_image;
+            setWallpaper();
+            $('body').toast({
+              title: 'Background image',
+              message: 'Background image successfully updated!',
+              showProgress: 'bottom',
+              classProgress: 'green',
+              displayTime: 5000,
+            })
           },
         });
       }else{
-          alert("Please select a file.");
+        alert("Please select a file.");
       }
     });
-    $("#wallpaper-remove-btn").click(function(){
-      $.ajax({
+    $("#wallpaper-remove-btn").on('click', e => {
+      $(e.target).api({
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-        type: 'PATCH',
+        on: 'now',
+        method: 'PATCH',
         headers: { 'X-CSRFToken': csrftoken },
         data: {'background_image': null},
-        success: function(r){
-          if(r != 0){
-            wallpaper = '';
-            setWallpaper();
-          }else{
-            alert('file not uploaded');
-          }
+        successTest: r => r != 0,
+        onSuccess: r => {
+          wallpaper = '';
+          setWallpaper();
+          $('body').toast({
+            title: 'Background image',
+            message: 'Background image removed!',
+            showProgress: 'bottom',
+            classProgress: 'red',
+            displayTime: 5000,
+          })
         },
       });
     });
