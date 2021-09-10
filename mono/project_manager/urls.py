@@ -32,6 +32,8 @@ urlpatterns = [
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:pk>/', views.BucketDetailAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/', views.CardListAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:pk>/', views.CardDetailAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/files/', views.CardFileListAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/files/<int:pk>/', views.CardFileDetailAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/items/', views.ItemListAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/items/<int:pk>/', views.ItemDetailAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/items/<int:pk>/check/', views.ItemCheckAPIView.as_view()),

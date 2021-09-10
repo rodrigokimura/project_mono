@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from accounts.models import UserProfile
 import json
 import os
-from .models import Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite, TimeEntry
+from .models import CardFile, Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite, TimeEntry
 
 
 class ProfileSerializer(ModelSerializer):
@@ -195,6 +195,20 @@ class TagSerializer(ModelSerializer):
         return instance
 
 
+class CardFileSerializer(ModelSerializer):
+    image = serializers.ReadOnlyField()
+    extension = serializers.ReadOnlyField()
+
+    class Meta:
+        model = CardFile
+        fields = [
+            'id',
+            'file',
+            'extension',
+            'image',
+        ]
+
+
 class CardSerializer(ModelSerializer):
     allowed_users = UserSerializer(many=True, read_only=True)
     is_running = serializers.ReadOnlyField()
@@ -205,6 +219,7 @@ class CardSerializer(ModelSerializer):
     color = ThemeSerializer(many=False, read_only=True)
     tag = TagSerializer(many=True, required=False)
     assigned_to = UserSerializer(many=True, required=False)
+    files = CardFileSerializer(many=True, read_only=True)
 
     class Meta:
         model = Card
@@ -229,6 +244,7 @@ class CardSerializer(ModelSerializer):
             'total_items',
             'comments',
             'color',
+            'files',
         ]
         extra_kwargs = {
             'created_by': {'read_only': True},
