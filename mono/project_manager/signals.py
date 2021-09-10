@@ -44,8 +44,10 @@ def delete_background_image(sender, instance, using, **kwargs):
         """ Deletes file from filesystem. """
         if os.path.isfile(path):
             os.remove(path)
-
-    _delete_file(instance.background_image.path)
+    try:
+        _delete_file(instance.background_image.path)
+    except ValueError:
+        logging.warning('No file found')
 
 
 @receiver(pre_delete, sender=CardFile, dispatch_uid="delete_card_file")
