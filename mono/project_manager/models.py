@@ -269,6 +269,10 @@ class Card(BaseModel):
         return self.item_set.all().count()
 
     @property
+    def total_files(self):
+        return self.files.all().count()
+
+    @property
     def comments(self):
         return self.comment_set.all().count()
 

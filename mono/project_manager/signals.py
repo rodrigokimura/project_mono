@@ -52,10 +52,13 @@ def delete_background_image(sender, instance, using, **kwargs):
 
 @receiver(pre_delete, sender=CardFile, dispatch_uid="delete_card_file")
 def delete_card_file(sender, instance, using, **kwargs):
+
     def _delete_file(path):
         """ Deletes file from filesystem. """
         if os.path.isfile(path):
             os.remove(path)
+
+    instance.card.bucket.touch()
     try:
         _delete_file(instance.file.path)
     except ValueError:
