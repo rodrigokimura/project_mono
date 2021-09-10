@@ -2,8 +2,10 @@ from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
 from django.contrib.auth.models import User
 from accounts.models import UserProfile
+from django.core.exceptions import ValidationError
 import json
-from .models import Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite, TimeEntry
+import os
+from .models import CardFile, Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite, TimeEntry
 
 
 class ProfileSerializer(ModelSerializer):
@@ -102,8 +104,15 @@ class BoardSerializer(ModelSerializer):
         ]
         extra_kwargs = {'created_by': {'read_only': True}}
 
+    def _delete_file(self, path):
+        """ Deletes file from filesystem. """
+        if os.path.isfile(path):
+            os.remove(path)
+
     def update(self, instance, validated_data):
         if 'background_image' in validated_data:
+            if instance.background_image:
+                self._delete_file(instance.background_image.path)
             if validated_data['background_image'] is None:
                 instance.background_image = None
         return super().update(instance, validated_data)
@@ -187,6 +196,29 @@ class TagSerializer(ModelSerializer):
         return instance
 
 
+class CardFileSerializer(ModelSerializer):
+    name = serializers.ReadOnlyField()
+    image = serializers.ReadOnlyField()
+    extension = serializers.ReadOnlyField()
+
+    class Meta:
+        model = CardFile
+        fields = [
+            'id',
+            'file',
+            'name',
+            'image',
+            'extension',
+        ]
+
+    def validate_file(self, f):
+        file_size = f.size
+        limit_mb = 10
+        if file_size > limit_mb * 1024 * 1024:
+            raise ValidationError("Max size of file is %s MiB" % limit_mb)
+        return f
+
+
 class CardSerializer(ModelSerializer):
     allowed_users = UserSerializer(many=True, read_only=True)
     is_running = serializers.ReadOnlyField()
@@ -197,6 +229,7 @@ class CardSerializer(ModelSerializer):
     color = ThemeSerializer(many=False, read_only=True)
     tag = TagSerializer(many=True, required=False)
     assigned_to = UserSerializer(many=True, required=False)
+    files = CardFileSerializer(many=True, read_only=True)
 
     class Meta:
         model = Card
@@ -221,6 +254,7 @@ class CardSerializer(ModelSerializer):
             'total_items',
             'comments',
             'color',
+            'files',
         ]
         extra_kwargs = {
             'created_by': {'read_only': True},

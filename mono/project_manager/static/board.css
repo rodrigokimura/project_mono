@@ -5,6 +5,32 @@ img.background-img {
     z-index: -1000;
 }
 
+.files-container {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    margin: 0 !important;
+    overflow-x: auto;
+}
+
+.files-container .card {
+    flex: 0 0 auto;
+}
+
+.delete-file {
+    color: #ff6666 !important;
+    font-size: 75%;
+    margin-top: 3em;
+}
+
+img.img-card-file {
+    object-fit: cover !important;
+}
+
+.img-card-file {
+    width: 100px !important;
+    height: 100px !important;
+}
+
 /* to set to fullscreen */
 .pusher {
     padding-top: 0 !important;
