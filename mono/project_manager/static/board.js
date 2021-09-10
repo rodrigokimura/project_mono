@@ -326,8 +326,7 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
         $(containerSelector).parents().css('background-color', 'white');
     };
     buckets.forEach(bucket => {
-        $(containerSelector).append(
-            `
+        $(containerSelector).append(`
             <div class="ui loading ${dark ? 'inverted ' : ' '}card bucket-el" data-bucket-id="${bucket.id}" data-bucket-updated-at="${bucket.updated_at}" style="width: ${width}px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em; margin-top: .5em; margin-bottom: .5em;' : ''}">
               <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${bucket.color !== null ? `background-color: ${dark ? bucket.color.dark : bucket.color.primary}; color: ${bucket.color.light}` : ''}; " data-bucket-id="${bucket.id}">
                 <i class="grip lines icon"></i>
@@ -357,8 +356,7 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
               <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 1 auto; display: flex; flex-flow: column nowrap; align-items: stretch; overflow-y: auto;${compact ? ' padding: .5em;' : ''}">
               </div>
             </div>
-            `
-        );
+        `);
         document.querySelectorAll(`.handle[data-bucket-id='${bucket.id}']`)[0].addEventListener(
             'touchmove', e => {
                 e.preventDefault();
@@ -1136,37 +1134,32 @@ const getBoardAllowedUsers = () => {
     return allowed_users;
 }
 
-function generateAvatar(
-    text,
-    foregroundColor = "white",
-    backgroundColor = "black"
-) {
+function generateAvatar(text, foregroundColor = "white", backgroundColor = "black") {
+    const w = 200;
     const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
 
-    canvas.width = 200;
-    canvas.height = 200;
+    canvas.width = w;
+    canvas.height = w;
 
     // Draw background
-    context.fillStyle = backgroundColor;
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw text
-    context.font = "bold 100px Assistant";
-    context.fillStyle = foregroundColor;
-    context.textAlign = "center";
-    context.textBaseline = "middle";
-    context.fillText(text, canvas.width / 2, canvas.height / 2);
+    var fontsize = w * 2 / text.length;
+    do {
+        fontsize -= w / 100;
+        ctx.font = `bold ${fontsize}px Inter`;
+    } while (ctx.measureText(text).width > w * .8)
+    ctx.fillStyle = foregroundColor;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    
 
     return canvas.toDataURL("image/png");
 }
-
-//   document.getElementById("avatar").src = generateAvatar(
-//     "DC",
-//     "white",
-//     "#009578"
-//   );
-
 
 const renderFiles = (modal, card = null) => {
     modal.find('.card-files').val('');
@@ -1174,18 +1167,19 @@ const renderFiles = (modal, card = null) => {
     if (card) {
         for (f of card.files) {
             extension = f.extension;
-            console.log(extension);
             modal.find('.files-container').append(`
                 <div class="ui special card img-card-file">
                     <div class="blurring dimmable image img-card-file" data-file-id=${f.id}>
                         <div class="ui dimmer">
                             <div class="content">
                                 <div class="center">
-                                    <span class="ui white text">Open</span>
+                                    <a href="${f.file}" target="_blank" class="ui inverted basic button">
+                                        <span class="ui white text">Open</span>
+                                    </a>
                                 </div>
                             </div>
                         </div>
-                        <img src="${f.image ? f.file : 'https://ui-avatars.com/api/?name=random'}" loading="lazy" class="img-card-file">
+                        <img src="${f.image ? f.file : generateAvatar(extension)}" loading="lazy" class="img-card-file">
                     </div>
                 </div>
             `);

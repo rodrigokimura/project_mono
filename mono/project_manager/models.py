@@ -296,7 +296,11 @@ class CardFile(models.Model):
 
     @property
     def image(self):
-        return imghdr.what(self.file)
+        try:
+            img = imghdr.what(self.file)
+        except:
+            img = None 
+        return img
 
     @property
     def extension(self):
