@@ -88,7 +88,6 @@ const checkUpdates = () => {
                         compactMode = $('.ui.slider.board-compact').checkbox('is checked');
                         bucketTimestampDOM = new Date(bucketEl.attr('data-bucket-updated-at'));
                         if (bucketTimestamp > bucketTimestampDOM) {
-                            console.log('Updating bucket in DOM');
                             bucketEl.attr('data-bucket-updated-at', b.ts);
                             getCards(b.id, darkMode, compactMode);
                         }
@@ -326,8 +325,7 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
         $(containerSelector).parents().css('background-color', 'white');
     };
     buckets.forEach(bucket => {
-        $(containerSelector).append(
-            `
+        $(containerSelector).append(`
             <div class="ui loading ${dark ? 'inverted ' : ' '}card bucket-el" data-bucket-id="${bucket.id}" data-bucket-updated-at="${bucket.updated_at}" style="width: ${width}px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em; margin-top: .5em; margin-bottom: .5em;' : ''}">
               <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${bucket.color !== null ? `background-color: ${dark ? bucket.color.dark : bucket.color.primary}; color: ${bucket.color.light}` : ''}; " data-bucket-id="${bucket.id}">
                 <i class="grip lines icon"></i>
@@ -357,8 +355,7 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
               <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 1 auto; display: flex; flex-flow: column nowrap; align-items: stretch; overflow-y: auto;${compact ? ' padding: .5em;' : ''}">
               </div>
             </div>
-            `
-        );
+        `);
         document.querySelectorAll(`.handle[data-bucket-id='${bucket.id}']`)[0].addEventListener(
             'touchmove', e => {
                 e.preventDefault();
@@ -1136,63 +1133,78 @@ const getBoardAllowedUsers = () => {
     return allowed_users;
 }
 
-function generateAvatar(
-    text,
-    foregroundColor = "white",
-    backgroundColor = "black"
-) {
+function generateAvatar(text, foregroundColor = "white", backgroundColor = "black") {
+    const w = 200;
     const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
 
-    canvas.width = 200;
-    canvas.height = 200;
+    canvas.width = w;
+    canvas.height = w;
 
     // Draw background
-    context.fillStyle = backgroundColor;
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw text
-    context.font = "bold 100px Assistant";
-    context.fillStyle = foregroundColor;
-    context.textAlign = "center";
-    context.textBaseline = "middle";
-    context.fillText(text, canvas.width / 2, canvas.height / 2);
+    var fontsize = w * 2 / text.length;
+    do {
+        fontsize -= w / 100;
+        ctx.font = `bold ${fontsize}px Inter`;
+    } while (ctx.measureText(text).width > w * .8)
+    ctx.fillStyle = foregroundColor;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
 
     return canvas.toDataURL("image/png");
 }
 
-//   document.getElementById("avatar").src = generateAvatar(
-//     "DC",
-//     "white",
-//     "#009578"
-//   );
+const getFiles = (modal, bucketId, cardId) => {
+    $.get(
+        url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
+    )
+        .done(r => {
+            renderFiles(modal, bucketId, cardId, files = r)
+        })
+}
 
-
-const renderFiles = (modal, card = null) => {
-    modal.find('.card-files').val('');
-    modal.find('.files-container').empty();
-    if (card) {
-        for (f of card.files) {
-            extension = f.extension;
-            console.log(extension);
-            modal.find('.files-container').append(`
-                <div class="ui special card img-card-file">
-                    <div class="blurring dimmable image img-card-file" data-file-id=${f.id}>
-                        <div class="ui dimmer">
-                            <div class="content">
-                                <div class="center">
-                                    <span class="ui white text">Open</span>
-                                </div>
+const renderFiles = (modal, bucketId, cardId, files) => {
+    for (f of files) {
+        extension = f.extension;
+        modal.find('.files-container').append(`
+            <div class="ui special card img-card-file" data-file-id=${f.id}>
+                <div class="blurring dimmable image" data-file-id=${f.id}>
+                    <div class="ui dimmer">
+                        <div class="content">
+                            <div class="center">
+                                <a href="${f.file}" target="_blank" class="ui inverted button">Open</a>
+                            </div>
+                            <div class="center" style="margin-top: 1em;">
+                                <a class="delete-file" data-file-id=${f.id}><i class="trash icon"></i>Remove</a>
                             </div>
                         </div>
-                        <img src="${f.image ? f.file : 'https://ui-avatars.com/api/?name=random'}" loading="lazy" class="img-card-file">
                     </div>
+                    <img src="${f.image ? f.file : generateAvatar(extension)}" class="img-card-file">
                 </div>
-            `);
-            $(`.image.img-card-file[data-file-id=${f.id}]`).dimmer({
-                on: 'hover'
-            });
-        }
+            </div>
+        `);
+        $(`.image[data-file-id=${f.id}]`).dimmer({ on: 'hover' });
+        $(`.delete-file[data-file-id=${f.id}]`).off().on('click', e => {
+            id = $(e.target).attr('data-file-id');
+            $.api({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/${id}/`,
+                on: 'now',
+                stateContext: $(`.ui.special.card.img-card-file[data-file-id=${id}]`),
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': csrftoken },
+                loadingDuration: 1000,
+                successTest: r => r != 0,
+                onSuccess: r => {
+                    $(`.ui.special.card.img-card-file[data-file-id=${id}]`).remove();
+                },
+            })
+        });
     }
 }
 
@@ -1201,7 +1213,8 @@ const showCardModal = (card = null, bucketId, compact) => {
     const modal = $('.ui.card-form.modal');
     modal.off().form('reset');
     let dark = modal.hasClass('inverted');
-    renderFiles(modal, card);
+    modal.find('.card-files').val('');
+    modal.find('.files-container').empty();
     if (dark) {
         modal.find('.checklist.segment').addClass('inverted');
         modal.find('.files.segment').addClass('inverted');
@@ -1338,6 +1351,7 @@ const showCardModal = (card = null, bucketId, compact) => {
         transition: 'scale',
         duration: 400,
         onShow: () => {
+            getFiles(modal, bucketId, card.id);
             itemEdited = false;
             modal.find('.manage-tags').popup();
             modal.find('.scrolling.content').animate({ scrollTop: 0 });
@@ -1391,7 +1405,6 @@ const showCardModal = (card = null, bucketId, compact) => {
                 url: url,
                 type: method,
                 headers: { 'X-CSRFToken': csrftoken },
-                // TODO alterar pra pegar os arquivos
                 data: {
                     name: name,
                     bucket: bucketId,
@@ -1405,7 +1418,6 @@ const showCardModal = (card = null, bucketId, compact) => {
                 },
                 success: r => {
                     var files = modal.find('.card-files')[0].files;
-                    getCards(bucketId, dark, compact);
                     if (files.length > 0) {
                         var cardId = create ? r.id : card.id;
                         for (f of files) {
@@ -1414,6 +1426,7 @@ const showCardModal = (card = null, bucketId, compact) => {
                             attachFile(fd, bucketId, cardId);
                         }
                     }
+                    getCards(bucketId, dark, compact);
                 }
             });
         }
@@ -1424,24 +1437,36 @@ const showCardModal = (card = null, bucketId, compact) => {
 };
 
 const attachFile = (fd, bucketId, cardId) => {
-    $.ajax({
+    $.api({
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
         on: 'now',
-        type: 'POST',
+        method: 'POST',
         headers: { 'X-CSRFToken': csrftoken },
         data: fd,
         contentType: false,
         processData: false,
         successTest: r => r != 0,
         onSuccess: r => {
+            console.log(r)
             $('body').toast({
                 title: 'File upload',
-                message: 'Successfullly uploaded file!',
+                message: `Successfullly uploaded file ${r.file.split('/').at(-1)}!`,
                 showProgress: 'bottom',
                 classProgress: 'green',
                 displayTime: 5000,
             })
         },
+        onFailure: (response, element, xhr) => {
+            if ('file' in response) {
+                $('body').toast({
+                    title: 'Error on file upload',
+                    message: response.file.join('\n'),
+                    showProgress: 'bottom',
+                    classProgress: 'red',
+                    displayTime: 5000,
+                })
+            }
+        }
     });
 }
 

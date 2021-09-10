@@ -88,7 +88,6 @@ const checkUpdates = () => {
                         compactMode = $('.ui.slider.board-compact').checkbox('is checked');
                         bucketTimestampDOM = new Date(bucketEl.attr('data-bucket-updated-at'));
                         if (bucketTimestamp > bucketTimestampDOM) {
-                            console.log('Updating bucket in DOM');
                             bucketEl.attr('data-bucket-updated-at', b.ts);
                             getCards(b.id, darkMode, compactMode);
                         }
@@ -1156,37 +1155,56 @@ function generateAvatar(text, foregroundColor = "white", backgroundColor = "blac
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-    
+
 
     return canvas.toDataURL("image/png");
 }
 
-const renderFiles = (modal, card = null) => {
-    modal.find('.card-files').val('');
-    modal.find('.files-container').empty();
-    if (card) {
-        for (f of card.files) {
-            extension = f.extension;
-            modal.find('.files-container').append(`
-                <div class="ui special card img-card-file">
-                    <div class="blurring dimmable image img-card-file" data-file-id=${f.id}>
-                        <div class="ui dimmer">
-                            <div class="content">
-                                <div class="center">
-                                    <a href="${f.file}" target="_blank" class="ui inverted basic button">
-                                        <span class="ui white text">Open</span>
-                                    </a>
-                                </div>
+const getFiles = (modal, bucketId, cardId) => {
+    $.get(
+        url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
+    )
+        .done(r => {
+            renderFiles(modal, bucketId, cardId, files = r)
+        })
+}
+
+const renderFiles = (modal, bucketId, cardId, files) => {
+    for (f of files) {
+        extension = f.extension;
+        modal.find('.files-container').append(`
+            <div class="ui special card img-card-file" data-file-id=${f.id}>
+                <div class="blurring dimmable image" data-file-id=${f.id}>
+                    <div class="ui dimmer">
+                        <div class="content">
+                            <div class="center">
+                                <a href="${f.file}" target="_blank" class="ui inverted button">Open</a>
+                            </div>
+                            <div class="center" style="margin-top: 1em;">
+                                <a class="delete-file" data-file-id=${f.id}><i class="trash icon"></i>Remove</a>
                             </div>
                         </div>
-                        <img src="${f.image ? f.file : generateAvatar(extension)}" loading="lazy" class="img-card-file">
                     </div>
+                    <img src="${f.image ? f.file : generateAvatar(extension)}" class="img-card-file">
                 </div>
-            `);
-            $(`.image.img-card-file[data-file-id=${f.id}]`).dimmer({
-                on: 'hover'
-            });
-        }
+            </div>
+        `);
+        $(`.image[data-file-id=${f.id}]`).dimmer({ on: 'hover' });
+        $(`.delete-file[data-file-id=${f.id}]`).off().on('click', e => {
+            id = $(e.target).attr('data-file-id');
+            $.api({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/${id}/`,
+                on: 'now',
+                stateContext: $(`.ui.special.card.img-card-file[data-file-id=${id}]`),
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': csrftoken },
+                loadingDuration: 1000,
+                successTest: r => r != 0,
+                onSuccess: r => {
+                    $(`.ui.special.card.img-card-file[data-file-id=${id}]`).remove();
+                },
+            })
+        });
     }
 }
 
@@ -1195,7 +1213,8 @@ const showCardModal = (card = null, bucketId, compact) => {
     const modal = $('.ui.card-form.modal');
     modal.off().form('reset');
     let dark = modal.hasClass('inverted');
-    renderFiles(modal, card);
+    modal.find('.card-files').val('');
+    modal.find('.files-container').empty();
     if (dark) {
         modal.find('.checklist.segment').addClass('inverted');
         modal.find('.files.segment').addClass('inverted');
@@ -1332,6 +1351,7 @@ const showCardModal = (card = null, bucketId, compact) => {
         transition: 'scale',
         duration: 400,
         onShow: () => {
+            getFiles(modal, bucketId, card.id);
             itemEdited = false;
             modal.find('.manage-tags').popup();
             modal.find('.scrolling.content').animate({ scrollTop: 0 });
@@ -1385,7 +1405,6 @@ const showCardModal = (card = null, bucketId, compact) => {
                 url: url,
                 type: method,
                 headers: { 'X-CSRFToken': csrftoken },
-                // TODO alterar pra pegar os arquivos
                 data: {
                     name: name,
                     bucket: bucketId,
@@ -1399,7 +1418,6 @@ const showCardModal = (card = null, bucketId, compact) => {
                 },
                 success: r => {
                     var files = modal.find('.card-files')[0].files;
-                    getCards(bucketId, dark, compact);
                     if (files.length > 0) {
                         var cardId = create ? r.id : card.id;
                         for (f of files) {
@@ -1408,6 +1426,7 @@ const showCardModal = (card = null, bucketId, compact) => {
                             attachFile(fd, bucketId, cardId);
                         }
                     }
+                    getCards(bucketId, dark, compact);
                 }
             });
         }
@@ -1418,24 +1437,36 @@ const showCardModal = (card = null, bucketId, compact) => {
 };
 
 const attachFile = (fd, bucketId, cardId) => {
-    $.ajax({
+    $.api({
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
         on: 'now',
-        type: 'POST',
+        method: 'POST',
         headers: { 'X-CSRFToken': csrftoken },
         data: fd,
         contentType: false,
         processData: false,
         successTest: r => r != 0,
         onSuccess: r => {
+            console.log(r)
             $('body').toast({
                 title: 'File upload',
-                message: 'Successfullly uploaded file!',
+                message: `Successfullly uploaded file ${r.file.split('/').at(-1)}!`,
                 showProgress: 'bottom',
                 classProgress: 'green',
                 displayTime: 5000,
             })
         },
+        onFailure: (response, element, xhr) => {
+            if ('file' in response) {
+                $('body').toast({
+                    title: 'Error on file upload',
+                    message: response.file.join('\n'),
+                    showProgress: 'bottom',
+                    classProgress: 'red',
+                    displayTime: 5000,
+                })
+            }
+        }
     });
 }
 

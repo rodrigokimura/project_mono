@@ -1,7 +1,8 @@
 import os
 from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_delete, pre_save
-from .models import Board, Bucket, Comment, TimeEntry, Invite
+import logging
+from .models import Board, Bucket, CardFile, Comment, TimeEntry, Invite
 
 
 @receiver(pre_save, sender=TimeEntry, dispatch_uid="calculate_duration")
@@ -43,4 +44,17 @@ def delete_background_image(sender, instance, using, **kwargs):
         """ Deletes file from filesystem. """
         if os.path.isfile(path):
             os.remove(path)
+
     _delete_file(instance.background_image.path)
+
+
+@receiver(pre_delete, sender=CardFile, dispatch_uid="delete_card_file")
+def delete_card_file(sender, instance, using, **kwargs):
+    def _delete_file(path):
+        """ Deletes file from filesystem. """
+        if os.path.isfile(path):
+            os.remove(path)
+    try:
+        _delete_file(instance.file.path)
+    except ValueError:
+        logging.warning('No file found')
