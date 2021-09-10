@@ -16,7 +16,6 @@ import re
 from datetime import timedelta
 import imghdr
 
-
 User = get_user_model()
 
 
@@ -291,7 +290,9 @@ class CardFile(models.Model):
             filename
         )
 
-    file = models.FileField(upload_to=_card_directory_path, max_length=1000, blank=True, null=True)
+    file = models.FileField(
+        upload_to=_card_directory_path,
+        max_length=1000)
     card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='files')
 
     @property
@@ -299,12 +300,15 @@ class CardFile(models.Model):
         try:
             img = imghdr.what(self.file)
         except:
-            img = None 
+            img = None
         return img
 
     @property
     def extension(self):
-        name, extension = os.path.splitext(self.file.name)
+        try:
+            name, extension = os.path.splitext(self.file.name)
+        except:
+            extension = ''
         return extension
 
 

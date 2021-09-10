@@ -16,6 +16,12 @@ img.background-img {
     flex: 0 0 auto;
 }
 
+.delete-file {
+    color: #ff6666 !important;
+    font-size: 75%;
+    margin-top: 3em;
+}
+
 img.img-card-file {
     object-fit: cover !important;
 }

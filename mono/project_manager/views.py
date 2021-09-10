@@ -856,9 +856,9 @@ class CardFileListAPIView(LoginRequiredMixin, APIView):
         board = Board.objects.get(project=project, id=board_pk)
         bucket = Bucket.objects.get(board=board, id=bucket_pk)
         card = Card.objects.get(bucket=bucket, id=card_pk)
-        items = CardFile.objects.filter(card=card)
+        files = CardFile.objects.filter(card=card)
         if request.user in board.allowed_users:
-            serializer = CardFileSerializer(items, many=True)
+            serializer = CardFileSerializer(files, many=True)
             return Response(serializer.data)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 
@@ -892,9 +892,9 @@ class CardFileDetailAPIView(LoginRequiredMixin, APIView):
         board = Board.objects.get(id=kwargs['board_pk'], project=project)
         bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
         Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
-        item = self.get_object(pk)
-        if request.user in item.allowed_users:
-            item.delete()
+        file = self.get_object(pk)
+        if request.user in file.card.allowed_users:
+            file.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 

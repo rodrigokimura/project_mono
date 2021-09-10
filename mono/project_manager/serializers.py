@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
 from django.contrib.auth.models import User
 from accounts.models import UserProfile
+from django.core.exceptions import ValidationError
 import json
 import os
 from .models import CardFile, Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite, TimeEntry
@@ -196,6 +197,7 @@ class TagSerializer(ModelSerializer):
 
 
 class CardFileSerializer(ModelSerializer):
+    name = serializers.ReadOnlyField()
     image = serializers.ReadOnlyField()
     extension = serializers.ReadOnlyField()
 
@@ -204,9 +206,17 @@ class CardFileSerializer(ModelSerializer):
         fields = [
             'id',
             'file',
-            'extension',
+            'name',
             'image',
+            'extension',
         ]
+
+    def validate_file(self, f):
+        file_size = f.size
+        limit_mb = 10
+        if file_size > limit_mb * 1024 * 1024:
+            raise ValidationError("Max size of file is %s MiB" % limit_mb)
+        return f
 
 
 class CardSerializer(ModelSerializer):
