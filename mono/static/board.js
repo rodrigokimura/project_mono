@@ -1136,18 +1136,81 @@ const getBoardAllowedUsers = () => {
     return allowed_users;
 }
 
+function generateAvatar(
+    text,
+    foregroundColor = "white",
+    backgroundColor = "black"
+) {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    canvas.width = 200;
+    canvas.height = 200;
+
+    // Draw background
+    context.fillStyle = backgroundColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw text
+    context.font = "bold 100px Assistant";
+    context.fillStyle = foregroundColor;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    return canvas.toDataURL("image/png");
+}
+
+//   document.getElementById("avatar").src = generateAvatar(
+//     "DC",
+//     "white",
+//     "#009578"
+//   );
+
+
+const renderFiles = (modal, card = null) => {
+    modal.find('.card-files').val('');
+    modal.find('.files-container').empty();
+    if (card) {
+        for (f of card.files) {
+            extension = f.extension;
+            console.log(extension);
+            modal.find('.files-container').append(`
+                <div class="ui special card img-card-file">
+                    <div class="blurring dimmable image img-card-file" data-file-id=${f.id}>
+                        <div class="ui dimmer">
+                            <div class="content">
+                                <div class="center">
+                                    <span class="ui white text">Open</span>
+                                </div>
+                            </div>
+                        </div>
+                        <img src="${f.image ? f.file : 'https://ui-avatars.com/api/?name=random'}" loading="lazy" class="img-card-file">
+                    </div>
+                </div>
+            `);
+            $(`.image.img-card-file[data-file-id=${f.id}]`).dimmer({
+                on: 'hover'
+            });
+        }
+    }
+}
+
 const showCardModal = (card = null, bucketId, compact) => {
     let create;
     const modal = $('.ui.card-form.modal');
     modal.off().form('reset');
     let dark = modal.hasClass('inverted');
+    renderFiles(modal, card);
     if (dark) {
         modal.find('.checklist.segment').addClass('inverted');
+        modal.find('.files.segment').addClass('inverted');
         modal.find('.add-item.input').addClass('inverted');
         modal.find('.add-item.input').addClass('inverted');
         modal.find('.ui.dividing.header').addClass('inverted');
     } else {
         modal.find('.checklist.segment').removeClass('inverted');
+        modal.find('.files.segment').removeClass('inverted');
         modal.find('.add-item.input').removeClass('inverted');
         modal.find('.ui.dividing.header').removeClass('inverted');
     };
@@ -1176,6 +1239,7 @@ const showCardModal = (card = null, bucketId, compact) => {
         modal.find('.ui.tags.dropdown').dropdown('clear');
         modal.find('.ui.assigned_to.dropdown').parent().show();
         modal.find('#suggest-comment').val('');
+
         new Suggest.LocalMulti(
             "suggest-comment",
             "suggest",
@@ -1322,10 +1386,12 @@ const showCardModal = (card = null, bucketId, compact) => {
                 order = $(`.card-el[data-card-id=${card.id}]`).index() + 1;
                 url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`;
             }
+
             $.ajax({
                 url: url,
                 type: method,
                 headers: { 'X-CSRFToken': csrftoken },
+                // TODO alterar pra pegar os arquivos
                 data: {
                     name: name,
                     bucket: bucketId,
@@ -1337,8 +1403,17 @@ const showCardModal = (card = null, bucketId, compact) => {
                     tag: JSON.stringify(tags),
                     assigned_to: JSON.stringify(assignees),
                 },
-                success: function (result) {
+                success: r => {
+                    var files = modal.find('.card-files')[0].files;
                     getCards(bucketId, dark, compact);
+                    if (files.length > 0) {
+                        var cardId = create ? r.id : card.id;
+                        for (f of files) {
+                            var fd = new FormData();
+                            fd.append('file', f);
+                            attachFile(fd, bucketId, cardId);
+                        }
+                    }
                 }
             });
         }
@@ -1347,6 +1422,28 @@ const showCardModal = (card = null, bucketId, compact) => {
         modal.find('.positive.button').click();
     });
 };
+
+const attachFile = (fd, bucketId, cardId) => {
+    $.ajax({
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
+        on: 'now',
+        type: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+        data: fd,
+        contentType: false,
+        processData: false,
+        successTest: r => r != 0,
+        onSuccess: r => {
+            $('body').toast({
+                title: 'File upload',
+                message: 'Successfullly uploaded file!',
+                showProgress: 'bottom',
+                classProgress: 'green',
+                displayTime: 5000,
+            })
+        },
+    });
+}
 
 const deleteCard = (cardId, bucketId, dark, compact) => {
     modal = $('.ui.delete.confirmation.modal')

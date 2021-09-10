@@ -57,6 +57,12 @@ class CardAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(models.CardFile)
+class CardFileAdmin(admin.ModelAdmin):
+    list_display = ['id', 'file', 'card']
+    list_filter = ['file', 'card']
+
+
 @admin.register(models.Item)
 class ItemAdmin(admin.ModelAdmin):
     list_display = [
