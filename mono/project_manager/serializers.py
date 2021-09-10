@@ -218,6 +218,11 @@ class CardFileSerializer(ModelSerializer):
             raise ValidationError("Max size of file is %s MiB" % limit_mb)
         return f
 
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        instance.card.bucket.touch()
+        return instance
+
 
 class CardSerializer(ModelSerializer):
     allowed_users = UserSerializer(many=True, read_only=True)
@@ -225,6 +230,7 @@ class CardSerializer(ModelSerializer):
     total_time = serializers.ReadOnlyField()
     checked_items = serializers.ReadOnlyField()
     total_items = serializers.ReadOnlyField()
+    total_files = serializers.ReadOnlyField()
     comments = serializers.ReadOnlyField()
     color = ThemeSerializer(many=False, read_only=True)
     tag = TagSerializer(many=True, required=False)
@@ -252,6 +258,7 @@ class CardSerializer(ModelSerializer):
             'total_time',
             'checked_items',
             'total_items',
+            'total_files',
             'comments',
             'color',
             'files',

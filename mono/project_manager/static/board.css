@@ -73,6 +73,11 @@ img.img-card-file {
     opacity: 1;
 }
 
+.card-el.extra.content {
+    font-size: 75%;
+    ;
+}
+
 .hidden {
     display: none !important;
 }

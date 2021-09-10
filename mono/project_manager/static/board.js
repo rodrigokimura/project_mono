@@ -5,7 +5,7 @@ var bucketBeingDragged;
 var containerBucketIsOver;
 var scrollIntervalID;
 var isScrolling = false;
-var itemEdited = false;
+var cardEdited = false;
 var boardTimestamp = new Date();
 var autoRefresh = null;
 const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg';
@@ -471,7 +471,7 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
         let tagsContainer = $(containerSelector).find(`.meta .tags[data-card-id=${card.id}]`);
         if (card.total_time > 0) {
             extraContent.append(`
-                <span class="ui right floated ${card.is_running ? 'red ' : ''} text">
+                <span class="ui right floated ${card.is_running ? 'red ' : ''} text" style="font-size: 85%; ">
                     <a class="start-stop-timer cardlet" data-card-id="${card.id}" data-content="${card.is_running ? 'Stop timer' : 'Start timer'}" data-variation="tiny basic">
                         ${card.is_running ? '<i class="stop circle icon"></i>' : '<i class="play circle icon"></i>'}
                     </a>
@@ -481,23 +481,31 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
                 </span>
             `)
         };
-        if (card.total_items > 0) {
-            extraContent.prepend(`
-                <span class="ui left floated text noselect cardlet" style="margin-right: 1em;" data-title="Checklist items" data-content="${card.checked_items} checked, ${card.total_items} total." data-variation="tiny basic">
-                    <i class="tasks icon"></i> ${card.checked_items}/${card.total_items}
-                </span>
-            `);
-        };
         if (card.comments > 0) {
             extraContent.prepend(`
-              <span class="ui left floated text noselect cardlet" style="margin-right: 1em;" data-title="Comments" data-content="${card.comments}" data-variation="tiny basic">
-                <i class="comment icon"></i> ${card.comments}
+              <span class="ui left floated text noselect cardlet" style="font-size: 85%; margin-right: .5em;" data-title="Comments" data-content="${card.comments}" data-variation="tiny basic">
+                <i class="comment icon"></i>${card.comments}
               </span>
             `);
         };
+        if (card.total_files > 0) {
+            extraContent.prepend(`
+                <span class="ui left floated text noselect cardlet" style="font-size: 85%; margin-right: .5em;" data-title="Attached files" data-content="${card.total_files}" data-variation="tiny basic">
+                <i class="paperclip icon"></i>${card.total_files}
+                </span>
+            `);
+        };
+        if (card.total_items > 0) {
+            extraContent.prepend(`
+                <span class="ui left floated text noselect cardlet" style="font-size: 85%; margin-right: .5em;" data-title="Checklist items" data-content="${card.checked_items} checked, ${card.total_items} total." data-variation="tiny basic">
+                    <i class="tasks icon"></i>${card.checked_items}/${card.total_items}
+                </span>
+            `);
+        };
+
         if (card.due_date !== null) {
             extraContent.prepend(`
-              <span class="ui left floated${overdue ? ' red' : ''} text noselect cardlet" style="margin-right: 1em;" data-title="Due date" data-content="${dueDate.toLocaleDateString(LANGUAGE_CODE)}${overdue ? ' - This card is overdue!' : ''}" data-variation="tiny red basic"><i class="calendar day icon"></i></span>
+              <span class="ui left floated${overdue ? ' red' : ''} text noselect cardlet" style="font-size: 85%; margin-right: .5em;" data-title="Due date" data-content="${dueDate.toLocaleDateString(LANGUAGE_CODE)}${overdue ? ' - This card is overdue!' : ''}" data-variation="tiny red basic"><i class="calendar day icon"></i></span>
             `);
         };
         $('.cardlet').popup();
@@ -563,6 +571,46 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
     setCardGlassEffect();
 };
 
+const renderFiles = (modal, bucketId, cardId, files) => {
+    for (f of files) {
+        extension = f.extension;
+        modal.find('.files-container').append(`
+            <div class="ui special card img-card-file" data-file-id=${f.id}>
+                <div class="blurring dimmable image" data-file-id=${f.id}>
+                    <div class="ui dimmer">
+                        <div class="content">
+                            <div class="center">
+                                <a href="${f.file}" target="_blank" class="ui inverted button">Open</a>
+                            </div>
+                            <div class="center" style="margin-top: 1em;">
+                                <a class="delete-file" data-file-id=${f.id}><i class="trash icon"></i>Remove</a>
+                            </div>
+                        </div>
+                    </div>
+                    <img src="${f.image ? f.file : generateAvatar(extension)}" class="img-card-file">
+                </div>
+            </div>
+        `);
+        $(`.image[data-file-id=${f.id}]`).dimmer({ on: 'hover' });
+        $(`.delete-file[data-file-id=${f.id}]`).off().on('click', e => {
+            id = $(e.target).attr('data-file-id');
+            $.api({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/${id}/`,
+                on: 'now',
+                stateContext: $(`.ui.special.card.img-card-file[data-file-id=${id}]`),
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': csrftoken },
+                loadingDuration: 1000,
+                successTest: r => r != 0,
+                onSuccess: r => {
+                    $(`.ui.special.card.img-card-file[data-file-id=${id}]`).remove();
+                    cardEdited = true;
+                },
+            })
+        });
+    }
+}
+
 const renderItems = (containerSelector, items, bucketId, cardId, dark = false) => {
     $(containerSelector).empty();
     items.forEach(item => {
@@ -616,7 +664,7 @@ const renderItems = (containerSelector, items, bucketId, cardId, dark = false) =
             on: 'now',
             onSuccess: r => {
                 getItems(bucketId, cardId, dark);
-                itemEdited = true;
+                cardEdited = true;
             },
         });
     });
@@ -634,7 +682,7 @@ const renderItems = (containerSelector, items, bucketId, cardId, dark = false) =
                     on: 'now',
                     onSuccess: r => {
                         getItems(bucketId, cardId, dark);
-                        itemEdited = true;
+                        cardEdited = true;
                     },
                 });
             }
@@ -1169,44 +1217,7 @@ const getFiles = (modal, bucketId, cardId) => {
         })
 }
 
-const renderFiles = (modal, bucketId, cardId, files) => {
-    for (f of files) {
-        extension = f.extension;
-        modal.find('.files-container').append(`
-            <div class="ui special card img-card-file" data-file-id=${f.id}>
-                <div class="blurring dimmable image" data-file-id=${f.id}>
-                    <div class="ui dimmer">
-                        <div class="content">
-                            <div class="center">
-                                <a href="${f.file}" target="_blank" class="ui inverted button">Open</a>
-                            </div>
-                            <div class="center" style="margin-top: 1em;">
-                                <a class="delete-file" data-file-id=${f.id}><i class="trash icon"></i>Remove</a>
-                            </div>
-                        </div>
-                    </div>
-                    <img src="${f.image ? f.file : generateAvatar(extension)}" class="img-card-file">
-                </div>
-            </div>
-        `);
-        $(`.image[data-file-id=${f.id}]`).dimmer({ on: 'hover' });
-        $(`.delete-file[data-file-id=${f.id}]`).off().on('click', e => {
-            id = $(e.target).attr('data-file-id');
-            $.api({
-                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/${id}/`,
-                on: 'now',
-                stateContext: $(`.ui.special.card.img-card-file[data-file-id=${id}]`),
-                method: 'DELETE',
-                headers: { 'X-CSRFToken': csrftoken },
-                loadingDuration: 1000,
-                successTest: r => r != 0,
-                onSuccess: r => {
-                    $(`.ui.special.card.img-card-file[data-file-id=${id}]`).remove();
-                },
-            })
-        });
-    }
-}
+
 
 const showCardModal = (card = null, bucketId, compact) => {
     let create;
@@ -1289,7 +1300,7 @@ const showCardModal = (card = null, bucketId, compact) => {
                         onSuccess: r => {
                             e.target.value = '';
                             getItems(bucketId, card.id, dark);
-                            itemEdited = true;
+                            cardEdited = true;
                         },
                         onComplete: () => { $(this).removeAttr("disabled"); },
                     });
@@ -1312,7 +1323,7 @@ const showCardModal = (card = null, bucketId, compact) => {
                     onSuccess: r => {
                         $('textarea.add-reply').val('');
                         getComments(bucketId, card.id, dark, card.allowed_users);
-                        itemEdited = true;
+                        cardEdited = true;
                     },
                     onComplete: () => { $(this).removeAttr("disabled"); },
                 });
@@ -1352,7 +1363,7 @@ const showCardModal = (card = null, bucketId, compact) => {
         duration: 400,
         onShow: () => {
             getFiles(modal, bucketId, card.id);
-            itemEdited = false;
+            cardEdited = false;
             modal.find('.manage-tags').popup();
             modal.find('.scrolling.content').animate({ scrollTop: 0 });
             modal.find('.ui.card-due-date.calendar').calendar({
@@ -1372,7 +1383,7 @@ const showCardModal = (card = null, bucketId, compact) => {
             }
         },
         onHidden: () => {
-            if (itemEdited) { getCards(bucketId, dark, compact); };
+            if (cardEdited) { getCards(bucketId, dark, compact); };
             $('.checklist-drake').empty();
         },
         onApprove: el => {
