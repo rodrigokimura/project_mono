@@ -1,3 +1,4 @@
+import os
 from django.conf import settings
 from django.db import models
 from django.contrib.auth import get_user_model
@@ -13,7 +14,7 @@ from django.core.mail import EmailMultiAlternatives
 import jwt
 import re
 from datetime import timedelta
-
+import imghdr
 
 User = get_user_model()
 
@@ -151,7 +152,6 @@ class Card(BaseModel):
     order = models.IntegerField()
     assigned_to = models.ManyToManyField(User, related_name="assigned_cards", blank=True)
     description = models.TextField(max_length=255, blank=True, null=True)
-    files = models.FileField(upload_to=_card_directory_path, max_length=100, blank=True, null=True)
     status = models.CharField(_("status"), max_length=2, choices=STATUSES, default=Bucket.NOT_STARTED)
     due_date = models.DateField(blank=True, null=True, default=None)
     started_at = models.DateTimeField(blank=True, null=True)
@@ -279,6 +279,37 @@ class Card(BaseModel):
             "bucket",
             "order",
         ]
+
+
+class CardFile(models.Model):
+
+    def _card_directory_path(instance, filename):
+        return 'project_{0}/board_{1}/{2}'.format(
+            instance.card.bucket.board.project.id,
+            instance.card.bucket.board.id,
+            filename
+        )
+
+    file = models.FileField(
+        upload_to=_card_directory_path,
+        max_length=1000)
+    card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='files')
+
+    @property
+    def image(self):
+        try:
+            img = imghdr.what(self.file)
+        except:
+            img = None
+        return img
+
+    @property
+    def extension(self):
+        try:
+            name, extension = os.path.splitext(self.file.name)
+        except:
+            extension = ''
+        return extension
 
 
 class Item(BaseModel):

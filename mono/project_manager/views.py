@@ -22,10 +22,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import jwt
-from .models import Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite, TimeEntry
+from .models import CardFile, Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite, TimeEntry
 from .forms import ProjectForm, BoardForm
 from .mixins import PassRequestToFormViewMixin
-from .serializers import BucketMoveSerializer, CardMoveSerializer, CommentSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer, TagSerializer, TimeEntrySerializer
+from .serializers import BucketMoveSerializer, CardFileSerializer, CardMoveSerializer, CommentSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer, TagSerializer, TimeEntrySerializer
 
 
 def naturaltime(value):
@@ -838,6 +838,63 @@ class ItemDetailAPIView(LoginRequiredMixin, APIView):
         item = self.get_object(pk)
         if request.user in item.allowed_users:
             item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class CardFileListAPIView(LoginRequiredMixin, APIView):
+    """
+    List all card files, or create a new card file.
+    """
+
+    def get(self, request, format=None, **kwargs):
+        project_pk = kwargs.get('project_pk')
+        board_pk = kwargs.get('board_pk')
+        bucket_pk = kwargs.get('bucket_pk')
+        card_pk = kwargs.get('card_pk')
+        project = Project.objects.get(id=project_pk)
+        board = Board.objects.get(project=project, id=board_pk)
+        bucket = Bucket.objects.get(board=board, id=bucket_pk)
+        card = Card.objects.get(bucket=bucket, id=card_pk)
+        files = CardFile.objects.filter(card=card)
+        if request.user in board.allowed_users:
+            serializer = CardFileSerializer(files, many=True)
+            return Response(serializer.data)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        card = Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        if request.user in card.allowed_users:
+            serializer = CardFileSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save(card=card)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class CardFileDetailAPIView(LoginRequiredMixin, APIView):
+    """
+    Retrieve, update or delete an card file instance.
+    """
+
+    def get_object(self, pk):
+        try:
+            return CardFile.objects.get(pk=pk)
+        except CardFile.DoesNotExist:
+            raise Http404
+
+    def delete(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        board = Board.objects.get(id=kwargs['board_pk'], project=project)
+        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
+        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        file = self.get_object(pk)
+        if request.user in file.card.allowed_users:
+            file.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 

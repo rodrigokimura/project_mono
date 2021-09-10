@@ -11,10 +11,14 @@ var autoRefresh = null;
 const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg';
 
 const setWallpaper = () => {
-    if (wallpaper) { $('#board').css('background-image', `url('${wallpaper}')`); }
+    if (wallpaper) {
+        $('#board').css('background-image', `url('${wallpaper}')`);
+    } else {
+        $('#board').css('background-image', '');
+    }
 }
 
-const setCardGlassEffect = (blur = true, blurness = 5, opacity = 50) => {
+const setCardGlassEffect = (blur = false, blurness = 5, opacity = 50) => {
     if (wallpaper) {
         for (el of $('.card-el')) {
             color = $(el).css('background-color');
@@ -29,7 +33,7 @@ const setCardGlassEffect = (blur = true, blurness = 5, opacity = 50) => {
     }
 }
 
-const setBucketGlassEffect = (blur = true, blurness = 5, opacity = 50) => {
+const setBucketGlassEffect = (blur = false, blurness = 5, opacity = 50) => {
     if (wallpaper) {
         for (el of $('.bucket-el')) {
             color = $(el).css('background-color');
@@ -84,7 +88,6 @@ const checkUpdates = () => {
                         compactMode = $('.ui.slider.board-compact').checkbox('is checked');
                         bucketTimestampDOM = new Date(bucketEl.attr('data-bucket-updated-at'));
                         if (bucketTimestamp > bucketTimestampDOM) {
-                            console.log('Updating bucket in DOM');
                             bucketEl.attr('data-bucket-updated-at', b.ts);
                             getCards(b.id, darkMode, compactMode);
                         }
@@ -322,8 +325,7 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
         $(containerSelector).parents().css('background-color', 'white');
     };
     buckets.forEach(bucket => {
-        $(containerSelector).append(
-            `
+        $(containerSelector).append(`
             <div class="ui loading ${dark ? 'inverted ' : ' '}card bucket-el" data-bucket-id="${bucket.id}" data-bucket-updated-at="${bucket.updated_at}" style="width: ${width}px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em; margin-top: .5em; margin-bottom: .5em;' : ''}">
               <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${bucket.color !== null ? `background-color: ${dark ? bucket.color.dark : bucket.color.primary}; color: ${bucket.color.light}` : ''}; " data-bucket-id="${bucket.id}">
                 <i class="grip lines icon"></i>
@@ -353,8 +355,7 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
               <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 1 auto; display: flex; flex-flow: column nowrap; align-items: stretch; overflow-y: auto;${compact ? ' padding: .5em;' : ''}">
               </div>
             </div>
-            `
-        );
+        `);
         document.querySelectorAll(`.handle[data-bucket-id='${bucket.id}']`)[0].addEventListener(
             'touchmove', e => {
                 e.preventDefault();
@@ -1132,18 +1133,97 @@ const getBoardAllowedUsers = () => {
     return allowed_users;
 }
 
+function generateAvatar(text, foregroundColor = "white", backgroundColor = "black") {
+    const w = 200;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = w;
+    canvas.height = w;
+
+    // Draw background
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw text
+    var fontsize = w * 2 / text.length;
+    do {
+        fontsize -= w / 100;
+        ctx.font = `bold ${fontsize}px Inter`;
+    } while (ctx.measureText(text).width > w * .8)
+    ctx.fillStyle = foregroundColor;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+
+    return canvas.toDataURL("image/png");
+}
+
+const getFiles = (modal, bucketId, cardId) => {
+    $.get(
+        url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
+    )
+        .done(r => {
+            renderFiles(modal, bucketId, cardId, files = r)
+        })
+}
+
+const renderFiles = (modal, bucketId, cardId, files) => {
+    for (f of files) {
+        extension = f.extension;
+        modal.find('.files-container').append(`
+            <div class="ui special card img-card-file" data-file-id=${f.id}>
+                <div class="blurring dimmable image" data-file-id=${f.id}>
+                    <div class="ui dimmer">
+                        <div class="content">
+                            <div class="center">
+                                <a href="${f.file}" target="_blank" class="ui inverted button">Open</a>
+                            </div>
+                            <div class="center" style="margin-top: 1em;">
+                                <a class="delete-file" data-file-id=${f.id}><i class="trash icon"></i>Remove</a>
+                            </div>
+                        </div>
+                    </div>
+                    <img src="${f.image ? f.file : generateAvatar(extension)}" class="img-card-file">
+                </div>
+            </div>
+        `);
+        $(`.image[data-file-id=${f.id}]`).dimmer({ on: 'hover' });
+        $(`.delete-file[data-file-id=${f.id}]`).off().on('click', e => {
+            id = $(e.target).attr('data-file-id');
+            $.api({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/${id}/`,
+                on: 'now',
+                stateContext: $(`.ui.special.card.img-card-file[data-file-id=${id}]`),
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': csrftoken },
+                loadingDuration: 1000,
+                successTest: r => r != 0,
+                onSuccess: r => {
+                    $(`.ui.special.card.img-card-file[data-file-id=${id}]`).remove();
+                },
+            })
+        });
+    }
+}
+
 const showCardModal = (card = null, bucketId, compact) => {
     let create;
     const modal = $('.ui.card-form.modal');
     modal.off().form('reset');
     let dark = modal.hasClass('inverted');
+    modal.find('.card-files').val('');
+    modal.find('.files-container').empty();
     if (dark) {
         modal.find('.checklist.segment').addClass('inverted');
+        modal.find('.files.segment').addClass('inverted');
         modal.find('.add-item.input').addClass('inverted');
         modal.find('.add-item.input').addClass('inverted');
         modal.find('.ui.dividing.header').addClass('inverted');
     } else {
         modal.find('.checklist.segment').removeClass('inverted');
+        modal.find('.files.segment').removeClass('inverted');
         modal.find('.add-item.input').removeClass('inverted');
         modal.find('.ui.dividing.header').removeClass('inverted');
     };
@@ -1172,6 +1252,7 @@ const showCardModal = (card = null, bucketId, compact) => {
         modal.find('.ui.tags.dropdown').dropdown('clear');
         modal.find('.ui.assigned_to.dropdown').parent().show();
         modal.find('#suggest-comment').val('');
+
         new Suggest.LocalMulti(
             "suggest-comment",
             "suggest",
@@ -1270,6 +1351,7 @@ const showCardModal = (card = null, bucketId, compact) => {
         transition: 'scale',
         duration: 400,
         onShow: () => {
+            getFiles(modal, bucketId, card.id);
             itemEdited = false;
             modal.find('.manage-tags').popup();
             modal.find('.scrolling.content').animate({ scrollTop: 0 });
@@ -1318,6 +1400,7 @@ const showCardModal = (card = null, bucketId, compact) => {
                 order = $(`.card-el[data-card-id=${card.id}]`).index() + 1;
                 url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`;
             }
+
             $.ajax({
                 url: url,
                 type: method,
@@ -1333,7 +1416,16 @@ const showCardModal = (card = null, bucketId, compact) => {
                     tag: JSON.stringify(tags),
                     assigned_to: JSON.stringify(assignees),
                 },
-                success: function (result) {
+                success: r => {
+                    var files = modal.find('.card-files')[0].files;
+                    if (files.length > 0) {
+                        var cardId = create ? r.id : card.id;
+                        for (f of files) {
+                            var fd = new FormData();
+                            fd.append('file', f);
+                            attachFile(fd, bucketId, cardId);
+                        }
+                    }
                     getCards(bucketId, dark, compact);
                 }
             });
@@ -1343,6 +1435,40 @@ const showCardModal = (card = null, bucketId, compact) => {
         modal.find('.positive.button').click();
     });
 };
+
+const attachFile = (fd, bucketId, cardId) => {
+    $.api({
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
+        on: 'now',
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+        data: fd,
+        contentType: false,
+        processData: false,
+        successTest: r => r != 0,
+        onSuccess: r => {
+            console.log(r)
+            $('body').toast({
+                title: 'File upload',
+                message: `Successfullly uploaded file ${r.file.split('/').at(-1)}!`,
+                showProgress: 'bottom',
+                classProgress: 'green',
+                displayTime: 5000,
+            })
+        },
+        onFailure: (response, element, xhr) => {
+            if ('file' in response) {
+                $('body').toast({
+                    title: 'Error on file upload',
+                    message: response.file.join('\n'),
+                    showProgress: 'bottom',
+                    classProgress: 'red',
+                    displayTime: 5000,
+                })
+            }
+        }
+    });
+}
 
 const deleteCard = (cardId, bucketId, dark, compact) => {
     modal = $('.ui.delete.confirmation.modal')
