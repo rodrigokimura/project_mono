@@ -1,3 +1,7 @@
+.search-cards.item {
+    padding: 0 !important;
+}
+
 img.background-img {
     position: fixed;
     top: 0;
