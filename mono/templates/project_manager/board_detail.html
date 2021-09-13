@@ -54,6 +54,12 @@
 {% endblock menu %}
 
 {% block right_menu %}
+  <div class="search-cards item" style="padding-top: 0; padding-bottom: 0;">
+    <div class="ui search-cards mini multiple selection search dropdown">
+      <div class="text"></div>
+      <i class="dropdown icon"></i>
+    </div>
+  </div>
   <a class="right-sidebar item"><i class="cog icon"></i></a>
 {% endblock right_menu %}
 
@@ -573,6 +579,7 @@
       {% if object.dark %}$('.board-dark.checkbox').checkbox('set checked');{% endif %}
       loadBoard();
       startAutoRfresh(1000);
+      initializeSearchCardsDropdown()
     });
 
   </script>

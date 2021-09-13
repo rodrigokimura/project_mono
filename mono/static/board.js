@@ -98,7 +98,7 @@ const checkUpdates = () => {
                 }
             }
         },
-        onError: r => { alert(JSON.stringify(r)) },
+        onError: r => { console.error(JSON.stringify(r)) },
     });
 }
 
@@ -112,7 +112,7 @@ const changeBucketWidth = width => {
         onSuccess: r => {
             loadBoard();
         },
-        onError: r => { alert(JSON.stringify(r)) },
+        onError: r => { console.error(JSON.stringify(r)) },
     });
 };
 
@@ -126,7 +126,7 @@ const setCompact = bool => {
         onSuccess: r => {
             loadBoard();
         },
-        onError: r => { alert(JSON.stringify(r)) },
+        onError: r => { console.error(JSON.stringify(r)) },
     });
 };
 
@@ -140,7 +140,7 @@ const setDarkMode = bool => {
         onSuccess: r => {
             loadBoard(r.dark);
         },
-        onError: r => { alert(JSON.stringify(r)) },
+        onError: r => { console.error(JSON.stringify(r)) },
     });
 };
 
@@ -1067,6 +1067,7 @@ const getCards = (bucketId, dark = false, compact = false) => {
                 dark = dark,
                 compact = compact
             );
+            filterCards();
         })
         .fail(e => { console.error(e) })
         .always()
@@ -1842,4 +1843,90 @@ const showManageTagsModal = (allowMultiple = false, fromCardModal = false, callb
         },
     });
     tagsModal.modal('show');
+}
+
+const getSearchCardsDropdownValues = () => {
+    var tags = $('.tags .label')
+        .toArray()
+        .map(tag => $(tag).text().trim());
+    tags = [...new Set(tags)];
+    tags = tags.map(tag => ({
+        icon: 'hashtag',
+        value: '#' + tag,
+        name: tag,
+    }));
+    var users = $('.assignees .image')
+        .toArray()
+        .map(user => $(user).attr('data-username'));
+    users = [...new Set(users)];
+    users = users.map(user => ({
+        icon: 'at',
+        value: '@' + user,
+        name: user,
+    }))
+    var values = [...new Set([...tags, ...users])]
+    return values;
+}
+
+const filterCards = () => {
+    for (card of $('.card-el')) {
+        if (!isCardOnFilter($(card))) {
+            $(card).hide();
+        } else {
+            $(card).show();
+        }
+    }
+}
+
+const isCardOnFilter = (cardEl, selector = '.ui.search-cards.dropdown', filterMode = 'or') => {
+    // isCardOnFilter($('.card-el[data-card-id=23]'))
+    var name = cardEl.find('.card-name').text().trim();
+    var tags = cardEl.find('.tags .label')
+        .toArray()
+        .map(tag => '#' + $(tag).text().trim())
+    var users = cardEl.find('.assignees .image')
+        .toArray()
+        .map(user => '@' + $(user).attr('data-username'))
+    var cardItems = [...new Set([name, ...tags, ...users])]
+    var queryItems = $(selector).dropdown('get value').split(',');
+
+    if (queryItems.length == 1 && queryItems[0] == '') { return true }
+
+    if (filterMode.toLowerCase() === 'and') {
+        result = queryItems.every(i => cardItems.includes(i));
+    } else if (filterMode.toLowerCase() === 'or') {
+        result = queryItems.some(i => cardItems.includes(i));
+    }
+
+    return result;
+
+}
+
+const initializeSearchCardsDropdown = (selector = '.ui.search-cards.dropdown') => {
+    $(selector).dropdown({
+        clearable: true,
+        allowAdditions: true,
+        forceSelection: false,
+        match: 'value',
+        direction: 'downward',
+        placeholder: 'Filter cards',
+        // onShow: () => {
+        //     console.log($(selector).width())
+        //     // $(selector).width(200)
+        // }
+        onChange: (value, text, $choice) => {
+            filterCards(value);
+        },
+        filterRemoteData: true,
+        saveRemoteData: false,
+        ignoreDiacritics: true,
+        fullTextSearch: true,
+        apiSettings: {
+            cache: false,
+            response: [],
+            loadingDuration: 200,
+            successTest: r => true,
+            onResponse: r => ({ results: getSearchCardsDropdownValues() })
+        }
+    });
 }
