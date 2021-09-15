@@ -1363,7 +1363,7 @@ const showCardModal = (card = null, bucketId, compact) => {
         transition: 'scale',
         duration: 400,
         onShow: () => {
-            getFiles(modal, bucketId, card.id);
+            if (card) { getFiles(modal, bucketId, card.id) }
             cardEdited = false;
             modal.find('.manage-tags').popup();
             modal.find('.scrolling.content').animate({ scrollTop: 0 });
