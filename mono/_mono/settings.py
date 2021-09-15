@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'blog',
     'todo_lists',
     'notes',
+    'pixel',
     'django.forms',
 ]
 
