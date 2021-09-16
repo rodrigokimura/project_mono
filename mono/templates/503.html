@@ -1,11 +1,9 @@
 {% load static %}
 {% load i18n %}
-{% load analytical %}
 <!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
-  {% analytical_head_top %}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mono Project{% if APP_ENV == 'DEV' %} [DEV]{% endif %}</title>
@@ -27,11 +25,9 @@
   <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/prd/favicon-16x16.png' %}">
   <link rel="manifest" href="{% static 'favicon/prd/site.webmanifest' %}">
   {% endif %}
-  {% analytical_head_bottom %}
 </head>
 
 <body>
-  {% analytical_body_top %}
   <div class="ui grid container">
     <div class="fourteen wide center aligned centered column">
       <div class="ui segment" style="margin-top: 1em;">
@@ -42,7 +38,6 @@
       </div>
     </div>
   </div>
-  {% analytical_body_bottom %}
 </body>
 
 </html>

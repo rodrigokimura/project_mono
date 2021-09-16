@@ -1,13 +1,11 @@
 {% load static %}
 {% load i18n %}
-{% load analytical %}
 
 
 <!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
-  {% analytical_head_top %}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mono Project{% if APP_ENV == 'DEV' %} [DEV]{% endif %}</title>
@@ -90,11 +88,10 @@
     const csrftoken = getCookie('csrftoken');
   </script>
   {% block head %}{% endblock head %}
-  {% analytical_head_bottom %}
 </head>
 
 <body class="pushable">
-  {% analytical_body_top %}
+  {% include '_pixel.html' %}
   
   <div class="ui vertical inverted thin sidebar labeled icon left menu">
     <a class="item" href="{% url 'finance:index' %}"><i class="home icon"></i>{% translate "Home" %}</a>
@@ -221,7 +218,6 @@
     </a>
 
   </div>
-  {% analytical_body_bottom %}
 </body>
 <script>
 
