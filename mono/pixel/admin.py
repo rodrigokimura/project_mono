@@ -13,7 +13,6 @@ class PingAdmin(admin.ModelAdmin):
     list_display = [
         'user_id',
         'event',
-        'openpixel_js_version',
         'document_location',
         'referrer_location',
         'timestamp',
