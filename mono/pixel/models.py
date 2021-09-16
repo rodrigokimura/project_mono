@@ -1,12 +1,53 @@
+from datetime import timedelta
 from django.db import models
+from django.db.models.aggregates import Avg
+from django.utils import timezone
 import uuid
 
 
 class Site(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    host = models.CharField(
+        max_length=1024,
+        null=True,
+        help_text="Host of the URL. Port or userinfo should be ommited. https://en.wikipedia.org/wiki/URL"
+    )
 
     def __str__(self):
         return str(self.id)
+
+    def flush_pings(self):
+        self.ping_set.all().delete()
+
+    def get_pings(self, initial_datetime=timezone.now() - timedelta(days=30), final_datetime=timezone.now()):
+        return self.ping_set.filter(
+            timestamp__range=[initial_datetime, final_datetime]
+        )
+
+    def get_visitors(self, pings=None, **kwargs):
+        if pings is None:
+            pings = self.get_pings(**kwargs)
+        return pings.values('user_id').distinct()
+
+    def get_views(self, pings=None, **kwargs):
+        if pings is None:
+            pings = self.get_pings(**kwargs)
+        return pings.filter(event='pageload')
+
+    def get_avg_duration(self, pings=None, **kwargs):
+        if pings is None:
+            pings = self.get_pings(**kwargs)
+        return str(pings.exclude(duration__isnull=True).aggregate(d=Avg('duration'))['d'])
+
+    def get_document_locations(self, pings=None, **kwargs):
+        if pings is None:
+            pings = self.get_pings(**kwargs)
+        return pings.values('document_location').distinct()
+
+    def get_referrer_locations(self, pings=None, **kwargs):
+        if pings is None:
+            pings = self.get_pings(**kwargs)
+        return pings.values('referrer_location').distinct()
 
 
 class Ping(models.Model):
@@ -31,3 +72,10 @@ class Ping(models.Model):
     utm_term = models.CharField(max_length=1024, null=True)
     utm_content = models.CharField(max_length=1024, null=True)
     utm_campaign = models.CharField(max_length=1024, null=True)
+
+    pageload_timestamp = models.DateTimeField(null=True)
+    pageclose_timestamp = models.DateTimeField(null=True)
+    duration = models.DurationField(null=True)
+
+    def __str__(self):
+        return str(self.id)
