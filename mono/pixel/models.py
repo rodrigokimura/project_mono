@@ -49,6 +49,11 @@ class Site(models.Model):
             pings = self.get_pings(**kwargs)
         return pings.values('referrer_location').distinct()
 
+    def get_browsers(self, pings=None, **kwargs):
+        if pings is None:
+            pings = self.get_pings(**kwargs)
+        return pings.values('browser_name').distinct()
+
 
 class Ping(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE)

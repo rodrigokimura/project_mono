@@ -1,12 +1,10 @@
 {% load static %}
 {% load i18n %}
-{% load analytical %}
 
 <!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
-  {% analytical_head_top %}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mono Project{% if APP_ENV == 'DEV' %} [DEV]{% endif %}</title>
@@ -51,20 +49,10 @@
     const csrftoken = getCookie('csrftoken');
   </script>
   {% block head %}{% endblock head %}
-  {% analytical_head_bottom %}
 </head>
 
 <body>
-  <!-- Start Open Pixel Snippet -->
-  <script>
-  {% if APP_ENV == 'DEV' %}
-  !function(e,t,n,p,i,o,a){e[p]||((i=e[p]=function(){i.process?i.process.apply(i,arguments):i.queue.push(arguments)}).queue=[],i.t=+new Date,(o=t.createElement(n)).async=1,o.src="http://127.0.0.42:8080/static/openpixel.dev.js?t="+864e5*Math.ceil(new Date/864e5),(a=t.getElementsByTagName(n)[0]).parentNode.insertBefore(o,a))}(window,document,"script","opix"),opix("init","ID-b022642e-219d-43e8-a833-da2f73c1e255"),opix("event","pageload");
-  {% else %}
-  !function(e,t,n,p,i,o,a){e[p]||((i=e[p]=function(){i.process?i.process.apply(i,arguments):i.queue.push(arguments)}).queue=[],i.t=+new Date,(o=t.createElement(n)).async=1,o.src="https://www.monoproject.info/static/openpixel.js?t="+864e5*Math.ceil(new Date/864e5),(a=t.getElementsByTagName(n)[0]).parentNode.insertBefore(o,a))}(window,document,"script","opix"),opix("init","ID-3182d0db-bd82-496c-bf50-244b7d33627a"),opix("event","pageload");
-  {% endif %}
-  </script>
-  <!-- End Open Pixel Snippet -->
-  {% analytical_body_top %}
+  {% include '_pixel.html' %}
   {% block body %}
   {% endblock body %}
   <script>
@@ -88,7 +76,6 @@
       {% endfor %}
     {% endif %}
   </script>
-  {% analytical_body_bottom %}
 </body>
 
 </html>
