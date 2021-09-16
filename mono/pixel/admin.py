@@ -4,8 +4,20 @@ from . import models
 
 @admin.register(models.Site)
 class SiteAdmin(admin.ModelAdmin):
-    list_display = ['id']
-    list_filter = ['id']
+
+    def flush_pings(self, request, queryset):
+        for site in queryset:
+            site.flush_pings()
+
+    list_display = [
+        'id',
+        'host',
+    ]
+    list_filter = [
+        'id',
+        'host',
+    ]
+    actions = [flush_pings]
 
 
 @admin.register(models.Ping)
@@ -21,10 +33,12 @@ class PingAdmin(admin.ModelAdmin):
         'document_title',
         'browser_name',
         'mobile_device',
+        'duration',
     ]
     list_filter = [
         'site',
         'user_id',
+        'event',
         'timestamp',
         'browser_name',
         'mobile_device',
