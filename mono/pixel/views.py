@@ -125,9 +125,15 @@ def test(request):
     # Dimensions
     document_locations = site.get_document_locations(pings=pings)
     referrer_locations = site.get_referrer_locations(pings=pings)
+    browsers = site.get_browsers(pings=pings)
 
     views_by_document_location = document_locations.annotate(views=Count('id', filter=Q(event='pageload')))
     views_by_referrer_location = referrer_locations.annotate(views=Count('id', filter=Q(event='pageload')))
+    views_by_browser = browsers.annotate(views=Count('id', filter=Q(event='pageload')))
+
+    visitors_by_document_location = document_locations.annotate(visitors=Count('user_id', distinct=True, filter=Q(event='pageload')))
+    visitors_by_referrer_location = referrer_locations.annotate(visitors=Count('user_id', distinct=True, filter=Q(event='pageload')))
+    visitors_by_browser = browsers.annotate(visitors=Count('user_id', distinct=True, filter=Q(event='pageload')))
 
     resp = {}
     resp['pings'] = pings.count()
@@ -136,4 +142,8 @@ def test(request):
     resp['avg_duration'] = avg_duration
     resp['views_by_document_location'] = list(views_by_document_location)
     resp['views_by_referrer_location'] = list(views_by_referrer_location)
+    resp['views_by_browser'] = list(views_by_browser)
+    resp['visitors_by_document_location'] = list(visitors_by_document_location)
+    resp['visitors_by_referrer_location'] = list(visitors_by_referrer_location)
+    resp['visitors_by_browser'] = list(visitors_by_browser)
     return JsonResponse(resp)
