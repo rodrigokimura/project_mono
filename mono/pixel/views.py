@@ -48,9 +48,9 @@ def get_tracking_info(query_dict):
 
 
 def store_tracking_info(tracking_info):
-    try:
+    if Site.objects.filter(id=tracking_info.get('site_id')).exists():
         Ping.objects.create(**tracking_info)
-    except Site.DoesNotExist:
+    else:
         logging.warning('Invalid ping')
 
 
