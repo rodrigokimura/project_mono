@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.admindocs',
     'maintenance_mode',
-    'analytical',
     'rest_framework',
     'rest_framework.authtoken',
     'social_django',
@@ -108,7 +107,6 @@ TEMPLATES = [
             'context_processors': [
                 '_mono.context_processors.environment',
                 '_mono.context_processors.language_extras',
-                # '_mono.context_processors.analytical_app',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
