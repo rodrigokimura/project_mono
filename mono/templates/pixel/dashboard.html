@@ -1,0 +1,128 @@
+{% extends "pixel/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+<script src="{% static 'pixeldashboard.js' %}"></script>
+<script>
+    const DASHBOARD = new Dashboard("{{ object.id }}");
+</script>
+
+<div class="ui stackable grid container" style="padding-top: 5em;">
+
+    <div class="row">
+        <div class="left floated four wide column">
+            <div class="ui site selection dropdown">
+            <div class="text"></div>
+            <i class="dropdown icon"></i>
+            </div>
+            <script>
+                $('.ui.site.dropdown').dropdown({
+                    values: [
+                        {% for site in request.user.site_set.all %}
+                        {
+                            name: '{{ site.host }}',
+                            value: '{{ site.id }}',
+                        },
+                        {% endfor %}
+                    ]
+                });
+                $('.ui.site.dropdown').dropdown('set selected', "{{ object.id }}")
+            </script>
+        </div>
+        <div class="right floated six wide column">
+            <div class="ui form">
+                <div class="field">
+                    <div class="two fields">
+                        <div class="field">
+                            <div class="ui calendar" id="rangestart">
+                                <div class="ui input left icon">
+                                    <i class="calendar icon"></i>
+                                    <input type="text" placeholder="Start">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="ui calendar" id="rangeend">
+                                <div class="ui input left icon">
+                                    <i class="calendar icon"></i>
+                                    <input type="text" placeholder="End">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                $('#rangestart').calendar({
+                    type: 'date',
+                    endCalendar: $('#rangeend'),
+                    onChange: () => { DASHBOARD.updateGeneralInfo(); }
+                });
+                $('#rangeend').calendar({
+                    type: 'date',
+                    startCalendar: $('#rangestart'),
+                    onChange: () => { DASHBOARD.updateGeneralInfo(); }
+                });
+                var startDate =  new Date();
+                startDate = new Date(startDate.toDateString());
+                startDate.setDate(startDate.getDate() - 6);
+                var endDate =  new Date();
+                endDate = new Date(endDate.toDateString());
+                $('#rangestart').calendar('set date', startDate);
+                $('#rangeend').calendar('set date', endDate);
+            </script>
+        </div>
+    </div>
+
+    <div class="equal width row">
+        <div class="column">
+            <div class="ui center aligned card-statistic segment" data-type="users">
+                <div class="ui small statistic">
+                    <div class="value">...</div>
+                    <div class="label">Online users</div>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="ui center aligned card-statistic segment" data-type="visitors">
+                <div class="ui small statistic">
+                    <div class="value">...</div>
+                    <div class="label">Visitors</div>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="ui center aligned card-statistic segment" data-type="views">
+                <div class="ui small statistic">
+                    <div class="value">...</div>
+                    <div class="label">Page Views</div>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="ui center aligned card-statistic segment" data-type="duration">
+                <div class="ui small statistic">
+                    <div class="value">...</div>
+                    {% comment %} <div class="value" style="font-size: 3rem">...</div> {% endcomment %}
+                    <div class="label">Page Duration</div>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="ui center aligned card-statistic segment" data-type="bounce">
+                <div class="ui small statistic">
+                    <div class="value">...</div>
+                    <div class="label">Bounce Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(() => {
+        DASHBOARD.updateGeneralInfo();
+    })
+</script>
+
+{% endblock %}

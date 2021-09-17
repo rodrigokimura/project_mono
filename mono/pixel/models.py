@@ -2,6 +2,7 @@ from datetime import timedelta
 from django.db import models
 from django.db.models.aggregates import Avg
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 import uuid
 
 
@@ -12,6 +13,7 @@ class Site(models.Model):
         null=True,
         help_text="Host of the URL. Port or userinfo should be ommited. https://en.wikipedia.org/wiki/URL"
     )
+    created_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.id)
@@ -19,9 +21,16 @@ class Site(models.Model):
     def flush_pings(self):
         self.ping_set.all().delete()
 
+    def get_online_users(self):
+        return self.ping_set.filter(
+            event='pageload',
+            pageclose_timestamp__isnull=True
+        ).values('user_id').distinct().count()
+
     def get_pings(self, initial_datetime=timezone.now() - timedelta(days=30), final_datetime=timezone.now()):
         return self.ping_set.filter(
-            timestamp__range=[initial_datetime, final_datetime]
+            timestamp__date__gte=initial_datetime,
+            timestamp__date__lte=final_datetime,
         )
 
     def get_visitors(self, pings=None, **kwargs):
@@ -37,7 +46,11 @@ class Site(models.Model):
     def get_avg_duration(self, pings=None, **kwargs):
         if pings is None:
             pings = self.get_pings(**kwargs)
-        return str(pings.exclude(duration__isnull=True).aggregate(d=Avg('duration'))['d'])
+        qs = pings.exclude(duration__isnull=True)
+        if qs.exists():
+            return str(qs.aggregate(d=Avg('duration'))['d'])
+        else:
+            return '0:00:00.000'
 
     def get_document_locations(self, pings=None, **kwargs):
         if pings is None:

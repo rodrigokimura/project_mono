@@ -1,20 +1,20 @@
 from django.db.models.query_utils import Q
-from django.http.response import JsonResponse
+from django.http.response import Http404, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.db.models import Count
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic.detail import DetailView
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from datetime import datetime, timedelta
 import base64
 import pytz
 import logging
 from urllib.parse import urlparse
-
 from .models import Ping, Site
-
-
-PIXEL_GIF_DATA = base64.b64decode(
-    b"R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
 
 
 def get_timestamp(query_dict):
@@ -104,7 +104,61 @@ def store_tracking_info(tracking_info):
 def pixel_gif(request):
     tracking_info = get_tracking_info(request.GET)
     store_tracking_info(tracking_info)
+    PIXEL_GIF_DATA = base64.b64decode(
+        b"R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
+
     return HttpResponse(PIXEL_GIF_DATA, content_type='image/gif')
+
+
+# Dashboard views
+class Dashboard(UserPassesTestMixin, DetailView):
+
+    model = Site
+    template_name = 'pixel/dashboard.html'
+
+    def test_func(self):
+        site: Site = self.get_object()
+        return self.request.user == site.created_by
+
+
+class DashboardBaseApiView(LoginRequiredMixin, APIView):
+
+    def get_object(self, pk):
+        try:
+            return Site.objects.get(pk=pk)
+        except Site.DoesNotExist:
+            raise Http404
+
+    def process_data(self):
+        return {}
+
+    def get(self, request, pk, format=None):
+        self.site: Site = self.get_object(pk)
+        if self.request.user == self.site.created_by:
+            self.pings = self.site.get_pings(
+                initial_datetime=self.request.query_params.get('start'),
+                final_datetime=self.request.query_params.get('end'),
+            )
+            data = self.process_data()
+            data['success'] = True
+            return Response(data)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class DashboardGeneralInfoApiView(DashboardBaseApiView):
+
+    def process_data(self):
+        online_users = self.site.get_online_users()
+        visitors = self.site.get_visitors(pings=self.pings)
+        views = self.site.get_views(pings=self.pings)
+        avg_duration = self.site.get_avg_duration(pings=self.pings).split('.')[0]
+        return {
+            'users': online_users,
+            'visitors': visitors.count(),
+            'views': views.count(),
+            'duration': avg_duration,
+            'bounce': '...',
+        }
 
 
 @user_passes_test(lambda user: user.is_authenticated)
