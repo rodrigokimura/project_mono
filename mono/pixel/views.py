@@ -152,12 +152,13 @@ class DashboardGeneralInfoApiView(DashboardBaseApiView):
         visitors = self.site.get_visitors(pings=self.pings)
         views = self.site.get_views(pings=self.pings)
         avg_duration = self.site.get_avg_duration(pings=self.pings).split('.')[0]
+        bounce_rate = self.site.get_bounce_rate(pings=self.pings)
         return {
-            'users': online_users,
+            'users': online_users.count(),
             'visitors': visitors.count(),
             'views': views.count(),
             'duration': avg_duration,
-            'bounce': '...',
+            'bounce': "{:.0%}".format(bounce_rate),
         }
 
 
