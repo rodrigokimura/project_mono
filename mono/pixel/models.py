@@ -1,6 +1,7 @@
 from datetime import timedelta
 from django.db import models
-from django.db.models.aggregates import Avg
+from django.db.models.aggregates import Avg, Count
+from django.db.models.query_utils import Q
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 import uuid
@@ -25,7 +26,7 @@ class Site(models.Model):
         return self.ping_set.filter(
             event='pageload',
             pageclose_timestamp__isnull=True
-        ).values('user_id').distinct().count()
+        ).values('user_id').distinct()
 
     def get_pings(self, initial_datetime=timezone.now() - timedelta(days=30), final_datetime=timezone.now()):
         return self.ping_set.filter(
@@ -51,6 +52,26 @@ class Site(models.Model):
             return str(qs.aggregate(d=Avg('duration'))['d'])
         else:
             return '0:00:00.000'
+
+    def get_bounce_rate(self, pings=None, **kwargs):
+        if pings is None:
+            pings = self.get_pings(**kwargs)
+        closed_sessions = pings.filter(
+            event='pageload',
+            duration__isnull=False
+        )
+        if not closed_sessions.exists():
+            return 0
+
+        visitors = self.get_visitors(pings=pings)
+
+        bounces = 0
+        for v in visitors:
+            c = closed_sessions.filter(user_id=v['user_id']).values('document_location').distinct().count()
+            if c == 1:
+                bounces += 1
+
+        return bounces / closed_sessions.count()
 
     def get_document_locations(self, pings=None, **kwargs):
         if pings is None:
