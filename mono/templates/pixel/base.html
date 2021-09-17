@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block head %}
+  <style>.pusher {padding-top: 3em;}</style>
+{% endblock head %}
+
+{% block body %}
+  {% block sidebars %}
+  {% endblock sidebars %}
+  <div class="ui top inverted fixed menu">
+    {% block menu %}
+    {% endblock menu %}
+    <div class="right menu">
+      {% block right_menu %}
+      {% endblock right_menu %}
+      <div class="ui inverted teal apps item" style="cursor: pointer;"><i class="toolbox icon"></i></div>
+      <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
+        {% include "homepage/_apps_menu.html" %}
+      </div>
+    </div>
+  </div>
+  {% block main %}
+  {% endblock main %}
+  <script>
+    w = 0;
+    s = $('.ui.apps.item').siblings('.ui.item');
+    for (i=0; i<s.length; i++) {
+      w += $(s[i]).outerWidth();
+    }
+    $('.ui.apps.item').popup(
+      {
+        on: 'click',
+        hoverable: true,
+        position:	"bottom right",
+        forcePosition: true,
+        offset: w,
+        onShow: () => {
+          $('.ui.apps.item').addClass('active')
+        },
+        onHide: () => {
+          $('.ui.apps.item').removeClass('active')
+        }
+      }
+    );
+  </script>
+{% endblock body %}
