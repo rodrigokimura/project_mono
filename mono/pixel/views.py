@@ -2,10 +2,11 @@ from django.db.models.query_utils import Q
 from django.http.response import Http404, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
-from django.db.models import Count
+from django.db.models import Count, Avg
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic.detail import DetailView
+from django.db.models.functions import TruncDay
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -160,6 +161,52 @@ class DashboardGeneralInfoApiView(DashboardBaseApiView):
             'duration': avg_duration,
             'bounce': "{:.0%}".format(bounce_rate),
         }
+
+class DashboardAggregatedByDateApiView(DashboardBaseApiView):
+
+    def process_data(self):
+        qs = self.pings.filter(
+            event='pageload'
+        ).annotate(
+            date=TruncDay('timestamp')
+        ).values('date')
+        qs = qs.annotate(
+            views=Count('id'),
+            visitors=Count('user_id', distinct=True),
+            duration=Avg('duration'),
+        ).values('date', 'views', 'visitors', 'duration')
+        data = []
+        for item in qs:
+            closed_sessions = self.pings.filter(
+                timestamp__date=item['date'],
+                event='pageload',
+                duration__isnull=False,
+            )
+            if not closed_sessions.exists():
+                item['bounce'] = None
+            else:
+                bounces = 0
+                for v in self.pings.values('user_id').distinct():
+                    c = closed_sessions.filter(user_id=v['user_id']).values('document_location').distinct().count()
+                    if c == 1:
+                        bounces += 1
+                item['bounce'] = bounces / closed_sessions.count()
+            data.append(item)
+        return {'data': data}
+
+
+class DashboardAggregatedByDocLocApiView(DashboardBaseApiView):
+
+    def process_data(self):
+        qs = self.pings.filter(
+            event='pageload'
+        ).values('document_location')
+        qs = qs.annotate(
+            views=Count('id'),
+            visitors=Count('user_id', distinct=True),
+            duration=Avg('duration'),
+        ).values('document_location', 'views', 'visitors', 'duration')
+        return {'data': list(qs)}
 
 
 @user_passes_test(lambda user: user.is_authenticated)
