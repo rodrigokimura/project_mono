@@ -28,5 +28,130 @@ class Dashboard {
             }
         });
     }
-
+    updateAggregatedByDate() {
+        var params = $.param({
+            start: this.start,
+            end: this.end,
+        });
+        $.api({
+            method: 'GET',
+            url: `/pixel/dashboard/${this.id}/by-date/?${params}`,
+            headers: { 'X-CSRFToken': csrftoken },
+            on: 'now',
+            stateContext: '.card-statistic',
+            onSuccess: r => {
+                var data = r.data;
+                var dates = data.map(d => {
+                    var date = new Date(d.date);
+                    // return date;
+                    return date.toLocaleDateString()
+                });
+                var views = data.map(d => d.views);
+                var visitors = data.map(d => d.visitors);
+                var duration = data.map(d => d.duration);
+                var options = {
+                    chart: {
+                        type: 'line',
+                        fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;"
+                    },
+                    plotOptions: {
+                        bar: {
+                            borderRadius: 4,
+                        }
+                    },
+                    series: [
+                        {
+                            name: 'Views',
+                            data: views,
+                            type: 'line',
+                        },
+                        {
+                            name: 'Visitors',
+                            data: visitors,
+                            type: 'line',
+                        },
+                        {
+                            name: 'Page duration',
+                            data: duration,
+                            type: 'line',
+                        },
+                    ],
+                    xaxis: {
+                        categories: dates,
+                        // type: 'datetime',
+                    },
+                    yaxis: [
+                        {
+                            show: false,
+                            labels: { formatter: v => Math.ceil(v) }
+                        },
+                        {
+                            show: false,
+                            labels: { formatter: v => Math.ceil(v) }
+                        },
+                        { show: false },
+                    ],
+                }
+                var chart = new ApexCharts($('.card-chart[data-type=by-date]')[0], options)
+                chart.render()
+            }
+        });
+    }
+    updateAggregatedByDocLoc() {
+        var params = $.param({
+            start: this.start,
+            end: this.end,
+        });
+        $.api({
+            method: 'GET',
+            url: `/pixel/dashboard/${this.id}/by-doc-loc/?${params}`,
+            headers: { 'X-CSRFToken': csrftoken },
+            on: 'now',
+            stateContext: '.card-statistic',
+            onSuccess: r => {
+                // alert(JSON.stringify(r))
+                var data = r.data;
+                var locs = data.map(d => d.document_location);
+                var views = data.map(d => d.views);
+                var visitors = data.map(d => d.visitors);
+                var duration = data.map(d => d.duration);
+                var options = {
+                    chart: {
+                        type: 'bar',
+                        fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;"
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: true,
+                        },
+                        dataLabels: { enabled: false },
+                    },
+                    series: [
+                        {
+                            name: 'Views',
+                            data: views,
+                        },
+                        {
+                            name: 'Visitors',
+                            data: visitors,
+                        },
+                        {
+                            name: 'Duration',
+                            data: duration,
+                        },
+                    ],
+                    xaxis: {
+                        categories: locs,
+                    },
+                }
+                var chart = new ApexCharts($('.card-chart[data-type=by-doc-loc]')[0], options)
+                chart.render()
+            }
+        });
+    }
+    update() {
+        this.updateGeneralInfo();
+        this.updateAggregatedByDate();
+        this.updateAggregatedByDocLoc();
+    }
 }

@@ -2,6 +2,11 @@
 {% load static %}
 {% load i18n %}
 
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+{% endblock head %}
+
 {% block main %}
 <script src="{% static 'pixeldashboard.js' %}"></script>
 <script>
@@ -57,20 +62,20 @@
                 $('#rangestart').calendar({
                     type: 'date',
                     endCalendar: $('#rangeend'),
-                    onChange: () => { DASHBOARD.updateGeneralInfo(); }
+                    onChange: () => { DASHBOARD.update(); }
                 });
                 $('#rangeend').calendar({
                     type: 'date',
                     startCalendar: $('#rangestart'),
-                    onChange: () => { DASHBOARD.updateGeneralInfo(); }
+                    onChange: () => { DASHBOARD.update(); }
                 });
                 var startDate =  new Date();
                 startDate = new Date(startDate.toDateString());
                 startDate.setDate(startDate.getDate() - 6);
                 var endDate =  new Date();
                 endDate = new Date(endDate.toDateString());
-                $('#rangestart').calendar('set date', startDate);
-                $('#rangeend').calendar('set date', endDate);
+                $('#rangestart').calendar('set date', startDate, true, false);
+                $('#rangeend').calendar('set date', endDate, true, false);
             </script>
         </div>
     </div>
@@ -118,10 +123,18 @@
             </div>
         </div>
     </div>
+    <div class="equal width row">
+        <div class="column">
+            <div class="ui center aligned card-chart segment" data-type="by-date"></div>
+        </div>
+        <div class="column">
+            <div class="ui center aligned card-chart segment" data-type="by-doc-loc"></div>
+        </div>
+    </div>
 </div>
 <script>
     $(document).ready(() => {
-        DASHBOARD.updateGeneralInfo();
+        DASHBOARD.update();
     })
 </script>
 
