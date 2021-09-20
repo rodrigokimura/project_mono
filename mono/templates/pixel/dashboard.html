@@ -143,15 +143,17 @@
                 <div class="ui card-chart segment" data-type="by-date" style="min-height: 5em;"></div>
             </div>
             <div class="column" id="by-doc-loc">
-                <div class="ui segments list">
-                <div class="ui segment">
-                    <div class="ui grid">
-                        <div class="seven wide column"><a class="sort" data-sort="doc-loc">Location</a></div>
-                        <div class="three wide column"><a class="sort" data-sort="views">Views</a></div>
-                        <div class="three wide column"><a class="sort" data-sort="visitors">Visitors</a></div>
-                        <div class="three wide column"><a class="sort" data-sort="duration">Duration</a></div>
+                <div class="ui segments">
+                    <div class="ui top attached segment">
+                        <div class="ui grid">
+                            <div class="seven wide column"><a class="sort" data-sort="doc-loc">Location</a></div>
+                            <div class="three wide column"><a class="sort" data-sort="views">Views</a></div>
+                            <div class="three wide column"><a class="sort" data-sort="visitors">Visitors</a></div>
+                            <div class="three wide column"><a class="sort" data-sort="duration">Duration</a></div>
+                        </div>
                     </div>
-                </div>
+                    <div class="ui basic segments list" style="margin: 0;">
+                    </div>
                 </div>
                 {% comment %} <div class="ui attached segments list"></div> {% endcomment %}
                 {% comment %} <div style="overflow-x: auto;" id="by-doc-loc">
