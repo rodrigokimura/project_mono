@@ -111,7 +111,7 @@ class Dashboard {
             onSuccess: r => {
                 $('#by-doc-loc row').remove();
                 r.data.forEach(d => {
-                    $('#by-doc-loc .list').append(`
+                    $('#by-doc-loc .segments.list').append(`
                         <div class="row ui segment">
                             <div class="ui grid">
                                 <div class="seven wide column doc-loc">${d.document_location}</div>
