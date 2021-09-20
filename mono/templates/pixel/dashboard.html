@@ -4,151 +4,176 @@
 
 
 {% block head %}
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
+    <style>
+        a {cursor: pointer;}
+        {% comment %} thead, tbody { display: block; } {% endcomment %}
+
+        {% comment %} tbody {
+            height: 400px;       /* Just for the demo          */
+            overflow-y: auto;    /* Trigger vertical scroll    */
+            overflow-x: hidden;  /* Hide the horizontal scroll */
+        }
+        td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        } {% endcomment %}
+    </style>
 {% endblock head %}
 
 {% block main %}
-<script src="{% static 'tablesort.js' %}"></script>
-<script src="{% static 'pixeldashboard.js' %}"></script>
-<script>
-    const DASHBOARD = new Dashboard("{{ object.id }}");
-</script>
+    <script src="{% static 'tablesort.js' %}"></script>
+    <script src="{% static 'pixeldashboard.js' %}"></script>
+    <script>
+        const DASHBOARD = new Dashboard("{{ object.id }}");
+    </script>
 
-<div class="ui stackable grid container" style="padding-top: 5em;">
+    <div class="ui stackable grid container" style="padding-top: 5em;">
 
-    <div class="row">
-        <div class="left floated four wide column">
-            <div class="ui site selection dropdown">
-            <div class="text"></div>
-            <i class="dropdown icon"></i>
+        <div class="row">
+            <div class="left floated four wide column">
+                <div class="ui site selection dropdown">
+                <div class="text"></div>
+                <i class="dropdown icon"></i>
+                </div>
+                <script>
+                    $('.ui.site.dropdown').dropdown({
+                        values: [
+                            {% for site in request.user.site_set.all %}
+                            {
+                                name: '{{ site.host }}',
+                                value: '{{ site.id }}',
+                            },
+                            {% endfor %}
+                        ]
+                    });
+                    $('.ui.site.dropdown').dropdown('set selected', "{{ object.id }}")
+                </script>
             </div>
-            <script>
-                $('.ui.site.dropdown').dropdown({
-                    values: [
-                        {% for site in request.user.site_set.all %}
-                        {
-                            name: '{{ site.host }}',
-                            value: '{{ site.id }}',
-                        },
-                        {% endfor %}
-                    ]
-                });
-                $('.ui.site.dropdown').dropdown('set selected', "{{ object.id }}")
-            </script>
-        </div>
-        <div class="right floated six wide column">
-            <div class="ui form">
-                <div class="field">
-                    <div class="two fields">
-                        <div class="field">
-                            <div class="ui calendar" id="rangestart">
-                                <div class="ui input left icon">
-                                    <i class="calendar icon"></i>
-                                    <input type="text" placeholder="Start">
+            <div class="right floated six wide column">
+                <div class="ui form">
+                    <div class="field">
+                        <div class="two fields">
+                            <div class="field">
+                                <div class="ui calendar" id="rangestart">
+                                    <div class="ui input left icon">
+                                        <i class="calendar icon"></i>
+                                        <input type="text" placeholder="Start">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="field">
-                            <div class="ui calendar" id="rangeend">
-                                <div class="ui input left icon">
-                                    <i class="calendar icon"></i>
-                                    <input type="text" placeholder="End">
+                            <div class="field">
+                                <div class="ui calendar" id="rangeend">
+                                    <div class="ui input left icon">
+                                        <i class="calendar icon"></i>
+                                        <input type="text" placeholder="End">
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <script>
+                    $('#rangestart').calendar({
+                        type: 'date',
+                        endCalendar: $('#rangeend'),
+                        onChange: () => { DASHBOARD.update(); }
+                    });
+                    $('#rangeend').calendar({
+                        type: 'date',
+                        startCalendar: $('#rangestart'),
+                        onChange: () => { DASHBOARD.update(); }
+                    });
+                    var startDate =  new Date();
+                    startDate = new Date(startDate.toDateString());
+                    startDate.setDate(startDate.getDate() - 6);
+                    var endDate =  new Date();
+                    endDate = new Date(endDate.toDateString());
+                    $('#rangestart').calendar('set date', startDate, true, false);
+                    $('#rangeend').calendar('set date', endDate, true, false);
+                </script>
             </div>
-            <script>
-                $('#rangestart').calendar({
-                    type: 'date',
-                    endCalendar: $('#rangeend'),
-                    onChange: () => { DASHBOARD.update(); }
-                });
-                $('#rangeend').calendar({
-                    type: 'date',
-                    startCalendar: $('#rangestart'),
-                    onChange: () => { DASHBOARD.update(); }
-                });
-                var startDate =  new Date();
-                startDate = new Date(startDate.toDateString());
-                startDate.setDate(startDate.getDate() - 6);
-                var endDate =  new Date();
-                endDate = new Date(endDate.toDateString());
-                $('#rangestart').calendar('set date', startDate, true, false);
-                $('#rangeend').calendar('set date', endDate, true, false);
-            </script>
+        </div>
+        <div class="equal width row">
+            <div class="column">
+                <div class="ui center aligned card-statistic segment" data-type="users">
+                    <div class="ui small statistic">
+                        <div class="value">...</div>
+                        <div class="label">Online users</div>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="ui center aligned card-statistic segment" data-type="visitors">
+                    <div class="ui small statistic">
+                        <div class="value">...</div>
+                        <div class="label">Visitors</div>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="ui center aligned card-statistic segment" data-type="views">
+                    <div class="ui small statistic">
+                        <div class="value">...</div>
+                        <div class="label">Page Views</div>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="ui center aligned card-statistic segment" data-type="duration">
+                    <div class="ui small statistic">
+                        <div class="value">...</div>
+                        <div class="label">Page Duration</div>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="ui center aligned card-statistic segment" data-type="bounce">
+                    <div class="ui small statistic">
+                        <div class="value">...</div>
+                        <div class="label">Bounce Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="equal width row">
+            <div class="column">
+                <div class="ui card-chart segment" data-type="by-date" style="min-height: 5em;"></div>
+            </div>
+            <div class="column" id="by-doc-loc">
+                <div class="ui segments list">
+                <div class="ui segment">
+                    <div class="ui grid">
+                        <div class="seven wide column"><a class="sort" data-sort="doc-loc">Location</a></div>
+                        <div class="three wide column"><a class="sort" data-sort="views">Views</a></div>
+                        <div class="three wide column"><a class="sort" data-sort="visitors">Visitors</a></div>
+                        <div class="three wide column"><a class="sort" data-sort="duration">Duration</a></div>
+                    </div>
+                </div>
+                </div>
+                {% comment %} <div class="ui attached segments list"></div> {% endcomment %}
+                {% comment %} <div style="overflow-x: auto;" id="by-doc-loc">
+                    <table class="ui striped celled unstackable fixed single line table" >
+                        <thead>
+                            <tr>
+                                <th class="ten wide"><a class="sort" data-sort="doc-loc">Location</a></th>
+                                <th class="two wide"><a class="sort" data-sort="views">Views</a></th>
+                                <th class="two wide"><a class="sort" data-sort="visitors">Visitors</a></th>
+                                <th class="two wide"><a class="sort" data-sort="duration">Duration</a></th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-by-doc-loc" class="list">
+                        </tbody>
+                    </table>
+                </div> {% endcomment %}
+            </div>
         </div>
     </div>
-
-    <div class="equal width row">
-        <div class="column">
-            <div class="ui center aligned card-statistic segment" data-type="users">
-                <div class="ui small statistic">
-                    <div class="value">...</div>
-                    <div class="label">Online users</div>
-                </div>
-            </div>
-        </div>
-        <div class="column">
-            <div class="ui center aligned card-statistic segment" data-type="visitors">
-                <div class="ui small statistic">
-                    <div class="value">...</div>
-                    <div class="label">Visitors</div>
-                </div>
-            </div>
-        </div>
-        <div class="column">
-            <div class="ui center aligned card-statistic segment" data-type="views">
-                <div class="ui small statistic">
-                    <div class="value">...</div>
-                    <div class="label">Page Views</div>
-                </div>
-            </div>
-        </div>
-        <div class="column">
-            <div class="ui center aligned card-statistic segment" data-type="duration">
-                <div class="ui small statistic">
-                    <div class="value">...</div>
-                    <div class="label">Page Duration</div>
-                </div>
-            </div>
-        </div>
-        <div class="column">
-            <div class="ui center aligned card-statistic segment" data-type="bounce">
-                <div class="ui small statistic">
-                    <div class="value">...</div>
-                    <div class="label">Bounce Rate</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="equal width row">
-        <div class="column">
-            <div class="ui center aligned card-chart segment" data-type="by-date" style="min-height: 5em;"></div>
-        </div>
-        <div class="column">
-            <div style="overflow-x: auto;">
-                <table class="ui striped celled unstackable table">
-                    <thead>
-                        <tr>
-                            <th>Location</th>
-                            <th>Views</th>
-                            <th>Visitors</th>
-                            <th>Duration</th>
-                        </tr>
-                    </thead>
-                    <tbody id="data-by-doc-loc">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-    $(document).ready(() => {
-        DASHBOARD.update();
-    })
-</script>
-
+    <script>
+        $(document).ready(() => {
+            DASHBOARD.update();
+        })
+    </script>
 {% endblock %}

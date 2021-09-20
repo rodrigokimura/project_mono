@@ -43,7 +43,6 @@ class Dashboard {
                 var data = r.data;
                 var dates = data.map(d => {
                     var date = new Date(d.date);
-                    // return date;
                     return date.toLocaleDateString()
                 });
                 var views = data.map(d => d.views);
@@ -52,7 +51,8 @@ class Dashboard {
                 var options = {
                     chart: {
                         type: 'line',
-                        fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;"
+                        fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
+                        height: '400px',
                     },
                     plotOptions: {
                         bar: {
@@ -78,7 +78,6 @@ class Dashboard {
                     ],
                     xaxis: {
                         categories: dates,
-                        // type: 'datetime',
                     },
                     yaxis: [
                         {
@@ -110,18 +109,23 @@ class Dashboard {
             on: 'now',
             stateContext: '.card-statistic',
             onSuccess: r => {
-                $('#data-by-doc-loc').empty();
+                $('#by-doc-loc row').remove();
                 r.data.forEach(d => {
-                    $('#data-by-doc-loc').append(`
-                        <tr>
-                            <td>${d.document_location}</td>
-                            <td>${d.views}</td>
-                            <td>${d.visitors}</td>
-                            <td>${d.duration}</td>
-                        </tr>
+                    $('#by-doc-loc .list').append(`
+                        <div class="row ui segment">
+                            <div class="ui grid">
+                                <div class="seven wide column doc-loc">${d.document_location}</div>
+                                <div class="three wide column views">${d.views}</div>
+                                <div class="three wide column visitors">${d.visitors}</div>
+                                <div class="three wide column duration">${d.duration}</div>
+                            </div>
+                        </div>
                     `);
                 });
-                $('table').tablesort();
+                var options = {
+                    valueNames: ['doc-loc', 'views', 'visitors', 'duration']
+                };
+                var byDocLocList = new List('by-doc-loc', options);
             }
         });
     }
