@@ -38,7 +38,7 @@ class Dashboard {
             url: `/pixel/dashboard/${this.id}/by-date/?${params}`,
             headers: { 'X-CSRFToken': csrftoken },
             on: 'now',
-            stateContext: '.card-statistic',
+            stateContext: '.card-chart[data-type=by-date]',
             onSuccess: r => {
                 var data = r.data;
                 var dates = data.map(d => {
@@ -92,6 +92,7 @@ class Dashboard {
                         { show: false },
                     ],
                 }
+                $('.card-chart[data-type=by-date]').empty();
                 var chart = new ApexCharts($('.card-chart[data-type=by-date]')[0], options)
                 chart.render()
             }
@@ -109,43 +110,18 @@ class Dashboard {
             on: 'now',
             stateContext: '.card-statistic',
             onSuccess: r => {
-                // alert(JSON.stringify(r))
-                var data = r.data;
-                var locs = data.map(d => d.document_location);
-                var views = data.map(d => d.views);
-                var visitors = data.map(d => d.visitors);
-                var duration = data.map(d => d.duration);
-                var options = {
-                    chart: {
-                        type: 'bar',
-                        fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;"
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: true,
-                        },
-                        dataLabels: { enabled: false },
-                    },
-                    series: [
-                        {
-                            name: 'Views',
-                            data: views,
-                        },
-                        {
-                            name: 'Visitors',
-                            data: visitors,
-                        },
-                        {
-                            name: 'Duration',
-                            data: duration,
-                        },
-                    ],
-                    xaxis: {
-                        categories: locs,
-                    },
-                }
-                var chart = new ApexCharts($('.card-chart[data-type=by-doc-loc]')[0], options)
-                chart.render()
+                $('#data-by-doc-loc').empty();
+                r.data.forEach(d => {
+                    $('#data-by-doc-loc').append(`
+                        <tr>
+                            <td>${d.document_location}</td>
+                            <td>${d.views}</td>
+                            <td>${d.visitors}</td>
+                            <td>${d.duration}</td>
+                        </tr>
+                    `);
+                });
+                $('table').tablesort();
             }
         });
     }

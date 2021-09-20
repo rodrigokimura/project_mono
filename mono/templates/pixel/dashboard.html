@@ -8,6 +8,7 @@
 {% endblock head %}
 
 {% block main %}
+<script src="{% static 'tablesort.js' %}"></script>
 <script src="{% static 'pixeldashboard.js' %}"></script>
 <script>
     const DASHBOARD = new Dashboard("{{ object.id }}");
@@ -109,7 +110,6 @@
             <div class="ui center aligned card-statistic segment" data-type="duration">
                 <div class="ui small statistic">
                     <div class="value">...</div>
-                    {% comment %} <div class="value" style="font-size: 3rem">...</div> {% endcomment %}
                     <div class="label">Page Duration</div>
                 </div>
             </div>
@@ -125,10 +125,23 @@
     </div>
     <div class="equal width row">
         <div class="column">
-            <div class="ui center aligned card-chart segment" data-type="by-date"></div>
+            <div class="ui center aligned card-chart segment" data-type="by-date" style="min-height: 5em;"></div>
         </div>
         <div class="column">
-            <div class="ui center aligned card-chart segment" data-type="by-doc-loc"></div>
+            <div style="overflow-x: auto;">
+                <table class="ui striped celled unstackable table">
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>Views</th>
+                            <th>Visitors</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-by-doc-loc">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

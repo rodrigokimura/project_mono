@@ -18,8 +18,9 @@ class FeedbackForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         feedback = self.instance
-        feedback.user = self.request.user
-        feedback.save()
+        if self.request.user.is_authenticated:
+            feedback.user = self.request.user
+            feedback.save()
         return super().save(*args, **kwargs)
 
     class Meta:
