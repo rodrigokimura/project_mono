@@ -1,11 +1,14 @@
-from django.db.models.query_utils import Q
-from django.http.response import Http404, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
-from django.db.models import Count
+from django.http.response import Http404, JsonResponse
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
+from django.db.models import Count, Avg
+from django.db.models.functions import TruncDay
+from django.db.models.query_utils import Q
+from django.urls import reverse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -110,6 +113,22 @@ def pixel_gif(request):
     return HttpResponse(PIXEL_GIF_DATA, content_type='image/gif')
 
 
+class RootView(RedirectView):
+    permanent = False 
+    query_string = False
+
+    def get_redirect_url(self, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            # TODO: redirect to an informational page
+            return None
+        qs = Site.objects.filter(created_by=self.request.user)
+        if qs.exists():
+            return reverse('pixel:dashboard', args=[qs.first().id])
+        else:
+            # TODO: redirect to site creation page
+            return None
+
+
 # Dashboard views
 class Dashboard(UserPassesTestMixin, DetailView):
 
@@ -160,6 +179,52 @@ class DashboardGeneralInfoApiView(DashboardBaseApiView):
             'duration': avg_duration,
             'bounce': "{:.0%}".format(bounce_rate),
         }
+
+class DashboardAggregatedByDateApiView(DashboardBaseApiView):
+
+    def process_data(self):
+        qs = self.pings.filter(
+            event='pageload'
+        ).annotate(
+            date=TruncDay('timestamp')
+        ).values('date')
+        qs = qs.annotate(
+            views=Count('id'),
+            visitors=Count('user_id', distinct=True),
+            duration=Avg('duration'),
+        ).values('date', 'views', 'visitors', 'duration')
+        data = []
+        for item in qs:
+            closed_sessions = self.pings.filter(
+                timestamp__date=item['date'],
+                event='pageload',
+                duration__isnull=False,
+            )
+            if not closed_sessions.exists():
+                item['bounce'] = None
+            else:
+                bounces = 0
+                for v in self.pings.values('user_id').distinct():
+                    c = closed_sessions.filter(user_id=v['user_id']).values('document_location').distinct().count()
+                    if c == 1:
+                        bounces += 1
+                item['bounce'] = bounces / closed_sessions.count()
+            data.append(item)
+        return {'data': data}
+
+
+class DashboardAggregatedByDocLocApiView(DashboardBaseApiView):
+
+    def process_data(self):
+        qs = self.pings.filter(
+            event='pageload'
+        ).values('document_location')
+        qs = qs.annotate(
+            views=Count('id'),
+            visitors=Count('user_id', distinct=True),
+            duration=Avg('duration'),
+        ).values('document_location', 'views', 'visitors', 'duration')
+        return {'data': list(qs)}
 
 
 @user_passes_test(lambda user: user.is_authenticated)
