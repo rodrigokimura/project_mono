@@ -28,5 +28,110 @@ class Dashboard {
             }
         });
     }
-
+    updateAggregatedByDate() {
+        var params = $.param({
+            start: this.start,
+            end: this.end,
+        });
+        $.api({
+            method: 'GET',
+            url: `/pixel/dashboard/${this.id}/by-date/?${params}`,
+            headers: { 'X-CSRFToken': csrftoken },
+            on: 'now',
+            stateContext: '.card-chart[data-type=by-date]',
+            onSuccess: r => {
+                var data = r.data;
+                var dates = data.map(d => {
+                    var date = new Date(d.date);
+                    return date.toLocaleDateString()
+                });
+                var views = data.map(d => d.views);
+                var visitors = data.map(d => d.visitors);
+                var duration = data.map(d => d.duration);
+                var options = {
+                    chart: {
+                        type: 'line',
+                        fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
+                        height: '400px',
+                    },
+                    plotOptions: {
+                        bar: {
+                            borderRadius: 4,
+                        }
+                    },
+                    series: [
+                        {
+                            name: 'Views',
+                            data: views,
+                            type: 'line',
+                        },
+                        {
+                            name: 'Visitors',
+                            data: visitors,
+                            type: 'line',
+                        },
+                        {
+                            name: 'Page duration',
+                            data: duration,
+                            type: 'line',
+                        },
+                    ],
+                    xaxis: {
+                        categories: dates,
+                    },
+                    yaxis: [
+                        {
+                            show: false,
+                            labels: { formatter: v => Math.ceil(v) }
+                        },
+                        {
+                            show: false,
+                            labels: { formatter: v => Math.ceil(v) }
+                        },
+                        { show: false },
+                    ],
+                }
+                $('.card-chart[data-type=by-date]').empty();
+                var chart = new ApexCharts($('.card-chart[data-type=by-date]')[0], options)
+                chart.render()
+            }
+        });
+    }
+    updateAggregatedByDocLoc() {
+        var params = $.param({
+            start: this.start,
+            end: this.end,
+        });
+        $.api({
+            method: 'GET',
+            url: `/pixel/dashboard/${this.id}/by-doc-loc/?${params}`,
+            headers: { 'X-CSRFToken': csrftoken },
+            on: 'now',
+            stateContext: '.card-statistic',
+            onSuccess: r => {
+                $('#by-doc-loc row').remove();
+                r.data.forEach(d => {
+                    $('#by-doc-loc .segments.list').append(`
+                        <div class="row ui segment">
+                            <div class="ui grid">
+                                <div class="seven wide column doc-loc">${d.document_location}</div>
+                                <div class="three wide column views">${d.views}</div>
+                                <div class="three wide column visitors">${d.visitors}</div>
+                                <div class="three wide column duration">${d.duration}</div>
+                            </div>
+                        </div>
+                    `);
+                });
+                var options = {
+                    valueNames: ['doc-loc', 'views', 'visitors', 'duration']
+                };
+                var byDocLocList = new List('by-doc-loc', options);
+            }
+        });
+    }
+    update() {
+        this.updateGeneralInfo();
+        this.updateAggregatedByDate();
+        this.updateAggregatedByDocLoc();
+    }
 }

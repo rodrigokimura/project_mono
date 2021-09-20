@@ -14,10 +14,10 @@ class PassRequestToFormViewMixin:
         return kwargs
 
 
-class FeedbackCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+class FeedbackCreateView(PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
     model = Feedback
     form_class = FeedbackForm
-    success_url = reverse_lazy('finance:index')
+    success_url = reverse_lazy('home')
     success_message = _("Your feedback was sent! Thank you!")
 
     def get_context_data(self, **kwargs):
