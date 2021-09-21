@@ -126,7 +126,9 @@ class Dashboard {
                 r.data.forEach(d => {
                     $('#by-doc-loc .list').append(`
                         <div class="row">
-                            <div class="six wide column doc-loc">${d.document_location}</div>
+                            <div class="six wide column doc-loc">
+                                <span title="${d.document_location}">${d.document_location}</span>
+                            </div>
                             <div class="three wide column right aligned views">${d.views}</div>
                             <div class="three wide column right aligned visitors">${d.visitors}</div>
                             <div class="four wide column right aligned duration" data-duration="${d.duration ? d.duration : 0}">${d.duration ? d.duration.toHHMMSS() : "0".toHHMMSS()}</div>
