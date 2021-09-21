@@ -8,18 +8,20 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
     <style>
         a {cursor: pointer;}
-        {% comment %} thead, tbody { display: block; } {% endcomment %}
-
-        {% comment %} tbody {
-            height: 400px;       /* Just for the demo          */
-            overflow-y: auto;    /* Trigger vertical scroll    */
-            overflow-x: hidden;  /* Hide the horizontal scroll */
+        .doc-loc {
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
-        td {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        } {% endcomment %}
+        #table-by-date-body {
+            max-height: 350px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        .cell {
+            margin-left: .5em;
+            margin-right: .5em;
+        }
     </style>
 {% endblock head %}
 
@@ -140,36 +142,23 @@
         </div>
         <div class="equal width row">
             <div class="column">
-                <div class="ui card-chart segment" data-type="by-date" style="min-height: 5em;"></div>
+                <div class="ui card-chart segment" data-type="by-date" style="min-height: 5em; max-height: 400px;"></div>
             </div>
             <div class="column" id="by-doc-loc">
-                <div class="ui segments">
-                    <div class="ui top attached segment">
+                <div class="ui segments" id="table-by-date-segments">
+                    <div class="ui segment">
                         <div class="ui grid">
                             <div class="seven wide column"><a class="sort" data-sort="doc-loc">Location</a></div>
-                            <div class="three wide column"><a class="sort" data-sort="views">Views</a></div>
-                            <div class="three wide column"><a class="sort" data-sort="visitors">Visitors</a></div>
-                            <div class="three wide column"><a class="sort" data-sort="duration">Duration</a></div>
+                            <div class="three wide right aligned column"><a class="sort" data-sort="views">Views</a></div>
+                            <div class="three wide right aligned column"><a class="sort" data-sort="visitors">Visitors</a></div>
+                            <div class="three wide right aligned column"><a class="sort" data-sort="duration">Duration</a></div>
                         </div>
                     </div>
-                    <div class="ui basic segments list" style="margin: 0;">
+                    <div class="ui segment" style="margin: 0; padding: 0;">
+                        <div class="ui grid list" style="margin: 0;" id="table-by-date-body">
+                        </div>
                     </div>
                 </div>
-                {% comment %} <div class="ui attached segments list"></div> {% endcomment %}
-                {% comment %} <div style="overflow-x: auto;" id="by-doc-loc">
-                    <table class="ui striped celled unstackable fixed single line table" >
-                        <thead>
-                            <tr>
-                                <th class="ten wide"><a class="sort" data-sort="doc-loc">Location</a></th>
-                                <th class="two wide"><a class="sort" data-sort="views">Views</a></th>
-                                <th class="two wide"><a class="sort" data-sort="visitors">Visitors</a></th>
-                                <th class="two wide"><a class="sort" data-sort="duration">Duration</a></th>
-                            </tr>
-                        </thead>
-                        <tbody id="data-by-doc-loc" class="list">
-                        </tbody>
-                    </table>
-                </div> {% endcomment %}
             </div>
         </div>
     </div>
