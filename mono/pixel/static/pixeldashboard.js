@@ -129,7 +129,7 @@ class Dashboard {
                             <div class="six wide column doc-loc">${d.document_location}</div>
                             <div class="three wide column right aligned views">${d.views}</div>
                             <div class="three wide column right aligned visitors">${d.visitors}</div>
-                            <div class="four wide column right aligned duration" data-duration="${d.duration}">${d.duration ? d.duration.toHHMMSS() : "0".toHHMMSS()}</div>
+                            <div class="four wide column right aligned duration" data-duration="${d.duration ? d.duration : 0}">${d.duration ? d.duration.toHHMMSS() : "0".toHHMMSS()}</div>
                         </div>
                     `);
                 });
