@@ -122,14 +122,14 @@ class Dashboard {
             on: 'now',
             stateContext: '#by-doc-loc .segments',
             onSuccess: r => {
-                $('#by-doc-loc row').remove();
+                $('#table-by-date-body').empty();
                 r.data.forEach(d => {
                     $('#by-doc-loc .list').append(`
                         <div class="row">
                             <div class="six wide column doc-loc">${d.document_location}</div>
                             <div class="three wide column right aligned views">${d.views}</div>
                             <div class="three wide column right aligned visitors">${d.visitors}</div>
-                            <div class="four wide column right aligned duration" data-duration="${d.duration}">${d.duration.toHHMMSS()}</div>
+                            <div class="four wide column right aligned duration" data-duration="${d.duration}">${d.duration ? d.duration.toHHMMSS() : "0".toHHMMSS()}</div>
                         </div>
                     `);
                 });
