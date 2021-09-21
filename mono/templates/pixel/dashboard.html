@@ -28,10 +28,6 @@
 {% block main %}
     <script src="{% static 'tablesort.js' %}"></script>
     <script src="{% static 'pixeldashboard.js' %}"></script>
-    <script>
-        const DASHBOARD = new Dashboard("{{ object.id }}");
-    </script>
-
     <div class="ui stackable grid container" style="padding-top: 5em;">
 
         <div class="row">
@@ -78,23 +74,7 @@
                     </div>
                 </div>
                 <script>
-                    $('#rangestart').calendar({
-                        type: 'date',
-                        endCalendar: $('#rangeend'),
-                        onChange: () => { DASHBOARD.update(); }
-                    });
-                    $('#rangeend').calendar({
-                        type: 'date',
-                        startCalendar: $('#rangestart'),
-                        onChange: () => { DASHBOARD.update(); }
-                    });
-                    var startDate =  new Date();
-                    startDate = new Date(startDate.toDateString());
-                    startDate.setDate(startDate.getDate() - 6);
-                    var endDate =  new Date();
-                    endDate = new Date(endDate.toDateString());
-                    $('#rangestart').calendar('set date', startDate, true, false);
-                    $('#rangeend').calendar('set date', endDate, true, false);
+                    
                 </script>
             </div>
         </div>
@@ -163,8 +143,10 @@
         </div>
     </div>
     <script>
+        var dashboard;
         $(document).ready(() => {
-            DASHBOARD.update();
+            dashboard = new Dashboard("{{ object.id }}");
+            dashboard.update();
         })
     </script>
 {% endblock %}

@@ -15,6 +15,7 @@ class Site(models.Model):
         help_text="Host of the URL. Port or userinfo should be ommited. https://en.wikipedia.org/wiki/URL"
     )
     created_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return str(self.id)
