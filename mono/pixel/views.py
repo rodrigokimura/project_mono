@@ -1,3 +1,4 @@
+from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.http.response import Http404, JsonResponse
 from django.contrib.auth.decorators import user_passes_test
@@ -9,6 +10,7 @@ from django.db.models import Count, Avg
 from django.db.models.functions import TruncDay
 from django.db.models.query_utils import Q
 from django.urls import reverse
+from django.views.generic.list import ListView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -114,7 +116,7 @@ def pixel_gif(request):
 
 
 class RootView(RedirectView):
-    permanent = False 
+    permanent = False
     query_string = False
 
     def get_redirect_url(self, *args, **kwargs):
@@ -130,7 +132,16 @@ class RootView(RedirectView):
 
 
 # Dashboard views
-class Dashboard(UserPassesTestMixin, DetailView):
+class SitesView(LoginRequiredMixin, ListView):
+    model = Site
+
+    def get_queryset(self) -> QuerySet[Site]:
+        qs = super().get_queryset()
+        qs.filter(created_by=self.request.user)
+        return super().get_queryset()
+
+
+class DashboardView(UserPassesTestMixin, DetailView):
 
     model = Site
     template_name = 'pixel/dashboard.html'
@@ -179,6 +190,7 @@ class DashboardGeneralInfoApiView(DashboardBaseApiView):
             'duration': avg_duration,
             'bounce': "{:.0%}".format(bounce_rate),
         }
+
 
 class DashboardAggregatedByDateApiView(DashboardBaseApiView):
 

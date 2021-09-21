@@ -14,12 +14,46 @@ String.prototype.toHHMMSS = function () {
 class Dashboard {
     constructor(id) {
         this.id = id;
+        $('#rangestart').calendar({
+            type: 'date',
+            endCalendar: $('#rangeend'),
+            today: true,
+            maxDate: new Date(),
+            onChange: () => { this.update(); }
+        });
+        $('#rangeend').calendar({
+            type: 'date',
+            startCalendar: $('#rangestart'),
+            today: true,
+            maxDate: new Date(),
+            onChange: () => { this.update(); }
+        });
+        var startDate = new Date();
+        startDate = new Date(startDate.toDateString());
+        startDate.setDate(startDate.getDate() - 6);
+        var endDate = new Date();
+        endDate = new Date(endDate.toDateString());
+        $('#rangestart').calendar('set date', startDate, true, false);
+        $('#rangeend').calendar('set date', endDate, true, false);
     }
     get start() {
-        return $('#rangestart').calendar('get date').toISOString().split('T')[0];
+        var startDate = $('#rangestart').calendar('get date');
+        if (startDate === null) {
+            startDate = new Date();
+            startDate = new Date(startDate.toDateString());
+            startDate.setDate(startDate.getDate() - 6);
+            $('#rangestart').calendar('set date', startDate, true, false);
+        }
+        return startDate.toISOString().split('T')[0];
     }
     get end() {
-        return $('#rangeend').calendar('get date').toISOString().split('T')[0];
+        var endDate = $('#rangeend').calendar('get date');
+        if (endDate === null) {
+            endDate = new Date();
+            endDate = new Date(endDate.toDateString());
+            $('#rangeend').calendar('set date', endDate, true, false);
+        }
+        return endDate.toISOString().split('T')[0];
     }
     updateGeneralInfo() {
         var params = $.param({

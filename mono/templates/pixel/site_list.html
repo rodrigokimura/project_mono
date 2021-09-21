@@ -1,0 +1,84 @@
+{% extends "pixel/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block head %}
+{% endblock head %}
+
+{% block main %}
+    
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="row">
+            <div class="column">
+                <div class="ui header" style="display: flex; flex-flow: row nowrap;">
+                    <div style="flex: 1 0 auto;">
+                        {% translate "Your pixel tags" %}
+                    </div>
+                    <a href="" class="ui right floated icon labeled green button" style="flex: 0 0 auto;">
+                        <i class="add icon"></i>
+                        {% translate "New tag" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% for site in object_list %}
+            <div class="ui card">
+                <div class="content">
+                    <a class="header" href="{% url 'pixel:dashboard' pk=site.id %}">{{ site.host }}</a>
+                    <div class="meta">
+                        <span class="date">Created at {{ site.created_at }}</span>
+                    </div>
+                    <div class="description">
+                        {{ site.ping_set.all.count }} pings
+                    </div>
+                </div>
+                <div class="extra content">
+                    <button class="ui view-code button" data-site-id="{{ site.id }}">View code</button>
+                </div>
+            </div>
+        {% empty %}
+            <div class="ui placeholder segment">
+                <div class="ui icon header">
+                    <i class="pdf file outline icon"></i>
+                    No tags are listed for you.
+                </div>
+                <div class="ui primary button">Create first tag</div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="ui modal">
+        <i class="close icon"></i>
+        <div class="header">
+            Code snippet
+        </div>
+        <div class="image content">
+            <div class="description">
+                <div class="ui header">Code snippet</div>
+                <p>Place this on every page you'd like to generate metrics.</p>
+                <p></p>
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui button">
+                Copy snippet
+            </div>
+            <div class="ui button">
+                Download as Javascript file
+            </div>
+            <div class="ui button">
+                Download as HTML file
+                <i class="checkmark icon"></i>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(() => {
+            $('.view-code').on('click', e => {
+                var siteId = $(e.target).attr('data-site-id');
+                $('.ui.modal').modal('show');
+            })
+        })
+    </script>
+{% endblock %}
