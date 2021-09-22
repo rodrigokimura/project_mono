@@ -7,7 +7,7 @@ app_name = 'pixel'
 urlpatterns = [
     path('pixel.gif', views.pixel_gif, name='pixel_gif'),
     path('', views.RootView.as_view(), name='root'),
-    path('sites/', views.SitesView.as_view(), name='root'),
+    path('tags/', views.SitesView.as_view(), name='tags'),
     path('dashboard/<uuid:pk>', views.DashboardView.as_view(), name='dashboard'),
     path('dashboard/<uuid:pk>/general-info/', views.DashboardGeneralInfoApiView.as_view()),
     path('dashboard/<uuid:pk>/by-date/', views.DashboardAggregatedByDateApiView.as_view()),

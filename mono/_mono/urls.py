@@ -9,8 +9,12 @@ from finance.urls import router as finance_router
 # from filebrowser.sites import site
 # import debug_toolbar
 
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
 
 urlpatterns = [
+    path('sentry-debug/', trigger_error), # ... 
     # path('admin/filebrowser/', site.urls),
     # path('grappelli/', include('grappelli.urls')),
     path('tinymce/', include('tinymce.urls')),
