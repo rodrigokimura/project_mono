@@ -3,6 +3,9 @@ from pathlib import Path
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
 from django.utils.translation import gettext_lazy as _
+import sentry_sdk 
+from sentry_sdk.integrations.django import DjangoIntegration 
+
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -10,6 +13,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 APP_ENV = os.getenv('APP_ENV', 'PRD')
+
+sentry_sdk.init(
+    dsn="https://a25c8456ccb7469ca3d467fc2eb95ddd@o1008916.ingest.sentry.io/5972915",
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=1.0,
+    send_default_pii=True,
+    environment=APP_ENV,
+)
 
 GITHUB_SECRET = os.getenv('GITHUB_SECRET')
 
