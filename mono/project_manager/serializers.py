@@ -289,6 +289,7 @@ class CardSerializer(ModelSerializer):
                 continue
             tag, created = Tag.objects.update_or_create(
                 name=tag_dict['name'],
+                board=instance.bucket.board,
                 defaults={
                     'created_by': self.context['request'].user,
                     'board': validated_data['bucket'].board,
@@ -341,6 +342,7 @@ class CardSerializer(ModelSerializer):
                     continue
                 tag, created = Tag.objects.update_or_create(
                     name=tag_dict['name'],
+                    board=instance.bucket.board,
                     defaults={
                         'created_by': self.context['request'].user,
                         'board': validated_data['bucket'].board,
