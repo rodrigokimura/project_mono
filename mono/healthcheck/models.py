@@ -1,3 +1,4 @@
+from django.core.management import execute_from_command_line
 from django.db import models
 from pathlib import Path
 from django.conf import settings
@@ -5,9 +6,6 @@ import git
 from django.utils import timezone
 from django.core.mail import mail_admins
 from django.template.loader import get_template
-from django.db.migrations.executor import MigrationExecutor
-from django.db import connections, DEFAULT_DB_ALIAS
-from django.core.management import execute_from_command_line
 import logging
 
 logger = logging.getLogger(__name__)
@@ -24,20 +22,6 @@ def is_there_migrations_to_make(app_label, silent=False):
     except SystemExit as e:
         system_exit = e
     return system_exit != 0
-
-
-def pending_migrations(database=DEFAULT_DB_ALIAS):
-    """Returns a list of non applied Migration instances"""
-    connection = connections[database]
-    connection.prepare_database()
-    executor = MigrationExecutor(connection)
-    targets = executor.loader.graph.leaf_nodes()
-    return [migration for (migration, backwards) in executor.migration_plan(targets)]
-
-
-def is_database_synchronized(database=DEFAULT_DB_ALIAS):
-    """Returns True if there are no migrations to be applied."""
-    return not pending_migrations(database)
 
 
 class PullRequest(models.Model):
@@ -71,6 +55,10 @@ class PullRequest(models.Model):
         return self.pulled_at is not None
 
     @property
+    def link(self):
+        return f'https://github.com/rodrigokimura/project_mono/pull/{self.number}'
+
+    @property
     def deployed(self):
         return self.deployed_at is not None
 
@@ -80,16 +68,17 @@ class PullRequest(models.Model):
         count = PullRequest.objects.filter(number__lte=self.number).values('number').distinct().count()
         return f'{year}.{count}'
 
-    def pull(self, **kwargs):
+    def pull(self):
         """Pulls from remote repository and notifies admins."""
-        if settings.APP_ENV == 'PRD':  # pragma: no cover
-            path = Path(settings.BASE_DIR).resolve().parent
-            repo = git.Repo(path)
-            repo.git.reset('--hard', 'origin/master')
-            repo.remotes.origin.pull()
-            print("Successfully pulled from remote.")
-        self.pulled_at = timezone.now()
-        self.save()
+        if not self.pulled:
+            if settings.APP_ENV == 'PRD':  # pragma: no cover
+                path = Path(settings.BASE_DIR).resolve().parent
+                repo = git.Repo(path)
+                repo.git.reset('--hard', 'origin/master')
+                repo.remotes.origin.pull()
+                print("Successfully pulled from remote.")
+            self.pulled_at = timezone.now()
+            self.save()
 
         d = {
             'title': 'Merged PR',
@@ -103,7 +92,7 @@ class PullRequest(models.Model):
                 f'Deletions: {self.deletions}',
                 f'Changed files: {self.changed_files}',
             ],
-            'button_link': kwargs['link'],
+            'button_link': self.link,
             'button_text': f'Go to Pull Request #{self.number}',
             'after_button': '',
             'unsubscribe_link': None,
@@ -114,67 +103,3 @@ class PullRequest(models.Model):
             message=get_template('email/alert.txt').render(d),
             html_message=get_template('email/alert.html').render(d)
         )
-
-    def deploy(self, **kwargs):
-        """If in production, reloads the app and notifies admins."""
-        try:
-            if is_database_synchronized():
-                logger.info("All migrations have been applied.")
-                migrations = []
-            else:
-                logger.info("Unapplied migrations found.")
-                migrations = pending_migrations()
-                execute_from_command_line(["manage.py", "migrate"])
-                self.migrations = len(migrations)
-                self.save()
-
-            if settings.APP_ENV == 'PRD':
-                wsgi_file = '/var/www/www_monoproject_info_wsgi.py'
-                Path(wsgi_file).touch()
-                logger.info(f"{wsgi_file} has been touched.")
-                execute_from_command_line(["manage.py", "collectstatic", "--noinput"])
-
-            logger.info(f"Successfully deployed {self}.")
-            self.deployed_at = timezone.now()
-            self.save()
-
-            if not migrations:
-                migrations_text_lines = ['No migrations applied.']
-            else:
-                migrations_text_lines = [f'Migrations applied ({len(migrations)})']
-                migrations_text_lines.extend([f'+ {m.app_label}.{m.name}' for m in migrations])
-
-            main_text_lines = [
-                f'Merged by: {self.author}',
-                f'Merged at: {self.merged_at}',
-                f'Commits: {self.commits}',
-                f'Additions: {self.additions}',
-                f'Deletions: {self.deletions}',
-                f'Changed files: {self.changed_files}',
-                '',
-                f'Build number: {self.build_number}',
-                f'Deployed at: {self.deployed_at}',
-                '',
-            ]
-            main_text_lines.extend(migrations_text_lines)
-
-            d = {
-                'title': 'Merged PR',
-                'warning_message': f'Deployment Notification - {self}',
-                'first_line': f'{self} has been deployed.',
-                'main_text_lines': main_text_lines,
-                'button_link': settings.ALLOWED_HOSTS[0],
-                'button_text': 'Go to app',
-                'after_button': '',
-                'unsubscribe_link': None,
-            }
-
-            logger.info("Notifying admins about the deployment.")
-            mail_admins(
-                subject='Deploy Notification',
-                message=get_template('email/alert.txt').render(d),
-                html_message=get_template('email/alert.html').render(d)
-            )
-        except Exception as e:
-            logger.error("An error ocurred during deployment.")
-            logger.error(e)
