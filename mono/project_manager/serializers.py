@@ -173,6 +173,7 @@ class TagSerializer(ModelSerializer):
     def create(self, validated_data):
         instance = super().create(validated_data)
         instance.board.touch()
+        return instance
 
     def update(self, instance, validated_data):
         if 'icon' in validated_data:
