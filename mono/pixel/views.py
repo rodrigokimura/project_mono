@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime, timedelta
-import base64
+from base64 import b64decode
 import pytz
 import logging
 from urllib.parse import urlparse
@@ -107,11 +107,10 @@ def store_tracking_info(tracking_info):
 
 @csrf_exempt
 def pixel_gif(request):
-    tracking_info = get_tracking_info(request.GET)
-    store_tracking_info(tracking_info)
-    PIXEL_GIF_DATA = base64.b64decode(
-        b"R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
-
+    if request.GET:
+        tracking_info = get_tracking_info(request.GET)
+        store_tracking_info(tracking_info)
+    PIXEL_GIF_DATA = b64decode(b"R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
     return HttpResponse(PIXEL_GIF_DATA, content_type='image/gif')
 
 
