@@ -3,9 +3,8 @@ from pathlib import Path
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
 from django.utils.translation import gettext_lazy as _
-import sentry_sdk 
-from sentry_sdk.integrations.django import DjangoIntegration 
-
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,7 +16,7 @@ APP_ENV = os.getenv('APP_ENV', 'PRD')
 sentry_sdk.init(
     dsn="https://a25c8456ccb7469ca3d467fc2eb95ddd@o1008916.ingest.sentry.io/5972915",
     integrations=[DjangoIntegration()],
-    traces_sample_rate=1.0,
+    traces_sample_rate=1.0 if APP_ENV == 'PRD' else 0,
     send_default_pii=True,
     environment=APP_ENV,
 )
@@ -69,6 +68,7 @@ INSTALLED_APPS = [
     'markdownx',
     # 'debug_toolbar',
     'captcha',
+    'background_task',
     'feedback',
     'healthcheck',
     'shared',

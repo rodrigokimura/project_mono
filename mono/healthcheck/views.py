@@ -14,6 +14,7 @@ import json
 import git
 import difflib
 from .models import PullRequest
+from .tasks import deploy_app
 
 
 def is_valid_signature(x_hub_signature, data, private_key):
@@ -33,12 +34,8 @@ def string_to_localized_datetime(datetime_string):
 
 
 def healthcheck(request):
-    current_pull_request = PullRequest.objects.exclude(deployed_at=None).latest('number')
-    return JsonResponse(
-        {
-            'build_number': current_pull_request.build_number
-        }
-    )
+    current_pr: PullRequest = PullRequest.objects.exclude(deployed_at=None).latest('number')
+    return JsonResponse({'build_number': current_pr.build_number})
 
 
 @csrf_exempt
@@ -51,29 +48,24 @@ def update_app(request):
         x_hub_signature = request.headers.get('X-Hub-Signature')
         w_secret = settings.GITHUB_SECRET
 
-        body = json.loads(request.body.decode('utf-8'))
         if is_valid_signature(x_hub_signature, request.body, w_secret):
+            body = json.loads(request.body.decode('utf-8'))
             event = request.headers.get('X-GitHub-Event')
             if event == "pull_request":
                 ref = body['pull_request']['base']['ref']
                 if body["action"] == "closed" and body["pull_request"]["merged"] and ref == 'master':
-
-                    pull_request, created = PullRequest.objects.update_or_create(
-                        number=body['pull_request']["number"],
+                    pull_request = body['pull_request']
+                    pr, created = PullRequest.objects.update_or_create(
+                        number=pull_request["number"],
                         defaults={
-                            'author': body['pull_request']["user"]['login'],
-                            'commits': body['pull_request']["commits"],
-                            'additions': body['pull_request']["additions"],
-                            'deletions': body['pull_request']["deletions"],
-                            'changed_files': body['pull_request']["changed_files"],
-                            'merged_at': string_to_localized_datetime(body['pull_request']["merged_at"])
+                            'author': pull_request["user"]['login'],
+                            'commits': pull_request["commits"],
+                            'additions': pull_request["additions"],
+                            'deletions': pull_request["deletions"],
+                            'changed_files': pull_request["changed_files"],
+                            'merged_at': string_to_localized_datetime(pull_request["merged_at"])
                         }
                     )
-
-                    link = body['pull_request']["html_url"]
-
-                    pull_request.pull(link=link)
-
             elif event == "ping":
                 print("Ping sent from GitHub.")
                 return HttpResponse("pong")
@@ -81,7 +73,6 @@ def update_app(request):
                 print("Invalid event.")
         else:
             print("Invalid signature.")
-
     return HttpResponse("ok")
 
 
@@ -130,15 +121,13 @@ class Deploy(UserPassesTestMixin, TemplateView):
 
     def post(self, request):
         pr = get_object_or_404(PullRequest, pk=request.POST.get('pk', None))
-        pr.deploy()
+        deploy_app(pr.number)
         return JsonResponse(
             {
                 'success': True,
-                'message': 'Deployed successfully.',
+                'message': 'Successfully scheduled deployment.',
                 'data': {
                     'number': pr.number,
-                    'build_number': pr.build_number,
-                    'deployed_at': pr.deployed_at,
                 },
             }
         )
