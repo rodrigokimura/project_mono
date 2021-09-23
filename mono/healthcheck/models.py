@@ -10,6 +10,8 @@ from django.db import connections, DEFAULT_DB_ALIAS
 from django.core.management import execute_from_command_line
 import logging
 
+logger = logging.getLogger(__name__)
+
 
 def is_there_migrations_to_make(app_label, silent=False):
     # This doesn's work when a third-party app requires migrations
@@ -117,10 +119,10 @@ class PullRequest(models.Model):
         """If in production, reloads the app and notifies admins."""
         try:
             if is_database_synchronized():
-                logging.info("All migrations have been applied.")
+                logger.info("All migrations have been applied.")
                 migrations = []
             else:
-                logging.info("Unapplied migrations found.")
+                logger.info("Unapplied migrations found.")
                 migrations = pending_migrations()
                 execute_from_command_line(["manage.py", "migrate"])
                 self.migrations = len(migrations)
@@ -129,10 +131,10 @@ class PullRequest(models.Model):
             if settings.APP_ENV == 'PRD':
                 wsgi_file = '/var/www/www_monoproject_info_wsgi.py'
                 Path(wsgi_file).touch()
-                logging.info(f"{wsgi_file} has been touched.")
+                logger.info(f"{wsgi_file} has been touched.")
                 execute_from_command_line(["manage.py", "collectstatic", "--noinput"])
 
-            logging.info(f"Successfully deployed {self}.")
+            logger.info(f"Successfully deployed {self}.")
             self.deployed_at = timezone.now()
             self.save()
 
@@ -167,12 +169,12 @@ class PullRequest(models.Model):
                 'unsubscribe_link': None,
             }
 
-            logging.info("Notifying admins about the deployment.")
+            logger.info("Notifying admins about the deployment.")
             mail_admins(
                 subject='Deploy Notification',
                 message=get_template('email/alert.txt').render(d),
                 html_message=get_template('email/alert.html').render(d)
             )
         except Exception as e:
-            logging.error("An error ocurred during deployment.")
-            logging.error(e)
+            logger.error("An error ocurred during deployment.")
+            logger.error(e)
