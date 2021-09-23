@@ -7,7 +7,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            pr = PullRequest.objects.latest('number')
+            pr: PullRequest = PullRequest.objects.latest('number')
             print(f"Last PR: {pr}")
 
             if not pr.deployed:
