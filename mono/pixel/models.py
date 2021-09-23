@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from django.db import models
 from django.db.models.aggregates import Avg
 from django.utils import timezone
@@ -25,7 +25,8 @@ class Site(models.Model):
     def get_online_users(self):
         return self.ping_set.filter(
             event='pageload',
-            pageclose_timestamp__isnull=True
+            pageclose_timestamp__isnull=True,
+            timestamp__date=date.today()
         ).values('user_id').distinct()
 
     def get_pings(self, initial_datetime=timezone.now() - timedelta(days=30), final_datetime=timezone.now()):
