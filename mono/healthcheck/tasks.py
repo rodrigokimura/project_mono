@@ -35,6 +35,9 @@ def deploy_app(pull_request_number):
     # Pull code
     pr.pull()
 
+    # Install dependencies
+    execute_from_command_line(["pipenv", "install"])
+
     # Collect Static files
     if settings.APP_ENV == 'PRD':
         execute_from_command_line(["manage.py", "collectstatic", "--noinput"])
