@@ -26,7 +26,7 @@ class Site(models.Model):
         return self.ping_set.filter(
             event='pageload',
             pageclose_timestamp__isnull=True,
-            timestamp__date=date.today()
+            timestamp__gte=timezone.now() - timedelta(hours=24),
         ).values('user_id').distinct()
 
     def get_pings(self, initial_datetime=timezone.now() - timedelta(days=30), final_datetime=timezone.now()):
