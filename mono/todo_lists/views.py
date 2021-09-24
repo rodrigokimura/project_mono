@@ -1,20 +1,21 @@
-from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.urls.base import reverse, reverse_lazy
 from django.views.generic import ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from django.http import Http404
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
-from .models import List, Task
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from .forms import ListForm, TaskForm
 from .mixins import PassRequestToFormViewMixin
+from .models import List, Task
 from .serializers import ListSerializer, TaskSerializer
 
 

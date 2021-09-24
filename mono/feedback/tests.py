@@ -1,6 +1,7 @@
-from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
+from django.test import RequestFactory, TestCase
 from django.test.client import Client
+
 from .models import Feedback
 from .views import FeedbackCreateView
 from .widgets import ButtonsWidget, SliderWidget

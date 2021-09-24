@@ -1,10 +1,12 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
+
 from .admin import MyAdminSite
 from .asgi import application as asgi_app
-from .wsgi import application as wsgi_app
 from .auth_backends import EmailOrUsernameModelBackend
 from .context_processors import environment, language_extras
+from .wsgi import application as wsgi_app
+
 # from django.conf import settings
 
 

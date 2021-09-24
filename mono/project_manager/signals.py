@@ -1,8 +1,10 @@
-import os
-from django.dispatch import receiver
-from django.db.models.signals import post_save, pre_delete, pre_save
 import logging
-from .models import Board, Bucket, CardFile, Comment, TimeEntry, Invite
+import os
+
+from django.db.models.signals import post_save, pre_delete, pre_save
+from django.dispatch import receiver
+
+from .models import Board, Bucket, CardFile, Comment, Invite, TimeEntry
 
 
 @receiver(pre_save, sender=TimeEntry, dispatch_uid="calculate_duration")

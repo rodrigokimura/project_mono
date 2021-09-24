@@ -1,9 +1,10 @@
+import uuid
 from datetime import date, timedelta
+
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.aggregates import Avg
 from django.utils import timezone
-from django.contrib.auth import get_user_model
-import uuid
 
 
 class Site(models.Model):

@@ -1,7 +1,7 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
-from . import views
 
+from . import views
 
 app_name = 'project_manager'
 

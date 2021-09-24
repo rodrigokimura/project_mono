@@ -1,10 +1,12 @@
-from django.conf import settings
-from django.test import TestCase, RequestFactory
-from django.contrib.auth.models import User
 from http import HTTPStatus
-from ..models import Transaction, Account, Category, Group
-from ..views import AccountCreateView
+
 import stripe
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.test import RequestFactory, TestCase
+
+from ..models import Account, Category, Group, Transaction
+from ..views import AccountCreateView
 
 
 class TransactionModelTests(TestCase):

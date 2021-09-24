@@ -1,13 +1,15 @@
 from datetime import timedelta
+
+import jwt
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
 from django.test.client import Client
 from django.utils import timezone
 from rest_framework.test import APIClient, APITestCase
-import jwt
-from ..models import Board, Bucket, Card, Item, Project, Invite, Theme
+
+from ..models import Board, Bucket, Card, Invite, Item, Project, Theme
 
 
 class ViewTests(TestCase):
