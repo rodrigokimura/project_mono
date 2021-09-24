@@ -1,10 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
-from .models import Feedback
+from django.views.generic.edit import CreateView
+
 from .forms import FeedbackForm
+from .models import Feedback
 
 
 class PassRequestToFormViewMixin:

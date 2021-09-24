@@ -1,8 +1,9 @@
+from dateutil.parser import parse
+from django.conf import settings
 from django.forms.widgets import Widget
 from django.template import loader
 from django.utils.safestring import mark_safe
-from django.conf import settings
-from dateutil.parser import parse
+
 from .models import Icon
 
 

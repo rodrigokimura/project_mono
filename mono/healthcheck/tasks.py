@@ -1,13 +1,15 @@
 import logging
 from pathlib import Path
+
 from background_task import background
 from django.conf import settings
-from django.db.migrations.executor import MigrationExecutor
-from django.db import connections, DEFAULT_DB_ALIAS
-from django.core.management import execute_from_command_line
-from django.utils import timezone
 from django.core.mail import mail_admins
+from django.core.management import execute_from_command_line
+from django.db import DEFAULT_DB_ALIAS, connections
+from django.db.migrations.executor import MigrationExecutor
 from django.template.loader import get_template
+from django.utils import timezone
+
 from .models import PullRequest
 
 logger = logging.getLogger(__name__)

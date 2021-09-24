@@ -1,14 +1,15 @@
 from datetime import timedelta
+
+import jwt
 from django.conf import settings
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.mail import EmailMultiAlternatives
+from django.db import models
 from django.db.models.fields import DateTimeField
 from django.template.loader import get_template
 from django.urls.base import reverse
 from django.utils import timezone
-from django.core.mail import EmailMultiAlternatives
-import jwt
-from finance.models import Notification, Icon
+from finance.models import Icon, Notification
 
 User = get_user_model()
 

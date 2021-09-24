@@ -1,5 +1,6 @@
-from rest_framework.serializers import HyperlinkedModelSerializer
 from django.contrib.auth.models import User
+from rest_framework.serializers import HyperlinkedModelSerializer
+
 from .models import Transaction
 
 

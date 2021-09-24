@@ -1,6 +1,10 @@
-from django.test import TestCase
 from django.contrib.auth.models import User
-from ..models import Board, Bucket, Card, Icon, Invite, Notification, Project, Theme, TimeEntry, BaseModel
+from django.test import TestCase
+
+from ..models import (
+    BaseModel, Board, Bucket, Card, Icon, Invite, Notification, Project, Theme,
+    TimeEntry,
+)
 
 
 class FunctionTests(TestCase):

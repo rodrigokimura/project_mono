@@ -1,8 +1,9 @@
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
-from django.contrib.auth import get_user_model
+
 from .models import PullRequest, is_there_migrations_to_make
-from django.conf import settings
 
 User = get_user_model()
 
