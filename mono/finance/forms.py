@@ -1,18 +1,28 @@
+from datetime import datetime, timedelta
+from random import randint, randrange
+
+import pytz
+from captcha.fields import ReCaptchaField
 from django import forms
+from django.contrib import messages
+from django.contrib.auth import (
+    authenticate, forms as auth_forms, get_user_model, login,
+)
+from django.contrib.contenttypes.models import ContentType
 from django.forms import ValidationError
-from django.contrib.auth import login, authenticate, get_user_model, forms as auth_forms
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.contrib import messages
-from django.contrib.contenttypes.models import ContentType
-from datetime import timedelta, datetime
 from faker import Faker
 from faker.providers import lorem
-from captcha.fields import ReCaptchaField
-from random import randrange, randint
-import pytz
-from .models import BudgetConfiguration, Installment, RecurrentTransaction, Transaction, Group, Category, Account, Icon, Goal, Budget
-from .widgets import ButtonsWidget, IconWidget, CalendarWidget, CategoryWidget, RadioWidget, ToggleWidget
+
+from .models import (
+    Account, Budget, BudgetConfiguration, Category, Goal, Group, Icon,
+    Installment, RecurrentTransaction, Transaction,
+)
+from .widgets import (
+    ButtonsWidget, CalendarWidget, CategoryWidget, IconWidget, RadioWidget,
+    ToggleWidget,
+)
 
 User = get_user_model()
 

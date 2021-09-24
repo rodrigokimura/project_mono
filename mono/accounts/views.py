@@ -1,12 +1,14 @@
-from django.contrib.auth import login
-from .models import User, UserProfile
+import time
+
+import jwt
 from django.conf import settings
+from django.contrib.auth import login
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView, View
-from django.contrib.auth.mixins import UserPassesTestMixin
-import jwt
-import time
+
+from .models import User, UserProfile
 
 
 class AccountVerificationView(TemplateView):

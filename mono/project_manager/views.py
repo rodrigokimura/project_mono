@@ -1,31 +1,43 @@
 from datetime import date, datetime
 from typing import Any, Optional
+
+import jwt
 from django.conf import settings
-from django.db.models.query import QuerySet
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models.query import QuerySet
+from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
-from django.urls.base import reverse, reverse_lazy
-from django.utils.timezone import is_aware, utc
-from django.utils.translation import gettext_lazy, ngettext_lazy, npgettext_lazy
+from django.shortcuts import get_object_or_404, redirect
 from django.template import defaultfilters
+from django.urls.base import reverse, reverse_lazy
+from django.utils import dateparse
+from django.utils.timezone import is_aware, utc
+from django.utils.translation import (
+    gettext_lazy, ngettext_lazy, npgettext_lazy,
+)
 from django.views.generic import ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
-from django.utils import dateparse
-from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
-import jwt
-from .models import CardFile, Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite, TimeEntry
-from .forms import ProjectForm, BoardForm
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .forms import BoardForm, ProjectForm
 from .mixins import PassRequestToFormViewMixin
-from .serializers import BucketMoveSerializer, CardFileSerializer, CardMoveSerializer, CommentSerializer, InviteSerializer, ItemSerializer, ProjectSerializer, BoardSerializer, BucketSerializer, CardSerializer, TagSerializer, TimeEntrySerializer
+from .models import (
+    Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Tag,
+    Theme, TimeEntry,
+)
+from .serializers import (
+    BoardSerializer, BucketMoveSerializer, BucketSerializer,
+    CardFileSerializer, CardMoveSerializer, CardSerializer, CommentSerializer,
+    InviteSerializer, ItemSerializer, ProjectSerializer, TagSerializer,
+    TimeEntrySerializer,
+)
 
 
 def naturaltime(value):

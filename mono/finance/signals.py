@@ -1,4 +1,7 @@
-from .models import Configuration, Account, Category, Group, Icon, Installment, Transaction, Transference, User
+from .models import (
+    Account, Category, Configuration, Group, Icon, Installment, Transaction,
+    Transference, User,
+)
 
 
 def initial_setup(sender, instance, created, **kwargs):

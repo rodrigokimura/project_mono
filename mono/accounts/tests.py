@@ -1,12 +1,14 @@
 from datetime import timedelta
+
+import jwt
 from django.conf import settings
+from django.test import TestCase
 from django.test.client import Client
 from django.utils import timezone
-from django.test import TestCase
-import jwt
 from finance.models import Notification
-from .models import User, UserProfile, user_directory_path
+
 from .forms import UserCreateForm, UserProfileForm
+from .models import User, UserProfile, user_directory_path
 
 
 class UserCreateFormTest(TestCase):

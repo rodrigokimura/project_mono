@@ -1,24 +1,26 @@
-from django.db.models.query import QuerySet
-from django.http import HttpResponse
-from django.http.response import Http404, JsonResponse
+import logging
+from base64 import b64decode
+from datetime import datetime, timedelta
+from urllib.parse import urlparse
+
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Avg, Count
+import pytz
+from django.db.models.functions import TruncDay
+from django.db.models.query import QuerySet
+from django.db.models.query_utils import Q
+from django.http import HttpResponse
+from django.http.response import Http404, JsonResponse
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
-from django.db.models import Count, Avg
-from django.db.models.functions import TruncDay
-from django.db.models.query_utils import Q
-from django.urls import reverse
 from django.views.generic.list import ListView
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
-from datetime import datetime, timedelta
-from base64 import b64decode
-import pytz
-import logging
-from urllib.parse import urlparse
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from .models import Ping, Site
 
 

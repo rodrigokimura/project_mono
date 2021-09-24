@@ -1,20 +1,21 @@
+from collections import defaultdict
 from typing import Any, Dict
+
 from django.contrib import messages
-from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.messages.views import SuccessMessageMixin
+from django.http import JsonResponse
+from django.template import loader
+from django.urls import reverse_lazy
+from django.utils.translation import gettext as _
 from django.views import View
 from django.views.generic import ListView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
-from .models import Note
-from .forms import NoteForm
-from .mixins import PassRequestToFormViewMixin
-from collections import defaultdict
-from django.template import loader
-from django.http import JsonResponse
-from django.utils.translation import gettext as _
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from markdownx.utils import markdownify
 
+from .forms import NoteForm
+from .mixins import PassRequestToFormViewMixin
+from .models import Note
 
 FILE_MARKER = '<files>'
 

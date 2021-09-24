@@ -1,12 +1,13 @@
+import logging
+from pathlib import Path
+
+import git
+from django.conf import settings
+from django.core.mail import mail_admins
 from django.core.management import execute_from_command_line
 from django.db import models
-from pathlib import Path
-from django.conf import settings
-import git
-from django.utils import timezone
-from django.core.mail import mail_admins
 from django.template.loader import get_template
-import logging
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 

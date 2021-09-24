@@ -1,18 +1,20 @@
-from pathlib import Path
-from django.conf import settings
-from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.encoding import force_bytes
-from django.views.generic.base import TemplateView
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.shortcuts import get_object_or_404
-from datetime import datetime
-from hashlib import sha1
-import pytz
+import difflib
 import hmac
 import json
+from datetime import datetime
+from hashlib import sha1
+from pathlib import Path
+
 import git
-import difflib
+import pytz
+from django.conf import settings
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404
+from django.utils.encoding import force_bytes
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic.base import TemplateView
+
 from .models import PullRequest
 from .tasks import deploy_app
 

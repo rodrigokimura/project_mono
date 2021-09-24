@@ -1,18 +1,19 @@
-from django.conf import settings
-from django.db import models
-from django.db.models import Sum, Value as V, FloatField
-from django.db.models.functions import Coalesce
-from django.contrib.auth import get_user_model
-from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
-from django.core.mail import EmailMultiAlternatives
-from django.urls import reverse
-from django.template.loader import get_template
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
+
 import jwt
 import pytz
 import stripe
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.mail import EmailMultiAlternatives
+from django.db import models
+from django.db.models import FloatField, Sum, Value as V
+from django.db.models.functions import Coalesce
+from django.template.loader import get_template
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 
 User = get_user_model()
 

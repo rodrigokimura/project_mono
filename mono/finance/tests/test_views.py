@@ -1,12 +1,16 @@
-from django.utils import timezone
-from django.http.response import JsonResponse
-from django.test import TestCase, RequestFactory
-from django.test.client import Client
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.messages.storage.fallback import FallbackStorage
-from ..views import HomePageView, CardOrderView, TransactionCreateView
-from ..models import Account, Category, Goal, Group, Icon, Installment, Invite, RecurrentTransaction, Transaction
+from django.http.response import JsonResponse
+from django.test import RequestFactory, TestCase
+from django.test.client import Client
+from django.utils import timezone
+
 from ..forms import UniversalTransactionForm
+from ..models import (
+    Account, Category, Goal, Group, Icon, Installment, Invite,
+    RecurrentTransaction, Transaction,
+)
+from ..views import CardOrderView, HomePageView, TransactionCreateView
 
 
 class HomePageViewTests(TestCase):

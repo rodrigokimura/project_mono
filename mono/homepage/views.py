@@ -1,5 +1,5 @@
-from django.shortcuts import render
 from django.contrib.auth import views
+from django.shortcuts import render
 from django.views.generic.base import TemplateView
 
 

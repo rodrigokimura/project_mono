@@ -1,7 +1,8 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
+
 from . import views
-from .viewsets import UserViewSet, TransactionViewSet
+from .viewsets import TransactionViewSet, UserViewSet
 
 app_name = 'finance'
 

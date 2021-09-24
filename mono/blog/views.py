@@ -1,11 +1,12 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
-from .models import Post
+
 from .forms import PostForm
-from django.urls import reverse_lazy
-from django.contrib import messages
+from .models import Post
 
 
 class PostCreateView(UserPassesTestMixin, SuccessMessageMixin, CreateView):

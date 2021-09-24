@@ -1,11 +1,16 @@
-from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer, Serializer
-from django.contrib.auth.models import User
-from accounts.models import UserProfile
-from django.core.exceptions import ValidationError
 import json
 import os
-from .models import CardFile, Comment, Icon, Item, Project, Board, Bucket, Card, Tag, Theme, Invite, TimeEntry
+
+from accounts.models import UserProfile
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer, Serializer
+
+from .models import (
+    Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Tag,
+    Theme, TimeEntry,
+)
 
 
 class ProfileSerializer(ModelSerializer):
