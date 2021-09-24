@@ -311,10 +311,10 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
     };
     $(containerSelector).empty();
     if (compact) {
-        $(containerSelector).css('padding-left', '.5em');
+        $(containerSelector).css('padding-left', '.25em');
         $(containerSelector).css('padding-right', '.5em');
     } else {
-        $(containerSelector).css('padding-left', '.75em');
+        $(containerSelector).css('padding-left', '.25em');
         $(containerSelector).css('padding-right', '.75em');
     };
     if (dark) {
@@ -1679,27 +1679,35 @@ const addNewTagInput = (containerElement) => {
       <form class="ui unstackable form" data-tag-id="" style="width: 100%; margin-bottom: .5em;">
         <div class="" style="display: flex; flex-flow: row nowrap;">
           <input type="hidden" name="id" value="">
-          <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
-            <select class="ui tag-icon new-tag clearable compact dropdown" data-tag-id="">
+          <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
+            <select class="ui tag-icon new-tag clearable compact two column mini dropdown" data-tag-id="">
             </select>
           </div>
-          <div style="flex: 0 0 auto; width: 5.5em; display: flex; margin-right: .5em;">
-            <select class="ui tag-color new-tag clearable compact dropdown" data-tag-id="">
+          <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
+            <select class="ui tag-color new-tag clearable compact two column mini dropdown" data-tag-id="">
             </select>
           </div>
-          <div style="flex: 1 1 auto; margin-right: .5em;">
+          <div class="ui mini input" style="flex: 1 1 auto; margin-right: .5em;">
             <input class="tag-name" type="text" placeholder="Name" data-tag-id="">
           </div>
           <div style="">
-            <div class="ui icon red delete new-tag button"><i class="delete icon"></i></div>
+            <div class="ui icon red delete new-tag mini button"><i class="delete icon"></i></div>
           </div>
         </div>
       </form>
     `);
     let iconDropdown = $(`.tag-icon.new-tag.dropdown`);
-    iconDropdown.dropdown({ values: ICON_VALUES });
+    iconDropdown.dropdown({
+        placeholder: 'Icon',
+        values: ICON_VALUES,
+        context: '.tags.modal .content',
+    });
     let colorDropdown = $(`.tag-color.new-tag.dropdown`);
-    colorDropdown.dropdown({ values: COLOR_VALUES });
+    colorDropdown.dropdown({
+        placeholder: 'Color',
+        values: COLOR_VALUES,
+        context: '.tags.modal .content',
+    });
     el.find('.delete.button.new-tag').off();
     el.find('.delete.button.new-tag').click(e => {
         $(e.target).closest('form').remove();
@@ -1708,25 +1716,25 @@ const addNewTagInput = (containerElement) => {
 
 const renderTagForms = (containerElement, tag) => {
     containerElement.append(`
-      <form class="ui unstackable form" data-tag-id="${tag.id}" style="width: 100%; margin-bottom: .5em;">
-        <div class="" style="display: flex; flex-flow: row nowrap;">
-          <input type="hidden" name="id" value="${tag.id}">
-          <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
-            <select class="ui tag-icon clearable compact two column mini dropdown" data-tag-id="${tag.id}">
-            </select>
-          </div>
-          <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
-            <select class="ui tag-color clearable compact two column mini dropdown" data-tag-id="${tag.id}">
-            </select>
-          </div>
-          <div style="flex: 1 1 auto; margin-right: .5em;" class="ui mini input">
-            <input class="tag-name" type="text" placeholder="Name" data-tag-id="${tag.id}">
-          </div>
-          <div style="">
-            <div class="ui icon red delete mini button" data-content="Delete tag" data-tag-id="${tag.id}"><i class="delete icon"></i></div>
-          </div>
-        </div>
-      </form>
+        <form class="ui unstackable form" data-tag-id="${tag.id}" style="width: 100%; margin-bottom: .5em;">
+            <div class="" style="display: flex; flex-flow: row nowrap;">
+                <input type="hidden" name="id" value="${tag.id}">
+                <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
+                    <select class="ui tag-icon clearable compact two column mini dropdown" data-tag-id="${tag.id}">
+                    </select>
+                </div>
+                <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
+                    <select class="ui tag-color clearable compact two column mini dropdown" data-tag-id="${tag.id}">
+                    </select>
+                </div>
+                <div style="flex: 1 1 auto; margin-right: .5em;" class="ui mini input">
+                    <input class="tag-name" type="text" placeholder="Name" data-tag-id="${tag.id}">
+                </div>
+                <div style="">
+                    <div class="ui icon red delete mini button" data-content="Delete tag" data-tag-id="${tag.id}"><i class="delete icon"></i></div>
+                </div>
+            </div>
+        </form>
     `);
     $(`.delete.button[data-tag-id=${tag.id}]`).popup();
     let iconDropdown = $(`.tag-icon.dropdown[data-tag-id=${tag.id}]`);
@@ -1879,7 +1887,6 @@ const filterCards = () => {
 }
 
 const isCardOnFilter = (cardEl, selector = '.ui.search-cards.dropdown', filterMode = 'or') => {
-    // isCardOnFilter($('.card-el[data-card-id=23]'))
     var name = cardEl.find('.card-name').text().trim();
     var tags = cardEl.find('.tags .label')
         .toArray()
@@ -1897,9 +1904,7 @@ const isCardOnFilter = (cardEl, selector = '.ui.search-cards.dropdown', filterMo
     } else if (filterMode.toLowerCase() === 'or') {
         result = queryItems.some(i => cardItems.includes(i));
     }
-
     return result;
-
 }
 
 const initializeSearchCardsDropdown = (selector = '.ui.search-cards.dropdown') => {
@@ -1910,10 +1915,6 @@ const initializeSearchCardsDropdown = (selector = '.ui.search-cards.dropdown') =
         match: 'value',
         direction: 'downward',
         placeholder: 'Filter cards',
-        // onShow: () => {
-        //     console.log($(selector).width())
-        //     // $(selector).width(200)
-        // }
         onChange: (value, text, $choice) => {
             filterCards(value);
         },
