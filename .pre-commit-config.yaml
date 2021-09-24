@@ -10,3 +10,4 @@ repos:
       - id: isort
         name: isort (pyi)
         types: [pyi]
+
