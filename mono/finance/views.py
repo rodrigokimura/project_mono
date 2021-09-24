@@ -1,51 +1,57 @@
+import time
+from datetime import datetime
+
+import jwt
+import pytz
+import stripe
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.core.exceptions import SuspiciousOperation
-from django.shortcuts import get_object_or_404, redirect
-from django.urls.base import reverse
-from django.views import View
-from django.views.generic.base import RedirectView, TemplateView
-from django.views.generic.list import ListView
-from django.views.generic.edit import FormView, CreateView, UpdateView, DeleteView
-from django.views.generic.dates import MonthArchiveView
-from django.views.generic.detail import DetailView
-from django.urls import reverse_lazy
 from django.contrib import messages
-from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import (
-    LoginView, LogoutView, PasswordResetDoneView, PasswordResetView,
-    PasswordResetConfirmView,
-    PasswordResetCompleteView)
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import JsonResponse, HttpResponse
-from django.db.models import F, Q, Sum, Value as V, FloatField
+    LoginView, LogoutView, PasswordResetCompleteView, PasswordResetConfirmView,
+    PasswordResetDoneView, PasswordResetView,
+)
+from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import SuspiciousOperation
+from django.db.models import F, FloatField, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
-from django.utils.translation import gettext as _
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.urls.base import reverse
 from django.utils import timezone
-from rest_framework import authentication, permissions
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from .models import (
-    BudgetConfiguration, Configuration, Installment, Transaction, Account, Group,
-    Category, Icon, Goal, Invite, Notification, Budget, Plan,
-    Subscription, RecurrentTransaction, Transference)
-from .forms import (
-    BudgetConfigurationForm, InstallmentForm, TransactionForm, GroupForm,
-    CategoryForm, UserForm, AccountForm, IconForm, GoalForm, FakerForm,
-    BudgetForm, RecurrentTransactionForm, UniversalTransactionForm)
-from .mixins import PassRequestToFormViewMixin
-from .serializers import UserSerializer
-import time
-import jwt
-import stripe
-from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-import pytz
-from datetime import datetime
+from django.utils.translation import gettext as _
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic.base import RedirectView, TemplateView
+from django.views.generic.dates import MonthArchiveView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import (
+    CreateView, DeleteView, FormView, UpdateView,
+)
+from django.views.generic.list import ListView
+from rest_framework import authentication, permissions
+from rest_framework.authtoken.models import Token
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from social_django.models import UserSocialAuth
+
+from .forms import (
+    AccountForm, BudgetConfigurationForm, BudgetForm, CategoryForm, FakerForm,
+    GoalForm, GroupForm, IconForm, InstallmentForm, RecurrentTransactionForm,
+    TransactionForm, UniversalTransactionForm, UserForm,
+)
+from .mixins import PassRequestToFormViewMixin
+from .models import (
+    Account, Budget, BudgetConfiguration, Category, Configuration, Goal, Group,
+    Icon, Installment, Invite, Notification, Plan, RecurrentTransaction,
+    Subscription, Transaction, Transference,
+)
+from .serializers import UserSerializer
 
 
 class HomePageView(LoginRequiredMixin, TemplateView):

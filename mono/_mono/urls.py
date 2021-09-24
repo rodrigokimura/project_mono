@@ -1,11 +1,14 @@
 import logging
-from rest_framework.authtoken import views
-from django.contrib import admin
-from django.urls import path, include
+
 from django.conf import settings
 from django.conf.urls.static import static
-from .ascii_arts import ascii_art_1
+from django.contrib import admin
+from django.urls import include, path
 from finance.urls import router as finance_router
+from rest_framework.authtoken import views
+
+from .ascii_arts import ascii_art_1
+
 # from filebrowser.sites import site
 # import debug_toolbar
 

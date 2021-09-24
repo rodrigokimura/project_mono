@@ -1,7 +1,8 @@
-from rest_framework.viewsets import ModelViewSet
-from .serializers import UserSerializer, TransactionSerializer
 from django.contrib.auth.models import User
+from rest_framework.viewsets import ModelViewSet
+
 from .models import Transaction
+from .serializers import TransactionSerializer, UserSerializer
 
 
 class UserViewSet(ModelViewSet):

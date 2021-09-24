@@ -1,8 +1,9 @@
 from django.conf import settings
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
 from django.views.generic.edit import FormView
-from .widgets import CalendarWidget, CategoryWidget, ToggleWidget
+
 from .mixins import PassRequestToFormViewMixin
+from .widgets import CalendarWidget, CategoryWidget, ToggleWidget
 
 
 class WidgetTests(TestCase):

@@ -1,20 +1,21 @@
+import imghdr
 import os
-from django.conf import settings
-from django.db import models
-from django.contrib.auth import get_user_model
-from django.db.models.aggregates import Max
-from django.db.models.fields import IntegerField
-from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
-from django.db.models import Sum, Value as V, DurationField
-from django.db.models.functions import Coalesce
-from django.urls import reverse
-from django.template.loader import get_template
-from django.core.mail import EmailMultiAlternatives
-import jwt
 import re
 from datetime import timedelta
-import imghdr
+
+import jwt
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.mail import EmailMultiAlternatives
+from django.db import models
+from django.db.models import DurationField, Sum, Value as V
+from django.db.models.aggregates import Max
+from django.db.models.fields import IntegerField
+from django.db.models.functions import Coalesce
+from django.template.loader import get_template
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 
 User = get_user_model()
 

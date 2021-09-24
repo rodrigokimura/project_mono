@@ -1,7 +1,8 @@
 import os
+
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from project_manager.models import Theme, Icon
+from project_manager.models import Icon, Theme
 
 
 class Command(BaseCommand):

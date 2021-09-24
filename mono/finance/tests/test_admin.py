@@ -1,6 +1,7 @@
-from django.utils import timezone
-from django.test import TestCase, RequestFactory
 from django.contrib.admin import AdminSite
+from django.test import RequestFactory, TestCase
+from django.utils import timezone
+
 from ..admin import NotificationAdmin
 from ..models import Notification, User
 
