@@ -7,6 +7,11 @@ from django.db.models.aggregates import Avg
 from django.utils import timezone
 
 
+JS_SNIPPET = """<script>
+    !function(e,t,n,p,i,o,a){e[p]||((i=e[p]=function(){i.process?i.process.apply(i,arguments):i.queue.push(arguments)}).queue=[],i.t=+new Date,(o=t.createElement(n)).async=1,o.src="%s/static/openpixel.js?t="+864e5*Math.ceil(new Date/864e5),(a=t.getElementsByTagName(n)[0]).parentNode.insertBefore(o,a))}(window,document,"script","opix"),opix("init","ID-%s"),opix("event","pageload");
+</script>
+"""
+
 class Site(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     host = models.CharField(
@@ -19,6 +24,11 @@ class Site(models.Model):
 
     def __str__(self):
         return str(self.id)
+    
+    @property
+    def snippet(self):
+        snippet = JS_SNIPPET % ("http://127.0.0.42:8080", self.id)
+        return snippet.replace("/n", "").replace("/r", "")
 
     def flush_pings(self):
         self.ping_set.all().delete()

@@ -55,29 +55,89 @@
         </div>
         <div class="image content">
             <div class="description">
-                <div class="ui header">Code snippet</div>
                 <p>Place this on every page you'd like to generate metrics.</p>
-                <div class="ui message"></div>
+                <div class="ui message" style="overflow-x: auto;">
+                    <div style="white-space: nowrap;" id="code-snippet"></div>
+                </div>
             </div>
         </div>
         <div class="actions">
-            <div class="ui button">
+            <div class="ui button" id="copy-snippet-btn">
                 Copy snippet
             </div>
-            <div class="ui button">
+            <div class="ui button" id="download-js-btn">
                 Download as Javascript file
             </div>
-            <div class="ui button">
+            <div class="ui button" id="download-html-btn">
                 Download as HTML file
                 <i class="checkmark icon"></i>
             </div>
         </div>
     </div>
     <script>
+        snippets = {
+            {% for site in object_list %}
+            "{{ site.id }}":`{{ site.snippet|escapejs }}`,
+            {% endfor %}
+        }
+        
+        function copyCode() {
+            var txt = $("#code-snippet").text();
+            navigator.clipboard.writeText(txt);
+            $('body').toast({
+                message: "Code copied!"
+            })
+        }
+        
+        function downloadJS() {
+            var txt = $("#code-snippet").text()
+                .replace("<script>", "")
+                .replace("<\/script>", "");
+            var a = window.document.createElement('a');
+            a.href = window.URL.createObjectURL(new Blob([txt], {type: 'text/javascript'}));
+            a.download = 'snippet.js';
+            
+            // Append anchor to body.
+            document.body.appendChild(a);
+            a.click();
+            
+            // Remove anchor from body
+            document.body.removeChild(a);
+        }
+        function downloadHTML() {
+            var txt = $("#code-snippet").text();
+            var a = window.document.createElement('a');
+            a.href = window.URL.createObjectURL(new Blob([txt], {type: 'text/html'}));
+            a.download = 'snippet.html';
+            
+            // Append anchor to body.
+            document.body.appendChild(a);
+            a.click();
+            
+            // Remove anchor from body
+            document.body.removeChild(a);
+        }
+        
         $(document).ready(() => {
             $('.view-code').on('click', e => {
                 var siteId = $(e.target).attr('data-site-id');
+                $("#code-snippet").text(snippets[siteId])
                 $('.ui.modal').modal('show');
+            })
+            $("#copy-snippet-btn").api({
+                loadingDuration: 500,
+                response: {},
+                onComplete: copyCode,
+            })
+            $("#download-js-btn").api({
+                loadingDuration: 500,
+                response: {},
+                onComplete: downloadJS,
+            })
+            $("#download-html-btn").api({
+                loadingDuration: 500,
+                response: {},
+                onComplete: downloadHTML,
             })
         })
     </script>
