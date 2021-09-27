@@ -3,24 +3,28 @@ from base64 import b64decode
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
 
+import pytz
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Avg, Count
-import pytz
 from django.db.models.functions import TruncDay
 from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
 from django.http import HttpResponse
 from django.http.response import Http404, JsonResponse
 from django.urls import reverse
+from django.urls.base import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .forms import SiteForm
+from .mixins import PassRequestToFormViewMixin
 from .models import Ping, Site
 
 
@@ -132,14 +136,23 @@ class RootView(RedirectView):
             return None
 
 
-# Dashboard views
+class SiteCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, CreateView):
+    model = Site
+    form_class = SiteForm
+    success_url = reverse_lazy('pixel:tags')
+
+
 class SitesView(LoginRequiredMixin, ListView):
+
     model = Site
 
     def get_queryset(self) -> QuerySet[Site]:
         qs = super().get_queryset()
-        qs.filter(created_by=self.request.user)
-        return super().get_queryset()
+        qs = qs.filter(
+            created_by=self.request.user,
+            deleted_at__isnull=True,
+        )
+        return qs
 
 
 class DashboardView(UserPassesTestMixin, DetailView):
@@ -150,6 +163,22 @@ class DashboardView(UserPassesTestMixin, DetailView):
     def test_func(self):
         site: Site = self.get_object()
         return self.request.user == site.created_by
+
+
+class SiteDetailApiView(LoginRequiredMixin, APIView):
+
+    def get_object(self, pk):
+        try:
+            return Site.objects.get(pk=pk)
+        except Site.DoesNotExist:
+            raise Http404
+
+    def delete(self, request, pk, format=None, **kwargs):
+        site: Site = self.get_object(pk)
+        if request.user == site.created_by:
+            site.soft_delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 
 
 class DashboardBaseApiView(LoginRequiredMixin, APIView):
