@@ -73,4 +73,4 @@ class FormTests(TestCase):
 
         form = SiteForm(data=data, request=request)
         form.save()
-        print(Site.objects.first())
+        self.assertGreater(Site.objects.count(), 0)
