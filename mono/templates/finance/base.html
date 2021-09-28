@@ -147,43 +147,8 @@
           style="transform: translate(0, 1em);"
           ></div>
       </div>
-      <div class="ui top auth pointing teal dropdown item">
-        {% comment %} USER MENU {% endcomment %}
-        <i class="user icon"></i>
-        <div class="menu">
-          <div class="header">
-            <p>{% translate "Signed in as " %}</p>
-            <span class="ui primary text">{{ request.user }}</span></div>
-          <div class="divider"></div>
-          <div class="language item">
-            <i class="left dropdown icon"></i>
-            <span class="text">{% translate "Change language" %}</span>
-            <div class="left menu">
-              {% get_current_language as LANGUAGE_CODE %}
-              {% for code, name, flag, js_locale in LANGUAGE_EXTRAS %}
-              <div class="{% if code == LANGUAGE_CODE %}active selected {% endif %} item" 
-                href="#" onclick="setLanguage('{{ code }}');"
-                >
-                <i class="{{ flag }} flag"></i>{{ name }}
-              </div>
-              {% endfor %}
-            </div>
-            <form action="{% url 'set_language' %}" method="post" name="language">
-              {% csrf_token %}
-              <input name="next" type="hidden" value="{{ redirect_to }}">
-              <input name="language" type="hidden" value="">
-            </form>
-          </div>
-          <div class="divider"></div>
-          <a class="item" href="{% url 'finance:configuration' %}">
-            <i class="cog icon"></i>{% translate "Settings" %}
-          </a>
-          <div class="divider"></div>
-          <a class="item" href="{% url 'finance:logout' %}">
-            <i class="power off icon"></i>{% translate "Sign out" %}
-          </a>
-        </div>
-      </div>
+      {% include "_auth_menu.html" %}
+
     </div>
     {% endif %}
   </div>
@@ -220,27 +185,10 @@
   </div>
 </body>
 <script>
-
-
-  let setLanguage = (el) => {
-    $("input[name=language]").val(el);
-    $("form[name=language]").submit();
-  }
   $('.ui.sidebar')
     .sidebar('setting', 'transition', 'slide along')
     .sidebar('setting', 'mobileTransition', 'slide along')
     .sidebar('attach events', '.toc.item');
-
-  $('.ui.auth.dropdown').dropdown(
-    {
-      action: "hide",
-      {% comment %} TO FIX A BUG OF SUBMENU NOT HIDING {% endcomment %}
-      onHide: () => {
-        $('.menu.transition.visible').removeClass('transition', 'visible');
-      },
-    }
-  );
-  
 
   {% if request.user.is_authenticated %}
 

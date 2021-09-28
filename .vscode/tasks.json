@@ -22,13 +22,13 @@
 		{
 			"type": "shell",
 			"label": "Django - Run tests",
-			"command": "export APP_ENV=DEV; cd mono; pipenv run python manage.py test --parallel 12",
+			"command": "export APP_ENV=TEST; cd mono; pipenv run python manage.py test --parallel 12",
 			"problemMatcher": []
 		},
 		{
 			"type": "shell",
 			"label": "Django - Coverage",
-			"command": "export APP_ENV=DEV; cd mono; pipenv run coverage run --source='.' manage.py test -b --timing; coverage html; firefox htmlcov/index.html;",
+			"command": "export APP_ENV=TEST; cd mono; pipenv run coverage run --source='.' manage.py test -b --timing; pipenv run coverage html; firefox htmlcov/index.html;",
 			"problemMatcher": []
 		},
 		{

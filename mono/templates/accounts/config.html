@@ -1,0 +1,136 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block head %}
+{% endblock head %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="four wide column">
+            <div class="ui vertical fluid menu">
+                <a class="item active" data-tab="profile">{% translate "Profile" %}</a>
+                <a class="item" data-tab="general">{% translate "General Settings" %}</a>
+                <a class="item" data-tab="subscription">{% translate "Subscription" %}</a>
+            </div>
+        </div>
+        <div class="twelve wide stretched column">
+            <div class="ui tab" data-tab="profile">
+                <div class="ui segment">
+                    <h1 class="ui dividing header">{% translate "Profile" %}</h1>
+                    <h2 class="ui header">{% translate "Avatar" %}</h2>
+                    <div class="ui card">
+                        <div class="blurring dimmable image">
+                            <div class="ui dimmer">
+                                <div class="content">
+                                    <div class="center">
+                                        <div class="ui inverted change-picture button">{% translate "Change picture" %}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <img src="{{ request.user.profile.avatar.url }}" alt="" class="ui small circular image">
+                        </div>
+                    </div>
+                    <input type="file" class="change-picture" style="display: none;">
+                    <script>
+                        $('.ui.card .image').dimmer({ on: 'hover' });
+                        $(".change-picture.button").click(function(e){
+                            e.preventDefault();
+                            $("input[type=file]").trigger('click');
+                        });
+                    </script>
+                    
+                    <h2 class="ui header">{% translate "General info" %}</h2>
+                    <form class="ui profile form">
+                        {% csrf_token %}
+                        <div class="two fields">
+                            <div class="field">
+                                <label>Username</label>
+                                <div class="ui labeled input">
+                                    <div class="ui label">@</div>
+                                    <input type="text" placeholder="username" value="{{ request.user.username }}" name="username">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Email</label>
+                                <div class="ui labeled input">
+                                    <div class="ui label"><i class="mail icon"></i></div>
+                                    <input type="email" placeholder="username" value="{{ request.user.email }}" name="email">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="two fields">
+                            <div class="field">
+                                <label>First Name</label>
+                                <input type="text" name="first_name" placeholder="First Name" value="{{ request.user.first_name }}">
+                            </div>
+                            <div class="field">
+                                <label>Last Name</label>
+                                <input type="text" name="last_name" placeholder="Last Name" value="{{ request.user.last_name }}">
+                            </div>
+                        </div>
+                        <button class="ui save profile button" type="submit">Save</button>
+                        <div class="ui error message"></div>
+                    </form>
+                    <script>
+                        const USER_ID = "{{ request.user.id }}";
+                        var profileForm = $('.ui.profile.form');
+                        profileForm.form({
+                            onSuccess: (event, fields) => {
+                                event.preventDefault();
+                                var fd = new FormData();
+                                var files = $('input[type=file]')[0].files;
+                                if (files.length > 0) {
+                                    fd.append('avatar', files[0]);
+                                }
+                                fd.append('username', $('input[name=username]').val());
+                                fd.append('email', $('input[name=email]').val());
+                                fd.append('first_name', $('input[name=first_name]').val());
+                                fd.append('last_name', $('input[name=last_name]').val());
+                                $.api({
+                                    on: 'now',
+                                    url: `/accounts/users/${USER_ID}/`,
+                                    method: 'PATCH',
+                                    headers: { 'X-CSRFToken': csrftoken },
+                                    stateContext: '.ui.tab[data-tab=profile] .ui.segment',
+                                    loadingDuration: 1000,
+                                    data: fd,
+                                    contentType: false,
+                                    processData: false,
+                                    onFailure: (response, element, xhr) => {
+                                        for (const [key, value] of Object.entries(response)) {
+                                            profileForm.form('add errors', [value]);
+                                            $(`.field input[name=${key}]`).parents('.field').addClass('error');
+                                        }
+                                    },
+                                    onSuccess: (response) => {
+                                        for (const [key, value] of Object.entries(response)) {
+                                            if (key != 'profile') {
+                                                $(`input[name=${key}]`).val(value);
+                                            } else {
+                                                $('.ui.tab[data-tab=profile] img').attr('src', value.avatar)
+                                            }
+                                        }
+                                        profileForm.form('remove errors');
+                                        $('.field').removeClass('error');
+                                    }
+                                })
+                            },
+                            
+                        })
+                    </script>
+                </div>
+            </div>
+            <div class="ui tab" data-tab="general">
+                <h1 class="ui dividing header">{% translate "General Settings" %}</h1>
+            </div>
+            <div class="ui tab" data-tab="subscription">
+                <h1 class="ui dividing header">{% translate "Subscription" %}</h1>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('.menu .item').tab();
+    </script>
+{% endblock %}

@@ -1,10 +1,17 @@
 from django.conf import settings
 from django.test import TestCase
 
-from ..widgets import CalendarWidget, CategoryWidget, RadioWidget, ToggleWidget
+from ..models import Category
+from ..widgets import (
+    ButtonsWidget, CalendarWidget, CategoryWidget, IconWidget, RadioWidget,
+    ToggleWidget,
+)
 
 
 class WidgetTests(TestCase):
+
+    def setUp(self) -> None:
+        self.choices = Category._meta.get_field('type').get_choices()
 
     def test_calendar_widget_get_context_method(self):
         widget = CalendarWidget()
@@ -76,5 +83,34 @@ class WidgetTests(TestCase):
     def test_category_widget_render_method(self):
         widget = CategoryWidget()
         widget.queryset = None
+        render = widget.render(name='bool', value='1')
+        self.assertIn('name="bool"', str(render))
+
+    def test_buttons_widget_get_context_method(self):
+        buttons_widget = ButtonsWidget(choices=self.choices)
+        context = buttons_widget.get_context(name='feeling', value='1')
+        self.assertEqual(context, {
+            'widget': {
+                'name': 'feeling',
+                'value': '1',
+                'choices': self.choices,
+            },
+        })
+
+    def test_buttons_widget_render_method(self):
+        buttons_widget = ButtonsWidget(choices=self.choices)
+        render = buttons_widget.render(name='feeling', value='1')
+        self.assertIn('name="feeling"', str(render))
+
+    def test_icon_widget_get_context_method(self):
+        widget = IconWidget()
+        context = widget.get_context(name='bool', value='1')
+        self.assertEqual(context['widget'], {
+            'name': 'bool',
+            'value': '1',
+        })
+
+    def test_icon_widget_render_method(self):
+        widget = IconWidget()
         render = widget.render(name='bool', value='1')
         self.assertIn('name="bool"', str(render))
