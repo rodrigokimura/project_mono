@@ -7,12 +7,6 @@ from . import models
 
 @admin.register(models.PullRequest)
 class PullRequestAdmin(admin.ModelAdmin):
-    # Admin Action Functions
-    def pull(modeladmin, request, queryset):
-        for pr in queryset:
-            pr.pull()
-    # Action description
-    pull.short_description = "Pull and deploy"
 
     list_display = [
         "number",

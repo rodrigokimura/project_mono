@@ -304,7 +304,7 @@ class CardFile(models.Model):
     def image(self):
         try:
             img = imghdr.what(self.file)
-        except:
+        except Exception:
             img = None
         return img
 
@@ -312,7 +312,7 @@ class CardFile(models.Model):
     def extension(self):
         try:
             name, extension = os.path.splitext(self.file.name)
-        except:
+        except Exception:
             extension = ''
         return extension
 
