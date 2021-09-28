@@ -3,24 +3,26 @@ from base64 import b64decode
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
 
-from django.contrib.auth.decorators import user_passes_test
+import pytz
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Avg, Count
-import pytz
 from django.db.models.functions import TruncDay
 from django.db.models.query import QuerySet
-from django.db.models.query_utils import Q
 from django.http import HttpResponse
-from django.http.response import Http404, JsonResponse
+from django.http.response import Http404
 from django.urls import reverse
+from django.urls.base import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .forms import SiteForm
+from .mixins import PassRequestToFormViewMixin
 from .models import Ping, Site
 
 
@@ -124,22 +126,26 @@ class RootView(RedirectView):
         if not self.request.user.is_authenticated:
             # TODO: redirect to an informational page
             return None
-        qs = Site.objects.filter(created_by=self.request.user)
-        if qs.exists():
-            return reverse('pixel:dashboard', args=[qs.first().id])
-        else:
-            # TODO: redirect to site creation page
-            return None
+        return reverse('pixel:tags')
 
 
-# Dashboard views
+class SiteCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, CreateView):
+    model = Site
+    form_class = SiteForm
+    success_url = reverse_lazy('pixel:tags')
+
+
 class SitesView(LoginRequiredMixin, ListView):
+
     model = Site
 
     def get_queryset(self) -> QuerySet[Site]:
         qs = super().get_queryset()
-        qs.filter(created_by=self.request.user)
-        return super().get_queryset()
+        qs = qs.filter(
+            created_by=self.request.user,
+            deleted_at__isnull=True,
+        )
+        return qs
 
 
 class DashboardView(UserPassesTestMixin, DetailView):
@@ -150,6 +156,22 @@ class DashboardView(UserPassesTestMixin, DetailView):
     def test_func(self):
         site: Site = self.get_object()
         return self.request.user == site.created_by
+
+
+class SiteDetailApiView(LoginRequiredMixin, APIView):
+
+    def get_object(self, pk):
+        try:
+            return Site.objects.get(pk=pk)
+        except Site.DoesNotExist:
+            raise Http404
+
+    def delete(self, request, pk, format=None, **kwargs):
+        site: Site = self.get_object(pk)
+        if request.user == site.created_by:
+            site.soft_delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 
 
 class DashboardBaseApiView(LoginRequiredMixin, APIView):
@@ -238,45 +260,3 @@ class DashboardAggregatedByDocLocApiView(DashboardBaseApiView):
             duration=Avg('duration'),
         ).values('document_location', 'views', 'visitors', 'duration')
         return {'data': list(qs)}
-
-
-@user_passes_test(lambda user: user.is_authenticated)
-def test(request):
-
-    site: Site = Site.objects.get(id='b022642e-219d-43e8-a833-da2f73c1e255')
-
-    initial_datetime = datetime(2021, 9, 16, tzinfo=pytz.UTC)
-    # final_datetime = datetime(2021, 9, 17)
-
-    pings = site.get_pings(
-        initial_datetime=initial_datetime,
-    )
-    visitors = site.get_visitors(pings=pings)
-    views = site.get_views(pings=pings)
-    avg_duration = site.get_avg_duration(pings=pings)
-
-    # Dimensions
-    document_locations = site.get_document_locations(pings=pings)
-    referrer_locations = site.get_referrer_locations(pings=pings)
-    browsers = site.get_browsers(pings=pings)
-
-    views_by_document_location = document_locations.annotate(views=Count('id', filter=Q(event='pageload')))
-    views_by_referrer_location = referrer_locations.annotate(views=Count('id', filter=Q(event='pageload')))
-    views_by_browser = browsers.annotate(views=Count('id', filter=Q(event='pageload')))
-
-    visitors_by_document_location = document_locations.annotate(visitors=Count('user_id', distinct=True, filter=Q(event='pageload')))
-    visitors_by_referrer_location = referrer_locations.annotate(visitors=Count('user_id', distinct=True, filter=Q(event='pageload')))
-    visitors_by_browser = browsers.annotate(visitors=Count('user_id', distinct=True, filter=Q(event='pageload')))
-
-    resp = {}
-    resp['pings'] = pings.count()
-    resp['visitors'] = visitors.count()
-    resp['views'] = views.count()
-    resp['avg_duration'] = avg_duration
-    resp['views_by_document_location'] = list(views_by_document_location)
-    resp['views_by_referrer_location'] = list(views_by_referrer_location)
-    resp['views_by_browser'] = list(views_by_browser)
-    resp['visitors_by_document_location'] = list(visitors_by_document_location)
-    resp['visitors_by_referrer_location'] = list(visitors_by_referrer_location)
-    resp['visitors_by_browser'] = list(visitors_by_browser)
-    return JsonResponse(resp)

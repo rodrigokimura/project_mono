@@ -31,24 +31,38 @@
     <div class="ui stackable grid container" style="padding-top: 5em;">
 
         <div class="row">
-            <div class="left floated four wide column">
-                <div class="ui site selection dropdown">
-                <div class="text"></div>
-                <i class="dropdown icon"></i>
+            <div class="left floated six wide column">
+                <div class="ui form">
+                    <div class="two fields">
+                        <div class="field">
+                            <div class="ui site fluid selection dropdown">
+                                <div class="text"></div>
+                                <i class="dropdown icon"></i>
+                            </div>
+                            <script>
+                                $('.ui.site.dropdown').dropdown({
+                                    values: [
+                                        {% for site in request.user.site_set.all %}
+                                        {
+                                            name: '{{ site.host }}',
+                                            value: '{{ site.id }}',
+                                            {% if object.id == site.id %}
+                                            selected: true,
+                                            {% endif %}
+                                        },
+                                        {% endfor %}
+                                    ],
+                                    onChange: v => {
+                                        window.location.href = `/pixel/dashboard/${v}/`;
+                                    },
+                                });
+                            </script>
+                        </div>
+                        <div class="field">
+                            <a href="{% url 'pixel:tags' %}" class="ui button">{% translate "Manage tags" %}</a>
+                        </div>
+                    </div>
                 </div>
-                <script>
-                    $('.ui.site.dropdown').dropdown({
-                        values: [
-                            {% for site in request.user.site_set.all %}
-                            {
-                                name: '{{ site.host }}',
-                                value: '{{ site.id }}',
-                            },
-                            {% endfor %}
-                        ]
-                    });
-                    $('.ui.site.dropdown').dropdown('set selected', "{{ object.id }}")
-                </script>
             </div>
             <div class="right floated six wide column">
                 <div class="ui form">

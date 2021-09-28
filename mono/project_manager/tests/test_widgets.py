@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.test import TestCase
 
-from ..widgets import CalendarWidget, RadioWidget, ToggleWidget
+from ..widgets import CalendarWidget, IconWidget, RadioWidget, ToggleWidget
 
 
 class WidgetTests(TestCase):
@@ -63,3 +63,16 @@ class WidgetTests(TestCase):
         widget = RadioWidget(choices=choices)
         render = widget.render(name='radio', value='1')
         self.assertIn('name="radio"', str(render))
+
+    def test_icon_widget_get_context_method(self):
+        widget = IconWidget()
+        context = widget.get_context(name='bool', value='1')
+        self.assertEqual(context['widget'], {
+            'name': 'bool',
+            'value': '1',
+        })
+
+    def test_icon_widget_render_method(self):
+        widget = IconWidget()
+        render = widget.render(name='bool', value='1')
+        self.assertIn('name="bool"', str(render))

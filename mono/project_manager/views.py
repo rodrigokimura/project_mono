@@ -937,7 +937,7 @@ class TimeEntryListAPIView(LoginRequiredMixin, APIView):
         bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
         card = Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
         if request.user in card.allowed_users:
-            serializer = ItemSerializer(data=request.data, context={'request': request})
+            serializer = TimeEntrySerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
                 serializer.save(
                     created_by=request.user,

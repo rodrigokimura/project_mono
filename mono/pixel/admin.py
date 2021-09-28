@@ -10,6 +10,13 @@ class SiteAdmin(admin.ModelAdmin):
         for site in queryset:
             site.flush_pings()
 
+    flush_pings.short_description = "Delete all pings"
+
+    def undo_deletion(self, request, queryset):
+        queryset.update(deleted_at=None)
+
+    undo_deletion.short_description = "Undo deletion"
+
     list_display = [
         'id',
         'host',
@@ -18,11 +25,12 @@ class SiteAdmin(admin.ModelAdmin):
         'id',
         'host',
     ]
-    actions = [flush_pings]
+    actions = [flush_pings, undo_deletion]
 
 
 @admin.register(models.Ping)
 class PingAdmin(admin.ModelAdmin):
+
     list_display = [
         'user_id',
         'event',
