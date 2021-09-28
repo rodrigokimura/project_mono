@@ -46,11 +46,16 @@
                                         {
                                             name: '{{ site.host }}',
                                             value: '{{ site.id }}',
+                                            {% if object.id == site.id %}
+                                            selected: true,
+                                            {% endif %}
                                         },
                                         {% endfor %}
-                                    ]
+                                    ],
+                                    onChange: v => {
+                                        window.location.href = `/pixel/dashboard/${v}/`;
+                                    },
                                 });
-                                $('.ui.site.dropdown').dropdown('set selected', "{{ object.id }}")
                             </script>
                         </div>
                         <div class="field">

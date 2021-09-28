@@ -128,12 +128,7 @@ class RootView(RedirectView):
         if not self.request.user.is_authenticated:
             # TODO: redirect to an informational page
             return None
-        qs = Site.objects.filter(created_by=self.request.user)
-        if qs.exists():
-            return reverse('pixel:dashboard', args=[qs.first().id])
-        else:
-            # TODO: redirect to site creation page
-            return None
+        return reverse('pixel:tags')
 
 
 class SiteCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, CreateView):
