@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.urls import path
 
 from . import views
@@ -16,6 +15,3 @@ urlpatterns = [
     path('dashboard/<uuid:pk>/by-date/', views.DashboardAggregatedByDateApiView.as_view()),
     path('dashboard/<uuid:pk>/by-doc-loc/', views.DashboardAggregatedByDocLocApiView.as_view()),
 ]
-
-if settings.APP_ENV == 'DEV':
-    urlpatterns += path('test', views.test, name='test'),

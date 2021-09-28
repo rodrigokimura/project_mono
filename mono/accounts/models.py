@@ -118,10 +118,7 @@ class UserProfile(models.Model):
             </svg>
         """.strip()
         INITIALS_SVG_TEMPLATE = re.sub('(\s+|\n)', ' ', INITIALS_SVG_TEMPLATE)
-        if all([self.user.first_name, self.user.last_name]):
-            initials = self.user.first_name[0] + self.user.last_name[0]
-        else:
-            initials = self.user.username[0]
+        initials = self.user.username[0]
         random_color = random.choice(COLORS)
         svg_avatar = INITIALS_SVG_TEMPLATE.format(**{
             'color1': random_color[0],

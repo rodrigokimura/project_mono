@@ -113,9 +113,9 @@ class UserProfileViewTests(TestCase):
             algorithm="HS256"
         )
         c = Client()
-        r = c.get(f'/accounts/verify?t={token}')
+        r = c.get(f'/accounts/verify/?t={token}')
         self.assertContains(r, "accepted")
-        r = c.get('/accounts/verify?t=')
+        r = c.get('/accounts/verify/?t=')
         self.assertContains(r, "error")
 
     def test_login_as_view(self):
@@ -128,5 +128,5 @@ class UserProfileViewTests(TestCase):
         superuser.save()
         c = Client()
         c.login(username=superuser.username, password='supersecret')
-        r = c.post('/accounts/login-as', {'user': superuser.id})
+        r = c.post('/accounts/login-as/', {'user': superuser.id})
         self.assertContains(r, f"Successfully logged in as {superuser.username}")
