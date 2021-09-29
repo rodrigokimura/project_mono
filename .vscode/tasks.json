@@ -22,7 +22,7 @@
 		{
 			"type": "shell",
 			"label": "Django - Run tests",
-			"command": "export APP_ENV=TEST; cd mono; pipenv run python manage.py test --parallel 12",
+			"command": "export APP_ENV=TEST; cd mono; pipenv run python manage.py test --parallel 12 --failfast",
 			"problemMatcher": []
 		},
 		{
