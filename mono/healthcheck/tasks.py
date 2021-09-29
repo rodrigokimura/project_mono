@@ -25,12 +25,13 @@ def get_pending_migrations(database=DEFAULT_DB_ALIAS):
 
 
 def restart_production_app():
-    WSGI_FILE = '/var/www/www_monoproject_info_wsgi.py'
-    Path(WSGI_FILE).touch()
-    logger.info(f"{WSGI_FILE} has been touched.")
+    if settings.APP_ENV == 'PRD':  # pragma: no cover
+        WSGI_FILE = '/var/www/www_monoproject_info_wsgi.py'
+        Path(WSGI_FILE).touch()
+        logger.info(f"{WSGI_FILE} has been touched.")
 
 
-@background(schedule=60)
+@background(schedule=30)
 def deploy_app(pull_request_number):
     pr: PullRequest = PullRequest.objects.get(number=pull_request_number)
 
@@ -38,33 +39,29 @@ def deploy_app(pull_request_number):
     pr.pull()
 
     # Install dependencies
-    execute_from_command_line(["pipenv", "install"])
-
     # Collect Static files
-    if settings.APP_ENV == 'PRD':
+    if settings.APP_ENV == 'PRD':  # pragma: no cover
+        execute_from_command_line(["pipenv", "install"])
         execute_from_command_line(["manage.py", "collectstatic", "--noinput"])
 
     # Apply migrations
     pending_migrations = get_pending_migrations()
-    if pending_migrations:
+    if pending_migrations:  # pragma: no cover
         logger.info("Unapplied migrations found.")
         execute_from_command_line(["manage.py", "migrate"])
         pr.migrations = len(pending_migrations)
         pr.save()
+        migrations_text_lines = [f'Migrations applied ({len(pending_migrations)})']
+        migrations_text_lines.extend([f'+ {m.app_label}.{m.name}' for m in pending_migrations])
     else:
         logger.info("All migrations have been applied.")
+        migrations_text_lines = ['No migrations applied.']
 
     # Restart app
     restart_production_app()
     logger.info(f"Successfully deployed {pr}.")
     pr.deployed_at = timezone.now()
     pr.save()
-
-    if not pending_migrations:
-        migrations_text_lines = ['No migrations applied.']
-    else:
-        migrations_text_lines = [f'Migrations applied ({len(pending_migrations)})']
-        migrations_text_lines.extend([f'+ {m.app_label}.{m.name}' for m in pending_migrations])
 
     main_text_lines = [
         f'Merged by: {pr.author}',

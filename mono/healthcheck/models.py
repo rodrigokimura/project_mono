@@ -17,10 +17,10 @@ def is_there_migrations_to_make(app_label, silent=False):
     try:
         if silent:
             execute_from_command_line(["manage.py", "makemigrations", app_label, "--check", "--dry-run", "--verbosity", "0"])
-        else:
+        else:  # pragma: no cover
             execute_from_command_line(["manage.py", "makemigrations", app_label, "--check", "--dry-run", "--verbosity", "3"])
         system_exit = 0
-    except SystemExit as e:
+    except SystemExit as e:  # pragma: no cover
         system_exit = e
     return system_exit != 0
 

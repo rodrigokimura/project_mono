@@ -1,6 +1,7 @@
 import difflib
 import hmac
 import json
+import logging
 from datetime import datetime
 from hashlib import sha1
 from pathlib import Path
@@ -19,7 +20,8 @@ from .models import PullRequest
 from .tasks import deploy_app
 
 
-def is_valid_signature(x_hub_signature, data, private_key):
+def is_valid_signature(x_hub_signature, data):
+    private_key = settings.GITHUB_SECRET
     sha_name, signature = x_hub_signature.split('=')
     if sha_name != 'sha1':
         return False
@@ -41,16 +43,14 @@ def healthcheck(request):
 
 
 @csrf_exempt
-def update_app(request):
+def github_webhook(request):
     """
     This view receives a POST notification from a GitHub webhook
     everytime a Pull Request is successfully merged.
     """
     if request.method == "POST":
         x_hub_signature = request.headers.get('X-Hub-Signature')
-        w_secret = settings.GITHUB_SECRET
-
-        if is_valid_signature(x_hub_signature, request.body, w_secret):
+        if is_valid_signature(x_hub_signature, request.body):
             body = json.loads(request.body.decode('utf-8'))
             event = request.headers.get('X-GitHub-Event')
             if event == "pull_request":
@@ -69,12 +69,12 @@ def update_app(request):
                         }
                     )
             elif event == "ping":
-                print("Ping sent from GitHub.")
+                logging.info("Ping sent from GitHub.")
                 return HttpResponse("pong")
             else:
-                print("Invalid event.")
+                logging.info("Invalid event.")
         else:
-            print("Invalid signature.")
+            logging.info("Invalid signature.")
     return HttpResponse("ok")
 
 
@@ -95,8 +95,7 @@ class Deploy(UserPassesTestMixin, TemplateView):
                         for line in difflib.context_diff(a, b):
                             human_diff.append(line)
                         yield (i, d.change_type, d.a_path, human_diff)
-                    except Exception as e:
-                        print(repr(e))
+                    except Exception:
                         yield (i, d.change_type, d.a_path, None)
 
                 else:
@@ -106,8 +105,7 @@ class Deploy(UserPassesTestMixin, TemplateView):
                         elif d.b_blob is not None:
                             file = d.b_blob.data_stream.read().decode("utf-8").split("\n")
                         yield (i, d.change_type, d.a_path, file)
-                    except Exception as e:
-                        print(repr(e))
+                    except Exception:
                         yield (i, d.change_type, d.a_path, None)
 
         context = super().get_context_data(**kwargs)

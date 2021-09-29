@@ -22,7 +22,10 @@ if APP_ENV != 'TEST':  # pragma: no cover
         environment=APP_ENV,
     )
 
-GITHUB_SECRET = os.getenv('GITHUB_SECRET')
+if APP_ENV in ['DEV', 'TEST']:
+    GITHUB_SECRET = 'GITHUB_SECRET'
+else:  # pragma: no cover
+    GITHUB_SECRET = os.getenv('GITHUB_SECRET')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 if APP_ENV in ['DEV', 'TEST']:
