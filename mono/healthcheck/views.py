@@ -81,6 +81,13 @@ class Deploy(UserPassesTestMixin, TemplateView):
     def test_func(self):
         return self.request.user.is_superuser
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['last_pr'] = PullRequest.objects.latest('number')
+        pull_requests = PullRequest.objects.all()
+        context['pull_requests'] = pull_requests
+        return context
+
     # def get_context_data(self, **kwargs):
     #     def _get_diff_context(diff_index):
     #         for i, d in enumerate(diff_index):
@@ -104,7 +111,6 @@ class Deploy(UserPassesTestMixin, TemplateView):
     #                 except Exception:
     #                     yield (i, d.change_type, d.a_path, None)
     #     context = super().get_context_data(**kwargs)
-    #     context['last_pr'] = PullRequest.objects.latest('number')
     #     path = Path(settings.BASE_DIR).resolve().parent
     #     repo = git.Repo(path)
     #     local_master = repo.commit("master")
