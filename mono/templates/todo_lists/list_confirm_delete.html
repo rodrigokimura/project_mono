@@ -11,16 +11,14 @@
               <form method="post">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <h1 class="ui header">Delete category?</h1>
+                <h1 class="ui header">Delete list?</h1>
                 <div class="ui buttons">
-                  
-                <button type="submit" class="ui huge negative button">
-                  Yes
-                </button>
-                <div class="or"></div>
-                <a class="ui huge button" href="{% url 'finance:category_update' pk=object.pk %}">
+                <a class="ui button" href="{% url 'todo_lists:list_update' pk=object.pk %}">
                   Cancel
                 </a>
+                <button type="submit" class="ui negative button">
+                  Yes
+                </button>
                 </div>
               </form>
             </div>
