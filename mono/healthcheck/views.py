@@ -1,12 +1,9 @@
-import difflib
 import hmac
 import json
 import logging
 from datetime import datetime
 from hashlib import sha1
-from pathlib import Path
 
-import git
 import pytz
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -84,40 +81,37 @@ class Deploy(UserPassesTestMixin, TemplateView):
     def test_func(self):
         return self.request.user.is_superuser
 
-    def get_context_data(self, **kwargs):
-        def _get_diff_context(diff_index):
-            for i, d in enumerate(diff_index):
-                if d.change_type in ['M']:
-                    try:
-                        a = d.a_blob.data_stream.read().decode("utf-8").split("\n")
-                        b = d.b_blob.data_stream.read().decode("utf-8").split("\n")
-                        human_diff = []
-                        for line in difflib.context_diff(a, b):
-                            human_diff.append(line)
-                        yield (i, d.change_type, d.a_path, human_diff)
-                    except Exception:
-                        yield (i, d.change_type, d.a_path, None)
-
-                else:
-                    try:
-                        if d.a_blob is not None:
-                            file = d.a_blob.data_stream.read().decode("utf-8").split("\n")
-                        elif d.b_blob is not None:
-                            file = d.b_blob.data_stream.read().decode("utf-8").split("\n")
-                        yield (i, d.change_type, d.a_path, file)
-                    except Exception:
-                        yield (i, d.change_type, d.a_path, None)
-
-        context = super().get_context_data(**kwargs)
-        context['last_pr'] = PullRequest.objects.latest('number')
-
-        path = Path(settings.BASE_DIR).resolve().parent
-        repo = git.Repo(path)
-        local_master = repo.commit("master")
-        remote_master = repo.commit("origin/master")
-        diff_index = local_master.diff(remote_master)
-        context['diff_items'] = _get_diff_context(diff_index)
-        return context
+    # def get_context_data(self, **kwargs):
+    #     def _get_diff_context(diff_index):
+    #         for i, d in enumerate(diff_index):
+    #             if d.change_type in ['M']:
+    #                 try:
+    #                     a = d.a_blob.data_stream.read().decode("utf-8").split("\n")
+    #                     b = d.b_blob.data_stream.read().decode("utf-8").split("\n")
+    #                     human_diff = []
+    #                     for line in difflib.context_diff(a, b):
+    #                         human_diff.append(line)
+    #                     yield (i, d.change_type, d.a_path, human_diff)
+    #                 except Exception:
+    #                     yield (i, d.change_type, d.a_path, None)
+    #             else:
+    #                 try:
+    #                     if d.a_blob is not None:
+    #                         file = d.a_blob.data_stream.read().decode("utf-8").split("\n")
+    #                     elif d.b_blob is not None:
+    #                         file = d.b_blob.data_stream.read().decode("utf-8").split("\n")
+    #                     yield (i, d.change_type, d.a_path, file)
+    #                 except Exception:
+    #                     yield (i, d.change_type, d.a_path, None)
+    #     context = super().get_context_data(**kwargs)
+    #     context['last_pr'] = PullRequest.objects.latest('number')
+    #     path = Path(settings.BASE_DIR).resolve().parent
+    #     repo = git.Repo(path)
+    #     local_master = repo.commit("master")
+    #     remote_master = repo.commit("origin/master")
+    #     diff_index = local_master.diff(remote_master)
+    #     context['diff_items'] = _get_diff_context(diff_index)
+    #     return context
 
     def post(self, request):
         pr = get_object_or_404(PullRequest, pk=request.POST.get('pk', None))
