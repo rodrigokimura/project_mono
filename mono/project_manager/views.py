@@ -1,23 +1,18 @@
-from datetime import date, datetime
 from typing import Any, Optional
 
 import jwt
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.humanize.templatetags.humanize import NaturalTimeFormatter
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models.query import QuerySet
 from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.template import defaultfilters
 from django.urls.base import reverse, reverse_lazy
 from django.utils import dateparse
-from django.utils.timezone import is_aware, utc
-from django.utils.translation import (
-    gettext_lazy, ngettext_lazy, npgettext_lazy,
-)
 from django.views.generic import ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
@@ -38,99 +33,6 @@ from .serializers import (
     InviteSerializer, ItemSerializer, ProjectSerializer, TagSerializer,
     TimeEntrySerializer,
 )
-
-
-def naturaltime(value):
-    """
-    For date and time values show how many seconds, minutes, or hours ago
-    compared to current timestamp return representing string.
-    """
-    return NaturalTimeFormatter.string_for(value)
-
-
-class NaturalTimeFormatter:
-    time_strings = {
-        # Translators: delta will contain a string like '2 months' or '1 month, 2 weeks'
-        'past-day': gettext_lazy('%(delta)s ago'),
-        # Translators: please keep a non-breaking space (U+00A0) between count
-        # and time unit.
-        'past-hour': ngettext_lazy('an hour ago', '%(count)s hours ago', 'count'),
-        # Translators: please keep a non-breaking space (U+00A0) between count
-        # and time unit.
-        'past-minute': ngettext_lazy('a minute ago', '%(count)s minutes ago', 'count'),
-        # Translators: please keep a non-breaking space (U+00A0) between count
-        # and time unit.
-        'past-second': ngettext_lazy('a second ago', '%(count)s seconds ago', 'count'),
-        'now': gettext_lazy('now'),
-        # Translators: please keep a non-breaking space (U+00A0) between count
-        # and time unit.
-        'future-second': ngettext_lazy('a second from now', '%(count)s seconds from now', 'count'),
-        # Translators: please keep a non-breaking space (U+00A0) between count
-        # and time unit.
-        'future-minute': ngettext_lazy('a minute from now', '%(count)s minutes from now', 'count'),
-        # Translators: please keep a non-breaking space (U+00A0) between count
-        # and time unit.
-        'future-hour': ngettext_lazy('an hour from now', '%(count)s hours from now', 'count'),
-        # Translators: delta will contain a string like '2 months' or '1 month, 2 weeks'
-        'future-day': gettext_lazy('%(delta)s from now'),
-    }
-    past_substrings = {
-        # Translators: 'naturaltime-past' strings will be included in '%(delta)s ago'
-        'year': npgettext_lazy('naturaltime-past', '%d year', '%d years'),
-        'month': npgettext_lazy('naturaltime-past', '%d month', '%d months'),
-        'week': npgettext_lazy('naturaltime-past', '%d week', '%d weeks'),
-        'day': npgettext_lazy('naturaltime-past', '%d day', '%d days'),
-        'hour': npgettext_lazy('naturaltime-past', '%d hour', '%d hours'),
-        'minute': npgettext_lazy('naturaltime-past', '%d minute', '%d minutes'),
-    }
-    future_substrings = {
-        # Translators: 'naturaltime-future' strings will be included in '%(delta)s from now'
-        'year': npgettext_lazy('naturaltime-future', '%d year', '%d years'),
-        'month': npgettext_lazy('naturaltime-future', '%d month', '%d months'),
-        'week': npgettext_lazy('naturaltime-future', '%d week', '%d weeks'),
-        'day': npgettext_lazy('naturaltime-future', '%d day', '%d days'),
-        'hour': npgettext_lazy('naturaltime-future', '%d hour', '%d hours'),
-        'minute': npgettext_lazy('naturaltime-future', '%d minute', '%d minutes'),
-    }
-
-    @classmethod
-    def string_for(cls, value):
-        if not isinstance(value, date):  # datetime is a subclass of date
-            return value
-
-        now = datetime.now(utc if is_aware(value) else None)
-        if value < now:
-            delta = now - value
-            if delta.days != 0:
-                return cls.time_strings['past-day'] % {
-                    'delta': defaultfilters.timesince(value, now, time_strings=cls.past_substrings),
-                }
-            elif delta.seconds == 0:
-                return cls.time_strings['now']
-            elif delta.seconds < 60:
-                return cls.time_strings['past-second'] % {'count': delta.seconds}
-            elif delta.seconds // 60 < 60:
-                count = delta.seconds // 60
-                return cls.time_strings['past-minute'] % {'count': count}
-            else:
-                count = delta.seconds // 60 // 60
-                return cls.time_strings['past-hour'] % {'count': count}
-        else:
-            delta = value - now
-            if delta.days != 0:
-                return cls.time_strings['future-day'] % {
-                    'delta': defaultfilters.timeuntil(value, now, time_strings=cls.future_substrings),
-                }
-            elif delta.seconds == 0:
-                return cls.time_strings['now']
-            elif delta.seconds < 60:
-                return cls.time_strings['future-second'] % {'count': delta.seconds}
-            elif delta.seconds // 60 < 60:
-                count = delta.seconds // 60
-                return cls.time_strings['future-minute'] % {'count': count}
-            else:
-                count = delta.seconds // 60 // 60
-                return cls.time_strings['future-hour'] % {'count': count}
 
 
 class ProjectListView(LoginRequiredMixin, ListView):
@@ -1028,7 +930,7 @@ class CommentListAPIView(LoginRequiredMixin, APIView):
             serializer = CommentSerializer(comments, many=True)
             data = serializer.data
             for c in data:
-                c['created_at'] = naturaltime(
+                c['created_at'] = NaturalTimeFormatter.string_for(
                     dateparse.parse_datetime(c['created_at'])
                 )
             return Response(data)

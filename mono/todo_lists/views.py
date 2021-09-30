@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls.base import reverse, reverse_lazy
 from django.views.generic import ListView
 from django.views.generic.base import TemplateView
@@ -19,13 +19,14 @@ from .models import List, Task
 from .serializers import ListSerializer, TaskSerializer
 
 
-class HomePageView(TemplateView):
+class HomePageView(LoginRequiredMixin, TemplateView):
 
     template_name = "todo_lists/home.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.list_set.all().count() == 0:
+            return redirect('todo_lists:list_create')
+        return super().dispatch(request, *args, **kwargs)
 
 
 class ListListView(ListView):
@@ -42,33 +43,11 @@ class ListListView(ListView):
         return context
 
 
-class ListDetailView(DetailView):
-    model = List
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('To-do Lists', reverse('todo_lists:lists')),
-            ('List: view', None),
-        ]
-        return context
-
-
 class ListCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
     model = List
     form_class = ListForm
-    success_url = reverse_lazy('todo_lists:lists')
+    success_url = reverse_lazy('todo_lists:index')
     success_message = "%(name)s was created successfully"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('To-do Lists', reverse('todo_lists:lists')),
-            ('List: create', None),
-        ]
-        return context
 
 
 class ListUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
@@ -77,19 +56,10 @@ class ListUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMess
     success_url = reverse_lazy('todo_lists:lists')
     success_message = "%(name)s was updated successfully"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('To-do Lists', reverse('todo_lists:lists')),
-            ('List: edit', None),
-        ]
-        return context
-
 
 class ListDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = List
-    success_url = reverse_lazy('todo_lists:lists')
+    success_url = reverse_lazy('todo_lists:index')
     success_message = "List was deleted successfully"
 
     def test_func(self):
@@ -270,6 +240,14 @@ class TaskDetailAPIView(APIView):
     def put(self, request, pk, format=None, **kwargs):
         task = self.get_object(pk)
         serializer = TaskSerializer(task, data=request.data)
+        if serializer.is_valid():
+            serializer.save(created_by=request.user)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk, format=None, **kwargs):
+        task = self.get_object(pk)
+        serializer = TaskSerializer(task, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save(created_by=request.user)
             return Response(serializer.data)
