@@ -3,18 +3,18 @@
 {% load i18n %}
 
 {% block head %}
-  <style>
+<style>
     .task.item[data-checked=true] .check .circle { display: none }
     .task.item[data-checked=true] .check .check { }
     .task.item[data-checked=false] .check .circle { }
     .task.item[data-checked=false] .check .check { display: none }
     //.task.modal .header input { border: 0px; }
-  </style>
-  <script>
+</style>
+<script>
     $.ajaxSetup({
-      headers: { 'X-CSRFToken': csrftoken }
+        headers: { 'X-CSRFToken': csrftoken }
     });
-  </script>
+</script>
 {% endblock %}
 
 {% block body %}
@@ -57,13 +57,13 @@
             );
         </script>
     </div>
-    <div class="ui stackable grid" style="padding-top: 3em;">
+    <div class="ui stackable grid container" style="padding-top: 3em;">
         <div class="computer only four wide column">
-            <div class="ui fluid secondary pointing vertical menu" id="lists-menu">
+            <div class="ui fluid vertical menu" id="lists-menu">
                 <div id="lists-div">
                     {% comment %} LIST WILL BE INSERTED HERE {% endcomment %}
                 </div>
-                <div class="item" id="add_list">
+                <div class="item" id="list-input">
                     <div class="ui transparent icon input">
                         <input type="text" placeholder="Create list">
                         <i class="plus icon"></i>
@@ -72,139 +72,164 @@
             </div>
         </div>
         <div class="eight wide column">
-      
-        <h2 class="ui center aligned header" id="list-name"></h2>
-        <div class="ui fluid vertical menu" id="tasks-menu">
-            <div id="tasks-div">
-                {% comment %} LIST WILL BE INSERTED HERE {% endcomment %}
+            <div class="ui list-name segment">
+                <h2 class="ui center aligned header" id="list-name"></h2>
             </div>
-            <div class="item" id="add_task">
-                <div class="ui transparent icon input">
-                    <input type="text" id="task-input" placeholder="Create task">
-                    <i class="plus icon"></i>
+            <div class="ui fluid vertical menu" id="tasks-menu">
+                <div id="tasks-div">
+                    {% comment %} LIST WILL BE INSERTED HERE {% endcomment %}
+                </div>
+                <div class="item" id="add_task">
+                    <div class="ui transparent icon input">
+                        <input type="text" id="task-input" placeholder="Create task">
+                        <i class="plus icon"></i>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="ui task modal">
-            <div class="header">
-                <div class="ui fluid input">
-                    <input type=text id="modal-task-description">
+            <div class="ui task mini modal">
+                <div class="header">
+                    <div class="ui fluid input">
+                        <input type=text id="modal-task-description">
+                    </div>
                 </div>
-            </div>
-            <div class="content">
-                <div class="ui red basic button" id="delete-task-btn" data-list-id="" data-task-id="" onclick="deleteTask()">
-                    <i class="remove icon"></i>Delete
+                <div class="content">
+                    <div class="ui red basic button" id="delete-task-btn" data-list-id="" data-task-id="" onclick="deleteTask()">
+                        <i class="remove icon"></i>Delete
+                    </div>
                 </div>
-            </div>
-            <div class="actions">
-                <div class="ui black cancel button">
-                    <i class="remove icon"></i>Close
-                </div>
-                <div class="ui green ok button">
-                    <i class="checkmark icon"></i>Save
+                <div class="actions">
+                    <div class="ui black cancel button">
+                        <i class="remove icon"></i>Close
+                    </div>
+                    <div class="ui green ok button">
+                        <i class="checkmark icon"></i>Save
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-      
-    <div class="four wide column">
-        <a class="ui fluid button primary" href="{% url "todo_lists:list_create" %}">{% translate "Add list" %}</a>
+        
+        <div class="four wide column">
+            <a class="ui fluid button primary" href="{% url "todo_lists:list_create" %}">{% translate "Add list" %}</a>
+        </div>
     </div>
 </div>
 
 
 <script>
-  var listsMenu = $('#lists-menu')
-  var listsDiv = $('*#lists-div')
-  var tasksDiv = $('*#tasks-div')
-  var addList = (listId, listName, listCount) => {
-    listsDiv.append(
-      `
-      <div class="item" data-list-id="${listId}" onclick="retrieveTasks(${listId})">
-        ${listName}
-        <a class="ui icon label" href="/todo/list/${listId}/edit/">
-          <i class="edit icon"></i>
-        </a>
-      </div>
-      `
-    )
-  }
-  var addTask = (listId, taskId, taskDescription, checked) => {
-    tasksDiv.append(
-      `
-      <a class="task item" data-task-id="${taskId}" data-checked=${checked}>
-        <div class="ui checkbox">
-          <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTask(${listId}, ${taskId})">
-          <label>${taskDescription}</label>
-        </div>
-        <div class="ui icon label" onclick="showTaskModal(${listId}, ${taskId})">
-          <i class="edit icon"></i>
-        </div>
-      </a>
-      `
-    );
-  }
-  var createTask = (listId, taskDescription) => {
-    $.post(
-      url=`/todo/api/lists/${listId}/tasks/`,
-      data={
-        "description": taskDescription,
-        "order": 5
-      }
-    )
-    .done(r=>{
-      addTask(listId, r.id, r.description, r.checked_at != null)
-    })
-  }
-  var retrieveLists = () => {
-    // Retrieves lists from api and inserts to DOM
-    $.get(url='/todo/api/lists/')
-    .done(lists => {
-      listsDiv.empty();
-      lists.forEach(item => addList(item.id, item.name, 0))
-    })
-    .fail()
-    .always()
-  }
-  var retrieveTasks = listId => {
-    // Retrieves tasks from api and inserts to DOM
-    $.get(url=`/todo/api/lists/${listId}/`)
-    .done(list => {
-      $('#list-name').text(list.name);
-    })
-    .fail()
-    .always()
-    $.get(url=`/todo/api/lists/${listId}/tasks/`)
-    .done(tasks => {
-      tasksDiv.empty();
-      tasksDiv.attr("data-list-id", listId)
-      tasks.forEach(item => addTask(listId, item.id, item.description, item.checked_at != null))
-    })
-    .fail()
-    .always()
-  }
-  var checkTask = (listId, taskId) => {
-    // Marks task as checked
-    $.post(url=`/todo/api/lists/${listId}/tasks/${taskId}/check/`)
-      .done(tasks => {
-        $(`.task.item[data-task-id=${taskId}]`).attr('data-checked', true);
-        $(`.task.item[data-task-id=${taskId}] input`).prop('checked', true);
-      })
-      .fail()
-      .always()
-  }
-  var uncheckTask = (listId, taskId) => {
-    // Marks task as unchecked
-    $.post(url=`/todo/api/lists/${listId}/tasks/${taskId}/uncheck/`)
-      .done(tasks => {
-        $(`.task.item[data-task-id="${taskId}"]`).attr('data-checked', false);
-        $(`.task.item[data-task-id="${taskId}"] input`).prop('checked', false);
-      })
-      .fail()
-      .always()
-  }
-  var toggleTask = (listId, taskId) => {
+    var listsMenu = $('#lists-menu')
+    var listsDiv = $('*#lists-div')
+    var tasksDiv = $('*#tasks-div')
+
+    function addList(listId, listName) {
+        listsDiv.append(`
+            <a class="item" data-list-id="${listId}" onclick="retrieveTasks(${listId})">
+                ${listName}
+                <div class="ui icon label" onclick="window.location.href='/todo/list/${listId}/edit/'">
+                    <i class="edit icon"></i>
+                </div>
+            </a>
+        `)
+    }
+
+    function addTask(listId, taskId, taskDescription, checked) {
+        tasksDiv.append(`
+            <a class="task item" data-task-id="${taskId}" data-checked=${checked}>
+                <div class="ui checkbox">
+                    <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTask(${listId}, ${taskId})">
+                    <label>${taskDescription}</label>
+                </div>
+                <div class="ui icon label" onclick="showTaskModal(${listId}, ${taskId})">
+                    <i class="edit icon"></i>
+                </div>
+            </a>
+        `);
+    }
+
+    function createTask(listId, taskDescription) {
+        $.post(
+            url=`/todo/api/lists/${listId}/tasks/`,
+            data={
+                "description": taskDescription,
+                "order": 5
+            }
+        )
+        .done(r=>{
+            addTask(listId, r.id, r.description, r.checked_at != null)
+        })
+    }
+
+    function createList(listName) {
+        $.post(
+            url=`/todo/api/lists/`,
+            data={
+                "name": listName,
+            }
+        )
+        .done(r=>{
+            addList(r.id, r.name)
+            // addTask(listId, r.id, r.description, r.checked_at != null)
+        })
+    }
+
+    function retrieveLists() {
+        // Retrieves lists from api and inserts to DOM
+        $.get(url='/todo/api/lists/')
+        .done(lists => {
+        listsDiv.empty();
+        lists.forEach(item => addList(item.id, item.name))
+        })
+        .fail()
+        .always()
+    }
+
+    function retrieveTasks(listId) {
+        // Retrieves tasks from api and inserts to DOM
+        $.api({
+            url: `/todo/api/lists/${listId}/`,
+            on: 'now',
+            method: 'GET',
+            stateContext: '#list-name',
+            onSuccess: task => {
+                $('#list-name').text(task.name);
+            }
+        })
+        $.api({
+            url: `/todo/api/lists/${listId}/tasks/`,
+            on: 'now',
+            method: 'GET',
+            stateContext: '#list-name',
+            onSuccess: tasks => {
+                tasksDiv.empty();
+                tasksDiv.attr("data-list-id", listId)
+                tasks.forEach(item => addTask(listId, item.id, item.description, item.checked_at != null))
+            }
+        })
+    }
+
+    function checkTask(listId, taskId) {
+        // Marks task as checked
+        $.post(url=`/todo/api/lists/${listId}/tasks/${taskId}/check/`)
+            .done(tasks => {
+                $(`.task.item[data-task-id=${taskId}]`).attr('data-checked', true);
+                $(`.task.item[data-task-id=${taskId}] input`).prop('checked', true);
+            })
+            .fail()
+            .always()
+    }
+
+    function uncheckTask(listId, taskId) {
+        // Marks task as unchecked
+        $.post(url=`/todo/api/lists/${listId}/tasks/${taskId}/uncheck/`)
+            .done(tasks => {
+                $(`.task.item[data-task-id="${taskId}"]`).attr('data-checked', false);
+                $(`.task.item[data-task-id="${taskId}"] input`).prop('checked', false);
+            })
+            .fail()
+            .always()
+    }
+
+  function toggleTask(listId, taskId) {
     checked = $(`.task.item[data-task-id="${taskId}"]`).attr('data-checked');
     if (checked == "true") {
       uncheckTask(listId, taskId);
@@ -213,9 +238,9 @@
     }
   }
   
-  var showTaskModal = (listId, taskId) => {
+  function showTaskModal(listId, taskId) {
     $.get(
-      url=`/todo/api/lists/${listId}/tasks/${taskId}`
+      url=`/todo/api/lists/${listId}/tasks/${taskId}/`
     )
       .done(function(r){
         desc = r.description;
@@ -226,18 +251,24 @@
         $(".ui.task.modal").modal(
           {
             onApprove: function() {
-              $.post(
-                url=``,
-              )
-              $("#modal-task-description").val(desc);
-              alert("ok")
+              $.api({
+                url: `/todo/api/lists/${listId}/tasks/${taskId}/`,
+                method: 'PATCH',
+                on: 'now',
+                data: {
+                  description: $('#modal-task-description').val(),
+                },
+                onSuccess: r => {
+                  retrieveTasks(listId);
+                }
+              })
             }
           }
         ).modal("show");
       })
   }
   
-  var deleteTask = () => {
+  function deleteTask() {
     deleteButton = $("#delete-task-btn");
     listId = deleteButton.attr("data-list-id")
     taskId = deleteButton.attr("data-task-id")
@@ -250,6 +281,7 @@
         }
     });
   }
+
   var lists 
   $.get(url='/todo/api/lists/')
     .done(lists => {
@@ -260,20 +292,29 @@
     })
     .fail()
     .always()
-  $("#task-input").on('keyup', function (e) {
-    if (e.key === 'Enter' || e.keyCode === 13) {
-      desc = $(this).val();
-      listId = tasksDiv.attr("data-list-id");
-      if (listId != undefined) {
-        if (desc != "") {
-          createTask(listId, desc);
+
+    $("#task-input").on('keyup', function (e) {
+        if (e.key === 'Enter' || e.keyCode === 13) {
+            desc = $(this).val();
+            listId = tasksDiv.attr("data-list-id");
+            if (listId != undefined) {
+                if (desc != "") {
+                    createTask(listId, desc);
+                }
+            } else {
+                alert("No list selected.")
+            }
+            $(this).val('');
         }
-      } else {
-        alert("No list selected.")
-      }
-      $(this).val('');
-    }
-  });
+    });
+
+    $("#list-input").on('keyup', function (e) {
+        if (e.key === 'Enter' || e.keyCode === 13) {
+            createList(e.target.value);
+            e.target.value = '';
+        }
+    });
+
   $("*.task.item").on('click', function (e) {
     alert("ok")
   });
