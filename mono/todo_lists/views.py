@@ -26,7 +26,7 @@ class HomePageView(LoginRequiredMixin, TemplateView):
     def dispatch(self, request, *args, **kwargs):
         if request.user.list_set.all().count() == 0:
             return redirect('todo_lists:list_create')
-        return super().dispatch(request, *args, **kwargs) 
+        return super().dispatch(request, *args, **kwargs)
 
 
 class ListListView(ListView):
@@ -240,6 +240,14 @@ class TaskDetailAPIView(APIView):
     def put(self, request, pk, format=None, **kwargs):
         task = self.get_object(pk)
         serializer = TaskSerializer(task, data=request.data)
+        if serializer.is_valid():
+            serializer.save(created_by=request.user)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk, format=None, **kwargs):
+        task = self.get_object(pk)
+        serializer = TaskSerializer(task, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save(created_by=request.user)
             return Response(serializer.data)
