@@ -6,8 +6,7 @@
   <style type="text/css">
     .hidden { display: none; }
   </style>
-  <script>
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 {% endblock head %}
 
 {% block body %}
@@ -38,76 +37,110 @@
         </button>
       </form>
     </div>
-    <div class="ui segment">
-      <div class="ui bulleted list">
-        <div class="item">’A’ for added paths</div>
-        <div class="item">’D’ for deleted paths</div>
-        <div class="item">’R’ for renamed paths</div>
-        <div class="item">’M’ for paths with modified data</div>
-        <div class="item">’T’ for changed in the type paths</div>
-      </div>
-    </div>
+
     <div class="row">
-      <table class="ui celled striped table">
-        <thead>
-          <tr><th>Type</th>
-          <th>File</th>
-          <th>Diff</th>
-        </tr></thead>
-        <tbody>
-          {% for i, type, file, diff in diff_items %}
-          <tr>
-            <td data-label="Type">{{ type }}</td>
-            <td data-label="File">{{ file }}</td>
-            <td data-label="Diff">
-              {% if diff %}
-                {% if type == "M" %}
-                  <div class="ui button" onclick="$('.ui.modal[data-file={{i}}]').modal('show');">Show diff</div>
-                {% else %}
-                  <div class="ui button" onclick="$('.ui.modal[data-file={{i}}]').modal('show');">Show file</div>
-                {% endif %}
-              {% endif %}
-            </td>
-          </tr>
-          <div class="ui huge modal" data-file="{{i}}">
-            <i class="close icon"></i>
-            <div class="header">
-              Viewing diff
-            </div>
-            <div class="scrolling content">
-              <pre>{% for line in diff %}{{ line }}<br>{% endfor %}</pre>
-            </div>
-            <div class="actions">
-              <div class="ui black deny button">
-                Close
-              </div>
-            </div>
-          </div>
-          <div class="hidden diff" data-file="{{ file }}">
-            <pre>{% for line in diff %}{{ line }}<br>{% endfor %}</pre>
-          </div>
-          {% endfor %}
-        </tbody>
-      </table>
+      <div class="column">
+        <div class="ui segment" id="chart-1"></div>
+      </div>
     </div>
   </div>
 </div>
 <script>
-$('.form .submit').api({ 
-  action: 'deploy',
-  method: 'POST',
-  serializeForm: true,
-  mode: 'same-origin',
-  headers: {'X-CSRFToken': csrftoken},
-  data:{
-    pk: {{ last_pr.pk }},
-  },
-  onError: function(errorMessage, element, xhr) {
-    alert(errorMessage)
-  },
-  onSuccess: function(response, element, xhr) {
-    window.location.replace(`/hc/deploy/`);
+  $('.form .submit').api({ 
+    action: 'deploy',
+    method: 'POST',
+    serializeForm: true,
+    mode: 'same-origin',
+    headers: {'X-CSRFToken': csrftoken},
+    data:{
+      pk: {{ last_pr.pk }},
+    },
+    onError: function(errorMessage, element, xhr) {
+      alert(errorMessage)
+    },
+    onSuccess: function(response, element, xhr) {
+      window.location.replace(`/hc/deploy/`);
+    }
+  })
+
+  var options = {
+    chart: {
+        type: 'line',
+        fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
+        height: '370px',
+    },
+    plotOptions: {
+        bar: {
+            borderRadius: 4,
+        }
+    },
+    series: [
+        {
+            name: 'Commits',
+            data: [
+              {% for pr in pull_requests %}
+                {{ pr.commits }},
+              {% endfor %}
+            ],
+            type: 'line',
+        },
+        {
+            name: 'Additions',
+            data: [
+              {% for pr in pull_requests %}
+                {{ pr.additions }},
+              {% endfor %}
+            ],
+            type: 'column',
+        },
+        {
+            name: 'Deletions',
+            data: [
+              {% for pr in pull_requests %}
+                {{ pr.deletions }},
+              {% endfor %}
+            ],
+            type: 'column',
+        },
+        {
+            name: 'Changed files',
+            data: [
+              {% for pr in pull_requests %}
+                {{ pr.changed_files }},
+              {% endfor %}
+            ],
+            type: 'column',
+        },
+    ],
+    colors: ['#128FD9', '#00A100', '#FF0000', '#FFB200'],
+    xaxis: {
+        categories: [
+          {% for pr in pull_requests %}
+            {{ pr.number }},
+          {% endfor %}
+        ],
+    },
+    yaxis: [
+        {
+            show: false,
+            labels: { formatter: v => Math.ceil(v) }
+        },
+        {
+            show: false,
+            labels: { formatter: v => Math.ceil(v) }
+        },
+        {
+            show: false,
+            labels: { formatter: v => Math.ceil(v) }
+        },
+        {
+            show: false,
+            labels: { formatter: v => Math.ceil(v) }
+        },
+    ],
   }
-})
+  // $('.card-chart[data-type=by-date]').empty();
+  var chart = new ApexCharts($('#chart-1')[0], options)
+  chart.render()
 </script>
 {% endblock body %}
