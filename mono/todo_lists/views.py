@@ -3,17 +3,15 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
-from django.urls.base import reverse, reverse_lazy
-from django.views.generic import ListView
+from django.urls.base import reverse_lazy
 from django.views.generic.base import TemplateView
-from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .forms import ListForm, TaskForm
+from .forms import ListForm
 from .mixins import PassRequestToFormViewMixin
 from .models import List, Task
 from .serializers import ListSerializer, TaskSerializer
@@ -27,20 +25,6 @@ class HomePageView(LoginRequiredMixin, TemplateView):
         if request.user.list_set.all().count() == 0:
             return redirect('todo_lists:list_create')
         return super().dispatch(request, *args, **kwargs)
-
-
-class ListListView(ListView):
-    model = List
-    paginate_by = 100
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('To-do Lists', reverse('todo_lists:lists')),
-            ('Lists', None),
-        ]
-        return context
 
 
 class ListCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
@@ -61,65 +45,6 @@ class ListDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     model = List
     success_url = reverse_lazy('todo_lists:index')
     success_message = "List was deleted successfully"
-
-    def test_func(self):
-        return self.get_object().created_by == self.request.user
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
-
-
-class TaskDetailView(DetailView):
-    model = Task
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('To-do Lists', reverse('todo_lists:lists')),
-            (f'Project: {self.object}', reverse('todo_lists:project_detail', args=[self.object.id])),
-            ('Task: view', None),
-        ]
-        return context
-
-
-class TaskCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
-    model = Task
-    form_class = TaskForm
-    success_url = reverse_lazy('todo_lists:lists')
-    success_message = "%(name)s was created successfully"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('To-do Lists', reverse('todo_lists:lists')),
-            ('Task: create', None),
-        ]
-        return context
-
-
-class TaskUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
-    model = Task
-    form_class = TaskForm
-    success_url = reverse_lazy('todo_lists:lists')
-    success_message = "%(name)s was updated successfully"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('To-do Lists', reverse('todo_lists:lists')),
-            ('Task: edit', None),
-        ]
-        return context
-
-
-class TaskDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
-    model = Task
-    success_url = reverse_lazy('todo_lists:lists')
-    success_message = "Task was deleted successfully"
 
     def test_func(self):
         return self.get_object().created_by == self.request.user
