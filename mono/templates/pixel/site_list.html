@@ -15,14 +15,13 @@
                     <div style="flex: 1 0 auto;">
                         {% translate "Your pixel tags" %}
                     </div>
-                    <a href="" class="ui right floated icon labeled green button" style="flex: 0 0 auto;">
+                    <a href="{% url 'pixel:tag_create' %}" class="ui right floated icon labeled green button" style="flex: 0 0 auto;">
                         <i class="add icon"></i>
                         {% translate "New tag" %}
                     </a>
                 </div>
             </div>
         </div>
-        <div class="row">
         {% if object_list %}
         <div class="row">
             <div class="column">
