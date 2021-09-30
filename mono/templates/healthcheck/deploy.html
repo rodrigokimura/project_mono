@@ -43,6 +43,11 @@
         <div class="ui segment" id="chart-1"></div>
       </div>
     </div>
+    <div class="row">
+      <div class="column">
+        <div class="ui segment" id="chart-2"></div>
+      </div>
+    </div>
   </div>
 </div>
 <script>
@@ -63,7 +68,7 @@
     }
   })
 
-  var options = {
+  var options1 = {
     chart: {
         type: 'line',
         fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
@@ -139,8 +144,105 @@
         },
     ],
   }
-  // $('.card-chart[data-type=by-date]').empty();
-  var chart = new ApexCharts($('#chart-1')[0], options)
-  chart.render()
+  var chart1 = new ApexCharts($('#chart-1')[0], options1)
+  chart1.render()
+
+  var dateLabels = [
+    [{% for data in data_0 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
+    [{% for data in data_1 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
+    [{% for data in data_2 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
+    [{% for data in data_3 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
+    [{% for data in data_4 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
+    [{% for data in data_5 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
+    [{% for data in data_6 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
+  ]
+
+  var options2 = {
+    series: [
+      {
+        name: 'Saturday',
+        data: [
+          {% for data in data_6 %}
+            {{ data.c }},
+          {% endfor %}
+        ]
+      },
+      {
+        name: 'Friday',
+        data: [
+          {% for data in data_5 %}
+            {{ data.c }},
+          {% endfor %}
+        ]
+      },
+      {
+        name: 'Thursday',
+        data: [
+          {% for data in data_4 %}
+            {{ data.c }},
+          {% endfor %}
+        ]
+      },
+      {
+        name: 'Wednesday',
+        data: [
+          {% for data in data_3 %}
+            {{ data.c }},
+          {% endfor %}
+        ]
+      },
+      {
+        name: 'Tuesday',
+        data: [
+          {% for data in data_2 %}
+            {{ data.c }},
+          {% endfor %}
+        ]
+      },
+      {
+        name: 'Monday',
+        data: [
+          {% for data in data_1 %}
+            {{ data.c }},
+          {% endfor %}
+        ]
+      },
+      {
+        name: 'Sunday',
+        data: [
+          {% for data in data_0 %}
+            {{ data.c }},
+          {% endfor %}
+        ]
+      },
+    ],
+    chart: {
+      height: 220,
+      type: 'heatmap',
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    tooltip: {
+      x: {
+        formatter: (v, o) => dateLabels[6-o.seriesIndex][o.dataPointIndex],
+      },
+    },
+    plotOptions: {
+      heatmap: {
+        radius: 3,
+      }
+    },
+    colors: ["#008FFB"],
+    title: {
+      text: 'Deployed commits'
+    },
+  };
+
+
+  var chart2 = new ApexCharts($('#chart-2')[0], options2);
+  chart2.render();
+      
+
 </script>
 {% endblock body %}
