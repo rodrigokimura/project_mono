@@ -1,12 +1,16 @@
 import hmac
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from hashlib import sha1
 
 import pytz
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db.models import Sum
+from django.db.models.expressions import Value
+from django.db.models.fields import IntegerField
+from django.db.models.functions.comparison import Coalesce
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import force_bytes
@@ -81,6 +85,63 @@ class Deploy(UserPassesTestMixin, TemplateView):
     def test_func(self):
         return self.request.user.is_superuser
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['last_pr'] = PullRequest.objects.latest('number')
+        pull_requests = PullRequest.objects.all()
+        context['pull_requests'] = pull_requests
+
+        d = datetime.today() - timedelta(weeks=52)
+        initial_date = datetime.fromisocalendar(
+            year=d.isocalendar()[0],
+            week=d.isocalendar()[1],
+            day=1,
+        ) - timedelta(days=1)
+
+        print(initial_date)
+        days = (datetime.today() - initial_date).days
+
+        data_0 = []
+        data_1 = []
+        data_2 = []
+        data_3 = []
+        data_4 = []
+        data_5 = []
+        data_6 = []
+        for i in range(days + 1):
+            date = initial_date + timedelta(days=i)
+            data = pull_requests.filter(
+                merged_at__date=date
+            ).aggregate(
+                sum=Coalesce(
+                    Sum('commits'),
+                    Value(0),
+                    output_field=IntegerField()
+                )
+            )['sum']
+            if i % 7 == 0:
+                data_0.append({'d': date, 'c': data})
+            elif i % 7 == 1:
+                data_1.append({'d': date, 'c': data})
+            elif i % 7 == 2:
+                data_2.append({'d': date, 'c': data})
+            elif i % 7 == 3:
+                data_3.append({'d': date, 'c': data})
+            elif i % 7 == 4:
+                data_4.append({'d': date, 'c': data})
+            elif i % 7 == 5:
+                data_5.append({'d': date, 'c': data})
+            elif i % 7 == 6:
+                data_6.append({'d': date, 'c': data})
+        context['data_0'] = data_0
+        context['data_1'] = data_1
+        context['data_2'] = data_2
+        context['data_3'] = data_3
+        context['data_4'] = data_4
+        context['data_5'] = data_5
+        context['data_6'] = data_6
+        return context
+
     # def get_context_data(self, **kwargs):
     #     def _get_diff_context(diff_index):
     #         for i, d in enumerate(diff_index):
@@ -104,7 +165,6 @@ class Deploy(UserPassesTestMixin, TemplateView):
     #                 except Exception:
     #                     yield (i, d.change_type, d.a_path, None)
     #     context = super().get_context_data(**kwargs)
-    #     context['last_pr'] = PullRequest.objects.latest('number')
     #     path = Path(settings.BASE_DIR).resolve().parent
     #     repo = git.Repo(path)
     #     local_master = repo.commit("master")
