@@ -53,7 +53,7 @@ class ListCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMess
 class ListUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
     model = List
     form_class = ListForm
-    success_url = reverse_lazy('todo_lists:lists')
+    success_url = reverse_lazy('todo_lists:index')
     success_message = "%(name)s was updated successfully"
 
 
@@ -68,20 +68,6 @@ class ListDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
-
-
-class TaskListView(ListView):
-    model = Task
-    paginate_by = 100
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('To-do Lists', reverse('todo_lists:lists')),
-            ('Tasks', None),
-        ]
-        return context
 
 
 class TaskDetailView(DetailView):
