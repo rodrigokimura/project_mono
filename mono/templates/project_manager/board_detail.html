@@ -580,7 +580,7 @@
       {% if object.compact %}$('.board-compact.checkbox').checkbox('set checked');{% endif %}
       {% if object.dark %}$('.board-dark.checkbox').checkbox('set checked');{% endif %}
       loadBoard();
-      startAutoRfresh(1000);
+      startAutoRfresh();
       initializeSearchCardsDropdown()
     });
 
