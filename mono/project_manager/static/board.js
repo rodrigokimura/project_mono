@@ -1058,8 +1058,12 @@ const getBuckets = (dark = false, compact = false, width) => {
 };
 
 const getCards = (bucketId, dark = false, compact = false) => {
-    $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`)
-        .done(r => {
+    $.api({
+        on: 'now',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
+        method: 'GET',
+        stateContext: `.bucket-el[data-bucket-id=${bucketId}]`,
+        onSuccess: r => {
             renderCards(
                 containerSelector = `#bucket-${bucketId}`,
                 cards = r,
@@ -1068,14 +1072,17 @@ const getCards = (bucketId, dark = false, compact = false) => {
                 compact = compact
             );
             filterCards();
-        })
-        .fail(e => { console.error(e) })
-        .always()
+        }
+    })
 };
 
 const getItems = (bucketId, cardId, dark = false) => {
-    $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/`)
-        .done(r => {
+    $.api({
+        on: 'now',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/`,
+        method: 'GET',
+        stateContext: '.checklist.segment',
+        onSuccess: r => {
             renderItems(
                 containerSelector = ".checklist-drake",
                 items = r,
@@ -1083,14 +1090,17 @@ const getItems = (bucketId, cardId, dark = false) => {
                 cardId = cardId,
                 dark = dark,
             );
-        })
-        .fail(e => { console.error(e) })
-        .always()
-};
+        }
+    })
+}
 
 const getComments = (bucketId, cardId, dark = false, allowedUsers) => {
-    $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/`)
-        .done(r => {
+    $.api({
+        on: 'now',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/`,
+        method: 'GET',
+        stateContext: '.comments-segment.segment',
+        onSuccess: r => {
             renderComments(
                 containerSelector = "#card-comments",
                 items = r,
@@ -1099,10 +1109,9 @@ const getComments = (bucketId, cardId, dark = false, allowedUsers) => {
                 dark = dark,
                 allowedUsers = allowedUsers,
             );
-        })
-        .fail(e => { console.error(e) })
-        .always()
-};
+        },
+    })
+}
 
 const getTimeEntries = (bucketId, cardId, dark = false) => {
     $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/time-entries/`)
@@ -1210,15 +1219,15 @@ function generateAvatar(text, foregroundColor = "white", backgroundColor = "blac
 }
 
 const getFiles = (modal, bucketId, cardId) => {
-    $.get(
-        url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
-    )
-        .done(r => {
+    $.api({
+        on: 'now',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
+        stateContext: '.files.segment',
+        onSuccess: r => {
             renderFiles(modal, bucketId, cardId, files = r)
-        })
+        }
+    })
 }
-
-
 
 const showCardModal = (card = null, bucketId, compact) => {
     let create;
@@ -1239,6 +1248,97 @@ const showCardModal = (card = null, bucketId, compact) => {
         modal.find('.add-item.input').removeClass('inverted');
         modal.find('.ui.dividing.header').removeClass('inverted');
     };
+    modal.modal({
+        restoreFocus: false,
+        autofocus: false,
+        transition: 'scale',
+        duration: 400,
+        onShow: () => {
+            if (card) { getFiles(modal, bucketId, card.id) }
+            cardEdited = false;
+            modal.find('.manage-tags').popup();
+            modal.find('.scrolling.content').animate({ scrollTop: 0 });
+            modal.find('.ui.card-due-date.calendar').calendar({
+                type: 'date',
+                today: true,
+                formatInput: true,
+                formatter: {
+                    date: (date, settings) => {
+                        if (!date) return '';
+                        return date.toLocaleDateString(LANGUAGE_CODE);
+                    }
+                }
+            });
+            if (card !== null) {
+                modal.find('.ui.assigned_to.dropdown').dropdown('set exactly', card.assigned_to.map(user => user.username));
+                modal.find('.ui.tags.dropdown').dropdown('set exactly', card.tag.map(tag => tag.name));
+            }
+        },
+        onHidden: () => {
+            if (cardEdited) { getCards(bucketId, dark, compact); };
+            $('.checklist-drake').empty();
+        },
+        onApprove: el => {
+            modal.form('validate form');
+            if (!modal.form('is valid')) {
+                return false;
+            };
+            name = modal.find('input[name=name]').val();
+            description = modal.find('textarea[name=description]').val();
+            status = modal.find('.ui.status.dropdown').dropdown('get value');
+            color = modal.find('.ui.card-color.dropdown').dropdown('get value');
+            tagsString = modal.find('.ui.tags.dropdown').dropdown('get value');
+            tags = tagsString.split(",").map(tag => ({ name: tag }));
+            assigneesString = modal.find('.ui.assigned_to.dropdown').dropdown('get value');
+            assignees = assigneesString.split(",").map(username => ({ username: username }));
+            dueDate = modal.find('.ui.card-due-date.calendar').calendar('get date'); // If not null, dueDate is a Date object
+            if (dueDate !== null) { dueDate = dueDate.toISOString().split("T")[0] } // Convert to string in correct format
+            if (create) {
+                method = 'POST';
+                url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`;
+                order = 0;
+            } else {
+                method = 'PUT';
+                id = modal.find('input[name=id]').val();
+                order = $(`.card-el[data-card-id=${card.id}]`).index() + 1;
+                url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`;
+            }
+
+            $.ajax({
+                url: url,
+                type: method,
+                headers: { 'X-CSRFToken': csrftoken },
+                data: {
+                    name: name,
+                    bucket: bucketId,
+                    description: description,
+                    status: status,
+                    color: color,
+                    order: order,
+                    due_date: dueDate,
+                    tag: JSON.stringify(tags),
+                    assigned_to: JSON.stringify(assignees),
+                },
+                success: r => {
+                    var files = modal.find('.card-files')[0].files;
+                    if (files.length > 0) {
+                        var cardId = create ? r.id : card.id;
+                        for (f of files) {
+                            var fd = new FormData();
+                            fd.append('file', f);
+                            attachFile(fd, bucketId, cardId);
+                        }
+                    }
+                    getCards(bucketId, dark, compact);
+                }
+            });
+        }
+    }).modal('show').submit(e => {
+        e.preventDefault();
+        modal.find('.positive.button').click();
+    });
+
+
     initializeTagsDropdown(modal.find('.ui.tags.dropdown'));
     modal.find('.manage-tags').off().on('click', e => {
         selectedTags = modal.find('.ui.tags.dropdown').dropdown('get value').split(',');
@@ -1356,97 +1456,7 @@ const showCardModal = (card = null, bucketId, compact) => {
         placeholder: 'Assign users to this card',
         values: allowed_users
     });
-
-    modal.modal({
-        restoreFocus: false,
-        autofocus: false,
-        transition: 'scale',
-        duration: 400,
-        onShow: () => {
-            if (card) { getFiles(modal, bucketId, card.id) }
-            cardEdited = false;
-            modal.find('.manage-tags').popup();
-            modal.find('.scrolling.content').animate({ scrollTop: 0 });
-            modal.find('.ui.card-due-date.calendar').calendar({
-                type: 'date',
-                today: true,
-                formatInput: true,
-                formatter: {
-                    date: (date, settings) => {
-                        if (!date) return '';
-                        return date.toLocaleDateString(LANGUAGE_CODE);
-                    }
-                }
-            });
-            if (card !== null) {
-                modal.find('.ui.assigned_to.dropdown').dropdown('set exactly', card.assigned_to.map(user => user.username));
-                modal.find('.ui.tags.dropdown').dropdown('set exactly', card.tag.map(tag => tag.name));
-            }
-        },
-        onHidden: () => {
-            if (cardEdited) { getCards(bucketId, dark, compact); };
-            $('.checklist-drake').empty();
-        },
-        onApprove: el => {
-            modal.form('validate form');
-            if (!modal.form('is valid')) {
-                return false;
-            };
-            name = modal.find('input[name=name]').val();
-            description = modal.find('textarea[name=description]').val();
-            status = modal.find('.ui.status.dropdown').dropdown('get value');
-            color = modal.find('.ui.card-color.dropdown').dropdown('get value');
-            tagsString = modal.find('.ui.tags.dropdown').dropdown('get value');
-            tags = tagsString.split(",").map(tag => ({ name: tag }));
-            assigneesString = modal.find('.ui.assigned_to.dropdown').dropdown('get value');
-            assignees = assigneesString.split(",").map(username => ({ username: username }));
-            dueDate = modal.find('.ui.card-due-date.calendar').calendar('get date'); // If not null, dueDate is a Date object
-            if (dueDate !== null) { dueDate = dueDate.toISOString().split("T")[0] } // Convert to string in correct format
-            if (create) {
-                method = 'POST';
-                url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`;
-                order = 0;
-            } else {
-                method = 'PUT';
-                id = modal.find('input[name=id]').val();
-                order = $(`.card-el[data-card-id=${card.id}]`).index() + 1;
-                url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`;
-            }
-
-            $.ajax({
-                url: url,
-                type: method,
-                headers: { 'X-CSRFToken': csrftoken },
-                data: {
-                    name: name,
-                    bucket: bucketId,
-                    description: description,
-                    status: status,
-                    color: color,
-                    order: order,
-                    due_date: dueDate,
-                    tag: JSON.stringify(tags),
-                    assigned_to: JSON.stringify(assignees),
-                },
-                success: r => {
-                    var files = modal.find('.card-files')[0].files;
-                    if (files.length > 0) {
-                        var cardId = create ? r.id : card.id;
-                        for (f of files) {
-                            var fd = new FormData();
-                            fd.append('file', f);
-                            attachFile(fd, bucketId, cardId);
-                        }
-                    }
-                    getCards(bucketId, dark, compact);
-                }
-            });
-        }
-    }).modal('show').submit(e => {
-        e.preventDefault();
-        modal.find('.positive.button').click();
-    });
-};
+}
 
 const attachFile = (fd, bucketId, cardId) => {
     $.api({
