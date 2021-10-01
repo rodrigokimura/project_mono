@@ -543,6 +543,9 @@
 
   <script>
     $(document).ready(e => {
+      Pace.options = {
+        ajax: false
+      }
       $('.ui.left.sidebar')
         .sidebar('setting', 'transition', 'slide along')
         .sidebar('setting', 'mobileTransition', 'slide along')
