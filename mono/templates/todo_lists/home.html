@@ -282,16 +282,24 @@
     });
   }
 
-  var lists 
-  $.get(url='/todo/api/lists/')
-    .done(lists => {
-      retrieveLists();
-      if (lists.length > 0) {
-        retrieveTasks(lists[0].id)
-      }
-    })
-    .fail()
-    .always()
+    var lists;
+    function getList(id) {
+        $.get(url='/todo/api/lists/')
+            .done(lists => {
+                retrieveLists();
+                if (lists.length > 0) {
+                    retrieveTasks(id);
+                }
+            })
+    }
+
+    {% if 'todo_list' in request.session %}
+        getList({{ request.session.todo_list }});
+    {% else %}
+        {% if request.user.list_set.all %}
+            getList({{ request.user.list_set.first.id }});
+        {% endif %}
+    {% endif %}
 
     $("#task-input").on('keyup', function (e) {
         if (e.key === 'Enter' || e.keyCode === 13) {
@@ -315,23 +323,20 @@
         }
     });
 
-  $("*.task.item").on('click', function (e) {
-    alert("ok")
-  });
-  $('.ui.lists.item').popup(
-    {
-      on: 'click',
-      hoverable: true,
-      position:	"bottom left",
-      forcePosition: true,
-      onShow: () => {
-        $('.ui.lists.item').addClass('active')
-      },
-      onHide: () => {
-        $('.ui.lists.item').removeClass('active')
-      }
-    }
-  );
+    $('.ui.lists.item').popup(
+        {
+            on: 'click',
+            hoverable: true,
+            position:	"bottom left",
+            forcePosition: true,
+            onShow: () => {
+                $('.ui.lists.item').addClass('active')
+            },
+            onHide: () => {
+                $('.ui.lists.item').removeClass('active')
+            }
+        }
+    );
 </script>
 
 {% endblock %}
