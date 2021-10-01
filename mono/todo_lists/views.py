@@ -64,8 +64,6 @@ class ListListAPIView(APIView):
     def get(self, request, format=None):
         lists = List.objects.filter(created_by=request.user)
         serializer = ListSerializer(lists, many=True)
-        # data = serializer.data
-        # data['count'] = Task.objects.filter()
         return Response(serializer.data)
 
     def post(self, request, format=None):
@@ -90,6 +88,7 @@ class ListDetailAPIView(APIView):
     def get(self, request, pk, format=None):
         list = self.get_object(pk)
         serializer = ListSerializer(list)
+        request.session['todo_list'] = pk
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):
@@ -112,7 +111,6 @@ class TaskListAPIView(APIView):
     """
 
     def get(self, request, format=None, **kwargs):
-        print(kwargs)
         tasks = Task.objects.filter(list=kwargs['list_pk'])
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data)

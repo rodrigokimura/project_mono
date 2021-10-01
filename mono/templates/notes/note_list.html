@@ -101,6 +101,15 @@
       })
     }
     
+    {% if 'note' in request.session %}
+        getNote({{ request.session.note }});
+    {% else %}
+        {% if request.user.note_set.all %}
+            getNote({{ request.user.note_set.first.id }});
+        {% endif %}
+    {% endif %}
+    
+    
     $('.file.item').click(function(e) {
       getNote($(e.target).closest('.file.item').attr('data-id'));
     });
