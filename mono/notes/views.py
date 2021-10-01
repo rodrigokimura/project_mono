@@ -83,6 +83,7 @@ class NoteDetailApiView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         id = kwargs['pk']
         note = Note.objects.get(id=id)
+        request.session['note'] = id
         return JsonResponse(
             {
                 'id': id,

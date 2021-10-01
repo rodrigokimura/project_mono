@@ -97,8 +97,6 @@ class Deploy(UserPassesTestMixin, TemplateView):
             week=d.isocalendar()[1],
             day=1,
         ) - timedelta(days=1)
-
-        print(initial_date)
         days = (datetime.today() - initial_date).days
 
         data_0 = []
