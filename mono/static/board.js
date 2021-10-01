@@ -48,7 +48,7 @@ function setBucketGlassEffect(blur = false, blurness = 5, opacity = 50) {
     }
 }
 
-function startAutoRfresh(period = 5000) {
+function startAutoRefresh(period = 5000) {
     if (autoRefresh !== null) { clearInterval(autoRefresh); }
     autoRefresh = setInterval(checkUpdates, period);
 }
@@ -592,7 +592,6 @@ function renderFiles(modal, bucketId, cardId, files) {
                 stateContext: $(`.ui.special.card.img-card-file[data-file-id=${id}]`),
                 method: 'DELETE',
                 headers: { 'X-CSRFToken': csrftoken },
-                loadingDuration: 1000,
                 successTest: r => r != 0,
                 onSuccess: r => {
                     $(`.ui.special.card.img-card-file[data-file-id=${id}]`).remove();
@@ -1129,7 +1128,6 @@ function getTags() {
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
         method: 'GET',
         cache: false,
-        loadingDuration: 500,
     })
         .done(r => { tags = r; })
     return tags;
