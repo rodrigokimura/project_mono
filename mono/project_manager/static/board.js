@@ -1229,8 +1229,23 @@ const getFiles = (modal, bucketId, cardId) => {
     })
 }
 
+function initializeUsersDropdown(dropdown) {
+    allowed_users = getBoardAllowedUsers().map(user => (
+        {
+            value: user.username,
+            name: user.username,
+            image: user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR,
+            imageClass: 'ui allowed_users avatar image',
+        }
+    ));
+    dropdown.dropdown({
+        placeholder: 'Assign users to this card',
+        values: allowed_users
+    });
+}
+
 const showCardModal = (card = null, bucketId, compact) => {
-    let create;
+    let create = card === null;
     const modal = $('.ui.card-form.modal');
     modal.off().form('reset');
     let dark = modal.hasClass('inverted');
@@ -1248,6 +1263,8 @@ const showCardModal = (card = null, bucketId, compact) => {
         modal.find('.add-item.input').removeClass('inverted');
         modal.find('.ui.dividing.header').removeClass('inverted');
     };
+    initializeTagsDropdown(modal.find('.ui.tags.dropdown'));
+    initializeUsersDropdown(modal.find('.ui.assigned_to.dropdown'));
     modal.modal({
         restoreFocus: false,
         autofocus: false,
@@ -1256,7 +1273,7 @@ const showCardModal = (card = null, bucketId, compact) => {
         onShow: () => {
             if (card) { getFiles(modal, bucketId, card.id) }
             cardEdited = false;
-            modal.find('.manage-tags').popup();
+            // modal.find('.manage-tags').popup();
             modal.find('.scrolling.content').animate({ scrollTop: 0 });
             modal.find('.ui.card-due-date.calendar').calendar({
                 type: 'date',
@@ -1269,7 +1286,7 @@ const showCardModal = (card = null, bucketId, compact) => {
                     }
                 }
             });
-            if (card !== null) {
+            if (!create) {
                 modal.find('.ui.assigned_to.dropdown').dropdown('set exactly', card.assigned_to.map(user => user.username));
                 modal.find('.ui.tags.dropdown').dropdown('set exactly', card.tag.map(tag => tag.name));
             }
@@ -1338,8 +1355,6 @@ const showCardModal = (card = null, bucketId, compact) => {
         modal.find('.positive.button').click();
     });
 
-
-    initializeTagsDropdown(modal.find('.ui.tags.dropdown'));
     modal.find('.manage-tags').off().on('click', e => {
         selectedTags = modal.find('.ui.tags.dropdown').dropdown('get value').split(',');
         showManageTagsModal(
@@ -1351,8 +1366,19 @@ const showCardModal = (card = null, bucketId, compact) => {
             },
         );
     });
-    if (card !== null) {
-        create = false;
+
+    if (create) {
+        modal.find('input[name=id]').val('');
+        modal.find('input[name=name]').val('');
+        modal.find('textarea[name=description]').val('');
+        modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
+        modal.find('.ui.card-color.dropdown').dropdown('set selected', '');
+        // Prevent users from inserting checklists or comments before card object creation
+        modal.find('.extra.content .item').hide();
+        modal.find('.comments-segment.segment').hide();
+        modal.find('.ui.assigned_to.dropdown').dropdown('clear');
+        modal.find('.ui.card-due-date.calendar').calendar('clear');
+    } else {
         modal.find('input[name=id]').val(card.id);
         modal.find('input[name=name]').val(card.name);
         modal.find('textarea[name=description]').val(card.description);
@@ -1361,7 +1387,6 @@ const showCardModal = (card = null, bucketId, compact) => {
         modal.find('.extra.content .item').show();
         modal.find('.comments-segment.segment').show();
         modal.find('.ui.card-due-date.calendar').calendar('set date', card.due_date);
-        modal.find('.ui.tags.dropdown').dropdown('clear');
         modal.find('.ui.assigned_to.dropdown').parent().show();
         modal.find('#suggest-comment').val('');
 
@@ -1375,14 +1400,6 @@ const showCardModal = (card = null, bucketId, compact) => {
                 highlight: true,
             }
         );
-        allowed_users = card.allowed_users.map(user => (
-            {
-                value: user.username,
-                name: user.username,
-                image: user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR,
-                imageClass: 'ui allowed_users avatar image',
-            }
-        ));
         {
             getItems(bucketId, card.id, dark);
             $('.add-item.input input').off().on('keypress', e => {
@@ -1430,32 +1447,7 @@ const showCardModal = (card = null, bucketId, compact) => {
                 });
             });
         }
-    } else {
-        create = true;
-        modal.find('input[name=id]').val('');
-        modal.find('input[name=name]').val('');
-        modal.find('textarea[name=description]').val('');
-        modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
-        modal.find('.ui.card-color.dropdown').dropdown('set selected', '');
-        // Prevent users from inserting checklists or comments before card object creation
-        modal.find('.extra.content .item').hide();
-        modal.find('.comments-segment.segment').hide();
-        modal.find('.ui.tags.dropdown').dropdown('clear');
-        modal.find('.ui.assigned_to.dropdown').dropdown('clear');
-        modal.find('.ui.card-due-date.calendar').calendar('clear');
-        allowed_users = getBoardAllowedUsers().map(user => (
-            {
-                value: user.username,
-                name: user.username,
-                image: user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR,
-                imageClass: 'ui allowed_users avatar image',
-            }
-        ));
     };
-    modal.find('.ui.assigned_to.dropdown').dropdown({
-        placeholder: 'Assign users to this card',
-        values: allowed_users
-    });
 }
 
 const attachFile = (fd, bucketId, cardId) => {
