@@ -165,11 +165,6 @@ else:  # pragma: no cover
             }
         }
     }
-    # If the flag as been set, configure to use proxy
-    if os.getenv("USE_CLOUD_SQL_AUTH_PROXY", None):
-        DATABASES["default"]["HOST"] = "127.0.0.1"
-        DATABASES["default"]["PORT"] = 3306
-
 
 AUTHENTICATION_BACKENDS = [
     'social_core.backends.github.GithubOAuth2',
@@ -270,12 +265,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
-
-# ANALYTICAL APP CONFIG
-# CLICKY_SITE_ID = '101311237'
-GOOGLE_ANALYTICS_GTAG_PROPERTY_ID = 'G-7MZ1SHW9YC'
-GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-194514221-1'
-
 
 # SOCIAL LOGIN SECRETS
 SOCIAL_AUTH_GITHUB_KEY = os.getenv('SOCIAL_AUTH_GITHUB_KEY')
