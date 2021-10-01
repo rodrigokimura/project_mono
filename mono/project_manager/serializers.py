@@ -231,7 +231,6 @@ class CardFileSerializer(ModelSerializer):
 
 
 class CardSerializer(ModelSerializer):
-    allowed_users = UserSerializer(many=True, read_only=True)
     is_running = serializers.ReadOnlyField()
     total_time = serializers.ReadOnlyField()
     checked_items = serializers.ReadOnlyField()
@@ -254,12 +253,7 @@ class CardSerializer(ModelSerializer):
             'assigned_to',
             'description',
             'due_date',
-            'started_by',
-            'started_at',
-            'completed_by',
-            'completed_at',
             'status',
-            'allowed_users',
             'is_running',
             'total_time',
             'checked_items',
