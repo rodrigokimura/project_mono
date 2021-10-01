@@ -10,7 +10,7 @@ var boardTimestamp = new Date();
 var autoRefresh = null;
 const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg';
 
-const setWallpaper = () => {
+function setWallpaper() {
     if (wallpaper) {
         $('#board').css('background-image', `url('${wallpaper}')`);
     } else {
@@ -18,7 +18,7 @@ const setWallpaper = () => {
     }
 }
 
-const setCardGlassEffect = (blur = false, blurness = 5, opacity = 50) => {
+function setCardGlassEffect(blur = false, blurness = 5, opacity = 50) {
     if (wallpaper) {
         for (el of $('.card-el')) {
             color = $(el).css('background-color');
@@ -33,7 +33,7 @@ const setCardGlassEffect = (blur = false, blurness = 5, opacity = 50) => {
     }
 }
 
-const setBucketGlassEffect = (blur = false, blurness = 5, opacity = 50) => {
+function setBucketGlassEffect(blur = false, blurness = 5, opacity = 50) {
     if (wallpaper) {
         for (el of $('.bucket-el')) {
             color = $(el).css('background-color');
@@ -48,12 +48,12 @@ const setBucketGlassEffect = (blur = false, blurness = 5, opacity = 50) => {
     }
 }
 
-const startAutoRfresh = (period = 1000) => {
+function startAutoRfresh(period = 1000) {
     if (autoRefresh !== null) { clearInterval(autoRefresh); }
     autoRefresh = setInterval(checkUpdates, period);
 }
 
-const checkUpdates = () => {
+function checkUpdates() {
     $.api({
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/last-updated/`,
@@ -102,7 +102,7 @@ const checkUpdates = () => {
     });
 }
 
-const changeBucketWidth = width => {
+function changeBucketWidth(width) {
     $.api({
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
@@ -114,9 +114,9 @@ const changeBucketWidth = width => {
         },
         onError: r => { console.error(JSON.stringify(r)) },
     });
-};
+}
 
-const setCompact = bool => {
+function setCompact(bool) {
     $.api({
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
@@ -128,9 +128,9 @@ const setCompact = bool => {
         },
         onError: r => { console.error(JSON.stringify(r)) },
     });
-};
+}
 
-const setDarkMode = bool => {
+function setDarkMode(bool) {
     $.api({
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
@@ -142,9 +142,9 @@ const setDarkMode = bool => {
         },
         onError: r => { console.error(JSON.stringify(r)) },
     });
-};
+}
 
-const startElementScroll = (directionX, directionY, elementToScroll, increment, delay) => {
+function startElementScroll(directionX, directionY, elementToScroll, increment, delay) {
     let scroll = () => {
         elementToScroll.scrollBy(directionX * increment, directionY * increment);
     };
@@ -152,12 +152,12 @@ const startElementScroll = (directionX, directionY, elementToScroll, increment, 
         scrollIntervalID = setInterval(scroll, delay);
         isScrolling = true;
     };
-};
+}
 
-const stopElementScroll = intID => {
+function stopElementScroll(intID) {
     clearInterval(intID);
     isScrolling = false;
-};
+}
 
 var bucketsDrake = dragula({
     isContainer: el => $(el).hasClass('buckets-drake'),
@@ -259,14 +259,7 @@ var cardsDrake = dragula({
         containerCardIsOver = null;
     });
 
-const adjustBoardHeight = (boardSelector = '#board') => {
-    // $(boardSelector).height(
-    //     $(window).height()
-    //     - $(boardSelector).offset().top
-    // );
-};
-
-const str = seconds => {
+function str(seconds) {
     function pad(num, size = 2) {
         num = num.toString();
         while (num.length < size) num = "0" + num;
@@ -276,34 +269,33 @@ const str = seconds => {
     var m = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
     var s = Math.floor((((seconds % 31536000) % 86400) % 3600) % 60);
     return `${pad(h)}:${pad(m)}:${pad(s)}`;
-};
+}
 
-const incrementSecond = cardId => {
+function incrementSecond(cardId) {
     element = $(`.total-time[data-card-id=${cardId}]`)
     time = element.attr('data-time')
     time++
     element.attr('data-time', time)
     element.text(str(time))
-};
+}
 
-const clearIntervals = () => {
+function clearIntervals() {
     intervals.forEach(i => { clearInterval(i.interval) });
     intervals = [];
-};
+}
 
-const loadBoard = () => {
+function loadBoard() {
     let compact = $('.board-compact.checkbox').checkbox('is checked');
     let dark = $('.board-dark.checkbox').checkbox('is checked');
     let width = $('.ui.width.slider').slider('get value');
     boardTimestamp = new Date();
-    adjustBoardHeight();
     clearIntervals();
     getBuckets(dark, compact, width);
     enableProximityScroll();
     setWallpaper();
-};
+}
 
-const renderBuckets = (containerSelector, buckets, dark = false, compact = false, width) => {
+function renderBuckets(containerSelector, buckets, dark = false, compact = false, width) {
     if (dark) {
         $('.bucket-form.modal.form').addClass('inverted');
     } else {
@@ -396,9 +388,9 @@ const renderBuckets = (containerSelector, buckets, dark = false, compact = false
     $('.add.bucket.button').css('marginBottom', e.css('marginBottom'));
     $('.bucket-el').removeClass('loading');
     setBucketGlassEffect();
-};
+}
 
-const renderCards = (containerSelector, cards, bucketId, dark = false, compact = false) => {
+function renderCards(containerSelector, cards, bucketId, dark = false, compact = false) {
     if (dark) {
         $('.card-form.modal.form').addClass('inverted');
     } else {
@@ -569,9 +561,9 @@ const renderCards = (containerSelector, cards, bucketId, dark = false, compact =
     });
     $('.card-el').removeClass('loading');
     setCardGlassEffect();
-};
+}
 
-const renderFiles = (modal, bucketId, cardId, files) => {
+function renderFiles(modal, bucketId, cardId, files) {
     for (f of files) {
         extension = f.extension;
         modal.find('.files-container').append(`
@@ -611,7 +603,7 @@ const renderFiles = (modal, bucketId, cardId, files) => {
     }
 }
 
-const renderItems = (containerSelector, items, bucketId, cardId, dark = false) => {
+function renderItems(containerSelector, items, bucketId, cardId, dark = false) {
     $(containerSelector).empty();
     items.forEach(item => {
         $(containerSelector).append(`
@@ -688,9 +680,9 @@ const renderItems = (containerSelector, items, bucketId, cardId, dark = false) =
             }
         })
     });
-};
+}
 
-const renderTimeEntries = (containerSelector, timeEntries, bucketId, cardId, dark = false) => {
+function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dark = false) {
     $(containerSelector).empty();
     if (timeEntries.length == 0) {
         $(containerSelector).append(`
@@ -825,58 +817,9 @@ const renderTimeEntries = (containerSelector, timeEntries, bucketId, cardId, dar
             })
         });
     });
-};
-
-const insertLinksAndMentions = (text, allowedUsers) => {
-    function getIndicesOf(searchStr, str, caseSensitive) {
-        var searchStrLen = searchStr.length;
-        if (searchStrLen == 0) {
-            return [];
-        }
-        var startIndex = 0, index, indices = [];
-        if (!caseSensitive) {
-            str = str.toLowerCase();
-            searchStr = searchStr.toLowerCase();
-        }
-        while ((index = str.indexOf(searchStr, startIndex)) > -1) {
-            indices.push(index);
-            startIndex = index + searchStrLen;
-        }
-        return indices;
-    }
-    text = text.replace(
-        /(https?:\/\/)([^ ]+)/g,
-        '<a target="_blank" href="$&">$2</a>'
-    );
-    var newText = text;
-    for (user of allowedUsers) {
-        username = `@${user.username}`;
-        usernameIndices = getIndicesOf(username, text);
-        validIndices = [];
-        offset = 0;
-        for (index of usernameIndices) {
-            nextChar = text.substr(index + username.length, 1);
-            if (",.!? ".includes(nextChar)) {
-                validIndices.push(index - offset);
-                newText = newText.substr(0, index - offset) + newText.substr(index - offset + username.length);
-                offset += username.length;
-            }
-        }
-        offset = 0;
-        for (index of validIndices) {
-            avatar = user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR;
-            span = `<span class="mention" data-html="<img class='ui avatar image' src='${avatar}'><span><b>${user.username}</b></span><p>${user.email}</p>" data-variation="tiny">@${user.username}</span>`
-            newText = newText.substr(0, index + offset)
-                + span
-                + newText.substr(index + offset);
-            offset += span.length;
-        }
-        text = newText;
-    }
-    return newText;
 }
 
-const renderComments = (containerSelector, comments, bucketId, cardId, dark = false, allowedUsers) => {
+function renderComments(containerSelector, comments, bucketId, cardId, dark = false, allowedUsers) {
     $(containerSelector).empty();
     if (dark) {
         $(containerSelector).addClass('inverted')
@@ -976,9 +919,9 @@ const renderComments = (containerSelector, comments, bucketId, cardId, dark = fa
         };
         $(`.mention`).popup();
     });
-};
+}
 
-const renderTags = (container, tags, dark = false) => {
+function renderTags(container, tags, dark = false) {
     for (tag of tags) {
         if (tag.icon !== null) {
             container.append(`
@@ -990,9 +933,9 @@ const renderTags = (container, tags, dark = false) => {
             `);
         }
     }
-};
+}
 
-const renderAssignees = (container, assignees, borderColor = null, dark = false) => {
+function renderAssignees(container, assignees, borderColor = null, dark = false) {
     if (borderColor === null) {
         for (user of assignees) {
             container.append(`
@@ -1008,9 +951,58 @@ const renderAssignees = (container, assignees, borderColor = null, dark = false)
             $(`img[data-username='${user.username}']`).popup();
         }
     }
-};
+}
 
-const enableProximityScroll = () => {
+function insertLinksAndMentions(text, allowedUsers) {
+    function getIndicesOf(searchStr, str, caseSensitive) {
+        var searchStrLen = searchStr.length;
+        if (searchStrLen == 0) {
+            return [];
+        }
+        var startIndex = 0, index, indices = [];
+        if (!caseSensitive) {
+            str = str.toLowerCase();
+            searchStr = searchStr.toLowerCase();
+        }
+        while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+            indices.push(index);
+            startIndex = index + searchStrLen;
+        }
+        return indices;
+    }
+    text = text.replace(
+        /(https?:\/\/)([^ ]+)/g,
+        '<a target="_blank" href="$&">$2</a>'
+    );
+    var newText = text;
+    for (user of allowedUsers) {
+        username = `@${user.username}`;
+        usernameIndices = getIndicesOf(username, text);
+        validIndices = [];
+        offset = 0;
+        for (index of usernameIndices) {
+            nextChar = text.substr(index + username.length, 1);
+            if (",.!? ".includes(nextChar)) {
+                validIndices.push(index - offset);
+                newText = newText.substr(0, index - offset) + newText.substr(index - offset + username.length);
+                offset += username.length;
+            }
+        }
+        offset = 0;
+        for (index of validIndices) {
+            avatar = user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR;
+            span = `<span class="mention" data-html="<img class='ui avatar image' src='${avatar}'><span><b>${user.username}</b></span><p>${user.email}</p>" data-variation="tiny">@${user.username}</span>`
+            newText = newText.substr(0, index + offset)
+                + span
+                + newText.substr(index + offset);
+            offset += span.length;
+        }
+        text = newText;
+    }
+    return newText;
+}
+
+function enableProximityScroll() {
     function proximityScroll(e) {
         if (cardsDrake.dragging && containerCardIsOver !== null && cardBeingDragged !== null) {
             var boardBody = document.getElementById("board")
@@ -1040,9 +1032,9 @@ const enableProximityScroll = () => {
         };
     }
     document.addEventListener("mousemove", proximityScroll);
-};
+}
 
-const getBuckets = (dark = false, compact = false, width) => {
+function getBuckets(dark = false, compact = false, width) {
     $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`)
         .done(r => {
             renderBuckets(
@@ -1055,9 +1047,9 @@ const getBuckets = (dark = false, compact = false, width) => {
         })
         .fail(e => { console.error(e) })
         .always()
-};
+}
 
-const getCards = (bucketId, dark = false, compact = false) => {
+function getCards(bucketId, dark = false, compact = false) {
     $.api({
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
@@ -1074,9 +1066,9 @@ const getCards = (bucketId, dark = false, compact = false) => {
             filterCards();
         }
     })
-};
+}
 
-const getItems = (bucketId, cardId, dark = false) => {
+function getItems(bucketId, cardId, dark = false) {
     $.api({
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/`,
@@ -1094,7 +1086,7 @@ const getItems = (bucketId, cardId, dark = false) => {
     })
 }
 
-const getComments = (bucketId, cardId, dark = false, allowedUsers) => {
+function getComments(bucketId, cardId, dark = false, allowedUsers) {
     $.api({
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/`,
@@ -1113,7 +1105,7 @@ const getComments = (bucketId, cardId, dark = false, allowedUsers) => {
     })
 }
 
-const getTimeEntries = (bucketId, cardId, dark = false) => {
+function getTimeEntries(bucketId, cardId, dark = false) {
     $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/time-entries/`)
         .done(r => {
             renderTimeEntries(
@@ -1126,9 +1118,9 @@ const getTimeEntries = (bucketId, cardId, dark = false) => {
         })
         .fail(e => { console.error(e) })
         .always()
-};
+}
 
-const getTags = () => {
+function getTags() {
     var tags = [];
     $.ajax({
         on: 'now',
@@ -1143,7 +1135,57 @@ const getTags = () => {
     return tags;
 }
 
-const initializeTagsDropdown = dropdown => {
+function getBoardAllowedUsers() {
+    var allowed_users = [];
+    $.ajax({
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+        method: 'GET',
+        headers: { 'X-CSRFToken': csrftoken },
+        async: false,
+    })
+        .done(r => { allowed_users = r.allowed_users; })
+    return allowed_users;
+}
+
+function getFiles(modal, bucketId, cardId) {
+    $.api({
+        on: 'now',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
+        stateContext: '.files.segment',
+        onSuccess: r => {
+            renderFiles(modal, bucketId, cardId, files = r)
+        }
+    })
+}
+
+function generateAvatar(text, foregroundColor = "white", backgroundColor = "black") {
+    const w = 200;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = w;
+    canvas.height = w;
+
+    // Draw background
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw text
+    var fontsize = w * 2 / text.length;
+    do {
+        fontsize -= w / 100;
+        ctx.font = `bold ${fontsize}px Inter`;
+    } while (ctx.measureText(text).width > w * .8)
+    ctx.fillStyle = foregroundColor;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+
+    return canvas.toDataURL("image/png");
+}
+
+function initializeTagsDropdown(dropdown) {
     var tags = getTags().map(tag => {
         if (tag.icon === null) {
             return {
@@ -1179,56 +1221,6 @@ const initializeTagsDropdown = dropdown => {
     });
 }
 
-const getBoardAllowedUsers = () => {
-    var allowed_users = [];
-    $.ajax({
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-        method: 'GET',
-        headers: { 'X-CSRFToken': csrftoken },
-        async: false,
-    })
-        .done(r => { allowed_users = r.allowed_users; })
-    return allowed_users;
-}
-
-function generateAvatar(text, foregroundColor = "white", backgroundColor = "black") {
-    const w = 200;
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    canvas.width = w;
-    canvas.height = w;
-
-    // Draw background
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw text
-    var fontsize = w * 2 / text.length;
-    do {
-        fontsize -= w / 100;
-        ctx.font = `bold ${fontsize}px Inter`;
-    } while (ctx.measureText(text).width > w * .8)
-    ctx.fillStyle = foregroundColor;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-
-
-    return canvas.toDataURL("image/png");
-}
-
-const getFiles = (modal, bucketId, cardId) => {
-    $.api({
-        on: 'now',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
-        stateContext: '.files.segment',
-        onSuccess: r => {
-            renderFiles(modal, bucketId, cardId, files = r)
-        }
-    })
-}
-
 function initializeUsersDropdown(dropdown) {
     allowed_users = getBoardAllowedUsers().map(user => (
         {
@@ -1244,7 +1236,7 @@ function initializeUsersDropdown(dropdown) {
     });
 }
 
-const showCardModal = (card = null, bucketId, compact) => {
+function showCardModal(card = null, bucketId, compact) {
     let create = card === null;
     const modal = $('.ui.card-form.modal');
     modal.off().form('reset');
@@ -1263,8 +1255,7 @@ const showCardModal = (card = null, bucketId, compact) => {
         modal.find('.add-item.input').removeClass('inverted');
         modal.find('.ui.dividing.header').removeClass('inverted');
     };
-    initializeTagsDropdown(modal.find('.ui.tags.dropdown'));
-    initializeUsersDropdown(modal.find('.ui.assigned_to.dropdown'));
+
     modal.modal({
         restoreFocus: false,
         autofocus: false,
@@ -1286,10 +1277,6 @@ const showCardModal = (card = null, bucketId, compact) => {
                     }
                 }
             });
-            if (!create) {
-                modal.find('.ui.assigned_to.dropdown').dropdown('set exactly', card.assigned_to.map(user => user.username));
-                modal.find('.ui.tags.dropdown').dropdown('set exactly', card.tag.map(tag => tag.name));
-            }
         },
         onHidden: () => {
             if (cardEdited) { getCards(bucketId, dark, compact); };
@@ -1350,7 +1337,12 @@ const showCardModal = (card = null, bucketId, compact) => {
                 }
             });
         }
-    }).modal('show').submit(e => {
+    }).modal('show');
+
+    initializeTagsDropdown(modal.find('.ui.tags.dropdown'));
+    initializeUsersDropdown(modal.find('.ui.assigned_to.dropdown'));
+
+    modal.submit(e => {
         e.preventDefault();
         modal.find('.positive.button').click();
     });
@@ -1379,6 +1371,8 @@ const showCardModal = (card = null, bucketId, compact) => {
         modal.find('.ui.assigned_to.dropdown').dropdown('clear');
         modal.find('.ui.card-due-date.calendar').calendar('clear');
     } else {
+        modal.find('.ui.assigned_to.dropdown').dropdown('set exactly', card.assigned_to.map(user => user.username));
+        modal.find('.ui.tags.dropdown').dropdown('set exactly', card.tag.map(tag => tag.name));
         modal.find('input[name=id]').val(card.id);
         modal.find('input[name=name]').val(card.name);
         modal.find('textarea[name=description]').val(card.description);
@@ -1450,7 +1444,7 @@ const showCardModal = (card = null, bucketId, compact) => {
     };
 }
 
-const attachFile = (fd, bucketId, cardId) => {
+function attachFile(fd, bucketId, cardId) {
     $.api({
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
         on: 'now',
@@ -1484,29 +1478,7 @@ const attachFile = (fd, bucketId, cardId) => {
     });
 }
 
-const deleteCard = (cardId, bucketId, dark, compact) => {
-    modal = $('.ui.delete.confirmation.modal')
-    modal
-        .modal({
-            onShow: () => {
-                modal.find('.header').text('Delete card');
-                modal.find('.content').text(`Are you sure you want to delete card ${cardId}?`);
-            },
-            onApprove: () => {
-                $.ajax({
-                    url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}`,
-                    type: 'DELETE',
-                    headers: { 'X-CSRFToken': csrftoken },
-                    success: function (result) {
-                        getCards(bucketId, dark, compact);
-                    }
-                });
-            }
-        })
-        .modal('show');
-};
-
-const toggleCardStatus = (cardId, bucketId, currentStatus, dark, compact) => {
+function toggleCardStatus(cardId, bucketId, currentStatus, dark, compact) {
     switch (currentStatus) {
         case 'NS':
             status = 'IP';
@@ -1538,9 +1510,9 @@ const toggleCardStatus = (cardId, bucketId, currentStatus, dark, compact) => {
             });
             getCards(bucketId, dark, compact)
         })
-};
+}
 
-const showBucketModal = (bucket = null) => {
+function showBucketModal(bucket = null) {
     var create;
     const modal = $('.ui.bucket-form.modal');
     modal.form('reset');
@@ -1618,9 +1590,9 @@ const showBucketModal = (bucket = null) => {
         modal.find('.positive.button').click();
     });
     modal.modal('show');
-};
+}
 
-const showTimeEntriesModal = (cardId, bucketId, dark, compact) => {
+function showTimeEntriesModal(cardId, bucketId, dark, compact) {
     const modal = $('#time-entries.modal');
     modal.modal({
         autofocus: false,
@@ -1638,7 +1610,7 @@ const showTimeEntriesModal = (cardId, bucketId, dark, compact) => {
     }).modal('show');
 }
 
-const deleteBucket = (bucketId) => {
+function deleteBucket(bucketId) {
     modal = $('.ui.delete.confirmation.modal')
     modal
         .modal({
@@ -1658,9 +1630,31 @@ const deleteBucket = (bucketId) => {
             }
         })
         .modal('show');
-};
+}
 
-const startStopTimer = (cardId, bucketId, dark, compact) => {
+function deleteCard(cardId, bucketId, dark, compact) {
+    modal = $('.ui.delete.confirmation.modal')
+    modal
+        .modal({
+            onShow: () => {
+                modal.find('.header').text('Delete card');
+                modal.find('.content').text(`Are you sure you want to delete card ${cardId}?`);
+            },
+            onApprove: () => {
+                $.ajax({
+                    url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}`,
+                    type: 'DELETE',
+                    headers: { 'X-CSRFToken': csrftoken },
+                    success: function (result) {
+                        getCards(bucketId, dark, compact);
+                    }
+                });
+            }
+        })
+        .modal('show');
+}
+
+function startStopTimer(cardId, bucketId, dark, compact) {
     $.ajax({
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/timer/`,
         type: 'POST',
@@ -1674,9 +1668,9 @@ const startStopTimer = (cardId, bucketId, dark, compact) => {
             getCards(bucketId, dark, compact);
         }
     });
-};
+}
 
-const addNewTagInput = (containerElement) => {
+function addNewTagInput(containerElement) {
     el = containerElement.append(`
       <form class="ui unstackable form" data-tag-id="" style="width: 100%; margin-bottom: .5em;">
         <div class="" style="display: flex; flex-flow: row nowrap;">
@@ -1716,7 +1710,7 @@ const addNewTagInput = (containerElement) => {
     })
 }
 
-const renderTagForms = (containerElement, tag) => {
+function renderTagForms(containerElement, tag) {
     containerElement.append(`
         <form class="ui unstackable form" data-tag-id="${tag.id}" style="width: 100%; margin-bottom: .5em;">
             <div class="" style="display: flex; flex-flow: row nowrap;">
@@ -1787,9 +1781,9 @@ const renderTagForms = (containerElement, tag) => {
             }
         }).modal('show');
     })
-};
+}
 
-const showManageTagsModal = (allowMultiple = false, fromCardModal = false, callback = undefined) => {
+function showManageTagsModal(allowMultiple = false, fromCardModal = false, callback = undefined) {
     $('.ui.sidebar').sidebar('hide');
     let tagsModal = $('.ui.tags.modal');
     tagsModal.modal({
@@ -1855,7 +1849,7 @@ const showManageTagsModal = (allowMultiple = false, fromCardModal = false, callb
     tagsModal.modal('show');
 }
 
-const getSearchCardsDropdownValues = () => {
+function getSearchCardsDropdownValues() {
     var tags = $('.tags .label')
         .toArray()
         .map(tag => $(tag).text().trim());
@@ -1878,7 +1872,7 @@ const getSearchCardsDropdownValues = () => {
     return values;
 }
 
-const filterCards = () => {
+function filterCards() {
     for (card of $('.card-el')) {
         if (!isCardOnFilter($(card))) {
             $(card).hide();
@@ -1888,7 +1882,7 @@ const filterCards = () => {
     }
 }
 
-const isCardOnFilter = (cardEl, selector = '.ui.search-cards.dropdown', filterMode = 'or') => {
+function isCardOnFilter(cardEl, selector = '.ui.search-cards.dropdown', filterMode = 'or') {
     var name = cardEl.find('.card-name').text().trim();
     var tags = cardEl.find('.tags .label')
         .toArray()
@@ -1909,7 +1903,7 @@ const isCardOnFilter = (cardEl, selector = '.ui.search-cards.dropdown', filterMo
     return result;
 }
 
-const initializeSearchCardsDropdown = (selector = '.ui.search-cards.dropdown') => {
+function initializeSearchCardsDropdown(selector = '.ui.search-cards.dropdown') {
     $(selector).dropdown({
         clearable: true,
         allowAdditions: true,
