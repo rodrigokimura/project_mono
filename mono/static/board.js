@@ -48,7 +48,7 @@ function setBucketGlassEffect(blur = false, blurness = 5, opacity = 50) {
     }
 }
 
-function startAutoRfresh(period = 1000) {
+function startAutoRfresh(period = 5000) {
     if (autoRefresh !== null) { clearInterval(autoRefresh); }
     autoRefresh = setInterval(checkUpdates, period);
 }
