@@ -1,26 +1,15 @@
 import os
 from pathlib import Path
 
-import sentry_sdk
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from dotenv import load_dotenv
-from sentry_sdk.integrations.django import DjangoIntegration
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 
 APP_ENV = os.getenv('APP_ENV', 'PRD')
-
-# if APP_ENV != 'TEST':  # pragma: no cover
-#     sentry_sdk.init(
-#         dsn="https://a25c8456ccb7469ca3d467fc2eb95ddd@o1008916.ingest.sentry.io/5972915",
-#         integrations=[DjangoIntegration()],
-#         traces_sample_rate=1.0 if APP_ENV == 'PRD' else 0,
-#         send_default_pii=True,
-#         environment=APP_ENV,
-#     )
 
 if APP_ENV in ['DEV', 'TEST']:
     GITHUB_SECRET = 'GITHUB_SECRET'
@@ -278,28 +267,28 @@ SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 MAINTENANCE_MODE_IGNORE_SUPERUSER = True
 
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'filters': ['require_debug_true'],
-        },
-    },
-    'loggers': {
-        'mylogger': {
-            'handlers': ['console'],
-            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-            'propagate': True,
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'filters': {
+#         'require_debug_true': {
+#             '()': 'django.utils.log.RequireDebugTrue',
+#         },
+#     },
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#             'filters': ['require_debug_true'],
+#         },
+#     },
+#     'loggers': {
+#         'mylogger': {
+#             'handlers': ['console'],
+#             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+#             'propagate': True,
+#         },
+#     },
+# }
 
 
 TINYMCE_DEFAULT_CONFIG = {
