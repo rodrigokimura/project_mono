@@ -563,7 +563,7 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
     setCardGlassEffect();
 }
 
-function renderFiles(modal, bucketId, cardId, files) {
+async function renderFiles(modal, bucketId, cardId, files) {
     for (f of files) {
         extension = f.extension;
         modal.find('.files-container').append(`
@@ -1195,7 +1195,7 @@ function getBoardAllowedUsers() {
     return allowed_users;
 }
 
-function getFiles(modal, bucketId, cardId) {
+async function getFiles(modal, bucketId, cardId) {
     $.api({
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
@@ -1353,7 +1353,6 @@ function showCardModal(card = null, bucketId, compact) {
         transition: 'scale',
         duration: 400,
         onShow: () => {
-            if (card) { getFiles(modal, bucketId, card.id) }
             cardEdited = false;
             // modal.find('.manage-tags').popup();
             modal.find('.scrolling.content').animate({ scrollTop: 0 });
@@ -1452,6 +1451,7 @@ function showCardModal(card = null, bucketId, compact) {
     });
 
     if (!create) {
+        getFiles(modal, bucketId, card.id);
         modal.find('#suggest-comment').val('');
         initializeSuggest();
         loadComments(card, bucketId, dark);
