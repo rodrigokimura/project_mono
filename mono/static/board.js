@@ -819,7 +819,7 @@ function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dar
     });
 }
 
-function renderComments(containerSelector, comments, bucketId, cardId, dark = false, allowedUsers) {
+function renderComments(containerSelector, comments, bucketId, cardId, dark = false) {
     $(containerSelector).empty();
     if (dark) {
         $(containerSelector).addClass('inverted')
@@ -829,7 +829,7 @@ function renderComments(containerSelector, comments, bucketId, cardId, dark = fa
         $(containerSelector).parent().removeClass('inverted')
     }
     comments.forEach(comment => {
-        text = insertLinksAndMentions(comment.text, allowedUsers);
+        text = insertLinksAndMentions(comment.text);
         if (comment.created_by.username === USERNAME) {
             $(containerSelector).append(
                 `
@@ -954,7 +954,7 @@ async function renderAssignees(container, assignees, borderColor = null, dark = 
 }
 
 async function loadComments(card, bucketId, dark) {
-    getComments(bucketId, card.id, dark, allowed_users);
+    getComments(bucketId, card.id, dark);
     $('.add-reply.button').off().click(e => {
         $(this).attr("disabled", "disabled");
         $.api({
@@ -968,7 +968,7 @@ async function loadComments(card, bucketId, dark) {
             on: 'now',
             onSuccess: r => {
                 $('textarea.add-reply').val('');
-                getComments(bucketId, card.id, dark, allowed_users);
+                getComments(bucketId, card.id, dark);
                 cardEdited = true;
             },
             onComplete: () => { $(this).removeAttr("disabled"); },
@@ -1002,7 +1002,7 @@ async function loadChecklistItems(card, bucketId, dark) {
     });
 }
 
-function insertLinksAndMentions(text, allowedUsers) {
+function insertLinksAndMentions(text) {
     function getIndicesOf(searchStr, str, caseSensitive) {
         var searchStrLen = searchStr.length;
         if (searchStrLen == 0) {
@@ -1135,7 +1135,7 @@ async function getItems(bucketId, cardId, dark = false) {
     })
 }
 
-async function getComments(bucketId, cardId, dark = false, allowedUsers) {
+async function getComments(bucketId, cardId, dark = false) {
     $.api({
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/`,
@@ -1148,7 +1148,6 @@ async function getComments(bucketId, cardId, dark = false, allowedUsers) {
                 bucketId = bucketId,
                 cardId = cardId,
                 dark = dark,
-                allowedUsers = allowedUsers,
             );
         },
     })
