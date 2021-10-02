@@ -9,6 +9,7 @@ var cardEdited = false;
 var boardTimestamp = new Date();
 var autoRefresh = null;
 const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg';
+const allowedUsers = getBoardAllowedUsers();
 
 async function setWallpaper() {
     if (wallpaper) {
@@ -953,7 +954,6 @@ async function renderAssignees(container, assignees, borderColor = null, dark = 
 }
 
 async function loadComments(card, bucketId, dark) {
-    let allowed_users = getBoardAllowedUsers()
     getComments(bucketId, card.id, dark, allowed_users);
     $('.add-reply.button').off().click(e => {
         $(this).attr("disabled", "disabled");
@@ -1273,17 +1273,16 @@ async function initializeTagsDropdown(dropdown, card = undefined) {
 }
 
 async function initializeUsersDropdown(dropdown, card = undefined) {
-    allowed_users = getBoardAllowedUsers().map(user => (
-        {
-            value: user.username,
-            name: user.username,
-            image: user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR,
-            imageClass: 'ui allowed_users avatar image',
-        }
-    ));
     dropdown.dropdown({
         placeholder: 'Assign users to this card',
-        values: allowed_users
+        values: allowedUsers.map(user => (
+            {
+                value: user.username,
+                name: user.username,
+                image: user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR,
+                imageClass: 'ui allowed_users avatar image',
+            }
+        ))
     });
     if (card) {
         dropdown.dropdown('set exactly', card.assigned_to.map(user => user.username));
@@ -1294,7 +1293,7 @@ async function initializeSuggest() {
     new Suggest.LocalMulti(
         "suggest-comment",
         "suggest",
-        getBoardAllowedUsers().map(user => `@${user.username}`),
+        allowedUsers.map(user => `@${user.username}`),
         {
             dispAllKey: true,
             prefix: true,
