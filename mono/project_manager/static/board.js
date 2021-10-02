@@ -10,7 +10,7 @@ var boardTimestamp = new Date();
 var autoRefresh = null;
 const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg';
 
-function setWallpaper() {
+async function setWallpaper() {
     if (wallpaper) {
         $('#board').css('background-image', `url('${wallpaper}')`);
     } else {
@@ -18,7 +18,7 @@ function setWallpaper() {
     }
 }
 
-function setCardGlassEffect(blur = false, blurness = 5, opacity = 50) {
+async function setCardGlassEffect(blur = false, blurness = 5, opacity = 50) {
     if (wallpaper) {
         for (el of $('.card-el')) {
             color = $(el).css('background-color');
@@ -33,7 +33,7 @@ function setCardGlassEffect(blur = false, blurness = 5, opacity = 50) {
     }
 }
 
-function setBucketGlassEffect(blur = false, blurness = 5, opacity = 50) {
+async function setBucketGlassEffect(blur = false, blurness = 5, opacity = 50) {
     if (wallpaper) {
         for (el of $('.bucket-el')) {
             color = $(el).css('background-color');
@@ -279,7 +279,7 @@ function incrementSecond(cardId) {
     element.text(str(time))
 }
 
-function clearIntervals() {
+async function clearIntervals() {
     intervals.forEach(i => { clearInterval(i.interval) });
     intervals = [];
 }
@@ -295,7 +295,7 @@ function loadBoard() {
     setWallpaper();
 }
 
-function renderBuckets(containerSelector, buckets, dark = false, compact = false, width) {
+async function renderBuckets(containerSelector, buckets, dark = false, compact = false, width) {
     if (dark) {
         $('.bucket-form.modal.form').addClass('inverted');
     } else {
@@ -390,7 +390,7 @@ function renderBuckets(containerSelector, buckets, dark = false, compact = false
     setBucketGlassEffect();
 }
 
-function renderCards(containerSelector, cards, bucketId, dark = false, compact = false) {
+async function renderCards(containerSelector, cards, bucketId, dark = false, compact = false) {
     if (dark) {
         $('.card-form.modal.form').addClass('inverted');
     } else {
@@ -920,7 +920,7 @@ function renderComments(containerSelector, comments, bucketId, cardId, dark = fa
     });
 }
 
-function renderTags(container, tags, dark = false) {
+async function renderTags(container, tags, dark = false) {
     for (tag of tags) {
         if (tag.icon !== null) {
             container.append(`
@@ -934,7 +934,7 @@ function renderTags(container, tags, dark = false) {
     }
 }
 
-function renderAssignees(container, assignees, borderColor = null, dark = false) {
+async function renderAssignees(container, assignees, borderColor = null, dark = false) {
     if (borderColor === null) {
         for (user of assignees) {
             container.append(`
@@ -1051,7 +1051,7 @@ function insertLinksAndMentions(text, allowedUsers) {
     return newText;
 }
 
-function enableProximityScroll() {
+async function enableProximityScroll() {
     function proximityScroll(e) {
         if (cardsDrake.dragging && containerCardIsOver !== null && cardBeingDragged !== null) {
             var boardBody = document.getElementById("board")
@@ -1083,7 +1083,7 @@ function enableProximityScroll() {
     document.addEventListener("mousemove", proximityScroll);
 }
 
-function getBuckets(dark = false, compact = false, width) {
+async function getBuckets(dark = false, compact = false, width) {
     $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`)
         .done(r => {
             renderBuckets(
@@ -1098,7 +1098,7 @@ function getBuckets(dark = false, compact = false, width) {
         .always()
 }
 
-function getCards(bucketId, dark = false, compact = false) {
+async function getCards(bucketId, dark = false, compact = false) {
     $.api({
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
@@ -1233,7 +1233,7 @@ function generateAvatar(text, foregroundColor = "white", backgroundColor = "blac
     return canvas.toDataURL("image/png");
 }
 
-async function initializeTagsDropdown(dropdown, card) {
+async function initializeTagsDropdown(dropdown, card = undefined) {
     var tags = getTags().map(tag => {
         if (tag.icon === null) {
             return {
@@ -1272,7 +1272,7 @@ async function initializeTagsDropdown(dropdown, card) {
     }
 }
 
-async function initializeUsersDropdown(dropdown, card) {
+async function initializeUsersDropdown(dropdown, card = undefined) {
     allowed_users = getBoardAllowedUsers().map(user => (
         {
             value: user.username,
@@ -1887,7 +1887,7 @@ function getSearchCardsDropdownValues() {
     return values;
 }
 
-function filterCards() {
+async function filterCards() {
     for (card of $('.card-el')) {
         if (!isCardOnFilter($(card))) {
             $(card).hide();
