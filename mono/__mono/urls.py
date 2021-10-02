@@ -42,5 +42,5 @@ urlpatterns = [
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Aesthetics-only
-logger = logging.getLogger("mylogger")
+logger = logging.getLogger(__name__)
 logger.info(ascii_art_1)

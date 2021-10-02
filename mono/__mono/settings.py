@@ -47,7 +47,7 @@ else:
 # Application definition
 INSTALLED_APPS = [
     'tinymce',
-    '_mono.apps.MyAdminConfig',
+    '__mono.apps.MyAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -99,18 +99,18 @@ MIDDLEWARE = [
 
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
-ROOT_URLCONF = '_mono.urls'
+ROOT_URLCONF = '__mono.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, "templates"),
+            os.path.join(BASE_DIR, "_templates"),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                '_mono.context_processors.environment',
-                '_mono.context_processors.language_extras',
+                '__mono.context_processors.environment',
+                '__mono.context_processors.language_extras',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -124,7 +124,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = '_mono.wsgi.application'
+WSGI_APPLICATION = '__mono.wsgi.application'
 
 
 # Database
@@ -159,7 +159,7 @@ AUTHENTICATION_BACKENDS = [
     'social_core.backends.github.GithubOAuth2',
     'social_core.backends.twitter.TwitterOAuth',
     'social_core.backends.facebook.FacebookOAuth2',
-    '_mono.auth_backends.EmailOrUsernameModelBackend',
+    '__mono.auth_backends.EmailOrUsernameModelBackend',
 ]
 
 # Password validation
@@ -194,7 +194,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
+LOCALE_PATHS = [os.path.join(BASE_DIR, "_locale")]
 
 LANGUAGE_EXTRAS = [
     ('en-us', _('American English'), 'us', 'en-US'),
@@ -209,8 +209,8 @@ LANGUAGES = tuple((code, name) for code, name, flag, js_locale in LANGUAGE_EXTRA
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, "_static")
+MEDIA_ROOT = os.path.join(BASE_DIR, '_media')
 
 LOGIN_URL = reverse_lazy('finance:login')
 LOGOUT_URL = reverse_lazy('home')
@@ -266,7 +266,28 @@ SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 # MAINTENANCE MODE
 MAINTENANCE_MODE_IGNORE_SUPERUSER = True
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+        }
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
 
+if APP_ENV == 'DEV':
+    pass
+    # LOGGING = {}
 # LOGGING = {
 #     'version': 1,
 #     'disable_existing_loggers': False,
