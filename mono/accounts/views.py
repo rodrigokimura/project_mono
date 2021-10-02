@@ -48,7 +48,7 @@ class LoginAsView(UserPassesTestMixin, View):
     def post(self, request):
         time.sleep(2)
         user = get_object_or_404(User, id=request.POST.get('user'))
-        login(request, user, backend='_mono.auth_backends.EmailOrUsernameModelBackend')
+        login(request, user, backend='__mono.auth_backends.EmailOrUsernameModelBackend')
         return JsonResponse(
             {
                 "success": True,
