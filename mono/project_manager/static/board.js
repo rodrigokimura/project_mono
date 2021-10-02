@@ -1796,7 +1796,7 @@ function renderTagForms(containerElement, tag) {
     })
 }
 
-function showManageTagsModal(allowMultiple = false, fromCardModal = false, callback = undefined) {
+async function showManageTagsModal(allowMultiple = false, fromCardModal = false, callback = undefined) {
     $('.ui.sidebar').sidebar('hide');
     let tagsModal = $('.ui.tags.modal');
     tagsModal.modal({
