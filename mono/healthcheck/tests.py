@@ -25,7 +25,7 @@ class MigrationsTests(TestCase):
 
         apps = settings.INSTALLED_APPS
         apps_exception = [
-            '_mono.apps.MyAdminConfig',
+            '__mono.apps.MyAdminConfig',
             'django.contrib.auth',
             'django.contrib.contenttypes',
             'django.contrib.sessions',

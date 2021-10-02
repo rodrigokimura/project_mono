@@ -37,7 +37,7 @@ SESSION_COOKIE_SECURE = APP_ENV == 'PRD'
 if APP_ENV in ['DEV', 'TEST']:
     ALLOWED_HOSTS = ['*']
 else:
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')  # pragma: no cover
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')  # pragma: no cover
 
 if APP_ENV in ['DEV', 'TEST']:
     SITE = "http://dev.monoproject.info"

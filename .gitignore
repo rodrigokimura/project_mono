@@ -1,6 +1,6 @@
 **/__pycache__/
 **/*.env
-**/media/*
+**/_media/*
 *.pyc
 *.pem
 /semantic
@@ -8,8 +8,8 @@
 *.exe
 venv/
 .idea/
-mono/_mono/maintenance_mode_state.txt
-mono/media
+mono/__mono/maintenance_mode_state.txt
+mono/_media
 ngrok
 **/.coverage
 mono/htmlcov
