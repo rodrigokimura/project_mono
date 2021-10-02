@@ -1117,7 +1117,7 @@ async function getCards(bucketId, dark = false, compact = false) {
     })
 }
 
-function getItems(bucketId, cardId, dark = false) {
+async function getItems(bucketId, cardId, dark = false) {
     $.api({
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/`,
@@ -1135,7 +1135,7 @@ function getItems(bucketId, cardId, dark = false) {
     })
 }
 
-function getComments(bucketId, cardId, dark = false, allowedUsers) {
+async function getComments(bucketId, cardId, dark = false, allowedUsers) {
     $.api({
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/`,
