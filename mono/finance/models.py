@@ -377,6 +377,9 @@ class Account(models.Model):
     owned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owned_accountset")
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     initial_balance = models.FloatField(default=0)
+    credit_card = models.BooleanField(default=False)
+    closing_date = models.DateField(null=True, blank=True, default=None)
+    due_date = models.DateField(null=True, blank=True, default=None)
 
     @property
     def is_shared(self):
