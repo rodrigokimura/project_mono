@@ -952,6 +952,56 @@ function renderAssignees(container, assignees, borderColor = null, dark = false)
     }
 }
 
+async function loadComments(card, bucketId, dark) {
+    let allowed_users = getBoardAllowedUsers()
+    getComments(bucketId, card.id, dark, allowed_users);
+    $('.add-reply.button').off().click(e => {
+        $(this).attr("disabled", "disabled");
+        $.api({
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/comments/`,
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            data: {
+                card: card.id,
+                text: $('textarea.add-reply').val(),
+            },
+            on: 'now',
+            onSuccess: r => {
+                $('textarea.add-reply').val('');
+                getComments(bucketId, card.id, dark, allowed_users);
+                cardEdited = true;
+            },
+            onComplete: () => { $(this).removeAttr("disabled"); },
+        });
+    });
+}
+
+async function loadChecklistItems(card, bucketId, dark) {
+    getItems(bucketId, card.id, dark);
+    $('.add-item.input input').off().on('keypress', e => {
+        if (e.which == 13) {
+            $(this).attr("disabled", "disabled");
+            $.api({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                data: {
+                    name: e.target.value,
+                    card: card.id,
+                    order: 1
+                },
+                on: 'now',
+                onSuccess: r => {
+                    e.target.value = '';
+                    getItems(bucketId, card.id, dark);
+                    cardEdited = true;
+                },
+                onComplete: () => { $(this).removeAttr("disabled"); },
+            });
+        };
+    });
+}
+
 function insertLinksAndMentions(text, allowedUsers) {
     function getIndicesOf(searchStr, str, caseSensitive) {
         var searchStrLen = searchStr.length;
@@ -1183,7 +1233,7 @@ function generateAvatar(text, foregroundColor = "white", backgroundColor = "blac
     return canvas.toDataURL("image/png");
 }
 
-function initializeTagsDropdown(dropdown) {
+async function initializeTagsDropdown(dropdown, card) {
     var tags = getTags().map(tag => {
         if (tag.icon === null) {
             return {
@@ -1217,9 +1267,12 @@ function initializeTagsDropdown(dropdown) {
             return el;
         },
     });
+    if (card) {
+        dropdown.dropdown('set exactly', card.tag.map(tag => tag.name));
+    }
 }
 
-function initializeUsersDropdown(dropdown) {
+async function initializeUsersDropdown(dropdown, card) {
     allowed_users = getBoardAllowedUsers().map(user => (
         {
             value: user.username,
@@ -1232,6 +1285,43 @@ function initializeUsersDropdown(dropdown) {
         placeholder: 'Assign users to this card',
         values: allowed_users
     });
+    if (card) {
+        dropdown.dropdown('set exactly', card.assigned_to.map(user => user.username));
+    }
+}
+
+async function initializeSuggest() {
+    new Suggest.LocalMulti(
+        "suggest-comment",
+        "suggest",
+        getBoardAllowedUsers().map(user => `@${user.username}`),
+        {
+            dispAllKey: true,
+            prefix: true,
+            highlight: true,
+        }
+    );
+}
+
+async function clearModal(modal) {
+    modal.find('input[name=id]').val('');
+    modal.find('input[name=name]').val('');
+    modal.find('textarea[name=description]').val('');
+    modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
+    modal.find('.ui.card-color.dropdown').dropdown('set selected', '');
+    modal.find('.extra.content .item').hide();
+    modal.find('.comments-segment.segment').hide();
+}
+
+async function populateModal(modal, card) {
+    modal.find('input[name=id]').val(card.id);
+    modal.find('input[name=name]').val(card.name);
+    modal.find('textarea[name=description]').val(card.description);
+    modal.find('.ui.status.dropdown').dropdown('set selected', card.status);
+    modal.find('.ui.card-color.dropdown').dropdown('set selected', card.color !== null ? card.color.id : '');
+    modal.find('.extra.content .item').show();
+    modal.find('.comments-segment.segment').show();
+    modal.find('.ui.card-due-date.calendar').calendar('set date', card.due_date);
 }
 
 function showCardModal(card = null, bucketId, compact) {
@@ -1241,6 +1331,7 @@ function showCardModal(card = null, bucketId, compact) {
     let dark = modal.hasClass('inverted');
     modal.find('.card-files').val('');
     modal.find('.files-container').empty();
+
     if (dark) {
         modal.find('.checklist.segment').addClass('inverted');
         modal.find('.files.segment').addClass('inverted');
@@ -1253,6 +1344,8 @@ function showCardModal(card = null, bucketId, compact) {
         modal.find('.add-item.input').removeClass('inverted');
         modal.find('.ui.dividing.header').removeClass('inverted');
     };
+
+    if (card) { populateModal(modal, card); }
 
     modal.modal({
         restoreFocus: false,
@@ -1279,6 +1372,7 @@ function showCardModal(card = null, bucketId, compact) {
         onHidden: () => {
             if (cardEdited) { getCards(bucketId, dark, compact); };
             $('.checklist-drake').empty();
+            clearModal(modal);
         },
         onApprove: el => {
             modal.form('validate form');
@@ -1337,8 +1431,8 @@ function showCardModal(card = null, bucketId, compact) {
         }
     }).modal('show');
 
-    initializeTagsDropdown(modal.find('.ui.tags.dropdown'));
-    initializeUsersDropdown(modal.find('.ui.assigned_to.dropdown'));
+    initializeTagsDropdown(modal.find('.ui.tags.dropdown'), card);
+    initializeUsersDropdown(modal.find('.ui.assigned_to.dropdown'), card);
 
     modal.submit(e => {
         e.preventDefault();
@@ -1357,88 +1451,11 @@ function showCardModal(card = null, bucketId, compact) {
         );
     });
 
-    if (create) {
-        modal.find('input[name=id]').val('');
-        modal.find('input[name=name]').val('');
-        modal.find('textarea[name=description]').val('');
-        modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
-        modal.find('.ui.card-color.dropdown').dropdown('set selected', '');
-        // Prevent users from inserting checklists or comments before card object creation
-        modal.find('.extra.content .item').hide();
-        modal.find('.comments-segment.segment').hide();
-        modal.find('.ui.assigned_to.dropdown').dropdown('clear');
-        modal.find('.ui.card-due-date.calendar').calendar('clear');
-    } else {
-        modal.find('.ui.assigned_to.dropdown').dropdown('set exactly', card.assigned_to.map(user => user.username));
-        modal.find('.ui.tags.dropdown').dropdown('set exactly', card.tag.map(tag => tag.name));
-        modal.find('input[name=id]').val(card.id);
-        modal.find('input[name=name]').val(card.name);
-        modal.find('textarea[name=description]').val(card.description);
-        modal.find('.ui.status.dropdown').dropdown('set selected', card.status);
-        modal.find('.ui.card-color.dropdown').dropdown('set selected', card.color !== null ? card.color.id : '');
-        modal.find('.extra.content .item').show();
-        modal.find('.comments-segment.segment').show();
-        modal.find('.ui.card-due-date.calendar').calendar('set date', card.due_date);
-        modal.find('.ui.assigned_to.dropdown').parent().show();
+    if (!create) {
         modal.find('#suggest-comment').val('');
-
-        new Suggest.LocalMulti(
-            "suggest-comment",
-            "suggest",
-            card.allowed_users.map(user => `@${user.username}`),
-            {
-                dispAllKey: true,
-                prefix: true,
-                highlight: true,
-            }
-        );
-        {
-            getItems(bucketId, card.id, dark);
-            $('.add-item.input input').off().on('keypress', e => {
-                if (e.which == 13) {
-                    $(this).attr("disabled", "disabled");
-                    $.api({
-                        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
-                        method: 'POST',
-                        headers: { 'X-CSRFToken': csrftoken },
-                        data: {
-                            name: e.target.value,
-                            card: card.id,
-                            order: 1
-                        },
-                        on: 'now',
-                        onSuccess: r => {
-                            e.target.value = '';
-                            getItems(bucketId, card.id, dark);
-                            cardEdited = true;
-                        },
-                        onComplete: () => { $(this).removeAttr("disabled"); },
-                    });
-                };
-            });
-        }
-        {
-            getComments(bucketId, card.id, dark, card.allowed_users);
-            $('.add-reply.button').off().click(e => {
-                $(this).attr("disabled", "disabled");
-                $.api({
-                    url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/comments/`,
-                    method: 'POST',
-                    headers: { 'X-CSRFToken': csrftoken },
-                    data: {
-                        card: card.id,
-                        text: $('textarea.add-reply').val(),
-                    },
-                    on: 'now',
-                    onSuccess: r => {
-                        $('textarea.add-reply').val('');
-                        getComments(bucketId, card.id, dark, card.allowed_users);
-                        cardEdited = true;
-                    },
-                    onComplete: () => { $(this).removeAttr("disabled"); },
-                });
-            });
-        }
+        initializeSuggest();
+        loadComments(card, bucketId, dark);
+        loadChecklistItems(card, bucketId, dark)
     };
 }
 
