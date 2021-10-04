@@ -42,7 +42,7 @@
     <div class="ui segments">
       <div class="ui grid secondary grey segment" data-toggle="segments">
         <div class="ten wide column">
-          <a href="{% url 'finance:account_update' pk=account.pk %}">{{ account.name }}</a>
+          <a href="{% url 'finance:account_update' pk=account.pk %}">{% if account.credit_card %}<i class="credit card icon"></i>{% endif %}{{ account.name }}</a>
         </div>
         <div class="six wide right aligned column">
           {% with account.current_balance as b %}
@@ -57,6 +57,30 @@
         <div class="six wide right aligned column">
           {{ account.total_transactions }}
         </div>
+        {% if account.credit_card %}
+        <div class="ten wide column">
+          {% translate "Current invoice" %}
+          {% if account.current_invoice_is_paid %}
+          <div class="ui green label">Paid</div>
+          {% else %}
+          <div class="ui red label">Pending</div>
+          {% endif %}
+        </div>
+        <div class="six wide right aligned column">
+          {{ account.current_invoice }}
+        </div>
+        <div class="ten wide column">
+          {% translate "Last closed invoice" %}
+          {% if account.last_closed_invoice_is_paid %}
+          <div class="ui green label">Paid</div>
+          {% else %}
+          <div class="ui red label">Pending</div>
+          {% endif %}
+        </div>
+        <div class="six wide right aligned column">
+          {{ account.last_closed_invoice }}
+        </div>
+        {% endif %}
       </div>
     </div>
     {% endif %}
@@ -70,7 +94,7 @@
     <div class="ui segments">
       <div class="ui grid secondary grey segment" data-toggle="segments">
         <div class="ten wide column">
-          <a href="{% url 'finance:account_update' pk=account.pk %}">{{ account.name }}</a>
+          <a href="{% url 'finance:account_update' pk=account.pk %}">{% if account.credit_card %}<i class="credit card icon"></i>{% endif %}{{ account.name }}</a>
         </div>
         <div class="six wide right aligned column">
           {% with account.current_balance as b %}
