@@ -88,3 +88,12 @@ class WatcherHandler(logging.Handler):
         content = code_file.readlines()
         # code = [(i + 1, content[i]) for i in range(l - 7, l + 6)]
         # ''.join(content[l - 7:l + 6])
+        if line_number >= 7:
+            start = 0
+        else:
+            start = line_number - 7
+        if len(content) >= line_number + 6:
+            end = line_number + 6
+        else:
+            end = len(content) - 1
+        return content[start: end]
