@@ -6,7 +6,8 @@
   {% include "homepage/_app_button.html" with name="To-do lists" url="/todo/" emoji="ballot_box_with_check" %}
   {% include "homepage/_app_button.html" with name="Pixel" url="/pixel/" emoji="bar_chart" %}
   {% if request.user.is_superuser %}
-  {% include "homepage/_app_button.html" with name="Messenger" url="/ms/" emoji="envelope" %}
+  {% comment %} {% include "homepage/_app_button.html" with name="Messenger" url="/ms/" emoji="envelope" %} {% endcomment %}
+  {% include "homepage/_app_button.html" with name="Watcher" url="/watcher/" emoji="pager" %}
   {% include "homepage/_app_button.html" with name="Admin" url="/admin/" emoji="control_knobs" %}
   {% include "homepage/_app_button.html" with name="Deploy" url="/hc/deploy/" emoji="rocket" %}
   {% endif %}
