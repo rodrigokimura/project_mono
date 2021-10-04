@@ -6,7 +6,7 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', '_mono.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', '__mono.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:  # pragma: no cover
