@@ -7,8 +7,9 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
+from django.core.validators import MaxValueValidator, MinValueValidator 
 from django.db import models
-from django.db.models import FloatField, Sum, Value as V
+from django.db.models import FloatField, Sum, Value as V, Q
 from django.db.models.functions import Coalesce
 from django.template.loader import get_template
 from django.urls import reverse
@@ -377,6 +378,25 @@ class Account(models.Model):
     owned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owned_accountset")
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     initial_balance = models.FloatField(default=0)
+    credit_card = models.BooleanField(default=False)
+    settlement_date = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        default=None,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(28),
+        ]
+    )
+    due_date = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        default=None,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(28),
+        ]
+    )
 
     @property
     def is_shared(self):
@@ -385,16 +405,136 @@ class Account(models.Model):
     @property
     def current_balance(self):
         decimals = 2
-        qs = Transaction.objects.filter(account=self.pk)
-        sum = self.initial_balance
-        for t in qs:
-            sum += t.signed_amount
+        qs = self.transaction_set.all()
+        income_sum = Coalesce(
+            Sum(
+                'amount', 
+                filter=Q(category__type='INC'),
+                output_field=FloatField()
+            ),
+            V(0),
+            output_field=FloatField()
+        )
+        expense_sum = Coalesce(
+            Sum(
+                'amount', 
+                filter=Q(category__type='EXP'),
+                output_field=FloatField()
+            ),
+            V(0),
+            output_field=FloatField()
+        )
+        balance = qs.aggregate(
+            balance=income_sum - expense_sum
+        )['balance']
+        sum = self.initial_balance + balance
         return round(sum, decimals)
 
     @property
     def total_transactions(self):
         qs = Transaction.objects.filter(account=self.pk)
         return qs.count()
+
+    def get_credit_card_expenses(self, year, month):
+        if not self.credit_card:
+            raise Exception('Account is not of type credit card.')
+        qs = self.transaction_set.all()
+        qs = qs.filter(category__type='EXP')
+        if self.settlement_date >= 15:
+            month -= 1
+        range_start = datetime(
+            year,
+            month,
+            self.settlement_date,
+        )
+        range_end = datetime(
+            year,
+            month + 1,
+            self.settlement_date,
+        )
+        qs = qs.filter(
+            timestamp__range=[range_start, range_end],
+        )
+        coalesce_sum = Coalesce(
+            Sum(
+                'amount',
+                output_field=FloatField()
+            ),
+            V(0),
+            output_field=FloatField()
+        )
+        return qs.aggregate(
+            sum=-coalesce_sum
+        )['sum']
+
+    def get_credit_card_payments(self, year, month):
+        if not self.credit_card:
+            raise Exception('Account is not of type credit card.')
+        qs = self.transaction_set.all()
+        qs = qs.filter(category__type='INC')
+        if self.settlement_date >= 15:
+            month -= 1
+        if self.due_date < self.settlement_date:
+            month += 1
+        range_start = datetime(
+            year,
+            month,
+            self.due_date,
+        )
+        range_end = datetime(
+            year,
+            month + 1,
+            self.due_date,
+        )
+        qs = qs.filter(
+            timestamp__range=[range_start, range_end],
+        )
+        coalesce_sum = Coalesce(
+            Sum(
+                'amount',
+                output_field=FloatField()
+            ),
+            V(0),
+            output_field=FloatField()
+        )
+        return qs.aggregate(
+            sum=coalesce_sum
+        )['sum']
+    
+    def is_invoice_paid(self, year, month):
+        payments = self.get_credit_card_payments(year, month)
+        expenses = self.get_credit_card_expenses(year, month)
+        return payments >= -expenses
+
+    @property
+    def current_invoice(self):
+        now = timezone.now()
+        return self.get_credit_card_expenses(now.year, now.month)
+
+    @property
+    def current_invoice_is_paid(self):
+        now = timezone.now()
+        return self.is_invoice_paid(now.year, now.month)
+
+    @property
+    def last_closed_invoice(self):
+        now = timezone.now()
+        month = now.month
+        if self.settlement_date >= 15:
+            month -= 1
+        if now.day >= self.settlement_date:
+            month -= 1
+        return self.get_credit_card_expenses(now.year, month)
+
+    @property
+    def last_closed_invoice_is_paid(self):
+        now = timezone.now()
+        month = now.month
+        if self.settlement_date >= 15:
+            month -= 1
+        if now.day >= self.settlement_date:
+            month -= 1
+        return self.is_invoice_paid(now.year, month)
 
     def adjust_balance(self, target, user):
         diff = target - self.current_balance

@@ -299,11 +299,11 @@
         },
         "faker": {
             "hashes": [
-                "sha256:2649789e3e0c354dde1b8257d2ba7ed663fc3201e41277581de65c17e8aab10a",
-                "sha256:7b116034973a9a977a34a8a380354028150edf69f6cfbe55c03a852dd0a4116b"
+                "sha256:17225e20fed6b958108ad278974b5eb63a797496e43d5c337366fa128473d94f",
+                "sha256:30e10d959191b30fd89f7a180940b930bafcaf371c41cfb740d9cefacfe3555f"
             ],
             "index": "pypi",
-            "version": "==8.14.0"
+            "version": "==8.14.1"
         },
         "gitdb": {
             "hashes": [
@@ -757,11 +757,11 @@
         },
         "identify": {
             "hashes": [
-                "sha256:528a88021749035d5a39fe2ba67c0642b8341aaf71889da0e1ed669a429b87f0",
-                "sha256:de83a84d774921669774a2000bf87ebba46b4d1c04775f4a5d37deff0cf39f73"
+                "sha256:d1e82c83d063571bb88087676f81261a4eae913c492dafde184067c584bc7c05",
+                "sha256:fd08c97f23ceee72784081f1ce5125c8f53a02d3f2716dde79a6ab8f1039fea5"
             ],
             "markers": "python_full_version >= '3.6.1'",
-            "version": "==2.2.15"
+            "version": "==2.3.0"
         },
         "isort": {
             "hashes": [

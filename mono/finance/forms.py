@@ -30,12 +30,17 @@ User = get_user_model()
 class AccountForm(forms.ModelForm):
     error_css_class = 'error'
     current_balance = forms.FloatField(required=False, label=_('Current balance'))
+    credit_card = forms.BooleanField(
+        label=_("Credit card"),
+        widget=ToggleWidget,
+    )
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'placeholder': _('Description')})
         self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields['credit_card'].widget.attrs.update({'class': 'ui radio checkbox'})
         if self.instance.pk:
             if self.instance.owned_by != self.request.user:
                 self.fields['group'].widget.attrs.update({'class': 'ui disabled dropdown'})
