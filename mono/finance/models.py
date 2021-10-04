@@ -7,9 +7,9 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
-from django.core.validators import MaxValueValidator, MinValueValidator 
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import FloatField, Sum, Value as V, Q
+from django.db.models import FloatField, Q, Sum, Value as V
 from django.db.models.functions import Coalesce
 from django.template.loader import get_template
 from django.urls import reverse
@@ -408,7 +408,7 @@ class Account(models.Model):
         qs = self.transaction_set.all()
         income_sum = Coalesce(
             Sum(
-                'amount', 
+                'amount',
                 filter=Q(category__type='INC'),
                 output_field=FloatField()
             ),
@@ -417,7 +417,7 @@ class Account(models.Model):
         )
         expense_sum = Coalesce(
             Sum(
-                'amount', 
+                'amount',
                 filter=Q(category__type='EXP'),
                 output_field=FloatField()
             ),
@@ -500,7 +500,7 @@ class Account(models.Model):
         return qs.aggregate(
             sum=coalesce_sum
         )['sum']
-    
+
     def is_invoice_paid(self, year, month):
         payments = self.get_credit_card_payments(year, month)
         expenses = self.get_credit_card_expenses(year, month)
