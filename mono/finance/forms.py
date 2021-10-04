@@ -33,17 +33,6 @@ class AccountForm(forms.ModelForm):
     credit_card = forms.BooleanField(
         label=_("Credit card"),
         widget=ToggleWidget,
-        initial=True,
-    )
-    closing_date = forms.DateField(
-        label=_("Closing date"),
-        widget=CalendarWidget,
-        initial=timezone.now(),
-    )
-    due_date = forms.DateField(
-        label=_("Due date"),
-        widget=CalendarWidget,
-        initial=timezone.now(),
     )
 
     def __init__(self, *args, **kwargs):
