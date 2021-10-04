@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'todo_lists',
     'notes',
     'pixel',
+    'watcher',
     'django.forms',
 ]
 
@@ -277,10 +278,18 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True,
-        }
+        },
+        'watcher': {
+            'level': 'ERROR',
+            'class': 'watcher.log_handlers.WatcherHandler',
+            # 'include_html': True,
+        },
     },
     'root': {
-        'handlers': ['console'],
+        'handlers': [
+            # 'console',
+            'watcher',
+        ],
         'level': 'DEBUG',
     },
 }

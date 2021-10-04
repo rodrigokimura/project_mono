@@ -3,42 +3,51 @@ from django.contrib import admin
 from . import models
 
 
-@admin.register(models.Site)
-class SiteAdmin(admin.ModelAdmin):
+@admin.register(models.Issue)
+class IssueAdmin(admin.ModelAdmin):
 
     list_display = [
         'id',
-        'host',
+        'name',
+        'description',
+        'created_at',
     ]
     list_filter = [
-        'id',
-        'host',
+        'name',
+        'description',
+        'created_at',
     ]
 
 
-@admin.register(models.Ping)
-class PingAdmin(admin.ModelAdmin):
+@admin.register(models.Event)
+class EventAdmin(admin.ModelAdmin):
 
     list_display = [
-        'user_id',
-        'event',
-        'document_location',
-        'referrer_location',
+        'id',
         'timestamp',
-        'screen_resolution',
-        'viewport',
-        'document_title',
-        'browser_name',
-        'mobile_device',
-        'duration',
+        'user',
     ]
     list_filter = [
-        'site',
-        'user_id',
-        'event',
         'timestamp',
-        'browser_name',
-        'mobile_device',
-        'document_title',
-        'openpixel_js_version',
+        'user',
+    ]
+
+
+@admin.register(models.Traceback)
+class TracebackAdmin(admin.ModelAdmin):
+
+    list_display = [
+        'issue',
+        'order',
+        'file_name',
+        'function_name',
+        'line_number',
+        'variables',
+    ]
+    list_filter = [
+        'issue',
+        'order',
+        'file_name',
+        'function_name',
+        'line_number',
     ]
