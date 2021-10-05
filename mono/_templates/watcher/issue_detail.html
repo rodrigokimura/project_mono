@@ -1,0 +1,116 @@
+{% extends "watcher/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block head %}
+<style>
+    pre {
+        padding: 0;
+        margin: 0;
+    }
+    .tab.segment {
+        overflow-x: auto;
+        overflow-y: auto;
+    }
+</style>
+{% endblock head %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="row">
+            <div class="column">
+                <h1 class="ui header">{% translate "Issue" %} #{{ object.id }}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <div class="ui top attached tabular menu">
+                    <a class="active item" data-tab="tab-1">{% translate "Detail" %}</a>
+                    <a class="item" data-tab="tab-2">{% translate "Traceback" %}</a>
+                    <a class="item" data-tab="tab-3">{% translate "Events" %}</a>
+                </div>
+                <div class="ui bottom attached active tab segment" data-tab="tab-1">
+                    <h1 class="ui dividing header">{% translate "Detail" %}</h1>
+                    <p><strong>Hash: </strong>{{ object.hash }}</p>
+                    <p><strong>Name: </strong>{{ object.name }}</p>
+                    <p><strong>Description: </strong>{{ object.description }}</p>
+                    <p><strong>Created at: </strong>{{ object.created_at }}</p>
+                </div>
+                <div class="ui bottom attached tab segment" data-tab="tab-2">
+                    <h1 class="ui dividing header">{% translate "Traceback" %}</h1>
+                    <div class="ui fluid styled accordion">
+                        {% for tb in object.traceback_set.all %}
+                        <div class="title">
+                            <i class="dropdown icon"></i>
+                            {{ tb.short_file_name }} in {{ tb.function_name }} at line {{ tb.line_number }}
+                        </div>
+                        <div class="content">
+                            <div style="overflow-y: auto;">
+                                <table class="ui unstackable compact table">
+                                    <thead>
+                                        <tr><th>#</th>
+                                        <th></th>
+                                    </tr></thead>
+                                    <tbody>
+                                        {% for k,v in tb.code_text.items %}
+                                        {% if tb.line_number|stringformat:"i" == k %}
+                                        <tr class="warning">
+                                        {% else%}
+                                        <tr>
+                                        {% endif%}
+                                            <td>{{ k }}</td>
+                                            <td><pre>{{ v }}</pre></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <h2 class="ui header">Variables</h2>
+                            <div style="overflow-y: auto;">
+                                <table class="ui unstackable compact table">
+                                    <thead>
+                                        <tr><th>Variable</th>
+                                        <th>Value</th>
+                                    </tr></thead>
+                                    <tbody>
+                                        {% for k,v in tb.variables.items %}
+                                        <tr>
+                                            <td>{{ k }}</td>
+                                            <td><pre>{{ v }}</pre></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <script>$('.ui.accordion').accordion();</script>
+                </div>
+                <div class="ui bottom attached tab segment" data-tab="tab-3">
+                    <h1 class="ui dividing header">{% translate "Events" %}</h1>
+                    <table class="ui celled unstackable table">
+                        <thead>
+                            <tr><th>ID</th>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                        </tr></thead>
+                        <tbody>
+                            {% for event in object.event_set.all %}
+                            <tr>
+                                <td data-label="ID">{{ event.id }}</td>
+                                <td data-label="Timestamp">{{ event.timestamp }}</td>
+                                <td data-label="User">{{ event.user.username }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('.menu .item').tab();
+    </script>
+{% endblock %}

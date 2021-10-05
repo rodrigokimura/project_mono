@@ -35,6 +35,7 @@ urlpatterns = [
     path('todo/', include('todo_lists.urls')),
     path('nt/', include('notes.urls')),
     path('pixel/', include('pixel.urls')),
+    path('watcher/', include('watcher.urls')),
     # path('__debug__/', include(debug_toolbar.urls)),
     path('i18n/', include('django.conf.urls.i18n')),
     path('markdownx/', include('markdownx.urls')),
