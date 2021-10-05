@@ -49,7 +49,7 @@ class WatcherHandler(logging.Handler):
         if record.exc_info is not None:
             issue, created = Issue.objects.update_or_create(
                 hash=hashlib.sha256(
-                    bytes(record.exc_text, encoding='utf-8')
+                    record.exc_text.encode('utf-8')
                 ).hexdigest(),
                 defaults={
                     'name': record.exc_info[0].__name__,
@@ -94,4 +94,4 @@ class WatcherHandler(logging.Handler):
             end = line_number + 6
         else:
             end = len(content)
-        return zip(range(start+1, end+2), content[start: end])
+        return zip(range(start + 1, end + 2), content[start: end])
