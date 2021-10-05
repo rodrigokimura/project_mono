@@ -42,7 +42,10 @@ class WatcherHandler(logging.Handler):
         from watcher.models import Event, Issue, Traceback
         try:
             request: HttpRequest = record.request
-            user = record.request.user
+            if record.request.user.is_authenticated:
+                user = record.request.user
+            else:
+                user = None
         except Exception:
             request = None
             user = None
