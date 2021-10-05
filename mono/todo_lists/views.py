@@ -21,10 +21,10 @@ class HomePageView(LoginRequiredMixin, TemplateView):
 
     template_name = "todo_lists/home.html"
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         if request.user.list_set.all().count() == 0:
             return redirect('todo_lists:list_create')
-        return super().dispatch(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
 
 class ListCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
