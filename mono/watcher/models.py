@@ -45,6 +45,11 @@ class Traceback(models.Model):
             return fn.split('site-packages/')[-1]
         if 'project_mono/mono/' in fn:
             return fn.split('project_mono/mono/')[-1]
+        items = fn.split('/')
+        if len(items) > 1:
+            return '/'.join(items[len(items) - 2:])
+        else:
+            return items[-1]
 
     @property
     def vars(self):
