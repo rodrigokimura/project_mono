@@ -1,0 +1,61 @@
+{% extends "watcher/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block head %}
+{% endblock head %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="four wide column">
+            <div class="ui vertical fluid menu">
+                <a class="item active" data-tab="tab-1">{% translate "Issues" %}</a>
+                <a class="item" data-tab="tab-2">{% translate "Performance" %}</a>
+                <a class="item" data-tab="tab-3">{% translate "Stats" %}</a>
+            </div>
+        </div>
+        <div class="twelve wide stretched column">
+            <div class="ui tab" data-tab="tab-1">
+                <div class="ui segment">
+                    <h1 class="ui dividing header">{% translate "Issues" %}</h1>
+                    <div style="overflow-y: auto;">
+                        <table class="ui celled unstackable table">
+                            <thead>
+                                <tr><th>ID</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Events</th>
+                                <th>Users</th>
+                            </tr></thead>
+                            <tbody>
+                                {% for issue in issues %}
+                                <tr>
+                                    <td data-label="ID">{{ issue.id }}</td>
+                                    <td data-label="Name"><a href="{% url 'watcher:issue_detail' pk=issue.id %}">{{ issue.name }}</a></td>
+                                    <td data-label="Description">{{ issue.description }}</td>
+                                    <td data-label="Events">{{ issue.event_set.all.count }}</td>
+                                    <td data-label="Users">{{ issue.users.count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="ui tab" data-tab="tab-2">
+                <div class="ui segment">
+                    <h1 class="ui dividing header">{% translate "Performance" %}</h1>
+                </div>
+            </div>
+            <div class="ui tab" data-tab="tab-3">
+                <div class="ui segment">
+                    <h1 class="ui dividing header">{% translate "Stats" %}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('.menu .item').tab();
+    </script>
+{% endblock %}
