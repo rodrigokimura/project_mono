@@ -285,12 +285,12 @@ LOGGING = {
             # 'include_html': True,
         },
     },
-    'root': {
-        'handlers': [
-            # 'console',
-            'watcher',
-        ],
-        'level': 'ERROR',
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'watcher'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
     },
 }
 

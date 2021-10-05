@@ -118,7 +118,7 @@ def pixel_gif(request):
     return HttpResponse(PIXEL_GIF_DATA, content_type='image/gif')
 
 
-class RootView(RedirectView):
+class RootView(LoginRequiredMixin, RedirectView):
     permanent = False
     query_string = False
 
