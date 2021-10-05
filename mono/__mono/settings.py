@@ -290,7 +290,7 @@ LOGGING = {
             # 'console',
             'watcher',
         ],
-        'level': 'DEBUG',
+        'level': 'ERROR',
     },
 }
 
