@@ -59,7 +59,7 @@ class WatcherHandler(logging.Handler):
             if created:
                 tb: TracebackType = record.exc_info[2]
                 order = 1
-                while tb.tb_next is not None:
+                while tb is not None:
                     fr = tb.tb_frame
                     variables = {k: v if is_jsonable(v) else repr(v) for k, v in fr.f_locals.items()}
                     code_text = self.get_code_text(
@@ -72,7 +72,7 @@ class WatcherHandler(logging.Handler):
                         file_name=fr.f_code.co_filename,
                         function_name=fr.f_code.co_name,
                         line_number=tb.tb_lineno,
-                        code_text=code_text,
+                        code_text={k: v.rstrip('\n') for k, v in code_text},
                         variables=variables,
                     )
                     tb = tb.tb_next
@@ -86,14 +86,12 @@ class WatcherHandler(logging.Handler):
     def get_code_text(self, file_name, line_number):
         code_file = open(file_name, 'r')
         content = code_file.readlines()
-        # code = [(i + 1, content[i]) for i in range(l - 7, l + 6)]
-        # ''.join(content[l - 7:l + 6])
-        if line_number >= 7:
+        if line_number < 7:
             start = 0
         else:
             start = line_number - 7
         if len(content) >= line_number + 6:
             end = line_number + 6
         else:
-            end = len(content) - 1
-        return content[start: end]
+            end = len(content)
+        return zip(range(start+1, end+2), content[start: end])

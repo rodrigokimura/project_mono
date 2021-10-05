@@ -32,7 +32,7 @@ class Traceback(models.Model):
     file_name = models.CharField(max_length=1000)
     function_name = models.CharField(max_length=1000)
     line_number = models.PositiveIntegerField()
-    code_text = models.TextField(max_length=2000)
+    code_text = models.JSONField()
     variables = models.JSONField()
 
     def __str__(self):
@@ -46,11 +46,9 @@ class Traceback(models.Model):
         if 'project_mono/mono/' in fn:
             return fn.split('project_mono/mono/')[-1]
 
-    # @property
-    # def code(self):
-    #     l: int = self.line_number
-    #     for line in code_text
-
     @property
     def vars(self):
         return self.variables.items()
+
+    class Meta:
+        ordering = ['-order']
