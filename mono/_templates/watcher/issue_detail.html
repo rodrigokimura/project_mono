@@ -25,11 +25,20 @@
         </div>
         <div class="row">
             <div class="column">
+                <div class="ui secondary menu">
+                    <div class="item"><div class="ui resolve-issue button">{% translate "Resolve" %}</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+
                 <div class="ui top attached tabular menu">
                     <a class="active item" data-tab="tab-1">{% translate "Detail" %}</a>
                     <a class="item" data-tab="tab-2">{% translate "Traceback" %}</a>
                     <a class="item" data-tab="tab-3">{% translate "Events" %}</a>
                 </div>
+
                 <div class="ui bottom attached active tab segment" data-tab="tab-1">
                     <h1 class="ui dividing header">{% translate "Detail" %}</h1>
                     <p><strong>Hash: </strong>{{ object.hash }}</p>
@@ -37,13 +46,14 @@
                     <p><strong>Description: </strong>{{ object.description }}</p>
                     <p><strong>Created at: </strong>{{ object.created_at }}</p>
                 </div>
+
                 <div class="ui bottom attached tab segment" data-tab="tab-2">
                     <h1 class="ui dividing header">{% translate "Traceback" %}</h1>
                     <div class="ui fluid styled accordion">
                         {% for tb in object.traceback_set.all %}
                         <div class="title">
                             <i class="dropdown icon"></i>
-                            {{ tb.short_file_name }} in {{ tb.function_name }} at line {{ tb.line_number }}
+                            <span class="ui blue file-name text" data-content="{{ tb.file_name }}" data-inverted="">{{ tb.short_file_name }}</span> in {{ tb.function_name }} at line {{ tb.line_number }}
                         </div>
                         <div class="content">
                             <div style="overflow-y: auto;">
@@ -88,6 +98,7 @@
                     </div>
                     <script>$('.ui.accordion').accordion();</script>
                 </div>
+
                 <div class="ui bottom attached tab segment" data-tab="tab-3">
                     <h1 class="ui dividing header">{% translate "Events" %}</h1>
                     <table class="ui celled unstackable table">
@@ -107,10 +118,16 @@
                         </tbody>
                     </table>
                 </div>
+
             </div>
         </div>
     </div>
     <script>
         $('.menu .item').tab();
+        $('.file-name').popup();
+        $('.resolve-issue').api({
+            url: '/watcher/issue/{{ object.id }}/resolve/',
+            data: { resolved: true },
+        })
     </script>
 {% endblock %}

@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils import timezone
 
 
 class Issue(models.Model):
@@ -7,10 +8,16 @@ class Issue(models.Model):
     name = models.CharField(max_length=256)
     description = models.CharField(max_length=1000)
     created_at = models.DateTimeField(auto_now_add=True)
-    # deleted_at = models.DateTimeField(null=True, blank=True, default=None)
+    resolved_at = models.DateTimeField(null=True, blank=True, default=None)
+    resolved_by = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.name
+
+    def resolve(self, user):
+        self.resolved_at = timezone.now()
+        self.resolved_by = user
+        self.save()
 
     @property
     def users(self):
