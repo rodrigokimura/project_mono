@@ -6,59 +6,66 @@
 <div class="pusher">
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
     <div class="ui stackable grid container" style="margin-y: .5em;">
-        <div class="column">
+        <div class="row">
+            <div class="column">
             <div class="ui dividing header">{% translate "Your projects" %}</div>
-            {% for project in object_list %}
-            <div class="ui card" data-toggle="segments">
-                <div class="content">
-                    <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
-                        <div class="" style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
-                            <a href="{% url 'project_manager:project_detail' pk=project.pk %}">
-                                {{ project.name }}
-                            </a>
+            <div class="ui cards">
+                {% for project in object_list %}
+                <div class="ui card" data-toggle="segments">
+                    <div class="content">
+                        <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
+                            <div class="" style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
+                                <a href="{% url 'project_manager:project_detail' pk=project.pk %}">
+                                    {{ project.name }}
+                                </a>
+                            </div>
+                            <div class="ui basic icon top right pointing dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 1.5em; padding: .25em; margin: 0;' : ''}">
+                                <i class="ellipsis horizontal icon"></i>
+                                <div class="menu">
+                                    <a class="item" href="{% url 'project_manager:project_update' pk=project.pk %}"><i class="edit icon"></i>Edit this project</a>
+                                    <div class="divider"></div>
+                                    <a class="delete-project item" data-project-id="{{ project.id }}"><i class="delete icon"></i>Delete this project</a>
+                                </div>
+                            </div>
                         </div>
-                        <div class="ui basic icon top right pointing dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 1.5em; padding: .25em; margin: 0;' : ''}">
-                            <i class="ellipsis horizontal icon"></i>
-                            <div class="menu">
-                                <a class="item" href="{% url 'project_manager:project_update' pk=project.pk %}"><i class="edit icon"></i>Edit this project</a>
-                                <div class="divider"></div>
-                                <a class="delete-project item" data-project-id="{{ project.id }}"><i class="delete icon"></i>Delete this project</a>
+                        <div class="meta">
+                            {% translate "Created by" %} {{ project.created_by }}
+                        </div>
+                        <div class="description">
+                            Boards: {{ project.board_set.all.count }}
+                            <div style="padding: 1em;">
+                                {% for u in project.allowed_users %}
+                                <img class="ui avatar image" src="{{ u.profile.avatar.url }}" alt="">
+                                {% endfor %}
+                            </div>
+                            {{project.progress}}
+                            <div class="ui tiny multiple progress" data-percent="{% for v in project.progress.values %}{{ v }},{% endfor %}">
+                                <div class="green bar" data-title="Completed" data-content="cards"></div>
+                                <div class="yellow bar" data-content="In progress"></div>
+                                <div class="grey bar" data-content="Not started"></div>
                             </div>
                         </div>
                     </div>
-                    <div class="meta">
-                        {% translate "Created by" %} {{ project.created_by }}
-                    </div>
-                    <div class="description">
-                        Boards: {{ project.board_set.all.count }}
-                        <div>
-                            {% for u in project.allowed_users %}
-                            <img class="ui avatar image" src="{{ u.profile.avatar.url }}" alt="">
-                            {% endfor %}
-                        </div>
-                        <div class="ui multiple progress" data-percent="50,0,10,20">
-                            <div class="green bar"></div>
-                            <div class="yellow bar"></div>
-                            <div class="blue bar"></div>
-                            <div class="purple bar"></div>
-                        </div>
-                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-</div>
-<div class="column">
-<a class="ui fluid icon labeled green button" href="{% url 'project_manager:project_create' %}">
-<i class="add icon"></i>{% translate "New project" %}
-</a>
-</div>
-</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <a class="ui fluid icon labeled green button" href="{% url 'project_manager:project_create' %}">
+                    <i class="add icon"></i>{% translate "New project" %}
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
 
 <script>
     $('.ui.dropdown').dropdown();
     $('.ui.progress').progress();
+    $('.bar').popup();
     $('.delete-project').click(e => {
         let projectId = $(e.target).attr('data-project-id');
         $('body').modal({

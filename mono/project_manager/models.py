@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.db.models import DurationField, Sum, Value as V
-from django.db.models.aggregates import Max
+from django.db.models.aggregates import Count, Max
 from django.db.models.fields import IntegerField
 from django.db.models.functions import Coalesce
 from django.template.loader import get_template
@@ -45,6 +45,28 @@ class Project(BaseModel):
         ordering = [
             "created_at",
         ]
+
+    @property
+    def progress(self):
+        qs = Card.objects.filter(bucket__board__project=self.id)
+        total_cards = qs.count()
+        not_started = qs.filter(status='NS').aggregate(count=Count('id'))['count']
+        in_progress = qs.filter(status='IP').aggregate(count=Count('id'))['count']
+        completed = qs.filter(status='C').aggregate(count=Count('id'))['count']
+        if total_cards == 0:
+            completed_perc = 0
+            in_progress_perc = 0
+            not_started_perc = 0
+        else:
+            completed_perc = round(completed / total_cards * 100)
+            in_progress_perc = round(in_progress / total_cards * 100)
+            not_started_perc = 100 - completed_perc - in_progress_perc
+
+        return {
+            'completed': completed_perc,
+            'in_progress': in_progress_perc,
+            'not_started': not_started_perc,
+        }
 
 
 class Board(BaseModel):
