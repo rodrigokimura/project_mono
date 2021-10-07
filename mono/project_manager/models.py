@@ -63,9 +63,9 @@ class Project(BaseModel):
             not_started_perc = 100 - completed_perc - in_progress_perc
 
         return {
-            'completed': completed_perc,
-            'in_progress': in_progress_perc,
-            'not_started': not_started_perc,
+            'completed': [completed, completed_perc],
+            'in_progress': [in_progress, in_progress_perc],
+            'not_started': [not_started, not_started_perc],
         }
 
 
