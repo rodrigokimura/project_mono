@@ -75,7 +75,7 @@ class ProjectCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
     model = Project
     form_class = ProjectForm
     success_url = reverse_lazy('project_manager:projects')
-    success_message = "%(name)s was created successfully"
+    success_message = "Project %(name)s was created successfully"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -94,7 +94,7 @@ class ProjectUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
     model = Project
     form_class = ProjectForm
     success_url = reverse_lazy('project_manager:projects')
-    success_message = "%(name)s was updated successfully"
+    success_message = "Project %(name)s was updated successfully"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -150,11 +150,16 @@ class BoardCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     model = Board
     form_class = BoardForm
     success_url = reverse_lazy('project_manager:boards')
-    success_message = "%(name)s was created successfully"
+    success_message = "Board %(name)s was created successfully"
 
     def get_success_url(self, **kwargs) -> str:
-        success_url = reverse_lazy('project_manager:project_detail', args=[str(self.request.POST.get('project'))])
-        return success_url
+        return reverse_lazy(
+            'project_manager:board_detail',
+            kwargs={
+                'project_pk': self.object.project.pk,
+                'pk': self.object.pk,
+            }
+        )
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -178,11 +183,10 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     model = Board
     form_class = BoardForm
     success_url = reverse_lazy('project_manager:boards')
-    success_message = "%(name)s was updated successfully"
+    success_message = "Board %(name)s was updated successfully"
 
     def get_success_url(self, **kwargs) -> str:
-        success_url = reverse_lazy('project_manager:project_detail', args=[str(self.request.POST.get('project'))])
-        return success_url
+        return reverse_lazy('project_manager:project_detail', args=[str(self.request.POST.get('project'))])
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
