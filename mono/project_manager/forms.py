@@ -10,8 +10,6 @@ class ProjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        self.fields['deadline'].widget.type = 'date'
-        self.fields['deadline'].widget.format = 'n/d/Y'
 
     def save(self, *args, **kwargs):
         project = self.instance
@@ -23,13 +21,7 @@ class ProjectForm(forms.ModelForm):
         model = Project
         fields = [
             'name',
-            'deadline',
-            'active',
         ]
-        widgets = {
-            'deadline': CalendarWidget,
-            'active': ToggleWidget,
-        }
 
 
 class BoardForm(forms.ModelForm):

@@ -12,7 +12,7 @@
             <div class="ui cards">
                 {% for project in object_list %}
                 <div class="ui card" data-toggle="segments">
-                    <div class="content">
+                    <div class="content" style="padding-bottom: 0;">
                         <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
                             <div class="" style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
                                 <a href="{% url 'project_manager:project_detail' pk=project.pk %}">
@@ -32,17 +32,43 @@
                             {% translate "Created by" %} {{ project.created_by }}
                         </div>
                         <div class="description">
-                            Boards: {{ project.board_set.all.count }}
-                            <div style="padding: 1em;">
+                            <div style="padding-bottom: 1em;">
                                 {% for u in project.allowed_users %}
-                                <img class="ui avatar image" src="{{ u.profile.avatar.url }}" alt="">
+                                <img class="ui avatar image" src="{{ u.profile.avatar.url }}" alt="" data-content="{{ u.username }}">
                                 {% endfor %}
                             </div>
-                            {{project.progress}}
-                            <div class="ui tiny multiple progress" data-percent="{% for v in project.progress.values %}{{ v }},{% endfor %}">
-                                <div class="green bar" data-title="Completed" data-content="cards"></div>
-                                <div class="yellow bar" data-content="In progress"></div>
-                                <div class="grey bar" data-content="Not started"></div>
+                            <div class="ui tiny multiple progress" data-percent="{% for v, p in project.progress.values %}{{ p }},{% endfor %}" style="padding-bottom: 0;">
+                                
+                                {% with project.progress.completed as v %}
+                                {% if v.0 == 0 %}
+                                <div class="green bar" data-title="Completed" data-content="No cards"></div>
+                                {% elif v.0 == 1 %}
+                                <div class="green bar" data-title="Completed" data-content="1 card ({{ v.1 }}%)"></div>
+                                {% else %}
+                                <div class="green bar" data-title="Completed" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
+                                {% endif %}
+                                {% endwith %}
+                                
+                                {% with project.progress.in_progress as v %}
+                                {% if v.0 == 0 %}
+                                <div class="yellow bar" data-title="In progress" data-content="No cards"></div>
+                                {% elif v.0 == 1 %}
+                                <div class="yellow bar" data-title="In progress" data-content="1 card ({{ v.1 }}%)"></div>
+                                {% else %}
+                                <div class="yellow bar" data-title="In progress" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
+                                {% endif %}
+                                {% endwith %}
+                                
+                                {% with project.progress.not_started as v %}
+                                {% if v.0 == 0 %}
+                                <div class="grey bar" data-title="Not started" data-content="No cards"></div>
+                                {% elif v.0 == 1 %}
+                                <div class="grey bar" data-title="Not started" data-content="1 card ({{ v.1 }}%)"></div>
+                                {% else %}
+                                <div class="grey bar" data-title="Not started" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
+                                {% endif %}
+                                {% endwith %}
+                                
                             </div>
                         </div>
                     </div>
@@ -66,16 +92,17 @@
     $('.ui.dropdown').dropdown();
     $('.ui.progress').progress();
     $('.bar').popup();
+    $('.ui.avatar.image').popup();
     $('.delete-project').click(e => {
         let projectId = $(e.target).attr('data-project-id');
         $('body').modal({
             title: 'Confirm deletion', 
             class: 'mini', 
             closeIcon: true, 
-            content: 'You will be logged out in 5 Minutes', 
+            content: 'Delete this project?', 
             actions: [
                 { text: 'Cancel', class: 'secondary' },
-                { text: 'Alright, got it', class: 'red approve' },
+                { text: 'Delete', class: 'red approve' },
             ],
             onApprove: () => {
                 $.api({
