@@ -37,14 +37,18 @@ class Project(BaseModel):
     deadline = models.DateTimeField(null=True, blank=True)
     assigned_to = models.ManyToManyField(User, related_name="assigned_projects", blank=True)
 
-    @property
-    def allowed_users(self):
-        return (User.objects.filter(id=self.created_by.id) | self.assigned_to.all()).distinct()
-
     class Meta:
         ordering = [
             "created_at",
         ]
+
+    @property
+    def allowed_users(self):
+        return (User.objects.filter(id=self.created_by.id) | self.assigned_to.all()).distinct()
+
+    @property
+    def card_count(self):
+        return Card.objects.filter(bucket__board__project=self).count()
 
     @property
     def progress(self):

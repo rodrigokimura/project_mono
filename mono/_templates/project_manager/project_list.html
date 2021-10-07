@@ -37,39 +37,43 @@
                                 <img class="ui avatar image" src="{{ u.profile.avatar.url }}" alt="" data-content="{{ u.username }}">
                                 {% endfor %}
                             </div>
-                            <div class="ui tiny multiple progress" data-percent="{% for v, p in project.progress.values %}{{ p }},{% endfor %}" style="padding-bottom: 0;">
-                                
-                                {% with project.progress.completed as v %}
-                                {% if v.0 == 0 %}
-                                <div class="green bar" data-title="Completed" data-content="No cards"></div>
-                                {% elif v.0 == 1 %}
-                                <div class="green bar" data-title="Completed" data-content="1 card ({{ v.1 }}%)"></div>
-                                {% else %}
-                                <div class="green bar" data-title="Completed" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
-                                {% endif %}
-                                {% endwith %}
-                                
-                                {% with project.progress.in_progress as v %}
-                                {% if v.0 == 0 %}
-                                <div class="yellow bar" data-title="In progress" data-content="No cards"></div>
-                                {% elif v.0 == 1 %}
-                                <div class="yellow bar" data-title="In progress" data-content="1 card ({{ v.1 }}%)"></div>
-                                {% else %}
-                                <div class="yellow bar" data-title="In progress" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
-                                {% endif %}
-                                {% endwith %}
-                                
-                                {% with project.progress.not_started as v %}
-                                {% if v.0 == 0 %}
-                                <div class="grey bar" data-title="Not started" data-content="No cards"></div>
-                                {% elif v.0 == 1 %}
-                                <div class="grey bar" data-title="Not started" data-content="1 card ({{ v.1 }}%)"></div>
-                                {% else %}
-                                <div class="grey bar" data-title="Not started" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
-                                {% endif %}
-                                {% endwith %}
-                                
-                            </div>
+                            {% if project.card_count == 0 %}
+                                <div class="ui tiny multiple progress" data-percent="0" style="padding-bottom: 0;" data-content="No cards yet">
+                                    <div class="bar"></div>
+                                </div>
+                            {% else %}
+                                <div class="ui tiny multiple progress" data-percent="{% for v, p in project.progress.values %}{{ p }},{% endfor %}" style="padding-bottom: 0;">
+                                    {% with project.progress.completed as v %}
+                                        {% if v.0 == 0 %}
+                                        <div class="green bar" data-title="Completed" data-content="No cards"></div>
+                                        {% elif v.0 == 1 %}
+                                        <div class="green bar" data-title="Completed" data-content="1 card ({{ v.1 }}%)"></div>
+                                        {% else %}
+                                        <div class="green bar" data-title="Completed" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
+                                        {% endif %}
+                                    {% endwith %}
+                                    
+                                    {% with project.progress.in_progress as v %}
+                                        {% if v.0 == 0 %}
+                                        <div class="yellow bar" data-title="In progress" data-content="No cards"></div>
+                                        {% elif v.0 == 1 %}
+                                        <div class="yellow bar" data-title="In progress" data-content="1 card ({{ v.1 }}%)"></div>
+                                        {% else %}
+                                        <div class="yellow bar" data-title="In progress" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
+                                        {% endif %}
+                                    {% endwith %}
+                                    
+                                    {% with project.progress.not_started as v %}
+                                        {% if v.0 == 0 %}
+                                        <div class="grey bar" data-title="Not started" data-content="No cards"></div>
+                                        {% elif v.0 == 1 %}
+                                        <div class="grey bar" data-title="Not started" data-content="1 card ({{ v.1 }}%)"></div>
+                                        {% else %}
+                                        <div class="grey bar" data-title="Not started" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -91,6 +95,7 @@
 <script>
     $('.ui.dropdown').dropdown();
     $('.ui.progress').progress();
+    $('.ui.progress').popup();
     $('.bar').popup();
     $('.ui.avatar.image').popup();
     $('.delete-project').click(e => {
