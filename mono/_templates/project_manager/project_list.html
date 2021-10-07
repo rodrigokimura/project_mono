@@ -8,86 +8,109 @@
     <div class="ui stackable grid container" style="margin-y: .5em;">
         <div class="row">
             <div class="column">
-            <div class="ui dividing header">{% translate "Your projects" %}</div>
-            <div class="ui cards">
-                {% for project in object_list %}
-                <div class="ui card" data-toggle="segments">
-                    <div class="content" style="padding-bottom: 0;">
-                        <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
-                            <div class="" style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
-                                <a href="{% url 'project_manager:project_detail' pk=project.pk %}">
-                                    {{ project.name }}
-                                </a>
-                            </div>
-                            <div class="ui basic icon top right pointing dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 1.5em; padding: .25em; margin: 0;' : ''}">
-                                <i class="ellipsis horizontal icon"></i>
-                                <div class="menu">
-                                    <a class="item" href="{% url 'project_manager:project_update' pk=project.pk %}"><i class="edit icon"></i>Edit this project</a>
-                                    <div class="divider"></div>
-                                    <a class="delete-project item" data-project-id="{{ project.id }}"><i class="delete icon"></i>Delete this project</a>
+                <div class="ui dividing header">{% translate "Your projects" %}</div>
+
+                {% if object_list %}
+
+                    <div class="ui cards">
+                        {% for project in object_list %}
+                        <div class="ui card">
+                            <div class="content" style="padding-bottom: 0;">
+                                <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
+                                    <div class="" style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
+                                        <a href="{% url 'project_manager:project_detail' pk=project.pk %}">
+                                            {{ project.name }}
+                                        </a>
+                                    </div>
+                                    <div class="ui basic icon top right pointing dropdown button" style="flex: 0 0 auto; align-self: flex-start;">
+                                        <i class="ellipsis horizontal icon"></i>
+                                        <div class="menu">
+                                            <a class="item" href="{% url 'project_manager:project_detail' pk=project.pk %}"><i class="eye icon"></i>{% translate "Open" %}</a>
+                                            <a class="item" href="{% url 'project_manager:project_update' pk=project.pk %}"><i class="edit icon"></i>{% translate "Rename" %}</a>
+                                            <div class="divider"></div>
+                                            <a class="delete-project item" data-project-id="{{ project.id }}"><i class="delete icon"></i>{% translate "Delete" %}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="meta">
+                                    {% translate "Created by" %} {{ project.created_by }}
+                                </div>
+                                <div class="description">
+                                    <div style="padding-bottom: 1em;">
+                                        {% for u in project.allowed_users %}
+                                        <img class="ui avatar image" src="{{ u.profile.avatar.url }}" alt="" data-content="{{ u.username }}">
+                                        {% endfor %}
+                                    </div>
+                                    {% if project.card_count == 0 %}
+                                        <div class="ui tiny multiple progress" data-percent="0" style="padding-bottom: 0;" data-content="{% translate "No cards yet" %}">
+                                            <div class="bar"></div>
+                                        </div>
+                                    {% else %}
+                                        <div class="ui tiny multiple progress" data-percent="{% for v, p in project.progress.values %}{{ p }},{% endfor %}" style="padding-bottom: 0;">
+
+                                            {% with project.progress.completed as v %}
+                                                {% if v.0 == 0 %}
+                                                <div class="green bar" data-title="{% translate "Completed" %}" data-content="{% translate "No cards" %}"></div>
+                                                {% elif v.0 == 1 %}
+                                                <div class="green bar" data-title="{% translate "Completed" %}" data-content="{% translate "1 card" %} ({{ v.1 }}%)"></div>
+                                                {% else %}
+                                                <div class="green bar" data-title="{% translate "Completed" %}" data-content="{{ v.0 }} {% translate "cards" %} ({{ v.1 }}%)"></div>
+                                                {% endif %}
+                                            {% endwith %}
+                                            
+                                            {% with project.progress.in_progress as v %}
+                                                {% if v.0 == 0 %}
+                                                <div class="yellow bar" data-title="{% translate "In progress" %}" data-content="{% translate "No cards" %}"></div>
+                                                {% elif v.0 == 1 %}
+                                                <div class="yellow bar" data-title="{% translate "In progress" %}" data-content="{% translate "1 card" %} ({{ v.1 }}%)"></div>
+                                                {% else %}
+                                                <div class="yellow bar" data-title="{% translate "In progress" %}" data-content="{{ v.0 }} {% translate "cards" %} ({{ v.1 }}%)"></div>
+                                                {% endif %}
+                                            {% endwith %}
+                                            
+                                            {% with project.progress.not_started as v %}
+                                                {% if v.0 == 0 %}
+                                                <div class="grey bar" data-title="{% translate "Not started" %}" data-content="{% translate "No cards" %}"></div>
+                                                {% elif v.0 == 1 %}
+                                                <div class="grey bar" data-title="{% translate "Not started" %}" data-content="{% translate "1 card" %} ({{ v.1 }}%)"></div>
+                                                {% else %}
+                                                <div class="grey bar" data-title="{% translate "Not started" %}" data-content="{{ v.0 }} {% translate "cards" %} ({{ v.1 }}%)"></div>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
-                        <div class="meta">
-                            {% translate "Created by" %} {{ project.created_by }}
-                        </div>
-                        <div class="description">
-                            <div style="padding-bottom: 1em;">
-                                {% for u in project.allowed_users %}
-                                <img class="ui avatar image" src="{{ u.profile.avatar.url }}" alt="" data-content="{{ u.username }}">
-                                {% endfor %}
-                            </div>
-                            {% if project.card_count == 0 %}
-                                <div class="ui tiny multiple progress" data-percent="0" style="padding-bottom: 0;" data-content="No cards yet">
-                                    <div class="bar"></div>
-                                </div>
-                            {% else %}
-                                <div class="ui tiny multiple progress" data-percent="{% for v, p in project.progress.values %}{{ p }},{% endfor %}" style="padding-bottom: 0;">
-                                    {% with project.progress.completed as v %}
-                                        {% if v.0 == 0 %}
-                                        <div class="green bar" data-title="Completed" data-content="No cards"></div>
-                                        {% elif v.0 == 1 %}
-                                        <div class="green bar" data-title="Completed" data-content="1 card ({{ v.1 }}%)"></div>
-                                        {% else %}
-                                        <div class="green bar" data-title="Completed" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
-                                        {% endif %}
-                                    {% endwith %}
-                                    
-                                    {% with project.progress.in_progress as v %}
-                                        {% if v.0 == 0 %}
-                                        <div class="yellow bar" data-title="In progress" data-content="No cards"></div>
-                                        {% elif v.0 == 1 %}
-                                        <div class="yellow bar" data-title="In progress" data-content="1 card ({{ v.1 }}%)"></div>
-                                        {% else %}
-                                        <div class="yellow bar" data-title="In progress" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
-                                        {% endif %}
-                                    {% endwith %}
-                                    
-                                    {% with project.progress.not_started as v %}
-                                        {% if v.0 == 0 %}
-                                        <div class="grey bar" data-title="Not started" data-content="No cards"></div>
-                                        {% elif v.0 == 1 %}
-                                        <div class="grey bar" data-title="Not started" data-content="1 card ({{ v.1 }}%)"></div>
-                                        {% else %}
-                                        <div class="grey bar" data-title="Not started" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
-                                        {% endif %}
-                                    {% endwith %}
-                                </div>
-                            {% endif %}
-                        </div>
+                        {% endfor %}
                     </div>
+
+                {% else %}
+                    <div class="ui placeholder segment">
+                        <div class="ui icon header">
+                            <i class="exclamation triangle icon"></i>
+                            {% translate "No projects yet." %}
+                        </div>
+                        <a href="{% url 'project_manager:project_create' %}" class="ui icon labeled animated large green button">
+                            <div class="visible content">{% translate "Add a new project!" %}</div>
+                            <div class="hidden content"><i class="plus icon"></i></div>
+                        </a>
+                    </div>
+                {% endif %}
+                
+            </div>
+        </div>
+
+        {% if object_list %}
+            <div class="row">
+                <div class="column">
+                    <a class="ui left floated icon labeled green button" href="{% url 'project_manager:project_create' %}">
+                        <i class="add icon"></i>{% translate "New project" %}
+                    </a>
                 </div>
-                {% endfor %}
             </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="column">
-                <a class="ui fluid icon labeled green button" href="{% url 'project_manager:project_create' %}">
-                    <i class="add icon"></i>{% translate "New project" %}
-                </a>
-            </div>
-        </div>
+        {% endif %}
+
     </div>
 </div>
 
