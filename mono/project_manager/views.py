@@ -86,6 +86,9 @@ class ProjectCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
         ]
         return context
 
+    def get_success_url(self):
+        return reverse_lazy('project_manager:project_detail', kwargs={'pk': self.object.pk})
+
 
 class ProjectUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
     model = Project

@@ -5,5 +5,5 @@ class ProjectManagerConfig(AppConfig):
     name = 'project_manager'
 
     def ready(self):
-        import project_manager.signals
-        project_manager.signals.__name__
+        from project_manager import signals
+        signals.__name__
