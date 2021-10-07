@@ -267,58 +267,60 @@ SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 # MAINTENANCE MODE
 MAINTENANCE_MODE_IGNORE_SUPERUSER = True
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-        'mail_admins': {
-            'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler',
-            'include_html': True,
-        },
-        'watcher': {
-            'level': 'ERROR',
-            'class': 'watcher.log_handlers.WatcherHandler',
-            # 'include_html': True,
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'watcher'],
-            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-            'propagate': False,
-        },
-    },
-}
 
-if APP_ENV == 'DEV':
-    pass
-    # LOGGING = {}
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'filters': {
-#         'require_debug_true': {
-#             '()': 'django.utils.log.RequireDebugTrue',
-#         },
-#     },
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#             'filters': ['require_debug_true'],
-#         },
-#     },
-#     'loggers': {
-#         'mylogger': {
-#             'handlers': ['console'],
-#             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-#             'propagate': True,
-#         },
-#     },
-# }
+if APP_ENV == 'PRD':
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+            'mail_admins': {
+                'level': 'ERROR',
+                'class': 'django.utils.log.AdminEmailHandler',
+                'include_html': True,
+            },
+            'watcher': {
+                'level': 'ERROR',
+                'class': 'watcher.log_handlers.WatcherHandler',
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console', 'watcher', 'mail_admins'],
+                'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+                'propagate': False,
+            },
+        },
+    }
+elif APP_ENV == 'DEV':
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+            'mail_admins': {
+                'level': 'ERROR',
+                'class': 'django.utils.log.AdminEmailHandler',
+                'include_html': True,
+            },
+            'watcher': {
+                'level': 'ERROR',
+                'class': 'watcher.log_handlers.WatcherHandler',
+                # 'include_html': True,
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console', 'watcher'],
+                'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+                'propagate': False,
+            },
+        },
+    }
 
 
 TINYMCE_DEFAULT_CONFIG = {

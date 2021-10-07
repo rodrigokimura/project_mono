@@ -4,100 +4,128 @@
 
 {% block main %}
 <div class="pusher">
-  {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
-  <div class="ui stackable grid container" style="margin-y: .5em;">
-    <div class="four wide column">
-    </div>
-    <div class="eight wide column">
-      <div class="ui horizontal divider"><i class="table icon"></i> {% translate "Projects" %}</div>
-      {% for project in object_list %}
-      {% if not project.is_shared %}
-      <div class="ui segments">
-        <div class="ui secondary grey segment" data-toggle="segments" style="display: flex; align-items: flex-start; justify-content: space-between;">
-          <div style="flex: 1 1 auto; overflow-wrap: anywhere;">
-            {{ project.name }}
-          </div>
-          <div class="ui tiny buttons" style="flex: 0 0 auto;">
-            <a class="ui primary button" href="{% url 'project_manager:project_detail' pk=project.pk %}">
-              <i class="eye icon"></i>
-              {% translate "View" %}
-            </a>
-            <a class="ui yellow button" href="{% url 'project_manager:project_update' pk=project.pk %}">
-              <i class="edit icon"></i>
-              {% translate "Edit" %}
-            </a>
-          </div>
+    {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
+    <div class="ui stackable grid container" style="margin-y: .5em;">
+        <div class="row">
+            <div class="column">
+            <div class="ui dividing header">{% translate "Your projects" %}</div>
+            <div class="ui cards">
+                {% for project in object_list %}
+                <div class="ui card" data-toggle="segments">
+                    <div class="content" style="padding-bottom: 0;">
+                        <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
+                            <div class="" style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
+                                <a href="{% url 'project_manager:project_detail' pk=project.pk %}">
+                                    {{ project.name }}
+                                </a>
+                            </div>
+                            <div class="ui basic icon top right pointing dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 1.5em; padding: .25em; margin: 0;' : ''}">
+                                <i class="ellipsis horizontal icon"></i>
+                                <div class="menu">
+                                    <a class="item" href="{% url 'project_manager:project_update' pk=project.pk %}"><i class="edit icon"></i>Edit this project</a>
+                                    <div class="divider"></div>
+                                    <a class="delete-project item" data-project-id="{{ project.id }}"><i class="delete icon"></i>Delete this project</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="meta">
+                            {% translate "Created by" %} {{ project.created_by }}
+                        </div>
+                        <div class="description">
+                            <div style="padding-bottom: 1em;">
+                                {% for u in project.allowed_users %}
+                                <img class="ui avatar image" src="{{ u.profile.avatar.url }}" alt="" data-content="{{ u.username }}">
+                                {% endfor %}
+                            </div>
+                            {% if project.card_count == 0 %}
+                                <div class="ui tiny multiple progress" data-percent="0" style="padding-bottom: 0;" data-content="No cards yet">
+                                    <div class="bar"></div>
+                                </div>
+                            {% else %}
+                                <div class="ui tiny multiple progress" data-percent="{% for v, p in project.progress.values %}{{ p }},{% endfor %}" style="padding-bottom: 0;">
+                                    {% with project.progress.completed as v %}
+                                        {% if v.0 == 0 %}
+                                        <div class="green bar" data-title="Completed" data-content="No cards"></div>
+                                        {% elif v.0 == 1 %}
+                                        <div class="green bar" data-title="Completed" data-content="1 card ({{ v.1 }}%)"></div>
+                                        {% else %}
+                                        <div class="green bar" data-title="Completed" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
+                                        {% endif %}
+                                    {% endwith %}
+                                    
+                                    {% with project.progress.in_progress as v %}
+                                        {% if v.0 == 0 %}
+                                        <div class="yellow bar" data-title="In progress" data-content="No cards"></div>
+                                        {% elif v.0 == 1 %}
+                                        <div class="yellow bar" data-title="In progress" data-content="1 card ({{ v.1 }}%)"></div>
+                                        {% else %}
+                                        <div class="yellow bar" data-title="In progress" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
+                                        {% endif %}
+                                    {% endwith %}
+                                    
+                                    {% with project.progress.not_started as v %}
+                                        {% if v.0 == 0 %}
+                                        <div class="grey bar" data-title="Not started" data-content="No cards"></div>
+                                        {% elif v.0 == 1 %}
+                                        <div class="grey bar" data-title="Not started" data-content="1 card ({{ v.1 }}%)"></div>
+                                        {% else %}
+                                        <div class="grey bar" data-title="Not started" data-content="{{ v.0 }} cards ({{ v.1 }}%)"></div>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            </div>
         </div>
-        <div class="ui grid segment">
-          <div class="row">
-            <div class="ten wide column">
-              {% translate "Created by" %}
+        <div class="row">
+            <div class="column">
+                <a class="ui fluid icon labeled green button" href="{% url 'project_manager:project_create' %}">
+                    <i class="add icon"></i>{% translate "New project" %}
+                </a>
             </div>
-            <div class="six wide right aligned column">
-              {{ project.created_by }}
-            </div>
-          </div>
-          <div class="row">
-            <div class="eight wide column">
-              {% translate "Deadline" %}
-            </div>
-            <div class="eight wide right aligned column">
-              {{ project.deadline|date }}
-            </div>
-          </div>
         </div>
-      </div>
-      {% endif %}
-      {% endfor %}
     </div>
-    <div class="four wide column">
-      <a class="ui fluid icon labeled green button" href="{% url 'project_manager:project_create' %}">
-        <i class="add icon"></i>{% translate "New project" %}
-      </a>
-    </div>
-  </div>
 </div>
 
 
 <script>
-  $('.ui.dropdown[data-name=group]').dropdown({
-    placeholder: "Select a group",
-    forceSelection: false,
-    values: [
-      {% for g in groups %}
-      {
-        name: "{{ g.name }}",
-        value: {{ g.id }},
-        {% if g.id|stringformat:"i" == request.GET.group %}
-        selected : true
-        {% endif %}
-      },
-      {% endfor %}
-    ]
-  });
-  $('.ui.dropdown[data-name=member]').dropdown({
-    placeholder: "Select a member of a group",
-    forceSelection: false,
-    values: [
-      {% for m in members %}
-      {
-        name: "{{ m.username }}",
-        value: {{ m.id }},
-        {% if m.id|stringformat:"i" == request.GET.member %}
-        selected : true
-        {% endif %}
-      },
-      {% endfor %}
-    ]
-  });
-  $('.message .close').click(function() {
-    $(this)
-    .closest('.message')
-    .transition('fade');
-  });
-  $("*[data-toggle=segments]").click(e=>{
-    $(e.target).siblings('.ui.segment').toggle('swing');
-  })
+    $('.ui.dropdown').dropdown();
+    $('.ui.progress').progress();
+    $('.ui.progress').popup();
+    $('.bar').popup();
+    $('.ui.avatar.image').popup();
+    $('.delete-project').click(e => {
+        let projectId = $(e.target).attr('data-project-id');
+        $('body').modal({
+            title: 'Confirm deletion', 
+            class: 'mini', 
+            closeIcon: true, 
+            content: 'Delete this project?', 
+            actions: [
+                { text: 'Cancel', class: 'secondary' },
+                { text: 'Delete', class: 'red approve' },
+            ],
+            onApprove: () => {
+                $.api({
+                    url: `/pm/api/projects/${projectId}/`,
+                    method: 'DELETE',
+                    mode: 'same-origin',
+                    headers: {'X-CSRFToken': csrftoken},
+                    cache: false,
+                    on: 'now',
+                    onSuccess: response => {
+                        window.location.replace(response.url);
+                    },
+                    onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
+                    onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+                });
+            }
+        }).modal('show');
+    })
 </script>
 
 {% endblock %}
