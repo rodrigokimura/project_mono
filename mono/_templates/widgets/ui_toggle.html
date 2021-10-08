@@ -1,12 +1,18 @@
 {% load i18n %}
 <div class="ui toggle checkbox" data-name="{{ widget.name }}"> 
+    <input type="hidden" name="{{ widget.name }}">
     <input 
         type="checkbox" 
         name="{{ widget.name }}" 
-        id="{{ widget.attrs.id }}"
         {% if widget.value %}
         checked
         {% endif %}
         > 
     <label>{% translate widget.label %}</label>
 </div>
+<script>
+    $('.toggle.checkbox[data-name={{ widget.name }}]').checkbox({
+        onChecked: () {$('input[type=hidden][name={{ widget.name }}]').val(1)},
+        onUnhecked: () {$('input[type=hidden][name={{ widget.name }}]').val(0)},
+    });
+</script>
