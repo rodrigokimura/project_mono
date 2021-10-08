@@ -21,7 +21,8 @@ class RootView(UserPassesTestMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         # a = 1 / 0
         # test
-        context['issues'] = Issue.objects.all()
+        context['unresolved_issues'] = Issue.objects.filter(resolved_at__isnull=True)
+        context['resolved_issues'] = Issue.objects.exclude(resolved_at__isnull=True)
         return context
 
 
