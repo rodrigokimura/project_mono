@@ -25,9 +25,15 @@
         </div>
         <div class="row">
             <div class="column">
-                <div class="ui secondary menu">
-                    <div class="item"><div class="ui resolve-issue button">{% translate "Resolve" %}</div></div>
-                </div>
+                {% if object.resolved %}
+                    <div class="ui resolve-issue active green icon button" data-resolved="{{ object.resolved|yesno:'true,false' }}">
+                        <i class="check icon"></i>
+                    </div>
+                {% else %}
+                    <div class="ui resolve-issue button" data-resolved="{{ object.resolved|yesno:'true,false' }}">
+                        {% translate "Resolve" %}
+                    </div>
+                {% endif %}
             </div>
         </div>
         <div class="row">
@@ -123,11 +129,71 @@
         </div>
     </div>
     <script>
+        const ISSUE_ID = '{{ object.id }}';
+        const RESOLVE_BUTTON = $('.resolve-issue');
         $('.menu .item').tab();
         $('.file-name').popup();
-        $('.resolve-issue').api({
-            url: '/watcher/issue/{{ object.id }}/resolve/',
-            data: { resolved: true },
+        
+        function renderResolveButton() {
+            if (RESOLVE_BUTTON.attr('data-resolved') == 'true') {
+                $('.resolve-issue')
+                    .removeClass('button')
+                    .addClass('active green icon button')
+                    .html('<i class="check icon"></i>');
+                $('.resolve-issue').popup({
+                    content: 'Mark issue as unresolved'
+                });
+            } else {
+                $('.resolve-issue')
+                    .removeClass('active green icon button')
+                    .addClass('button')
+                    .html('{% translate "Resolve" %}');
+                $('.resolve-issue').popup({
+                    content: 'Mark issue as resolved'
+                });
+            }
+        }
+        
+        renderResolveButton()
+        
+        $('.resolve-issue').on('click', e => {
+            if ($('.resolve-issue').attr('data-resolved') == 'true') {
+                $.api({
+                    on: 'now',
+                    method: 'POST',
+                    url: '/watcher/issue/{{ object.id }}/resolve/',
+                    data: { resolved: false },
+                    headers: { 'X-CSRFToken': csrftoken },
+                    stateContext: '.resolve-issue',
+                    loadingDuration: 1000,
+                    onSuccess: () => {
+                        $('body').toast({
+                            title: 'Issue update',
+                            message: `Issue ${ISSUE_ID} marked as unresolved.`,
+                        });
+                        $('.resolve-issue').attr('data-resolved', 'false');
+                        renderResolveButton();
+                    }
+                });
+            } else {
+                $.api({
+                    on: 'now',
+                    method: 'POST',
+                    url: '/watcher/issue/{{ object.id }}/resolve/',
+                    data: { resolved: true },
+                    headers: { 'X-CSRFToken': csrftoken },
+                    stateContext: '.resolve-issue',
+                    loadingDuration: 1000,
+                    onSuccess: () => {
+                        $('body').toast({
+                            title: 'Issue update',
+                            message: `Issue ${ISSUE_ID} marked as resolved.`,
+                        });
+                        $('.resolve-issue').attr('data-resolved', 'true');
+                        renderResolveButton();
+                    }
+                });
+            }
         })
     </script>
 {% endblock %}

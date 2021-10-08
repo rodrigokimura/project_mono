@@ -20,6 +20,10 @@ class Issue(models.Model):
         self.save()
 
     @property
+    def resolved(self):
+        return self.resolved_at is not None
+
+    @property
     def users(self):
         return self.event_set.values('user').distinct()
 
