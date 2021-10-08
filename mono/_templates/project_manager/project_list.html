@@ -48,13 +48,13 @@
                                     {% else %}
                                         <div class="ui tiny multiple progress" data-percent="{% for v, p in project.progress.values %}{{ p }},{% endfor %}" style="padding-bottom: 0;">
 
-                                            {% with project.progress.completed as v %}
+                                            {% with project.progress.not_started as v %}
                                                 {% if v.0 == 0 %}
-                                                <div class="green bar" data-title="{% translate "Completed" %}" data-content="{% translate "No cards" %}"></div>
+                                                <div class="grey bar" data-title="{% translate "Not started" %}" data-content="{% translate "No cards" %}"></div>
                                                 {% elif v.0 == 1 %}
-                                                <div class="green bar" data-title="{% translate "Completed" %}" data-content="{% translate "1 card" %} ({{ v.1 }}%)"></div>
+                                                <div class="grey bar" data-title="{% translate "Not started" %}" data-content="{% translate "1 card" %} ({{ v.1 }}%)"></div>
                                                 {% else %}
-                                                <div class="green bar" data-title="{% translate "Completed" %}" data-content="{{ v.0 }} {% translate "cards" %} ({{ v.1 }}%)"></div>
+                                                <div class="grey bar" data-title="{% translate "Not started" %}" data-content="{{ v.0 }} {% translate "cards" %} ({{ v.1 }}%)"></div>
                                                 {% endif %}
                                             {% endwith %}
                                             
@@ -67,16 +67,17 @@
                                                 <div class="yellow bar" data-title="{% translate "In progress" %}" data-content="{{ v.0 }} {% translate "cards" %} ({{ v.1 }}%)"></div>
                                                 {% endif %}
                                             {% endwith %}
-                                            
-                                            {% with project.progress.not_started as v %}
+
+                                            {% with project.progress.completed as v %}
                                                 {% if v.0 == 0 %}
-                                                <div class="grey bar" data-title="{% translate "Not started" %}" data-content="{% translate "No cards" %}"></div>
+                                                <div class="green bar" data-title="{% translate "Completed" %}" data-content="{% translate "No cards" %}"></div>
                                                 {% elif v.0 == 1 %}
-                                                <div class="grey bar" data-title="{% translate "Not started" %}" data-content="{% translate "1 card" %} ({{ v.1 }}%)"></div>
+                                                <div class="green bar" data-title="{% translate "Completed" %}" data-content="{% translate "1 card" %} ({{ v.1 }}%)"></div>
                                                 {% else %}
-                                                <div class="grey bar" data-title="{% translate "Not started" %}" data-content="{{ v.0 }} {% translate "cards" %} ({{ v.1 }}%)"></div>
+                                                <div class="green bar" data-title="{% translate "Completed" %}" data-content="{{ v.0 }} {% translate "cards" %} ({{ v.1 }}%)"></div>
                                                 {% endif %}
                                             {% endwith %}
+
                                         </div>
                                     {% endif %}
                                 </div>
