@@ -380,18 +380,14 @@ class Account(models.Model):
     initial_balance = models.FloatField(default=0)
     credit_card = models.BooleanField(default=False)
     settlement_date = models.PositiveSmallIntegerField(
-        null=True,
-        blank=True,
-        default=None,
+        default=1,
         validators=[
             MinValueValidator(1),
             MaxValueValidator(28),
         ]
     )
     due_date = models.PositiveSmallIntegerField(
-        null=True,
-        blank=True,
-        default=None,
+        default=1,
         validators=[
             MinValueValidator(1),
             MaxValueValidator(28),
