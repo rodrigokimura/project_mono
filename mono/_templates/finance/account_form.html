@@ -35,6 +35,27 @@
 </div>
   
 <script>
+  $('.field input[name=settlement_date]').parent().hide();
+  $('.field input[name=due_date]').parent().hide();
+  
+  function changeCreditCardOptions(show=true) {
+    if (show) {
+      $('.field input[name=settlement_date]').parent().show('swing');
+      $('.field input[name=due_date]').parent().show('swing');
+    } else {
+      $('.field input[name=settlement_date]').parent().hide('swing');
+      $('.field input[name=due_date]').parent().hide('swing');
+    }
+  }
+
+  changeCreditCardOptions(false);
+
   $('*.ui.dropdown').dropdown();
+
+  $('.toggle[data-name=credit_card]').checkbox({
+    onChecked: () => {changeCreditCardOptions(show=true)},
+    onUnchecked: () => {changeCreditCardOptions(show=false)},
+  });
+
 </script>
 {% endblock %}
