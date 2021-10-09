@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Issue
-from .serializers import IssueResolverSerializer
+from .serializers import IssueResolverSerializer, IssueIgnorerSerializer
 
 
 class RootView(UserPassesTestMixin, TemplateView):
@@ -29,24 +29,39 @@ class RootView(UserPassesTestMixin, TemplateView):
 class IssueDetailView(DetailView):
     model = Issue
 
+def get_issue(pk):
+    try:
+        return Issue.objects.get(pk=pk)
+    except Issue.DoesNotExist:
+        raise Http404
 
 class IssueResolveAPIView(LoginRequiredMixin, APIView):
-    """
-    Retrieve, update or delete a card instance.
-    """
-
-    def get_object(self, pk):
-        try:
-            return Issue.objects.get(pk=pk)
-        except Issue.DoesNotExist:
-            raise Http404
 
     def post(self, request, pk, format=None, **kwargs):
-        issue: Issue = self.get_object(pk)
+        issue: Issue = get_issue(pk)
         if request.user.is_superuser:
             serializer = IssueResolverSerializer(data=request.data)
             if serializer.is_valid():
-                issue.resolve(request.user)
+                if serializer.data['resolved']:
+                    issue.resolve(request.user)
+                else:
+                    issue.unresolve()
+                return Response({'success': True})
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class IssueIgnoreAPIView(LoginRequiredMixin, APIView):
+
+    def post(self, request, pk, format=None, **kwargs):
+        issue: Issue = get_issue(pk)
+        if request.user.is_superuser:
+            serializer = IssueIgnorerSerializer(data=request.data)
+            if serializer.is_valid():
+                if serializer.data['ignored']:
+                    issue.ignore(request.user)
+                else:
+                    issue.unignore()
                 return Response({'success': True})
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)

@@ -9,7 +9,19 @@ class Issue(models.Model):
     description = models.CharField(max_length=1000)
     created_at = models.DateTimeField(auto_now_add=True)
     resolved_at = models.DateTimeField(null=True, blank=True, default=None)
-    resolved_by = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True)
+    resolved_by = models.ForeignKey(
+        get_user_model(), 
+        on_delete=models.SET_NULL, 
+        null=True,
+        related_name='resolved_issues'
+    )
+    ignored_at = models.DateTimeField(null=True, blank=True, default=None)
+    ignored_by = models.ForeignKey(
+        get_user_model(), 
+        on_delete=models.SET_NULL, 
+        null=True,
+        related_name='ignored_issues'
+    )
 
     def __str__(self):
         return self.name
@@ -19,9 +31,28 @@ class Issue(models.Model):
         self.resolved_by = user
         self.save()
 
+    def unresolve(self):
+        self.resolved_at = None
+        self.resolved_by = None
+        self.save()
+    
+    def ignore(self, user):
+        self.ignored_at = timezone.now()
+        self.ignored_by = user
+        self.save()
+
+    def unignore(self):
+        self.ignored_at = None
+        self.ignored_by = None
+        self.save()
+
     @property
     def resolved(self):
         return self.resolved_at is not None
+
+    @property
+    def ignored(self):
+        return self.ignored_at is not None
 
     @property
     def users(self):
