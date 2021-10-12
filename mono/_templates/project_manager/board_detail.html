@@ -6,581 +6,605 @@
 
 
 {% block head %}
-  <link rel="stylesheet" type="text/css" href="{% static 'board.css' %}">
-  <script src="{% static '/suggest.js' %}"></script>
-  <script src="{% static '/caret.js' %}"></script>
-  <script>
-    if(typeof(String.prototype.trim) === "undefined") {
-        String.prototype.trim = () => String(this).replace(/^\s+|\s+$/g, '');
-    };
-    const PROJECT_ID = "{{ object.project.id }}";
-    const BOARD_ID = "{{ object.id }}";
-    const USERNAME = "{{ request.user.username }}";
-    {% for code, name, flag, js_locale in LANGUAGE_EXTRAS %}
-    {% if code == LANGUAGE_CODE %}
-    const LANGUAGE_CODE = "{{ js_locale }}";
-    {% endif %}
-    {% endfor %}
-    const ICON_VALUES = [
-      {% for icon in icons %}
-      {
-        "value": "{{ icon.id }}",
-        "icon": "{{ icon.markup }}",
-      },
-      {% endfor %}
-    ];
-    const COLOR_VALUES = [
-      {% for color in colors %}
-      {
-        "value": "{{ color.id }}",
-        "icon": "{{ color.name|lower }} circle",
-      },
-      {% endfor %}
-    ];
-    {% if object.background_image %}
-      var wallpaper = "{{ object.background_image.url }}";
-    {% else %}
-      var wallpaper = "";
-    {% endif %}
-  </script>
+    <link rel="stylesheet" type="text/css" href="{% static 'board.css' %}">
+    <script src="{% static '/suggest.js' %}"></script>
+    <script src="{% static '/caret.js' %}"></script>
+    <script>
+        if(typeof(String.prototype.trim) === "undefined") {
+            String.prototype.trim = () => String(this).replace(/^\s+|\s+$/g, '');
+        };
+        const PROJECT_ID = "{{ object.project.id }}";
+        const BOARD_ID = "{{ object.id }}";
+        const USERNAME = "{{ request.user.username }}";
+        {% for code, name, flag, js_locale in LANGUAGE_EXTRAS %}
+        {% if code == LANGUAGE_CODE %}
+            const LANGUAGE_CODE = "{{ js_locale }}";
+        {% endif %}
+        {% endfor %}
+        const ICON_VALUES = [
+            {% for icon in icons %}
+            {
+                "value": "{{ icon.id }}",
+                "icon": "{{ icon.markup }}",
+            },
+            {% endfor %}
+        ];
+        const COLOR_VALUES = [
+            {% for color in colors %}
+            {
+                "value": "{{ color.id }}",
+                "icon": "{{ color.name|lower }} circle",
+            },
+            {% endfor %}
+        ];
+        {% if object.background_image %}
+        var wallpaper = "{{ object.background_image.url }}";
+        {% else %}
+        var wallpaper = "";
+        {% endif %}
+        const FEATURES = {
+            tags: {{ object.tags_feature|yesno:'true,false' }},
+            color: {{ object.color_feature|yesno:'true,false' }},
+            dueDate: {{ object.due_date_feature|yesno:'true,false' }},
+            status: {{ object.status_feature|yesno:'true,false' }},
+            assignees: {{ object.assignees_feature|yesno:'true,false' }},
+            checklist: {{ object.checklist_feature|yesno:'true,false' }},
+            files: {{ object.files_feature|yesno:'true,false' }},
+            comments: {{ object.comments_feature|yesno:'true,false' }},
+            time_entries: {{ object.time_entries_feature|yesno:'true,false' }},
+        }
+    </script>
 {% endblock head %}
 
 {% block menu %}
-  <a class="left-sidebar item"><i class="sidebar icon"></i></a>
-  <a class="refresh item"><i class="refresh icon"></i></a>
-  <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;"></div>
+    <a class="left-sidebar item"><i class="sidebar icon"></i></a>
+    <a class="refresh item"><i class="refresh icon"></i></a>
+    <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;"></div>
 {% endblock menu %}
 
 {% block right_menu %}
-  <a class="right-sidebar item"><i class="cog icon"></i></a>
+    <a class="right-sidebar item"><i class="cog icon"></i></a>
 {% endblock right_menu %}
 
 {% block sidebars %}
-  <div class="ui left sidebar inverted vertical menu">
-    {% comment %} <a class="item" href="{% url 'project_manager:index' %}">Home</a> {% endcomment %}
-    <a class="item" href="{% url 'project_manager:projects' %}">Projects</a>
-    <a class="item" href="{% url 'project_manager:project_detail' pk=object.project.id %}">Boards</a>
-  </div>
-  <div class="ui right sidebar inverted vertical menu">
-    <div class="item">
-      <div class="header">{% translate 'Appearance' %}</div>
-      <div class="menu">
+    <div class="ui left sidebar inverted vertical menu">
+        {% comment %} <a class="item" href="{% url 'project_manager:index' %}">Home</a> {% endcomment %}
+        <a class="item" href="{% url 'project_manager:projects' %}">Projects</a>
+        <a class="item" href="{% url 'project_manager:project_detail' pk=object.project.id %}">Boards</a>
+    </div>
+    <div class="ui right sidebar inverted vertical menu">
         <div class="item">
-          <div class="header">{% translate 'Compact mode' %}</div>
-          <div class="ui inverted slider checkbox board-compact">
-            <input type="checkbox">
-            <label></label>
-          </div>
-        </div>
-        <div class="item">
-          <div class="header">{% translate 'Dark mode' %}</div>
-          <div class="ui inverted slider checkbox board-dark">
-            <input type="checkbox">
-            <label></label>
-          </div>
-        </div>
-        <div class="item">
-          <div class="header">{% translate 'Bucket width' %}</div>
-          <div class="content">
-            <div class="ui inverted width labeled slider" id="slider-1"></div>
-          </div>
-        </div>
-        <div class="item">
-          <div class="header">{% translate 'Background image' %}</div>
-          <div class="content">
-            <div class="ui fluid action input">
-              <input  id="wallpaper-upload-input"type="file" placeholder="">
-              <div class="ui button" id="wallpaper-upload-btn">{% translate 'Save' %}</div>
+            <div class="header">{% translate 'Appearance' %}</div>
+            <div class="menu">
+                <div class="item">
+                    <div class="header">{% translate 'Compact mode' %}</div>
+                    <div class="ui inverted slider checkbox board-compact">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="header">{% translate 'Dark mode' %}</div>
+                    <div class="ui inverted slider checkbox board-dark">
+                        <input type="checkbox">
+                        <label></label>
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="header">{% translate 'Bucket width' %}</div>
+                    <div class="content">
+                        <div class="ui inverted width labeled slider" id="slider-1"></div>
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="header">{% translate 'Background image' %}</div>
+                    <div class="content">
+                        <div class="ui fluid action input">
+                            <input  id="wallpaper-upload-input"type="file" placeholder="">
+                            <div class="ui button" id="wallpaper-upload-btn">{% translate 'Save' %}</div>
+                        </div>
+                        <div class="ui small button" id="wallpaper-remove-btn" style="margin-top: .5em;">{% translate 'Remove' %}</div>      
+                    </div>
+                </div>
             </div>
-            <div class="ui small button" id="wallpaper-remove-btn" style="margin-top: .5em;">{% translate 'Remove' %}</div>      
-          </div>
         </div>
-      </div>
-    </div>
-    <div class="item">
-      <div class="ui fluid inverted button" id="manage-tags"><i class="tags icon"></i> {% translate "Manage tags" %}</div>
-    </div>
-    <div class="item">
-      <div class="header">{% translate 'Filter' %}</div>
-      <div class="search-cards item" style="padding-top: 0; padding-bottom: 0;">
-        <div class="ui search-cards mini fluid multiple selection search dropdown">
-          <div class="default text">Filter cards</div>
-          <i class="dropdown icon"></i>
+        {% if object.tags_feature %}
+        <div class="item">
+            <div class="ui fluid inverted button" id="manage-tags"><i class="tags icon"></i> {% translate "Manage tags" %}</div>
         </div>
-      </div>
+        {% endif %}
+        <div class="item">
+            <div class="header">{% translate 'Filter' %}</div>
+            <div class="search-cards item" style="padding-top: 0; padding-bottom: 0;">
+                <div class="ui search-cards mini fluid multiple selection search dropdown">
+                    <div class="default text">Filter cards</div>
+                    <i class="dropdown icon"></i>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-  <script>
-    $("#wallpaper-upload-btn").on('click', e => {
-      var fd = new FormData();
-      var files = $('#wallpaper-upload-input')[0].files;
-      if(files.length > 0 ){
-        fd.append('background_image', files[0]);
-        $(e.target).api({
-          url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-          on: 'now',
-          method: 'PATCH',
-          headers: { 'X-CSRFToken': csrftoken },
-          data: fd,
-          contentType: false,
-          processData: false,
-          successTest: r => r != 0,
-          onSuccess: r => {
-            wallpaper = r.background_image;
-            setWallpaper();
-            $('body').toast({
-              title: 'Background image',
-              message: 'Background image successfully updated!',
-              showProgress: 'bottom',
-              classProgress: 'green',
-              displayTime: 5000,
-            })
-          },
+    <script>
+        $("#wallpaper-upload-btn").on('click', e => {
+            var fd = new FormData();
+            var files = $('#wallpaper-upload-input')[0].files;
+            if (files.length > 0 ) {
+                fd.append('background_image', files[0]);
+                $(e.target).api({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+                on: 'now',
+                method: 'PATCH',
+                headers: { 'X-CSRFToken': csrftoken },
+                data: fd,
+                contentType: false,
+                processData: false,
+                successTest: r => r != 0,
+                onSuccess: r => {
+                    wallpaper = r.background_image;
+                    setWallpaper();
+                    $('body').toast({
+                    title: 'Background image',
+                    message: 'Background image successfully updated!',
+                    showProgress: 'bottom',
+                    classProgress: 'green',
+                    displayTime: 5000,
+                    })
+                },
+            });
+            } else {
+                alert("Please select a file.");
+            }
         });
-      }else{
-        alert("Please select a file.");
-      }
-    });
-    $("#wallpaper-remove-btn").on('click', e => {
-      $(e.target).api({
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-        on: 'now',
-        method: 'PATCH',
-        headers: { 'X-CSRFToken': csrftoken },
-        data: {'background_image': null},
-        successTest: r => r != 0,
-        onSuccess: r => {
-          wallpaper = '';
-          setWallpaper();
-          $('body').toast({
-            title: 'Background image',
-            message: 'Background image removed!',
-            showProgress: 'bottom',
-            classProgress: 'red',
-            displayTime: 5000,
-          })
-        },
-      });
-    });
-  </script>
+        $("#wallpaper-remove-btn").on('click', e => {
+            $(e.target).api({
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+                on: 'now',
+                method: 'PATCH',
+                headers: { 'X-CSRFToken': csrftoken },
+                data: {'background_image': null},
+                successTest: r => r != 0,
+                onSuccess: r => {
+                wallpaper = '';
+                setWallpaper();
+                $('body').toast({
+                    title: 'Background image',
+                    message: 'Background image removed!',
+                    showProgress: 'bottom',
+                    classProgress: 'red',
+                    displayTime: 5000,
+                })
+                },
+            });
+        });
+    </script>
 {% endblock sidebars %}
 
 {% block main %}
-  <script src="{% static 'js/dragula.min.js' %}"></script>
-  <link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
+    <script src="{% static 'js/dragula.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
 
-  <div class="ui primary circular huge teal icon mobile only button" 
-    style="margin-bottom: 1rem;"
-    id="zoom-button">
-    <i class="search minus icon"></i>
-  </div>
-  <script>
-    $('#zoom-button').click(e => {
-      let buckets = $('.bucket-el');
-      buckets.each(i => {
-        let bucket = $(buckets[i]);
-        bucket.width('100px');
-        if (bucket.hasClass('zoomed-out')) {
-          $('#zoom-button').find('i').removeClass('plus').addClass('minus');
-          bucket.removeClass('zoomed-out');
-          bucket.width('300px');
-          bucket.css('font-size', '1em');
-          bucket.css('line-height', '20px');
-          bucket.find('.dropdown.button').removeClass('mini')
-          bucket.find('.label').removeClass('mini')
-        } else {
-          $('#zoom-button').find('i').removeClass('minus').addClass('plus');
-          bucket.addClass('zoomed-out');
-          bucket.width('200px');
-          bucket.css('font-size', '.6em');
-          bucket.css('line-height', '13px');
-          bucket.find('.dropdown.button').addClass('mini')
-          bucket.find('.label').addClass('mini')
-        }
-      });
-      $('.add.bucket.button').css('font-size', '.6em');
-    })
-  </script>
+    <div class="ui primary circular huge teal icon mobile only button" style="margin-bottom: 1rem;" id="zoom-button">
+        <i class="search minus icon"></i>
+    </div>
+    <script>
+        $('#zoom-button').click(e => {
+            let buckets = $('.bucket-el');
+            buckets.each(i => {
+                let bucket = $(buckets[i]);
+                bucket.width('100px');
+                if (bucket.hasClass('zoomed-out')) {
+                    $('#zoom-button').find('i').removeClass('plus').addClass('minus');
+                    bucket.removeClass('zoomed-out');
+                    bucket.width('300px');
+                    bucket.css('font-size', '1em');
+                    bucket.css('line-height', '20px');
+                    bucket.find('.dropdown.button').removeClass('mini')
+                    bucket.find('.label').removeClass('mini')
+                } else {
+                    $('#zoom-button').find('i').removeClass('minus').addClass('plus');
+                    bucket.addClass('zoomed-out');
+                    bucket.width('200px');
+                    bucket.css('font-size', '.6em');
+                    bucket.css('line-height', '13px');
+                    bucket.find('.dropdown.button').addClass('mini')
+                    bucket.find('.label').addClass('mini')
+                }
+            });
+            $('.add.bucket.button').css('font-size', '.6em');
+        })
+    </script>
 
-  <div class="pusher">
-    <div class="ui fluid container">
-      <div class="ui basic segment">
-        <div id="board" class="ui cards buckets-drake"></div>
-      </div>
+    <div class="pusher">
+        <div class="ui fluid container">
+            <div class="ui basic segment">
+                <div id="board" class="ui cards buckets-drake"></div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <form class="ui card-form top aligned card longer modal form">
-    <i class="close icon"></i>
-    <div class="header">
-      <div class="ui fluid input field">
-        <input type=text name="name" placeholder="Name">
-      </div>
-    </div>
-    <div class="scrolling content">
-      <input type="hidden" name="id">
-      <input type="hidden" name="order">
-      <div class="field">
-        <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
-        <textarea name="description" placeholder="Description" rows="2"></textarea>
-      </div>
-      <div class="three fields">
-        <div class="field">
-          <label><i class="tags icon"></i>{% translate 'Tags' %}</label>
-          <div class="ui action input">
-            <div class="ui tags search multiple selection fluid dropdown">
-              <div class="text"></div>
-              <i class="dropdown icon"></i>
+    <form class="ui card-form top aligned card longer modal form">
+        <i class="close icon"></i>
+        <div class="header">
+            <div class="ui fluid input field">
+                <input type=text name="name" placeholder="Name">
             </div>
-            <div class="ui icon manage-tags button" data-content="Manage tags"><i class="tags icon"></i></div>
-          </div>
         </div>
-        <div class="field">
-          <label><i class="palette icon"></i>{% translate 'Color' %}</label>
-          <select class="ui card-color selection dropdown">
-          </select>
-        </div>
-        <script>
-          $('.ui.card-color.dropdown').dropdown({
-            clearable: true,
-            placeholder: 'Select a color theme',
-            values: [
-              {% for color in colors %}
-              {
-                "name": "{{ color.name }}",
-                "value": {{ color.id }},
-                "icon": "{{ color.name|lower }} circle",
-              },
-              {% endfor %}
-            ],
-          });
-        </script>
-        <div class="field">
-          <label><i class="calendar day icon"></i>Due date</label>
-          <div class="ui card-due-date calendar">
-            <div class="ui input left icon">
-              <i class="calendar icon"></i>
-              <input type="text" placeholder="Pick a due date">
+        <div class="scrolling content">
+            <input type="hidden" name="id">
+            <input type="hidden" name="order">
+            <div class="field">
+                <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
+                <textarea name="description" placeholder="Description" rows="2"></textarea>
             </div>
-          </div>
-        </div>
-      </div>
-      <div class="two fields">
-        <div class="field">
-          <label><i class="spinner icon"></i>{% translate 'Status' %}</label>
-          <div class="ui status selection dropdown">
-            <div class="text"></div>
-            <i class="dropdown icon"></i>
-          </div>
-        </div>
-        <script>
-          $('.ui.status.dropdown').dropdown({
-            values: [
-            {% for icon, value, text in card_statuses %}
-            {
-              value: "{{ value }}",
-              name: "{{ text }}",
-              icon: "{{ icon }}",
-            },
-            {% endfor %}
-            ]
-          });
-        </script>
-        <div class="field">
-          <label><i class="user circle icon"></i>{% translate 'Assigned to' %}</label>
-          <div class="ui assigned_to search multiple selection dropdown">
-            <div class="text"></div>
-            <i class="dropdown icon"></i>
-          </div>
-        </div>
-      </div>
-      <div class="ui error message"></div>
-      <div class="extra content">
-        <div class="ui inverted item">
-          <div class="ui checklist segment">
-            <h4 class="ui dividing header"><i class="tasks icon"></i>{% translate 'Checklist' %}</h4>
-            <div class="content">
-              <div class="checklist-drake"></div>
-              <div class="ui fluid icon add-item input">
-                <i class="add icon"></i>
-                <input type="text" placeholder="Insert new item to checklist">
-              </div>
+            <div class="three fields">
+                {% if object.tags_feature %}
+                <div class="field">
+                    <label><i class="tags icon"></i>{% translate 'Tags' %}</label>
+                    <div class="ui action input">
+                        <div class="ui tags search multiple selection fluid dropdown">
+                            <div class="text"></div>
+                            <i class="dropdown icon"></i>
+                        </div>
+                        <div class="ui icon manage-tags button" data-content="Manage tags"><i class="tags icon"></i></div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if object.color_feature %}
+                <div class="field">
+                    <label><i class="palette icon"></i>{% translate 'Color' %}</label>
+                    <select class="ui card-color selection dropdown">
+                    </select>
+                </div>
+                <script>
+                    $('.ui.card-color.dropdown').dropdown({
+                        clearable: true,
+                        placeholder: 'Select a color theme',
+                        values: [
+                            {% for color in colors %}
+                            {
+                            "name": "{{ color.name }}",
+                            "value": {{ color.id }},
+                            "icon": "{{ color.name|lower }} circle",
+                            },
+                            {% endfor %}
+                        ],
+                    });
+                </script>
+                {% endif %}
+                {% if object.due_date_feature %}
+                <div class="field">
+                    <label><i class="calendar day icon"></i>Due date</label>
+                    <div class="ui card-due-date calendar">
+                        <div class="ui input left icon">
+                            <i class="calendar icon"></i>
+                            <input type="text" placeholder="Pick a due date">
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
-          </div>
+            <div class="two fields">
+                {% if object.status_feature %}
+                <div class="field">
+                    <label><i class="spinner icon"></i>{% translate 'Status' %}</label>
+                    <div class="ui status selection dropdown">
+                        <div class="text"></div>
+                        <i class="dropdown icon"></i>
+                    </div>
+                </div>
+                <script>
+                    $('.ui.status.dropdown').dropdown({
+                        values: [
+                            {% for icon, value, text in card_statuses %}
+                            {
+                            value: "{{ value }}",
+                            name: "{{ text }}",
+                            icon: "{{ icon }}",
+                            },
+                            {% endfor %}
+                        ]
+                    });
+                </script>
+                {% endif %}
+                {% if object.assignees_feature %}
+                <div class="field">
+                    <label><i class="user circle icon"></i>{% translate 'Assigned to' %}</label>
+                    <div class="ui assigned_to search multiple selection dropdown">
+                        <div class="text"></div>
+                        <i class="dropdown icon"></i>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="ui error message"></div>
+            {% if object.checklist_feature %}
+            <div class="extra content">
+                <div class="ui inverted item">
+                    <div class="ui checklist segment">
+                        <h4 class="ui dividing header"><i class="tasks icon"></i>{% translate 'Checklist' %}</h4>
+                        <div class="content">
+                            <div class="checklist-drake"></div>
+                            <div class="ui fluid icon add-item input">
+                                <i class="add icon"></i>
+                                <input type="text" placeholder="Insert new item to checklist">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if object.files_feature %}
+            <div class="ui files segment">
+                <h4 class="ui dividing header"><i class="file icon"></i></i>{% translate 'Files' %}</h4>
+                <div class="files-container ui special cards"></div>
+                <div class="ui left icon fluid input">
+                    <i class="file alternate outline icon"></i>
+                    <input class="card-files" type="file" placeholder="Attach files" multiple="">
+                </div>
+            </div>
+            {% endif %}
+            {% if object.comments_feature %}
+            <div class="ui comments-segment segment">
+                <h4 class="ui dividing header"><i class="comments icon"></i>{% translate 'Comments' %}</h4>
+                <div class="ui comments" id="card-comments" style="max-width: 100%;"></div>
+                <div class="ui reply form">
+                    <div class="field">
+                        <textarea id="suggest-comment" class="add-reply" rows="2" placeholder="Type a new comment"></textarea>
+                    </div>
+                    <div id="suggest" style="display:none;"></div>
+                    <script>
+                        document.getElementById('suggest-comment').addEventListener('input', function () {
+                            var caret = getCaretCoordinates(this, this.selectionEnd);
+                            var fontSize = $('#suggest').css('font-size').replace('px', '');
+                            scrollHeight = document.getElementById('suggest-comment').scrollTop
+                            $('#suggest').css({
+                                top: caret.top - scrollHeight + caret.height, 
+                                left: caret.left, 
+                                position: 'absolute'
+                            });
+                        })
+                    </script>
+                    <div class="ui blue labeled add-reply submit icon button">
+                        <i class="icon edit"></i> Add comment
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
-      </div>
-      <div class="ui files segment">
-        <h4 class="ui dividing header"><i class="file icon"></i></i>{% translate 'Files' %}</h4>
-        <div class="files-container ui special cards"></div>
-        <div class="ui left icon fluid input">
-          <i class="file alternate outline icon"></i>
-          <input class="card-files" type="file" placeholder="Attach files" multiple="">
+        <div class="actions">
+            <div class="ui black deny icon labeled button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
+            <div class="ui positive icon labeled button"><i class="save icon"></i>{% translate 'Save' %}</div>
         </div>
-      </div>
-      <div class="ui comments-segment segment">
-        <h4 class="ui dividing header"><i class="comments icon"></i>{% translate 'Comments' %}</h4>
-        <div class="ui comments" id="card-comments" style="max-width: 100%;"></div>
-        <div class="ui reply form">
-          <div class="field">
-            <textarea id="suggest-comment" class="add-reply" rows="2" placeholder="Type a new comment"></textarea>
-          </div>
-          <div id="suggest" style="display:none;"></div>
-          <script>
-            document.getElementById('suggest-comment').addEventListener('input', function () {
-              var caret = getCaretCoordinates(this, this.selectionEnd);
-              var fontSize = $('#suggest').css('font-size').replace('px', '');
-              scrollHeight = document.getElementById('suggest-comment').scrollTop
-              $('#suggest').css({
-                top: caret.top - scrollHeight + caret.height, 
-                left: caret.left, 
-                position: 'absolute'
-              });
-            })
-          </script>
-          <div class="ui blue labeled add-reply submit icon button">
-            <i class="icon edit"></i> Add comment
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="actions">
-      <div class="ui black deny labeled icon button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
-      <div class="ui positive right labeled icon button">{% translate 'Save' %}<i class="save icon"></i></div>
-    </div>
-  </form>
-  <script>
-    $('form.card.modal').form({
-      fields: {
-        name: {
-          identifier: 'name',
-          rules: [
-            {
-              type   : 'empty',
-              prompt : `{% translate "Please, enter a name for your card." %}`
-            },
-            {
-              type   : 'maxLength[50]',
-              prompt : `{% translate "Card's name must have less than 50 characters." %}`
+    </form>
+    <script>
+        $('form.card.modal').form({
+            fields: {
+                name: {
+                    identifier: 'name',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : `{% translate "Please, enter a name for your card." %}`
+                        },
+                        {
+                            type   : 'maxLength[50]',
+                            prompt : `{% translate "Card's name must have less than 50 characters." %}`
+                        }
+                    ]
+                },
+                description: {
+                    identifier: 'description',
+                    rules: [
+                        {
+                            type   : 'maxLength[255]',
+                            prompt : `{% translate "Card's description must have less than 255 characters." %}`
+                        }
+                    ]
+                },
             }
-          ]
-        },
-        description: {
-          identifier: 'description',
-          rules: [
-            {
-              type   : 'maxLength[255]',
-              prompt : `{% translate "Card's description must have less than 255 characters." %}`
-            }
-          ]
-        },
-      }
-    });
-    $('form.card.modal').find('input[name=name]').on('keypress', e => {
-      if (e.which == 13) {
-        e.preventDefault();
-        $('form.card.modal').find('.positive.button').click();
-      }
-    });
-  </script>
-
-  <form class="ui bucket-form top aligned card modal form">
-    <i class="close icon"></i>
-    <div class="header">
-      <div class="field">
-        <input type=text name="name" placeholder="Name">
-      </div>
-    </div>
-    <div class="content">
-      <div class="field">
-        <input type="hidden" name="id">
-      </div>
-      <div class="field">
-        <input type="hidden" name="order">
-      </div>
-      <div class="field">
-        <label>{% translate 'Description' %}</label>
-        <textarea name="description" placeholder="Description"></textarea>
-      </div>
-      <div class="field">
-        <label><i class="robot icon"></i>{% translate 'Automatic status' %}</label>
-        <select class="ui auto-status selection dropdown">
-          {% for value, text in bucket_auto_statuses %}
-          <option value="{{ value }}">{{ text }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <script>$('.ui.auto-status').dropdown();</script>
-      <div class="field">
-        <label>{% translate 'Color' %}</label>
-        <select class="ui bucket color selection dropdown">
-        </select>
-      </div>
-      <script>
-        $('.ui.bucket.color.dropdown').dropdown({
-          clearable: true,
-          values: [
-            {% for color in colors %}
-            {
-              "name": "{{ color.name }}",
-              "value": {{ color.id }},
-              "icon": "{{ color.name|lower }} circle",
-            },
-            {% endfor %}
-          ],
         });
-      </script>
-      <div class="ui error message"></div>
-    </div>
-    <div class="actions">
-      <div class="ui black deny labeled icon button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
-      <div class="ui positive right labeled icon button">{% translate 'Save' %}<i class="save icon"></i>
-      </div>
-    </div>
-  </form>
-  <script>
-    $('form.bucket.modal').form({
-      fields: {
-        name: {
-          identifier: 'name',
-          rules: [
-            {
-              type   : 'empty',
-              prompt : `{% translate "Please, enter a name for your bucket." %}`
-            },
-            {
-              type   : 'maxLength[50]',
-              prompt : `{% translate "Bucket's name must have less than 50 characters." %}`
+        $('form.card.modal').find('input[name=name]').on('keypress', e => {
+            if (e.which == 13) {
+                e.preventDefault();
+                $('form.card.modal').find('.positive.button').click();
             }
-          ]
-        },
-        description: {
-          identifier: 'description',
-          rules: [
-            {
-              type   : 'maxLength[255]',
-              prompt : `{% translate "Bucket's description must have less than 255 characters." %}`
-            }
-          ]
-        },
-      }
-    });
-    $('form.bucket.modal').find('input[name=name]').on('keypress', e => {
-      if (e.which == 13) {
-        e.preventDefault();
-        $('form.bucket.modal').find('.positive.button').click();
-      }
-    });
-  </script>
+        });
+    </script>
 
-  <div class="ui delete confirmation tiny modal">
-    <div class="header"></div>
-    <div class="content"></div>
-    <div class="actions">
-      <div class="ui black cancel button">
-        <i class="remove icon"></i>
-        {% translate 'No'%}
-      </div>
-      <div class="ui green ok button">
-        <i class="checkmark icon"></i>
-        {% translate 'Yes' %}
-      </div>
-    </div>
-  </div>
-
-  <div class="ui comment-edit tiny modal">
-    <div class="header">Comment edit</div>
-    <div class="content">
-      <div class="ui reply form">
-        <div class="field">
-          <textarea class="comment-edit" rows="2" placeholder="Edit comment"></textarea>
+    <form class="ui bucket-form top aligned card modal form">
+        <i class="close icon"></i>
+        <div class="header">
+            <div class="field">
+                <input type=text name="name" placeholder="Name">
+            </div>
         </div>
-      </div>
-    </div>
-    <div class="actions">
-      <div class="ui black cancel button">
-        <i class="remove icon"></i>
-        {% translate 'Cancel'%}
-      </div>
-      <div class="ui green ok button">
-        <i class="checkmark icon"></i>
-        {% translate 'Save' %}
-      </div>
-    </div>
-  </div>
+        <div class="content">
+            <div class="field">
+                <input type="hidden" name="id">
+            </div>
+            <div class="field">
+                <input type="hidden" name="order">
+            </div>
+            <div class="field">
+                <label>{% translate 'Description' %}</label>
+                <textarea name="description" placeholder="Description"></textarea>
+            </div>
+            <div class="field">
+                <label><i class="robot icon"></i>{% translate 'Automatic status' %}</label>
+                <select class="ui auto-status selection dropdown">
+                    {% for value, text in bucket_auto_statuses %}
+                    <option value="{{ value }}">{{ text }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <script>$('.ui.auto-status').dropdown();</script>
+            <div class="field">
+                <label>{% translate 'Color' %}</label>
+                <select class="ui bucket color selection dropdown">
+                </select>
+            </div>
+            <script>
+                $('.ui.bucket.color.dropdown').dropdown({
+                    clearable: true,
+                    values: [
+                        {% for color in colors %}
+                        {
+                        "name": "{{ color.name }}",
+                        "value": {{ color.id }},
+                        "icon": "{{ color.name|lower }} circle",
+                        },
+                        {% endfor %}
+                    ],
+                });
+            </script>
+            <div class="ui error message"></div>
+        </div>
+        <div class="actions">
+            <div class="ui black deny icon labeled button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
+            <div class="ui positive icon labeled button"><i class="save icon"></i>{% translate 'Save' %}</div>
+        </div>
+    </form>
+    <script>
+        $('form.bucket.modal').form({
+            fields: {
+                name: {
+                identifier: 'name',
+                rules: [
+                    {
+                        type   : 'empty',
+                        prompt : `{% translate "Please, enter a name for your bucket." %}`
+                    },
+                    {
+                        type   : 'maxLength[50]',
+                        prompt : `{% translate "Bucket's name must have less than 50 characters." %}`
+                    }
+                ]
+                },
+                description: {
+                    identifier: 'description',
+                    rules: [
+                        {
+                        type   : 'maxLength[255]',
+                        prompt : `{% translate "Bucket's description must have less than 255 characters." %}`
+                        }
+                    ]
+                },
+            }
+        });
+        $('form.bucket.modal').find('input[name=name]').on('keypress', e => {
+            if (e.which == 13) {
+                e.preventDefault();
+                $('form.bucket.modal').find('.positive.button').click();
+            }
+        });
+    </script>
 
-  <div class="ui tags tiny modal">
-    <i class="close icon"></i>
-    <div class="header">Managing tags</div>
-    <div class="content"></div>
-    <div class="actions">
-      <div class="ui black cancel button">
-        <i class="remove icon"></i>
-        {% translate 'Close'%}
-      </div>
-      <div class="ui green ok button">
-        <i class="checkmark icon"></i>
-        {% translate 'Save' %}
-      </div>
+    <div class="ui delete confirmation tiny modal">
+        <div class="header"></div>
+        <div class="content"></div>
+        <div class="actions">
+            <div class="ui black cancel button">
+                <i class="remove icon"></i>
+                {% translate 'No'%}
+            </div>
+            <div class="ui green ok button">
+                <i class="checkmark icon"></i>
+                {% translate 'Yes' %}
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="ui top aligned tiny modal" id="time-entries">
-    <i class="close icon"></i>
-    <div class="header">Editing time entries</div>
-    <div class="content">
+    <div class="ui comment-edit tiny modal">
+        <div class="header">{% translate 'Comment edit' %}</div>
+        <div class="content">
+            <div class="ui reply form">
+                <div class="field">
+                <textarea class="comment-edit" rows="2" placeholder="Edit comment"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui black cancel button">
+                <i class="remove icon"></i>
+                {% translate 'Cancel'%}
+            </div>
+            <div class="ui green ok button">
+                <i class="checkmark icon"></i>
+                {% translate 'Save' %}
+            </div>
+        </div>
     </div>
-    <div class="actions">
-      <div class="ui black cancel button">
-        <i class="remove icon"></i>
-        {% translate 'Close'%}
-      </div>
+
+    <div class="ui tags tiny modal">
+        <i class="close icon"></i>
+        <div class="header">{% translate 'Managing tags' %}</div>
+        <div class="content"></div>
+        <div class="actions">
+            <div class="ui black cancel button">
+                <i class="remove icon"></i>
+                {% translate 'Close'%}
+            </div>
+            <div class="ui green ok button">
+                <i class="checkmark icon"></i>
+                {% translate 'Save' %}
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script src="{% static 'board.js' %}"></script>
+    <div class="ui top aligned tiny modal" id="time-entries">
+        <i class="close icon"></i>
+        <div class="header">Editing time entries</div>
+        <div class="content"></div>
+        <div class="actions">
+            <div class="ui black cancel button">
+                <i class="remove icon"></i>
+                {% translate 'Close'%}
+            </div>
+        </div>
+    </div>
 
-  <script>
-    $(document).ready(e => {
-      Pace.options = {
-        ajax: false
-      }
-      $('.ui.left.sidebar')
-        .sidebar('setting', 'transition', 'slide along')
-        .sidebar('setting', 'mobileTransition', 'slide along')
-        .sidebar('attach events', '.left-sidebar.item')
-        .find('#manage-tags').click(showManageTagsModal);
-      $('.ui.right.sidebar')
-        .sidebar('setting', 'transition', 'slide along')
-        .sidebar('setting', 'mobileTransition', 'slide along')
-        .sidebar('attach events', '.right-sidebar.item')
-        .find('#manage-tags').click(showManageTagsModal);
-      $('.board-compact.checkbox').checkbox({
-        onChecked: () => { setCompact(true); },
-        onUnchecked: () => { setCompact(false); },
-      });
-      $('.board-dark.checkbox').checkbox({
-        onChecked: () => { setDarkMode(true); },
-        onUnchecked: () => { setDarkMode(false); },
-      });
-      $('.ui.width.slider').slider({ 
-        min: 100, 
-        max: 500, 
-        step: 100,
-        onChange: value => {
-          changeBucketWidth(value);
-        },
-      });
-      $('.ui.width.slider').slider('set value', {{ object.bucket_width }}, false);
-      
-      $('.refresh.item').click(() => { 
-        loadBoard();
-      });
-      {% if object.compact %}$('.board-compact.checkbox').checkbox('set checked');{% endif %}
-      {% if object.dark %}$('.board-dark.checkbox').checkbox('set checked');{% endif %}
-      loadBoard();
-      startAutoRefresh();
-      initializeSearchCardsDropdown()
-    });
+    <script src="{% static 'board.js' %}"></script>
 
-  </script>
+    <script>
+        $(document).ready(e => {
+            Pace.options = {
+                ajax: false
+            }
+            $('.ui.left.sidebar')
+                .sidebar('setting', 'transition', 'slide along')
+                .sidebar('setting', 'mobileTransition', 'slide along')
+                .sidebar('attach events', '.left-sidebar.item')
+                .find('#manage-tags').click(showManageTagsModal);
+            $('.ui.right.sidebar')
+                .sidebar('setting', 'transition', 'slide along')
+                .sidebar('setting', 'mobileTransition', 'slide along')
+                .sidebar('attach events', '.right-sidebar.item')
+                .find('#manage-tags').click(showManageTagsModal);
+            $('.board-compact.checkbox').checkbox({
+                onChecked: () => { setCompact(true); },
+                onUnchecked: () => { setCompact(false); },
+            });
+            $('.board-dark.checkbox').checkbox({
+                onChecked: () => { setDarkMode(true); },
+                onUnchecked: () => { setDarkMode(false); },
+            });
+            $('.ui.width.slider').slider({ 
+                min: 100, 
+                max: 500, 
+                step: 100,
+                onChange: value => {
+                    changeBucketWidth(value);
+                },
+            });
+            $('.ui.width.slider').slider('set value', {{ object.bucket_width }}, false);
+            
+            $('.refresh.item').click(() => { 
+                loadBoard();
+            });
+            {% if object.compact %}$('.board-compact.checkbox').checkbox('set checked');{% endif %}
+            {% if object.dark %}$('.board-dark.checkbox').checkbox('set checked');{% endif %}
+            loadBoard();
+            startAutoRefresh();
+            initializeSearchCardsDropdown();
+        });
+    </script>
 {% endblock main %}
