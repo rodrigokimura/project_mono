@@ -584,7 +584,7 @@ class CardListAPIView(LoginRequiredMixin, APIView):
             serializer = CardSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
                 theme_id = request.data.get('color')
-                if theme_id != '':
+                if theme_id not in ['', None]:
                     color = Theme.objects.get(id=theme_id)
                     serializer.save(
                         created_by=request.user,

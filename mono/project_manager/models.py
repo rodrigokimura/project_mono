@@ -95,6 +95,7 @@ class Board(BaseModel):
     checklist_feature = models.BooleanField(default=True, help_text='Enables checklist on cards')
     files_feature = models.BooleanField(default=True, help_text='Enables file attachments on cards')
     comments_feature = models.BooleanField(default=True, help_text='Enables users to comment on cards')
+    time_entries_feature = models.BooleanField(default=True, help_text='Enables users to track time spent on cards')
 
     @property
     def allowed_users(self):
