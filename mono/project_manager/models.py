@@ -87,6 +87,15 @@ class Board(BaseModel):
     updated_at = models.DateTimeField(auto_now=True)
     background_image = models.ImageField(upload_to=_background_image_path, blank=True, null=True)
 
+    tags_feature = models.BooleanField(default=True, help_text='Enables taga on cards')
+    color_feature = models.BooleanField(default=True, help_text='Enables color on cards')
+    due_date_feature = models.BooleanField(default=True, help_text='Enables cards to have due dates')
+    status_feature = models.BooleanField(default=True, help_text='Enables status on cards')
+    assignees_feature = models.BooleanField(default=True, help_text='Enables assignees on cards')
+    checklist_feature = models.BooleanField(default=True, help_text='Enables checklist on cards')
+    files_feature = models.BooleanField(default=True, help_text='Enables file attachments on cards')
+    comments_feature = models.BooleanField(default=True, help_text='Enables users to comment on cards')
+
     @property
     def allowed_users(self):
         return (User.objects.filter(id=self.created_by.id) | self.assigned_to.all()).distinct()

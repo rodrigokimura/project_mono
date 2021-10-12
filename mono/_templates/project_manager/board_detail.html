@@ -6,53 +6,63 @@
 
 
 {% block head %}
-  <link rel="stylesheet" type="text/css" href="{% static 'board.css' %}">
-  <script src="{% static '/suggest.js' %}"></script>
-  <script src="{% static '/caret.js' %}"></script>
-  <script>
-    if(typeof(String.prototype.trim) === "undefined") {
-        String.prototype.trim = () => String(this).replace(/^\s+|\s+$/g, '');
-    };
-    const PROJECT_ID = "{{ object.project.id }}";
-    const BOARD_ID = "{{ object.id }}";
-    const USERNAME = "{{ request.user.username }}";
-    {% for code, name, flag, js_locale in LANGUAGE_EXTRAS %}
-    {% if code == LANGUAGE_CODE %}
-    const LANGUAGE_CODE = "{{ js_locale }}";
-    {% endif %}
-    {% endfor %}
-    const ICON_VALUES = [
-      {% for icon in icons %}
-      {
-        "value": "{{ icon.id }}",
-        "icon": "{{ icon.markup }}",
-      },
-      {% endfor %}
-    ];
-    const COLOR_VALUES = [
-      {% for color in colors %}
-      {
-        "value": "{{ color.id }}",
-        "icon": "{{ color.name|lower }} circle",
-      },
-      {% endfor %}
-    ];
-    {% if object.background_image %}
-      var wallpaper = "{{ object.background_image.url }}";
-    {% else %}
-      var wallpaper = "";
-    {% endif %}
-  </script>
+    <link rel="stylesheet" type="text/css" href="{% static 'board.css' %}">
+    <script src="{% static '/suggest.js' %}"></script>
+    <script src="{% static '/caret.js' %}"></script>
+    <script>
+        if(typeof(String.prototype.trim) === "undefined") {
+            String.prototype.trim = () => String(this).replace(/^\s+|\s+$/g, '');
+        };
+        const PROJECT_ID = "{{ object.project.id }}";
+        const BOARD_ID = "{{ object.id }}";
+        const USERNAME = "{{ request.user.username }}";
+        {% for code, name, flag, js_locale in LANGUAGE_EXTRAS %}
+        {% if code == LANGUAGE_CODE %}
+            const LANGUAGE_CODE = "{{ js_locale }}";
+        {% endif %}
+        {% endfor %}
+        const ICON_VALUES = [
+            {% for icon in icons %}
+            {
+                "value": "{{ icon.id }}",
+                "icon": "{{ icon.markup }}",
+            },
+            {% endfor %}
+        ];
+        const COLOR_VALUES = [
+            {% for color in colors %}
+            {
+                "value": "{{ color.id }}",
+                "icon": "{{ color.name|lower }} circle",
+            },
+            {% endfor %}
+        ];
+        {% if object.background_image %}
+        var wallpaper = "{{ object.background_image.url }}";
+        {% else %}
+        var wallpaper = "";
+        {% endif %}
+        const FEATURES = {
+            tags: {{ object.tags_feature|yesno:'true,false' }},
+            color: {{ object.color_feature|yesno:'true,false' }},
+            dueDate: {{ object.due_date_feature|yesno:'true,false' }},
+            status: {{ object.status_feature|yesno:'true,false' }},
+            assignees: {{ object.assignees_feature|yesno:'true,false' }},
+            checklist: {{ object.checklist_feature|yesno:'true,false' }},
+            files: {{ object.files_feature|yesno:'true,false' }},
+            comments: {{ object.comments_feature|yesno:'true,false' }},
+        }
+    </script>
 {% endblock head %}
 
 {% block menu %}
-  <a class="left-sidebar item"><i class="sidebar icon"></i></a>
-  <a class="refresh item"><i class="refresh icon"></i></a>
-  <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;"></div>
+    <a class="left-sidebar item"><i class="sidebar icon"></i></a>
+    <a class="refresh item"><i class="refresh icon"></i></a>
+    <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;"></div>
 {% endblock menu %}
 
 {% block right_menu %}
-  <a class="right-sidebar item"><i class="cog icon"></i></a>
+    <a class="right-sidebar item"><i class="cog icon"></i></a>
 {% endblock right_menu %}
 
 {% block sidebars %}
@@ -210,178 +220,194 @@
     </div>
   </div>
 
-  <form class="ui card-form top aligned card longer modal form">
-    <i class="close icon"></i>
-    <div class="header">
-      <div class="ui fluid input field">
-        <input type=text name="name" placeholder="Name">
-      </div>
-    </div>
-    <div class="scrolling content">
-      <input type="hidden" name="id">
-      <input type="hidden" name="order">
-      <div class="field">
-        <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
-        <textarea name="description" placeholder="Description" rows="2"></textarea>
-      </div>
-      <div class="three fields">
-        <div class="field">
-          <label><i class="tags icon"></i>{% translate 'Tags' %}</label>
-          <div class="ui action input">
-            <div class="ui tags search multiple selection fluid dropdown">
-              <div class="text"></div>
-              <i class="dropdown icon"></i>
+    <form class="ui card-form top aligned card longer modal form">
+        <i class="close icon"></i>
+        <div class="header">
+            <div class="ui fluid input field">
+                <input type=text name="name" placeholder="Name">
             </div>
-            <div class="ui icon manage-tags button" data-content="Manage tags"><i class="tags icon"></i></div>
-          </div>
         </div>
-        <div class="field">
-          <label><i class="palette icon"></i>{% translate 'Color' %}</label>
-          <select class="ui card-color selection dropdown">
-          </select>
-        </div>
-        <script>
-          $('.ui.card-color.dropdown').dropdown({
-            clearable: true,
-            placeholder: 'Select a color theme',
-            values: [
-              {% for color in colors %}
-              {
-                "name": "{{ color.name }}",
-                "value": {{ color.id }},
-                "icon": "{{ color.name|lower }} circle",
-              },
-              {% endfor %}
-            ],
-          });
-        </script>
-        <div class="field">
-          <label><i class="calendar day icon"></i>Due date</label>
-          <div class="ui card-due-date calendar">
-            <div class="ui input left icon">
-              <i class="calendar icon"></i>
-              <input type="text" placeholder="Pick a due date">
+        <div class="scrolling content">
+            <input type="hidden" name="id">
+            <input type="hidden" name="order">
+            <div class="field">
+                <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
+                <textarea name="description" placeholder="Description" rows="2"></textarea>
             </div>
-          </div>
-        </div>
-      </div>
-      <div class="two fields">
-        <div class="field">
-          <label><i class="spinner icon"></i>{% translate 'Status' %}</label>
-          <div class="ui status selection dropdown">
-            <div class="text"></div>
-            <i class="dropdown icon"></i>
-          </div>
-        </div>
-        <script>
-          $('.ui.status.dropdown').dropdown({
-            values: [
-            {% for icon, value, text in card_statuses %}
-            {
-              value: "{{ value }}",
-              name: "{{ text }}",
-              icon: "{{ icon }}",
-            },
-            {% endfor %}
-            ]
-          });
-        </script>
-        <div class="field">
-          <label><i class="user circle icon"></i>{% translate 'Assigned to' %}</label>
-          <div class="ui assigned_to search multiple selection dropdown">
-            <div class="text"></div>
-            <i class="dropdown icon"></i>
-          </div>
-        </div>
-      </div>
-      <div class="ui error message"></div>
-      <div class="extra content">
-        <div class="ui inverted item">
-          <div class="ui checklist segment">
-            <h4 class="ui dividing header"><i class="tasks icon"></i>{% translate 'Checklist' %}</h4>
-            <div class="content">
-              <div class="checklist-drake"></div>
-              <div class="ui fluid icon add-item input">
-                <i class="add icon"></i>
-                <input type="text" placeholder="Insert new item to checklist">
-              </div>
+            <div class="fields">
+                {% if object.tags_feature %}
+                <div class="field">
+                    <label><i class="tags icon"></i>{% translate 'Tags' %}</label>
+                    <div class="ui action input">
+                        <div class="ui tags search multiple selection fluid dropdown">
+                            <div class="text"></div>
+                            <i class="dropdown icon"></i>
+                        </div>
+                        <div class="ui icon manage-tags button" data-content="Manage tags"><i class="tags icon"></i></div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if object.color_feature %}
+                <div class="field">
+                    <label><i class="palette icon"></i>{% translate 'Color' %}</label>
+                    <select class="ui card-color selection dropdown">
+                    </select>
+                </div>
+                <script>
+                    $('.ui.card-color.dropdown').dropdown({
+                        clearable: true,
+                        placeholder: 'Select a color theme',
+                        values: [
+                            {% for color in colors %}
+                            {
+                            "name": "{{ color.name }}",
+                            "value": {{ color.id }},
+                            "icon": "{{ color.name|lower }} circle",
+                            },
+                            {% endfor %}
+                        ],
+                    });
+                </script>
+                {% endif %}
+                {% if object.due_date_feature %}
+                <div class="field">
+                    <label><i class="calendar day icon"></i>Due date</label>
+                    <div class="ui card-due-date calendar">
+                        <div class="ui input left icon">
+                            <i class="calendar icon"></i>
+                            <input type="text" placeholder="Pick a due date">
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
-          </div>
+            <div class="two fields">
+                {% if object.status_feature %}
+                <div class="field">
+                    <label><i class="spinner icon"></i>{% translate 'Status' %}</label>
+                    <div class="ui status selection dropdown">
+                        <div class="text"></div>
+                        <i class="dropdown icon"></i>
+                    </div>
+                </div>
+                <script>
+                    $('.ui.status.dropdown').dropdown({
+                        values: [
+                            {% for icon, value, text in card_statuses %}
+                            {
+                            value: "{{ value }}",
+                            name: "{{ text }}",
+                            icon: "{{ icon }}",
+                            },
+                            {% endfor %}
+                        ]
+                    });
+                </script>
+                {% endif %}
+                {% if object.assignees_feature %}
+                <div class="field">
+                    <label><i class="user circle icon"></i>{% translate 'Assigned to' %}</label>
+                    <div class="ui assigned_to search multiple selection dropdown">
+                        <div class="text"></div>
+                        <i class="dropdown icon"></i>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="ui error message"></div>
+            {% if object.checklist_feature %}
+            <div class="extra content">
+                <div class="ui inverted item">
+                    <div class="ui checklist segment">
+                        <h4 class="ui dividing header"><i class="tasks icon"></i>{% translate 'Checklist' %}</h4>
+                        <div class="content">
+                            <div class="checklist-drake"></div>
+                            <div class="ui fluid icon add-item input">
+                                <i class="add icon"></i>
+                                <input type="text" placeholder="Insert new item to checklist">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if object.files_feature %}
+            <div class="ui files segment">
+                <h4 class="ui dividing header"><i class="file icon"></i></i>{% translate 'Files' %}</h4>
+                <div class="files-container ui special cards"></div>
+                <div class="ui left icon fluid input">
+                    <i class="file alternate outline icon"></i>
+                    <input class="card-files" type="file" placeholder="Attach files" multiple="">
+                </div>
+            </div>
+            {% endif %}
+            {% if object.comments_feature %}
+            <div class="ui comments-segment segment">
+                <h4 class="ui dividing header"><i class="comments icon"></i>{% translate 'Comments' %}</h4>
+                <div class="ui comments" id="card-comments" style="max-width: 100%;"></div>
+                <div class="ui reply form">
+                    <div class="field">
+                        <textarea id="suggest-comment" class="add-reply" rows="2" placeholder="Type a new comment"></textarea>
+                    </div>
+                    <div id="suggest" style="display:none;"></div>
+                    <script>
+                        document.getElementById('suggest-comment').addEventListener('input', function () {
+                            var caret = getCaretCoordinates(this, this.selectionEnd);
+                            var fontSize = $('#suggest').css('font-size').replace('px', '');
+                            scrollHeight = document.getElementById('suggest-comment').scrollTop
+                            $('#suggest').css({
+                                top: caret.top - scrollHeight + caret.height, 
+                                left: caret.left, 
+                                position: 'absolute'
+                            });
+                        })
+                    </script>
+                    <div class="ui blue labeled add-reply submit icon button">
+                        <i class="icon edit"></i> Add comment
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
-      </div>
-      <div class="ui files segment">
-        <h4 class="ui dividing header"><i class="file icon"></i></i>{% translate 'Files' %}</h4>
-        <div class="files-container ui special cards"></div>
-        <div class="ui left icon fluid input">
-          <i class="file alternate outline icon"></i>
-          <input class="card-files" type="file" placeholder="Attach files" multiple="">
+        <div class="actions">
+            <div class="ui black deny labeled icon button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
+            <div class="ui positive right labeled icon button">{% translate 'Save' %}<i class="save icon"></i></div>
         </div>
-      </div>
-      <div class="ui comments-segment segment">
-        <h4 class="ui dividing header"><i class="comments icon"></i>{% translate 'Comments' %}</h4>
-        <div class="ui comments" id="card-comments" style="max-width: 100%;"></div>
-        <div class="ui reply form">
-          <div class="field">
-            <textarea id="suggest-comment" class="add-reply" rows="2" placeholder="Type a new comment"></textarea>
-          </div>
-          <div id="suggest" style="display:none;"></div>
-          <script>
-            document.getElementById('suggest-comment').addEventListener('input', function () {
-              var caret = getCaretCoordinates(this, this.selectionEnd);
-              var fontSize = $('#suggest').css('font-size').replace('px', '');
-              scrollHeight = document.getElementById('suggest-comment').scrollTop
-              $('#suggest').css({
-                top: caret.top - scrollHeight + caret.height, 
-                left: caret.left, 
-                position: 'absolute'
-              });
-            })
-          </script>
-          <div class="ui blue labeled add-reply submit icon button">
-            <i class="icon edit"></i> Add comment
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="actions">
-      <div class="ui black deny labeled icon button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
-      <div class="ui positive right labeled icon button">{% translate 'Save' %}<i class="save icon"></i></div>
-    </div>
-  </form>
-  <script>
-    $('form.card.modal').form({
-      fields: {
-        name: {
-          identifier: 'name',
-          rules: [
-            {
-              type   : 'empty',
-              prompt : `{% translate "Please, enter a name for your card." %}`
-            },
-            {
-              type   : 'maxLength[50]',
-              prompt : `{% translate "Card's name must have less than 50 characters." %}`
+    </form>
+    <script>
+        $('form.card.modal').form({
+            fields: {
+                name: {
+                    identifier: 'name',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : `{% translate "Please, enter a name for your card." %}`
+                        },
+                        {
+                            type   : 'maxLength[50]',
+                            prompt : `{% translate "Card's name must have less than 50 characters." %}`
+                        }
+                    ]
+                },
+                description: {
+                    identifier: 'description',
+                    rules: [
+                        {
+                            type   : 'maxLength[255]',
+                            prompt : `{% translate "Card's description must have less than 255 characters." %}`
+                        }
+                    ]
+                },
             }
-          ]
-        },
-        description: {
-          identifier: 'description',
-          rules: [
-            {
-              type   : 'maxLength[255]',
-              prompt : `{% translate "Card's description must have less than 255 characters." %}`
+        });
+        $('form.card.modal').find('input[name=name]').on('keypress', e => {
+            if (e.which == 13) {
+                e.preventDefault();
+                $('form.card.modal').find('.positive.button').click();
             }
-          ]
-        },
-      }
-    });
-    $('form.card.modal').find('input[name=name]').on('keypress', e => {
-      if (e.which == 13) {
-        e.preventDefault();
-        $('form.card.modal').find('.positive.button').click();
-      }
-    });
-  </script>
+        });
+    </script>
 
   <form class="ui bucket-form top aligned card modal form">
     <i class="close icon"></i>

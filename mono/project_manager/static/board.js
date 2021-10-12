@@ -54,6 +54,13 @@ function startAutoRefresh(period = 5000) {
     autoRefresh = setInterval(checkUpdates, period);
 }
 
+async function updateBucketTimetamp(bucketId) {
+    bucketEl = $(`.bucket-el[data-bucket-id=${bucketId}]`);
+    now = new Date();
+    now = new Date(now.getTime() + 1000); 
+    bucketEl.attr('data-bucket-updated-at', now);
+}
+
 function checkUpdates() {
     $.api({
         on: 'now',
@@ -238,6 +245,7 @@ var cardsDrake = dragula({
                     if (status_changed || timer_action != 'none') {
                         loadBoard();
                     };
+                    updateBucketTimetamp(target_bucket);
                 };
             },
             complete: () => {
@@ -273,11 +281,15 @@ function str(seconds) {
 }
 
 function incrementSecond(cardId) {
-    element = $(`.total-time[data-card-id=${cardId}]`)
-    time = element.attr('data-time')
-    time++
-    element.attr('data-time', time)
-    element.text(str(time))
+    element = $(`.total-time[data-card-id=${cardId}]`);
+    time = element.attr('data-time');
+    start = new Date(element.data('start'));
+    now = new Date();
+    element.text(
+        str(
+            (now - start) / 1000 + parseFloat(time)
+        )
+    )
 }
 
 async function clearIntervals() {
@@ -412,12 +424,6 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
         }
         var overdue = false;
         var dueDate = null;
-        // Clear intervals (for running timers)
-        intervalIndex = intervals.findIndex(i => i.card === card.id);
-        if (intervalIndex > -1) {
-            clearInterval(intervals[intervalIndex].interval);
-            intervals.splice(intervalIndex);
-        }
         if (card.due_date !== null) {
             var now = new Date();
             dueDate = card.due_date.split('-');
@@ -468,7 +474,7 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
                     <a class="start-stop-timer cardlet" data-card-id="${card.id}" data-content="${card.is_running ? 'Stop timer' : 'Start timer'}" data-variation="tiny basic">
                         ${card.is_running ? '<i class="stop circle icon"></i>' : '<i class="play circle icon"></i>'}
                     </a>
-                    <span class="total-time noselect cardlet" data-card-id="${card.id}" data-time="${card.total_time}" data-content="Total tracked time." data-variation="tiny basic">
+                    <span class="total-time noselect cardlet" data-card-id="${card.id}" data-time="${card.total_time}" data-start="${new Date()}" data-content="Total tracked time." data-variation="tiny basic">
                         ${str(card.total_time)}
                     </span>
                 </span>
@@ -551,14 +557,6 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
         $(`.card-status.icon[data-card-id=${card.id}]`).on('click', e => {
             toggleCardStatus(card.id, bucketId, $(e.target).attr('data-status'), dark, compact);
         });
-        if (card.is_running) {
-            intervals.push(
-                {
-                    card: card.id,
-                    interval: setInterval(() => { incrementSecond(card.id) }, 1000)
-                }
-            );
-        };
     });
     $('.card-el').removeClass('loading');
     setCardGlassEffect();
@@ -1105,6 +1103,7 @@ async function getCards(bucketId, dark = false, compact = false) {
         method: 'GET',
         stateContext: `.bucket-el[data-bucket-id=${bucketId}]`,
         onSuccess: r => {
+            updateBucketTimetamp(bucketId);
             renderCards(
                 containerSelector = `#bucket-${bucketId}`,
                 cards = r,
@@ -1376,24 +1375,39 @@ function showCardModal(card = null, bucketId, compact) {
             if (!modal.form('is valid')) {
                 return false;
             };
-            name = modal.find('input[name=name]').val();
-            description = modal.find('textarea[name=description]').val();
-            status = modal.find('.ui.status.dropdown').dropdown('get value');
-            color = modal.find('.ui.card-color.dropdown').dropdown('get value');
-            tagsString = modal.find('.ui.tags.dropdown').dropdown('get value');
-            tags = tagsString.split(",").map(tag => ({ name: tag }));
-            assigneesString = modal.find('.ui.assigned_to.dropdown').dropdown('get value');
-            assignees = assigneesString.split(",").map(username => ({ username: username }));
-            dueDate = modal.find('.ui.card-due-date.calendar').calendar('get date'); // If not null, dueDate is a Date object
-            if (dueDate !== null) { dueDate = dueDate.toISOString().split("T")[0] } // Convert to string in correct format
+            var data = {
+                name: modal.find('input[name=name]').val(),
+                description: modal.find('textarea[name=description]').val(),
+                bucket: bucketId,
+            }
+            if (FEATURES.status) {
+                data['status'] = modal.find('.ui.status.dropdown')?.dropdown('get value');
+            }
+            if (FEATURES.color) {
+                data['color'] = modal.find('.ui.card-color.dropdown')?.dropdown('get value');
+            }
+            if (FEATURES.tags) {
+                tagsString = modal.find('.ui.tags.dropdown')?.dropdown('get value');
+                tags = tagsString.split(",").map(tag => ({ name: tag }));
+                data['tag'] = JSON.stringify(tags);
+            }
+            if (FEATURES.assignees) {
+                assigneesString = modal.find('.ui.assigned_to.dropdown')?.dropdown('get value');
+                assignees = assigneesString?.split(",").map(username => ({ username: username }));
+                data['assigned_to'] = JSON.stringify(assignees);
+            }
+            if (FEATURES.dueDate) {
+                dueDate = modal.find('.ui.card-due-date.calendar')?.calendar('get date'); // If not null, dueDate is a Date object
+                if (dueDate !== null) { data['due_date'] = dueDate.toISOString().split("T")[0] } // Convert to string in correct format
+            }
             if (create) {
                 method = 'POST';
                 url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`;
-                order = 0;
+                data['order'] = 0;
             } else {
                 method = 'PUT';
                 id = modal.find('input[name=id]').val();
-                order = $(`.card-el[data-card-id=${card.id}]`).index() + 1;
+                data['order'] = $(`.card-el[data-card-id=${card.id}]`).index() + 1;
                 url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`;
             }
 
@@ -1401,25 +1415,17 @@ function showCardModal(card = null, bucketId, compact) {
                 url: url,
                 type: method,
                 headers: { 'X-CSRFToken': csrftoken },
-                data: {
-                    name: name,
-                    bucket: bucketId,
-                    description: description,
-                    status: status,
-                    color: color,
-                    order: order,
-                    due_date: dueDate,
-                    tag: JSON.stringify(tags),
-                    assigned_to: JSON.stringify(assignees),
-                },
+                data: data,
                 success: r => {
-                    var files = modal.find('.card-files')[0].files;
-                    if (files.length > 0) {
-                        var cardId = create ? r.id : card.id;
-                        for (f of files) {
-                            var fd = new FormData();
-                            fd.append('file', f);
-                            attachFile(fd, bucketId, cardId);
+                    if (FEATURES.files) {
+                        var files = modal.find('.card-files')[0]?.files;
+                        if (files.length > 0) {
+                            var cardId = create ? r.id : card.id;
+                            for (f of files) {
+                                var fd = new FormData();
+                                fd.append('file', f);
+                                attachFile(fd, bucketId, cardId);
+                            }
                         }
                     }
                     getCards(bucketId, dark, compact);
@@ -1675,8 +1681,21 @@ function startStopTimer(cardId, bucketId, dark, compact) {
         success: function (result) {
             if (result.action == 'start') {
                 $('body').toast({ message: `Timer started for card ${cardId}.` });
+                el = $(`.total-time[data-card-id=${cardId}]`);
+                el.data('start', new Date());
+                intervals.push(
+                    {
+                        card: cardId,
+                        interval: setInterval(() => { incrementSecond(cardId) }, 1000)
+                    }
+                );
             } else if (result.action == 'stop') {
                 $('body').toast({ message: `Timer stopped for card ${cardId}.` });
+                intervalIndex = intervals.findIndex(i => i.card == cardId);
+                if (intervalIndex > -1) {
+                    clearInterval(intervals[intervalIndex].interval);
+                    intervals.splice(intervalIndex, 1);
+                }
             };
             getCards(bucketId, dark, compact);
         }
