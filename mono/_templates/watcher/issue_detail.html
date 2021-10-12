@@ -25,15 +25,8 @@
         </div>
         <div class="row">
             <div class="column">
-                {% if object.resolved %}
-                    <div class="ui resolve-issue active green icon button" data-resolved="{{ object.resolved|yesno:'true,false' }}">
-                        <i class="check icon"></i>
-                    </div>
-                {% else %}
-                    <div class="ui resolve-issue button" data-resolved="{{ object.resolved|yesno:'true,false' }}">
-                        {% translate "Resolve" %}
-                    </div>
-                {% endif %}
+                <div class="ui resolve-issue button" data-resolved="{{ object.resolved|yesno:'true,false' }}"></div>
+                <div class="ui ignore-issue button" data-ignored="{{ object.ignored|yesno:'true,false' }}"></div>
             </div>
         </div>
         <div class="row">
@@ -131,33 +124,54 @@
     <script>
         const ISSUE_ID = '{{ object.id }}';
         const RESOLVE_BUTTON = $('.resolve-issue');
+        const IGNORE_BUTTON = $('.ignore-issue');
         $('.menu .item').tab();
         $('.file-name').popup();
         
         function renderResolveButton() {
             if (RESOLVE_BUTTON.attr('data-resolved') == 'true') {
-                $('.resolve-issue')
+                RESOLVE_BUTTON
                     .removeClass('button')
                     .addClass('active green icon button')
                     .html('<i class="check icon"></i>');
-                $('.resolve-issue').popup({
+                RESOLVE_BUTTON.popup({
                     content: 'Mark issue as unresolved'
                 });
             } else {
-                $('.resolve-issue')
+                RESOLVE_BUTTON
                     .removeClass('active green icon button')
                     .addClass('button')
                     .html('{% translate "Resolve" %}');
-                $('.resolve-issue').popup({
+                RESOLVE_BUTTON.popup({
                     content: 'Mark issue as resolved'
                 });
             }
         }
+        function renderIgnoreButton() {
+            if (IGNORE_BUTTON.attr('data-ignored') == 'true') {
+                IGNORE_BUTTON
+                    .removeClass('button')
+                    .addClass('active secondary icon button')
+                    .html('<i class="bell slash icon"></i>');
+                IGNORE_BUTTON.popup({
+                    content: 'Mark issue as not ignored'
+                });
+            } else {
+                IGNORE_BUTTON
+                    .removeClass('active secondary icon button')
+                    .addClass('button')
+                    .html('{% translate "Ignore" %}');
+                IGNORE_BUTTON.popup({
+                    content: 'Mark issue as ignored'
+                });
+            }
+        }
         
-        renderResolveButton()
+        renderResolveButton();
+        renderIgnoreButton();
         
-        $('.resolve-issue').on('click', e => {
-            if ($('.resolve-issue').attr('data-resolved') == 'true') {
+        RESOLVE_BUTTON.on('click', e => {
+            if (RESOLVE_BUTTON.attr('data-resolved') == 'true') {
                 $.api({
                     on: 'now',
                     method: 'POST',
@@ -171,7 +185,7 @@
                             title: 'Issue update',
                             message: `Issue ${ISSUE_ID} marked as unresolved.`,
                         });
-                        $('.resolve-issue').attr('data-resolved', 'false');
+                        RESOLVE_BUTTON.attr('data-resolved', 'false');
                         renderResolveButton();
                     }
                 });
@@ -189,8 +203,47 @@
                             title: 'Issue update',
                             message: `Issue ${ISSUE_ID} marked as resolved.`,
                         });
-                        $('.resolve-issue').attr('data-resolved', 'true');
+                        RESOLVE_BUTTON.attr('data-resolved', 'true');
                         renderResolveButton();
+                    }
+                });
+            }
+        })
+        IGNORE_BUTTON.on('click', e => {
+            if (IGNORE_BUTTON.attr('data-ignored') == 'true') {
+                $.api({
+                    on: 'now',
+                    method: 'POST',
+                    url: '/watcher/issue/{{ object.id }}/ignore/',
+                    data: { ignored: false },
+                    headers: { 'X-CSRFToken': csrftoken },
+                    stateContext: '.ignore-issue',
+                    loadingDuration: 1000,
+                    onSuccess: () => {
+                        $('body').toast({
+                            title: 'Issue update',
+                            message: `Issue ${ISSUE_ID} marked as not ignored.`,
+                        });
+                        IGNORE_BUTTON.attr('data-ignored', 'false');
+                        renderIgnoreButton();
+                    }
+                });
+            } else {
+                $.api({
+                    on: 'now',
+                    method: 'POST',
+                    url: '/watcher/issue/{{ object.id }}/ignore/',
+                    data: { ignored: true },
+                    headers: { 'X-CSRFToken': csrftoken },
+                    stateContext: '.ignore-issue',
+                    loadingDuration: 1000,
+                    onSuccess: () => {
+                        $('body').toast({
+                            title: 'Issue update',
+                            message: `Issue ${ISSUE_ID} marked as ignored.`,
+                        });
+                        IGNORE_BUTTON.attr('data-ignored', 'true');
+                        renderIgnoreButton();
                     }
                 });
             }
