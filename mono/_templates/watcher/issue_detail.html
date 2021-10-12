@@ -25,8 +25,8 @@
         </div>
         <div class="row">
             <div class="column">
-                <div class="ui resolve-issue active green icon button" data-resolved="{{ object.resolved|yesno:'true,false' }}"></div>
-                <div class="ui ignore-issue active green icon button" data-ignored="{{ object.ignored|yesno:'true,false' }}"></div>
+                <div class="ui resolve-issue button" data-resolved="{{ object.resolved|yesno:'true,false' }}"></div>
+                <div class="ui ignore-issue button" data-ignored="{{ object.ignored|yesno:'true,false' }}"></div>
             </div>
         </div>
         <div class="row">
@@ -151,14 +151,14 @@
             if (IGNORE_BUTTON.attr('data-ignored') == 'true') {
                 IGNORE_BUTTON
                     .removeClass('button')
-                    .addClass('active green icon button')
-                    .html('<i class="check icon"></i>');
+                    .addClass('active secondary icon button')
+                    .html('<i class="bell slash icon"></i>');
                 IGNORE_BUTTON.popup({
                     content: 'Mark issue as not ignored'
                 });
             } else {
                 IGNORE_BUTTON
-                    .removeClass('active green icon button')
+                    .removeClass('active secondary icon button')
                     .addClass('button')
                     .html('{% translate "Ignore" %}');
                 IGNORE_BUTTON.popup({
@@ -167,8 +167,8 @@
             }
         }
         
-        renderResolveButton()
-        renderIgnoreButton()
+        renderResolveButton();
+        renderIgnoreButton();
         
         RESOLVE_BUTTON.on('click', e => {
             if (RESOLVE_BUTTON.attr('data-resolved') == 'true') {
