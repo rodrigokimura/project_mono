@@ -57,7 +57,7 @@ function startAutoRefresh(period = 5000) {
 async function updateBucketTimetamp(bucketId) {
     bucketEl = $(`.bucket-el[data-bucket-id=${bucketId}]`);
     now = new Date();
-    now = new Date(now.getTime() + 1000); 
+    now = new Date(now.getTime() + 1000);
     bucketEl.attr('data-bucket-updated-at', now);
 }
 
@@ -468,7 +468,7 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
         $(`.ui.progress[data-card-id=${card.id}]`).progress();
         let extraContent = $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`);
         let tagsContainer = $(containerSelector).find(`.meta .tags[data-card-id=${card.id}]`);
-        if (card.total_time > 0) {
+        if (card.total_time > 0 && FEATURES.time_entries) {
             extraContent.append(`
                 <span class="ui right floated ${card.is_running ? 'red ' : ''} text" style="font-size: 85%; ">
                     <a class="start-stop-timer cardlet" data-card-id="${card.id}" data-content="${card.is_running ? 'Stop timer' : 'Start timer'}" data-variation="tiny basic">
@@ -1455,11 +1455,17 @@ function showCardModal(card = null, bucketId, compact) {
     });
 
     if (!create) {
-        getFiles(modal, bucketId, card.id);
-        modal.find('#suggest-comment').val('');
-        initializeSuggest();
-        loadComments(card, bucketId, dark);
-        loadChecklistItems(card, bucketId, dark)
+        if (FEATURES.files) {
+            getFiles(modal, bucketId, card.id);
+        }
+        if (FEATURES.comments) {
+            modal.find('#suggest-comment').val('');
+            initializeSuggest();
+            loadComments(card, bucketId, dark);
+        }
+        if (FEATURES.checklist) {
+            loadChecklistItems(card, bucketId, dark)
+        }
     };
 }
 

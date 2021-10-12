@@ -1,7 +1,7 @@
 from django import forms
 
 from .models import Board, Project
-from .widgets import CalendarWidget, ToggleWidget
+from .widgets import ToggleWidget
 
 
 class ProjectForm(forms.ModelForm):
@@ -57,6 +57,7 @@ class BoardForm(forms.ModelForm):
             'checklist_feature',
             'files_feature',
             'comments_feature',
+            'time_entries_feature',
 
         ]
         widgets = {
@@ -68,4 +69,5 @@ class BoardForm(forms.ModelForm):
             'checklist_feature': ToggleWidget,
             'files_feature': ToggleWidget,
             'comments_feature': ToggleWidget,
+            'time_entries_feature': ToggleWidget,
         }

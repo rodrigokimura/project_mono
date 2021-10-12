@@ -51,6 +51,7 @@
             checklist: {{ object.checklist_feature|yesno:'true,false' }},
             files: {{ object.files_feature|yesno:'true,false' }},
             comments: {{ object.comments_feature|yesno:'true,false' }},
+            time_entries: {{ object.time_entries_feature|yesno:'true,false' }},
         }
     </script>
 {% endblock head %}
@@ -107,9 +108,11 @@
                 </div>
             </div>
         </div>
+        {% if object.tags_feature %}
         <div class="item">
             <div class="ui fluid inverted button" id="manage-tags"><i class="tags icon"></i> {% translate "Manage tags" %}</div>
         </div>
+        {% endif %}
         <div class="item">
             <div class="header">{% translate 'Filter' %}</div>
             <div class="search-cards item" style="padding-top: 0; padding-bottom: 0;">
@@ -232,7 +235,7 @@
                 <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
                 <textarea name="description" placeholder="Description" rows="2"></textarea>
             </div>
-            <div class="fields">
+            <div class="three fields">
                 {% if object.tags_feature %}
                 <div class="field">
                     <label><i class="tags icon"></i>{% translate 'Tags' %}</label>
