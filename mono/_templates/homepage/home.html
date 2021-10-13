@@ -188,10 +188,10 @@
       </div>
         
       {% if user.is_authenticated %}
-        <a class="item" href="{% url 'finance:logout' %}">Sign out</a>
+        <a class="item" href="{% url 'accounts:logout' %}">Sign out</a>
       {% else %}
-        <a class="item" href="{% url 'finance:login' %}">Log in</a>
-        <a class="item" href="{% url 'finance:signup' %}">Sign Up</a>
+        <a class="item" href="{% url 'accounts:login' %}">Log in</a>
+        <a class="item" href="{% url 'accounts:signup' %}">Sign Up</a>
       {% endif %}
     </div>
   </div>
@@ -207,10 +207,10 @@
     <a class="item" href="{% url 'admin:index' %}">Admin</a>
   {% endif %}
   {% if user.is_authenticated %}
-    <a class="item" href="{% url 'finance:logout' %}">Sign out</a>
+    <a class="item" href="{% url 'accounts:logout' %}">Sign out</a>
   {% else %}
-    <a class="item" href="{% url 'finance:login' %}">Log in</a>
-    <a class="item" href="{% url 'finance:signup' %}">Sign Up</a>
+    <a class="item" href="{% url 'accounts:login' %}">Log in</a>
+    <a class="item" href="{% url 'accounts:signup' %}">Sign Up</a>
   {% endif %}
 </div>
 
@@ -237,10 +237,10 @@
           </div>
           
         {% if user.is_authenticated %}
-          <a class="ui inverted button" href="{% url 'finance:logout' %}">Sign out</a>
+          <a class="ui inverted button" href="{% url 'accounts:logout' %}">Sign out</a>
         {% else %}
-          <a class="ui inverted button" href="{% url 'finance:login' %}">Log in</a>
-          <a class="ui inverted button" href="{% url 'finance:signup' %}">Sign Up</a>
+          <a class="ui inverted button" href="{% url 'accounts:login' %}">Log in</a>
+          <a class="ui inverted button" href="{% url 'accounts:signup' %}">Sign Up</a>
         {% endif %}
         </div>
       </div>
@@ -249,7 +249,7 @@
     <div class="ui text container">
       <h1 class="ui inverted header typewriter" style="height: 3em;"></h1>
       <h2 style="height: 3em;">Mono Project. A simple - yet powerful - set of tools. </h2>
-      <a class="ui huge primary button" href="{% url 'finance:signup' %}">Get Started <i class="right arrow icon"></i></a>
+      <a class="ui huge primary button" href="{% url 'accounts:signup' %}">Get Started <i class="right arrow icon"></i></a>
     </div>
   </div>
 

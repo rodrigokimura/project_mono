@@ -213,7 +213,7 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, "_static")
 MEDIA_ROOT = os.path.join(BASE_DIR, '_media')
 
-LOGIN_URL = reverse_lazy('finance:login')
+LOGIN_URL = reverse_lazy('accounts:login')
 LOGOUT_URL = reverse_lazy('home')
 LOGIN_REDIRECT_URL = reverse_lazy('home')
 

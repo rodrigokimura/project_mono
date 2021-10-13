@@ -1,63 +1,69 @@
-{% extends "base.html" %}
+{% extends "accounts/base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block head %}
-    <style type="text/css">
-        body {
-            background-color: #DADADA;
-        }
-        body > .grid {
-            height: 100%;
-        }
-        .image {
-            margin-top: -100px;
-        }
-        .column {
-            max-width: 450px;
-        }
-    </style>
 {% endblock head %}
 
+{% block main %}
+<div class="ui stackable grid container">
 
-{% block body %}
-<div class="ui middle aligned center centered grid">
-    <div class="column">
-        <h2 class="ui teal image header"></h2>
-        <form class="ui large form" method="POST">
-                
-                
-            <div class="ui stacked segment">
-                {% csrf_token %}
+  <div class="ui four wide column"></div>
 
-                {% for hidden_field in form.hidden_fields %}
-                    {{ hidden_field }}
-                {% endfor %}
-
-                <div class="field">
-                    <div class="ui left icon input">
-                        <i class="user icon"></i>
-                        {{form.username}}
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="ui left icon input">
-                        <i class="lock icon"></i>
-                        {{form.password}}
-                    </div>
-                </div>
-                <button type="submit" class="ui fluid large teal submit button">Continuar</button>
-            </div>
-        </form>
-            {% if form.non_field_errors %}
-                <div class="ui error message">
-                {% for error in form.non_field_errors %}
-                    {{ error }}
-                {% endfor %}
-                </div>
-            {% endif %}
-        <div class="ui message">
-        <a href="{% url 'accounts:signup' %}">Signup</a>
+  <div class="ui eight wide column ">
+    <div class="row">
+      <div class="ui attached message">
+        <div class="header">
+          {% translate "Login to your account!" %}
         </div>
+      </div>
+      <div class="ui attached segment">
+        <form class="ui form {% if form.errors %}error{% endif %}" method="POST">
+          {% csrf_token %}
+          
+          <div class="field {% if form.username.errors %}error{% endif %}">
+              <label>{% translate "Username or email address" %}</label>
+              {{ form.username }}
+              {% if form.username.errors %}
+                  <div class="ui error message">
+                  {% for error in form.username.errors %}
+                      {{ error }}
+                  {% endfor %}
+                  </div>
+              {% endif %}
+          </div>
+
+          {% include "_field.html" with field=form.password %}
+
+          {% if form.non_field_errors %}
+          <div class="ui error message">
+          {% for error in form.non_field_errors %}
+              {{ error }}
+          {% endfor %}
+          </div>
+          {% endif %}
+
+          <button type="submit" class="ui fluid submit primary button">{% translate "Login" %}</button>
+          <div class="ui error message"></div>
+        </form>
+      </div>
     </div>
+    <div class="ui bottom attached message">
+      <p><i class="question circle icon"></i><a href="{% url 'accounts:password_reset' %}">{% translate "Forgot your password?" %}</a></p>
+      <p><i class="info circle icon"></i><a href="{% url 'accounts:signup' %}">{% translate "New here?" %}</a></p>  
+    </div>
+
+    <div class="ui horizontal divider">{% translate "Or" %}</div>
+    <span class="ui text">{% translate "Login with: " %}</span>
+    <a class="ui github button" href="{% url 'social:begin' 'github' %}">
+      <i class="github icon"></i>
+      GitHub
+    </a>
+  </div>
+  
+  <div class="ui four column wide"></div>
 </div>
-{% endblock body %}
+
+<script>
+</script>
+{% endblock main %}
