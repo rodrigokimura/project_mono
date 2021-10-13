@@ -22,12 +22,14 @@
 		{
 			"type": "shell",
 			"label": "Django - Run tests",
+			"group": "test",
 			"command": "export APP_ENV=TEST; cd mono; pipenv run python manage.py test --parallel 12 --failfast",
 			"problemMatcher": []
 		},
 		{
 			"type": "shell",
 			"label": "Django - Coverage",
+			"group": "test",
 			"command": "export APP_ENV=TEST; cd mono; pipenv run coverage run --source='.' manage.py test -b --timing; pipenv run coverage html; firefox htmlcov/index.html;",
 			"problemMatcher": []
 		},
@@ -37,5 +39,20 @@
 			"command": "pipenv run python mono/manage.py collectstatic --noinput",
 			"problemMatcher": []
 		},
+		{
+			"type": "shell",
+			"label": "Django - Full Build",
+			"group": "build",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"Django - Collect Static Files",
+				"Django - Make migrations",
+				"Django - Migrate",
+			],
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			}
+		}
 	]
 }
