@@ -13,9 +13,6 @@ router.register('transactions', TransactionViewSet)
 urlpatterns = [
 
     path("", views.HomePageView.as_view(), name='index'),
-    path("signup/", views.SignUp.as_view(), name='signup'),
-    path("login/", views.Login.as_view(), name='login'),
-    path("logout/", views.Logout.as_view(), name='logout'),
 
     path("transaction/", views.TransactionCreateView.as_view(), name='transaction_create'),
     path("transaction/<int:pk>/", views.TransactionUpdateView.as_view(), name='transaction_update'),
@@ -80,11 +77,6 @@ urlpatterns = [
     path("notification/mark-as-read/", views.NotificationMarkAsRead.as_view(), name='notification_mark_as_read'),
 
     path("faker/", views.FakerView.as_view(), name='faker'),
-
-    path('password_reset/', views.PasswordResetView.as_view(), name='password_reset'),
-    path('password_reset/done/', views.PasswordResetDoneView.as_view(), name='password_reset_done'),
-    path('reset/<uidb64>/<token>/', views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('reset/done/', views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
     path('plans/', views.PlansView.as_view(), name='plans'),
     path('checkout/', views.CheckoutView.as_view(), name='checkout'),
