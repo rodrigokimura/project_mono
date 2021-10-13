@@ -44,4 +44,4 @@ urlpatterns = [
 
 # Aesthetics-only
 logger = logging.getLogger(__name__)
-logger.info(ascii_art_1)
+logger.warning(ascii_art_1)
