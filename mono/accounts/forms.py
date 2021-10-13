@@ -1,16 +1,14 @@
-from django import forms
-from django.contrib.auth import forms as auth_forms, get_user_model
-from django.contrib.auth.models import User
-from django.forms import ValidationError
 from captcha.fields import ReCaptchaField
-
-from django.utils.translation import gettext as _
+from django import forms
 from django.contrib.auth import (
     authenticate, forms as auth_forms, get_user_model, login,
 )
+from django.contrib.auth.models import User
+from django.forms import ValidationError
+from django.utils.translation import gettext as _
+
 from . import models
 
-# from PIL import get
 
 class UserForm(auth_forms.UserCreationForm):
 
@@ -47,6 +45,7 @@ class UserForm(auth_forms.UserCreationForm):
             )
             login(self.request, auth_user)
         return user
+
 
 class UserCreateForm(auth_forms.UserCreationForm):
     error_css_class = 'error'
