@@ -6,26 +6,24 @@ from django import http
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http.response import Http404, HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404
-from django.views.generic.base import TemplateView, View
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from django.utils.translation import gettext as _
-from django.urls import reverse_lazy
-from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordResetCompleteView, PasswordResetConfirmView,
     PasswordResetDoneView, PasswordResetView,
 )
-from django.views.generic.edit import (
-    CreateView
-)
+from django.contrib.messages.views import SuccessMessageMixin
+from django.http.response import Http404, HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
+from django.utils.translation import gettext as _
+from django.views.generic.base import TemplateView, View
+from django.views.generic.edit import CreateView
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .forms import UserForm
 from .mixins import PassRequestToFormViewMixin
 from .models import User, UserProfile
-from .forms import UserForm
 from .serializers import ProfileSerializer, UserSerializer
 
 

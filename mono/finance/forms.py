@@ -4,9 +4,7 @@ from random import randint, randrange
 import pytz
 from django import forms
 from django.contrib import messages
-from django.contrib.auth import (
-    authenticate, forms as auth_forms, get_user_model, login,
-)
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.forms import ValidationError
 from django.utils import timezone
