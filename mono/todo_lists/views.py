@@ -33,6 +33,10 @@ class ListCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMess
     success_url = reverse_lazy('todo_lists:index')
     success_message = "%(name)s was created successfully"
 
+    def get_success_url(self):
+        self.request.session['todo_list'] = self.object.pk
+        return super().get_success_url()
+
 
 class ListUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
     model = List

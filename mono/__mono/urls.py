@@ -36,6 +36,7 @@ urlpatterns = [
     path('nt/', include('notes.urls')),
     path('pixel/', include('pixel.urls')),
     path('watcher/', include('watcher.urls')),
+    path('restricted-area/', include('restricted_area.urls')),
     # path('__debug__/', include(debug_toolbar.urls)),
     path('i18n/', include('django.conf.urls.i18n')),
     path('markdownx/', include('markdownx.urls')),
@@ -44,4 +45,4 @@ urlpatterns = [
 
 # Aesthetics-only
 logger = logging.getLogger(__name__)
-logger.info(ascii_art_1)
+logger.warning(ascii_art_1)

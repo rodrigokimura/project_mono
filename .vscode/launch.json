@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Mono Project",
+            "name": "[MONO] Dev Server",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
@@ -14,7 +14,33 @@
                 "runserver",
                 "127.0.0.42:8080"
             ],
+            "django": true,
+            "serverReadyAction": {
+                "pattern": "Starting development server at (https?://\\S+|[0-9]+)",
+                "uriFormat": "%s",
+                "action": "debugWithChrome"
+            }
+        },
+        {
+            "name": "[MONO] Process Background Tasks",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "program": "${workspaceFolder}/mono/manage.py",
+            "args": [
+                "process_tasks",
+            ],
             "django": true
+        },
+    ],
+    "compounds": [
+        {
+            "name": "Server/Tasks",
+            "configurations": [
+                "[MONO] Dev Server",
+                "[MONO] Process Background Tasks"
+            ],
+            "preLaunchTask": "Django - Full Build"
         }
     ]
 }
