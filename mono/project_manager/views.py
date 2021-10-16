@@ -152,6 +152,14 @@ class BoardCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     success_url = reverse_lazy('project_manager:boards')
     success_message = "Board %(name)s was created successfully"
 
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        project = Project.objects.get(id=self.kwargs['project_pk'])
+        if request.user == project.created_by:
+            return super().get(request, *args, **kwargs)
+        else:
+            messages.error(request, "You don't have permission to create boards in this project.")
+            return redirect(to=reverse('project_manager:project_detail', args=[project.id]))
+
     def get_success_url(self, **kwargs) -> str:
         return reverse_lazy(
             'project_manager:board_detail',

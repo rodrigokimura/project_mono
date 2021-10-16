@@ -25,28 +25,26 @@ class ProjectForm(forms.ModelForm):
 
 
 class BoardForm(forms.ModelForm):
-    error_css_class = 'error'
+    error_css_class = 'error' 
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
-        project = Project.objects.get(id=kwargs.pop("project_pk"))
+        self.project = Project.objects.get(id=kwargs.pop("project_pk"))
         super().__init__(*args, **kwargs)
         self.fields['assigned_to'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['assigned_to'].queryset = project.allowed_users
-        self.fields['project'].widget.attrs.update({'class': 'ui project dropdown'})
-        self.fields['project'].queryset = Project.objects.filter(created_by=self.request.user)
+        self.fields['assigned_to'].queryset = self.project.allowed_users
 
     def save(self, *args, **kwargs):
         board = self.instance
         if board.pk is None:
             board.created_by = self.request.user
+            board.project = self.project
         return super().save(*args, **kwargs)
 
     class Meta:
         model = Board
         fields = [
             'name',
-            'project',
             'assigned_to',
 
             'tags_feature',
