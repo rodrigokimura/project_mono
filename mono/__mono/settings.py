@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'notes',
     'pixel',
     'watcher',
+    'restricted_area',
     'django.forms',
 ]
 

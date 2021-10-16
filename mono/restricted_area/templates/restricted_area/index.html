@@ -1,0 +1,35 @@
+{% extends "restricted_area/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block head %}
+{% endblock head %}
+
+{% block main %}
+    
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="row">
+            <div class="column">
+                <div class="ui header" style="display: flex; flex-flow: row nowrap;">
+                    <div style="flex: 1 0 auto;">
+                        {% translate "Área 51" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <div class="ui list">
+                    <a class="item" href="{% url 'restricted-area:force-error-500' %}">
+                        Force Error 500
+                    </a>
+                    <a class="item" href="{% url 'restricted-area:view-error-500' %}">
+                        View Error 500 Page
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
