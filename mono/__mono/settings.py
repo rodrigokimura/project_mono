@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'notes',
     'pixel',
     'watcher',
+    'restricted_area',
     'django.forms',
 ]
 
@@ -213,7 +214,7 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, "_static")
 MEDIA_ROOT = os.path.join(BASE_DIR, '_media')
 
-LOGIN_URL = reverse_lazy('finance:login')
+LOGIN_URL = reverse_lazy('accounts:login')
 LOGOUT_URL = reverse_lazy('home')
 LOGIN_REDIRECT_URL = reverse_lazy('home')
 
@@ -268,59 +269,58 @@ SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 MAINTENANCE_MODE_IGNORE_SUPERUSER = True
 
 
-if APP_ENV == 'PRD':
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-            },
-            'mail_admins': {
-                'level': 'ERROR',
-                'class': 'django.utils.log.AdminEmailHandler',
-                'include_html': True,
-            },
-            'watcher': {
-                'level': 'ERROR',
-                'class': 'watcher.log_handlers.WatcherHandler',
-            },
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
         },
-        'loggers': {
-            'django': {
-                'handlers': ['console', 'watcher', 'mail_admins'],
-                'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-                'propagate': False,
-            },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
         },
-    }
-elif APP_ENV == 'DEV':
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-            },
-            'mail_admins': {
-                'level': 'ERROR',
-                'class': 'django.utils.log.AdminEmailHandler',
-                'include_html': True,
-            },
-            'watcher': {
-                'level': 'ERROR',
-                'class': 'watcher.log_handlers.WatcherHandler',
-                # 'include_html': True,
-            },
+    },
+    'formatters': {
+        'django.server': {
+            '()': 'django.utils.log.ServerFormatter',
+            'format': '[{server_time}] {message}',
+            'style': '{',
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
         },
-        'loggers': {
-            'django': {
-                'handlers': ['console', 'watcher'],
-                'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-                'propagate': False,
-            },
+        'django.server': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'django.server',
         },
-    }
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+        },
+        'watcher': {
+            'level': 'ERROR',
+            'class': 'watcher.log_handlers.WatcherHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'mail_admins', 'watcher'],
+            'level': 'INFO',
+        },
+        'django.server': {
+            'handlers': ['django.server'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
 
 
 TINYMCE_DEFAULT_CONFIG = {

@@ -6,15 +6,67 @@ from django import http
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.views import (
+    LoginView, LogoutView, PasswordResetCompleteView, PasswordResetConfirmView,
+    PasswordResetDoneView, PasswordResetView,
+)
+from django.contrib.messages.views import SuccessMessageMixin
 from django.http.response import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
+from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView, View
+from django.views.generic.edit import CreateView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .forms import UserForm
+from .mixins import PassRequestToFormViewMixin
 from .models import User, UserProfile
 from .serializers import ProfileSerializer, UserSerializer
+
+
+class SignUp(SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
+    form_class = UserForm
+    template_name = "accounts/signup.html"
+    success_url = reverse_lazy('home')
+    success_message = "%(username)s user created successfully"
+
+
+class Login(LoginView):
+    template_name = "accounts/login.html"
+
+
+class Logout(LogoutView):
+    next_page = reverse_lazy('home')
+
+
+class PasswordResetView(PasswordResetView):
+    success_url = reverse_lazy('finance:password_reset_done')
+    title = _('Password reset')
+    html_email_template_name = 'registration/password_reset_email.html'
+    subject_template_name = 'registration/password_reset_subject.txt'
+    template_name = 'registration/password_reset_form.html'
+    extra_email_context = {
+        "expiration_time_hours": int(settings.PASSWORD_RESET_TIMEOUT / 60 / 60)
+    }
+
+
+class PasswordResetConfirmView(PasswordResetConfirmView):
+    success_url = reverse_lazy('finance:password_reset_complete')
+    template_name = 'registration/password_reset_confirm.html'
+    title = _('Enter new password')
+
+
+class PasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'registration/password_reset_done.html'
+    title = _('Password reset sent')
+
+
+class PasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'registration/password_reset_complete.html'
+    title = _('Password reset complete')
 
 
 class AccountVerificationView(TemplateView):

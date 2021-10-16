@@ -1,96 +1,39 @@
-{% extends "base.html" %}
+{% extends "accounts/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block head %}
-    <style type="text/css">
-        body {
-            background-color: #DADADA;
-        }
-        body > .grid {
-            height: 100%;
-        }
-        .image {
-            margin-top: -100px;
-        }
-        .column {
-            max-width: 450px;
-        }
-    </style>
 {% endblock head %}
 
-{% block body %}
-<div class="ui middle aligned center centered grid">
-    <div class="column">
-        <h2 class="ui teal image header"></h2>
-        <form class="ui large form {% if uform.errors or pform.errors %}error{% endif %}" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="ui stacked segment">
+{% block main %}
+<div class="ui stackable grid container">
 
-                {% include "_form_field.html" with field=uform.username icon="user" %}
-                {% include "_form_field.html" with field=uform.email icon="envelope" %}
-                {% include "_form_field.html" with field=uform.password1 icon="lock" %}
-                {% include "_form_field.html" with field=uform.password2 icon="lock" %}
-                {% include "_form_field.html" with field=pform.phone icon="phone" %}
+<div class="ui four wide column "></div>
 
-                <div class="field">
-                    {{pform.gender}}
-                </div>
-
-                {% include "_form_field.html" with field=pform.avatar icon="file image" %}
-
-                <button type="submit" class="ui fluid large teal submit button">Continuar</button>
-                <div class="ui error message"></div>
-            </div>
-        </form>
-
-            {% comment %} TODO: TROCAR PARA NON FIELD ERRORS {% endcomment %}
-            {% for field in uform %}
-                {% if field.errors %}
-                    <div class="ui error message">
-
-                    {% for error in field.errors %}
-                        {{ error }}
-                    {% endfor %}
-
-                    </div>
-                {% endif %}
-            {% endfor %}
-            
-            {% for field in pform %}
-                {% if field.errors %}
-                    <div class="ui error message">
-
-                    {% for error in field.errors %}
-                        {{ error }}
-                    {% endfor %}
-
-                    </div>
-                {% endif %}
-            {% endfor %}
-
-
-        <div class="ui message">
-        <a href="{%url 'accounts:login'%}">Log in</a>
+<div class="ui eight wide column ">
+    <div class="row">
+      <div class="ui attached message">
+        <div class="header">
+          {% translate "Sign up here!" %}
         </div>
+      </div>
+      <div class="ui attached segment">
+        <form class="ui form {% if form.errors %}error{% endif %}" method="POST">
+          {% csrf_token %}
+          {% include "_form.html" with form=form %}
+          <button type="submit" class="ui fluid submit primary button">{% translate "Signup" %}</button>
+          <div class="ui error message"></div>
+        </form>
+      </div>
     </div>
-</div>
+    <div class="ui bottom attached message">
+      <p><i class="question circle icon"></i><a href="{% url 'accounts:password_reset' %}">{% translate "Forgot your password?" %}</a></p>
+      <p><i class="info circle icon"></i><a href="{% url 'accounts:login' %}">{% translate "Already signed up? Login here instead." %}</a></p>  
+    </div>
+  </div>
+
+<div class="ui four wide column "></div>
 
 <script>
-    {% comment %} document.querySelector('.custom-file-input').addEventListener('change',function(e){
-        var fileList = document.getElementById("{{ pform.avatar.id_for_label }}").files
-        var label = document.querySelector('.custom-file-label')
-        
-        if (fileList.length === 0) {
-            label.innerText = "Nenhum arquivo selecionado."
-        } else {
-            var fileName = fileList[0].name;
-            label.innerText = fileName
-        }
-    }); {% endcomment %}
-    $(document).ready(
-        function() {
-            $('select.dropdown').dropdown();
-        }
-    );
 </script>
-{% endblock body %}
+{% endblock main %}

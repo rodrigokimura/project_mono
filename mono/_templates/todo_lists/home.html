@@ -4,7 +4,7 @@
 
 {% block head %}
 <style>
-    .task.item[data-checked=true] .check .circle { display: none }
+    .task.item[data-checked=true] label { text-decoration: line-through }
     .task.item[data-checked=true] .check .check { }
     .task.item[data-checked=false] .check .circle { }
     .task.item[data-checked=false] .check .check { display: none }
@@ -72,10 +72,10 @@
             </div>
         </div>
         <div class="eight wide column">
-            <div class="ui list-name segment">
+            <div class="ui list-name top attached fluid segment" style="width: 100%;">
                 <h2 class="ui center aligned header" id="list-name"></h2>
             </div>
-            <div class="ui fluid vertical menu" id="tasks-menu">
+            <div class="ui bottom attached fluid vertical menu" id="tasks-menu">
                 <div id="tasks-div">
                     {% comment %} LIST WILL BE INSERTED HERE {% endcomment %}
                 </div>
@@ -139,11 +139,13 @@
                     <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTask(${listId}, ${taskId})">
                     <label>${taskDescription}</label>
                 </div>
-                <div class="ui icon label" onclick="showTaskModal(${listId}, ${taskId})">
-                    <i class="edit icon"></i>
-                </div>
             </a>
         `);
+        $(`.task.item[data-task-id=${taskId}]`).on('click', e => {
+            if ($(e.target).hasClass('task')) {
+                showTaskModal(listId, taskId);
+            }
+        })
     }
 
     function createTask(listId, taskDescription) {
