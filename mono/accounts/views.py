@@ -120,6 +120,11 @@ class ConfigView(LoginRequiredMixin, TemplateView):
         if not up.avatar:
             up.generate_initials_avatar()
         context = super().get_context_data(**kwargs)
+        notifications = self.request.user.notifications
+        context['notifications'] = {
+            'unread': notifications.filter(read_at__isnull=True),
+            'read': notifications.filter(read_at__isnull=False),
+        }
         return context
 
 
@@ -138,14 +143,6 @@ class UserDetailAPIView(LoginRequiredMixin, APIView):
         user = self.get_object(pk)
         serializer = UserSerializer(user, data=request.data, partial=True)
         if request.user == user:
-            # if 'avatar' in request.data:
-            #     profile = UserProfile.objects.get_or_create(user=user)
-            #     profile.avatar = ImageFile(request.data.get('avatar'))
-            #     profile_serializer = ProfileSerializer(profile, data={'avatar': request.data['avatar']})
-            #     if profile_serializer.is_valid():
-            #         profile.avatar = ImageFile(request.data['avatar'])
-            #         profile.save()
-            #         pass
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)

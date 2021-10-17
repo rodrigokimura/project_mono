@@ -8,14 +8,18 @@
 
 {% block main %}
     <div class="ui stackable grid container" style="padding-top: 5em;">
+
         <div class="four wide column">
             <div class="ui vertical fluid menu">
                 <a class="item active" data-tab="profile">{% translate "Profile" %}</a>
-                <a class="item" data-tab="general">{% translate "General Settings" %}</a>
+                <a class="item" data-tab="settings">{% translate "Settings" %}</a>
+                <a class="item" data-tab="notifications">{% translate "Notifications" %}</a>
                 <a class="item" data-tab="subscription">{% translate "Subscription" %}</a>
             </div>
         </div>
+
         <div class="twelve wide stretched column">
+
             <div class="ui tab" data-tab="profile">
                 <div class="ui segment">
                     <h1 class="ui dividing header">{% translate "Profile" %}</h1>
@@ -122,15 +126,55 @@
                     </script>
                 </div>
             </div>
-            <div class="ui tab" data-tab="general">
-                <h1 class="ui dividing header">{% translate "General Settings" %}</h1>
+
+            <div class="ui tab" data-tab="settings">
+                <div class="ui segment">
+                    <h1 class="ui dividing header">{% translate "Settings" %}</h1>
+                </div>
             </div>
+
+            <div class="ui tab" data-tab="notifications">
+                <div class="ui segment">
+                    <h1 class="ui dividing header">{% translate "Notifications" %}</h1>
+                    <div class="ui fluid notifications accordion">
+                        {% for k, v in notifications.items %}
+                            {% if k == 'read' %}
+                            <div class="title">
+                                <i class="dropdown icon"></i>
+                                {% translate "Read notifications" %}
+                            </div>
+                            {% elif k == 'unread' %}
+                            <div class="active title">
+                                <i class="dropdown icon"></i>
+                                {% translate "Unread notifications" %}
+                            </div>
+                            {% endif %}
+                            <div class="{% if k == 'unread' %}active {% endif %}content">
+                                <div class="ui segments">
+                                    {% for notification in v %}
+                                        {% include 'accounts/_notification.html' with notification=notification %}
+                                    {% empty %}
+                                        <div class="ui segment">{% translate "No notifications to display" %}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <script>$('.notifications.accordion').accordion()</script>
+                </div>
+            </div>
+
             <div class="ui tab" data-tab="subscription">
-                <h1 class="ui dividing header">{% translate "Subscription" %}</h1>
+                <div class="ui segment">
+                    <h1 class="ui dividing header">{% translate "Subscription" %}</h1>
+                </div>
             </div>
         </div>
     </div>
     <script>
         $('.menu .item').tab();
+        {% if request.GET.tab %}
+            $('.menu .item').tab('change tab', '{{ request.GET.tab }}');
+        {% endif %}
     </script>
 {% endblock %}

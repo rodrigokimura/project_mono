@@ -5,8 +5,14 @@
     <div class="menu" style="margin-right: 1em !important;">
         <div class="header">
             <p>{% translate "Signed in as " %}</p>
-            <span class="ui primary text">{{ request.user }}</span>
+            <a href="{% url 'accounts:config' %}?tab=profile">
+                <span class="ui primary text">{{ request.user }}</span>
+            </a>
         </div>
+        <div class="divider"></div>
+        <a class="item" href="{% url 'accounts:config' %}?tab=notifications">
+            <i class="bell icon"></i>{% translate "Notifications" %}
+        </a>
         <div class="divider"></div>
         <div class="language item">
             <i class="left dropdown icon"></i>
@@ -26,7 +32,7 @@
             </form>
         </div>
         <div class="divider"></div>
-        <a class="item" href="{% url 'accounts:config' %}">
+        <a class="item" href="{% url 'accounts:config' %}?tab=settings">
             <i class="cog icon"></i>{% translate "Settings" %}
         </a>
         <div class="divider"></div>
@@ -49,5 +55,5 @@
                 $('.menu.transition.visible').removeClass('transition', 'visible');
             },
         }
-);
+    );
 </script>

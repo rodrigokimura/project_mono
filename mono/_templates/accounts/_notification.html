@@ -1,0 +1,17 @@
+<div class="ui segment">
+    <div class="ui item">
+        <div class="content">
+            <a class="header" href={{ notification.action_url }}>
+                <i class="{{ notification.icon }} icon"></i>
+                {{ notification.title }}
+            </a>
+            
+        </div>
+        <div class="meta">
+            <p>{{ notification.message }}</p>
+        </div>
+        <div class="extra">
+            <p>{{ notification.created_at }}</p>
+        </div>
+    </div>
+</div>
