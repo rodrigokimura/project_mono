@@ -1,11 +1,9 @@
-from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http.response import Http404, HttpResponse, JsonResponse, HttpResponseServerError
-
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic.base import TemplateView, View
 
+
 class IndexView(UserPassesTestMixin, TemplateView):
-    
+
     template_name = 'restricted_area/index.html'
 
     def test_func(self):
