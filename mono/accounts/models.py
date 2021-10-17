@@ -1,5 +1,4 @@
 import random
-import re
 from datetime import timedelta
 from xml.sax.saxutils import escape as xml_escape
 
@@ -14,7 +13,7 @@ from django.db.models.fields import DateTimeField
 from django.template.loader import get_template
 from django.urls.base import reverse
 from django.utils import timezone
-from finance.models import Icon, Notification
+from django.utils.translation import ugettext_lazy as _
 
 User = get_user_model()
 
@@ -22,6 +21,31 @@ User = get_user_model()
 def user_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return 'user_{0}/{1}'.format(instance.user.id, filename)
+
+
+class Notification(models.Model):
+    title = models.CharField(max_length=50)
+    message = models.CharField(max_length=255)
+    to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    created_at = models.DateTimeField(auto_now_add=True)
+    icon = models.CharField(max_length=50, default='bell')
+    read_at = models.DateTimeField(blank=True, null=True, default=None)
+    action_url = models.CharField(max_length=1000, blank=True, null=True, default=None)
+
+    class Meta:
+        verbose_name = _("notification")
+        verbose_name_plural = _("notifications")
+
+    def __str__(self) -> str:
+        return self.title
+
+    @property
+    def read(self):
+        return self.read_at is not None
+
+    def mark_as_read(self):
+        self.read_at = timezone.now()
+        self.save()
 
 
 class UserProfile(models.Model):
@@ -43,7 +67,7 @@ class UserProfile(models.Model):
         Notification.objects.create(
             title="Account verification",
             message="Your account was successfully verified.",
-            icon=Icon.objects.get(markup="exclamation"),
+            icon='exclamation',
             to=self.user
         )
 
@@ -86,7 +110,7 @@ class UserProfile(models.Model):
         Notification.objects.create(
             title="Account verification",
             message="We've sent you an email to verify your account.",
-            icon=Icon.objects.get(markup="exclamation"),
+            icon='exclamation',
             to=self.user,
         )
 
@@ -113,11 +137,10 @@ class UserProfile(models.Model):
                 </defs>
                 <rect width="200" height="200" rx="0" ry="0" fill="url(#grad)"></rect>
                 <text text-anchor="middle" y="50%" x="50%" dy="0.35em"
-                        pointer-events="auto" fill="{text_color}" font-family="sans-serif"
-                        style="font-weight: 400; font-size: 80px">{text}</text>
+                    pointer-events="auto" fill="{text_color}" font-family="sans-serif"
+                    style="font-weight: 400; font-size: 80px">{text}</text>
             </svg>
         """.strip()
-        INITIALS_SVG_TEMPLATE = re.sub('(\s+|\n)', ' ', INITIALS_SVG_TEMPLATE)
         initials = self.user.username[0]
         random_color = random.choice(COLORS)
         svg_avatar = INITIALS_SVG_TEMPLATE.format(**{
