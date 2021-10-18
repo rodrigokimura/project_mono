@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admindocs',
+    'django.contrib.humanize',
     'maintenance_mode',
     'rest_framework',
     'rest_framework.authtoken',
@@ -113,6 +114,7 @@ TEMPLATES = [
             'context_processors': [
                 '__mono.context_processors.environment',
                 '__mono.context_processors.language_extras',
+                'accounts.context_processors.unread_notification_count',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',

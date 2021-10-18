@@ -1,17 +1,31 @@
-<div class="ui segment">
-    <div class="ui item">
-        <div class="content">
-            <a class="header" href={{ notification.action_url }}>
-                <i class="{{ notification.icon }} icon"></i>
-                {{ notification.title }}
-            </a>
-            
+{% load humanize %}
+
+<div class="ui message" data-notifocation-id="{{ notification.id }}">
+    <div class="header">
+        <div class="ui checkbox">
+            <input type="checkbox">
+            <label></label>
         </div>
-        <div class="meta">
-            <p>{{ notification.message }}</p>
-        </div>
-        <div class="extra">
-            <p>{{ notification.created_at }}</p>
-        </div>
+        <a href={{ notification.action_url }}>
+        <i class="{{ notification.icon }} icon"></i>
+            {{ notification.title }}
+        </a>
     </div>
+    <p>{{ notification.message }}</p>
+    <span class="ui right floated text">{{ notification.created_at|naturaltime }}</span>
 </div>
+<script type="text/javascript" charset="utf-8">
+    $('.ui.message[data-notifocation-id={{ notification.id }}] .checkbox')
+        .checkbox({
+            onChecked: () => {
+                $('.ui.message[data-notifocation-id={{ notification.id }}]')
+                    .removeClass('message')
+                    .addClass('info message');
+            },
+            onUnchecked: () => {
+                $('.ui.message[data-notifocation-id={{ notification.id }}]')
+                    .removeClass('info message')
+                    .addClass('message');
+            },
+        }).checkbox("uncheck");
+</script>
