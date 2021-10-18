@@ -152,8 +152,11 @@ class UserProfile(models.Model):
         img_temp = NamedTemporaryFile(delete=True)
         img_temp.write(svg_avatar.encode('UTF-8'))
         img_temp.flush()
-        self.avatar.save(
-            "initials.svg",
-            File(img_temp),
-            save=True,
-        )
+        try:
+            self.avatar.save(
+                "initials.svg",
+                File(img_temp),
+                save=True,
+            )
+        except OSError:
+            pass

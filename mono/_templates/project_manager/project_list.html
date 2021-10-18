@@ -1,6 +1,7 @@
 {% extends "project_manager/base.html" %}
 {% load static %}
 {% load i18n %}
+{% load custom_tags %}
 
 {% block main %}
 <div class="pusher">
@@ -38,7 +39,7 @@
                                 <div class="description">
                                     <div style="padding-bottom: 1em;">
                                         {% for u in project.allowed_users %}
-                                        <img class="ui avatar image" src="{{ u.profile.avatar.url }}" alt="" data-content="{{ u.username }}">
+                                        <img class="ui avatar image" src="{{ u.profile.avatar|default_image }}" alt="" data-content="{{ u.username }}">
                                         {% endfor %}
                                     </div>
                                     {% if project.card_count == 0 %}

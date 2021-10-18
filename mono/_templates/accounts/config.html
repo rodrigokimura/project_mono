@@ -1,6 +1,7 @@
 {% extends "accounts/base.html" %}
 {% load static %}
 {% load i18n %}
+{% load custom_tags %}
 
 
 {% block head %}
@@ -33,7 +34,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <img src="{{ request.user.profile.avatar.url }}" alt="" class="ui small circular image">
+                            <img src="{{ request.user.profile.avatar|default_image }}" alt="" class="ui small circular image">
                         </div>
                     </div>
                     <input type="file" class="change-picture" style="display: none;">
@@ -134,7 +135,7 @@
             </div>
 
             <div class="ui tab" data-tab="notifications">
-                <div class="ui segment">
+                <div class="ui segment" id="notifications">
                     <h1 class="ui dividing header">{% translate "Notifications" %}</h1>
                     <div class="ui fluid notifications accordion">
                         {% for k, v in notifications.items %}
@@ -150,13 +151,13 @@
                             </div>
                             {% endif %}
                             <div class="{% if k == 'unread' %}active {% endif %}content">
-                                <div class="ui segments">
+                               
                                     {% for notification in v %}
                                         {% include 'accounts/_notification.html' with notification=notification %}
                                     {% empty %}
                                         <div class="ui segment">{% translate "No notifications to display" %}</div>
                                     {% endfor %}
-                                </div>
+                                
                             </div>
                         {% endfor %}
                     </div>

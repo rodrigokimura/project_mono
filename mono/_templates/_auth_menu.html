@@ -3,6 +3,7 @@
 <div class="ui top auth pointing teal dropdown item">
     <i class="user icon"></i>
     <div class="menu" style="margin-right: 1em !important;">
+        {% if user.is_authenticated %}
         <div class="header">
             <p>{% translate "Signed in as " %}</p>
             <a href="{% url 'accounts:config' %}?tab=profile">
@@ -10,10 +11,19 @@
             </a>
         </div>
         <div class="divider"></div>
-        <a class="item" href="{% url 'accounts:config' %}?tab=notifications">
+        {% endif %}
+        {% if user.is_authenticated %}
+        <a class="item" href="{% url 'accounts:config' %}?tab=notifications#notifications" style="width: 200px">
             <i class="bell icon"></i>{% translate "Notifications" %}
+            <div class="ui right floated teal label">{{ unread_notification_count }}</div>
+        </a>
+        {% endif %}
+        {% if user.is_authenticated %}
+        <a class="item" href="{% url 'accounts:config' %}?tab=settings">
+            <i class="cog icon"></i>{% translate "Settings" %}
         </a>
         <div class="divider"></div>
+        {% endif %}
         <div class="language item">
             <i class="left dropdown icon"></i>
             <span class="text">{% translate "Change language" %}</span>
@@ -32,13 +42,15 @@
             </form>
         </div>
         <div class="divider"></div>
-        <a class="item" href="{% url 'accounts:config' %}?tab=settings">
-            <i class="cog icon"></i>{% translate "Settings" %}
-        </a>
-        <div class="divider"></div>
+        {% if user.is_authenticated %}
         <a class="item" href="{% url 'accounts:logout' %}">
             <i class="power off icon"></i>{% translate "Sign out" %}
         </a>
+        {% else %}
+        <a class="item" href="{% url 'accounts:login' %}">
+            <i class="sign in alternate icon"></i>{% translate "Login" %}
+        </a>
+        {% endif %}
     </div>
 </div>
 
