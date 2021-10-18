@@ -10,6 +10,7 @@ from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordResetCompleteView, PasswordResetConfirmView,
     PasswordResetDoneView, PasswordResetView,
 )
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http.response import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
@@ -36,6 +37,19 @@ class SignUp(SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
 
 class Login(LoginView):
     template_name = "accounts/login.html"
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        unread_notifications = self.request.user.notifications.filter(
+            read_at__isnull=True
+        )
+        if unread_notifications.count() > 0:
+            messages.add_message(
+                self.request, 
+                messages.WARNING, 
+                f'You have {unread_notifications.count()} unread notification(s).',
+            )
+        return response
 
 
 class Logout(LogoutView):
