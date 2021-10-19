@@ -68,4 +68,36 @@
             },
         }
     );
+    var notificationsChecker = null;
+    const unread_notification_timestamp = new Date("{{ unread_notification_timestamp.isoformat }}");
+    function renderNotificationCount() {
+        
+    }
+    function checkNotifications() {
+        $.api({
+            on: 'now',
+            method: 'GET',
+            url: '/accounts/notifications/count/',
+            onSuccess: r => {
+                ts = new Date(r.timestamp)
+                if (ts > unread_notification_timestamp) {
+                    unread_notification_timestamp = ts;
+                    $('body').toast({
+                        title: 'New notification',
+                        message: 'You got a new notification',
+                        class: 'success',
+                        className: { toast: 'ui message' },
+                        showProgress: 'bottom',
+                        closeIcon: true,
+                    })
+                
+                }
+            },
+        })
+    }
+    function startNotificationsChecker(period = 5000) {
+        if (notificationsChecker !== null) { clearInterval(notificationsChecker); }
+        notificationsChecker = setInterval(checkNotifications, period);
+    }
+    startNotificationsChecker()
 </script>

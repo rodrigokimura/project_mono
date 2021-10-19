@@ -35,6 +35,7 @@ class Notification(models.Model):
     class Meta:
         verbose_name = _("notification")
         verbose_name_plural = _("notifications")
+        ordering = ['created_at']
 
     def __str__(self) -> str:
         return self.title
@@ -45,6 +46,10 @@ class Notification(models.Model):
 
     def mark_as_read(self):
         self.read_at = timezone.now()
+        self.save()
+
+    def mark_as_unread(self):
+        self.read_at = None
         self.save()
 
 
