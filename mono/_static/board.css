@@ -69,8 +69,15 @@ img.img-card-file {
     border: red solid .2em;
 }
 
-.completed.card:hover {
-    opacity: 1;
+.card.card-el {
+    transition: box-shadow .3s;
+    border: 1px solid #ccc;
+    background: #fff;
+    float: left;
+}
+
+.card.card-el:hover {
+    box-shadow: 0 0 11px rgba(33, 33, 33, .2) !important;
 }
 
 .completed.card .card-name:hover {
@@ -79,7 +86,6 @@ img.img-card-file {
 
 .card-el.extra.content {
     font-size: 75%;
-    ;
 }
 
 .hidden {
