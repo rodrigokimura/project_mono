@@ -5,10 +5,9 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.client import Client
 from django.utils import timezone
-from finance.models import Notification
 
 from .forms import UserCreateForm, UserProfileForm
-from .models import User, UserProfile, user_directory_path
+from .models import Notification, User, UserProfile, user_directory_path
 
 
 class UserCreateFormTest(TestCase):
