@@ -270,59 +270,86 @@ SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 # MAINTENANCE MODE
 MAINTENANCE_MODE_IGNORE_SUPERUSER = True
 
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
+if APP_ENV == 'PRD':
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'level': 'INFO',
+                'class': 'logging.StreamHandler',
+            },
+            'mail_admins': {
+                'level': 'ERROR',
+                'class': 'django.utils.log.AdminEmailHandler',
+                'include_html': True,
+            },
+            'watcher': {
+                'level': 'ERROR',
+                'class': 'watcher.log_handlers.WatcherHandler',
+            },
         },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
+        'loggers': {
+            'django': {
+                'handlers': ['console', 'mail_admins', 'watcher'],
+                'level': 'INFO',
+                'propagate': False,
+            },
         },
-    },
-    'formatters': {
-        'django.server': {
-            '()': 'django.utils.log.ServerFormatter',
-            'format': '[{server_time}] {message}',
-            'style': '{',
-        }
-    },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
+    }
+else:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'filters': {
+            'require_debug_false': {
+                '()': 'django.utils.log.RequireDebugFalse',
+            },
+            'require_debug_true': {
+                '()': 'django.utils.log.RequireDebugTrue',
+            },
         },
-        'django.server': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'django.server',
+        'formatters': {
+            'django.server': {
+                '()': 'django.utils.log.ServerFormatter',
+                'format': '[{server_time}] {message}',
+                'style': '{',
+            }
         },
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler',
-            'include_html': True,
+        'handlers': {
+            'console': {
+                'level': 'INFO',
+                'filters': ['require_debug_true'],
+                'class': 'logging.StreamHandler',
+            },
+            'django.server': {
+                'level': 'INFO',
+                'class': 'logging.StreamHandler',
+                'formatter': 'django.server',
+            },
+            'mail_admins': {
+                'level': 'ERROR',
+                'filters': ['require_debug_false'],
+                'class': 'django.utils.log.AdminEmailHandler',
+                'include_html': True,
+            },
+            'watcher': {
+                'level': 'ERROR',
+                'class': 'watcher.log_handlers.WatcherHandler',
+            },
         },
-        'watcher': {
-            'level': 'ERROR',
-            'class': 'watcher.log_handlers.WatcherHandler',
+        'loggers': {
+            'django': {
+                'handlers': ['console', 'mail_admins', 'watcher'],
+                'level': 'INFO',
+            },
+            'django.server': {
+                'handlers': ['django.server'],
+                'level': 'INFO',
+                'propagate': False,
+            },
         },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'mail_admins', 'watcher'],
-            'level': 'INFO',
-        },
-        'django.server': {
-            'handlers': ['django.server'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-    },
-}
+    }
 
 
 TINYMCE_DEFAULT_CONFIG = {

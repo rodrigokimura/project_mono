@@ -194,7 +194,7 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     success_message = "Board %(name)s was updated successfully"
 
     def get_success_url(self, **kwargs) -> str:
-        return reverse_lazy('project_manager:project_detail', args=[str(self.request.POST.get('project'))])
+        return reverse_lazy('project_manager:project_detail', kwargs={'pk': self.object.project.pk})
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

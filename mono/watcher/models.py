@@ -23,6 +23,9 @@ class Issue(models.Model):
         related_name='ignored_issues'
     )
 
+    class Meta:
+        ordering = ['-created_at']
+
     def __str__(self):
         return self.name
 
