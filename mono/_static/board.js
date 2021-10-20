@@ -446,9 +446,9 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
                             <div class="menu">
                                 <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
                                 <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>Delete this card</div>
-                                <div class="divider"></div>
+                                ${FEATURES.time_entries ? `<div class="divider"></div>
                                 <div class="start-stop-timer card item" data-card-id="${card.id}"><i class="stopwatch icon"></i>Start/stop timer</div>
-                                <div class="edit-time-entries card item" data-card-id="${card.id}"><i class="history icon"></i>Edit time entries</div>
+                                <div class="edit-time-entries card item" data-card-id="${card.id}"><i class="history icon"></i>Edit time entries</div>` : '' }
                             </div>
                         </div>
                     </div>

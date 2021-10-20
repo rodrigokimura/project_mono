@@ -64,8 +64,18 @@
       {% endif %}
 
       $('body').toast({
-        message: "{{ message }}",
+        message: "{{ message.message }}",
         class: messageClass,
+        className: { toast: 'ui message' },
+        showProgress: 'bottom',
+        closeIcon: true,
+        {% if 'unread notification' in message.message %}
+        onClick: () => {
+            window.location.href = "{% url 'accounts:config' %}?tab=notifications#notifications";
+        },
+        title: 'Notifications',
+        displayTime: 10000,
+        {% endif %}
       });
       {% endfor %}
     {% endif %}

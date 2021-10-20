@@ -1,6 +1,7 @@
 {% extends "accounts/base.html" %}
 {% load static %}
 {% load i18n %}
+{% load custom_tags %}
 
 
 {% block head %}
@@ -8,14 +9,18 @@
 
 {% block main %}
     <div class="ui stackable grid container" style="padding-top: 5em;">
+
         <div class="four wide column">
             <div class="ui vertical fluid menu">
                 <a class="item active" data-tab="profile">{% translate "Profile" %}</a>
-                <a class="item" data-tab="general">{% translate "General Settings" %}</a>
+                <a class="item" data-tab="settings">{% translate "Settings" %}</a>
+                <a class="item" data-tab="notifications">{% translate "Notifications" %}</a>
                 <a class="item" data-tab="subscription">{% translate "Subscription" %}</a>
             </div>
         </div>
+
         <div class="twelve wide stretched column">
+
             <div class="ui tab" data-tab="profile">
                 <div class="ui segment">
                     <h1 class="ui dividing header">{% translate "Profile" %}</h1>
@@ -29,7 +34,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <img src="{{ request.user.profile.avatar.url }}" alt="" class="ui small circular image">
+                            <img src="{{ request.user.profile.avatar|default_image }}" alt="" class="ui small circular image">
                         </div>
                     </div>
                     <input type="file" class="change-picture" style="display: none;">
@@ -122,15 +127,107 @@
                     </script>
                 </div>
             </div>
-            <div class="ui tab" data-tab="general">
-                <h1 class="ui dividing header">{% translate "General Settings" %}</h1>
+
+            <div class="ui tab" data-tab="settings">
+                <div class="ui segment">
+                    <h1 class="ui dividing header">{% translate "Settings" %}</h1>
+                </div>
             </div>
+
+            <div class="ui tab" data-tab="notifications">
+                <div class="ui segment" id="notifications">
+                    <h1 class="ui dividing header">{% translate "Notifications" %}</h1>
+                    <div class="ui fluid notifications accordion">
+                        {% for k, v in notifications.items %}
+                            {% if k == 'read' %}
+                            <div class="title">
+                                <i class="dropdown icon"></i>
+                                {% translate "Read notifications" %}
+                            </div>
+                            {% elif k == 'unread' %}
+                            <div class="active title">
+                                <i class="dropdown icon"></i>
+                                {% translate "Unread notifications" %}
+                            </div>
+                            {% endif %}
+                            <div class="{% if k == 'unread' %}active {% endif %}content" data-type="{{ k }}">
+                                {% if k == 'read' %}
+                                <div class="ui right icon labeled button" onclick="markAsUnread()">
+                                    <i class="envelope icon"></i>
+                                    Mark as unread
+                                </div>
+                                {% elif k == 'unread' %}
+                                <div class="ui right icon labeled button" onclick="markAsRead()">
+                                    <i class="envelope open icon"></i>
+                                    Mark as read
+                                </div>
+                                {% endif %}
+                                
+                                {% for notification in v %}
+                                    {% include 'accounts/_notification.html' with notification=notification %}
+                                {% empty %}
+                                    <div class="ui segment">{% translate "No notifications to display" %}</div>
+                                {% endfor %}
+                                
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <script>$('.notifications.accordion').accordion()</script>
+                </div>
+            </div>
+
             <div class="ui tab" data-tab="subscription">
-                <h1 class="ui dividing header">{% translate "Subscription" %}</h1>
+                <div class="ui segment">
+                    <h1 class="ui dividing header">{% translate "Subscription" %}</h1>
+                </div>
             </div>
         </div>
     </div>
     <script>
         $('.menu .item').tab();
+        {% if request.GET.tab %}
+            $('.menu .item').tab('change tab', '{{ request.GET.tab }}');
+        {% endif %}
+        
+        function getSelectedNotifications(type='unread') {
+            checkboxes =  $(`.notifications.accordion .content[data-type=${type}`).find('.ui.checkbox')
+            ids = []
+            for (e of checkboxes) {
+                checked = $(e).checkbox('is checked')
+                id = $(e).attr('data-notification-id')
+                if (checked) {
+                    ids.push(id)
+                }
+            }
+            return ids;
+        }
+        
+        function markAsRead() {
+            ids = getSelectedNotifications(type='unread');
+            $.api({
+                on: 'now',
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                url: `/accounts/notifications/mark-as-read/`,
+                data: { ids: JSON.stringify(ids) },
+                onSuccess: r => {
+                    location.reload();
+                },
+            })
+        }
+        
+        function markAsUnread() {
+            ids = getSelectedNotifications(type='read');
+            $.api({
+                on: 'now',
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                url: `/accounts/notifications/mark-as-unread/`,
+                data: { ids: JSON.stringify(ids) },
+                onSuccess: r => {
+                    location.reload();
+                },
+            })
+        }
     </script>
 {% endblock %}
