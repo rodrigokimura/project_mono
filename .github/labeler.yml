@@ -1,7 +1,7 @@
 # Add 'repo' label to any root file changes
 repo:
   - ./*
-templates: mono/templates/**/*
+templates: mono/_templates/**/*
 tests: mono/*/tests.py
 forms: mono/*/forms.py
 urls: mono/*/urls.py

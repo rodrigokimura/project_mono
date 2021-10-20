@@ -100,7 +100,7 @@
       }
     }
 
-    span {
+    span.caret {
       border-right: .05em solid;
       animation: caret .7s steps(1) infinite;
     }
@@ -140,7 +140,7 @@
         function typeWriter(text, i, fnCallback) {
           if (i < (text.length)) {
             $('.typewriter').html(
-              text.substring(0, i+1) + '<span aria-hidden="true"></span>'
+              text.substring(0, i+1) + '<span class="caret" aria-hidden="true"></span>'
             );
             setTimeout(function() {
               typeWriter(text, i + 1, fnCallback)

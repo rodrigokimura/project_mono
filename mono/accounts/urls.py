@@ -19,4 +19,8 @@ urlpatterns = [
     path("config/", views.ConfigView.as_view(), name='config'),
     path("users/<int:pk>/", views.UserDetailAPIView.as_view(), name='user_detail'),
     path("profiles/<int:pk>/", views.UserProfileDetailAPIView.as_view(), name='profile_detail'),
+    path("notifications/<int:pk>/", views.NotificationActionView.as_view(), name='notification_action'),
+    path("notifications/count/", views.NotificationCountView.as_view(), name='notification_count'),
+    path("notifications/mark-as-read/", views.MarkNotificationsAsReadView.as_view()),
+    path("notifications/mark-as-unread/", views.MarkNotificationsAsUnreadView.as_view()),
 ]

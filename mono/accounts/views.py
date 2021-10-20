@@ -1,9 +1,11 @@
+import json
 import time
 from typing import Any
 
 import jwt
 from django import http
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import (
@@ -11,11 +13,13 @@ from django.contrib.auth.views import (
     PasswordResetDoneView, PasswordResetView,
 )
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import BadRequest, PermissionDenied
 from django.http.response import Http404, HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView, View
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView
 from rest_framework import status
 from rest_framework.response import Response
@@ -23,7 +27,7 @@ from rest_framework.views import APIView
 
 from .forms import UserForm
 from .mixins import PassRequestToFormViewMixin
-from .models import User, UserProfile
+from .models import Notification, User, UserProfile
 from .serializers import ProfileSerializer, UserSerializer
 
 
@@ -36,6 +40,20 @@ class SignUp(SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
 
 class Login(LoginView):
     template_name = "accounts/login.html"
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        unread_notifications = self.request.user.notifications.filter(
+            read_at__isnull=True
+        )
+        count = unread_notifications.count()
+        if count > 0:
+            messages.add_message(
+                self.request,
+                messages.WARNING,
+                f'You have {unread_notifications.count()} unread notification{"s" if count > 1 else ""}.',
+            )
+        return response
 
 
 class Logout(LogoutView):
@@ -120,6 +138,11 @@ class ConfigView(LoginRequiredMixin, TemplateView):
         if not up.avatar:
             up.generate_initials_avatar()
         context = super().get_context_data(**kwargs)
+        notifications = self.request.user.notifications
+        context['notifications'] = {
+            'unread': notifications.filter(read_at__isnull=True).order_by('-created_at'),
+            'read': notifications.filter(read_at__isnull=False).order_by('-created_at'),
+        }
         return context
 
 
@@ -138,14 +161,6 @@ class UserDetailAPIView(LoginRequiredMixin, APIView):
         user = self.get_object(pk)
         serializer = UserSerializer(user, data=request.data, partial=True)
         if request.user == user:
-            # if 'avatar' in request.data:
-            #     profile = UserProfile.objects.get_or_create(user=user)
-            #     profile.avatar = ImageFile(request.data.get('avatar'))
-            #     profile_serializer = ProfileSerializer(profile, data={'avatar': request.data['avatar']})
-            #     if profile_serializer.is_valid():
-            #         profile.avatar = ImageFile(request.data['avatar'])
-            #         profile.save()
-            #         pass
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
@@ -173,3 +188,84 @@ class UserProfileDetailAPIView(LoginRequiredMixin, APIView):
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class NotificationCountView(LoginRequiredMixin, View):
+
+    def get(self, *args, **kwargs):
+        qs = self.request.user.notifications.filter(
+            read_at__isnull=True
+        )
+        if qs.exists():
+            count = qs.count()
+            timestamp = qs.last().created_at.isoformat()
+        else:
+            count = 0
+            timestamp = None
+        return JsonResponse({
+            'success': True,
+            'count': count,
+            'timestamp': timestamp,
+        })
+
+
+class NotificationActionView(LoginRequiredMixin, SingleObjectMixin, View):
+
+    model = Notification
+
+    def get(self, *args, **kwargs):
+
+        notification = self.get_object()
+        if not notification.to == self.request.user:
+            raise PermissionDenied
+        if not notification.read:
+            notification.mark_as_read()
+            messages.add_message(
+                self.request,
+                messages.SUCCESS,
+                'Notification marked as read.',
+            )
+        return redirect(notification.action_url)
+
+
+class MarkNotificationsAsReadView(LoginRequiredMixin, View):
+
+    def post(self, request):
+        ids = json.loads(request.POST.get('ids', ''))
+
+        if len(ids) == 0:
+            raise BadRequest('No notification ids were passed.')
+
+        for id in ids:
+            n = Notification.objects.get(id=int(id))
+            if n.to == request.user:
+                n.mark_as_read()
+
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            f'You marked {len(ids)} notification{"s" if len(ids) > 1 else ""} as read.',
+        )
+        return JsonResponse({
+            'success': True,
+            'data': ids
+        })
+
+
+class MarkNotificationsAsUnreadView(LoginRequiredMixin, View):
+
+    def post(self, request):
+        ids = json.loads(request.POST.get('ids', ''))
+        for id in ids:
+            n = Notification.objects.get(id=int(id))
+            if n.to == request.user:
+                n.mark_as_unread()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            f'You marked {len(ids)} notification{"s" if len(ids) > 1 else ""} as unread.',
+        )
+        return JsonResponse({
+            'success': True,
+            'data': ids
+        })

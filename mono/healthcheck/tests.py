@@ -32,6 +32,7 @@ class MigrationsTests(TestCase):
             'django.contrib.messages',
             'django.contrib.staticfiles',
             'django.contrib.admindocs',
+            'django.contrib.humanize',
             'rest_framework',
             'rest_framework.authtoken',
             'social_django',

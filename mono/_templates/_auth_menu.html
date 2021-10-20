@@ -3,11 +3,27 @@
 <div class="ui top auth pointing teal dropdown item">
     <i class="user icon"></i>
     <div class="menu" style="margin-right: 1em !important;">
+        {% if user.is_authenticated %}
         <div class="header">
             <p>{% translate "Signed in as " %}</p>
-            <span class="ui primary text">{{ request.user }}</span>
+            <a href="{% url 'accounts:config' %}?tab=profile">
+                <span class="ui primary text">{{ request.user }}</span>
+            </a>
         </div>
         <div class="divider"></div>
+        {% endif %}
+        {% if user.is_authenticated %}
+        <a class="item" href="{% url 'accounts:config' %}?tab=notifications#notifications" style="width: 200px">
+            <i class="bell icon"></i>{% translate "Notifications" %}
+            <div class="ui right floated teal notification-count label">{{ unread_notification_count }}</div>
+        </a>
+        {% endif %}
+        {% if user.is_authenticated %}
+        <a class="item" href="{% url 'accounts:config' %}?tab=settings">
+            <i class="cog icon"></i>{% translate "Settings" %}
+        </a>
+        <div class="divider"></div>
+        {% endif %}
         <div class="language item">
             <i class="left dropdown icon"></i>
             <span class="text">{% translate "Change language" %}</span>
@@ -26,13 +42,15 @@
             </form>
         </div>
         <div class="divider"></div>
-        <a class="item" href="{% url 'accounts:config' %}">
-            <i class="cog icon"></i>{% translate "Settings" %}
-        </a>
-        <div class="divider"></div>
+        {% if user.is_authenticated %}
         <a class="item" href="{% url 'accounts:logout' %}">
             <i class="power off icon"></i>{% translate "Sign out" %}
         </a>
+        {% else %}
+        <a class="item" href="{% url 'accounts:login' %}">
+            <i class="sign in alternate icon"></i>{% translate "Login" %}
+        </a>
+        {% endif %}
     </div>
 </div>
 
@@ -49,5 +67,47 @@
                 $('.menu.transition.visible').removeClass('transition', 'visible');
             },
         }
-);
+    );
+    var notificationsChecker = null;
+    {% if unread_notification_timestamp %}
+    var unread_notification_timestamp = new Date("{{ unread_notification_timestamp.isoformat }}");
+    {% endif %}
+    async function renderNotificationCount(number) {
+        el = $('.notification-count.label');
+        el.empty();
+        if (number == 0) {
+            el.hide();
+        } else {
+            el.show();
+            el.text(number);
+        }
+    }
+    async function checkNotifications() {
+        $.api({
+            on: 'now',
+            method: 'GET',
+            url: '/accounts/notifications/count/',
+            onSuccess: r => {
+                ts = new Date(r.timestamp)
+                if (ts > unread_notification_timestamp) {
+                    unread_notification_timestamp = ts;
+                    renderNotificationCount(r.count)
+                    $('body').toast({
+                        title: 'New notification',
+                        message: 'You got a new notification',
+                        class: 'success',
+                        className: { toast: 'ui message' },
+                        showProgress: 'bottom',
+                        closeIcon: true,
+                    })
+                
+                }
+            },
+        })
+    }
+    function startNotificationsChecker(period = 5000) {
+        if (notificationsChecker !== null) { clearInterval(notificationsChecker); }
+        notificationsChecker = setInterval(checkNotifications, period);
+    }
+    startNotificationsChecker()
 </script>
