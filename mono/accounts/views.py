@@ -225,7 +225,9 @@ class NotificationActionView(LoginRequiredMixin, SingleObjectMixin, View):
                 messages.SUCCESS,
                 'Notification marked as read.',
             )
-        return redirect(notification.action_url)
+        if notification.action_url:
+            return redirect(notification.action_url)
+        return redirect('/')
 
 
 class MarkNotificationsAsReadView(LoginRequiredMixin, View):
