@@ -10,7 +10,7 @@ from .models import User, UserProfile
 @receiver(post_save, sender=User, dispatch_uid="email_verification")
 def email_verification(sender, instance, created, **kwargs):
     if created:
-        profile: UserProfile = UserProfile.objects.create(
+        profile, created = UserProfile.objects.get_or_create(
             user=instance,
         )
         profile.generate_initials_avatar()

@@ -28,6 +28,7 @@ class AccountForm(forms.ModelForm):
     error_css_class = 'error'
     current_balance = forms.FloatField(required=False, label=_('Current balance'))
     credit_card = forms.BooleanField(
+        required=False,
         label=_("Credit card"),
         widget=ToggleWidget,
     )
