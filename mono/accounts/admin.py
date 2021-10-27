@@ -1,7 +1,25 @@
 from django.contrib import admin
 from django.db.models import QuerySet
-
+from django.db.models.signals import post_save
 from .models import Notification, UserProfile
+
+
+from django.contrib.auth.models import User
+
+
+class UserAdmin(admin.ModelAdmin):
+
+    actions = ['force_initial_setup']
+
+    def force_initial_setup(self, request, queryset):
+        for u in queryset:
+            post_save.send(User, instance=u, created=True) 
+
+    force_initial_setup.short_description = "Force initial setup"
+
+
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin) 
 
 
 @admin.register(UserProfile)
