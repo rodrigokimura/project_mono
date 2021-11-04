@@ -179,6 +179,16 @@
             <div class="ui tab" data-tab="subscription">
                 <div class="ui segment">
                     <h1 class="ui dividing header">{% translate "Subscription" %}</h1>
+                    <div class="ui header">{% translate "Payments" %}</div>
+                    <div class="ui sub header">{% translate "Payment method" %}</div>
+                    <div class="ui list">
+                        <div class="item">{% translate "Card brand: " %}{{ payment_method.card.brand }}</div>
+                        <div class="item">{% translate "Card number: " %}**** **** **** {{ payment_method.card.last4 }}</div>
+                        <div class="item">{% translate "Expiration month: " %}{{ payment_method.card.exp_month }}</div>
+                        <div class="item">{% translate "Expiration year: " %}{{ payment_method.card.exp_year }}</div>
+                    </div>
+                    <div class="ui button">Update payment method</div>
+                    <div class="ui button">Change plan</div>
                 </div>
             </div>
         </div>
