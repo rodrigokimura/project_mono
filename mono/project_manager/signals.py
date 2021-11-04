@@ -29,7 +29,7 @@ def create_default_buckets(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Invite, dispatch_uid="send_project_invite")
 def send_invite(sender, instance, created, **kwargs):
-    if instance.email is not None:
+    if instance.email is not None and created:
         instance.send()
 
 

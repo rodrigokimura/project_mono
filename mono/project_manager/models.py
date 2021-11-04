@@ -3,13 +3,15 @@ import os
 import re
 from datetime import timedelta
 
-import jwt
+from accounts.models import Notification
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
+from django.core.signing import TimestampSigner
 from django.db import models
 from django.db.models import DurationField, Sum, Value as V
 from django.db.models.aggregates import Count, Max
+from django.db.models.constraints import UniqueConstraint
 from django.db.models.fields import IntegerField
 from django.db.models.functions import Coalesce
 from django.template.loader import get_template
@@ -71,6 +73,11 @@ class Project(BaseModel):
             'in_progress': [in_progress, in_progress_perc],
             'completed': [completed, completed_perc],
         }
+
+    @property
+    def share_link(self):
+        invite: Invite = Invite.objects.get_or_create(project=self, email__isnull=True)[0]
+        return invite.link
 
 
 class Board(BaseModel):
@@ -475,9 +482,9 @@ class Comment(models.Model):
             Notification.objects.create(
                 title=_("Comment on card"),
                 message=_("Someone commented on a card and mentioned you."),
-                icon=Icon.objects.get(markup="exclamation"),
+                icon="exclamation",
                 to=user,
-                action=full_link
+                action_url=full_link
             )
 
     def notify_assignees(self):
@@ -512,9 +519,9 @@ class Comment(models.Model):
             Notification.objects.create(
                 title=_("Comment on card"),
                 message=_("Someone commented on a card assigned to you."),
-                icon=Icon.objects.get(markup="exclamation"),
+                icon="exclamation",
                 to=user,
-                action=full_link
+                action_url=full_link
             )
 
 
@@ -597,35 +604,6 @@ class Icon(models.Model):
         verbose_name_plural = _("icons")
 
 
-class Notification(models.Model):
-    title = models.CharField(max_length=50)
-    message = models.CharField(max_length=255)
-    icon = models.ForeignKey(Icon, on_delete=models.SET_NULL, null=True, default=None)
-    to = models.ForeignKey(User, on_delete=models.CASCADE, related_name="project_manager_notifications")
-    read_at = models.DateTimeField(blank=True, null=True, default=None)
-    action = models.CharField(max_length=1000, blank=True, null=True, default=None)
-    active = models.BooleanField(default=True)
-
-    class Meta:
-        verbose_name = _("notification")
-        verbose_name_plural = _("notifications")
-
-    def __str__(self) -> str:
-        return self.title
-
-    @property
-    def read(self):
-        return self.read_at is not None
-
-    def mark_as_read(self):
-        self.read_at = timezone.now()
-        self.save()
-
-    def set_icon_by_markup(self, markup):
-        self.icon = Icon.objects.filter(markup=markup).first()
-        self.save()
-
-
 class Invite(models.Model):
     email = models.EmailField(max_length=1000, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
@@ -637,6 +615,9 @@ class Invite(models.Model):
     class Meta:
         verbose_name = _("invite")
         verbose_name_plural = _("invites")
+        constraints = [
+            UniqueConstraint(fields=["email", "project"], name="unique_email_by_project"),
+        ]
 
     @property
     def accepted(self):
@@ -651,56 +632,43 @@ class Invite(models.Model):
         Notification.objects.create(
             title="Project invitation",
             message=f"{user} accepted your invite.",
-            icon=Icon.objects.get(markup="exclamation"),
+            icon="exclamation",
             to=self.created_by,
-            action=reverse("project_manager:project_detail", args=[project.id]),
+            action_url=reverse("project_manager:project_detail", args=[project.id]),
         )
 
     @property
     def link(self):
-        token = jwt.encode(
-            {
-                "exp": timezone.now() + timedelta(days=1),
-                "id": self.pk,
-            },
-            settings.SECRET_KEY,
-            algorithm="HS256"
-        )
-        site = settings.SITE
-        return f"{site}{reverse('project_manager:invite_acceptance')}?t={token}"
+        signer = TimestampSigner(salt="project_invite")
+        token = signer.sign_object({
+            "id": self.id,
+        })
+        return f"{settings.SITE}{reverse('project_manager:invite_acceptance')}?t={token}"
 
     def send(self):
 
-        template_html = 'email/invitation.html'
-        template_text = 'email/invitation.txt'
+        text = get_template('email/invitation.txt')
+        html = get_template('email/invitation.html')
 
-        text = get_template(template_text)
-        html = get_template(template_html)
-
-        site = settings.SITE
-
-        full_link = self.link
-
-        d = {
-            'site': site,
-            'link': full_link
+        context = {
+            'site': settings.SITE,
+            'link': self.link
         }
 
-        subject, from_email, to = _('Invite'), settings.EMAIL_HOST_USER, self.email
         msg = EmailMultiAlternatives(
-            subject=subject,
-            body=text.render(d),
-            from_email=from_email,
-            to=[to])
-        msg.attach_alternative(html.render(d), "text/html")
+            subject=_('Invite'),
+            body=text.render(context),
+            from_email=settings.EMAIL_HOST_USER,
+            to=[self.email])
+        msg.attach_alternative(html.render(context), "text/html")
         msg.send(fail_silently=False)
         if User.objects.filter(email=self.email).exists():
             Notification.objects.create(
                 title=_("Project invitation"),
                 message=_("You were invited to be part of a project."),
-                icon=Icon.objects.get(markup="exclamation"),
+                icon="exclamation",
                 to=User.objects.get(email=self.email),
-                action=full_link
+                action_url=self.link
             )
 
     def __str__(self) -> str:
