@@ -3,6 +3,7 @@ import time
 from typing import Any
 
 import jwt
+import stripe
 from django import http
 from django.conf import settings
 from django.contrib import messages
@@ -138,6 +139,15 @@ class ConfigView(LoginRequiredMixin, TemplateView):
         if not up.avatar:
             up.generate_initials_avatar()
         context = super().get_context_data(**kwargs)
+
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        try:
+            customer = stripe.Customer.list(email=self.request.user.email).data[0]
+            payment_method = stripe.PaymentMethod.retrieve(customer.invoice_settings.default_payment_method)
+            context['payment_method'] = payment_method
+        except IndexError:
+            context['payment_method'] = None
+
         notifications = self.request.user.notifications
         context['notifications'] = {
             'unread': notifications.filter(read_at__isnull=True).order_by('-created_at'),
