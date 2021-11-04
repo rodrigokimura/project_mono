@@ -1,13 +1,10 @@
-from datetime import timedelta
-
-import jwt
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.signing import BadSignature, TimestampSigner
 from django.test import RequestFactory, TestCase
 from django.test.client import Client
-from django.utils import timezone
+from django.urls.base import reverse
 from rest_framework.test import APIClient, APITestCase
 
 from ..models import (
@@ -158,30 +155,37 @@ class ViewTests(TestCase):
             email='test3@test.com',
             created_by=self.user,
         )
-        token = jwt.encode(
-            {
-                "exp": timezone.now() + timedelta(days=1),
-                "id": invite.id,
-            },
-            settings.SECRET_KEY,
-            algorithm="HS256"
-        )
+        signer = TimestampSigner(salt="project_invite")
+        token = signer.sign_object({
+            "id": invite.id,
+        })
         c = Client()
         c.force_login(self.user)
-        request = c.get(f'/pm/invites/accept/?t={token}')
-        self.assertEqual(request.status_code, 200)
+        response = c.get(f'/pm/invites/accept/?t={token}')
+        self.assertRedirects(
+            response,
+            reverse('project_manager:project_detail', args=[invite.project.id]),
+            status_code=302,
+            target_status_code=200, fetch_redirect_response=True
+        )
 
     def test_invite_acceptance_view_no_token(self):
         c = Client()
         c.force_login(self.user)
-        request = c.get('/pm/invites/accept/')
-        self.assertContains(request, 'error')
+        response = c.get('/pm/invites/accept/')
+        self.assertRedirects(
+            response,
+            '/',
+            status_code=302,
+            target_status_code=200,
+            fetch_redirect_response=True
+        )
 
     def test_invite_acceptance_view_invalid_token(self):
         c = Client()
         c.force_login(self.user)
         self.assertRaises(
-            jwt.exceptions.DecodeError,
+            BadSignature,
             c.get,
             path='/pm/invites/accept/?t=invalid_token'
         )
