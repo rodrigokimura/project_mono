@@ -46,7 +46,7 @@
         </div>
         <div class="six wide right aligned column">
           {% with account.current_balance as b %}
-          <span class="ui {% if b > 0 %}green{% elif b == 0 %}green{% else %}red{% endif %} text">{{ b }}</span>
+          <span class="ui {% if b > 0 %}green{% elif b == 0 %}green{% else %}red{% endif %} text">{{ b|floatformat:2 }}</span>
           {% endwith %}
         </div>
       </div>
@@ -67,7 +67,7 @@
           {% endif %}
         </div>
         <div class="six wide right aligned column">
-          {{ account.current_invoice }}
+          {{ account.current_invoice|floatformat:2 }}
         </div>
         <div class="ten wide column">
           {% translate "Last closed invoice" %}
@@ -78,7 +78,7 @@
           {% endif %}
         </div>
         <div class="six wide right aligned column">
-          {{ account.last_closed_invoice }}
+          {{ account.last_closed_invoice|floatformat:2 }}
         </div>
         {% endif %}
       </div>
