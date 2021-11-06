@@ -151,7 +151,7 @@
                 <form class="ui invite form">
                     <div class="fluid field">
                         <div class="ui fluid action input">
-                            <input type="email" name="first-name" placeholder="Type an email to invite here" class="action invite">
+                            <input type="email" name="email" placeholder="Type an email to invite here" class="action invite">
                             <button class="ui teal right labeled icon send invite button" type="submit">
                                 <i class="envelope icon"></i>
                                 {% translate "Send" %}
@@ -170,12 +170,8 @@
                 <div class="ui header">
                     {% translate "Share link: " %}
                 </div>
-                <button class="ui teal right labeled icon generate link button" style="margin-bottom:  1em;">
-                    <i class="copy icon"></i>
-                    {% translate "Generate link" %}
-                </button>
                 <div class="ui fluid action input">
-                    <input class="link" type="text" readonly>
+                    <input class="link" type="text" readonly value="{{ object.share_link }}">
                     <button class="ui teal icon copy button">
                         <i class="copy icon"></i>
                     </button>
@@ -226,102 +222,91 @@
         }).modal('show');
     })
 
-  
-  
-  $('.generate.link.button').api({
-    url: `/pm/api/projects/${PROJECT_ID}/invites/`,
-    method: "POST",
-    mode: 'same-origin',
-    headers: {'X-CSRFToken': csrftoken},
-    data: {
-      project: PROJECT_ID,
-    },
-    onSuccess: r => {
-      $('input.link[type=text]').val(r.link);
-    },
-    onFailure: (response, element, xhr) => {console.log("Something went wrong.");},
-    onError: (errorMessage, element, xhr) => {console.log(`Request error: ${errorMessage}`);},
-  });
-  
-  const INVITE_FORM = $('.ui.invite.form');
-  INVITE_FORM.form({
-    fields: {
-      email: {
-        identifier  : 'email',
-        rules: [
-          {
-            type   : 'email',
-            prompt : 'Please enter a valid e-mail'
-          }
-        ]
-      },
-    },
-    onSuccess: () => {
-      $.api({
-        url: `/pm/api/projects/${PROJECT_ID}/invites/`,
-        on: 'now',
-        method: "POST",
-        mode: 'same-origin',
-        headers: {'X-CSRFToken': csrftoken},
-        data: {
-          email: $('input.invite[type=email]').val(),
-          project: PROJECT_ID,
+    const INVITE_FORM = $('.ui.invite.form');
+    INVITE_FORM.form({
+        fields: {
+            email: {
+                identifier  : 'email',
+                rules: [
+                    {
+                        type   : 'empty',
+                        prompt : 'Please enter an email'
+                    },
+                    {
+                        type   : 'email',
+                        prompt : 'Please enter a valid email'
+                    },
+                ]
+            },
         },
-        onSuccess: r => {
-          console.log(r);
-          loadInvites();
-          $('input.invite[type=email]').val('');
-        },
-        onFailure: (response, element, xhr) => {
-          $('body').toast({ message: response.email });
-        },
-        onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
-      });
-    }
-  });
-  INVITE_FORM.submit(e => {
-    e.preventDefault();
-  });
+        onSuccess: () => {
+            $.api({
+                url: `/pm/api/projects/${PROJECT_ID}/invites/`,
+                on: 'now',
+                method: "POST",
+                mode: 'same-origin',
+                headers: {'X-CSRFToken': csrftoken},
+                data: {
+                    email: $('input.invite[type=email]').val(),
+                    project: PROJECT_ID,
+                },
+                onSuccess: r => {
+                    loadInvites();
+                    $('input.invite[type=email]').val('');
+                },
+                onFailure: (response, element, xhr) => {
+                    for (let error of response.non_field_errors) {
+                        $('body').toast({
+                            message: error,
+                            class: 'error',
+                        })
+                    }
+                },
+                onError: (errorMessage, element, xhr) => {
+                    console.log(`Request error: ${errorMessage}`);
+                },
+            });
+        }
+    });
+    INVITE_FORM.submit(e => {
+        e.preventDefault();
+    });
 
-  const loadInvites = () => {
-    $('#invites').empty();
-    $.get(
-      url=`/pm/api/projects/${PROJECT_ID}/invites/`
-    )
-    .done(r => {
-      console.log(r);
-      if (r.length === 0) {
-        $('#invites').append('No invites yet')
-      } else {
-        $('#invites').append(
-          `
-            <div style="overflow-x: auto;">
-              <table class="ui unstackable celled table">
-                <thead>
-                  <tr><th>Email</th>
-                  <th>Accepted</th>
-                </tr></thead>
-                <tbody>
-                </tbody>
-              </table>
-            </div>
-          `
-        );
-        r.forEach(invite => {
-          if (invite.email !== null && invite.email !== '') {
-            $('#invites tbody').append(
-              `
-                <tr class="${invite.accepted_by !== null ? 'positive' : 'negative'}">
-                  <td>${invite.email}</td>
-                  <td>${invite.accepted_by !== null ? '<i class="checkmark icon"></i>' : '<i class="delete icon"></i>'}</td>
-                </tr>
-              `
-            );
-          };
+    function loadInvites() {
+        $('#invites').empty();
+        $.get(
+            url=`/pm/api/projects/${PROJECT_ID}/invites/`
+        )
+        .done(r => {
+            console.log(r);
+            if (r.length === 0) {
+                $('#invites').append('No invites yet')
+            } else {
+            $('#invites').append(`
+                <div style="overflow-x: auto;">
+                    <table class="ui unstackable celled table">
+                    <thead>
+                        <tr><th>Email</th>
+                        <th>Accepted</th>
+                    </tr></thead>
+                    <tbody>
+                    </tbody>
+                    </table>
+                </div>
+            `);
+            r.forEach(invite => {
+                if (invite.email !== null && invite.email !== '') {
+                    $('#invites tbody').append(`
+                        <tr class="${invite.accepted_by !== null ? 'positive' : 'negative'}">
+                            <td>${invite.email}</td>
+                            <td>${invite.accepted_by !== null ? '<i class="checkmark icon"></i>' : '<i class="delete icon"></i>'}</td>
+                        </tr>
+                    `);
+                };
+            })
+            }
         })
-      }
-    })
-  };
+    };
 
   loadInvites();
 

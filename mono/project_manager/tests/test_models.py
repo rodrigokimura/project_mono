@@ -312,10 +312,6 @@ class NotificationTests(TestCase):
         self.notification.mark_as_read()
         self.assertIsNotNone(self.notification.read_at)
 
-    def test_set_icon_by_markup(self):
-        self.notification.set_icon_by_markup('coffee')
-        self.assertEqual(self.notification.icon.markup, 'coffee')
-
 
 class CreateDefaultsTest(TestCase):
 
