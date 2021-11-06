@@ -5,7 +5,6 @@ from . import models
 # Register your models here.
 admin.site.register(models.Board)
 admin.site.register(models.Icon)
-admin.site.register(models.Notification)
 
 
 @admin.register(models.Project)

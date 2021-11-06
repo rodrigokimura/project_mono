@@ -4,6 +4,7 @@ import os
 from accounts.models import UserProfile
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
 
@@ -69,6 +70,7 @@ class InviteSerializer(ModelSerializer):
             'link',
         ]
         extra_kwargs = {
+            'email': {'required': False},
             'project': {'required': True},
             'created_by': {'read_only': True},
             'created_at': {'read_only': True},
@@ -76,6 +78,13 @@ class InviteSerializer(ModelSerializer):
             'accepted_at': {'read_only': True},
             'link': {'read_only': True},
         }
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=model.objects.all(),
+                fields=('email', 'project'),
+                message=_("You've already invited this email for this project.")
+            )
+        ]
 
 
 class ProjectSerializer(ModelSerializer):

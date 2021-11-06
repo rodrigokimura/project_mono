@@ -40,7 +40,7 @@ else:
     ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')  # pragma: no cover
 
 if APP_ENV in ['DEV', 'TEST']:
-    SITE = "http://dev.monoproject.info"
+    SITE = "http://127.0.0.42:8080"
 else:
     SITE = "https://www.monoproject.info"  # pragma: no cover
 
@@ -380,3 +380,9 @@ MARKDOWNX_MARKDOWN_EXTENSIONS = [
     'markdown.extensions.extra',
     'markdown_checklist.extension',
 ]
+
+if APP_ENV == 'TEST':
+
+    import warnings
+
+    warnings.simplefilter("ignore", Warning)

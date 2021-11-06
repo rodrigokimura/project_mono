@@ -1,11 +1,10 @@
 from typing import Any, Optional
 
-import jwt
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.humanize.templatetags.humanize import NaturalTimeFormatter
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.signing import TimestampSigner
 from django.db.models.query import QuerySet
 from django.http import Http404
 from django.http.request import HttpRequest
@@ -14,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls.base import reverse, reverse_lazy
 from django.utils import dateparse
 from django.views.generic import ListView
-from django.views.generic.base import TemplateView
+from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from rest_framework import status
@@ -211,30 +210,33 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
         return context
 
 
-class InviteAcceptanceView(LoginRequiredMixin, TemplateView):
+class InviteAcceptanceView(LoginRequiredMixin, RedirectView):
     template_name = "project_manager/invite_acceptance.html"
 
-    def get(self, request):
-        token = request.GET.get('t', None)
-
+    def get_redirect_url(self, *args: Any, **kwargs: Any) -> Optional[str]:
+        token = self.request.GET.get('t', None)
         if token is None:
-            return HttpResponse("error")
-        else:
-            payload = jwt.decode(
-                token,
-                settings.SECRET_KEY,
-                algorithms=["HS256"]
-            )
+            messages.add_message(self.request, messages.ERROR, 'No token provided.')
+            return reverse('home')
+        signer = TimestampSigner(salt="project_invite")
+        invite_id = signer.unsign_object(
+            token,
+            max_age=24 * 60 * 60 * 60
+        )['id']
+        invite = get_object_or_404(Invite, pk=invite_id)
+        if invite.accepted:
+            messages.add_message(self.request, messages.SUCCESS, "You've already accepted this invitation.")
+            return reverse('home')
+        user_already_member = self.request.user in invite.project.assigned_to.all()
+        if user_already_member:
+            messages.add_message(self.request, messages.ERROR, 'You are already a member of this project.')
+            return reverse('home')
 
-            invite = get_object_or_404(Invite, pk=payload['id'])
-            user_already_member = request.user in invite.project.assigned_to.all()
-            if not invite.accepted and not user_already_member:
-                invite.accept(request.user)
-                invite.save()
-            return self.render_to_response({
-                "accepted": invite.accepted,
-                "user_already_member": user_already_member,
-            })
+        invite.accept(self.request.user)
+        invite.save()
+        messages.add_message(self.request, messages.SUCCESS, 'Invite accepted.')
+        return reverse('project_manager:project_detail', args=[invite.project.id])
+
 
 # API Views
 
