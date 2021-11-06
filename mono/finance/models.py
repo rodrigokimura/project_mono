@@ -500,7 +500,7 @@ class Account(models.Model):
     def is_invoice_paid(self, year, month):
         payments = self.get_credit_card_payments(year, month)
         expenses = self.get_credit_card_expenses(year, month)
-        return payments >= -expenses
+        return round(payments, 2) >= -round(expenses, 2)
 
     @property
     def current_invoice(self):
