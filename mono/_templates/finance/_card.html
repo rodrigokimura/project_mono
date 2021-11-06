@@ -11,19 +11,19 @@
       <div class="ui sub header">
         {% translate "Expenses - this month" %}
       </div>
-      {{ expenses_this_month }}
+      {{ expenses_this_month|floatformat:2 }}
       <div class="ui sub header">
         {% translate "Incomes - this month" %}
       </div>
-      {{ incomes_this_month }}
+      {{ incomes_this_month|floatformat:2 }}
       <div class="ui sub header">
         {% translate "Expenses - last month" %}
       </div>
-      {{ expenses_last_month }}
+      {{ expenses_last_month|floatformat:2 }}
       <div class="ui sub header">
         {% translate "Incomes - last month" %}
       </div>
-      {{ incomes_last_month }}
+      {{ incomes_last_month|floatformat:2 }}
 
 
 
@@ -34,11 +34,11 @@
         <div class="ui sub header">
         {{ account }}
         </div>
-        {{ account.current_balance }}
+        {{ account.current_balance|floatformat:2 }}
         {% endfor %}
       {% endwith %}
       <div class="ui sub header">{% translate "Total balance" %}</div>
-      {{ total_balance }}
+      {{ total_balance|floatformat:2 }}
 
     {% elif card == _('Budgets') %}
 
@@ -48,7 +48,7 @@
             <div class="bar">
               <div class="progress"></div>
             </div>
-            <div class="label">{{ budget.amount_spent }} {% translate "of" %} {{ budget.amount }} {% translate "spent" %}</div>
+            <div class="label">{{ budget.amount_spent|floatformat:2 }} {% translate "of" %} {{ budget.amount|floatformat:2 }} {% translate "spent" %}</div>
           </div>
         {% endfor %}
       {% endwith %}
