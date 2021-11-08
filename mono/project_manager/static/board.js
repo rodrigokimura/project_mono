@@ -448,7 +448,7 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
                                 <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>Delete this card</div>
                                 ${FEATURES.time_entries ? `<div class="divider"></div>
                                 <div class="start-stop-timer card item" data-card-id="${card.id}"><i class="stopwatch icon"></i>Start/stop timer</div>
-                                <div class="edit-time-entries card item" data-card-id="${card.id}"><i class="history icon"></i>Edit time entries</div>` : '' }
+                                <div class="edit-time-entries card item" data-card-id="${card.id}"><i class="history icon"></i>Edit time entries</div>` : ''}
                             </div>
                         </div>
                     </div>
@@ -557,6 +557,14 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
         $(`.card-status.icon[data-card-id=${card.id}]`).on('click', e => {
             toggleCardStatus(card.id, bucketId, $(e.target).attr('data-status'), dark, compact);
         });
+        if (card.is_running) {
+            intervals.push(
+                {
+                    card: card.id,
+                    interval: setInterval(() => { incrementSecond(card.id) }, 1000)
+                }
+            );
+        };
     });
     $('.card-el').removeClass('loading');
     setCardGlassEffect();
