@@ -110,18 +110,7 @@
         <a class="item" href="{% url 'finance:faker' %}">Faker</a>
         <a class="item" href="{% url 'finance:icons' %}">Icons</a>
         <a class="item" href="{% url 'finance:plans' %}">Checkout</a>
-        <a class="item" href="{% url 'admin:index' %}">Admin</a>
-        <a class="item" href="https://clicky.com/stats/?site_id={{ CLICKY_SITE_ID }}">Clicky</a>
-        <a class="item" href="{% url 'healthcheck:deploy' %}">Deploy</a>
         <a class="item" href="{% url 'finance:restricted_area' %}">Restricted Area</a>
-      </div>
-    </div>
-    <div class="item">
-      <div class="header item">
-        <div class="ui toggle inverted maintenance {% if maintenance_mode %}checked{% endif %} checkbox">
-          <input type="checkbox" {% if maintenance_mode %}checked{% endif %}>
-          <label>{% translate "MAINTENANCE" %}</label>
-        </div>
       </div>
     </div>
     {% endif %}
@@ -298,13 +287,6 @@
       }
     );
   }
-
-  $('.ui.maintenance.checkbox').checkbox(
-    {
-      onChecked: () => { location.href = '/maintenance-mode/on/'; console.log("teste") },
-      onUnchecked: () => { location.href = '/maintenance-mode/off/'; },
-    }
-  );
 
   w = 0;
   s = $('.ui.apps.item').siblings('.ui.item');

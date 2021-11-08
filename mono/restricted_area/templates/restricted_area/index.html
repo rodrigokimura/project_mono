@@ -30,6 +30,28 @@
                 </div>
             </div>
         </div>
+
+        <div class="row">
+            <div class="column">
+                <div class="ui toggle maintenance {% if maintenance_mode %}checked{% endif %} checkbox">
+                    <input type="checkbox" {% if maintenance_mode %}checked{% endif %}>
+                    <label>{% translate "MAINTENANCE" %}</label>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        $('.ui.maintenance.checkbox').checkbox(
+            {
+                onChecked: () => { 
+                    location.href = '/maintenance-mode/on/';
+                },
+                onUnchecked: () => { 
+                    location.href = '/maintenance-mode/off/';
+                },
+            }
+        );
+    </script>
 
 {% endblock %}
