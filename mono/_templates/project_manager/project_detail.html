@@ -11,8 +11,21 @@
     
         <div class="row">
             <div class="column">
-                <div class="ui dividing header">{% translate "Your boards" %}</div>
+                <h2 class="ui header">
+                    <i class="columns icon"></i>
+                    <div class="content">
+                        {% translate "Boards" %}
+                        <div class="sub header">{% translate "Boards are where you organize your cards." %}</div>
+                    </div>
+                </h2>
                 {% if object.board_set.all %}
+                    <div class="ui message">
+                        {% blocktranslate with project=object.name count counter=object.board_set.count %}
+                            You have only one board in project <strong>{{ project }}</strong>.
+                        {% plural %}
+                            You have {{ counter }} boards in project <strong>{{ project }}</strong>.
+                        {% endblocktranslate %}
+                    </div>
                     <div class="ui cards">
                         {% for board in object.board_set.all %}
                             <div class="ui card">
@@ -111,88 +124,111 @@
             </div>
         {% endif %}
 
-        <div class="row" style="margin-top: 2em;">
+        <div class="row">
             <div class="column">
-                <div class="ui header">
-                    {% translate "Your team: " %}
-                </div>
-                {% if object.assigned_to.all %}
-                    <div style="overflow-x: auto;">
-                        <table class="ui unstackable striped celled single line table">
-                            <thead>
-                                <tr>
-                                    <th>{% translate "Name" %}</th>
-                                    <th>{% translate "Username" %}</th>
-                                    <th>{% translate "Email" %}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in object.assigned_to.all %}
-                                    <tr>
-                                        <td>{{ user.first_name }} {{ user.last_name }}</td>
-                                        <td>{{ user.username }}</td>
-                                        <td>{{ user.email }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    {% translate "No members yet" %}
-                {% endif %}
+                <div class="ui button primary icon labeled button" onclick="showSharingModal()"><i class="share alternate icon"></i>Sharing options</div>
             </div>
         </div>
 
-        <div class="row" style="margin-top: 2em;">
-            <div class="column">
-                <div class="ui header">
-                    {% translate "Your invites: " %}
-                </div>
-                <form class="ui invite form">
-                    <div class="fluid field">
-                        <div class="ui fluid action input">
-                            <input type="email" name="email" placeholder="Type an email to invite here" class="action invite">
-                            <button class="ui teal right labeled icon send invite button" type="submit">
-                                <i class="envelope icon"></i>
-                                {% translate "Send" %}
-                            </button>
-                        </div>
-                    </div>
-                    <div class="ui error message"></div>
-                </form>
-                <div id="invites" style="margin-top: 1em;">
-                </div>
-            </div>
-        </div>
-
-        <div class="row" style="margin-top: 2em;">
-            <div class="column">
-                <div class="ui header">
-                    {% translate "Share link: " %}
-                </div>
-                <div class="ui fluid action input">
-                    <input class="link" type="text" readonly value="{{ object.share_link }}">
-                    <button class="ui teal icon copy button">
-                        <i class="copy icon"></i>
-                    </button>
-                </div>
-                <div id="invites" style="margin-top: 1em;">
-                </div>
-            </div>
-        </div>
 
     </div>
     
-  </div>
+</div>
+
+<div class="ui modal" id="sharing-modal">
+    <i class="close icon"></i>
+    <div class="header">
+        Sharing options
+    </div>
+    <div class="content">
+        
+        <div class="description">
+            <div class="ui header">
+                {% translate "Your team: " %}
+            </div>
+            {% if object.assigned_to.all %}
+                <div style="overflow-x: auto;">
+                    <table class="ui unstackable striped celled single line table">
+                        <thead>
+                            <tr>
+                                <th>{% translate "Name" %}</th>
+                                <th>{% translate "Username" %}</th>
+                                <th>{% translate "Email" %}</th>
+                                <th>{% translate "Actions" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in object.assigned_to.all %}
+                                <tr>
+                                    <td>{{ user.first_name }} {{ user.last_name }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        <div class="ui tiny icon red {% if user == object.created_by %}disabled{% endif %} button" data-content="Remove member from project's team" onclick="removeMember({{ user.id }})"><i class="sign out alternate icon"></i></div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                {% translate "No members yet" %}
+            {% endif %}
+
+            <div class="ui header">
+                {% translate "Your invites: " %}
+            </div>
+            <form class="ui invite form">
+                <div class="fluid field">
+                    <div class="ui fluid action input">
+                        <input type="email" name="email" placeholder="Type an email to invite here" class="action invite">
+                        <button class="ui teal right labeled icon send invite button" type="submit">
+                            <i class="envelope icon"></i>
+                            {% translate "Send" %}
+                        </button>
+                    </div>
+                </div>
+                <div class="ui error message"></div>
+            </form>
+            <div id="invites" style="margin-top: 1em;">
+            </div>
+
+            <div class="ui header">
+                {% translate "Share link: " %}
+            </div>
+            <div class="ui fluid action input">
+                <input class="link" type="text" readonly value="{{ object.share_link }}">
+                <button class="ui teal icon copy button">
+                    <i class="copy icon"></i>
+                </button>
+            </div>
+            <div id="invites" style="margin-top: 1em;">
+            </div>
+
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui black deny button">
+            Close
+        </div>
+    </div>
 </div>
   
 <script>
     const PROJECT_ID = "{{ object.id }}";
-    $('.ui.dropdown').dropdown();
-    $('.ui.progress').progress();
-    $('.ui.progress').popup();
-    $('.bar').popup();
-    $('.ui.avatar.image').popup();
+
+    function sleep (time) {
+        return new Promise((resolve) => setTimeout(resolve, time));
+    }
+
+    function showSharingModal() {
+        $('#sharing-modal').modal({
+            onShow: () => {
+                $('.ui.button').popup();
+            },
+        }).modal('show');
+    }
+
     $('.delete-board').click(e => {
         let boardId = $(e.target).attr('data-board-id');
         $('body').modal({
@@ -240,6 +276,10 @@
             },
         },
         onSuccess: () => {
+            $('body').toast({
+                message: `Your invitation was sent to ${$('input.invite[type=email]').val()}.`,
+                class: 'success',
+            });
             $.api({
                 url: `/pm/api/projects/${PROJECT_ID}/invites/`,
                 on: 'now',
@@ -272,43 +312,207 @@
         e.preventDefault();
     });
 
+    function removeMember(userId) {
+        console.log(`Removing member ${userId}`);
+        $('body').modal({
+            title: 'Confirmation',
+            class: 'mini',
+            closeIcon: true,
+            content: 'Are you sure you want to remove user from this project?',
+            actions: [
+                {
+                    text: 'Cancel',
+                    class: 'black'
+                },
+                {
+                    text: 'Yes, remove user.',
+                    class: 'ok red'
+                },
+            ],
+            onApprove: () => {
+                $.api({
+                    url: `/pm/api/projects/${PROJECT_ID}/remove-user/`,
+                    on: 'now',
+                    method: "POST",
+                    mode: 'same-origin',
+                    headers: {'X-CSRFToken': csrftoken},
+                    data: {
+                        user: userId,
+                    },
+                    onSuccess: r => {
+                        $('body').toast({
+                            message: "User successfully removed from this project's team.",
+                            class: 'success',
+                        });
+                        sleep(2000).then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    onFailure: (response, element, xhr) => {
+                        for (let error of response.non_field_errors) {
+                            $('body').toast({
+                                message: error,
+                                class: 'error',
+                            })
+                        }
+                    },
+                    onError: (errorMessage, element, xhr) => {
+                        console.log(`Request error: ${errorMessage}`);
+                    },
+                });
+            }
+        }).modal('show');
+    }
+
+    function resendInvite(inviteId) {
+        console.log(`Resending invite ${inviteId}`);
+        $('body').modal({
+            title: 'Confirmation',
+            class: 'mini',
+            closeIcon: true,
+            content: 'Are you sure you want to resend the email invitation?',
+            actions: [
+                {
+                    text: 'Cancel',
+                    class: 'black'
+                },
+                {
+                    text: 'Yes, resend it.',
+                    class: 'ok green'
+                },
+            ],
+            onApprove: () => {
+                $.api({
+                    url: `/pm/api/projects/${PROJECT_ID}/invites/${inviteId}/resend/`,
+                    on: 'now',
+                    method: "POST",
+                    mode: 'same-origin',
+                    headers: {'X-CSRFToken': csrftoken},
+                    onSuccess: r => {
+                        $('body').toast({
+                            message: r.message,
+                            class: 'success',
+                        });
+                        loadInvites();
+                        $('input.invite[type=email]').val('');
+                    },
+                    onFailure: (response, element, xhr) => {
+                        for (let error of response.non_field_errors) {
+                            $('body').toast({
+                                message: error,
+                                class: 'error',
+                            })
+                        }
+                    },
+                    onError: (errorMessage, element, xhr) => {
+                        console.log(`Request error: ${errorMessage}`);
+                    },
+                });
+            }
+        }).modal('show');
+    }
+
+    function deleteInvite(inviteId) {
+        console.log(`Deleting invite ${inviteId}`);
+        $('body').modal({
+            title: 'Confirmation',
+            class: 'mini',
+            closeIcon: true,
+            content: 'Are you sure you want to delete this invite?',
+            actions: [
+                {
+                    text: 'Cancel',
+                    class: 'black'
+                },
+                {
+                    text: 'Yes, delete it.',
+                    class: 'ok red'
+                },
+            ],
+            onApprove: () => {
+                $.api({
+                    url: `/pm/api/projects/${PROJECT_ID}/invites/${inviteId}/`,
+                    on: 'now',
+                    method: "DELETE",
+                    mode: 'same-origin',
+                    headers: {'X-CSRFToken': csrftoken},
+                    onSuccess: r => {
+                        $('body').toast({
+                            message: 'Invite deleted successfully.',
+                            class: 'success',
+                        });
+                        loadInvites();
+                        $('input.invite[type=email]').val('');
+                    },
+                    onFailure: (response, element, xhr) => {
+                        for (let error of response.non_field_errors) {
+                            $('body').toast({
+                                message: error,
+                                class: 'error',
+                            })
+                        }
+                    },
+                    onError: (errorMessage, element, xhr) => {
+                        console.log(`Request error: ${errorMessage}`);
+                    },
+                });
+            }
+        }).modal('show');
+    }
+
     function loadInvites() {
         $('#invites').empty();
         $.get(
             url=`/pm/api/projects/${PROJECT_ID}/invites/`
         )
         .done(r => {
-            console.log(r);
             if (r.length === 0) {
                 $('#invites').append('No invites yet')
             } else {
-            $('#invites').append(`
-                <div style="overflow-x: auto;">
-                    <table class="ui unstackable celled table">
-                    <thead>
-                        <tr><th>Email</th>
-                        <th>Accepted</th>
-                    </tr></thead>
-                    <tbody>
-                    </tbody>
-                    </table>
-                </div>
-            `);
-            r.forEach(invite => {
-                if (invite.email !== null && invite.email !== '') {
-                    $('#invites tbody').append(`
-                        <tr class="${invite.accepted_by !== null ? 'positive' : 'negative'}">
-                            <td>${invite.email}</td>
-                            <td>${invite.accepted_by !== null ? '<i class="checkmark icon"></i>' : '<i class="delete icon"></i>'}</td>
-                        </tr>
-                    `);
-                };
-            })
+                $('#invites').append(`
+                    <div style="overflow-x: auto;">
+                        <table class="ui unstackable celled table">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Created at</th>
+                                    <th>Accepted</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                `);
+                r.forEach(invite => {
+                    if (invite.email !== null && invite.email !== '') {
+                        created_at = new Date(invite.created_at)
+                        $('#invites tbody').append(`
+                            <tr class="${invite.accepted_by !== null ? 'positive' : 'negative'}">
+                                <td>${invite.email}</td>
+                                <td>${created_at}</td>
+                                <td>${invite.accepted_by !== null ? '<i class="checkmark icon"></i>' : '<i class="delete icon"></i>'}</td>
+                                <td>
+                                    <div class="ui tiny primary icon ${invite.accepted_by !== null ? 'disabled' : ''} button" data-content="Resend email" onclick="resendInvite(${invite.id})"><i class="sync icon"></i></div>
+                                    <div class="ui tiny red icon ${invite.accepted_by !== null ? 'disabled' : ''} button" data-content="Delete" onclick="deleteInvite(${invite.id})"><i class="delete icon"></i></div>
+                                </td>
+                            </tr>
+                        `);
+                    };
+                })
             }
         })
     };
 
-  loadInvites();
+    $(document).ready(() => {
+        $('.ui.dropdown').dropdown();
+        $('.ui.progress').progress();
+        $('.ui.progress').popup();
+        $('.bar').popup();
+        $('.ui.avatar.image').popup();
+        loadInvites();
+    })
 
 </script>
 {% endblock %}
