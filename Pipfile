@@ -36,3 +36,9 @@ autopep8 = "*"
 flake8 = "*"
 isort = "*"
 pre-commit = "*"
+
+[scripts]
+collectstatic = "python mono/manage.py collectstatic --noinput"
+makemigrations = "python mono/manage.py makemigrations"
+migrate = "python mono/manage.py migrate"
+build = "bash ./scripts/build.sh"
