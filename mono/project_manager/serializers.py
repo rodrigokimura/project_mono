@@ -61,6 +61,7 @@ class InviteSerializer(ModelSerializer):
     class Meta:
         model = Invite
         fields = [
+            'id',
             'email',
             'project',
             'created_by',
@@ -72,6 +73,7 @@ class InviteSerializer(ModelSerializer):
         extra_kwargs = {
             'email': {'required': False},
             'project': {'required': True},
+            'id': {'read_only': True},
             'created_by': {'read_only': True},
             'created_at': {'read_only': True},
             'accepted_by': {'read_only': True},
