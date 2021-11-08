@@ -9,9 +9,23 @@
     <div class="ui stackable grid container" style="margin-y: .5em;">
         <div class="row">
             <div class="column">
-                <div class="ui dividing header">{% translate "Your projects" %}</div>
+                <h2 class="ui header">
+                    <i class="project diagram icon"></i>
+                    <div class="content">
+                        {% translate "Projects" %}
+                        <div class="sub header">{% translate "Projects are where your boards live." %}</div>
+                    </div>
+                </h2>
 
                 {% if object_list %}
+
+                    <div class="ui message">
+                        {% blocktranslate count counter=object_list|length %}
+                            You have only one project.
+                        {% plural %}
+                            You have {{ counter }} projects.
+                        {% endblocktranslate %}
+                    </div>
 
                     <div class="ui cards">
                         {% for project in object_list %}

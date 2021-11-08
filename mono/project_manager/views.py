@@ -24,7 +24,7 @@ from .forms import BoardForm, ProjectForm
 from .mixins import PassRequestToFormViewMixin
 from .models import (
     Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Tag,
-    Theme, TimeEntry,
+    Theme, TimeEntry, User,
 )
 from .serializers import (
     BoardSerializer, BucketMoveSerializer, BucketSerializer,
@@ -295,6 +295,39 @@ class ProjectDetailAPIView(LoginRequiredMixin, APIView):
                 'success': True,
                 'url': reverse_lazy('project_manager:projects')
             })
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class ProjectRemoveUserAPIView(LoginRequiredMixin, APIView):
+    """
+    Remove user from project's team.
+    """
+
+    def get_object(self, project_pk):
+        try:
+            return Project.objects.get(pk=project_pk)
+        except Project.DoesNotExist:
+            raise Http404
+
+    def get_user(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            raise Http404
+
+    def post(self, request, project_pk, format=None, **kwargs):
+        project: Project = self.get_object(project_pk)
+        user = self.get_user(int(request.data.get('user')))
+        if request.user in project.allowed_users:
+            if user not in project.assigned_to.all():
+                return Response('User not a member of this project', status=status.HTTP_400_BAD_REQUEST)
+            project.assigned_to.remove(user)
+            for invite in Invite.objects.filter(project=project, accepted_by=user).all():
+                invite.delete()
+            return Response({
+                'success': True,
+                'url': reverse_lazy('project_manager:projects')
+            }, status=status.HTTP_200_OK)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 
 
@@ -1157,8 +1190,33 @@ class InviteDetailAPIView(LoginRequiredMixin, APIView):
 
     def delete(self, request, pk, format=None, **kwargs):
         project = Project.objects.get(id=kwargs['project_pk'])
-        invite = self.get_object(pk)
+        invite: Invite = self.get_object(pk)
         if request.user in project.allowed_users:
+            if invite.accepted:
+                return Response('Cannot delete an accepted invite', status=status.HTTP_400_BAD_REQUEST)
             invite.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class InviteResendAPIView(LoginRequiredMixin, APIView):
+    """
+    Resend invite email
+    """
+
+    def get_object(self, pk):
+        try:
+            return Invite.objects.get(pk=pk)
+        except Invite.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk, format=None, **kwargs):
+        project = Project.objects.get(id=kwargs['project_pk'])
+        invite: Invite = self.get_object(pk)
+        if request.user in project.allowed_users:
+            invite.send()
+            return Response({
+                'success': True,
+                'message': f'Your invitation was sent to {invite.email}.'
+            }, status=status.HTTP_200_OK)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
