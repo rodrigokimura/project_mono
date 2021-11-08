@@ -11,7 +11,6 @@ from django.core.signing import TimestampSigner
 from django.db import models
 from django.db.models import DurationField, Sum, Value as V
 from django.db.models.aggregates import Count, Max
-from django.db.models.constraints import UniqueConstraint
 from django.db.models.fields import IntegerField
 from django.db.models.functions import Coalesce
 from django.template.loader import get_template
@@ -76,7 +75,11 @@ class Project(BaseModel):
 
     @property
     def share_link(self):
-        invite: Invite = Invite.objects.get_or_create(project=self, email__isnull=True)[0]
+        invite: Invite = Invite.objects.get_or_create(
+            project=self,
+            email__isnull=True,
+            accepted_by__isnull=True,
+        )[0]
         return invite.link
 
 
@@ -615,9 +618,6 @@ class Invite(models.Model):
     class Meta:
         verbose_name = _("invite")
         verbose_name_plural = _("invites")
-        constraints = [
-            UniqueConstraint(fields=["email", "project"], name="unique_email_by_project"),
-        ]
 
     @property
     def accepted(self):
