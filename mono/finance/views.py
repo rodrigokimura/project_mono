@@ -29,11 +29,6 @@ from django.views.generic.edit import (
     CreateView, DeleteView, FormView, UpdateView,
 )
 from django.views.generic.list import ListView
-from rest_framework import authentication, permissions
-from rest_framework.authtoken.models import Token
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from social_django.models import UserSocialAuth
 
 from .forms import (
@@ -47,7 +42,6 @@ from .models import (
     Icon, Installment, Invite, Notification, Plan, RecurrentTransaction,
     Subscription, Transaction, Transference,
 )
-from .serializers import UserSerializer
 
 
 class HomePageView(LoginRequiredMixin, TemplateView):
@@ -232,6 +226,13 @@ class TransactionListView(LoginRequiredMixin, ListView):
             query_string.pop('page')
 
         context['query_string'] = query_string.urlencode()
+
+        transaction_types = Category.TRANSACTION_TYPES.copy()
+        transaction_types.append(("TRF", _("Transfer")))
+        context['transaction_types'] = transaction_types
+
+        context['frequency'] = RecurrentTransaction.FREQUENCY
+        context['remainder'] = Installment.HANDLE_REMAINDER
 
         return context
 
@@ -1347,35 +1348,6 @@ class ConfigurationView(LoginRequiredMixin, TemplateView):
         context['can_disconnect'] = can_disconnect
 
         return context
-
-
-class ApiMeView(RetrieveAPIView):
-
-    authentication_classes = [authentication.TokenAuthentication, authentication.SessionAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-    def get_object(self):
-        user = self.request.user
-        return user
-
-
-class ApiLogoutView(APIView):
-
-    authentication_classes = [authentication.TokenAuthentication, authentication.SessionAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-    def post(self, request):
-        Token.objects.get(user=request.user).delete()
-        return Response(
-            {
-                "success": True,
-                "message": "Token was successfully deleted.",
-            }
-        )
 
 
 class RestrictedAreaView(LoginRequiredMixin, TemplateView):

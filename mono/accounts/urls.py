@@ -23,4 +23,8 @@ urlpatterns = [
     path("notifications/count/", views.NotificationCountView.as_view(), name='notification_count'),
     path("notifications/mark-as-read/", views.MarkNotificationsAsReadView.as_view()),
     path("notifications/mark-as-unread/", views.MarkNotificationsAsUnreadView.as_view()),
+
+    path('api-me/', views.ApiMeView.as_view(), name='api_me'),
+    path('api-logout/', views.ApiLogoutView.as_view(), name='api_logout'),
+
 ]
