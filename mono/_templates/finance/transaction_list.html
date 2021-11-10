@@ -28,7 +28,7 @@
 
 <div id="floating-button">
   <a class="ui primary circular huge teal icon mobile only button" 
-    href="{% url "finance:transaction_create" %}"
+    onclick="showTransactionModal()"
     style="margin-bottom: 1rem;">
     <i class="plus icon"></i>
   </a>
@@ -216,7 +216,7 @@
 
     <div class="ui horizontal divider"><i class="play circle outline icon"></i> {% translate "Actions" %}</div>
     <div class="row">
-      <a class="ui fluid primary labeled icon button" href="{% url "finance:transaction_create" %}"
+      <a class="ui fluid primary labeled icon button" onclick="showTransactionModal()"
         style="margin-bottom: 1rem;">
         <i class="plus icon"></i>
         {% translate "Add transaction" %}
@@ -247,8 +247,318 @@
 
 </div>
 
+<div class="ui transaction modal">
+  <i class="close icon"></i>
+  <div class="header">
+    Transaction
+  </div>
+  <div class="scrolling content">
+    <div class="ui transaction form">
+      <div class="ui secondary menu" id="transaction-type">
+        {% for value, text in transaction_types %}
+          <a class="{% if value == 'EXP' %}active red{% elif value == 'INC' %} green {% endif %} item" data-value="{{ value }}">{{ text }}</a>
+        {% endfor %}
+      </div>
+      <div class="field">
+        <label>Amount</label>
+        <input type="number" name="amount" step="any" placeholder="Amount">
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <input type="text" name="description" placeholder="Description">
+      </div>
+      <div class="field">
+        <label>Account</label>
+        <select name="account" class="ui search selection dropdown" id="accounts-dropdown"></select>
+        <script>
+          $('#accounts-dropdown').dropdown({
+            placeholder: 'Account',
+            apiSettings: {
+              url: '/fn/api/accounts/',
+              cache: false,
+              successTest: r => r.count > 0,
+              onResponse: r => {
+                results = r.results
+                  .map(e => ({
+                    name: e.name,
+                    value: e.id,
+                  }));
+                return {
+                  count: r.count,
+                  results: results,
+                };
+              }
+            },
+            filterRemoteData: true,
+          })
+        </script>
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select name="category" class="ui search selection dropdown" id="categories-dropdown"></select>
+        <script>
+          $('#categories-dropdown').dropdown({
+            placeholder: 'Category',
+            apiSettings: {
+              url: '/fn/api/categories/',
+              cache: false,
+              successTest: r => r.count > 0,
+              onResponse: r => {
+                results = r.results
+                  .filter(
+                    e => e.type == getTransactionType()
+                  )
+                  .map(e => ({
+                    name: e.name,
+                    value: e.id,
+                    icon: e.icon,
+                  }));
+                return {
+                  count: r.count,
+                  results: results,
+                };
+              }
+            },
+            filterRemoteData: true,
+          })
+        </script>
+      </div>
+      <div class="field">
+        <label>Timestamp</label>
+        <div class="ui calendar" id="timestamp" name="timestamp">
+          <div class="ui input left icon">
+            <i class="calendar icon"></i>
+            <input type="text" placeholder="Timestamp" name="timestamp">
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Recurrent or installment?</label>
+        <div class="ui toggle checked checkbox" id="is-recurrent-or-installment"> 
+          <input type="checkbox">
+          <label></label>
+        </div>
+        <script>
+
+        </script>
+      </div>
+      <div id="recurrent-or-installment" style="margin-bottom: 1em;">
+        <div class="inline fields">
+          <div class="field">
+            <div class="ui radio recurrent checkbox">
+              <input type="radio" name="recurrent-or-installment">
+              <label>Recurrent</label>
+            </div>
+          </div> 
+          <div class="field">
+            <div class="ui radio installment checkbox">
+              <input type="radio" name="recurrent-or-installment">
+              <label>Installment</label>
+            </div>
+          </div>                 
+        </div>
+        <div class="field" data-type="recurrent">
+          <label>Frequency</label>
+          <select name="frequency" class="ui selection dropdown" id="frequency-dropdown">
+            {% for value, text in frequency %}
+              <option value="{{ value }}">{{ text }}</option>
+            {% endfor %}
+          </select>
+          <script>
+            $('#frequency-dropdown').dropdown({direction: 'upward'});
+          </script>
+        </div>
+        <div class="field" data-type="installment">
+          <label>Months</label>
+          <input type="number" name="months" value="12" required="">
+        </div>
+        <div class="field" data-type="installment">
+          <label>Handle remainder</label>
+          <select name="handle_remainder" class="ui selection dropdown" id="remainder-dropdown">
+            {% for value, text in remainder %}
+              <option value="{{ value }}">{{ text }}</option>
+            {% endfor %}
+          </select>
+          <script>
+            $('#remainder-dropdown').dropdown({direction: 'upward'});
+          </script>
+        </div>
+      </div>
+      <div class="ui error message"></div>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui black deny button">
+      <i class="delete icon"></i>
+      Cancel
+    </div>
+    <div class="ui positive icon labeled button">
+      <i class="save icon"></i>
+      Save
+    </div>
+  </div>
+</div>
 
 <script>
+  function getObjectType() {
+    if ($('#is-recurrent-or-installment').checkbox('is checked')) {
+      if ($('.ui.radio.installment.checkbox').checkbox('is checked')) {
+        type = "installment"
+      }
+      if ($('.ui.radio.recurrent.checkbox').checkbox('is checked')) {
+        type = "recurrent"
+      }
+    } else {
+      type = "transaction"
+    }
+    return type
+  }
+  function submitForm() {
+    type = getObjectType()
+    if (type == "transaction") {
+      url = '/fn/api/transactions/';
+      payload = JSON.stringify({
+        amount: $('[name="amount"]').val(),
+        description: $('[name="description"]').val(),
+        account: {
+          id: $('#accounts-dropdown').dropdown('get value'),
+        },
+        category: {
+          id: $('#categories-dropdown').dropdown('get value'),
+        },
+        timestamp: $('#timestamp').calendar('get date'),
+      });
+    } else if (type == "recurrent") {
+      url = '/fn/api/recurrent-transactions/';
+      payload = JSON.stringify({
+        amount: $('[name="amount"]').val(),
+        description: $('[name="description"]').val(),
+        account: {
+          id: $('#accounts-dropdown').dropdown('get value'),
+        },
+        category: {
+          id: $('#categories-dropdown').dropdown('get value'),
+        },
+        timestamp: $('#timestamp').calendar('get date'),
+        frequency: $('#frequency-dropdown').dropdown('get value'),
+      });
+    } else if (type == "installment") {
+      url = '/fn/api/installments/';
+      payload = JSON.stringify({
+        total_amount: $('[name="amount"]').val(),
+        description: $('[name="description"]').val(),
+        account: {
+          id: $('#accounts-dropdown').dropdown('get value'),
+        },
+        category: {
+          id: $('#categories-dropdown').dropdown('get value'),
+        },
+        timestamp: $('#timestamp').calendar('get date'),
+        months: $('[name="months"]').val(),
+        handle_remainder: $('#remainder-dropdown').dropdown('get value'),
+      });
+    }
+    $('.ui.transaction.form .field').removeClass('error');
+    $.api({
+      on: 'now',
+      async: false,
+      url: url,
+      method: 'POST',
+      headers: {'X-CSRFToken': csrftoken},
+      contentType: 'application/json',
+      data: payload,
+      successTest: r => {
+        location.reload(); 
+        return true;
+      },
+      onSuccess: r => {
+        console.log(r.status_code);
+        $('.ui.transaction.modal').modal('hide');
+        
+      },
+      onError(errorMessage, element, xhr) {
+        if (xhr.status == 400) {
+          errors = [];
+          for (p in xhr.responseJSON) {
+            if (p == "total_amount") {
+              xhr.responseJSON["amount"] = xhr.responseJSON["total_amount"]
+              p = "amount";
+            }
+            var fieldName = p.charAt(0).toUpperCase() + p.substr(1).toLowerCase();
+            if ('id' in xhr.responseJSON[p]) {
+              errors.push(`${fieldName}: ${xhr.responseJSON[p]['id'].toString()}`);
+            } else {
+              errors.push(`${fieldName}: ${xhr.responseJSON[p].toString()}`);
+            }
+            $('.ui.transaction.form').form('add prompt', p);
+          }
+          $('.ui.transaction.form').form(
+            'add errors',
+            errors
+          )
+        }
+      },
+    })
+  }
+
+  function clearForm() {
+    $('#recurrent-or-installment').hide('swing');
+    $('#is-recurrent-or-installment').checkbox('uncheck');
+    $('.ui.transaction.form').form('clear');
+    $('.ui.radio.recurrent.checkbox').checkbox('check');
+  }
+
+  function showTransactionModal() {
+    $('.ui.transaction.modal')
+      .modal({
+        onShow: () => {
+          clearForm();
+          $('#timestamp').calendar({
+            today: true,
+          }).calendar('set date', new Date());
+        },
+        onApprove: () => {
+          submitForm();
+          return false;
+        }
+      })
+      .modal('show');
+  }
+
+  function getTransactionType() {
+    return $('#transaction-type .item.active').attr('data-value');
+  }
+
+  $(document).ready(e => {
+    $('#transaction-type .item').on('click', e => {
+      $('#transaction-type .item').removeClass('active');
+      $(e.currentTarget).addClass('active');
+      $('#transaction-form').attr('action', $(e.currentTarget).attr('href'));
+    });
+    $('#is-recurrent-or-installment').checkbox({
+      fireOnInit : true,
+      onChecked: () => {
+        $('#recurrent-or-installment').show('swing');
+      },
+      onUnchecked: () => {
+        $('#recurrent-or-installment').hide('swing');
+      },
+    });
+    $('#is-recurrent-or-installment').checkbox('uncheck');
+    $('.ui.radio.recurrent.checkbox').checkbox({
+      onChecked: () => {
+        $('.field[data-type=recurrent]').show('swing');
+        $('.field[data-type=installment]').hide('swing');
+      },
+    });
+    $('.ui.radio.installment.checkbox').checkbox({
+      onChecked: () => {
+        $('.field[data-type=recurrent]').hide('swing');
+        $('.field[data-type=installment]').show('swing');
+      },
+    });
+  })
+
   $('.ui.dropdown[data-name=category]').dropdown({
     placeholder: "{% translate 'Select a category' %}",
     forceSelection: false,

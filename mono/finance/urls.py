@@ -2,13 +2,20 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from . import views
-from .viewsets import TransactionViewSet, UserViewSet
+from .viewsets import (
+    AccountViewSet, CategoryViewSet, InstallmentViewSet,
+    RecurrentTransactionViewSet, TransactionViewSet, UserViewSet,
+)
 
 app_name = 'finance'
 
 router = DefaultRouter()
 router.register('users', UserViewSet)
 router.register('transactions', TransactionViewSet)
+router.register('recurrent-transactions', RecurrentTransactionViewSet)
+router.register('installments', InstallmentViewSet)
+router.register('accounts', AccountViewSet)
+router.register('categories', CategoryViewSet)
 
 urlpatterns = [
 
@@ -84,9 +91,6 @@ urlpatterns = [
 
     path('configuration/', views.ConfigurationView.as_view(), name='configuration'),
     path('card-order/', views.CardOrderView.as_view(), name='card_order'),
-
-    path('api-me/', views.ApiMeView.as_view(), name='api_me'),
-    path('api-logout/', views.ApiLogoutView.as_view(), name='api_logout'),
 
     path('charts/', views.ChartsView.as_view(), name='charts'),
 

@@ -293,8 +293,8 @@ class Category(models.Model):
     INCOME = 'INC'
     EXPENSE = 'EXP'
     TRANSACTION_TYPES = [
-        (INCOME, _('Income')),
         (EXPENSE, _('Expense')),
+        (INCOME, _('Income')),
     ]
     DEFAULT = 'DEF'
     TRANSFER = 'TRF'
