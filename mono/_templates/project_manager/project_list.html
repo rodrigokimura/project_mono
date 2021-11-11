@@ -19,7 +19,7 @@
 
                 {% if object_list %}
 
-                    <div class="ui message">
+                    <div class="ui message" style="margin-bottom: 0;">
                         {% blocktranslate count counter=object_list|length %}
                             You have only one project.
                         {% plural %}
@@ -27,7 +27,7 @@
                         {% endblocktranslate %}
                     </div>
 
-                    <div class="ui cards">
+                    <div class="ui four stackable cards" style="margin-top: 1em; padding-top: 0;">
                         {% for project in object_list %}
                         <div class="ui card">
                             <div class="content" style="padding-bottom: 0;">
