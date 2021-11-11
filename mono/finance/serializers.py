@@ -203,6 +203,7 @@ class TransferenceSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data['from_account'] == data['to_account']:
             raise serializers.ValidationError('Accounts must be different')
+        return data
 
     class Meta:
         model = Transference
