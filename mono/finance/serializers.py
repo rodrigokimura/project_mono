@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from .models import (
     Account, Category, Icon, Installment, RecurrentTransaction, Transaction,
+    Transference,
 )
 
 
@@ -190,3 +191,37 @@ class InstallmentSerializer(serializers.ModelSerializer):
         instance.category = validated_data.pop('category')['id']
         instance = super().update(instance, validated_data)
         return instance
+
+
+class TransferenceSerializer(serializers.ModelSerializer):
+    created_by = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+    from_account = AccountSerializer()
+    to_account = AccountSerializer()
+
+    def validate(self, data):
+        if data['from_account'] == data['to_account']:
+            raise serializers.ValidationError('Accounts must be different')
+
+    class Meta:
+        model = Transference
+        fields = [
+            'url',
+            'description',
+            'to_account',
+            'from_account',
+            'created_by',
+            'timestamp',
+            'amount',
+        ]
+        read_only_fields = []
+        depth = 1
+
+    def create(self, validated_data):
+        transaction = Transference.objects.create(
+            from_account=validated_data.pop('from_account')['id'],
+            to_account=validated_data.pop('to_account')['id'],
+            **validated_data,
+        )
+        return transaction

@@ -3,10 +3,12 @@ from rest_framework.viewsets import ModelViewSet
 
 from .models import (
     Account, Category, Installment, RecurrentTransaction, Transaction,
+    Transference,
 )
 from .serializers import (
     AccountSerializer, CategorySerializer, InstallmentSerializer,
-    RecurrentTransactionSerializer, TransactionSerializer, UserSerializer,
+    RecurrentTransactionSerializer, TransactionSerializer,
+    TransferenceSerializer, UserSerializer,
 )
 
 
@@ -63,6 +65,16 @@ class InstallmentViewSet(ModelViewSet):
 
     queryset = Installment.objects.order_by('id').all()
     serializer_class = InstallmentSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(created_by=self.request.user)
+
+
+class TransferenceViewSet(ModelViewSet):
+
+    queryset = Transference.objects.order_by('id').all()
+    serializer_class = TransferenceSerializer
 
     def get_queryset(self):
         qs = super().get_queryset()

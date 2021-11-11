@@ -4,7 +4,8 @@ from rest_framework.routers import DefaultRouter
 from . import views
 from .viewsets import (
     AccountViewSet, CategoryViewSet, InstallmentViewSet,
-    RecurrentTransactionViewSet, TransactionViewSet, UserViewSet,
+    RecurrentTransactionViewSet, TransactionViewSet, TransferenceViewSet,
+    UserViewSet,
 )
 
 app_name = 'finance'
@@ -14,6 +15,7 @@ router.register('users', UserViewSet)
 router.register('transactions', TransactionViewSet)
 router.register('recurrent-transactions', RecurrentTransactionViewSet)
 router.register('installments', InstallmentViewSet)
+router.register('transferences', TransferenceViewSet)
 router.register('accounts', AccountViewSet)
 router.register('categories', CategoryViewSet)
 
