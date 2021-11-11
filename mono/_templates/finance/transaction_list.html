@@ -268,14 +268,17 @@
       <div class="field">
         <label>{% translate "Amount" %}</label>
         <input type="number" name="amount" step="any" placeholder="{% translate "Amount" %}">
+        <div class="ui basic red pointing label" style="display:none;" data-name="amount"></div>
       </div>
       <div class="field">
         <label>{% translate "Description" %}</label>
         <input type="text" name="description" placeholder="{% translate "Description" %}">
+        <div class="ui basic red pointing label" style="display:none;" data-name="description"></div>
       </div>
       <div class="field">
         <label>{% translate "Account" %}</label>
         <select name="account" class="ui search selection dropdown" id="accounts-dropdown"></select>
+        <div class="ui basic red pointing label" style="display:none;" data-name="account"></div>
         <script>
           $('#accounts-dropdown').dropdown({
             placeholder: '{% translate "Account" %}',
@@ -303,10 +306,12 @@
         <div class="field">
           <label>{% translate "From account" %}</label>
           <select name="from_account" class="ui search selection dropdown" id="from-accounts-dropdown"></select>
+          <div class="ui basic red pointing label" style="display:none;" data-name="from_account"></div>
         </div>
         <div class="field">
           <label>{% translate "To account" %}</label>
           <select name="to_account" class="ui search selection dropdown" id="to-accounts-dropdown"></select>
+          <div class="ui basic red pointing label" style="display:none;" data-name="to_account"></div>
         </div>
         <script>
           $('#from-accounts-dropdown').dropdown({
@@ -360,6 +365,7 @@
       <div class="field">
         <label>{% translate "Category" %}</label>
         <select name="category" class="ui search selection dropdown" id="categories-dropdown"></select>
+        <div class="ui basic red pointing label" style="display:none;" data-name="category"></div>
         <script>
           $('#categories-dropdown').dropdown({
             placeholder: '{% translate "Category" %}',
@@ -395,6 +401,7 @@
             <input type="text" placeholder="{% translate "Timestamp" %}" name="timestamp">
           </div>
         </div>
+        <div class="ui basic red pointing label" style="display:none;" data-name="timestamp"></div>
       </div>
       <div class="field">
         <label>{% translate "Recurrent or installment?" %}</label>
@@ -402,9 +409,6 @@
           <input type="checkbox">
           <label></label>
         </div>
-        <script>
-
-        </script>
       </div>
       <div id="recurrent-or-installment" class="recurrent-or-installment" style="margin-bottom: 1em;">
         <div class="inline fields">
@@ -428,6 +432,7 @@
               <option value="{{ value }}">{{ text }}</option>
             {% endfor %}
           </select>
+          <div class="ui basic red pointing label" style="display:none;" data-name="frequency"></div>
           <script>
             $('#frequency-dropdown').dropdown({
               placeholder: '{% translate "Frequency" %}',
@@ -438,6 +443,7 @@
         <div class="field" data-type="installment">
           <label>{% translate "Months" %}</label>
           <input type="number" name="months" value="12" required="" placeholder="{% translate "Months" %}">
+          <div class="ui basic red pointing label" style="display:none;" data-name="months"></div>
         </div>
         <div class="field" data-type="installment">
           <label>{% translate "Handle remainder" %}</label>
@@ -446,6 +452,7 @@
               <option value="{{ value }}">{{ text }}</option>
             {% endfor %}
           </select>
+          <div class="ui basic red pointing label" style="display:none;" data-name="handle_remainder"></div>
           <script>
             $('#remainder-dropdown').dropdown({
               placeholder: '{% translate "Handle remainder" %}',
@@ -545,6 +552,7 @@
       });
     }
     $('.ui.transaction.form .field').removeClass('error');
+    $('.pointing.label').hide();
     $.api({
       on: 'now',
       url: url,
@@ -562,24 +570,26 @@
       },
       onError(errorMessage, element, xhr) {
         if (xhr.status == 400) {
-          errors = [];
           for (p in xhr.responseJSON) {
-            if (p == "total_amount") {
-              xhr.responseJSON["amount"] = xhr.responseJSON["total_amount"]
-              p = "amount";
-            }
-            var fieldName = p.replace(/\_/g, " ").charAt(0).toUpperCase() + p.replace(/\_/g, " ").substr(1).toLowerCase();
-            if ('id' in xhr.responseJSON[p]) {
-              errors.push(`${fieldName}: ${xhr.responseJSON[p]['id'].toString()}`);
+            if (p == 'non_field_errors') {
+              $('.ui.transaction.form').form(
+                'add errors',
+                errors
+              )
             } else {
-              errors.push(`${fieldName}: ${xhr.responseJSON[p].toString()}`);
+              if (p == "total_amount") {
+                xhr.responseJSON["amount"] = xhr.responseJSON["total_amount"]
+                p = "amount";
+              }
+              if ('id' in xhr.responseJSON[p]) {
+                prompt = xhr.responseJSON[p]['id'].toString();
+              } else {
+                prompt = xhr.responseJSON[p].toString();
+              }
+              $('.ui.transaction.form').form('add prompt', p);
+              $(`.pointing.label[data-name=${p}]`).empty().text(prompt).fadeIn();
             }
-            $('.ui.transaction.form').form('add prompt', p);
           }
-          $('.ui.transaction.form').form(
-            'add errors',
-            errors
-          )
         }
       },
     })
@@ -589,6 +599,7 @@
     $('#recurrent-or-installment').hide('swing');
     $('#is-recurrent-or-installment').checkbox('uncheck');
     $('.ui.transaction.form').form('clear');
+    $('.pointing.label').hide();
     $('.ui.radio.recurrent.checkbox').checkbox('check');
     $('#transaction-type .item[data-value=EXP]').click();
   }
@@ -598,6 +609,7 @@
     $('#recurrent-or-installment').hide('swing');
     $('#is-recurrent-or-installment').checkbox('uncheck');
     $('.ui.transaction.form').form('clear');
+    $('.pointing.label').hide();
     $('.ui.radio.recurrent.checkbox').checkbox('check');
     $('#timestamp').calendar('set date', ts);
   }
