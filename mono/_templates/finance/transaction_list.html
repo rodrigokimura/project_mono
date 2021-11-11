@@ -247,32 +247,38 @@
 
 </div>
 
-<div class="ui transaction modal">
+<div class="ui transaction tiny modal">
   <i class="close icon"></i>
   <div class="header">
-    Transaction
+    {% translate "Transaction" %}
   </div>
   <div class="scrolling content">
     <div class="ui transaction form">
       <div class="ui secondary menu" id="transaction-type">
         {% for value, text in transaction_types %}
-          <a class="{% if value == 'EXP' %}active red{% elif value == 'INC' %} green {% endif %} item" data-value="{{ value }}">{{ text }}</a>
+          {% if value == 'EXP' %}
+            <a class="red item" data-value="{{ value }}"><i class="minus circle icon"></i>{{ text }}</a>
+          {% elif value == 'INC' %}
+            <a class="green item" data-value="{{ value }}"><i class="plus circle icon"></i>{{ text }}</a>
+          {% elif value == 'TRF' %}
+            <a class="grey item" data-value="{{ value }}"><i class="equals icon"></i>{{ text }}</a>
+          {% endif %}
         {% endfor %}
       </div>
       <div class="field">
-        <label>Amount</label>
-        <input type="number" name="amount" step="any" placeholder="Amount">
+        <label>{% translate "Amount" %}</label>
+        <input type="number" name="amount" step="any" placeholder="{% translate "Amount" %}">
       </div>
       <div class="field">
-        <label>Description</label>
-        <input type="text" name="description" placeholder="Description">
+        <label>{% translate "Description" %}</label>
+        <input type="text" name="description" placeholder="{% translate "Description" %}">
       </div>
       <div class="field">
-        <label>Account</label>
+        <label>{% translate "Account" %}</label>
         <select name="account" class="ui search selection dropdown" id="accounts-dropdown"></select>
         <script>
           $('#accounts-dropdown').dropdown({
-            placeholder: 'Account',
+            placeholder: '{% translate "Account" %}',
             apiSettings: {
               url: '/fn/api/accounts/',
               cache: false,
@@ -293,12 +299,70 @@
           })
         </script>
       </div>
+      <div class="two fields">
+        <div class="field">
+          <label>{% translate "From account" %}</label>
+          <select name="from_account" class="ui search selection dropdown" id="from-accounts-dropdown"></select>
+        </div>
+        <div class="field">
+          <label>{% translate "To account" %}</label>
+          <select name="to_account" class="ui search selection dropdown" id="to-accounts-dropdown"></select>
+        </div>
+        <script>
+          $('#from-accounts-dropdown').dropdown({
+            placeholder: '{% translate "From account" %}',
+            apiSettings: {
+              url: '/fn/api/accounts/',
+              cache: false,
+              successTest: r => r.count > 0,
+              onResponse: r => {
+                results = r.results
+                  .map(e => ({
+                    name: e.name,
+                    value: e.id,
+                  }))
+                  .filter(
+                    e => e.value != $('#to-accounts-dropdown').dropdown('get value')
+                  );
+                return {
+                  count: r.count,
+                  results: results,
+                };
+              }
+            },
+            filterRemoteData: true,
+          })
+          $('#to-accounts-dropdown').dropdown({
+            placeholder: '{% translate "To account" %}',
+            apiSettings: {
+              url: '/fn/api/accounts/',
+              cache: false,
+              successTest: r => r.count > 0,
+              onResponse: r => {
+                results = r.results
+                  .map(e => ({
+                    name: e.name,
+                    value: e.id,
+                  }))
+                  .filter(
+                    e => e.value != $('#from-accounts-dropdown').dropdown('get value')
+                  );
+                return {
+                  count: r.count,
+                  results: results,
+                };
+              }
+            },
+            filterRemoteData: true,
+          })
+        </script>
+      </div>
       <div class="field">
-        <label>Category</label>
+        <label>{% translate "Category" %}</label>
         <select name="category" class="ui search selection dropdown" id="categories-dropdown"></select>
         <script>
           $('#categories-dropdown').dropdown({
-            placeholder: 'Category',
+            placeholder: '{% translate "Category" %}',
             apiSettings: {
               url: '/fn/api/categories/',
               cache: false,
@@ -324,16 +388,16 @@
         </script>
       </div>
       <div class="field">
-        <label>Timestamp</label>
+        <label>{% translate "Timestamp" %}</label>
         <div class="ui calendar" id="timestamp" name="timestamp">
           <div class="ui input left icon">
             <i class="calendar icon"></i>
-            <input type="text" placeholder="Timestamp" name="timestamp">
+            <input type="text" placeholder="{% translate "Timestamp" %}" name="timestamp">
           </div>
         </div>
       </div>
       <div class="field">
-        <label>Recurrent or installment?</label>
+        <label>{% translate "Recurrent or installment?" %}</label>
         <div class="ui toggle checked checkbox" id="is-recurrent-or-installment"> 
           <input type="checkbox">
           <label></label>
@@ -342,45 +406,51 @@
 
         </script>
       </div>
-      <div id="recurrent-or-installment" style="margin-bottom: 1em;">
+      <div id="recurrent-or-installment" class="recurrent-or-installment" style="margin-bottom: 1em;">
         <div class="inline fields">
           <div class="field">
             <div class="ui radio recurrent checkbox">
               <input type="radio" name="recurrent-or-installment">
-              <label>Recurrent</label>
+              <label>{% translate "Recurrent" %}</label>
             </div>
           </div> 
           <div class="field">
             <div class="ui radio installment checkbox">
               <input type="radio" name="recurrent-or-installment">
-              <label>Installment</label>
+              <label>{% translate "Installment" %}</label>
             </div>
           </div>                 
         </div>
         <div class="field" data-type="recurrent">
-          <label>Frequency</label>
+          <label>{% translate "Frequency" %}</label>
           <select name="frequency" class="ui selection dropdown" id="frequency-dropdown">
             {% for value, text in frequency %}
               <option value="{{ value }}">{{ text }}</option>
             {% endfor %}
           </select>
           <script>
-            $('#frequency-dropdown').dropdown({direction: 'upward'});
+            $('#frequency-dropdown').dropdown({
+              placeholder: '{% translate "Frequency" %}',
+              direction: 'upward',
+            });
           </script>
         </div>
         <div class="field" data-type="installment">
-          <label>Months</label>
-          <input type="number" name="months" value="12" required="">
+          <label>{% translate "Months" %}</label>
+          <input type="number" name="months" value="12" required="" placeholder="{% translate "Months" %}">
         </div>
         <div class="field" data-type="installment">
-          <label>Handle remainder</label>
+          <label>{% translate "Handle remainder" %}</label>
           <select name="handle_remainder" class="ui selection dropdown" id="remainder-dropdown">
             {% for value, text in remainder %}
               <option value="{{ value }}">{{ text }}</option>
             {% endfor %}
           </select>
           <script>
-            $('#remainder-dropdown').dropdown({direction: 'upward'});
+            $('#remainder-dropdown').dropdown({
+              placeholder: '{% translate "Handle remainder" %}',
+              direction: 'upward',
+            });
           </script>
         </div>
       </div>
@@ -390,11 +460,11 @@
   <div class="actions">
     <div class="ui black deny button">
       <i class="delete icon"></i>
-      Cancel
+      {% translate "Cancel" %}
     </div>
     <div class="ui positive icon labeled button">
       <i class="save icon"></i>
-      Save
+      {% translate "Save" %}
     </div>
   </div>
 </div>
@@ -413,35 +483,37 @@
     }
     return type
   }
+
   function submitForm() {
     type = getObjectType();
-    if (getTransactionType() == 'TRF') {
-        url = '/fn/api/transferences/';
-        payload = JSON.stringify({
+    if (type == "transaction") {
+      if (getTransactionType() == 'TRF') {
+          url = '/fn/api/transferences/';
+          payload = JSON.stringify({
             description: $('[name="description"]').val(),
             amount: $('[name="amount"]').val(),
             from_account:  {
-                id: $('#from-accounts-dropdown').dropdown('get value'),
+              id: $('#from-accounts-dropdown').dropdown('get value'),
             },
             to_account: {
-                id: $('#to-accounts-dropdown').dropdown('get value'),
+              id: $('#to-accounts-dropdown').dropdown('get value'),
             },
             timestamp: $('#timestamp').calendar('get date'),
+          });
+      } else {
+        url = '/fn/api/transactions/';
+        payload = JSON.stringify({
+          amount: $('[name="amount"]').val(),
+          description: $('[name="description"]').val(),
+          account: {
+            id: $('#accounts-dropdown').dropdown('get value'),
+          },
+          category: {
+            id: $('#categories-dropdown').dropdown('get value'),
+          },
+          timestamp: $('#timestamp').calendar('get date'),
         });
-    }
-    if (type == "transaction") {
-      url = '/fn/api/transactions/';
-      payload = JSON.stringify({
-        amount: $('[name="amount"]').val(),
-        description: $('[name="description"]').val(),
-        account: {
-          id: $('#accounts-dropdown').dropdown('get value'),
-        },
-        category: {
-          id: $('#categories-dropdown').dropdown('get value'),
-        },
-        timestamp: $('#timestamp').calendar('get date'),
-      });
+      }
     } else if (type == "recurrent") {
       url = '/fn/api/recurrent-transactions/';
       payload = JSON.stringify({
@@ -496,7 +568,7 @@
               xhr.responseJSON["amount"] = xhr.responseJSON["total_amount"]
               p = "amount";
             }
-            var fieldName = p.charAt(0).toUpperCase() + p.substr(1).toLowerCase();
+            var fieldName = p.replace(/\_/g, " ").charAt(0).toUpperCase() + p.replace(/\_/g, " ").substr(1).toLowerCase();
             if ('id' in xhr.responseJSON[p]) {
               errors.push(`${fieldName}: ${xhr.responseJSON[p]['id'].toString()}`);
             } else {
@@ -518,6 +590,16 @@
     $('#is-recurrent-or-installment').checkbox('uncheck');
     $('.ui.transaction.form').form('clear');
     $('.ui.radio.recurrent.checkbox').checkbox('check');
+    $('#transaction-type .item[data-value=EXP]').click();
+  }
+
+  function resetForm() {
+    ts = $('#timestamp').calendar('get date');
+    $('#recurrent-or-installment').hide('swing');
+    $('#is-recurrent-or-installment').checkbox('uncheck');
+    $('.ui.transaction.form').form('clear');
+    $('.ui.radio.recurrent.checkbox').checkbox('check');
+    $('#timestamp').calendar('set date', ts);
   }
 
   function showTransactionModal() {
@@ -542,10 +624,22 @@
   }
 
   $(document).ready(e => {
+    $('select[name=from_account]').closest('.fields').hide('swing');
     $('#transaction-type .item').on('click', e => {
       $('#transaction-type .item').removeClass('active');
+      resetForm();
       $(e.currentTarget).addClass('active');
-      $('#transaction-form').attr('action', $(e.currentTarget).attr('href'));
+      if ($(e.currentTarget).attr('data-value') == 'TRF') {
+        $('select[name=account]').closest('.field').hide('swing');
+        $('select[name=category]').closest('.field').hide('swing');
+        $('#is-recurrent-or-installment').closest('.field').hide('swing');
+        $('select[name=from_account]').closest('.fields').show('swing');
+      } else {
+        $('select[name=account]').closest('.field').show('swing');
+        $('select[name=category]').closest('.field').show('swing');
+        $('#is-recurrent-or-installment').closest('.field').show('swing');
+        $('select[name=from_account]').closest('.fields').hide('swing');
+      }
     });
     $('#is-recurrent-or-installment').checkbox({
       fireOnInit : true,
