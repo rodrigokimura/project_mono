@@ -224,7 +224,7 @@ class Card(BaseModel):
     bucket = models.ForeignKey(Bucket, on_delete=models.CASCADE)
     order = models.IntegerField()
     assigned_to = models.ManyToManyField(User, related_name="assigned_cards", blank=True)
-    description = models.TextField(max_length=255, blank=True, null=True)
+    description = models.TextField(max_length=1000, blank=True, null=True)
     status = models.CharField(_("status"), max_length=2, choices=STATUSES, default=Bucket.NOT_STARTED)
     due_date = models.DateField(blank=True, null=True, default=None)
     started_at = models.DateTimeField(blank=True, null=True)
