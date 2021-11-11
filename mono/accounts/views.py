@@ -22,7 +22,9 @@ from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView, View
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView
-from rest_framework import status
+from rest_framework import authentication, permissions, status
+from rest_framework.authtoken.models import Token
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -281,3 +283,32 @@ class MarkNotificationsAsUnreadView(LoginRequiredMixin, View):
             'success': True,
             'data': ids
         })
+
+
+class ApiMeView(RetrieveAPIView):
+
+    authentication_classes = [authentication.TokenAuthentication, authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        user = self.request.user
+        return user
+
+
+class ApiLogoutView(APIView):
+
+    authentication_classes = [authentication.TokenAuthentication, authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def post(self, request):
+        Token.objects.get(user=request.user).delete()
+        return Response(
+            {
+                "success": True,
+                "message": "Token was successfully deleted.",
+            }
+        )
