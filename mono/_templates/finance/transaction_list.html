@@ -414,7 +414,21 @@
     return type
   }
   function submitForm() {
-    type = getObjectType()
+    type = getObjectType();
+    if (getTransactionType() == 'TRF') {
+        url = '/fn/api/transferences/';
+        payload = JSON.stringify({
+            description: $('[name="description"]').val(),
+            amount: $('[name="amount"]').val(),
+            from_account:  {
+                id: $('#from-accounts-dropdown').dropdown('get value'),
+            },
+            to_account: {
+                id: $('#to-accounts-dropdown').dropdown('get value'),
+            },
+            timestamp: $('#timestamp').calendar('get date'),
+        });
+    }
     if (type == "transaction") {
       url = '/fn/api/transactions/';
       payload = JSON.stringify({
@@ -461,20 +475,18 @@
     $('.ui.transaction.form .field').removeClass('error');
     $.api({
       on: 'now',
-      async: false,
       url: url,
       method: 'POST',
       headers: {'X-CSRFToken': csrftoken},
       contentType: 'application/json',
       data: payload,
       successTest: r => {
-        location.reload(); 
         return true;
       },
       onSuccess: r => {
         console.log(r.status_code);
         $('.ui.transaction.modal').modal('hide');
-        
+        location.reload(); 
       },
       onError(errorMessage, element, xhr) {
         if (xhr.status == 400) {
