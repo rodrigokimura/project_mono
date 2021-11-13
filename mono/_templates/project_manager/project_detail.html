@@ -19,14 +19,14 @@
                     </div>
                 </h2>
                 {% if object.board_set.all %}
-                    <div class="ui message">
+                    <div class="ui message" style="margin-bottom: 0;">
                         {% blocktranslate with project=object.name count counter=object.board_set.count %}
                             You have only one board in project <strong>{{ project }}</strong>.
                         {% plural %}
                             You have {{ counter }} boards in project <strong>{{ project }}</strong>.
                         {% endblocktranslate %}
                     </div>
-                    <div class="ui cards">
+                    <div class="ui four stackable cards" style="margin-top: 1em; padding-top: 0;">
                         {% for board in object.board_set.all %}
                             <div class="ui card">
                                 <div class="content" style="padding-bottom: 0;">
