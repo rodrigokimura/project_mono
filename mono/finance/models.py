@@ -507,7 +507,7 @@ class Account(models.Model):
         now = timezone.now()
         exp = self.get_credit_card_expenses(now.year, now.month)
         inc = self.get_credit_card_payments(now.year, now.month)
-        return round(exp, 2) - round(inc, 2)
+        return round(exp, 2) + round(inc, 2)
 
     @property
     def current_invoice_is_paid(self):
