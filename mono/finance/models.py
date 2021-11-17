@@ -162,6 +162,7 @@ class RecurrentTransaction(models.Model):
     class Meta:
         verbose_name = _("recurrent transaction")
         verbose_name_plural = _("recurrent transactions")
+        ordering = ['-timestamp']
 
 
 class Installment(models.Model):
