@@ -463,6 +463,38 @@ class Account(models.Model):
             sum=-coalesce_sum
         )['sum']
 
+    def get_credit_card_adjustments(self, year, month):
+        if not self.credit_card:
+            raise Exception('Account is not of type credit card.')
+        qs = self.transaction_set.all()
+        qs = qs.filter(category__type='INC').filter(category__internal_type='ADJ')
+        if self.settlement_date >= 15:
+            month -= 1
+        range_start = datetime(
+            year,
+            month,
+            self.settlement_date,
+        )
+        range_end = datetime(
+            year,
+            month + 1,
+            self.settlement_date,
+        )
+        qs = qs.filter(
+            timestamp__range=[range_start, range_end],
+        )
+        coalesce_sum = Coalesce(
+            Sum(
+                'amount',
+                output_field=FloatField()
+            ),
+            V(0),
+            output_field=FloatField()
+        )
+        return qs.aggregate(
+            sum=coalesce_sum
+        )['sum']
+
     def get_credit_card_payments(self, year, month):
         if not self.credit_card:
             raise Exception('Account is not of type credit card.')
@@ -506,7 +538,7 @@ class Account(models.Model):
     def current_invoice(self):
         now = timezone.now()
         exp = self.get_credit_card_expenses(now.year, now.month)
-        inc = self.get_credit_card_payments(now.year, now.month)
+        inc = self.get_credit_card_adjustments(now.year, now.month)
         return round(exp, 2) + round(inc, 2)
 
     @property
