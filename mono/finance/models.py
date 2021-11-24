@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import jwt
 import pytz
 import stripe
+from accounts.models import Notification
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -148,7 +149,7 @@ class RecurrentTransaction(models.Model):
     def create_transaction(self):
         reference_date = (timezone.now() + timedelta(1)).date()
         if not Transaction.objects.filter(recurrent=self, timestamp__date=reference_date).exists() and self.is_schedule_date(reference_date):
-            budget = Transaction(
+            transaction = Transaction(
                 description=self.description,
                 created_by=self.created_by,
                 timestamp=datetime.combine(reference_date, datetime.min.time()),
@@ -157,7 +158,14 @@ class RecurrentTransaction(models.Model):
                 account=self.account,
                 recurrent=self,
             )
-            budget.save()
+            transaction.save()
+            Notification.objects.create(
+                title="Group invitation",
+                message="A transaction was created",
+                to=self.created_by,
+                icon="exclamation",
+                action_url=reverse("finance:groups"),
+            )
 
     class Meta:
         verbose_name = _("recurrent transaction")
@@ -850,35 +858,6 @@ class Budget(models.Model):
         return color
 
 
-class Notification(models.Model):
-    title = models.CharField(max_length=50)
-    message = models.CharField(max_length=255)
-    icon = models.ForeignKey(Icon, on_delete=models.SET_NULL, null=True, default=None)
-    to = models.ForeignKey(User, on_delete=models.CASCADE)
-    read_at = models.DateTimeField(blank=True, null=True, default=None)
-    action = models.CharField(max_length=1000, blank=True, null=True, default=None)
-    active = models.BooleanField(default=True)
-
-    class Meta:
-        verbose_name = _("notification")
-        verbose_name_plural = _("notifications")
-
-    def __str__(self) -> str:
-        return self.title
-
-    @property
-    def read(self):
-        return self.read_at is not None
-
-    def mark_as_read(self):
-        self.read_at = timezone.now()
-        self.save()
-
-    def set_icon_by_markup(self, markup):
-        self.icon = Icon.objects.filter(markup=markup).first()
-        self.save()
-
-
 class Invite(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -898,9 +877,9 @@ class Invite(models.Model):
         Notification.objects.create(
             title="Group invitation",
             message=f"{user} accepted your invite.",
-            icon=Icon.objects.get(markup="exclamation"),
             to=self.created_by,
-            action=reverse("finance:groups"),
+            icon="exclamation",
+            action_url=reverse("finance:groups"),
         )
 
     @property
@@ -944,9 +923,9 @@ class Invite(models.Model):
             Notification.objects.create(
                 title=_("Group invitation"),
                 message=_("You were invited to be part of a group."),
-                icon=Icon.objects.get(markup="exclamation"),
                 to=User.objects.get(email=self.email),
-                action=full_link
+                icon="exclamation",
+                action_url=full_link
             )
 
     def __str__(self) -> str:

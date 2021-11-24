@@ -1,51 +1,12 @@
+{% extends "base.html" %}
+
 {% load static %}
 {% load i18n %}
 
-
-<!DOCTYPE html>
-<html lang="pt-br">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mono Project{% if APP_ENV == 'DEV' %} [DEV]{% endif %}</title>
-
-  <link rel="stylesheet" type="text/css" href="{% static 'semantic/dist/semantic.min.css' %}">
-  <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
+{% block head %}
   <script src="{% static 'js/jquery.serialize-object.min.js' %}"></script>
-  <script src="{% static 'semantic/dist/semantic.min.js' %}"></script>
-  <script src="{% static 'js/global.js' %}"></script>
-  <script src="{% static 'js/pace.min.js' %}"></script>
-  <link rel="stylesheet" href="{% static 'css/minimal.css' %}">
-
-  {% if APP_ENV == 'DEV' %}
-  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/dev/apple-touch-icon.png' %}">
-  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/dev/favicon-32x32.png' %}">
-  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/dev/favicon-16x16.png' %}">
-  <link rel="manifest" href="{% static 'favicon/dev/site.webmanifest' %}">
-  {% else %}
-  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/prd/apple-touch-icon.png' %}">
-  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/prd/favicon-32x32.png' %}">
-  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/prd/favicon-16x16.png' %}">
-  <link rel="manifest" href="{% static 'favicon/prd/site.webmanifest' %}">
-  {% endif %}
-
-  <style type="text/css" media="all">
-    #notification-menu .menu>* {
-      white-space: break-spaces !important;
-      width: 20rem;
-      line-height: 1.5rem;
-    }
-    #feedback-button {
-      position: fixed;
-      left: 0px; 
-      bottom: 1em; 
-      transform: translate(calc(2.5em - 100%), 0);
-      transition: .5s
-    }
-    #feedback-button:hover {
-      transform: translate(0, 0);
-    }
+  <style>
+    .pusher {padding-top: 3em;}
     @media only screen and (max-width: 768px) {
       .pusher {
         padding-bottom: 3em;
@@ -57,9 +18,6 @@
       'get categories'              : '/fn/ajax/categories/',
       'invite'                      : '/fn/invite/',
       'list invites'                : '/fn/invites/',
-      'get notifications'           : '/fn/ajax/notifications/',
-      'get notification ids'        : '/fn/notification/get-ids/',
-      'mark notification as read'   : '/fn/notification/mark-as-read/',
       'set language'                : "{% url 'set_language' %}",
       'set card order'              : "{% url 'finance:card_order' %}",
       {% if request.user.is_superuser %}
@@ -87,12 +45,29 @@
     }
     const csrftoken = getCookie('csrftoken');
   </script>
-  {% block head %}{% endblock head %}
-</head>
+{% endblock head %}
 
-<body class="pushable">
-  {% include '_pixel.html' %}
-  
+{% block body %}
+  <div class="pusher" style="padding-top: 4em;">
+    {% block main %}
+    {% endblock main %}
+    <a id="feedback-button" class="right attached ui right labeled icon button" href="{% url 'feedback:feedback_create' %}">
+      <i class="comment icon"></i>
+      {% translate "Give feedback" %}
+    </a>
+  </div>
+  <style type="text/css" media="all">
+    #feedback-button {
+      position: fixed !important;
+      left: 0px !important; 
+      bottom: 1em !important; 
+      transform: translate(calc(2.5em - 100%), 0) !important;
+      transition: .5s !important;
+    }
+    #feedback-button:hover {
+      transform: translate(0, 0) !important;
+    }
+  </style>
   <div class="ui vertical inverted thin sidebar labeled icon left menu">
     <a class="item" href="{% url 'finance:index' %}"><i class="home icon"></i>{% translate "Home" %}</a>
     <a class="item" href="{% url 'finance:transactions' %}"><i class="money bill icon"></i>{% translate "Transactions" %}</a>
@@ -101,7 +76,6 @@
     <a class="item" href="{% url 'finance:groups' %}"><i class="users icon"></i>{% translate "Groups" %}</a>
     <a class="item" href="{% url 'finance:categories' %}"><i class="tags icon"></i>{% translate "Categories" %}</a>
     <a class="item" href="{% url 'finance:charts' %}"><i class="chart line icon"></i>{% translate "Charts" %}</a>
-    {% comment %} <a class="item" href="{% url 'finance:goals' %}"><i class="bullseye icon"></i>Goals</a> {% endcomment %}
     {% if request.user.is_superuser %}
     <div class="item">
       <div class="header">Superuser</div>
@@ -115,199 +89,56 @@
     </div>
     {% endif %}
   </div>
-  
-  <div class="ui top inverted fixed {% if maintenance_mode %}red{% endif %} menu">
-
+  <div class="ui top inverted fixed menu">
     <a class="toc item">
       <i class="sidebar icon"></i>
     </a>
-
-    {% if request.user.is_authenticated %}
+    {% block menu %}
+    {% endblock menu %}
     <div class="right menu">
+      {% block right_menu %}
+      {% endblock right_menu %}
       <div class="ui inverted teal apps item" style="cursor: pointer;"><i class="toolbox icon"></i></div>
       <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
         {% include "homepage/_apps_menu.html" %}
       </div>
-      <div class="ui top pointing inverted teal dropdown item" id="notification-menu">
-        <i class="bell outline icon"></i>
-        <div 
-          class="hidden ui mini floating circular teal notification label" 
-          id="notification-count"
-          style="transform: translate(0, 1em);"
-          ></div>
-      </div>
       {% include "_auth_menu.html" %}
-
     </div>
-    {% endif %}
   </div>
-  
-  <div class="pusher" style="padding-top: 4em;">
-    {% if messages %}
-      <div class="ui container">
-        <div class="ui grid">
-          <div class="row">
-            <div class="column">
-              {% for message in messages %}
-              <div class="ui {{ message.tags }} message">
-                <i class="close icon"></i>
-                {{ message }}
-              </div>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endif %}
-    
-    {% block body %}
-    {% endblock body %}
-    
-    <a id="feedback-button"
-      class="right attached ui right labeled icon button" 
-      href="{% url 'feedback:feedback_create' %}"
-      >
-      <i class="comment icon"></i>
-      {% translate "Give feedback" %}
-    </a>
 
-  </div>
-</body>
-<script>
-  $('.ui.sidebar')
-    .sidebar('setting', 'transition', 'slide along')
-    .sidebar('setting', 'mobileTransition', 'slide along')
-    .sidebar('attach events', '.toc.item');
-
-  {% if request.user.is_authenticated %}
-
-  let notificationsIds = [];
-  let notificationMenuElement = $('.ui.dropdown#notification-menu');
-  let notificationLabelElement = $('.ui.dropdown#notification-menu #notification-count');
-    
-  let getNotifications = () => {
-    $.api(
+  <script>
+    w = 0;
+    s = $('.ui.apps.item').siblings('.ui.item');
+    for (i=0; i<s.length; i++) {
+      w += $(s[i]).outerWidth();
+    }
+    $('.ui.apps.item').popup(
       {
-        action: 'get notifications',
-        on: 'now',
-        stateContext: notificationMenuElement,
-        cache: false,
-        onSuccess: r => {
-          values = r.results.map(item => {
-            item.name = `{% include 'finance/_notification_item.html' %}`
-            .replace(/\r?\n|\r/g, '').replace(/\s+/g, ' ');
-            item.icon = '';
-            return item;
-          })
-          values.unshift(
-            {
-              name: `{% translate 'Notifications' %} <div class="ui tiny right floated basic circular inverted button" onclick="markAsRead('*');"><i class="eraser icon"></i>{% translate 'Clear all' %}</div>`, 
-              type: 'header'
-            }
-          );
-          notificationMenuElement.dropdown({
-            values: values,
-            action: (text, value, element) => {
-              window.location.replace(`/fn/notification/${value}/action`);
-            }
-          });
-          if (r.results.length > 0) {
-            notificationLabelElement.text(r.results.length);
-            notificationLabelElement.removeClass('hidden');
-            $('.ui.dropdown#notification-menu i.icon').removeClass('outline');
-          } else {
-            notificationLabelElement.text(r.results.length);
-            notificationLabelElement.addClass('hidden');
-            notificationLabelElement.text("ttttt")
-            $('.ui.dropdown#notification-menu i.icon').addClass('outline');
-          }
+        on: 'click',
+        hoverable: true,
+        position:	"bottom right",
+        forcePosition: true,
+        offset: w,
+        onShow: () => {
+          $('.ui.apps.item').addClass('active')
+        },
+        onHide: () => {
+          $('.ui.apps.item').removeClass('active')
         }
       }
     );
-  }
-
-  const areEqual = (first, second) => {
-    if(first.length !== second.length){
-        return false;
-    };
-    for(let i = 0; i < first.length; i++){
-        if(!second.includes(first[i])){
-          return false;
-        };
-    };
-    return true;
-  };
+    $('.ui.sidebar')
+      .sidebar('setting', 'transition', 'slide along')
+      .sidebar('setting', 'mobileTransition', 'slide along')
+      .sidebar('attach events', '.toc.item');
+  </script>
+  
+{% endblock body %}
 
 
-  let checkUnread = () => {
-    $.api(
-      {
-        action: 'get notification ids',
-        on: 'now',
-        cache: false,
-        onSuccess: (response, element, xhr) => {
-          if (!areEqual(response.results, notificationsIds)) {
-            notificationsIds = response.results;
-            getNotifications();
-          }
-        },
-        onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
-        onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
-      }
-    );
-  }
-  checkUnread();
 
-  setInterval( checkUnread, 5000 );
 
-  {% endif %}
+  
+  
+  
 
-  $('.message .close').click(function() {
-    $(this)
-    .closest('.message')
-    .transition('fade');
-  });
-
-  let markAsRead = id => {
-    $.api(
-      {
-        action: 'mark notification as read',
-        method: 'POST',
-        mode: 'same-origin',
-        headers: {'X-CSRFToken': csrftoken},
-        data: {id: id},
-        on: 'now',
-        cache: false,
-        onSuccess: () => {
-          notificationMenuElement.dropdown('hide');
-          checkUnread();
-        },
-        onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
-        onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
-      }
-    );
-  }
-
-  w = 0;
-  s = $('.ui.apps.item').siblings('.ui.item');
-  for (i=0; i<s.length; i++) {
-    w += $(s[i]).outerWidth();
-  }
-  $('.ui.apps.item').popup(
-    {
-      on: 'click',
-      hoverable: true,
-      position:	"bottom right",
-      forcePosition: true,
-      offset: w,
-      onShow: () => {
-        $('.ui.apps.item').addClass('active')
-      },
-      onHide: () => {
-        $('.ui.apps.item').removeClass('active')
-      }
-    }
-  );
-</script>
-
-</html>

@@ -80,11 +80,6 @@ urlpatterns = [
     path("invites/", views.InviteListApiView.as_view(), name='invites'),
     path("invite/accept/", views.InviteAcceptanceView.as_view(), name='invite_acceptance'),
 
-    path("ajax/notifications/", views.NotificationListApi.as_view(), name='ajax_notifications'),
-    path("notification/<int:pk>/action/", views.NotificationAction.as_view(), name='notification_action'),
-    path("notification/get-ids/", views.NotificationCheckUnread.as_view(), name='notification_get_ids'),
-    path("notification/mark-as-read/", views.NotificationMarkAsRead.as_view(), name='notification_mark_as_read'),
-
     path("faker/", views.FakerView.as_view(), name='faker'),
 
     path('plans/', views.PlansView.as_view(), name='plans'),

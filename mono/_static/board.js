@@ -592,19 +592,39 @@ async function renderFiles(modal, bucketId, cardId, files) {
         `);
         $(`.image[data-file-id=${f.id}]`).dimmer({ on: 'hover' });
         $(`.delete-file[data-file-id=${f.id}]`).off().on('click', e => {
+
             id = $(e.target).attr('data-file-id');
-            $.api({
-                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/${id}/`,
-                on: 'now',
-                stateContext: $(`.ui.special.card.img-card-file[data-file-id=${id}]`),
-                method: 'DELETE',
-                headers: { 'X-CSRFToken': csrftoken },
-                successTest: r => r != 0,
-                onSuccess: r => {
-                    $(`.ui.special.card.img-card-file[data-file-id=${id}]`).remove();
-                    cardEdited = true;
-                },
-            })
+            $('body').modal({
+                title: 'Confirmation',
+                class: 'mini',
+                closeIcon: true,
+                content: 'Delete this file?',
+                actions: [
+                    {
+                        text: 'Cancel',
+                        class: 'deny black'
+                    },
+                    {
+                        text: 'Yes, delete it',
+                        class: 'approve red',
+                        icon: 'delete',
+                    },
+                ],
+                onApprove: () => {
+                    $.api({
+                        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/${id}/`,
+                        on: 'now',
+                        stateContext: $(`.ui.special.card.img-card-file[data-file-id=${id}]`),
+                        method: 'DELETE',
+                        headers: { 'X-CSRFToken': csrftoken },
+                        successTest: r => r != 0,
+                        onSuccess: r => {
+                            $(`.ui.special.card.img-card-file[data-file-id=${id}]`).remove();
+                            cardEdited = true;
+                        },
+                    })
+                }
+            }).modal('show');
         });
     }
 }
