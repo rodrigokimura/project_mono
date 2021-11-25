@@ -40,8 +40,18 @@ class ProjectListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self) -> QuerySet[Project]:
         qs = super().get_queryset()
+
+        field = self.request.GET.get('field')
+        direction = self.request.GET.get('direction', 'asc')
+        if field:
+            if direction == 'asc':
+                qs = qs.order_by(field)
+            else:
+                qs = qs.order_by(f'-{field}')
+
         created_projects = qs.filter(created_by=self.request.user)
         assigned_projects = qs.filter(assigned_to=self.request.user)
+
         return (created_projects | assigned_projects).distinct()
 
     def get_context_data(self, **kwargs):
@@ -62,6 +72,19 @@ class ProjectDetailView(UserPassesTestMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        qs = self.get_object().board_set.all()
+
+        field = self.request.GET.get('field')
+        direction = self.request.GET.get('direction', 'asc')
+        if field:
+            if direction == 'asc':
+                qs = qs.order_by(field)
+            else:
+                qs = qs.order_by(f'-{field}')
+
+        context['boards'] = qs
+
         context['breadcrumb'] = [
             ('Home', reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
