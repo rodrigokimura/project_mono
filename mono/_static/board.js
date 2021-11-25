@@ -1379,7 +1379,6 @@ function showCardModal(card = null, bucketId, compact) {
         duration: 400,
         onShow: () => {
             cardEdited = false;
-            // modal.find('.manage-tags').popup();
             modal.find('.scrolling.content').animate({ scrollTop: 0 });
             modal.find('.ui.card-due-date.calendar').calendar({
                 type: 'date',

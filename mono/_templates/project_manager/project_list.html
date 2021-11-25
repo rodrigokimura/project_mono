@@ -19,7 +19,7 @@
 
                 {% if object_list %}
 
-                    <div class="ui message" style="margin-bottom: 0;">
+                    <div class="ui message">
                         {% blocktranslate count counter=object_list|length %}
                             You have only one project.
                         {% plural %}
@@ -27,7 +27,44 @@
                         {% endblocktranslate %}
                     </div>
 
-                    <div class="ui four stackable cards" style="margin-top: 1em; padding-top: 0;">
+                    <div class="ui labeled icon floating dropdown button" id="sort-field-dropdown">
+                        <i class="sort alphabet down icon"></i>
+                        <span class="text">{% translate "Sort" %}</span>
+                        <div class="menu">
+                            <div class="header">
+                                <i class="attention icon"></i>
+                                {% translate "Sort boards by" %}
+                            </div>
+                            <div class="{% if 'name' in request.GET.field %}active {% endif %}item" data-value="name">
+                                <i class="text height icon"></i>
+                                {% translate "Name" %}
+                            </div>
+                            <div class="{% if 'created_by' in request.GET.field %}active {% endif %}item" data-value="created_by">
+                                <i class="calendar day icon"></i>
+                                {% translate "Created by" %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui labeled icon floating dropdown button" id="sort-direction-dropdown">
+                        <i class="sort icon"></i>
+                        <span class="text">{% translate "Direction" %}</span>
+                        <div class="menu">
+                            <div class="header">
+                                <i class="attention icon"></i>
+                                {% translate "Sort direction" %}
+                            </div>
+                            <div class="{% if 'asc' in request.GET.direction %}active {% endif %}item" data-value="asc">
+                                <i class="sort up icon"></i>
+                                {% translate "Ascending" %}
+                            </div>
+                            <div class="{% if 'desc' in request.GET.direction %}active {% endif %}item" data-value="desc">
+                                <i class="sort down icon"></i>
+                                {% translate "Descending" %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui four stackable cards" style="margin-top: .5em; padding-top: 0;">
                         {% for project in object_list %}
                         <div class="ui card">
                             <div class="content" style="padding-bottom: 0;">
@@ -37,7 +74,7 @@
                                             {{ project.name }}
                                         </a>
                                     </div>
-                                    <div class="ui basic icon top right pointing dropdown button" style="flex: 0 0 auto; align-self: flex-start;">
+                                    <div class="ui basic icon top right pointing card-menu dropdown button" style="flex: 0 0 auto; align-self: flex-start;">
                                         <i class="ellipsis horizontal icon"></i>
                                         <div class="menu">
                                             <a class="item" href="{% url 'project_manager:project_detail' pk=project.pk %}"><i class="eye icon"></i>{% translate "Open" %}</a>
@@ -48,7 +85,7 @@
                                     </div>
                                 </div>
                                 <div class="meta">
-                                    {% translate "Created by" %} {{ project.created_by }}
+                                    {% translate "Created at" %} {{ project.created_at }}
                                 </div>
                                 <div class="description">
                                     <div style="padding-bottom: 1em;">
@@ -132,39 +169,62 @@
 
 
 <script>
-    $('.ui.dropdown').dropdown();
-    $('.ui.progress').progress();
-    $('.ui.progress').popup();
-    $('.bar').popup();
-    $('.ui.avatar.image').popup();
-    $('.delete-project').click(e => {
-        let projectId = $(e.target).attr('data-project-id');
-        $('body').modal({
-            title: 'Confirm deletion', 
-            class: 'mini', 
-            closeIcon: true, 
-            content: 'Delete this project?', 
-            actions: [
-                { text: 'Cancel', class: 'secondary' },
-                { text: 'Delete', class: 'red approve' },
-            ],
-            onApprove: () => {
-                $.api({
-                    url: `/pm/api/projects/${projectId}/`,
-                    method: 'DELETE',
-                    mode: 'same-origin',
-                    headers: {'X-CSRFToken': csrftoken},
-                    cache: false,
-                    on: 'now',
-                    onSuccess: response => {
-                        window.location.replace(response.url);
-                    },
-                    onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
-                    onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
-                });
-            }
-        }).modal('show');
+
+    function sort() {
+        field = $('#sort-field-dropdown').dropdown('get value');
+        direction = $('#sort-direction-dropdown').dropdown('get value');
+        url = `/pm/projects/?field=${ field == '' ? 'created_by' : field }&direction=${ direction == '' ? 'asc' : direction }`;
+        window.location.replace(url);
+    }
+
+    function initializeFilterDropdowns() {
+        $('#sort-field-dropdown').dropdown({
+            action: 'select',
+            onChange: sort,
+        }).dropdown('set value', 'name', null, null, preventChangeTrigger=true);
+        $('#sort-direction-dropdown').dropdown({
+            action: 'select',
+            onChange: sort,
+        }).dropdown('set value', 'asc', null, null, preventChangeTrigger=true);
+    }
+
+    $(document).ready(() => {
+        initializeFilterDropdowns();
+        $('.ui.card-menu.dropdown').dropdown();
+        $('.ui.progress').progress();
+        $('.ui.progress').popup();
+        $('.bar').popup();
+        $('.ui.avatar.image').popup();
+        $('.delete-project').click(e => {
+            let projectId = $(e.target).attr('data-project-id');
+            $('body').modal({
+                title: 'Confirm deletion', 
+                class: 'mini', 
+                closeIcon: true, 
+                content: 'Delete this project?', 
+                actions: [
+                    { text: 'Cancel', class: 'secondary' },
+                    { text: 'Delete', class: 'red approve' },
+                ],
+                onApprove: () => {
+                    $.api({
+                        url: `/pm/api/projects/${projectId}/`,
+                        method: 'DELETE',
+                        mode: 'same-origin',
+                        headers: {'X-CSRFToken': csrftoken},
+                        cache: false,
+                        on: 'now',
+                        onSuccess: response => {
+                            window.location.replace(response.url);
+                        },
+                        onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
+                        onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+                    });
+                }
+            }).modal('show');
+        })
     })
+
 </script>
 
 {% endblock %}
