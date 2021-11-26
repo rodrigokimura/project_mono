@@ -223,33 +223,34 @@ var cardsDrake = dragula({
     slideFactorY: '50px',
 })
     .on('drop', (el, target, source, sibling) => {
-        $(el).removeClass('card').addClass('loading card');
         source_bucket = $(source).attr('id').replace('bucket-', '');
         target_bucket = $(target).attr('id').replace('bucket-', '');
         card = $(el).attr('data-card-id');
         order = $(target).children().toArray().findIndex(e => e == el) + 1;
-        $.ajax({
+        $.api({
+            on: 'now',
             url: `/pm/api/card-move/`,
-            type: 'POST',
+            method: 'POST',
             headers: { 'X-CSRFToken': csrftoken },
+            stateContext: `.card-el[data-card-id=${card}]`,
             data: {
                 source_bucket: source_bucket,
                 target_bucket: target_bucket,
                 card: card,
                 order: order,
             },
-            success: r => {
-                if (r.success) {
-                    status_changed = r.status_changed;
-                    timer_action = r.timer_action;
-                    if (status_changed || timer_action != 'none') {
-                        loadBoard();
-                    };
-                    updateBucketTimetamp(target_bucket);
+            onSuccess: r => {
+                status_changed = r.status_changed;
+                timer_action = r.timer_action;
+                if (status_changed || timer_action != 'none') {
+                    loadBoard();
                 };
+                updateBucketTimetamp(target_bucket);
             },
-            complete: () => {
-                $(el).removeClass('loading');
+            onFailure: () => {
+                loadBoard();
+            },
+            onComplete: () => {
                 $('.cardlet').popup();
             }
         });
