@@ -59,6 +59,7 @@
 {% block menu %}
     <a class="left-sidebar item"><i class="sidebar icon"></i></a>
     <a class="refresh item"><i class="refresh icon"></i></a>
+    <a class="item" href="{% url 'project_manager:board_calendar' project_pk=object.project.id pk=object.id %}"><i class="calendar alternate icon"></i>Calendar view</a>
     <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;"></div>
 {% endblock menu %}
 
@@ -233,7 +234,7 @@
             <input type="hidden" name="order">
             <div class="field">
                 <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
-                <textarea name="description" placeholder="Description" rows="2"></textarea>
+                <textarea name="description" placeholder="Description" rows="4"></textarea>
             </div>
             <div class="three fields">
                 {% if object.tags_feature %}
