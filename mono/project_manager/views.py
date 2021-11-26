@@ -141,12 +141,41 @@ class BoardDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = [
-            ('Home', reverse('home')),
-            ('Project Manager', reverse('project_manager:projects')),
-            (self.object.project.name, reverse('project_manager:project_detail', args=[self.object.project.id])),
-            (self.object.name, None),
-        ]
+        card_statuses = []
+        for value, name in Card.STATUSES:
+            if value == Bucket.NOT_STARTED:
+                card_statuses.append(
+                    ('circle outline', value, name)
+                )
+            elif value == Bucket.IN_PROGRESS:
+                card_statuses.append(
+                    ('dot circle outline', value, name)
+                )
+            elif value == Bucket.COMPLETED:
+                card_statuses.append(
+                    ('check circle outline', value, name)
+                )
+        context['card_statuses'] = card_statuses
+        context['bucket_auto_statuses'] = Bucket.STATUSES
+        context['colors'] = Theme.objects.all()
+        context['icons'] = Icon.objects.all()
+        return context
+
+
+class BoardCalendarView(LoginRequiredMixin, DetailView):
+    model = Board
+    template_name = "project_manager/board_calendar.html"
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        board = self.get_object()
+        if request.user in board.allowed_users:
+            return super().get(request, *args, **kwargs)
+        else:
+            messages.error(request, 'You are not assigned to this board!')
+            return redirect(to=reverse('project_manager:project_detail', args=[board.project.id]))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         card_statuses = []
         for value, name in Card.STATUSES:
             if value == Bucket.NOT_STARTED:
@@ -448,6 +477,34 @@ class BoardLastUpdatedAPIView(LoginRequiredMixin, APIView):
                 'board': board_timestamp,
                 'buckets': buckets_timestamp
             })
+        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+
+
+class BoardCalendarAPIView(LoginRequiredMixin, APIView):
+    """
+    List all cards from a board and filter by year and date of due date.
+    """
+
+    def get(self, request, format=None, **kwargs):
+        project_pk = kwargs.get('project_pk')
+        board_pk = kwargs.get('pk')
+        project = Project.objects.get(id=project_pk)
+        board = Board.objects.get(project=project, id=board_pk)
+        year = self.request.query_params.get('year')
+        month = self.request.query_params.get('month')
+        cards = Card.objects.filter(bucket__board=board)
+        if year and month:
+            cards = cards.filter(
+                due_date__year=year,
+                due_date__month=month,
+            )
+        else:
+            cards = cards.filter(
+                due_date__isnull=True,
+            )
+        if request.user in board.allowed_users:
+            serializer = CardSerializer(cards, many=True)
+            return Response(serializer.data)
         return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
 
 
