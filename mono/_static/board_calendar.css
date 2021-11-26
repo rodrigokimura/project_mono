@@ -275,3 +275,6 @@ img.assignee:hover {
     transition: .3s;
     background-color: #F7F7F7;
 }
+.calendar-cell.today {
+    background-color: #a9d5de !important;
+}
