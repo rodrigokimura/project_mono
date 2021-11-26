@@ -18,16 +18,52 @@
                         <div class="sub header">{% translate "Boards are where you organize your cards." %}</div>
                     </div>
                 </h2>
-                {% if object.board_set.all %}
-                    <div class="ui message" style="margin-bottom: 0;">
-                        {% blocktranslate with project=object.name count counter=object.board_set.count %}
+                {% if boards %}
+                    <div class="ui message">
+                        {% blocktranslate with project=object.name count counter=boards.count %}
                             You have only one board in project <strong>{{ project }}</strong>.
                         {% plural %}
                             You have {{ counter }} boards in project <strong>{{ project }}</strong>.
                         {% endblocktranslate %}
                     </div>
-                    <div class="ui four stackable cards" style="margin-top: 1em; padding-top: 0;">
-                        {% for board in object.board_set.all %}
+                    <div class="ui labeled icon floating dropdown button" id="sort-field-dropdown">
+                        <i class="sort alphabet down icon"></i>
+                        <span class="text">{% translate "Sort" %}</span>
+                        <div class="menu">
+                            <div class="header">
+                                <i class="attention icon"></i>
+                                {% translate "Sort boards by" %}
+                            </div>
+                            <div class="{% if 'name' in request.GET.field %}active {% endif %}item" data-value="name">
+                                <i class="text height icon"></i>
+                                {% translate "Name" %}
+                            </div>
+                            <div class="{% if 'created_by' in request.GET.field %}active {% endif %}item" data-value="created_by">
+                                <i class="calendar day icon"></i>
+                                {% translate "Created by" %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui labeled icon floating dropdown button" id="sort-direction-dropdown">
+                        <i class="sort icon"></i>
+                        <span class="text">{% translate "Direction" %}</span>
+                        <div class="menu">
+                            <div class="header">
+                                <i class="attention icon"></i>
+                                {% translate "Sort direction" %}
+                            </div>
+                            <div class="{% if 'asc' in request.GET.direction %}active {% endif %}item" data-value="asc">
+                                <i class="sort up icon"></i>
+                                {% translate "Ascending" %}
+                            </div>
+                            <div class="{% if 'desc' in request.GET.direction %}active {% endif %}item" data-value="desc">
+                                <i class="sort down icon"></i>
+                                {% translate "Descending" %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui four stackable cards" style="margin-top: .5em; padding-top: 0;">
+                        {% for board in boards %}
                             <div class="ui card">
                                 <div class="content" style="padding-bottom: 0;">
                                     <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
@@ -36,7 +72,7 @@
                                                 {{ board.name }}
                                             </a>
                                         </div>
-                                        <div class="ui basic icon top right pointing dropdown button" style="flex: 0 0 auto; align-self: flex-start;">
+                                        <div class="ui basic icon top right pointing card-menu dropdown button" style="flex: 0 0 auto; align-self: flex-start;">
                                             <i class="ellipsis horizontal icon"></i>
                                             <div class="menu">
                                                 <a class="item" href="{% url 'project_manager:board_detail' project_pk=object.id pk=board.pk %}"><i class="eye icon"></i>{% translate "Open" %}</a>
@@ -47,7 +83,7 @@
                                         </div>
                                     </div>
                                     <div class="meta">
-                                        {% translate "Created by" %} {{ project.created_by }}
+                                        <p>{% translate "Created at" %} {{ project.created_at }}</p>
                                     </div>
                                     <div class="description">
                                         <div style="padding-bottom: 1em;">
@@ -114,7 +150,7 @@
             </div>
         </div>
 
-        {% if object.board_set.all %}
+        {% if boards %}
             <div class="row">
                 <div class="column">
                     <a href="{% url 'project_manager:board_create' project_pk=object.id %}" class="ui left floated icon labeled green button">
@@ -505,8 +541,27 @@
         })
     };
 
+    function sort() {
+        field = $('#sort-field-dropdown').dropdown('get value');
+        direction = $('#sort-direction-dropdown').dropdown('get value');
+        url = `/pm/project/{{ object.id }}/?field=${ field == '' ? 'created_by' : field }&direction=${ direction == '' ? 'asc' : direction }`;
+        window.location.replace(url);
+    }
+
+    function initializeFilterDropdowns() {
+        $('#sort-field-dropdown').dropdown({
+            action: 'select',
+            onChange: sort,
+        }).dropdown('set value', 'name', null, null, preventChangeTrigger=true);
+        $('#sort-direction-dropdown').dropdown({
+            action: 'select',
+            onChange: sort,
+        }).dropdown('set value', 'asc', null, null, preventChangeTrigger=true);
+    }
+
     $(document).ready(() => {
-        $('.ui.dropdown').dropdown();
+        $('.ui.card-menu.dropdown').dropdown();
+        initializeFilterDropdowns();
         $('.ui.progress').progress();
         $('.ui.progress').popup();
         $('.bar').popup();
