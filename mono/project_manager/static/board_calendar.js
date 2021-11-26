@@ -11,6 +11,66 @@ var autoRefresh = null;
 const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg';
 const allowedUsers = getBoardAllowedUsers();
 
+var cardsDrake = dragula({
+    isContainer: el => $(el).hasClass('cards-drake') && $(el).attr('data-day') !== '',
+    moves: (el, source, handle, sibling) =>
+        $(el).hasClass('card-el')
+        && (
+            $(handle).hasClass('handle') // use button as handle
+            || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
+        ),
+    direction: 'vertical',
+    slideFactorX: '50px',
+    slideFactorY: '50px',
+})
+    .on('drop', (el, target, source, sibling) => {
+        if ($(target).hasClass('no-due-date')) {
+            data = {
+                due_date: null,
+            }
+        } else {
+            day = $(target).attr('data-day');
+            date = $('#month_year_calendar').calendar('get date');
+            dueDate = new Date(date.getFullYear(), date.getMonth(), day);
+            console.log(date);
+            data = {
+                due_date: dueDate.toISOString().split("T")[0],
+            }
+        }
+        card = $(el).attr('data-card-id');
+        bucket = $(el).attr('data-bucket-id');
+        $.api({
+            on: 'now',
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucket}/cards/${card}/`,
+            method: 'PATCH',
+            headers: { 'X-CSRFToken': csrftoken },
+            stateContext: `.card-el[data-card-id=${card}]`,
+            data: data,
+            onSuccess: r => {
+                status_changed = r.status_changed;
+                timer_action = r.timer_action;
+                if (status_changed || timer_action != 'none') {
+                    loadBoard();
+                };
+            },
+            onComplete: () => {
+                $(el).removeClass('loading');
+            }
+        });
+    })
+    .on('drag', (el, source) => {
+        cardBeingDragged = el;
+    })
+    .on('dragend', (el) => {
+        cardBeingDragged = null;
+    })
+    .on('over', (el, container, source) => {
+        containerCardIsOver = container;
+    })
+    .on('out', (el, container, source) => {
+        containerCardIsOver = null;
+    });
+
 async function setWallpaper() {
     if (wallpaper) {
         $('#board').css('background-image', `url('${wallpaper}')`);
@@ -81,7 +141,7 @@ async function renderCards(containerSelector, cards, dark = false, compact = tru
             overdue = now > dueDate;
         }
         $(containerSelector).append(`
-            <div class="ui loading ${dark ? 'inverted ' : ' '}${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}${overdue ? 'overdue ' : ''}card card-el" data-card-id="${card.id}" style="flex: 0 0 auto;${compact ? ' margin-bottom: -.25em;' : 'margin-bottom: .25em;'}">
+            <div class="ui loading ${dark ? 'inverted ' : ' '}${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}${overdue ? 'overdue ' : ''}card card-el" data-card-id="${card.id}" data-bucket-id="${card.bucket}" style="flex: 0 0 auto;${compact ? ' margin-bottom: -.25em;' : 'margin-bottom: .25em;'}">
                 <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move; ${card.color !== null ? `background-color: ${dark ? card.color.dark : card.color.primary}; color: ${card.color.light}` : ''};" data-card-id="${card.id}">
                     <i class="grip lines small icon"></i>
                 </div>
@@ -1382,6 +1442,10 @@ function initializeSearchCardsDropdown(selector = '.ui.search-cards.dropdown') {
 
 
 function renderGrid(year, month) {
+    var today = new Date();
+    var currentYear = today.getFullYear();
+    var currentMonth = today.getMonth();
+    var currentDay = today.getDate();
     var firstDay = new Date(year, month - 1, 1);
     var lastDay = new Date(year, month, 0);
     startAt = firstDay.getDay();
@@ -1396,10 +1460,11 @@ function renderGrid(year, month) {
             if (day <= 0 || day > lastDay) {
                 day = "";
             }
+            var isToday = (day == currentDay && month == currentMonth + 1 && year == currentYear);
             row += `
-                <div class="calendar-cell column" data-day="${day}" style="overflow-y: visible;">
+                <div class="calendar-cell column" data-day="${day}" style="overflow-y: visible; ${isToday ? 'color: #276f86; background-color: #f8ffff; box-shadow: 0 0 0 1px #a9d5de inset,0 0 0 0 transparent;' : ''}">
                     ${day}
-                    <div class="calendar-cell-content" data-day="${day}" style="padding: .5em; height: calc(100% - 1.5em); overflow-y: auto;">
+                    <div class="calendar-cell-content cards-drake" data-day="${day}" style="padding: .5em; height: calc(100% - 1.5em); overflow-y: auto;">
                     </div>
                 </div>
             `
