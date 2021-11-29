@@ -10,14 +10,10 @@
 <script type="text/javascript" charset="utf-8">
   let dropdown_element = $('[name={{ widget.name }}]').parent()
 
-  {% if widget.value %}
-  // dropdown_element.dropdown("set value", "{{ widget.value }}")
-  {% endif %}
-
   let updateDropdown = (type, account) => {
     dropdown_element.dropdown({
       apiSettings: {
-        action: 'get categories',
+        url: '/fn/ajax/categories/',
         data: {type:type, account:account},
         cache: false,
       },
