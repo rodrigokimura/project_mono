@@ -12,7 +12,7 @@
 </div>
 <script>
     $('.toggle.checkbox[data-name={{ widget.name }}]').checkbox({
-        onChecked: () {$('input[type=hidden][name={{ widget.name }}]').val(1)},
-        onUnhecked: () {$('input[type=hidden][name={{ widget.name }}]').val(0)},
+        onChecked: () => {$('input[type=hidden][name={{ widget.name }}]').val(1)},
+        onUnchecked: () => {$('input[type=hidden][name={{ widget.name }}]').val(0)},
     });
 </script>
