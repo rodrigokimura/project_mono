@@ -1770,8 +1770,7 @@ function addNewTagInput(containerElement) {
         values: COLOR_VALUES,
         context: '.tags.modal .content',
     });
-    el.find('.delete.button.new-tag').off();
-    el.find('.delete.button.new-tag').click(e => {
+    el.find('.delete.button.new-tag').off().click(e => {
         $(e.target).closest('form').remove();
     })
 }
@@ -1854,9 +1853,9 @@ async function showManageTagsModal(allowMultiple = false, fromCardModal = false,
     let tagsModal = $('.ui.tags.modal');
     tagsModal.modal({
         autofocus: false,
-        allowMultiple: allowMultiple,
+        allowMultiple: false,
         onShow: () => {
-            el = tagsModal.find('.content');
+            var el = tagsModal.find('.content');
             el.empty();
             el.append(`
                 <div class="ui new-tag icon labeled green button" style="margin-bottom: 1em;">
@@ -1864,7 +1863,8 @@ async function showManageTagsModal(allowMultiple = false, fromCardModal = false,
                     Add new tag
                 </div>
             `)
-            el.find('.new-tag').click(() => {
+            el.find('.new-tag').off().click(() => {
+                console.log(el)
                 addNewTagInput(el);
             })
             $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`)
@@ -1877,6 +1877,7 @@ async function showManageTagsModal(allowMultiple = false, fromCardModal = false,
                 .always(() => { })
         },
         onApprove: () => {
+            var el = tagsModal.find('.content');
             el.find('.ui.form').each((index, form) => {
                 var id = $(form).find('input[name=id]').val();
                 var icon = $(form).find('.tag-icon').dropdown('get value');
