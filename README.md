@@ -9,10 +9,14 @@
 
 ### Experimental Android (Termux) environment
 - For `social-auth-app-django` package:
+    - `pkg install make`
     - `pkg install libffi`
     - `pkg install libcrypt`
     - `pkg install clang`
     - `pkg install rust`
+    - `pkg install openssl`
+    - `pkg install mariadb`
+    - `pkg install libjpeg-turbo`
 
 ## Useful links
 - [Django documentation](https://docs.djangoproject.com/en/3.2/)
