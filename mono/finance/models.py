@@ -11,6 +11,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import FloatField, Q, Sum, Value as V
+from django.db.models.aggregates import Avg
 from django.db.models.functions import Coalesce
 from django.template.loader import get_template
 from django.urls import reverse
@@ -517,11 +518,18 @@ class Account(models.Model):
             month,
             self.due_date,
         )
-        range_end = datetime(
-            year,
-            month + 1,
-            self.due_date,
-        )
+        if month == 12:
+            range_end = datetime(
+                year + 1,
+                1,
+                self.due_date,
+            )
+        else:
+            range_end = datetime(
+                year,
+                month + 1,
+                self.due_date,
+            )
         qs = qs.filter(
             timestamp__range=[range_start, range_end],
         )
@@ -1107,3 +1115,72 @@ class Subscription(models.Model):
     #     self.cancel_at = None
     #     self.plan = Plan.objects.get(type=Plan.FREE)
     #     self.save()
+
+
+class Chart(models.Model):
+    TYPE_CHOICES = [
+        ('bar', _('Bar')),
+        ('line', _('Line')),
+        ('column', _('Column')),
+    ]
+    METRIC_CHOICES = [
+        ('count', _('Count')),
+        ('sum', _('Sum')),
+        ('avg', _('Average')),
+    ]
+    FIELD_CHOICES = [
+        ('transaction', _('Transaction')),
+        ('transference', _('Transference')),
+        ('recurrent_transaction', _('Recurrent Transaction')),
+        ('installment', _('Installment')),
+    ]
+    AXIS_CHOICES = [
+        ('year', _('Year')),
+        ('month', _('Month')),
+        ('week', _('Week')),
+    ]
+    CATEGORY_CHOICES = [
+        ('none', _('None')),
+        ('category', _('Category')),
+        ('type', _('Type')),
+    ]
+    type = models.CharField(max_length=100, choices=TYPE_CHOICES, default='bar')
+    metric = models.CharField(max_length=100, choices=METRIC_CHOICES, default='sum')
+    field = models.CharField(max_length=100, choices=FIELD_CHOICES, default='transaction')
+    axis = models.CharField(max_length=100, choices=AXIS_CHOICES, default='month')
+    category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, default='category')
+    # filters = models.ManyToManyField(Filter, blank=True)
+
+    def __str__(self):
+        return self.type
+
+    def apply_field(self):
+        if self.field == 'transaction':
+            qs = Transaction.objects.all()
+        elif self.field == 'transference':
+            qs = Transference.objects.all()
+        elif self.field == 'recurrent_transaction':
+            qs = RecurrentTransaction.objects.all()
+        elif self.field == 'installment':
+            qs = Installment.objects.all()
+        else:
+            raise Exception("Invalid field")
+        return qs
+
+    def apply_metric(self):
+        if self.metric == 'count':
+            qs = self.apply_field().count()
+        elif self.metric == 'sum':
+            qs = self.apply_field().aggregate(Sum('amount'))['amount__sum']
+        elif self.metric == 'avg':
+            qs = self.apply_field().aggregate(Avg('amount'))['amount__avg']
+        else:
+            raise Exception("Invalid metric")
+        return qs
+
+    @property
+    def data(self):
+        qs = self.apply_field()
+        qs = self.apply_metric
+        return qs
+    # soma de gastos por mês, por categoria
