@@ -517,11 +517,19 @@ class Account(models.Model):
             month,
             self.due_date,
         )
-        range_end = datetime(
-            year,
-            month + 1,
-            self.due_date,
-        )
+        else:
+        if month == 12:
+            range_end = datetime(
+                year + 1,
+                1,
+                self.due_date,
+            )
+        else:
+            range_end = datetime(
+                year,
+                month + 1,
+                self.due_date,
+            )
         qs = qs.filter(
             timestamp__range=[range_start, range_end],
         )
