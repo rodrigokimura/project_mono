@@ -386,3 +386,7 @@ if APP_ENV == 'TEST':
     import warnings
 
     warnings.simplefilter("ignore", Warning)
+
+ADMINS = [
+    ('Rodrigo Eiti Kimura', 'rodrigoeitikimura@gmail.com'),
+]
