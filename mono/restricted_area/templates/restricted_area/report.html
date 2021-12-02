@@ -1,0 +1,54 @@
+{% extends "restricted_area/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block head %}
+{% endblock head %}
+
+{% block main %}
+    
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+
+        <div class="row">
+            <div class="column">
+                <div class="ui styled fluid accordion">
+                    {% for app, m in models.items %}
+                        {% if m.items %}
+                        <div class="title">
+                            <i class="dropdown icon"></i>
+                            {{ app }}
+                        </div>
+                        <div class="content">
+                            <table class="ui fixed celled striped table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for name, qs in m.items %}
+                                    <tr>
+                                        <td data-label="Name">{{ name }}</td>
+                                        <td data-label="Count">{{ qs.count }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $('.ui.accordion').accordion({
+            exclusive: false
+        });
+    </script>
+
+
+{% endblock %}

@@ -45,7 +45,7 @@
 			"group": "build",
 			"dependsOrder": "sequence",
 			"dependsOn": [
-				"Django - Collect Static Files",
+				// "Django - Collect Static Files",
 				"Django - Make migrations",
 				"Django - Migrate",
 			],
