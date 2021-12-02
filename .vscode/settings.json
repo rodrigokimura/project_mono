@@ -19,6 +19,8 @@
     "python.formatting.provider": "autopep8",
     "conventionalCommits.scopes": [
         "project_manager",
-        "finance"
+        "finance",
+        "watcher",
+        "mono"
     ],
 }

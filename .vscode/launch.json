@@ -37,8 +37,8 @@
         {
             "name": "Server/Tasks",
             "configurations": [
+                "[MONO] Process Background Tasks",
                 "[MONO] Dev Server",
-                "[MONO] Process Background Tasks"
             ],
             "preLaunchTask": "Django - Full Build"
         }

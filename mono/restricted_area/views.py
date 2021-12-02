@@ -1,6 +1,8 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic.base import TemplateView, View
 
+from .report import Report
+
 
 class IndexView(UserPassesTestMixin, TemplateView):
 
@@ -25,3 +27,16 @@ class ViewError500View(UserPassesTestMixin, TemplateView):
 
     def test_func(self):
         return self.request.user.is_superuser
+
+
+class ReportView(UserPassesTestMixin, TemplateView):
+
+    template_name = 'restricted_area/report.html'
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['models'] = Report().get_models()
+        return context
