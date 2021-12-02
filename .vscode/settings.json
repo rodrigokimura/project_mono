@@ -21,6 +21,7 @@
         "project_manager",
         "finance",
         "watcher",
-        "mono"
+        "mono",
+        "restricted_area"
     ],
 }
