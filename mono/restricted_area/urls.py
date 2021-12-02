@@ -11,6 +11,11 @@ urlpatterns = [
         name='index'
     ),
     path(
+        'report/',
+        views.ReportView.as_view(),
+        name='report'
+    ),
+    path(
         'force-error-500/',
         views.ForceError500View.as_view(),
         name='force-error-500'
