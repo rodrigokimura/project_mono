@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Issue
-from .serializers import IssueResolverSerializer, IssueIgnorerSerializer
+from .serializers import IssueIgnorerSerializer, IssueResolverSerializer
 
 
 class RootView(UserPassesTestMixin, TemplateView):
@@ -19,21 +19,29 @@ class RootView(UserPassesTestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # a = 1 / 0
-        # test
         context['unresolved_issues'] = Issue.objects.filter(resolved_at__isnull=True)
         context['resolved_issues'] = Issue.objects.exclude(resolved_at__isnull=True)
         return context
 
+    def dispatch(self, *args, **kwargs):
+        # avoid bfcache
+        response = super().dispatch(*args, **kwargs)
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        return response
+
 
 class IssueDetailView(DetailView):
     model = Issue
+
 
 def get_issue(pk):
     try:
         return Issue.objects.get(pk=pk)
     except Issue.DoesNotExist:
         raise Http404
+
 
 class IssueResolveAPIView(LoginRequiredMixin, APIView):
 
