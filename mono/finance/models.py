@@ -440,27 +440,8 @@ class Account(models.Model):
         qs = Transaction.objects.filter(account=self.pk)
         return qs.count()
 
-    def get_credit_card_expenses(self, year, month):
-        if not self.credit_card:
-            raise Exception('Account is not of type credit card.')
-        qs = self.transaction_set.all()
-        qs = qs.filter(category__type='EXP')
-        if self.settlement_date >= 15:
-            month -= 1
-        range_start = datetime(
-            year,
-            month,
-            self.settlement_date,
-        )
-        range_end = datetime(
-            year,
-            month + 1,
-            self.settlement_date,
-        )
-        qs = qs.filter(
-            timestamp__range=[range_start, range_end],
-        )
-        coalesce_sum = Coalesce(
+    def _get_coalesce_sum(self):
+        return Coalesce(
             Sum(
                 'amount',
                 output_field=FloatField()
@@ -468,55 +449,17 @@ class Account(models.Model):
             V(0),
             output_field=FloatField()
         )
-        return qs.aggregate(
-            sum=-coalesce_sum
-        )['sum']
 
-    def get_credit_card_adjustments(self, year, month):
+    def _get_credit_card_transactions(self, year, month):
         if not self.credit_card:
             raise Exception('Account is not of type credit card.')
         qs = self.transaction_set.all()
-        qs = qs.filter(category__type='INC').filter(category__internal_type='ADJ')
         if self.settlement_date >= 15:
             month -= 1
         range_start = datetime(
             year,
             month,
             self.settlement_date,
-        )
-        range_end = datetime(
-            year,
-            month + 1,
-            self.settlement_date,
-        )
-        qs = qs.filter(
-            timestamp__range=[range_start, range_end],
-        )
-        coalesce_sum = Coalesce(
-            Sum(
-                'amount',
-                output_field=FloatField()
-            ),
-            V(0),
-            output_field=FloatField()
-        )
-        return qs.aggregate(
-            sum=coalesce_sum
-        )['sum']
-
-    def get_credit_card_payments(self, year, month):
-        if not self.credit_card:
-            raise Exception('Account is not of type credit card.')
-        qs = self.transaction_set.all()
-        qs = qs.filter(category__type='INC')
-        if self.settlement_date >= 15:
-            month -= 1
-        if self.due_date < self.settlement_date:
-            month += 1
-        range_start = datetime(
-            year,
-            month,
-            self.due_date,
         )
         if month == 12:
             range_end = datetime(
@@ -528,19 +471,33 @@ class Account(models.Model):
             range_end = datetime(
                 year,
                 month + 1,
-                self.due_date,
+                self.settlement_date,
             )
         qs = qs.filter(
             timestamp__range=[range_start, range_end],
         )
-        coalesce_sum = Coalesce(
-            Sum(
-                'amount',
-                output_field=FloatField()
-            ),
-            V(0),
-            output_field=FloatField()
-        )
+        return qs
+
+    def get_credit_card_expenses(self, year, month):
+        qs = self._get_credit_card_transactions(year, month)
+        qs = qs.filter(category__type='EXP')
+        coalesce_sum = self._get_coalesce_sum()
+        return qs.aggregate(
+            sum=-coalesce_sum
+        )['sum']
+
+    def get_credit_card_adjustments(self, year, month):
+        qs = self._get_credit_card_transactions(year, month)
+        qs = qs.filter(category__type='INC').filter(category__internal_type='ADJ')
+        coalesce_sum = self._get_coalesce_sum()
+        return qs.aggregate(
+            sum=coalesce_sum
+        )['sum']
+
+    def get_credit_card_payments(self, year, month):
+        qs = self._get_credit_card_transactions(year, month)
+        qs = qs.filter(category__type='INC')
+        coalesce_sum = self._get_coalesce_sum()
         return qs.aggregate(
             sum=coalesce_sum
         )['sum']
