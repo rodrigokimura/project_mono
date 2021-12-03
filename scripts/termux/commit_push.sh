@@ -7,5 +7,3 @@ read -p "Commit message: " message
 git commit -m "$message"
 git push
 exit 1
-
-LDFLAGS="-L/system/lib/" CFLAGS="-I/data/data/com.termux/files/usr/include/" pipenv install Pillow
