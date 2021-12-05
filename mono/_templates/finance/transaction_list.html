@@ -40,7 +40,7 @@
     <form class="ui fluid form" method="GET" id="filter">
       <div class="field">
         <label>{% translate "Category" %}</label>
-        <div class="ui search multiple selection dropdown" data-name="category">
+        <div class="ui search multiple selection filter dropdown" data-name="category">
           <input type="hidden" name="category">
           <div class="text"></div>
           <i class="dropdown icon"></i>
@@ -48,7 +48,7 @@
       </div>
       <div class="field">
         <label>{% translate "Account" %}</label>
-        <div class="ui search multiple selection dropdown" data-name="account">
+        <div class="ui search multiple selection filter dropdown" data-name="account">
           <input type="hidden" name="account">
           <div class="text"></div>
           <i class="dropdown icon"></i>
@@ -252,7 +252,7 @@
   <div class="header">
     {% translate "Transaction" %}
   </div>
-  <div class="scrolling content">
+  <div class="content">
     <div class="ui transaction form">
       <div class="ui secondary menu" id="transaction-type">
         {% for value, text in transaction_types %}
@@ -279,28 +279,6 @@
         <label>{% translate "Account" %}</label>
         <select name="account" class="ui search selection dropdown" id="accounts-dropdown"></select>
         <div class="ui basic red pointing label" style="display:none;" data-name="account"></div>
-        <script>
-          $('#accounts-dropdown').dropdown({
-            placeholder: '{% translate "Account" %}',
-            apiSettings: {
-              url: '/fn/api/accounts/',
-              cache: false,
-              successTest: r => r.count > 0,
-              onResponse: r => {
-                results = r.results
-                  .map(e => ({
-                    name: e.name,
-                    value: e.id,
-                  }));
-                return {
-                  count: r.count,
-                  results: results,
-                };
-              }
-            },
-            filterRemoteData: true,
-          })
-        </script>
       </div>
       <div class="two fields">
         <div class="field">
@@ -366,32 +344,6 @@
         <label>{% translate "Category" %}</label>
         <select name="category" class="ui search selection dropdown" id="categories-dropdown"></select>
         <div class="ui basic red pointing label" style="display:none;" data-name="category"></div>
-        <script>
-          $('#categories-dropdown').dropdown({
-            placeholder: '{% translate "Category" %}',
-            apiSettings: {
-              url: '/fn/api/categories/',
-              cache: false,
-              successTest: r => r.count > 0,
-              onResponse: r => {
-                results = r.results
-                  .filter(
-                    e => e.type == getTransactionType()
-                  )
-                  .map(e => ({
-                    name: e.name,
-                    value: e.id,
-                    icon: e.icon,
-                  }));
-                return {
-                  count: r.count,
-                  results: results,
-                };
-              }
-            },
-            filterRemoteData: true,
-          })
-        </script>
       </div>
       <div class="field">
         <label>{% translate "Timestamp" %}</label>
@@ -469,7 +421,7 @@
       <i class="delete icon"></i>
       {% translate "Cancel" %}
     </div>
-    <div class="ui positive icon labeled button">
+    <div class="ui positive icon labeled button" id="save-modal">
       <i class="save icon"></i>
       {% translate "Save" %}
     </div>
@@ -620,7 +572,9 @@
         onShow: () => {
           clearForm();
           $('#timestamp').calendar({
+            on: 'focus',
             today: true,
+            touchReadonly: false,
           }).calendar('set date', new Date());
         },
         onApprove: () => {
@@ -634,8 +588,86 @@
   function getTransactionType() {
     return $('#transaction-type .item.active').attr('data-value');
   }
+  
+  function initializeAccountDropdown() {
+    $('#accounts-dropdown').dropdown({
+      placeholder: '{% translate "Account" %}',
+      apiSettings: {
+        url: '/fn/api/accounts/',
+        cache: false,
+        successTest: r => r.count > 0,
+        onResponse: r => {
+          results = r.results
+            .map(e => ({
+              name: e.name,
+              value: e.id,
+            }));
+          return {
+            count: r.count,
+            results: results,
+          };
+        }
+      },
+      forceSelection: false,
+      filterRemoteData: true,
+      onChange: () => {
+        $('#categories-dropdown').dropdown('show', true);
+      },
+    })
+  }
+  function initializeCategoryDropdown() {
+    $('#categories-dropdown').dropdown({
+      placeholder: '{% translate "Category" %}',
+      apiSettings: {
+        url: '/fn/api/categories/',
+        cache: false,
+        successTest: r => r.count > 0,
+        onResponse: r => {
+          results = r.results
+            .filter(
+              e => e.type == getTransactionType()
+            )
+            .map(e => ({
+              name: e.name,
+              value: e.id,
+              icon: e.icon,
+            }));
+          return {
+            count: r.count,
+            results: results,
+          };
+        },
+      },
+      forceSelection: false,
+      filterRemoteData: true,
+      allowReselection: true,
+    })
+  }
+  
+  function onEnterTab() {
+    
+    function onEnterFocusNext(currentEl, callback) {
+      $(currentEl).on("keypress", function(e) {
+        if (e.keyCode == 13) {
+          callback();
+        }
+      });
+    }
+    
+    onEnterFocusNext(
+      'input[name=amount]',
+      () => { $('input[name=description]').select() }
+    );
+    onEnterFocusNext(
+      'input[name=description]',
+      () => { $('#accounts-dropdown').dropdown('show') }
+    );
+  }
 
   $(document).ready(e => {
+    initializeAccountDropdown();
+    initializeCategoryDropdown();
+    onEnterTab();
     $('select[name=from_account]').closest('.fields').hide('swing');
     $('#transaction-type .item').on('click', e => {
       $('#transaction-type .item').removeClass('active');
@@ -677,7 +709,7 @@
     });
   })
 
-  $('.ui.dropdown[data-name=category]').dropdown({
+  $('.ui.filter.dropdown[data-name=category]').dropdown({
     placeholder: "{% translate 'Select a category' %}",
     forceSelection: false,
     values: [
@@ -692,7 +724,7 @@
       {% endfor %}
     ]
   });
-  $('.ui.dropdown[data-name=account]').dropdown({
+  $('.ui.filter.dropdown[data-name=account]').dropdown({
     placeholder: "{% translate 'Select an account' %}",
     forceSelection: false,
     values: [
