@@ -326,19 +326,6 @@
   </div>
 </div>
 <script>
-  w = 0;
-  s = $('.ui.apps.button').siblings('.ui.button');
-  for (i=0; i<s.length; i++) {
-    w += $(s[i]).outerWidth();
-  }
-  $('.apps').popup(
-    {
-      on: 'click',
-      hoverable: true,
-      position:	"bottom right",
-      forcePosition: true,
-      offset: w
-    }
-  );
+  initializeAppsPopup('.ui.apps.button', '.ui.button');
 </script>
 {% endblock body %}
