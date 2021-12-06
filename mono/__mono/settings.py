@@ -312,7 +312,8 @@ else:
         'formatters': {
             'django.server': {
                 '()': 'django.utils.log.ServerFormatter',
-                'format': '[{server_time}] {message}',
+                'format': '\033[1;34m[{asctime}]\033[0m {message}',
+                'datefmt' : '%Y-%m-%d %H:%M:%S', 
                 'style': '{',
             }
         },
@@ -386,7 +387,3 @@ if APP_ENV == 'TEST':
     import warnings
 
     warnings.simplefilter("ignore", Warning)
-
-ADMINS = [
-    ('Rodrigo Eiti Kimura', 'rodrigoeitikimura@gmail.com'),
-]

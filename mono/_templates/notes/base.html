@@ -21,25 +21,6 @@
   </div>
 </div>
 <script>
-  w = 0;
-  s = $('.ui.apps.item').siblings('.ui.item');
-  for (i=0; i<s.length; i++) {
-    w += $(s[i]).outerWidth();
-  }
-  $('.ui.apps.item').popup(
-    {
-      on: 'click',
-      hoverable: true,
-      position:	"bottom right",
-      forcePosition: true,
-      offset: w,
-      onShow: () => {
-        $('.ui.apps.item').addClass('active')
-      },
-      onHide: () => {
-        $('.ui.apps.item').removeClass('active')
-      }
-    }
-  );
+  initializeAppsPopup('.ui.apps.item', '.ui.item');
 </script>
 {% endblock body %}

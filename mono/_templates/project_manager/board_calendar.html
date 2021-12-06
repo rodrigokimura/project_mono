@@ -59,7 +59,7 @@
 {% block menu %}
     <a class="left-sidebar item"><i class="sidebar icon"></i></a>
     <a class="refresh item"><i class="refresh icon"></i></a>
-    <a class="item" href="{% url 'project_manager:board_detail' project_pk=object.project.id pk=object.id %}"><i class="calendar alternate icon"></i>Board view</a>
+    <a class="item" href="{% url 'project_manager:board_detail' project_pk=object.project.id pk=object.id %}"><i class="columns icon"></i></a>
     <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;"></div>
 {% endblock menu %}
 
