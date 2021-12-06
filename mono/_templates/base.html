@@ -41,6 +41,32 @@
       return cookieValue;
     }
     const csrftoken = getCookie('csrftoken');
+    function initializeAppsPopup(buttonSelector, siblingSelector) {
+      w = 0;
+      s = $(buttonSelector).siblings(siblingSelector);
+      for (i=0; i<s.length; i++) {
+        w += $(s[i]).outerWidth();
+      }
+      $(buttonSelector).popup(
+        {
+          on: 'click',
+          hoverable: true,
+          delay: {
+            show: 0,
+            hide: 10000
+          },  
+          position:	"bottom right",
+          forcePosition: true,
+          offset: w,
+          onShow: () => {
+            $(buttonSelector).addClass('active')
+          },
+          onHide: () => {
+            $(buttonSelector).removeClass('active')
+          }
+        }
+      );
+    }
   </script>
   {% block head %}{% endblock head %}
 </head>

@@ -45,4 +45,4 @@ urlpatterns = [
 
 # Aesthetics-only
 logger = logging.getLogger(__name__)
-logger.warning(ascii_art_1)
+logger.warning(f'\033[1;32m{ascii_art_1}\033[0m')
