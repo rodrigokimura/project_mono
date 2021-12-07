@@ -5,6 +5,9 @@
 {% block head %}
   <script src="{% static 'js/dragula.min.js' %}"></script>
   <link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
+  <style>
+    .grip.lines.icon { cursor: move; }
+  </style>
 {% endblock head %}
 
 {% block main %}
@@ -54,7 +57,7 @@
     );
   }
 
-  let getCardsArray = () => {
+  function getCardsArray() {
     arr = []
     $('#drag').children().each(
       (index) => {
@@ -67,26 +70,34 @@
     return arr;
   }
 
-  $('.submit.button').api(
-    {
-      action: 'set card order',
-      method: 'POST',
-      mode: 'same-origin',
-      headers: {'X-CSRFToken': csrftoken},
-      
-      beforeSend: settings => {
-        settings.data = {cards: getCardsArray().toString()};
-        return settings;
-      },
-      cache: false,
-      onSuccess: () => {
-        $('.submit.button').state('flash text', '{% translate "Success!" %}');
-        window.location = '/fn'
-      },
-      onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
-      onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+  function initializeSaveButton() {
+    $('.submit.button').api(
+      {
+        url: "{% url 'finance:card_order' %}",
+        method: 'POST',
+        mode: 'same-origin',
+        headers: {'X-CSRFToken': csrftoken},
+        
+        beforeSend: settings => {
+          settings.data = {cards: getCardsArray().toString()};
+          return settings;
+        },
+        cache: false,
+        onSuccess: () => {
+          $('.submit.button').state('flash text', '{% translate "Success!" %}');
+          window.location = '/fn'
+        },
+        onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
+        onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+      }
+    );
+  }
+
+  $(document).ready(
+    () => {
+      initializeSaveButton();
     }
-  )
+  );
 
 </script>
 
