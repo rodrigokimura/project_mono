@@ -30,6 +30,7 @@ asgiref = "*"
 bleach = "*"
 cachetools = "*"
 markdown-checklist = "*"
+django-multiselectfield = "*"
 
 [dev-packages]
 autopep8 = "*"

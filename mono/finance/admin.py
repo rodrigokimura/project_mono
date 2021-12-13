@@ -198,6 +198,26 @@ class InviteAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(models.Chart)
+class ChartAdmin(admin.ModelAdmin):
+    list_display = [
+        "type",
+        "metric",
+        "field",
+        "axis",
+        "category",
+        "filters",
+    ]
+    list_filter = [
+        "type",
+        "metric",
+        "field",
+        "axis",
+        "category",
+        "filters",
+    ]
+
+
 @admin.register(models.Configuration)
 class ConfigurationAdmin(admin.ModelAdmin):
     list_display = [

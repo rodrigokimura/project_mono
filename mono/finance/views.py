@@ -14,6 +14,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.db.models import F, FloatField, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
 from django.http import HttpResponse, JsonResponse
+from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.urls.base import reverse
@@ -22,13 +23,15 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic.base import RedirectView, TemplateView
+from django.views.generic.base import TemplateView
 from django.views.generic.dates import MonthArchiveView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
     CreateView, DeleteView, FormView, UpdateView,
 )
 from django.views.generic.list import ListView
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from social_django.models import UserSocialAuth
 
 from .forms import (
@@ -38,9 +41,9 @@ from .forms import (
 )
 from .mixins import PassRequestToFormViewMixin
 from .models import (
-    Account, Budget, BudgetConfiguration, Category, Configuration, Goal, Group,
-    Icon, Installment, Invite, Notification, Plan, RecurrentTransaction,
-    Subscription, Transaction, Transference,
+    Account, Budget, BudgetConfiguration, Category, Chart, Configuration, Goal,
+    Group, Icon, Installment, Invite, Plan, RecurrentTransaction, Subscription,
+    Transaction, Transference,
 )
 
 
@@ -1315,3 +1318,18 @@ class ChartsView(LoginRequiredMixin, TemplateView):
         context['transactions_by_month_this_year'] = transactions_by_month_this_year
 
         return context
+
+
+class ChartDataApiView(LoginRequiredMixin, APIView):
+
+    def get_object(self, pk):
+        try:
+            return Chart.objects.get(pk=pk)
+        except Chart.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        chart = self.get_object(pk)
+        data = chart.data
+
+        return Response(data)

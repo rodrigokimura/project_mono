@@ -60,7 +60,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'social_django',
     'markdownx',
-    # 'debug_toolbar',
+    'multiselectfield',
     'captcha',
     'background_task',
     'feedback',
@@ -313,7 +313,7 @@ else:
             'django.server': {
                 '()': 'django.utils.log.ServerFormatter',
                 'format': '\033[1;34m[{asctime}]\033[0m {message}',
-                'datefmt' : '%Y-%m-%d %H:%M:%S', 
+                'datefmt': '%Y-%m-%d %H:%M:%S',
                 'style': '{',
             }
         },
