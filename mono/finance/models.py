@@ -1178,11 +1178,29 @@ class Chart(models.Model):
 
     def apply_metric(self, qs: QuerySet):
         if self.metric == 'count':
-            qs = qs.annotate(metric=Count('amount'))
+            qs = qs.annotate(
+                metric=Coalesce(
+                    Count('amount'),
+                    V(0),
+                    output_field=models.IntegerField()
+                )
+            )
         elif self.metric == 'sum':
-            qs = qs.annotate(metric=Sum('amount'))
+            qs = qs.annotate(
+                metric=Coalesce(
+                    Sum('amount'),
+                    V(0),
+                    output_field=models.FloatField()
+                )
+            )
         elif self.metric == 'avg':
-            qs = qs.annotate(metric=Avg('amount'))
+            qs = qs.annotate(
+                metric=Coalesce(
+                    Avg('amount'),
+                    V(0),
+                    output_field=models.FloatField()
+                )
+            )
         else:
             raise NotImplementedError('Metric not implemented')
         return qs
@@ -1243,10 +1261,115 @@ class Chart(models.Model):
 
     @property
     def data(self):
+        """
+        var options = {
+            series: [
+                {
+                    name: 'Net Profit',
+                    data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
+                },
+                {
+                    name: 'Revenue',
+                    data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
+                },
+                {
+                    name: 'Free Cash Flow',
+                    data: [35, 41, 36, 26, 45, 48, 52, 53, 41]
+                }
+            ],
+            chart: {
+                type: 'bar',
+                height: 350
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '55%',
+                    endingShape: 'rounded'
+                },
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                show: true,
+                width: 2,
+                colors: ['transparent']
+            },
+            xaxis: {
+                categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+            },
+            yaxis: {
+                title: {
+                    text: '$ (thousands)'
+                }
+            },
+            fill: {
+                opacity: 1
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                    return "$ " + val + " thousands"
+                    }
+                }
+            }
+        };
+        """
         qs = self.apply_field()
         qs = self.apply_filter(qs)
         qs = self.apply_axis(qs)
         qs = self.apply_metric(qs)
         qs = self.apply_category(qs)
-        qs = qs.values('axis', 'categ', 'metric').order_by('axis', 'categ')
+        qs = qs.values('categ', 'axis', 'metric').order_by('categ', 'axis')
+        data = list(qs)
+        axes = list(map(lambda x: x['axis'], qs.order_by().values('axis').distinct()))
+
+        appex_format_data = {
+            'series': [],
+            'xaxis': {
+                'categories': axes,
+            },
+            'yaxis': {
+                'title': {
+                    'text': self.get_field_display()
+                }
+            },
+            'chart': {
+                'type': self.type,
+                'height': 350
+            },
+            'plotOptions': {
+                'bar': {
+                    'horizontal': False,
+                    # 'columnWidth': '55%',
+                    # 'endingShape': 'rounded'
+                },
+            },
+            'dataLabels': {
+                'enabled': False
+            },
+        }
+
+        for categ in qs.order_by().values('categ').distinct():
+            categ = categ['categ']
+            appex_format_data['series'].append(
+                {
+                    'name': categ,
+                    'data': [],
+                }
+            )
+
+            for ax in axes:
+                filtered_data = list(filter(lambda x: x['axis'] == ax and x['categ'] == categ, data))
+                if filtered_data:
+                    appex_format_data['series'][-1]['data'].append(filtered_data[0]['metric'])
+                else:
+                    appex_format_data['series'][-1]['data'].append(0)
+
+            #     appex_format_data['series'][-1]['data'] = []
+            #     qs
+        from pprint import pp
+        pp(appex_format_data)
+        return appex_format_data
         return qs
