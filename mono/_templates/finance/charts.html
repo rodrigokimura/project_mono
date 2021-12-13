@@ -4,110 +4,68 @@
 
 {% block head %}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
+<style>
+  .charts-container {
+    padding: 0 1em 0 1em;
+  }
+  @media only screen and (max-width: 640px) {
+    .charts-container {
+      padding: 0;
+    }
+  }
+  .card .content {
+    min-height: 350px;
+  }
+</style>
 {% endblock head %}
 
 {% block main %}
-<div class="ui stackable grid container">
-
-  <div class="ui four wide column"></div>
-
-  <div class="ui eight wide column ">
-    <div class="row">
-      <div class="ui icon warning message" style="margin-bottom: 1rem;">
-        <i class="exclamation icon"></i>
-        <div class="content">
-          <div class="header">
-            {% translate "Attention" %}
-          </div>
-          <p>{% translate "Please, be aware that this is still a work in progress page!" %}</p>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      
-      <div class="ui segment">
-        <div id="chart"></div>
-      </div>
-      <div class="ui segment">
-        <div id="chart2"></div>
-      </div>
-
-    </div>
+<div class="charts-container">  
+  <div class="ui stackable grid" id="charts">
   </div>
-  
-  <div class="ui four column wide"></div>
 </div>
 
 <script>
-  var options = {
-    chart: {
-      type: 'bar',
-      fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;"
-    },
-    plotOptions: {
-      bar: {
-        borderRadius: 4,
-        horizontal: true,
-      }
-    },
-    series: [
-      {
-        name: 'Total',
-        data: [
-        {% for t in transactions_by_category %}
-        Math.round({{ t.sum }}*100)/100,
-        {% endfor %}
-        ]
-      }
-    ],
-    xaxis: {
-      categories: [
-      {% for t in transactions_by_category %}
-      "{{ t.category__name }}",
-      {% endfor %}
-      ]
-    }
+
+  function getCharts() {
+    chartsEl = $('#charts');
+    $.api({
+      on: "now",
+      url: `/fn/api/charts/`,
+      headers: { 'X-CSRFToken': csrftoken },
+      onSuccess: r => {
+        chartIds = r.data;
+        chartsEl.empty();
+        for (id of chartIds) {
+          chartsEl.append(`
+            <div class="ui eight wide column">
+              <div class="ui fluid card">
+                <div class="content" id="chart-${id}"></div>
+              </div>
+            </div>
+          `)
+          renderChart(id);
+        }
+      },
+    });
   }
-  
-  var chart = new ApexCharts(document.querySelector('#chart'), options)
-  chart.render()
-  
-  var options2 = {
-    chart: {
-      type: 'bar',
-      fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;"
-    },
-    dataLabels: {
-      enabled: false
-    },
-    plotOptions: {
-      bar: {
-        borderRadius: 4,
-        horizontal: false,
-      }
-    },
-    series: [
-      {
-        name: 'Total',
-        data: [
-        {% for t in transactions_by_month_this_year %}
-        Math.round({{ t.sum }}*100)/100,
-        {% endfor %}
-        ]
-      }
-    ],
-    xaxis: {
-      categories: [
-      {% for t in transactions_by_month_this_year %}
-      "{{ t.timestamp__month }}",
-      {% endfor %}
-      ]
-    }
+
+  function renderChart(chartId) {
+    $.api({
+      on: "now",
+      url: `/fn/api/charts/${chartId}/`,
+      headers: { 'X-CSRFToken': csrftoken },
+      stateContext: `#chart-${chartId}`,
+      onSuccess: r => {
+        chart = new ApexCharts($(`#chart-${chartId}`)[0], r.data);
+        chart.render();
+      },
+    });
   }
-  
-  var chart2 = new ApexCharts(document.querySelector('#chart2'), options2)
-  chart2.render()
+
+  $(document).ready(e => {
+    getCharts();
+  })
 
 </script>
 {% endblock main %}
