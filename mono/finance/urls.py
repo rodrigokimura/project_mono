@@ -90,7 +90,8 @@ urlpatterns = [
     path('card-order/', views.CardOrderView.as_view(), name='card_order'),
 
     path('charts/', views.ChartsView.as_view(), name='charts'),
-    path('charts/<int:pk>/', views.ChartDataApiView.as_view(), name='chart_data'),
+    path('api/charts/<int:pk>/', views.ChartDataApiView.as_view(), name='chart_data'),
+    path('api/charts/', views.ChartListApiView.as_view(), name='chart_list'),
 
     path('restricted-area/', views.RestrictedAreaView.as_view(), name='restricted_area'),
 ]

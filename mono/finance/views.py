@@ -1332,4 +1332,18 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
         chart = self.get_object(pk)
         data = chart.data
 
-        return Response(data)
+        return Response({
+            'success': True,
+            'data': data
+        })
+
+
+class ChartListApiView(LoginRequiredMixin, APIView):
+
+    def get(self, request, format=None):
+        charts = request.user.charts.all()
+
+        return Response({
+            'success': True,
+            'data': [c.id for c in charts]
+        })
