@@ -10,9 +10,9 @@ from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import FloatField, Q, Sum, Value as V
+from django.db.models import FloatField, Q, Sum
 from django.db.models.aggregates import Avg, Count
-from django.db.models.expressions import F, Func, Value
+from django.db.models.expressions import F, Func, Value as V
 from django.db.models.functions import Coalesce
 from django.db.models.functions.datetime import (
     TruncMonth, TruncWeek, TruncYear,
@@ -1215,7 +1215,7 @@ class Chart(models.Model):
             qs = qs.annotate(
                 axis=Func(
                     F('date'),
-                    Value(format),
+                    V(format[db_engine]),
                     function='DATE_FORMAT',
                     output_field=models.CharField()
                 )
@@ -1223,7 +1223,7 @@ class Chart(models.Model):
         elif db_engine == "django.db.backends.sqlite3":
             qs = qs.annotate(
                 axis=Func(
-                    Value(format[db_engine]),
+                    V(format[db_engine]),
                     F('date'),
                     function='strftime',
                     output_field=models.CharField()
