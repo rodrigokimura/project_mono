@@ -11,12 +11,18 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import FloatField, Q, Sum, Value as V
-from django.db.models.aggregates import Avg
+from django.db.models.aggregates import Avg, Count
+from django.db.models.expressions import F, Func, Value
 from django.db.models.functions import Coalesce
+from django.db.models.functions.datetime import (
+    TruncMonth, TruncWeek, TruncYear,
+)
+from django.db.models.query import QuerySet
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from multiselectfield import MultiSelectField
 
 User = get_user_model()
 
@@ -1097,19 +1103,40 @@ class Chart(models.Model):
         ('week', _('Week')),
     ]
     CATEGORY_CHOICES = [
-        ('none', _('None')),
         ('category', _('Category')),
         ('type', _('Type')),
+    ]
+    FILTER_CHOICES = [
+        ('expenses', _('Expenses')),
+        ('incomes', _('Incomes')),
+        ('balance_adjustments', _('Balance adjustments')),
+        ('not_balance_adjustments', _('Not balance adjustments')),
+        ('transferences', _('Transferences')),
+        ('not_transferences', _('Not transferences')),
+        ('current_year', _('Current year')),
+        ('past_year', _('Past year')),
+        ('current_month', _('Current month')),
+        ('past_month', _('Past month')),
     ]
     type = models.CharField(max_length=100, choices=TYPE_CHOICES, default='bar')
     metric = models.CharField(max_length=100, choices=METRIC_CHOICES, default='sum')
     field = models.CharField(max_length=100, choices=FIELD_CHOICES, default='transaction')
     axis = models.CharField(max_length=100, choices=AXIS_CHOICES, default='month')
-    category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, default='category')
-    # filters = models.ManyToManyField(Filter, blank=True)
+    category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, default='category', null=True, blank=True)
+    filters = MultiSelectField(choices=FILTER_CHOICES, null=True, blank=True, default=None)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='charts')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.type
+        text = (
+            f"{self.get_metric_display()} of {self.get_field_display()} by {self.get_axis_display()}"
+        )
+        if self.category:
+            text += f" grouped by {self.get_category_display()}"
+        if self.filters:
+            text += f" filtered by {self.get_filters_display()}"
+        return text
 
     def apply_field(self):
         if self.field == 'transaction':
@@ -1121,23 +1148,106 @@ class Chart(models.Model):
         elif self.field == 'installment':
             qs = Installment.objects.all()
         else:
-            raise Exception("Invalid field")
+            raise NotImplementedError('Field not implemented')
         return qs
 
-    def apply_metric(self):
+    def apply_filter(self, qs: QuerySet):
+        if 'none' in self.filters:
+            qs = qs
+        if 'expenses' in self.filters:
+            qs = qs.filter(category__type=Category.EXPENSE)
+        if 'incomes' in self.filters:
+            qs = qs.filter(category__type=Category.INCOME)
+        if 'balance_adjustments' in self.filters:
+            qs = qs.filter(category__internal_type=Category.ADJUSTMENT)
+        if 'not_balance_adjustments' in self.filters:
+            qs = qs.exclude(category__internal_type=Category.ADJUSTMENT)
+        if 'transferences' in self.filters:
+            qs = qs.filter(category__internal_type=Category.TRANSFER)
+        if 'not_transferences' in self.filters:
+            qs = qs.exclude(category__internal_type=Category.TRANSFER)
+        if 'current_year' in self.filters:
+            qs = qs.filter(timestamp__year=timezone.now().year)
+        if 'past_year' in self.filters:
+            qs = qs.filter(timestamp__year=timezone.now().year - 1)
+        if 'current_month' in self.filters:
+            qs = qs.filter(timestamp__month=timezone.now().month)
+        if 'past_month' in self.filters:
+            qs = qs.filter(timestamp__month=timezone.now().month - 1)
+        return qs
+
+    def apply_metric(self, qs: QuerySet):
         if self.metric == 'count':
-            qs = self.apply_field().count()
+            qs = qs.annotate(metric=Count('amount'))
         elif self.metric == 'sum':
-            qs = self.apply_field().aggregate(Sum('amount'))['amount__sum']
+            qs = qs.annotate(metric=Sum('amount'))
         elif self.metric == 'avg':
-            qs = self.apply_field().aggregate(Avg('amount'))['amount__avg']
+            qs = qs.annotate(metric=Avg('amount'))
         else:
-            raise Exception("Invalid metric")
+            raise NotImplementedError('Metric not implemented')
+        return qs
+
+    def apply_axis(self, qs: QuerySet):
+        print(settings.DATABASES)
+        db_engine = settings.DATABASES["default"]["ENGINE"]
+
+        if self.axis == 'year':
+            format = {
+                'django.db.backends.mysql': 'YYYY',
+                'django.db.backends.sqlite3': '%Y',
+            }
+            qs = qs.annotate(date=TruncYear('timestamp'))
+        elif self.axis == 'month':
+            format = {
+                'django.db.backends.mysql': 'YYYY-MM',
+                'django.db.backends.sqlite3': '%Y-%m',
+            }
+            qs = qs.annotate(date=TruncMonth('timestamp'))
+        elif self.axis == 'week':
+            format = {
+                'django.db.backends.mysql': 'YYYY-ww',
+                'django.db.backends.sqlite3': '%Y-%W',
+            }
+            qs = qs.annotate(date=TruncWeek('timestamp'))
+        else:
+            raise NotImplementedError('Axis not implemented')
+        if db_engine == "django.db.backends.mysql":
+            qs = qs.annotate(
+                axis=Func(
+                    F('date'),
+                    Value(format),
+                    function='DATE_FORMAT',
+                    output_field=models.CharField()
+                )
+            )
+        elif db_engine == "django.db.backends.sqlite3":
+            qs = qs.annotate(
+                axis=Func(
+                    Value(format[db_engine]),
+                    F('date'),
+                    function='strftime',
+                    output_field=models.CharField()
+                )
+            )
+        else:
+            raise NotImplementedError('Queryset not implemented for this database engine')
+        return qs
+
+    def apply_category(self, qs: QuerySet):
+        if self.category == 'category':
+            qs = qs.annotate(categ=F('category__name'))
+        elif self.category == 'type':
+            qs = qs.annotate(categ=F('category__type'))
+        else:
+            raise NotImplementedError('Category not implemented')
         return qs
 
     @property
     def data(self):
         qs = self.apply_field()
-        qs = self.apply_metric
+        qs = self.apply_filter(qs)
+        qs = self.apply_axis(qs)
+        qs = self.apply_metric(qs)
+        qs = self.apply_category(qs)
+        qs = qs.values('axis', 'categ', 'metric').order_by('axis', 'categ')
         return qs
-    # soma de gastos por mês, por categoria
