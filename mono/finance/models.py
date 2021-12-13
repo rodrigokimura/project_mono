@@ -1251,6 +1251,8 @@ class Chart(models.Model):
         return qs
 
     def apply_category(self, qs: QuerySet):
+        if self.category is None:
+            return qs.annotate(categ=V(f"{self.get_metric_display()} of {self.get_field_display()}"))
         if self.category == 'category':
             qs = qs.annotate(categ=F('category__name'))
         elif self.category == 'type':
@@ -1261,61 +1263,6 @@ class Chart(models.Model):
 
     @property
     def data(self):
-        """
-        var options = {
-            series: [
-                {
-                    name: 'Net Profit',
-                    data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
-                },
-                {
-                    name: 'Revenue',
-                    data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
-                },
-                {
-                    name: 'Free Cash Flow',
-                    data: [35, 41, 36, 26, 45, 48, 52, 53, 41]
-                }
-            ],
-            chart: {
-                type: 'bar',
-                height: 350
-            },
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    columnWidth: '55%',
-                    endingShape: 'rounded'
-                },
-            },
-            dataLabels: {
-                enabled: false
-            },
-            stroke: {
-                show: true,
-                width: 2,
-                colors: ['transparent']
-            },
-            xaxis: {
-                categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
-            },
-            yaxis: {
-                title: {
-                    text: '$ (thousands)'
-                }
-            },
-            fill: {
-                opacity: 1
-            },
-            tooltip: {
-                y: {
-                    formatter: function (val) {
-                    return "$ " + val + " thousands"
-                    }
-                }
-            }
-        };
-        """
         qs = self.apply_field()
         qs = self.apply_filter(qs)
         qs = self.apply_axis(qs)
@@ -1342,8 +1289,6 @@ class Chart(models.Model):
             'plotOptions': {
                 'bar': {
                     'horizontal': False,
-                    # 'columnWidth': '55%',
-                    # 'endingShape': 'rounded'
                 },
             },
             'dataLabels': {
@@ -1366,10 +1311,4 @@ class Chart(models.Model):
                     appex_format_data['series'][-1]['data'].append(filtered_data[0]['metric'])
                 else:
                     appex_format_data['series'][-1]['data'].append(0)
-
-            #     appex_format_data['series'][-1]['data'] = []
-            #     qs
-        from pprint import pp
-        pp(appex_format_data)
         return appex_format_data
-        return qs
