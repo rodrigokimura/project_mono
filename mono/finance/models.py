@@ -1188,24 +1188,23 @@ class Chart(models.Model):
         return qs
 
     def apply_axis(self, qs: QuerySet):
-        print(settings.DATABASES)
         db_engine = settings.DATABASES["default"]["ENGINE"]
 
         if self.axis == 'year':
             format = {
-                'django.db.backends.mysql': 'YYYY',
+                'django.db.backends.mysql': '%Y',
                 'django.db.backends.sqlite3': '%Y',
             }
             qs = qs.annotate(date=TruncYear('timestamp'))
         elif self.axis == 'month':
             format = {
-                'django.db.backends.mysql': 'YYYY-MM',
+                'django.db.backends.mysql': '%Y-%m',
                 'django.db.backends.sqlite3': '%Y-%m',
             }
             qs = qs.annotate(date=TruncMonth('timestamp'))
         elif self.axis == 'week':
             format = {
-                'django.db.backends.mysql': 'YYYY-ww',
+                'django.db.backends.mysql': '%Y-%V',
                 'django.db.backends.sqlite3': '%Y-%W',
             }
             qs = qs.annotate(date=TruncWeek('timestamp'))
