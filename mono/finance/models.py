@@ -1152,8 +1152,6 @@ class Chart(models.Model):
         return qs
 
     def apply_filter(self, qs: QuerySet):
-        if 'none' in self.filters:
-            qs = qs
         if 'expenses' in self.filters:
             qs = qs.filter(category__type=Category.EXPENSE)
         if 'incomes' in self.filters:
@@ -1271,6 +1269,7 @@ class Chart(models.Model):
         qs = qs.values('categ', 'axis', 'metric').order_by('categ', 'axis')
         data = list(qs)
         axes = list(map(lambda x: x['axis'], qs.order_by().values('axis').distinct()))
+        categs = list(map(lambda x: x['categ'], qs.order_by().values('categ').distinct()))
 
         appex_format_data = {
             'series': [],
@@ -1296,19 +1295,20 @@ class Chart(models.Model):
             },
         }
 
-        for categ in qs.order_by().values('categ').distinct():
-            categ = categ['categ']
-            appex_format_data['series'].append(
-                {
-                    'name': categ,
-                    'data': [],
-                }
-            )
-
+        for categ in categs:
+            categ_data = []
             for ax in axes:
                 filtered_data = list(filter(lambda x: x['axis'] == ax and x['categ'] == categ, data))
                 if filtered_data:
-                    appex_format_data['series'][-1]['data'].append(filtered_data[0]['metric'])
+                    categ_data.append(
+                        sum(map(lambda x: x['metric'], filtered_data))
+                    )
                 else:
-                    appex_format_data['series'][-1]['data'].append(0)
+                    categ_data.append(0)
+            appex_format_data['series'].append(
+                {
+                    'name': categ,
+                    'data': categ_data,
+                }
+            )
         return appex_format_data
