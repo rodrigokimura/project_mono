@@ -1329,12 +1329,18 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
             raise Http404
 
     def get(self, request, pk, format=None):
-        chart = self.get_object(pk)
+        chart: Chart = self.get_object(pk)
         data = chart.data
 
         return Response({
             'success': True,
-            'data': data
+            'data': {
+                'chart_type': chart.type,
+                'data_points': data,
+                'field': chart.get_field_display(),
+                'title': str(chart),
+            },
+
         })
 
 

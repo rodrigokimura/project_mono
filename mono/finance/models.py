@@ -1085,6 +1085,7 @@ class Chart(models.Model):
         ('bar', _('Bar')),
         ('line', _('Line')),
         ('column', _('Column')),
+        ('donut', _('Donut')),
     ]
     METRIC_CHOICES = [
         ('count', _('Count')),
@@ -1121,7 +1122,7 @@ class Chart(models.Model):
     type = models.CharField(max_length=100, choices=TYPE_CHOICES, default='bar')
     metric = models.CharField(max_length=100, choices=METRIC_CHOICES, default='sum')
     field = models.CharField(max_length=100, choices=FIELD_CHOICES, default='transaction')
-    axis = models.CharField(max_length=100, choices=AXIS_CHOICES, default='month')
+    axis = models.CharField(max_length=100, choices=AXIS_CHOICES, default='month', null=True, blank=True)
     category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, default='category', null=True, blank=True)
     filters = MultiSelectField(choices=FILTER_CHOICES, null=True, blank=True, default=None)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='charts')
@@ -1130,15 +1131,17 @@ class Chart(models.Model):
 
     def __str__(self):
         text = (
-            f"{self.get_metric_display()} of {self.get_field_display()} by {self.get_axis_display()}"
+            f"{self.get_metric_display()} of {self.get_field_display()}"
         )
+        if self.axis:
+            text += f" by {self.get_axis_display()}"
         if self.category:
             text += f" grouped by {self.get_category_display()}"
         if self.filters:
             text += f" filtered by {self.get_filters_display()}"
         return text
 
-    def apply_field(self):
+    def _apply_field(self):
         if self.field == 'transaction':
             qs = Transaction.objects.all()
         elif self.field == 'transference':
@@ -1151,7 +1154,7 @@ class Chart(models.Model):
             raise NotImplementedError('Field not implemented')
         return qs
 
-    def apply_filter(self, qs: QuerySet):
+    def _apply_filter(self, qs: QuerySet):
         if 'expenses' in self.filters:
             qs = qs.filter(category__type=Category.EXPENSE)
         if 'incomes' in self.filters:
@@ -1174,36 +1177,10 @@ class Chart(models.Model):
             qs = qs.filter(timestamp__month=timezone.now().month - 1)
         return qs
 
-    def apply_metric(self, qs: QuerySet):
-        if self.metric == 'count':
-            qs = qs.annotate(
-                metric=Coalesce(
-                    Count('amount'),
-                    V(0),
-                    output_field=models.IntegerField()
-                )
-            )
-        elif self.metric == 'sum':
-            qs = qs.annotate(
-                metric=Coalesce(
-                    Sum('amount'),
-                    V(0),
-                    output_field=models.FloatField()
-                )
-            )
-        elif self.metric == 'avg':
-            qs = qs.annotate(
-                metric=Coalesce(
-                    Avg('amount'),
-                    V(0),
-                    output_field=models.FloatField()
-                )
-            )
-        else:
-            raise NotImplementedError('Metric not implemented')
-        return qs
+    def _apply_axis(self, qs: QuerySet):
+        if self.axis is None:
+            return qs.annotate(axis=V("No axis"))
 
-    def apply_axis(self, qs: QuerySet):
         db_engine = settings.DATABASES["default"]["ENGINE"]
 
         if self.axis == 'year':
@@ -1248,7 +1225,36 @@ class Chart(models.Model):
             raise NotImplementedError('Queryset not implemented for this database engine')
         return qs
 
-    def apply_category(self, qs: QuerySet):
+    def _apply_metric(self, qs: QuerySet):
+        if self.metric == 'count':
+            qs = qs.annotate(
+                metric=Coalesce(
+                    Count('amount'),
+                    V(0),
+                    output_field=models.IntegerField()
+                )
+            )
+        elif self.metric == 'sum':
+            qs = qs.annotate(
+                metric=Coalesce(
+                    Sum('amount'),
+                    V(0),
+                    output_field=models.FloatField()
+                )
+            )
+        elif self.metric == 'avg':
+            qs = qs.annotate(
+                metric=Coalesce(
+                    Avg('amount'),
+                    V(0),
+                    output_field=models.FloatField()
+                )
+            )
+        else:
+            raise NotImplementedError('Metric not implemented')
+        return qs
+
+    def _apply_category(self, qs: QuerySet):
         if self.category is None:
             return qs.annotate(categ=V(f"{self.get_metric_display()} of {self.get_field_display()}"))
         if self.category == 'category':
@@ -1261,54 +1267,10 @@ class Chart(models.Model):
 
     @property
     def data(self):
-        qs = self.apply_field()
-        qs = self.apply_filter(qs)
-        qs = self.apply_axis(qs)
-        qs = self.apply_metric(qs)
-        qs = self.apply_category(qs)
+        qs = self._apply_field()
+        qs = self._apply_filter(qs)
+        qs = self._apply_axis(qs)
+        qs = self._apply_metric(qs)
+        qs = self._apply_category(qs)
         qs = qs.values('categ', 'axis', 'metric').order_by('categ', 'axis')
-        data = list(qs)
-        axes = list(map(lambda x: x['axis'], qs.order_by().values('axis').distinct()))
-        categs = list(map(lambda x: x['categ'], qs.order_by().values('categ').distinct()))
-
-        appex_format_data = {
-            'series': [],
-            'xaxis': {
-                'categories': axes,
-            },
-            'yaxis': {
-                'title': {
-                    'text': self.get_field_display()
-                }
-            },
-            'chart': {
-                'type': self.type,
-                'height': 350
-            },
-            'plotOptions': {
-                'bar': {
-                    'horizontal': False,
-                },
-            },
-            'dataLabels': {
-                'enabled': False
-            },
-        }
-
-        for categ in categs:
-            categ_data = []
-            for ax in axes:
-                filtered_data = list(filter(lambda x: x['axis'] == ax and x['categ'] == categ, data))
-                if filtered_data:
-                    categ_data.append(
-                        sum(map(lambda x: x['metric'], filtered_data))
-                    )
-                else:
-                    categ_data.append(0)
-            appex_format_data['series'].append(
-                {
-                    'name': categ,
-                    'data': categ_data,
-                }
-            )
-        return appex_format_data
+        return qs
