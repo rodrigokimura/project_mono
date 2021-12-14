@@ -68,7 +68,7 @@ function getOptions(data) {
         for (categ of categs) {
             filteredData = data['data_points'].filter(d => d.categ == categ);
             categData = filteredData.map(d => d.metric).reduce((partial_sum, a) => partial_sum + a, 0);
-            options['series'].push(categData);
+            options['series'].push(Math.round(categData * 100) / 100);
             options['labels'].push(categ);
         }
     } else {
@@ -78,7 +78,7 @@ function getOptions(data) {
                 filteredData = data['data_points'].filter(d => d.axis == ax && d.categ == categ);
                 if (filteredData.length > 0) {
                     categData.push(
-                        filteredData.map(d => d.metric).reduce((partial_sum, a) => partial_sum + a, 0)
+                        Math.round(filteredData.map(d => d.metric).reduce((partial_sum, a) => partial_sum + a, 0) * 100) / 100
                     );
                 } else {
                     categData.push(0);
