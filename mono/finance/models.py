@@ -1141,15 +1141,15 @@ class Chart(models.Model):
             text += f" filtered by {self.get_filters_display()}"
         return text
 
-    def _apply_field(self):
+    def _apply_field(self, user):
         if self.field == 'transaction':
-            qs = Transaction.objects.all()
+            qs = Transaction.objects.filter(created_by=user)
         elif self.field == 'transference':
-            qs = Transference.objects.all()
+            qs = Transference.objects.filter(created_by=user)
         elif self.field == 'recurrent_transaction':
-            qs = RecurrentTransaction.objects.all()
+            qs = RecurrentTransaction.objects.filter(created_by=user)
         elif self.field == 'installment':
-            qs = Installment.objects.all()
+            qs = Installment.objects.filter(created_by=user)
         else:
             raise NotImplementedError('Field not implemented')
         return qs
@@ -1265,9 +1265,8 @@ class Chart(models.Model):
             raise NotImplementedError('Category not implemented')
         return qs
 
-    @property
-    def data(self):
-        qs = self._apply_field()
+    def get_queryset(self, user):
+        qs = self._apply_field(user)
         qs = self._apply_filter(qs)
         qs = self._apply_axis(qs)
         qs = self._apply_metric(qs)
