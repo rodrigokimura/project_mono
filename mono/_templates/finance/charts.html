@@ -3,69 +3,33 @@
 {% load static %}
 
 {% block head %}
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<style>
-  .charts-container {
-    padding: 0 1em 0 1em;
-  }
-  @media only screen and (max-width: 640px) {
+  <style>
     .charts-container {
-      padding: 0;
+      padding: 0 1em 0 1em;
     }
-  }
-  .card .content {
-    min-height: 350px;
-  }
-</style>
+    @media only screen and (max-width: 640px) {
+      .charts-container {
+        padding: 0;
+      }
+    }
+    .card .content {
+      min-height: 350px;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 {% endblock head %}
-
+  
 {% block main %}
+{% comment %} <script src="{% static 'apexcharts/' %}"></script> {% endcomment %}
+<script src="{% static 'finance/charts.js' %}"></script>
 <div class="charts-container">  
   <div class="ui stackable grid" id="charts">
   </div>
 </div>
 
 <script>
-
-  function getCharts() {
-    chartsEl = $('#charts');
-    $.api({
-      on: "now",
-      url: `/fn/api/charts/`,
-      headers: { 'X-CSRFToken': csrftoken },
-      onSuccess: r => {
-        chartIds = r.data;
-        chartsEl.empty();
-        for (id of chartIds) {
-          chartsEl.append(`
-            <div class="ui eight wide column">
-              <div class="ui fluid card">
-                <div class="content" id="chart-${id}"></div>
-              </div>
-            </div>
-          `)
-          renderChart(id);
-        }
-      },
-    });
-  }
-
-  function renderChart(chartId) {
-    $.api({
-      on: "now",
-      url: `/fn/api/charts/${chartId}/`,
-      headers: { 'X-CSRFToken': csrftoken },
-      stateContext: `#chart-${chartId}`,
-      onSuccess: r => {
-        chart = new ApexCharts($(`#chart-${chartId}`)[0], r.data);
-        chart.render();
-      },
-    });
-  }
-
   $(document).ready(e => {
     getCharts();
-  })
-
+  });
 </script>
 {% endblock main %}
