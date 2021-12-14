@@ -1330,7 +1330,7 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
 
     def get(self, request, pk, format=None):
         chart: Chart = self.get_object(pk)
-        data = chart.data
+        data = chart.get_queryset(request.user)
 
         return Response({
             'success': True,
