@@ -1128,6 +1128,11 @@ class Chart(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='charts')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    title = models.CharField(max_length=100, default='Untitled chart')
+    order = models.PositiveSmallIntegerField(default=1)
+
+    class Meta:
+        ordering = ['order', 'created_by']
 
     def __str__(self):
         text = (
