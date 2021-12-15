@@ -20,16 +20,14 @@
 {% endblock head %}
   
 {% block main %}
-{% comment %} <script src="{% static 'apexcharts/' %}"></script> {% endcomment %}
-<script src="{% static 'finance/charts.js' %}"></script>
-<div class="charts-container">  
-  <div class="ui stackable grid" id="charts">
+  <script src="{% static 'finance/charts.js' %}"></script>
+  <div class="charts-container">  
+    <div class="ui stackable grid" id="charts"></div>
   </div>
-</div>
-
-<script>
-  $(document).ready(e => {
-    getCharts();
-  });
-</script>
+  
+  <script>
+    $(document).ready(e => {
+      getCharts();
+    });
+  </script>
 {% endblock main %}

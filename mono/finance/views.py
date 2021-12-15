@@ -1338,7 +1338,8 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
                 'chart_type': chart.type,
                 'data_points': data,
                 'field': chart.get_field_display(),
-                'title': str(chart),
+                # 'title': str(chart),
+                'title': chart.title,
             },
 
         })
@@ -1348,6 +1349,7 @@ class ChartListApiView(LoginRequiredMixin, APIView):
 
     def get(self, request, format=None):
         charts = request.user.charts.all()
+        print([c.id for c in charts])
 
         return Response({
             'success': True,
