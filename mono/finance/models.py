@@ -1132,7 +1132,10 @@ class Chart(models.Model):
     order = models.PositiveSmallIntegerField(default=1)
 
     class Meta:
-        ordering = ['order', 'created_by']
+        ordering = [
+            'created_by',
+            'order',
+        ]
 
     def __str__(self):
         text = (

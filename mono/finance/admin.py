@@ -201,12 +201,15 @@ class InviteAdmin(admin.ModelAdmin):
 @admin.register(models.Chart)
 class ChartAdmin(admin.ModelAdmin):
     list_display = [
+        "title",
         "type",
         "metric",
         "field",
         "axis",
         "category",
         "filters",
+        "created_by",
+        "order",
     ]
     list_filter = [
         "type",
@@ -215,6 +218,9 @@ class ChartAdmin(admin.ModelAdmin):
         "axis",
         "category",
         "filters",
+    ]
+    search_fields = [
+        "title",
     ]
 
 
