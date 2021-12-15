@@ -1331,17 +1331,14 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
     def get(self, request, pk, format=None):
         chart: Chart = self.get_object(pk)
         data = chart.get_queryset(request.user)
-
         return Response({
             'success': True,
             'data': {
                 'chart_type': chart.type,
                 'data_points': data,
                 'field': chart.get_field_display(),
-                # 'title': str(chart),
                 'title': chart.title,
             },
-
         })
 
 
@@ -1349,8 +1346,6 @@ class ChartListApiView(LoginRequiredMixin, APIView):
 
     def get(self, request, format=None):
         charts = request.user.charts.all()
-        print([c.id for c in charts])
-
         return Response({
             'success': True,
             'data': [c.id for c in charts]

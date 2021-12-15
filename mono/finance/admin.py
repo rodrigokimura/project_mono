@@ -31,6 +31,9 @@ class TransactionAdmin(admin.ModelAdmin):
         "category__name",
         "active",
     ]
+    search_fields = [
+        "description",
+    ]
 
 
 @admin.register(models.RecurrentTransaction)
