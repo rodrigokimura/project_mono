@@ -11,6 +11,7 @@ admin.site.register(models.Icon)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ['deadline', 'name', 'created_by', 'created_at', 'active']
     list_filter = ('created_by', 'created_at', 'active')
+    search_fields = ['name']
 
 
 @admin.register(models.Theme)
@@ -36,6 +37,7 @@ class BucketAdmin(admin.ModelAdmin):
         'active',
         'auto_status',
     ]
+    search_fields = ['name']
 
 
 @admin.register(models.Card)
@@ -55,6 +57,7 @@ class CardAdmin(admin.ModelAdmin):
         'status',
         'active',
     ]
+    search_fields = ['name']
 
 
 @admin.register(models.CardFile)
@@ -82,6 +85,7 @@ class ItemAdmin(admin.ModelAdmin):
         'checked_by',
         'checked_at',
     ]
+    search_fields = ['name']
 
 
 @admin.register(models.Tag)
@@ -101,6 +105,7 @@ class TagAdmin(admin.ModelAdmin):
         'active',
         'board',
     ]
+    search_fields = ['name']
 
 
 @admin.register(models.Comment)
@@ -117,6 +122,7 @@ class CommentAdmin(admin.ModelAdmin):
         'created_at',
         'card',
     ]
+    search_fields = ['text']
 
 
 @admin.register(models.TimeEntry)
