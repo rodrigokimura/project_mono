@@ -21,8 +21,140 @@
   
 {% block main %}
   <script src="{% static 'finance/charts.js' %}"></script>
-  <div class="charts-container">  
+  <div class="charts-container" style="padding-bottom: 1em;">
     <div class="ui stackable grid" id="charts"></div>
+  </div>
+
+  <div class="ui chart modal">
+    <i class="close icon"></i>
+    <div class="header"></div>
+    <div class="content">
+
+      <div class="ui form">
+        <div class="field">
+          <label>{% translate 'Title' %}</label>
+          <input type="text" name="title">
+        </div>
+
+        <div class="two fields">
+          <div class="field" data-field="type">
+            <label>{% translate 'Type' %}</label>
+            <div class="ui selection dropdown" data-field="type">
+                <div class="text"></div>
+                <i class="dropdown icon"></i>
+            </div>
+          </div>
+          <div class="field" data-field="metric">
+            <label>{% translate 'Metric' %}</label>
+            <div class="ui selection dropdown" data-field="metric">
+              <div class="text"></div>
+              <i class="dropdown icon"></i>
+            </div>
+          </div>
+        </div>
+          
+        <div class="three fields">
+          <div class="field" data-field="field">
+            <label>{% translate 'Field' %}</label>
+            <div class="ui selection dropdown" data-field="field">
+                <div class="text"></div>
+                <i class="dropdown icon"></i>
+            </div>
+          </div>
+          <div class="field" data-field="axis">
+            <label>{% translate 'Axis' %}</label>
+            <div class="ui selection dropdown" data-field="axis">
+              <div class="text"></div>
+              <i class="dropdown icon"></i>
+            </div>
+          </div>
+          <div class="field" data-field="category">
+            <label>{% translate 'Category' %}</label>
+            <div class="ui selection dropdown" data-field="category">
+              <div class="text"></div>
+              <i class="dropdown icon"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="field" data-field="filter">
+          <label>{% translate 'Filter' %}</label>
+          <div class="ui multiple selection dropdown" data-field="filter">
+              <div class="text"></div>
+              <i class="dropdown icon"></i>
+          </div>
+        </div>
+
+        <script>
+          $('.ui.dropdown[data-field=type]').dropdown({
+              values: [
+                {% for value, text in chart_types %}
+                {
+                  value: "{{ value }}",
+                  name: "{{ text }}",
+                },
+                {% endfor %}
+              ]
+          });
+          $('.ui.dropdown[data-field=metric]').dropdown({
+              values: [
+                {% for value, text in chart_metrics %}
+                {
+                  value: "{{ value }}",
+                  name: "{{ text }}",
+                },
+                {% endfor %}
+              ]
+          });
+          $('.ui.dropdown[data-field=field]').dropdown({
+              values: [
+                {% for value, text in chart_fields %}
+                {
+                  value: "{{ value }}",
+                  name: "{{ text }}",
+                },
+                {% endfor %}
+              ]
+          });
+          $('.ui.dropdown[data-field=axis]').dropdown({
+              values: [
+                {% for value, text in chart_axes %}
+                {
+                  value: "{{ value }}",
+                  name: "{{ text }}",
+                },
+                {% endfor %}
+              ]
+          });
+          $('.ui.dropdown[data-field=category]').dropdown({
+              values: [
+                {% for value, text in chart_categories %}
+                {
+                  value: "{{ value }}",
+                  name: "{{ text }}",
+                },
+                {% endfor %}
+              ]
+          });
+          $('.ui.dropdown[data-field=filter]').dropdown({
+              values: [
+                {% for value, text in chart_filters %}
+                {
+                  value: "{{ value }}",
+                  name: "{{ text }}",
+                },
+                {% endfor %}
+              ]
+          });
+        </script>
+
+      </div>
+
+    </div>
+    <div class="actions">
+      <div class="ui black deny icon labeled button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
+      <div class="ui positive icon labeled button"><i class="save icon"></i>{% translate 'Save' %}</div>
+    </div>
   </div>
   
   <script>

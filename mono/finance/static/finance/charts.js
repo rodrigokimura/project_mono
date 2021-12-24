@@ -9,15 +9,24 @@ function getCharts() {
             chartIds = r.data;
             chartsEl.empty();
             for (id of chartIds) {
-                chartsEl.append(`
+                chartsEl.append(
+                    `
                     <div class="ui eight wide column">
                         <div class="ui fluid card" data-chart-id="${id}">
                             <div class="content" id="chart-${id}"></div>
                         </div>
                     </div>
-                `)
+                    `
+                )
                 renderChart(id);
             }
+            chartsEl.append(
+                `
+                <div class="ui eight wide column">
+                    <div class="ui fluid button" onclick="showChartModal()">Add new chart</div>
+                </div>
+                `
+            )
         },
     });
 }
@@ -55,7 +64,10 @@ function getOptions(data) {
             }
         },
         'chart': {
-            'height': 350
+            'height': 350,
+            'toolbar': {
+                'show': false
+            }
         },
         'dataLabels': {
             'enabled': false
@@ -127,4 +139,62 @@ function setChartType(options, type) {
             break;
     }
     return options;
+}
+
+function deleteChart(chartId) {
+    $.api({
+        on: "now",
+        url: `/fn/api/charts/${chartId}/`,
+        method: "DELETE",
+        headers: { 'X-CSRFToken': csrftoken },
+        successTest: r => r.status == 204,
+        onSuccess: r => {
+            $('body').toast({
+                title: 'Success',
+                message: 'Chart deleted successfully',
+            });
+            $(`.ui.card[data-chart-id=${chartId}]`).parent().remove();
+        },
+    });
+}
+
+function showChartModal(chartId = null) {
+    var create = chartId === null;
+    const modal = $('.ui.chart.modal');
+    if (create) {
+        modal.find('.header').text('Add new chart');
+        url = '/fn/api/charts/';
+    } else {
+        modal.find('.header').text('Edit chart');
+        url = `/fn/api/charts/${chartId}/`;
+    }
+    modal
+        .modal({
+            onApprove: () => {
+                $.api({
+                    on: "now",
+                    url: url,
+                    method: create ? 'POST' : 'PATCH',
+                    headers: { 'X-CSRFToken': csrftoken },
+                    data: {
+                        title: modal.find('input[name=title]').val(),
+                        type: modal.find('.dropdown[data-field=type]').dropdown('get value'),
+                        metric: modal.find('.dropdown[data-field=metric]').dropdown('get value'),
+                        field: modal.find('.dropdown[data-field=field]').dropdown('get value'),
+                        axis: modal.find('.dropdown[data-field=axis]').dropdown('get value'),
+                        category: modal.find('.dropdown[data-field=category]').dropdown('get value'),
+                        filter: modal.find('.dropdown[data-field=filter]').dropdown('get value').split(','),
+                    },
+                    onSuccess: r => {
+                        $('body').toast({
+                            title: 'Success',
+                            message: 'Chart saved successfully',
+                        });
+                        getCharts();
+                    },
+                    onFailure: () => { console.log('failure') },
+                })
+            },
+        })
+        .modal('show');
 }

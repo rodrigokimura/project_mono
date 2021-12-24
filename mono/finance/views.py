@@ -1302,6 +1302,16 @@ class RestrictedAreaView(LoginRequiredMixin, TemplateView):
 class ChartsView(LoginRequiredMixin, TemplateView):
     template_name = "finance/charts.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['chart_types'] = Chart.TYPE_CHOICES
+        context['chart_metrics'] = Chart.METRIC_CHOICES
+        context['chart_fields'] = Chart.FIELD_CHOICES
+        context['chart_axes'] = Chart.AXIS_CHOICES
+        context['chart_categories'] = Chart.CATEGORY_CHOICES
+        context['chart_filters'] = Chart.FILTER_CHOICES
+        return context
+
 
 class ChartDataApiView(LoginRequiredMixin, APIView):
 
