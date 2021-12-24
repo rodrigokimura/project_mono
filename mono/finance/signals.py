@@ -2,7 +2,9 @@ from django.db.models.signals import post_save, pre_delete, pre_save
 from django.dispatch import receiver
 
 from .models import (
-    Account, Category, Configuration, Group, Icon, Installment, Transaction,
+    Account, Category, Configuration, Group, Icon, Installment, 
+    Transaction,
+    RecurrentTransaction,
     Transference, User,
 )
 
@@ -72,6 +74,17 @@ def installments_creation(sender, instance, created, **kwargs):
             instance.create_transactions()
 
 
+@receiver(post_save, sender=RecurrentTransaction, dispatch_uid="recurrent_transaction_creation")
+def recurrent_transaction_creation(sender, instance, created, **kwargs):
+    """
+    Create transactions from the past
+    when RecurrentTransaction's timestamp is in the past.
+    """
+    if sender == RecurrentTransaction:
+        if created:
+            instance.create_past_transactions()
+
+
 @receiver(post_save, sender=Transference, dispatch_uid="transference_creation")
 def transference_creation(sender, instance, created, **kwargs):
     if sender == Transference:
@@ -88,3 +101,5 @@ def transference_creation(sender, instance, created, **kwargs):
 def round_transaction(sender, instance, **kwargs):
     if sender == Transaction:
         instance.round_amount()
+
+# TODO: Add signal to automatically set Chart order

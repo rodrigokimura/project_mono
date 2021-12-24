@@ -153,8 +153,7 @@ class RecurrentTransaction(models.Model):
         elif self.frequency == self.YEARLY:
             return _('Every day %(d)s of %(m)s of each year.') % {'d': self.timestamp.day, 'm': months[self.timestamp.month]}
 
-    def create_transaction(self):
-        reference_date = (timezone.now() + timedelta(1)).date()
+    def create_transaction(self, reference_date=(timezone.now() + timedelta(1)).date()):
         if not Transaction.objects.filter(recurrent=self, timestamp__date=reference_date).exists() and self.is_schedule_date(reference_date):
             transaction = Transaction(
                 description=self.description,
@@ -173,6 +172,17 @@ class RecurrentTransaction(models.Model):
                 icon="exclamation",
                 action_url=reverse("finance:groups"),
             )
+
+    def create_past_transactions(self):
+        """
+        Create transaction from the past.
+        Usually this will only be triggered
+        by a post_save creation signal.
+        """
+        now = timezone.now()
+        if self.timestamp.date() <= now.date():
+            for i in range((now - self.timestamp).days + 1):
+                self.create_transaction((self.timestamp + timedelta(i)).date())
 
     class Meta:
         verbose_name = _("recurrent transaction")
@@ -1128,6 +1138,14 @@ class Chart(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='charts')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    title = models.CharField(max_length=100, default='Untitled chart')
+    order = models.PositiveSmallIntegerField(default=1)
+
+    class Meta:
+        ordering = [
+            'created_by',
+            'order',
+        ]
 
     def __str__(self):
         text = (
@@ -1141,7 +1159,7 @@ class Chart(models.Model):
             text += f" filtered by {self.get_filters_display()}"
         return text
 
-    def _apply_field(self, user):
+    def _apply_field(self, user) -> QuerySet:
         if self.field == 'transaction':
             qs = Transaction.objects.filter(created_by=user)
         elif self.field == 'transference':
@@ -1154,7 +1172,7 @@ class Chart(models.Model):
             raise NotImplementedError('Field not implemented')
         return qs
 
-    def _apply_filter(self, qs: QuerySet):
+    def _apply_filter(self, qs: QuerySet) -> QuerySet:
         if 'expenses' in self.filters:
             qs = qs.filter(category__type=Category.EXPENSE)
         if 'incomes' in self.filters:
@@ -1177,7 +1195,7 @@ class Chart(models.Model):
             qs = qs.filter(timestamp__month=timezone.now().month - 1)
         return qs
 
-    def _apply_axis(self, qs: QuerySet):
+    def _apply_axis(self, qs: QuerySet) -> QuerySet:
         if self.axis is None:
             return qs.annotate(axis=V("No axis"))
 
@@ -1225,7 +1243,7 @@ class Chart(models.Model):
             raise NotImplementedError('Queryset not implemented for this database engine')
         return qs
 
-    def _apply_metric(self, qs: QuerySet):
+    def _apply_metric(self, qs: QuerySet) -> QuerySet:
         if self.metric == 'count':
             qs = qs.annotate(
                 metric=Coalesce(
@@ -1265,7 +1283,7 @@ class Chart(models.Model):
             raise NotImplementedError('Category not implemented')
         return qs
 
-    def get_queryset(self, user):
+    def get_queryset(self, user) -> QuerySet:
         qs = self._apply_field(user)
         qs = self._apply_filter(qs)
         qs = self._apply_axis(qs)

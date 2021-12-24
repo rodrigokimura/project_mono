@@ -2,7 +2,6 @@ from django.contrib import admin
 
 from . import models
 
-# Register your models here.
 admin.site.register(models.Icon)
 admin.site.register(models.Goal)
 
@@ -30,6 +29,9 @@ class TransactionAdmin(admin.ModelAdmin):
         "category__type",
         "category__name",
         "active",
+    ]
+    search_fields = [
+        "description",
     ]
 
 
@@ -201,12 +203,15 @@ class InviteAdmin(admin.ModelAdmin):
 @admin.register(models.Chart)
 class ChartAdmin(admin.ModelAdmin):
     list_display = [
+        "title",
         "type",
         "metric",
         "field",
         "axis",
         "category",
         "filters",
+        "created_by",
+        "order",
     ]
     list_filter = [
         "type",
@@ -215,6 +220,9 @@ class ChartAdmin(admin.ModelAdmin):
         "axis",
         "category",
         "filters",
+    ]
+    search_fields = [
+        "title",
     ]
 
 

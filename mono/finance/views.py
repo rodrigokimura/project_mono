@@ -30,6 +30,7 @@ from django.views.generic.edit import (
     CreateView, DeleteView, FormView, UpdateView,
 )
 from django.views.generic.list import ListView
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from social_django.models import UserSocialAuth
@@ -45,6 +46,8 @@ from .models import (
     Group, Icon, Installment, Invite, Plan, RecurrentTransaction, Subscription,
     Transaction, Transference,
 )
+from .permissions import IsCreator
+from .serializers import ChartSerializer
 
 
 class HomePageView(LoginRequiredMixin, TemplateView):
@@ -1301,26 +1304,18 @@ class ChartsView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        transactions_by_category = Transaction.objects.filter(
-            created_by=self.request.user
-        ).values("category__name").annotate(
-            sum=Coalesce(Sum("amount"), V(0), output_field=FloatField())
-        ).order_by("category__name")
-        context['transactions_by_category'] = transactions_by_category
-
-        transactions_by_month_this_year = Transaction.objects.filter(
-            created_by=self.request.user,
-            timestamp__year=timezone.now().year
-        ).values("timestamp__month").annotate(
-            sum=Coalesce(Sum("amount"), V(0), output_field=FloatField())
-        ).order_by("timestamp__month")
-        context['transactions_by_month_this_year'] = transactions_by_month_this_year
-
+        context['chart_types'] = Chart.TYPE_CHOICES
+        context['chart_metrics'] = Chart.METRIC_CHOICES
+        context['chart_fields'] = Chart.FIELD_CHOICES
+        context['chart_axes'] = Chart.AXIS_CHOICES
+        context['chart_categories'] = Chart.CATEGORY_CHOICES
+        context['chart_filters'] = Chart.FILTER_CHOICES
         return context
 
 
 class ChartDataApiView(LoginRequiredMixin, APIView):
+
+    permission_classes = [IsCreator]
 
     def get_object(self, pk):
         try:
@@ -1331,16 +1326,43 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
     def get(self, request, pk, format=None):
         chart: Chart = self.get_object(pk)
         data = chart.get_queryset(request.user)
-
         return Response({
             'success': True,
             'data': {
                 'chart_type': chart.type,
                 'data_points': data,
                 'field': chart.get_field_display(),
-                'title': str(chart),
+                'title': chart.title,
             },
+        })
 
+    def put(self, request, pk, format=None):
+        chart: Chart = self.get_object(pk)
+        serializer = ChartSerializer(chart, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'success': True,
+                'data': serializer.data,
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk, format=None):
+        chart: Chart = self.get_object(pk)
+        serializer = ChartSerializer(chart, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'success': True,
+                'data': serializer.data,
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        chart: Chart = self.get_object(pk)
+        chart.delete()
+        return Response({
+            'success': True,
         })
 
 
@@ -1348,8 +1370,17 @@ class ChartListApiView(LoginRequiredMixin, APIView):
 
     def get(self, request, format=None):
         charts = request.user.charts.all()
-
         return Response({
             'success': True,
             'data': [c.id for c in charts]
         })
+
+    def post(self, request, format=None):
+        serializer = ChartSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'success': True,
+                'data': serializer.data,
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
