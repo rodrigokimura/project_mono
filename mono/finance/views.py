@@ -1361,7 +1361,9 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
     def delete(self, request, pk, format=None):
         chart: Chart = self.get_object(pk)
         chart.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({
+            'success': True,
+        })
 
 
 class ChartListApiView(LoginRequiredMixin, APIView):
