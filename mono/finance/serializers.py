@@ -1,9 +1,9 @@
 from django.contrib.auth.models import User
-from rest_framework import serializers
+from rest_framework import fields, serializers
 
 from .models import (
-    Account, Category, Icon, Installment, RecurrentTransaction, Transaction,
-    Transference,
+    Account, Category, Chart, Icon, Installment, RecurrentTransaction,
+    Transaction, Transference,
 )
 
 
@@ -226,3 +226,26 @@ class TransferenceSerializer(serializers.ModelSerializer):
             **validated_data,
         )
         return transaction
+
+
+class ChartSerializer(serializers.ModelSerializer):
+    created_by = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+    filters = fields.MultipleChoiceField(choices=Chart.FILTER_CHOICES)
+
+    class Meta:
+        model = Chart
+        fields = [
+            "type",
+            "metric",
+            "field",
+            "axis",
+            "category",
+            "filters",
+            "created_by",
+            "created_at",
+            "updated_at",
+            "title",
+            "order",
+        ]
