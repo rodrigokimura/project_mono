@@ -13,13 +13,24 @@ function getCharts() {
                     `
                     <div class="ui eight wide column">
                         <div class="ui fluid card" data-chart-id="${id}">
-                            <div class="content" id="chart-${id}"></div>
+                            <div class="content">
+                                <div class="ui tiny icon card-menu floating dropdown button" style="display: block; position: absolute; right: 1em; z-index: 99;">
+                                    <i class="ellipsis horizontal icon"></i>
+                                    <div class="menu">
+                                        <div class="item"><i class="edit icon"></i>Edit chart</div>
+                                        <div class="item" onclick="deleteChart(${id})"><i class="delete icon"></i>Delete chart</div>
+                                    </div>
+                                </div>
+                                <div id="chart-${id}">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     `
                 )
                 renderChart(id);
             }
+            $('.card-menu.dropdown').dropdown();
             chartsEl.append(
                 `
                 <div class="ui eight wide column">
@@ -142,20 +153,37 @@ function setChartType(options, type) {
 }
 
 function deleteChart(chartId) {
-    $.api({
-        on: "now",
-        url: `/fn/api/charts/${chartId}/`,
-        method: "DELETE",
-        headers: { 'X-CSRFToken': csrftoken },
-        successTest: r => r.status == 204,
-        onSuccess: r => {
-            $('body').toast({
-                title: 'Success',
-                message: 'Chart deleted successfully',
+    $('body').modal({
+        title: 'Important Notice',
+        class: 'mini',
+        closeIcon: true,
+        content: 'Are you sure you want to delete this chart?',
+        actions: [
+            {
+                text: 'Cancel',
+                class: 'black deny',
+            },
+            {
+                text: 'Yes, delete it',
+                class: 'red approve',
+            },
+        ],
+        onApprove: () => {
+            $.api({
+                on: "now",
+                url: `/fn/api/charts/${chartId}/`,
+                method: "DELETE",
+                headers: { 'X-CSRFToken': csrftoken },
+                onSuccess: r => {
+                    $('body').toast({
+                        title: 'Success',
+                        message: 'Chart deleted successfully',
+                    });
+                    $(`.ui.card[data-chart-id=${chartId}]`).parent().remove();
+                },
             });
-            $(`.ui.card[data-chart-id=${chartId}]`).parent().remove();
-        },
-    });
+        }
+    }).modal('show');
 }
 
 function showChartModal(chartId = null) {
@@ -190,6 +218,8 @@ function showChartModal(chartId = null) {
                             title: 'Success',
                             message: 'Chart saved successfully',
                         });
+                        modal.find('input[name=title]').val('');
+                        modal.find('.dropdown').dropdown('clear');
                         getCharts();
                     },
                     onFailure: () => { console.log('failure') },
