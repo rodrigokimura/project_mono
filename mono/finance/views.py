@@ -30,6 +30,7 @@ from django.views.generic.edit import (
     CreateView, DeleteView, FormView, UpdateView,
 )
 from django.views.generic.list import ListView
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from social_django.models import UserSocialAuth
@@ -45,6 +46,8 @@ from .models import (
     Group, Icon, Installment, Invite, Plan, RecurrentTransaction, Subscription,
     Transaction, Transference,
 )
+from .permissions import IsCreator
+from .serializers import ChartSerializer
 
 
 class HomePageView(LoginRequiredMixin, TemplateView):
@@ -1302,6 +1305,8 @@ class ChartsView(LoginRequiredMixin, TemplateView):
 
 class ChartDataApiView(LoginRequiredMixin, APIView):
 
+    permission_classes = [IsCreator]
+
     def get_object(self, pk):
         try:
             return Chart.objects.get(pk=pk)
@@ -1321,6 +1326,33 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
             },
         })
 
+    def put(self, request, pk, format=None):
+        chart: Chart = self.get_object(pk)
+        serializer = ChartSerializer(chart, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'success': True,
+                'data': serializer.data,
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk, format=None):
+        chart: Chart = self.get_object(pk)
+        serializer = ChartSerializer(chart, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'success': True,
+                'data': serializer.data,
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        chart: Chart = self.get_object(pk)
+        chart.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class ChartListApiView(LoginRequiredMixin, APIView):
 
@@ -1330,3 +1362,13 @@ class ChartListApiView(LoginRequiredMixin, APIView):
             'success': True,
             'data': [c.id for c in charts]
         })
+
+    def post(self, request, format=None):
+        serializer = ChartSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'success': True,
+                'data': serializer.data,
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -153,7 +153,7 @@ class RecurrentTransaction(models.Model):
         elif self.frequency == self.YEARLY:
             return _('Every day %(d)s of %(m)s of each year.') % {'d': self.timestamp.day, 'm': months[self.timestamp.month]}
 
-    def create_transaction(self, reference_date = (timezone.now() + timedelta(1)).date()):
+    def create_transaction(self, reference_date=(timezone.now() + timedelta(1)).date()):
         if not Transaction.objects.filter(recurrent=self, timestamp__date=reference_date).exists() and self.is_schedule_date(reference_date):
             transaction = Transaction(
                 description=self.description,
