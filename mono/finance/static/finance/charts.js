@@ -8,6 +8,7 @@ function getCharts() {
         onSuccess: r => {
             chartIds = r.data;
             chartsEl.empty();
+            charts = [];
             for (id of chartIds) {
                 chartsEl.append(
                     `
@@ -17,7 +18,7 @@ function getCharts() {
                                 <div class="ui tiny icon card-menu floating dropdown button" style="display: block; position: absolute; right: 1em; z-index: 99;">
                                     <i class="ellipsis horizontal icon"></i>
                                     <div class="menu">
-                                        <div class="item"><i class="edit icon"></i>Edit chart</div>
+                                        <div class="item" onclick="showChartModal(${id})"><i class="edit icon"></i>Edit chart</div>
                                         <div class="item" onclick="deleteChart(${id})"><i class="delete icon"></i>Delete chart</div>
                                     </div>
                                 </div>
@@ -49,6 +50,18 @@ function renderChart(chartId) {
         headers: { 'X-CSRFToken': csrftoken },
         stateContext: `.ui.card[data-chart-id=${chartId}]`,
         onSuccess: r => {
+            charts.push(
+                {
+                    id: chartId,
+                    title: r.data['title'],
+                    type: r.data['type'],
+                    metric: r.data['metric'],
+                    field: r.data['field'],
+                    axis: r.data['axis'],
+                    category: r.data['category'],
+                    filters: r.data['filters'],
+                }
+            )
             options = getOptions(r.data);
             chart = new ApexCharts($(`#chart-${chartId}`)[0], options);
             chart.render();
@@ -71,7 +84,7 @@ function getOptions(data) {
         },
         'yaxis': {
             'title': {
-                'text': data['field']
+                'text': data['field_display']
             }
         },
         'chart': {
@@ -84,9 +97,9 @@ function getOptions(data) {
             'enabled': false
         },
     }
-    options = setChartType(options, data['chart_type']);
+    options = setChartType(options, data['type']);
 
-    if (data['chart_type'] === 'donut') {
+    if (data['type'] === 'donut') {
         options['labels'] = [];
         for (categ of categs) {
             filteredData = data['data_points'].filter(d => d.categ == categ);
@@ -169,6 +182,7 @@ function deleteChart(chartId) {
             },
         ],
         onApprove: () => {
+            
             $.api({
                 on: "now",
                 url: `/fn/api/charts/${chartId}/`,
@@ -195,6 +209,15 @@ function showChartModal(chartId = null) {
     } else {
         modal.find('.header').text('Edit chart');
         url = `/fn/api/charts/${chartId}/`;
+        chartData = charts.filter(e => e.id == chartId)[0];
+        // alert(JSON.stringify(chartData.title))
+        modal.find('input[name=title]').val(chartData['title'])
+        modal.find('.dropdown[data-field=type]').dropdown('set selected', chartData['type'])
+        modal.find('.dropdown[data-field=metric]').dropdown('set selected', chartData['metric'])
+        modal.find('.dropdown[data-field=field]').dropdown('set selected', chartData['field'])
+        modal.find('.dropdown[data-field=axis]').dropdown('set selected', chartData['axis'])
+        modal.find('.dropdown[data-field=category]').dropdown('set selected', chartData['category'])
+        modal.find('.dropdown[data-field=filter]').dropdown('set selected', chartData['filters'])
     }
     modal
         .modal({
