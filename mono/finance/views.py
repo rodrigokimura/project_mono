@@ -1329,10 +1329,15 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
         return Response({
             'success': True,
             'data': {
-                'chart_type': chart.type,
                 'data_points': data,
-                'field': chart.get_field_display(),
+                'field_display': chart.get_field_display(),
                 'title': chart.title,
+                'type': chart.type,
+                'metric': chart.metric,
+                'field': chart.field,
+                'axis': chart.axis,
+                'category': chart.category,
+                'filters': chart.filters,
             },
         })
 
