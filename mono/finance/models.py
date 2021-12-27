@@ -1273,7 +1273,7 @@ class Chart(models.Model):
         return qs
 
     def _apply_category(self, qs: QuerySet):
-        if self.category is None:
+        if self.category in [None, '']:
             return qs.annotate(categ=V(f"{self.get_metric_display()} of {self.get_field_display()}"))
         if self.category == 'category':
             qs = qs.annotate(categ=F('category__name'))
