@@ -31,6 +31,9 @@ bleach = "*"
 cachetools = "*"
 markdown-checklist = "*"
 django-multiselectfield = "*"
+genbadge = "*"
+unittest-xml-reporting = "*"
+flake8-html = "*"
 
 [dev-packages]
 autopep8 = "*"

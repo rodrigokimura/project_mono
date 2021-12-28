@@ -25,7 +25,7 @@ class ProjectForm(forms.ModelForm):
 
 
 class BoardForm(forms.ModelForm):
-    error_css_class = 'error' 
+    error_css_class = 'error'
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")

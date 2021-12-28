@@ -10,15 +10,15 @@ class Issue(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     resolved_at = models.DateTimeField(null=True, blank=True, default=None)
     resolved_by = models.ForeignKey(
-        get_user_model(), 
-        on_delete=models.SET_NULL, 
+        get_user_model(),
+        on_delete=models.SET_NULL,
         null=True,
         related_name='resolved_issues'
     )
     ignored_at = models.DateTimeField(null=True, blank=True, default=None)
     ignored_by = models.ForeignKey(
-        get_user_model(), 
-        on_delete=models.SET_NULL, 
+        get_user_model(),
+        on_delete=models.SET_NULL,
         null=True,
         related_name='ignored_issues'
     )
@@ -38,7 +38,7 @@ class Issue(models.Model):
         self.resolved_at = None
         self.resolved_by = None
         self.save()
-    
+
     def ignore(self, user):
         self.ignored_at = timezone.now()
         self.ignored_by = user
