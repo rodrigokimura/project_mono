@@ -1201,7 +1201,9 @@ class Chart(models.Model):
 
         db_engine = settings.DATABASES["default"]["ENGINE"]
 
-        if self.axis == 'year':
+        if self.axis in [None, '']:
+            return qs.annotate(axis=V("No axis"))
+        elif self.axis == 'year':
             format = {
                 'django.db.backends.mysql': '%Y',
                 'django.db.backends.sqlite3': '%Y',
