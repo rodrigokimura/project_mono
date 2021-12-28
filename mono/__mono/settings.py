@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     'pixel',
     'watcher',
     'restricted_area',
+    'shipper',
     'django.forms',
 ]
 
