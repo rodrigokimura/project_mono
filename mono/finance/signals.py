@@ -1,11 +1,9 @@
-from django.db.models.signals import post_save, pre_delete, pre_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 from .models import (
-    Account, Category, Configuration, Group, Icon, Installment, 
-    Transaction,
-    RecurrentTransaction,
-    Transference, User,
+    Account, Category, Configuration, Group, Icon, Installment,
+    RecurrentTransaction, Transaction, Transference, User,
 )
 
 

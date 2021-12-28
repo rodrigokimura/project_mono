@@ -54,6 +54,12 @@
           <i class="dropdown icon"></i>
         </div>
       </div>
+      <div class="field">
+        <div class="ui slider checkbox" data-name="future">
+          <input type="checkbox" name="future">
+          <label>{% translate 'Show future transactions' %}</label>
+        </div>
+      </div>
       <div class="ui fluid buttons">
         <button class="ui button primary" type="submit" form="filter">{% translate "Filter" %}</button>
         <a class="ui button" href="{% url 'finance:transactions' %}">{% translate "Clear" %}</a>
@@ -644,6 +650,13 @@
       allowReselection: true,
     })
   }
+
+  function initializeFutureCheckbox() {
+    $('.ui.checkbox[data-name=future]').checkbox();
+    {% if 'future' in request.GET %}
+      $('.ui.checkbox[data-name=future]').checkbox('check');
+    {% endif %}
+  }
   
   function onEnterTab() {
     
@@ -676,6 +689,7 @@
   $(document).ready(e => {
     initializeAccountDropdown();
     initializeCategoryDropdown();
+    initializeFutureCheckbox();
     onEnterTab();
     $('select[name=from_account]').closest('.fields').hide('swing');
     $('#transaction-type .item').on('click', e => {
