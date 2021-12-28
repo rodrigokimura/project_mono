@@ -166,11 +166,11 @@ class RecurrentTransaction(models.Model):
             )
             transaction.save()
             Notification.objects.create(
-                title="Group invitation",
-                message="A transaction was created",
+                title=_("Recurrent transaction"),
+                message=_("A transaction was created based on a Recurrent Transaction"),
                 to=self.created_by,
                 icon="exclamation",
-                action_url=reverse("finance:groups"),
+                action_url=reverse("finance:transactions") + f"?transaction={transaction.id}",
             )
 
     def create_past_transactions(self):
