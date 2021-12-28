@@ -13,3 +13,6 @@ mono/_media
 ngrok
 **/.coverage
 mono/htmlcov
+mono/reports/junit/junit.xml
+mono/reports/coverage/coverage.xml
+mono/reports/flake8/flake8stats.txt
