@@ -1289,5 +1289,5 @@ class Chart(models.Model):
         qs = self._apply_axis(qs)
         qs = self._apply_metric(qs)
         qs = self._apply_category(qs)
-        qs = qs.values('categ', 'axis', 'metric').order_by('categ', 'axis')
+        qs = qs.values('categ', 'axis', 'metric').order_by('axis', 'categ')
         return qs
