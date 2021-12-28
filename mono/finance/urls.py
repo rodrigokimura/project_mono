@@ -92,6 +92,7 @@ urlpatterns = [
     path('charts/', views.ChartsView.as_view(), name='charts'),
     path('api/charts/<int:pk>/', views.ChartDataApiView.as_view(), name='chart_data'),
     path('api/charts/', views.ChartListApiView.as_view(), name='chart_list'),
+    path('api/chart-move/', views.ChartMoveApiView.as_view(), name='chart_move'),
 
     path('restricted-area/', views.RestrictedAreaView.as_view(), name='restricted_area'),
 ]

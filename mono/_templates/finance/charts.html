@@ -4,8 +4,11 @@
 
 {% block head %}
   <style>
+    .pusher {
+      padding-top: 3.25em !important;
+    }
     .charts-container {
-      padding: 0 1em 0 1em;
+      padding: 0 .5em .5em .5em;
     }
     @media only screen and (max-width: 640px) {
       .charts-container {
@@ -13,16 +16,23 @@
       }
     }
     .card .content {
-      min-height: 350px;
+      height: 370px;
+      padding: .75em .5em .5em .5em !important;
+    }
+    .card-menu.button {
+      margin: 0 !important;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 {% endblock head %}
   
 {% block main %}
+  <script src="{% static 'js/dragula.min.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
+
   <script src="{% static 'finance/charts.js' %}"></script>
-  <div class="charts-container" style="padding-bottom: 1em;">
-    <div class="ui stackable grid" id="charts"></div>
+  <div class="charts-container">
+    <div class="ui stackable very compact grid" id="charts"></div>
   </div>
 
   <div class="ui chart modal">
@@ -159,6 +169,9 @@
   
   <script>
     var charts = [];
-    $(document).ready(getCharts);
+    $(document).ready(e => {
+      getCharts();
+      initializeDragula();
+    });
   </script>
 {% endblock main %}
