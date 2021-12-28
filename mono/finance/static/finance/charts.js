@@ -1,3 +1,47 @@
+function initializeDragula() {
+    var chartsDrake = dragula([$('#charts')[0]],
+        {
+            moves: (el, source, handle, sibling) => (
+                $(handle).hasClass('handle')
+                || $(handle).parent().hasClass('handle')
+            ),
+            accepts: (el, target, source, sibling) => true,
+            direction: 'horizontal'
+        }
+    )
+        .on('drop', (el, target, source, sibling) => {
+            chart = $(el).find('.chart-card').attr('data-chart-id');
+            order = $(target).children().toArray().findIndex(e => e == el) + 1;
+            console.log(order)
+            $.api({
+                on: 'now',
+                url: `/fn/api/chart-move/`,
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                stateContext: `.chart-card[data-chart-id=${chart}]`,
+                data: {
+                    chart: chart,
+                    order: order,
+                },
+                onSuccess: r => {
+                    $('body').toast({
+                        title: 'Success',
+                        message: 'Chart order updated successfully',
+                        class: 'success',
+                    });
+                },
+                onFailure: () => {
+                    $('body').toast({
+                        title: 'Failure',
+                        message: 'A problem occurred while updating chart order',
+                        class: 'error',
+                    });
+                    getCharts();
+                },
+            });
+        })
+}
+
 
 function getCharts() {
     chartsEl = $('#charts');
@@ -13,9 +57,12 @@ function getCharts() {
                 chartsEl.append(
                     `
                     <div class="ui eight wide column">
-                        <div class="ui fluid card" data-chart-id="${id}">
+                        <div class="ui fluid chart-card card" data-chart-id="${id}">
+                            <div class="handle" style="display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;">
+                                <i class="grip lines small icon"></i>
+                            </div>                        
                             <div class="content">
-                                <div class="ui tiny icon card-menu floating dropdown button" style="display: block; position: absolute; right: 1em; z-index: 99;">
+                                <div class="ui tiny icon card-menu floating dropdown basic button" style="display: block; position: absolute; right: 1em; z-index: 99;">
                                     <i class="ellipsis horizontal icon"></i>
                                     <div class="menu">
                                         <div class="item" onclick="showChartModal(${id})"><i class="edit icon"></i>Edit chart</div>
@@ -182,7 +229,6 @@ function deleteChart(chartId) {
             },
         ],
         onApprove: () => {
-            
             $.api({
                 on: "now",
                 url: `/fn/api/charts/${chartId}/`,
@@ -210,7 +256,6 @@ function showChartModal(chartId = null) {
         modal.find('.header').text('Edit chart');
         url = `/fn/api/charts/${chartId}/`;
         chartData = charts.filter(e => e.id == chartId)[0];
-        // alert(JSON.stringify(chartData.title))
         modal.find('input[name=title]').val(chartData['title'])
         modal.find('.dropdown[data-field=type]').dropdown('set selected', chartData['type'])
         modal.find('.dropdown[data-field=metric]').dropdown('set selected', chartData['metric'])

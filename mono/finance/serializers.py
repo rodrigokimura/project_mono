@@ -249,3 +249,38 @@ class ChartSerializer(serializers.ModelSerializer):
             "title",
             "order",
         ]
+
+
+class ChartMoveSerializer(serializers.Serializer):
+    order = serializers.IntegerField()
+    chart = serializers.IntegerField()
+
+    def validate_chart(self, value):
+        if Chart.objects.filter(id=value).exists():
+            return value
+        else:
+            raise serializers.ValidationError("Invalid chart")
+
+    def validate_order(self, value):
+        if value > 0:
+            return value
+        else:
+            raise serializers.ValidationError("Invalid order")
+
+    def move(self):
+        chart = Chart.objects.get(
+            id=self.validated_data['chart']
+        )
+        order = self.validated_data['order']
+
+        for i, c in enumerate(self.context['request'].user.charts.exclude(id=self.validated_data['chart'])):
+            if i + 1 < order:
+                c.order = i + 1
+                c.save()
+            else:
+                c.order = i + 2
+                c.save()
+        chart.order = order
+        chart.save()
+
+        return {'success': True}
