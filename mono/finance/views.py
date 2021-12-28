@@ -187,6 +187,10 @@ class TransactionListView(LoginRequiredMixin, ListView):
         if account not in [None, ""]:
             qs = qs.filter(account__in=account.split(','))
 
+        future = self.request.GET.get('future', None)
+        if future in [None, ""]:
+            qs = qs.filter(timestamp__date__lte=timezone.now().date())
+
         return qs
 
     def get_context_data(self, **kwargs):

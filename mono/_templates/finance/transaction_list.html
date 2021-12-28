@@ -54,6 +54,12 @@
           <i class="dropdown icon"></i>
         </div>
       </div>
+      <div class="field">
+        <div class="ui slider checkbox" data-name="future">
+          <input type="checkbox" name="future">
+          <label>{% translate 'Show future transactions' %}</label>
+        </div>
+      </div>
       <div class="ui fluid buttons">
         <button class="ui button primary" type="submit" form="filter">{% translate "Filter" %}</button>
         <a class="ui button" href="{% url 'finance:transactions' %}">{% translate "Clear" %}</a>
@@ -107,7 +113,7 @@
       <script type="text/javascript" charset="utf-8">
         $("[data-date='{{ date.date|date:'Y-m-d' }}']").removeClass("hidden");
       </script>
-      <div class="ui segment" style="padding: .5em 1em;">
+      <div class="ui segment" style="padding: .5em 1em;" data-transaction="{{ transaction.id }}">
         <div class="ui grid">
           <div class="seven wide column">
             <span class="ui small label">
@@ -615,6 +621,7 @@
       },
     })
   }
+
   function initializeCategoryDropdown() {
     $('#categories-dropdown').dropdown({
       placeholder: '{% translate "Category" %}',
@@ -643,6 +650,13 @@
       allowReselection: true,
     })
   }
+
+  function initializeFutureCheckbox() {
+    $('.ui.checkbox[data-name=future]').checkbox();
+    {% if 'future' in request.GET %}
+      $('.ui.checkbox[data-name=future]').checkbox('check');
+    {% endif %}
+  }
   
   function onEnterTab() {
     
@@ -664,9 +678,18 @@
     );
   }
 
+  function highlightTransaction(id) {
+    $(`.ui.segment[data-transaction=${id}]`).css('transition', '1s');
+    $(`.ui.segment[data-transaction=${id}]`)
+      .css('background-color', '#fff8db')
+      .css('color', '#b58105')
+      .css('box-shadow', '0 0 0 1px #b58105 inset,0 0 0 0 transparent');
+  }
+
   $(document).ready(e => {
     initializeAccountDropdown();
     initializeCategoryDropdown();
+    initializeFutureCheckbox();
     onEnterTab();
     $('select[name=from_account]').closest('.fields').hide('swing');
     $('#transaction-type .item').on('click', e => {
@@ -707,6 +730,9 @@
         $('.field[data-type=installment]').show('swing');
       },
     });
+    {% if "transaction" in request.GET %}
+      highlightTransaction({{ request.GET.transaction }});
+    {% endif %}
   })
 
   $('.ui.filter.dropdown[data-name=category]').dropdown({
