@@ -22,6 +22,7 @@
         "finance",
         "watcher",
         "mono",
-        "restricted_area"
+        "restricted_area",
+        "shipper"
     ],
 }
