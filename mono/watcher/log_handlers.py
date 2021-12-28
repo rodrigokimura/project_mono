@@ -27,22 +27,12 @@ class WatcherHandler(logging.Handler):
             self.store_log(record)
         except Exception:
             pass
-        # print(record.name)
-        # print(record.levelname)
-        # print(record.created)
-        # print(record.pathname)
-        # print(record.lineno)
-        # print(record.status_code)
-        # print(record.exc_info)
-        # print(record.exc_text)
-        # print(record.thread)
-        # print(record.threadName)
 
     def store_log(self, record: LogRecord):
         from watcher.models import Event, Issue, Traceback
         try:
             request: HttpRequest = record.request
-            if record.request.user.is_authenticated:
+            if request.user.is_authenticated:
                 user = record.request.user
             else:
                 user = None

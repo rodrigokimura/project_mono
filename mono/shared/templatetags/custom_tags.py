@@ -3,6 +3,7 @@ from django.conf import settings
 
 register = template.Library()
 
+
 @register.filter
 def default_image(image):
     try:
@@ -10,4 +11,4 @@ def default_image(image):
             return image.url
     except ValueError:
         pass
-    return settings.STATIC_URL + 'image/avatar.svg' 
+    return settings.STATIC_URL + 'image/avatar.svg'
