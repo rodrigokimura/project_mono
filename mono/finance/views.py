@@ -47,7 +47,7 @@ from .models import (
     Transaction, Transference,
 )
 from .permissions import IsCreator
-from .serializers import ChartSerializer
+from .serializers import ChartMoveSerializer, ChartSerializer
 
 
 class HomePageView(LoginRequiredMixin, TemplateView):
@@ -1392,4 +1392,13 @@ class ChartListApiView(LoginRequiredMixin, APIView):
                 'success': True,
                 'data': serializer.data,
             })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChartMoveApiView(LoginRequiredMixin, APIView):
+    def post(self, request, format=None):
+        serializer = ChartMoveSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            result = serializer.move()
+            return Response(result)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
