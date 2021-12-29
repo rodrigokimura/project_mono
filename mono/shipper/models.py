@@ -1,6 +1,38 @@
+import re
 import uuid
+from typing import List, Tuple
 
 from django.db import models
+
+
+def get_morphemes(word: str) -> List[str]:
+    ex = r'([^aeiou]*[aeiou]*)|[aeiou]*[^aeiou]*[aeiou]*'
+    root = word
+    morphemes = []
+    while root != '':
+        end = re.match(ex, root).end()
+        morphemes.append(root[0:end].lower())
+        root = root[end:]
+    return morphemes
+
+
+def get_portmanteaus(a: str, b: str) -> List[Tuple[str, str, str]]:
+    morphemes_a = get_morphemes(a)
+    morphemes_b = get_morphemes(b)
+    portmanteaus = []
+    l_a = int(len(a) / 2)
+    l_b = int(len(b) / 2)
+    for i in range(1, l_a):
+        for j in range(1, l_b):
+            ab = (''.join(morphemes_a[:i]) + ''.join(morphemes_b[j:])).capitalize()
+            portmanteaus.append(
+                (a, b, ab)
+            )
+            ba = (''.join(morphemes_b[:j]) + ''.join(morphemes_a[i:])).capitalize()
+            portmanteaus.append(
+                (b, a, ba)
+            )
+    return portmanteaus
 
 
 class Ship(models.Model):
@@ -14,13 +46,9 @@ class Ship(models.Model):
     def __str__(self):
         return f'{self.first_name_a} {self.last_name_a} + {self.first_name_b} {self.last_name_b}'
 
-    def generate_ship(self):
-        import re
-        ex = r'([^aeiou]*[aeiou]*)|[aeiou]*[^aeiou]*[aeiou]*'
-        root = self.first_name_a + self.last_name_a
-        output = ''
-        while root != '':
-            end = re.match(ex, root).end()
-            output += root[0:end]
-            root = root[end:]
-        return output
+    @property
+    def portmanteaus(self):
+        portmanteaus = []
+        portmanteaus.extend(get_portmanteaus(self.first_name_a, self.first_name_b))
+        portmanteaus.extend(get_portmanteaus(self.last_name_a, self.last_name_b))
+        return portmanteaus
