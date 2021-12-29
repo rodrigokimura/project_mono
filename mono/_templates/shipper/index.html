@@ -4,23 +4,22 @@
 
 {% block main %}
     <div class="ui stackable grid container" style="padding-top: 5em;">
-
         <div class="row">
-            <div class="left floated six wide column">
+            <div class="column">
                 <h1 class="ui header">
-                    <i class="circular user icon"></i>
                     <div class="content">
                         {{ title }}
                     </div>
                 </h1>
                 <div class="ui header">{{ description }}</div>
+                <a href="{% url 'shipper:ship_create' %}" class="ui primary right labeled icon button">
+                    <i class="right arrow icon"></i>
+                    Create ship name
+                </a>
             </div>
-            <div class="right floated six wide column">
-                <div class="ui message"></div>
+        <div class="row">
+            <div class="column">
             </div>
         </div>
     </div>
-    <script>
-        $(document).ready(() => { })
-    </script>
 {% endblock %}
