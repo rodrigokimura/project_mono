@@ -7,17 +7,13 @@ from . import models
 class ShipAdmin(admin.ModelAdmin):
     list_display = [
         'id',
-        'first_name_a',
-        'last_name_a',
-        'first_name_b',
-        'last_name_b',
+        'name_1',
+        'name_2',
         'created_at',
     ]
     list_filter = [
         'id',
-        'first_name_a',
-        'last_name_a',
-        'first_name_b',
-        'last_name_b',
+        'name_1',
+        'name_2',
         'created_at',
     ]
