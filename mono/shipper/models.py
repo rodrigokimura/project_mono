@@ -37,10 +37,8 @@ def get_portmanteaus(a: str, b: str) -> List[Tuple[str, str, str]]:
 
 class Ship(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    first_name_a = models.CharField(max_length=100)
-    last_name_a = models.CharField(max_length=100)
-    first_name_b = models.CharField(max_length=100)
-    last_name_b = models.CharField(max_length=100)
+    name_1 = models.CharField(max_length=100)
+    name_2 = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -48,7 +46,10 @@ class Ship(models.Model):
 
     @property
     def portmanteaus(self):
+        names_1 = self.name_1.split()
+        names_2 = self.name_2.split()
         portmanteaus = []
-        portmanteaus.extend(get_portmanteaus(self.first_name_a, self.first_name_b))
-        portmanteaus.extend(get_portmanteaus(self.last_name_a, self.last_name_b))
+        for n_1 in names_1:
+            for n_2 in names_2:
+                portmanteaus.extend(get_portmanteaus(n_1, n_2))
         return portmanteaus
