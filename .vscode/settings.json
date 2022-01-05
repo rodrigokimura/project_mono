@@ -23,6 +23,7 @@
         "watcher",
         "mono",
         "restricted_area",
-        "shipper"
+        "shipper",
+        "notes"
     ],
 }
