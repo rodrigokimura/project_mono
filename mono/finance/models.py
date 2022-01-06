@@ -933,10 +933,12 @@ class Configuration(models.Model):
     C_OVERVIEW = 1
     C_BALANCE = 2
     C_BUDGETS = 3
+    C_WALLET = 4
     CARDS = [
         (C_OVERVIEW, _('Overview')),
         (C_BALANCE, _('Balance')),
         (C_BUDGETS, _('Budgets')),
+        (C_WALLET, _('Wallet')),
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
