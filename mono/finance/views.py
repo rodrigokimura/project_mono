@@ -110,6 +110,12 @@ class HomePageView(LoginRequiredMixin, TemplateView):
         context["closed_budgets"] = closed_budgets
         context["open_budgets"] = open_budgets
 
+        context["wallet"] = {
+            a.name: a.current_balance
+            for a in self.request.user.owned_accountset.all()
+            if a.current_balance > 0
+        }
+
         return context
 
 
