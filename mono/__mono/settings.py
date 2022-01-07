@@ -275,7 +275,7 @@ SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 # MAINTENANCE MODE
 MAINTENANCE_MODE_IGNORE_SUPERUSER = True
 
-if APP_ENV == 'PRD':
+if APP_ENV == 'PRD':  # pragma: no cover
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
