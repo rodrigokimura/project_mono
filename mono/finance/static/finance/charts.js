@@ -249,9 +249,21 @@ function deleteChart(chartId) {
     }).modal('show');
 }
 
+function clearModal() {
+    const modal = $('.ui.chart.modal');
+    modal.find('input[name=title]').val('');
+    modal.find('.dropdown[data-field=type]').dropdown('clear');
+    modal.find('.dropdown[data-field=metric]').dropdown('clear');
+    modal.find('.dropdown[data-field=field]').dropdown('clear');
+    modal.find('.dropdown[data-field=axis]').dropdown('clear');
+    modal.find('.dropdown[data-field=category]').dropdown('clear');
+    modal.find('.dropdown[data-field=filter]').dropdown('clear');
+}
+
 function showChartModal(chartId = null) {
     var create = chartId === null;
     const modal = $('.ui.chart.modal');
+    clearModal();
     if (create) {
         modal.find('.header').text('Add new chart');
         url = '/fn/api/charts/';
@@ -275,15 +287,16 @@ function showChartModal(chartId = null) {
                     url: url,
                     method: create ? 'POST' : 'PATCH',
                     headers: { 'X-CSRFToken': csrftoken },
-                    data: {
+                    contentType: 'application/json',
+                    data: JSON.stringify({
                         title: modal.find('input[name=title]').val(),
                         type: modal.find('.dropdown[data-field=type]').dropdown('get value'),
                         metric: modal.find('.dropdown[data-field=metric]').dropdown('get value'),
                         field: modal.find('.dropdown[data-field=field]').dropdown('get value'),
                         axis: modal.find('.dropdown[data-field=axis]').dropdown('get value'),
                         category: modal.find('.dropdown[data-field=category]').dropdown('get value'),
-                        filter: modal.find('.dropdown[data-field=filter]').dropdown('get value').split(','),
-                    },
+                        filters: modal.find('.dropdown[data-field=filter]').dropdown('get value').split(','),
+                    }),
                     onSuccess: r => {
                         $('body').toast({
                             title: 'Success',
