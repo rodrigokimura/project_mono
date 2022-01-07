@@ -7,7 +7,7 @@ User = get_user_model()
 
 class List(models.Model):
     name = models.CharField(max_length=50)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="todo_lists")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
