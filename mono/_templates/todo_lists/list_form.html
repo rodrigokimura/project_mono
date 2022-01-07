@@ -10,7 +10,7 @@
         <div class="eight wide column">
           <div class="ui container">
               <div class="ui segment" style="margin-top: 1em;">
-                  {% if request.user.list_set.all.count == 0 %}
+                  {% if request.user.todo_lists.all.count == 0 %}
                   <div class="ui message">Create your first to-do list.</div>
                   {% endif%}
                   

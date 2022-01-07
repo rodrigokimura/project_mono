@@ -42,7 +42,7 @@ class Ship(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.first_name_a} {self.last_name_a} + {self.first_name_b} {self.last_name_b}'
+        return f'{self.name_1} + {self.name_2}'
 
     @property
     def portmanteaus(self):

@@ -296,7 +296,7 @@ class NotificationTests(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
-        self.notification = Notification.objects.create(
+        self.notification: Notification = Notification.objects.create(
             title='test',
             message='message',
             to=self.user,
@@ -311,6 +311,10 @@ class NotificationTests(TestCase):
     def test_mark_as_read(self):
         self.notification.mark_as_read()
         self.assertIsNotNone(self.notification.read_at)
+
+    def test_mark_as_unread(self):
+        self.notification.mark_as_unread()
+        self.assertIsNone(self.notification.read_at)
 
 
 class CreateDefaultsTest(TestCase):

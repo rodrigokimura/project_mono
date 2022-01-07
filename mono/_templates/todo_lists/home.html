@@ -279,8 +279,8 @@
     {% if 'todo_list' in request.session %}
         getList({{ request.session.todo_list }});
     {% else %}
-        {% if request.user.list_set.all %}
-            getList({{ request.user.list_set.first.id }});
+        {% if request.user.todo_lists.all %}
+            getList({{ request.user.todo_lists.first.id }});
         {% endif %}
     {% endif %}
 
