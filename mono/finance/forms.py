@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from random import randint, randrange
+from typing import Dict, List
 
 import pytz
 from django import forms
@@ -176,31 +177,31 @@ class UniversalTransactionForm(forms.Form):
         self.fields['frequency'].widget.attrs.update({'class': 'ui dropdown'})
         self.fields['recurrent_or_installment'].widget.attrs.update({'class': 'ui radio checkbox'})
 
+    def _validate_required_fields(
+            self,
+            errors: Dict[str, ValidationError],
+            required_fields: List[str]
+    ) -> Dict[str, ValidationError]:
+        for field in required_fields:
+            if field not in self.cleaned_data:
+                errors[field] = ValidationError(_("This field is required."))
+        return errors
+
     def clean(self):
         type = self.cleaned_data['type']
         errors = {}
         if type == 'TRF':
             # if Transfer, from and to accounts are required
-            if self.cleaned_data.get('from_account') is None:
-                errors['from_account'] = ValidationError(_('This field is required.'))
-            if self.cleaned_data.get('to_account') is None:
-                errors['to_account'] = ValidationError(_('This field is required.'))
+            errors = self._validate_required_fields(errors, ['from_account', 'to_account'])
         elif self.cleaned_data['is_recurrent_or_installment']:
             # if Recurrent, Installment or Transaction, account and category are required
-            if self.cleaned_data.get('account') is None:
-                errors['account'] = ValidationError(_('This field is required.'))
-            if self.cleaned_data.get('category') is None:
-                errors['category'] = ValidationError(_('This field is required.'))
+            errors = self._validate_required_fields(errors, ['account', 'category'])
             if self.cleaned_data.get('recurrent_or_installment') == "R":
-                if self.cleaned_data['frequency'] is None:
-                    errors['frequency'] = ValidationError(_('This field is required.'))
+                errors = self._validate_required_fields(errors, ['frequency'])
             elif self.cleaned_data.get('recurrent_or_installment') == "I":
-                if self.cleaned_data['months'] is None:
-                    errors['months'] = ValidationError(_('This field is required.'))
-                if self.cleaned_data.get('handle_remainder') is None:
-                    errors['handle_remainder'] = ValidationError(_('This field is required.'))
+                errors = self._validate_required_fields(errors, ['months', 'handle_remainder'])
             elif self.cleaned_data.get('recurrent_or_installment') == "":
-                errors['recurrent_or_installment'] = ValidationError(_('This field is required.'))
+                errors = self._validate_required_fields(errors, ['recurrent_or_installment'])
         if len(errors) > 0:
             raise ValidationError(errors)
 

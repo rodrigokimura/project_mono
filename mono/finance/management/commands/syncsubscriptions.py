@@ -12,26 +12,29 @@ from ...models import Plan, Subscription, User
 class Command(BaseCommand):
     help = 'Command to sync subscriptions from Stripe'
 
+    def _get_all_customers(self):
+        customers = stripe.Customer.list(limit=100).data
+        if len(customers) == 100:
+            next_page = True
+            max_loops = 10
+            loop = 0
+            last_customer = customers[-1]
+            while next_page and loop < max_loops:
+                loop += 1
+                new_customers = stripe.Customer.list(limit=100, starting_after=last_customer).data
+                if len(new_customers) == 100:
+                    customers.extend(new_customers)
+                    last_customer = new_customers[-1]
+                else:
+                    next_page = False
+        print(f"Found {len(customers)} customers")
+        return customers
+
     def handle(self, *args, **options):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
             # Get all Stripe customers
-            customers = stripe.Customer.list(limit=100).data
-            if len(customers) == 100:
-                next_page = True
-                max_loops = 10
-                loop = 0
-                last_customer = customers[-1]
-                while next_page and loop < max_loops:
-                    loop += 1
-                    new_customers = stripe.Customer.list(limit=100, starting_after=last_customer).data
-                    if len(new_customers) == 100:
-                        customers.extend(new_customers)
-                        last_customer = new_customers[-1]
-                    else:
-                        next_page = False
-
-            print(f"Found {len(customers)} customers")
+            customers = self._get_all_customers()
 
             # Get subscription for each customer
             # Assumes one to one

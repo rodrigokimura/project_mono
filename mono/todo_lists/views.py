@@ -22,7 +22,7 @@ class HomePageView(LoginRequiredMixin, TemplateView):
     template_name = "todo_lists/home.html"
 
     def get(self, request, *args, **kwargs):
-        if request.user.list_set.all().count() == 0:
+        if request.user.todo_lists.all().count() == 0:
             return redirect('todo_lists:list_create')
         return super().get(request, *args, **kwargs)
 
