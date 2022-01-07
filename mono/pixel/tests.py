@@ -74,3 +74,22 @@ class FormTests(TestCase):
         form = SiteForm(data=data, request=request)
         form.save()
         self.assertGreater(Site.objects.count(), 0)
+
+
+class ViewTests(TestCase):
+
+    def test_root_non_authenticated_user(self):
+        response = self.client.get("/pixel/")
+        self.assertEqual(response.status_code, 302)
+
+    # def test_root_authenticated_user(self):
+    #     response = self.client.get("/pixel/")
+    #     self.assertEqual(response.status_code, 200)
+
+    # def test_site_creation(self):
+    #     response = self.client.get("/pixel/")
+    #     self.assertEqual(response.status_code, 200)
+
+    # def test_site_listing(self):
+    #     response = self.client.get("/pixel/tags/")
+    #     self.assertEqual(response.status_code, 200)

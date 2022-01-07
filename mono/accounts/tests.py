@@ -1,12 +1,16 @@
 from datetime import timedelta
+from unittest.mock import MagicMock
 
 import jwt
 from django.conf import settings
 from django.test import TestCase
-from django.test.client import Client
+from django.test.client import Client, RequestFactory
 from django.utils import timezone
+from django.views.generic.edit import FormView
 
+from .context_processors import unread_notification_count
 from .forms import UserCreateForm, UserProfileForm
+from .mixins import PassRequestToFormViewMixin
 from .models import Notification, User, UserProfile, user_directory_path
 
 
@@ -66,7 +70,7 @@ class UserProfileModelTests(TestCase):
         )
 
     def test_methods(self):
-        user_profile = UserProfile.objects.get(user=self.user)
+        user_profile: UserProfile = UserProfile.objects.get(user=self.user)
 
         self.assertIsNotNone(user_profile)
 
@@ -90,6 +94,18 @@ class UserProfileModelTests(TestCase):
                 message="Your account was successfully verified."
             ).exists()
         )
+
+    def test_generate_initials_avatar_exception(self):
+
+        def _save(*args, **kwargs):
+            print('fake save')
+            raise OSError('test')
+
+        user_profile: UserProfile = UserProfile.objects.get(user=self.user)
+        user_profile.avatar.save = MagicMock(side_effect=_save)
+        user_profile.generate_initials_avatar()
+        # self.assertEqual(user_profile.avatar.name, 'default.png')
+        user_profile.avatar.save.assert_called()
 
 
 class UserProfileViewTests(TestCase):
@@ -129,3 +145,36 @@ class UserProfileViewTests(TestCase):
         c.login(username=superuser.username, password='supersecret')
         r = c.post('/accounts/login-as/', {'user': superuser.id})
         self.assertContains(r, f"Successfully logged in as {superuser.username}")
+
+
+class ContextProcessorTests(TestCase):
+
+    fixtures = ['icon']
+
+    def test_user_context_processor(self):
+        request = RequestFactory().get('/')
+        user = User.objects.create(username="test")
+        request.user = user
+        context = unread_notification_count(request)
+        self.assertEqual(context['unread_notification_count'], 1)
+
+    def test_user_context_processor_no_notifications(self):
+        request = RequestFactory().get('/')
+        user = User.objects.create(username="test")
+        user.notifications.all().delete()
+        request.user = user
+        context = unread_notification_count(request)
+        self.assertEqual(context['unread_notification_count'], 0)
+
+
+class MixinTests(TestCase):
+
+    def test_pass_request_to_form_mixin(self):
+        class CustomFormView(PassRequestToFormViewMixin, FormView):
+            pass
+
+        request = RequestFactory().get('/')
+        view = CustomFormView()
+        view.setup(request)
+        kwargs = view.get_form_kwargs()
+        self.assertIn('request', kwargs)

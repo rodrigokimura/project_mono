@@ -26,8 +26,8 @@ generate-badges: flake8 cov
 		&& pipenv run genbadge coverage -v -i reports/coverage/coverage.xml -o reports/coverage/coverage-badge.svg \
 		&& pipenv run genbadge flake8 -v -i reports/flake8/flake8stats.txt -o reports/flake8/flake8-badge.svg
 
-migrate: set-pipenv-verbosity
+migrate:
 	@export APP_ENV=DEV && pipenv run python mono/manage.py migrate
 
-makemigrations: set-pipenv-verbosity
+makemigrations:
 	@export APP_ENV=DEV && pipenv run python mono/manage.py makemigrations
