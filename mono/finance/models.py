@@ -456,7 +456,7 @@ class Account(models.Model):
         qs = Transaction.objects.filter(account=self.pk)
         return qs.count()
 
-    def _get_coalesce_sum(self):
+    def _get_coalesce_sum(self) -> Coalesce:
         return Coalesce(
             Sum(
                 'amount',
@@ -467,56 +467,55 @@ class Account(models.Model):
         )
 
     def _get_credit_card_transactions(self, year, month):
-        if not self.credit_card:
-            raise Exception('Account is not of type credit card.')
-        qs = self.transaction_set.all()
+
+        qs: QuerySet[Transaction] = self.transaction_set.all()
+
         if self.settlement_date >= 15:
             month -= 1
-        range_start = datetime(
-            year,
-            month,
-            self.settlement_date,
-        )
-        if month == 12:
-            range_end = datetime(
-                year + 1,
-                1,
-                self.due_date,
-            )
-        else:
-            range_end = datetime(
-                year,
-                month + 1,
-                self.settlement_date,
-            )
-        qs = qs.filter(
-            timestamp__range=[range_start, range_end],
-        )
-        return qs
+
+        if month == 0:
+            month = 12
+            year -= 1
+        if month == 13:
+            month = 1
+            year += 1
+        range_start = datetime(year, month, self.settlement_date)
+
+        range_end = range_start + relativedelta(months=1)
+        return qs.filter(timestamp__range=[range_start, range_end])
+
+    def _get_credit_card_payments(self, year, month):
+
+        qs: QuerySet[Transaction] = self.transaction_set.all()
+
+        if self.settlement_date >= 15:
+            month -= 1
+
+        if month == 0:
+            month = 12
+            year -= 1
+        if month == 13:
+            month = 1
+            year += 1
+        range_start = datetime(year, month, self.due_date)
+
+        range_end = range_start + relativedelta(months=1)
+        return qs.filter(timestamp__range=[range_start, range_end])
 
     def get_credit_card_expenses(self, year, month):
         qs = self._get_credit_card_transactions(year, month)
         qs = qs.filter(category__type='EXP')
-        coalesce_sum = self._get_coalesce_sum()
-        return qs.aggregate(
-            sum=-coalesce_sum
-        )['sum']
+        return qs.aggregate(sum=-self._get_coalesce_sum())['sum']
 
     def get_credit_card_adjustments(self, year, month):
         qs = self._get_credit_card_transactions(year, month)
         qs = qs.filter(category__type='INC').filter(category__internal_type='ADJ')
-        coalesce_sum = self._get_coalesce_sum()
-        return qs.aggregate(
-            sum=coalesce_sum
-        )['sum']
+        return qs.aggregate(sum=self._get_coalesce_sum())['sum']
 
     def get_credit_card_payments(self, year, month):
-        qs = self._get_credit_card_transactions(year, month)
+        qs = self._get_credit_card_payments(year, month)
         qs = qs.filter(category__type='INC')
-        coalesce_sum = self._get_coalesce_sum()
-        return qs.aggregate(
-            sum=coalesce_sum
-        )['sum']
+        return qs.aggregate(sum=self._get_coalesce_sum())['sum']
 
     def is_invoice_paid(self, year, month):
         payments = self.get_credit_card_payments(year, month)
