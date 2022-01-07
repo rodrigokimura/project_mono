@@ -154,6 +154,9 @@ function getOptions(data) {
             options['series'].push(Math.round(categData * 100) / 100);
             options['labels'].push(categ);
         }
+        options['dataLabels'] = {
+            'enabled': true
+        }
     } else {
         for (categ of categs) {
             categData = [];
