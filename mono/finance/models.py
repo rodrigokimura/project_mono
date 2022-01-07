@@ -1174,26 +1174,21 @@ class Chart(models.Model):
         return qs
 
     def _apply_filter(self, qs: QuerySet) -> QuerySet:
-        if 'expenses' in self.filters:
-            qs = qs.filter(category__type=Category.EXPENSE)
-        if 'incomes' in self.filters:
-            qs = qs.filter(category__type=Category.INCOME)
-        if 'balance_adjustments' in self.filters:
-            qs = qs.filter(category__internal_type=Category.ADJUSTMENT)
-        if 'not_balance_adjustments' in self.filters:
-            qs = qs.exclude(category__internal_type=Category.ADJUSTMENT)
-        if 'transferences' in self.filters:
-            qs = qs.filter(category__internal_type=Category.TRANSFER)
-        if 'not_transferences' in self.filters:
-            qs = qs.exclude(category__internal_type=Category.TRANSFER)
-        if 'current_year' in self.filters:
-            qs = qs.filter(timestamp__year=timezone.now().year)
-        if 'past_year' in self.filters:
-            qs = qs.filter(timestamp__year=timezone.now().year - 1)
-        if 'current_month' in self.filters:
-            qs = qs.filter(timestamp__month=timezone.now().month)
-        if 'past_month' in self.filters:
-            qs = qs.filter(timestamp__month=timezone.now().month - 1)
+        FILTERS = [
+            ('expenses', lambda qs: qs.filter(category__type=Category.EXPENSE)),
+            ('incomes', lambda qs: qs.filter(category__type=Category.INCOME)),
+            ('balance_adjustments', lambda qs: qs.filter(category__internal_type=Category.ADJUSTMENT)),
+            ('not_balance_adjustments', lambda qs: qs.exclude(category__internal_type=Category.ADJUSTMENT)),
+            ('transferences', lambda qs: qs.filter(category__internal_type=Category.TRANSFER)),
+            ('not_transferences', lambda qs: qs.exclude(category__internal_type=Category.TRANSFER)),
+            ('current_year', lambda qs: qs.filter(timestamp__year=timezone.now().year)),
+            ('past_year', lambda qs: qs.filter(timestamp__year=timezone.now().year - 1)),
+            ('current_month', lambda qs: qs.filter(timestamp__month=timezone.now().month)),
+            ('past_month', lambda qs: qs.filter(timestamp__month=timezone.now().month - 1)),
+        ]
+        for filter_name, filter_func in FILTERS:
+            if filter_name in self.filters:
+                qs = filter_func(qs)
         return qs
 
     def _apply_axis(self, qs: QuerySet) -> QuerySet:
