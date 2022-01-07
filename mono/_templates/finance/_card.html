@@ -73,6 +73,32 @@
         }
       );
       </script>
+      
+    {% elif card == _('Wallet') %}
+      <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+      <div id="wallet-chart"></div>
+
+      <script>
+        var walletChart = new ApexCharts(
+          document.querySelector("#wallet-chart"), 
+          {
+            series: [
+              {% for v in wallet.values %}{{ v }},{% endfor %}
+            ],
+            chart: {
+              type: 'donut',
+            },
+            labels: [
+              {% for k in wallet.keys %}"{{ k }}",{% endfor %}
+            ],
+            legend: {
+              show: false
+            }  
+          }
+        );
+        walletChart.render();
+      </script>
 
     {% endif %}
 

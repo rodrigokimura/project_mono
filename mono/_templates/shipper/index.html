@@ -1,0 +1,25 @@
+{% extends "pixel/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="row">
+            <div class="column">
+                <h1 class="ui header">
+                    <div class="content">
+                        {{ title }}
+                    </div>
+                </h1>
+                <div class="ui header">{{ description }}</div>
+                <a href="{% url 'shipper:ship_create' %}" class="ui primary right labeled icon button">
+                    <i class="right arrow icon"></i>
+                    Create ship name
+                </a>
+            </div>
+        <div class="row">
+            <div class="column">
+            </div>
+        </div>
+    </div>
+{% endblock %}

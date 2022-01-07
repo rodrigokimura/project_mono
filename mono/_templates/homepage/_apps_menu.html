@@ -5,13 +5,14 @@
   {% include "homepage/_app_button.html" with name="Notes" url="/nt/" emoji="notepad_spiral" %}
   {% include "homepage/_app_button.html" with name="To-do lists" url="/todo/" emoji="ballot_box_with_check" %}
   {% include "homepage/_app_button.html" with name="Pixel" url="/pixel/" emoji="bar_chart" %}
+  {% include "homepage/_app_button.html" with name="Shipper" url="/shipper/" emoji="couple_with_heart" %}
   
   {% if request.user.is_superuser %}
       {% comment %} 
           {% include "homepage/_app_button.html" with name="Messenger" url="/ms/" emoji="envelope" %} 
       {% endcomment %}
       {% include "homepage/_app_button.html" with name="Admin" url="/admin/" emoji="control_knobs" %}
-      {% include "homepage/_app_button.html" with name="Area 51" url="/restricted-area/" emoji="closed_lock_with_key" %}
+      {% include "homepage/_app_button.html" with name="Restricted Area" url="/restricted-area/" emoji="closed_lock_with_key" %}
       {% include "homepage/_app_button.html" with name="Watcher" url="/watcher/" emoji="pager" %}
       {% include "homepage/_app_button.html" with name="Deploy" url="/hc/deploy/" emoji="rocket" %}
   {% endif %}
