@@ -1,0 +1,42 @@
+{% extends "shipper/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+
+        <div class="row">
+            <div class="column">
+                <form method="post" class="ui {% if form.errors %}error{% endif %} form">
+              {% csrf_token %}
+              {% include "_form.html" with form=form %}
+              {% if form.field_errors %}
+                <div class="ui error message">
+                  {% for error in form.field_errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+              <div class="ui error message"></div>
+
+              <div class="ui fluid buttons">
+                <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
+                  {% translate "Cancel" %}
+                </a>
+                {% if object and object.created_by == request.user %}
+                <a class="ui button red" href="{% url 'finance:budget_delete' pk=object.pk %}">
+                  {% translate "Delete" %}
+                </a>
+                {% endif %}
+                <button class="ui button primary" type="submit">
+                  {% translate "Save" %}
+                </button>
+              </div>
+            </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(() => { })
+    </script>
+{% endblock %}
