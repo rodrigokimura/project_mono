@@ -31,3 +31,6 @@ migrate:
 
 makemigrations:
 	@export APP_ENV=DEV && pipenv run python mono/manage.py makemigrations
+
+runserver:
+	@export APP_ENV=DEV && pipenv run python mono/manage.py runserver 127.0.0.42:8080
