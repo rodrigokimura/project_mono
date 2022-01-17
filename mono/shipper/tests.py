@@ -26,10 +26,10 @@ class ModelTests(TestCase):
 
     def test_portmanteaus(self):
         ship: Ship = Ship.objects.create(name_1='teste', name_2='aleatorio')
-        portmanteaus = [p[2] for p in ship.portmanteaus]
-        self.assertIn('Teleatorio', portmanteaus)
-        self.assertIn('Aste', portmanteaus)
-        self.assertIn('Tetorio', portmanteaus)
-        self.assertIn('Aleaste', portmanteaus)
-        self.assertIn('Terio', portmanteaus)
-        self.assertIn('Aleatoste', portmanteaus)
+        portmanteaus = [str(p) for p in ship.portmanteaus.all()]
+        self.assertIn('teleatorio', portmanteaus)
+        self.assertIn('aste', portmanteaus)
+        self.assertIn('tetorio', portmanteaus)
+        self.assertIn('aleaste', portmanteaus)
+        self.assertIn('terio', portmanteaus)
+        self.assertIn('aleatoste', portmanteaus)
