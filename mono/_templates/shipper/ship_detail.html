@@ -9,7 +9,7 @@
             <div class="column">
                 <h1 class="ui header">
                     <div class="content">
-                        Ships generated for <span class="ui blue text">{{ object.name_1 }}</span><i class="plus icon"></i><span class="ui orange text">{{ object.name_2 }}</span>
+                        Ships generated for <span class="ui big blue label">{{ object.name_1|upper }}</span><i class="plus icon"></i><span class="ui big orange label">{{ object.name_2|upper }}</span>
                     </div>
                 </h1>
             </div>
@@ -26,14 +26,14 @@
                             {% endcomment %}
                             {% comment %} <div class="header">{{ p|upper }}</div> {% endcomment %}
                             <div class="header">
-                                {% if p.inverted %}
+                                {% if p.is_inverted %}
                                     <span class="ui orange text">{{ p.first_partial|upper }}</span><span class="ui blue text">{{ p.second_partial|upper }}</span>
                                 {% else %}
                                     <span class="ui blue text">{{ p.first_partial|upper }}</span><span class="ui orange text">{{ p.second_partial|upper }}</span>
                                 {% endif %}
                             </div>
                             <div class="description">
-                                {% if p.inverted %}
+                                {% if p.is_inverted %}
                                     {% for substring, is_partial in p.first_summary %}<span class="ui {% if is_partial %}orange{% endif %} text">{{ substring|upper }}</span>{% endfor %} + {% for substring, is_partial in p.second_summary %}<span class="ui {% if is_partial %}blue{% endif %} text">{{ substring|upper }}</span>{% endfor %}
                                 {% else %}
                                     {% for substring, is_partial in p.first_summary %}<span class="ui {% if is_partial %}blue{% endif %} text">{{ substring|upper }}</span>{% endfor %} + {% for substring, is_partial in p.second_summary %}<span class="ui {% if is_partial %}orange{% endif %} text">{{ substring|upper }}</span>{% endfor %}
