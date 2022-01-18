@@ -123,16 +123,19 @@ class WordPair:
                     p = Portmanteau(
                         PortmanteauConfig(self.first, i, True),
                         PortmanteauConfig(self.second, j, True),
+                        inverted=False,
                     )
                     portmanteaus.append(p)
                     p = Portmanteau(
                         PortmanteauConfig(self.second, j, True),
                         PortmanteauConfig(self.first, i, True),
+                        inverted=True,
                     )
                     portmanteaus.append(p)
                 p = Portmanteau(
                     PortmanteauConfig(self.first, i, True),
                     PortmanteauConfig(self.second, j, False),
+                    inverted=False,
                 )
                 portmanteaus.append(p)
                 p = Portmanteau(
