@@ -27,7 +27,7 @@ class PortmanteauAdmin(admin.ModelAdmin):
     list_display = [
         'id',
         'ship',
-        '__str__'
+        '__str__',
     ]
     list_filter = [
         'id',
