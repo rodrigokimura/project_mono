@@ -1,6 +1,5 @@
+from __mono.utils import validate_file_size
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-from rest_framework.fields import ImageField
 from rest_framework.serializers import ModelSerializer
 
 from .models import UserProfile
@@ -15,28 +14,25 @@ class ProfileSerializer(ModelSerializer):
         ]
 
     def validate_avatar(self, f):
-        file_size = f.size
-        limit_mb = 10
-        if file_size > limit_mb * 1024 * 1024:
-            raise ValidationError("Max size of file is %s MiB" % limit_mb)
-        return f
+        return validate_file_size(f, 10)
 
 
 class UserSerializer(ModelSerializer):
-
-    avatar = ImageField()
     profile = ProfileSerializer(many=False, read_only=True)
 
     class Meta:
         model = User
+
         fields = [
             'username',
-            'first_name',
-            'last_name',
             'email',
-            'avatar',
             'profile',
         ]
+        extra_kwargs = {
+            'username': {'read_only': True},
+            'email': {'read_only': True},
+            'profile': {'read_only': True},
+        }
 
     def create(self, validated_data):
         avatar = validated_data.get('avatar')

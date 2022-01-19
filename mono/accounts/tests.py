@@ -98,13 +98,11 @@ class UserProfileModelTests(TestCase):
     def test_generate_initials_avatar_exception(self):
 
         def _save(*args, **kwargs):
-            print('fake save')
             raise OSError('test')
 
         user_profile: UserProfile = UserProfile.objects.get(user=self.user)
         user_profile.avatar.save = MagicMock(side_effect=_save)
         user_profile.generate_initials_avatar()
-        # self.assertEqual(user_profile.avatar.name, 'default.png')
         user_profile.avatar.save.assert_called()
 
 

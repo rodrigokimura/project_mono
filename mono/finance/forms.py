@@ -3,6 +3,9 @@ from random import randint, randrange
 from typing import Dict, List
 
 import pytz
+from __mono.widgets import (
+    ButtonsWidget, CalendarWidget, IconWidget, RadioWidget, ToggleWidget,
+)
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -17,10 +20,7 @@ from .models import (
     Account, Budget, BudgetConfiguration, Category, Goal, Group, Icon,
     Installment, RecurrentTransaction, Transaction,
 )
-from .widgets import (
-    ButtonsWidget, CalendarWidget, CategoryWidget, IconWidget, RadioWidget,
-    ToggleWidget,
-)
+from .widgets import CategoryWidget
 
 User = get_user_model()
 
@@ -398,7 +398,7 @@ class CategoryForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['created_by', 'internal_type']
         widgets = {
-            'icon': IconWidget,
+            'icon': IconWidget(entity_type=Icon),
             'active': ToggleWidget
         }
 
