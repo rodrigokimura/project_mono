@@ -34,12 +34,14 @@ django-multiselectfield = "*"
 genbadge = "*"
 unittest-xml-reporting = "*"
 flake8-html = "*"
+pylint-django = "*"
 
 [dev-packages]
 autopep8 = "*"
 flake8 = "*"
 isort = "*"
 pre-commit = "*"
+pylint = "*"
 
 [scripts]
 collectstatic = "python mono/manage.py collectstatic --noinput"
