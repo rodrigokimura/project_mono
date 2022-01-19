@@ -4,7 +4,7 @@ from typing import Dict, List
 
 import pytz
 from __mono.widgets import (
-    ButtonsWidget, CalendarWidget, RadioWidget, ToggleWidget,
+    ButtonsWidget, CalendarWidget, IconWidget, RadioWidget, ToggleWidget,
 )
 from django import forms
 from django.contrib import messages
@@ -20,7 +20,7 @@ from .models import (
     Account, Budget, BudgetConfiguration, Category, Goal, Group, Icon,
     Installment, RecurrentTransaction, Transaction,
 )
-from .widgets import CategoryWidget, IconWidget
+from .widgets import CategoryWidget
 
 User = get_user_model()
 
@@ -398,7 +398,7 @@ class CategoryForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['created_by', 'internal_type']
         widgets = {
-            'icon': IconWidget,
+            'icon': IconWidget(entity_type=Icon),
             'active': ToggleWidget
         }
 
