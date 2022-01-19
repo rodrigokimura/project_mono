@@ -1,9 +1,9 @@
 import json
 import os
 
-from accounts.models import UserProfile
+from __mono.utils import validate_file_size
+from accounts.serializers import UserSerializer
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
@@ -12,33 +12,6 @@ from .models import (
     Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Tag,
     Theme, TimeEntry,
 )
-
-
-class ProfileSerializer(ModelSerializer):
-
-    class Meta:
-        model = UserProfile
-        fields = [
-            'avatar'
-        ]
-
-
-class UserSerializer(ModelSerializer):
-    profile = ProfileSerializer(many=False, read_only=True)
-
-    class Meta:
-        model = User
-
-        fields = [
-            'username',
-            'email',
-            'profile',
-        ]
-        extra_kwargs = {
-            'username': {'read_only': True},
-            'email': {'read_only': True},
-            'profile': {'read_only': True},
-        }
 
 
 class ThemeSerializer(ModelSerializer):
@@ -229,11 +202,7 @@ class CardFileSerializer(ModelSerializer):
         ]
 
     def validate_file(self, f):
-        file_size = f.size
-        limit_mb = 10
-        if file_size > limit_mb * 1024 * 1024:
-            raise ValidationError("Max size of file is %s MiB" % limit_mb)
-        return f
+        return validate_file_size(f, 10)
 
     def create(self, validated_data):
         instance = super().create(validated_data)
@@ -288,7 +257,7 @@ class CardSerializer(ModelSerializer):
             for tag_dict in requested_tags:
                 if tag_dict['name'].strip() == '':
                     continue
-                tag, created = Tag.objects.update_or_create(
+                tag, _ = Tag.objects.update_or_create(
                     name=tag_dict['name'],
                     board=card.bucket.board,
                     defaults={
@@ -463,30 +432,26 @@ class CardMoveSerializer(Serializer):
     def validate_source_bucket(self, value):
         if Bucket.objects.filter(id=value).exists():
             return value
-        else:
-            raise serializers.ValidationError("Invalid bucket")
+        raise serializers.ValidationError("Invalid bucket")
 
     def validate_target_bucket(self, value):
         if Bucket.objects.filter(id=value).exists():
             return value
-        else:
-            raise serializers.ValidationError("Invalid bucket")
+        raise serializers.ValidationError("Invalid bucket")
 
     def validate_card(self, value):
         if Card.objects.filter(id=value).exists():
             return value
-        else:
-            raise serializers.ValidationError("Invalid card")
+        raise serializers.ValidationError("Invalid card")
 
     def validate_order(self, value):
         if value > 0:
             return value
-        else:
-            raise serializers.ValidationError("Invalid order")
+        raise serializers.ValidationError("Invalid order")
 
-    def validate(self, data):
-        source_bucket = Bucket.objects.get(id=data['source_bucket'])
-        target_bucket = Bucket.objects.get(id=data['target_bucket'])
+    def validate(self, attrs):
+        source_bucket = Bucket.objects.get(id=attrs['source_bucket'])
+        target_bucket = Bucket.objects.get(id=attrs['target_bucket'])
 
         if self.context['request'].user not in source_bucket.board.allowed_users:
             raise serializers.ValidationError("User not allowed")
@@ -494,7 +459,7 @@ class CardMoveSerializer(Serializer):
         if self.context['request'].user not in target_bucket.board.allowed_users:
             raise serializers.ValidationError("User not allowed")
 
-        return data
+        return attrs
 
     def move(self):
         status_changed = False
@@ -511,26 +476,26 @@ class CardMoveSerializer(Serializer):
         order = self.validated_data['order']
 
         if source_bucket == target_bucket:
-            for i, c in enumerate(target_bucket.card_set.exclude(id=self.validated_data['card'])):
+            for i, other_card in enumerate(target_bucket.card_set.exclude(id=self.validated_data['card'])):
                 if i + 1 < order:
-                    c.order = i + 1
-                    c.save()
+                    other_card.order = i + 1
+                    other_card.save()
                 else:
-                    c.order = i + 2
-                    c.save()
+                    other_card.order = i + 2
+                    other_card.save()
             card.order = order
             card.save()
         else:
-            for i, c in enumerate(target_bucket.card_set.all()):
+            for i, other_card in enumerate(target_bucket.card_set.all()):
                 if i + 1 >= order:
-                    c.order = i + 2
-                    c.save()
+                    other_card.order = i + 2
+                    other_card.save()
             card.bucket = target_bucket
             card.order = order
             card.save()
-            for i, c in enumerate(source_bucket.card_set.all()):
-                c.order = i + 1
-                c.save()
+            for i, other_card in enumerate(source_bucket.card_set.all()):
+                other_card.order = i + 1
+                other_card.save()
 
             # Apply auto_status
             auto_status = target_bucket.auto_status
@@ -559,20 +524,17 @@ class BucketMoveSerializer(Serializer):
     def validate_board(self, value):
         if Board.objects.filter(id=value).exists():
             return value
-        else:
-            raise serializers.ValidationError("Invalid board")
+        raise serializers.ValidationError("Invalid board")
 
     def validate_bucket(self, value):
         if Bucket.objects.filter(id=value).exists():
             return value
-        else:
-            raise serializers.ValidationError("Invalid bucket")
+        raise serializers.ValidationError("Invalid bucket")
 
     def validate_order(self, value):
         if value > 0:
             return value
-        else:
-            raise serializers.ValidationError("Invalid order")
+        raise serializers.ValidationError("Invalid order")
 
     def validate(self, data):
         bucket = Bucket.objects.get(id=data['bucket'])
@@ -595,13 +557,13 @@ class BucketMoveSerializer(Serializer):
         )
         order = self.validated_data['order']
 
-        for i, b in enumerate(board.bucket_set.exclude(id=self.validated_data['bucket'])):
+        for i, other_board in enumerate(board.bucket_set.exclude(id=self.validated_data['bucket'])):
             if i + 1 < order:
-                b.order = i + 1
-                b.save()
+                other_board.order = i + 1
+                other_board.save()
             else:
-                b.order = i + 2
-                b.save()
+                other_board.order = i + 2
+                other_board.save()
         bucket.order = order
         bucket.save()
         bucket.board.touch()

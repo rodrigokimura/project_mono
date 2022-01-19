@@ -12,7 +12,7 @@ class FakeImage:
 
 class FakeBucket:
     def touch(self) -> None:
-        print('fake touch')
+        pass
 
 
 class FakeObject:
