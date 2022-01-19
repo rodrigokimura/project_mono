@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import RequestFactory, TestCase
 
@@ -5,10 +6,10 @@ from .admin import MyAdminSite
 from .asgi import application as asgi_app
 from .auth_backends import EmailOrUsernameModelBackend
 from .context_processors import environment, language_extras
+from .widgets import (
+    ButtonsWidget, CalendarWidget, RadioWidget, SliderWidget, ToggleWidget,
+)
 from .wsgi import application as wsgi_app
-
-# from django.conf import settings
-
 
 User = get_user_model()
 
@@ -103,3 +104,107 @@ class ContextProcessorsTest(TestCase):
         context = language_extras(request=request)
         self.assertIn('LANGUAGE_EXTRAS', context)
         self.assertIn('tinyMCE_language', context)
+
+
+class WidgetTests(TestCase):
+
+    def setUp(self) -> None:
+        self.choices = [
+            (1, "angry"),
+            (2, "cry"),
+            (3, "slight_frown"),
+            (4, "expressionless"),
+            (5, "slight_smile"),
+            (6, "grinning"),
+            (7, "heart_eyes"),
+        ]
+
+    def test_calendar_widget_get_context_method(self):
+        widget = CalendarWidget()
+        context = widget.get_context(name='initial_date', value='1')
+        self.assertEqual(context, {
+            'widget': {
+                'name': 'initial_date',
+                'value': '1',
+                'placeholder': 'initial date',
+            },
+            'type': 'datetime',
+            'format': 'n/d/Y h:i A',
+            'LANGUAGE_EXTRAS': settings.LANGUAGE_EXTRAS,
+        })
+
+    def test_calendar_widget_render_method(self):
+        widget = CalendarWidget()
+        render = widget.render(name='initial_date', value='1')
+        self.assertIn('name="initial_date"', str(render))
+
+    def test_toggle_widget_get_context_method(self):
+        widget = ToggleWidget()
+        context = widget.get_context(name='bool', value='1')
+        self.assertEqual(context, {
+            'widget': {
+                'name': 'bool',
+                'value': '1',
+            },
+        })
+
+    def test_toggle_widget_render_method(self):
+        widget = ToggleWidget()
+        render = widget.render(name='bool', value='1')
+        self.assertIn('name="bool"', str(render))
+
+    def test_radio_widget_get_context_method(self):
+        choices = choices = [
+            ("R", "Recurrent"),
+            ("I", "Installment"),
+        ]
+        widget = RadioWidget(choices=choices)
+        context = widget.get_context(name='radio', value='1')
+        self.assertEqual(context, {
+            'widget': {
+                'name': 'radio',
+                'value': '1',
+                'choices': choices,
+            },
+        })
+
+    def test_radio_widget_render_method(self):
+        choices = choices = [
+            ("R", "Recurrent"),
+            ("I", "Installment"),
+        ]
+        widget = RadioWidget(choices=choices)
+        render = widget.render(name='radio', value='1')
+        self.assertIn('name="radio"', str(render))
+
+    def test_buttons_widget_get_context_method(self):
+        buttons_widget = ButtonsWidget(choices=self.choices)
+        context = buttons_widget.get_context(name='feeling', value='1')
+        self.assertEqual(context, {
+            'widget': {
+                'name': 'feeling',
+                'value': '1',
+                'choices': self.choices,
+            },
+        })
+
+    def test_buttons_widget_render_method(self):
+        buttons_widget = ButtonsWidget(choices=self.choices)
+        render = buttons_widget.render(name='feeling', value='1')
+        self.assertIn('name="feeling"', str(render))
+
+    def test_slider_widget_get_context_method(self):
+        slider_widget = SliderWidget()
+        context = slider_widget.get_context(name='public', value=True)
+        self.assertEqual(context, {
+            'widget': {
+                'name': 'public',
+                'value': True,
+                'label': 'Public',
+            },
+        })
+
+    def test_slider_widget_render_method(self):
+        slider_widget = SliderWidget()
+        render = slider_widget.render(name='public', value=True)
+        self.assertIn('name="public"', str(render))

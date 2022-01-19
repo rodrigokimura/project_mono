@@ -1,8 +1,8 @@
+from __mono.widgets import ButtonsWidget, SliderWidget
 from django import forms
 from django.utils.translation import gettext as _
 
 from .models import Feedback
-from .widgets import ButtonsWidget, SliderWidget
 
 
 class FeedbackForm(forms.ModelForm):

@@ -1,7 +1,7 @@
+from __mono.widgets import ToggleWidget
 from django import forms
 
 from .models import Board, Project
-from .widgets import ToggleWidget
 
 
 class ProjectForm(forms.ModelForm):
