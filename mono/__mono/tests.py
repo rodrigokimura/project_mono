@@ -7,7 +7,8 @@ from .asgi import application as asgi_app
 from .auth_backends import EmailOrUsernameModelBackend
 from .context_processors import environment, language_extras
 from .widgets import (
-    ButtonsWidget, CalendarWidget, RadioWidget, SliderWidget, ToggleWidget,
+    ButtonsWidget, CalendarWidget, IconWidget, RadioWidget, SliderWidget,
+    ToggleWidget,
 )
 from .wsgi import application as wsgi_app
 
@@ -104,6 +105,18 @@ class ContextProcessorsTest(TestCase):
         context = language_extras(request=request)
         self.assertIn('LANGUAGE_EXTRAS', context)
         self.assertIn('tinyMCE_language', context)
+
+
+class MockedManager:
+    def all(self):
+        return [
+            {'id': 1, 'name': 'test1'},
+            {'id': 2, 'name': 'test2'},
+        ]
+
+
+class MockedModel:
+    objects = MockedManager()
 
 
 class WidgetTests(TestCase):
@@ -208,3 +221,16 @@ class WidgetTests(TestCase):
         slider_widget = SliderWidget()
         render = slider_widget.render(name='public', value=True)
         self.assertIn('name="public"', str(render))
+
+    def test_icon_widget_get_context_method(self):
+        widget = IconWidget(entity_type=MockedModel)
+        context = widget.get_context(name='bool', value='1')
+        self.assertEqual(context['widget'], {
+            'name': 'bool',
+            'value': '1',
+        })
+
+    def test_icon_widget_render_method(self):
+        widget = IconWidget(entity_type=MockedModel)
+        render = widget.render(name='bool', value='1')
+        self.assertIn('name="bool"', str(render))

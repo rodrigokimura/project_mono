@@ -171,13 +171,13 @@ class UserDetailAPIView(LoginRequiredMixin, APIView):
 
     def patch(self, request, pk, format=None, **kwargs):
         user = self.get_object(pk)
-        serializer = UserSerializer(user, data=request.data, partial=True)
         if request.user == user:
+            serializer = UserSerializer(user, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response('You are trying to edit another user.', status=status.HTTP_403_FORBIDDEN)
 
 
 class UserProfileDetailAPIView(LoginRequiredMixin, APIView):

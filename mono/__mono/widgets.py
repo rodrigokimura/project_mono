@@ -111,3 +111,25 @@ class SliderWidget(Widget):
         context = self.get_context(name, value, attrs)
         template = get_template(self.template_name).render(context)
         return mark_safe(template)
+
+
+class IconWidget(Widget):
+    template_name = 'widgets/ui_icon.html'
+
+    def __init__(self, entity_type, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.entity_type = entity_type
+
+    def get_context(self, name, value, attrs=None):
+        return {
+            'widget': {
+                'name': name,
+                'value': value,
+            },
+            'icon_list': self.entity_type.objects.all()
+        }
+
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = get_template(self.template_name).render(context)
+        return mark_safe(template)

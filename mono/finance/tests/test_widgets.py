@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from ..models import Category
-from ..widgets import CategoryWidget, IconWidget
+from ..widgets import CategoryWidget
 
 
 class WidgetTests(TestCase):
@@ -21,18 +21,5 @@ class WidgetTests(TestCase):
     def test_category_widget_render_method(self):
         widget = CategoryWidget()
         widget.queryset = None
-        render = widget.render(name='bool', value='1')
-        self.assertIn('name="bool"', str(render))
-
-    def test_icon_widget_get_context_method(self):
-        widget = IconWidget()
-        context = widget.get_context(name='bool', value='1')
-        self.assertEqual(context['widget'], {
-            'name': 'bool',
-            'value': '1',
-        })
-
-    def test_icon_widget_render_method(self):
-        widget = IconWidget()
         render = widget.render(name='bool', value='1')
         self.assertIn('name="bool"', str(render))
