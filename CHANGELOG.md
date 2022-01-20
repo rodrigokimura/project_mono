@@ -1,3 +1,13 @@
+## 1.1.0 (2022-01-20)
+
+### Feat
+
+- **healthcheck**: add pull command to mark_as_deployed
+
+### Fix
+
+- **shipper**: change coloring of portmanteaus
+
 ## 1.0.0 (2022-01-20)
 
 ### Feat
