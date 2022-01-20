@@ -268,8 +268,8 @@ REST_FRAMEWORK = {
 SOCIAL_AUTH_GITHUB_KEY = os.getenv('SOCIAL_AUTH_GITHUB_KEY')
 SOCIAL_AUTH_GITHUB_SECRET = os.getenv('SOCIAL_AUTH_GITHUB_SECRET')
 
-SOCIAL_AUTH_LOGIN_ERROR_URL = reverse_lazy('finance:configuration')
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = reverse_lazy('finance:configuration')
+SOCIAL_AUTH_LOGIN_ERROR_URL = reverse_lazy('accounts:config')
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = reverse_lazy('accounts:config')
 SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
 # MAINTENANCE MODE

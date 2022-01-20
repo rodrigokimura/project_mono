@@ -202,17 +202,8 @@ class InviteAdmin(admin.ModelAdmin):
 
 @admin.register(models.Chart)
 class ChartAdmin(admin.ModelAdmin):
-    list_display = [
-        "title",
-        "type",
-        "metric",
-        "field",
-        "axis",
-        "category",
-        "filters",
-        "created_by",
-        "order",
-    ]
+    list_display = [field.name for field in models.Chart._meta.get_fields()]
+
     list_filter = [
         "type",
         "metric",

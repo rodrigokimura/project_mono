@@ -1,8 +1,9 @@
 from collections import defaultdict
 from typing import Any, Dict
 
-from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from __mono.mixins import PassRequestToFormViewMixin
+from __mono.views import ProtectedDeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
 from django.template import loader
@@ -10,11 +11,10 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views import View
 from django.views.generic import ListView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 from markdownx.utils import markdownify
 
 from .forms import NoteForm
-from .mixins import PassRequestToFormViewMixin
 from .models import Note
 
 FILE_MARKER = '<files>'
@@ -117,14 +117,7 @@ class NoteListView(LoginRequiredMixin, ListView):
         return context
 
 
-class NoteDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+class NoteDeleteView(ProtectedDeleteView):
     model = Note
     success_url = reverse_lazy('notes:notes')
     success_message = _("Note was deleted successfully")
-
-    def test_func(self):
-        return self.get_object().created_by == self.request.user
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)

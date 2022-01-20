@@ -6,11 +6,9 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.client import Client, RequestFactory
 from django.utils import timezone
-from django.views.generic.edit import FormView
 
 from .context_processors import unread_notification_count
 from .forms import UserCreateForm, UserProfileForm
-from .mixins import PassRequestToFormViewMixin
 from .models import Notification, User, UserProfile, user_directory_path
 
 
@@ -163,16 +161,3 @@ class ContextProcessorTests(TestCase):
         request.user = user
         context = unread_notification_count(request)
         self.assertEqual(context['unread_notification_count'], 0)
-
-
-class MixinTests(TestCase):
-
-    def test_pass_request_to_form_mixin(self):
-        class CustomFormView(PassRequestToFormViewMixin, FormView):
-            pass
-
-        request = RequestFactory().get('/')
-        view = CustomFormView()
-        view.setup(request)
-        kwargs = view.get_form_kwargs()
-        self.assertIn('request', kwargs)

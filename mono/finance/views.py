@@ -4,6 +4,7 @@ from datetime import datetime
 import jwt
 import pytz
 import stripe
+from __mono.mixins import PassRequestToFormViewMixin
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib import messages
@@ -40,7 +41,6 @@ from .forms import (
     GoalForm, GroupForm, IconForm, InstallmentForm, RecurrentTransactionForm,
     TransactionForm, UniversalTransactionForm,
 )
-from .mixins import PassRequestToFormViewMixin
 from .models import (
     Account, Budget, BudgetConfiguration, Category, Chart, Configuration, Goal,
     Group, Icon, Installment, Invite, Plan, RecurrentTransaction, Subscription,
@@ -1251,51 +1251,6 @@ class StripeWebhookView(View):
                 Subscription.objects.get(user=user).delete()
 
         return HttpResponse(status=200)
-
-
-class ConfigurationView(LoginRequiredMixin, TemplateView):
-
-    template_name = "finance/configuration.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if Subscription.objects.filter(user=self.request.user).exists():
-            context['subscription'] = Subscription.objects.get(user=self.request.user)
-        else:
-            context['subscription'] = None
-
-        stripe.api_key = settings.STRIPE_SECRET_KEY
-        try:
-            customer = stripe.Customer.list(email=self.request.user.email).data[0]
-            payment_method = stripe.PaymentMethod.retrieve(customer.invoice_settings.default_payment_method)
-            context['payment_method'] = payment_method
-        except IndexError:
-            context['payment_method'] = None
-
-        # For social login controls
-        try:
-            github_login = self.request.user.social_auth.get(provider='github')
-        except UserSocialAuth.DoesNotExist:
-            github_login = None
-
-        try:
-            twitter_login = self.request.user.social_auth.get(provider='twitter')
-        except UserSocialAuth.DoesNotExist:
-            twitter_login = None
-
-        try:
-            facebook_login = self.request.user.social_auth.get(provider='facebook')
-        except UserSocialAuth.DoesNotExist:
-            facebook_login = None
-
-        can_disconnect = (self.request.user.social_auth.count() > 1 or self.request.user.has_usable_password())
-
-        context['github_login'] = github_login
-        context['twitter_login'] = twitter_login
-        context['facebook_login'] = facebook_login
-        context['can_disconnect'] = can_disconnect
-
-        return context
 
 
 class RestrictedAreaView(LoginRequiredMixin, TemplateView):

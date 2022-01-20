@@ -1,18 +1,18 @@
-from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from __mono.mixins import PassRequestToFormViewMixin
+from __mono.views import ProtectedDeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls.base import reverse_lazy
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .forms import ListForm
-from .mixins import PassRequestToFormViewMixin
 from .models import List, Task
 from .serializers import ListSerializer, TaskSerializer
 
@@ -45,18 +45,10 @@ class ListUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMess
     success_message = "%(name)s was updated successfully"
 
 
-class ListDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+class ListDeleteView(ProtectedDeleteView):
     model = List
     success_url = reverse_lazy('todo_lists:index')
     success_message = "List was deleted successfully"
-
-    def test_func(self):
-        return self.get_object().created_by == self.request.user
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
-
 
 # API views
 

@@ -86,7 +86,6 @@ urlpatterns = [
     path('checkout/', views.CheckoutView.as_view(), name='checkout'),
     path('stripe/webhook/', views.StripeWebhookView.as_view(), name='stripe_webhook'),
 
-    path('configuration/', views.ConfigurationView.as_view(), name='configuration'),
     path('card-order/', views.CardOrderView.as_view(), name='card_order'),
 
     path('charts/', views.ChartsView.as_view(), name='charts'),

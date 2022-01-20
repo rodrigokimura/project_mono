@@ -1,20 +1,7 @@
 from django.test import RequestFactory, TestCase
 from django.views.generic.edit import FormView
 
-from .mixins import PassRequestToFormViewMixin
 from .models import List, User
-
-
-class MixinTests(TestCase):
-    def test_pass_request_to_form_mixin(self):
-        class CustomFormView(PassRequestToFormViewMixin, FormView):
-            pass
-
-        request = RequestFactory().get('/')
-        view = CustomFormView()
-        view.setup(request)
-        kwargs = view.get_form_kwargs()
-        self.assertIn('request', kwargs)
 
 
 class ViewTests(TestCase):

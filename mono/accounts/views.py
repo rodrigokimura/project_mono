@@ -4,6 +4,7 @@ from typing import Any
 
 import jwt
 import stripe
+from __mono.mixins import PassRequestToFormViewMixin
 from django import http
 from django.conf import settings
 from django.contrib import messages
@@ -27,9 +28,9 @@ from rest_framework.authtoken.models import Token
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from social_django.models import UserSocialAuth
 
 from .forms import UserForm
-from .mixins import PassRequestToFormViewMixin
 from .models import Notification, User, UserProfile
 from .serializers import ProfileSerializer, UserSerializer
 
@@ -155,6 +156,28 @@ class ConfigView(LoginRequiredMixin, TemplateView):
             'unread': notifications.filter(read_at__isnull=True).order_by('-created_at'),
             'read': notifications.filter(read_at__isnull=False).order_by('-created_at'),
         }
+        # For social login controls
+        try:
+            github_login = self.request.user.social_auth.get(provider='github')
+        except UserSocialAuth.DoesNotExist:
+            github_login = None
+
+        try:
+            twitter_login = self.request.user.social_auth.get(provider='twitter')
+        except UserSocialAuth.DoesNotExist:
+            twitter_login = None
+
+        try:
+            facebook_login = self.request.user.social_auth.get(provider='facebook')
+        except UserSocialAuth.DoesNotExist:
+            facebook_login = None
+
+        can_disconnect = (self.request.user.social_auth.count() > 1 or self.request.user.has_usable_password())
+
+        context['github_login'] = github_login
+        context['twitter_login'] = twitter_login
+        context['facebook_login'] = facebook_login
+        context['can_disconnect'] = can_disconnect
         return context
 
 
