@@ -43,6 +43,7 @@ unittest-xml-reporting = "*"
 pylint = "*"
 pylint-django = "*"
 commitizen = "*"
+anybadge = "*"
 
 [scripts]
 collectstatic = "python mono/manage.py collectstatic --noinput"

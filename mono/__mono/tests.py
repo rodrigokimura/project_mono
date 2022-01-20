@@ -1,11 +1,13 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import RequestFactory, TestCase
+from django.views.generic.edit import FormView
 
 from .admin import MyAdminSite
 from .asgi import application as asgi_app
 from .auth_backends import EmailOrUsernameModelBackend
 from .context_processors import environment, language_extras
+from .mixins import PassRequestToFormViewMixin
 from .widgets import (
     ButtonsWidget, CalendarWidget, IconWidget, RadioWidget, SliderWidget,
     ToggleWidget,
@@ -105,6 +107,19 @@ class ContextProcessorsTest(TestCase):
         context = language_extras(request=request)
         self.assertIn('LANGUAGE_EXTRAS', context)
         self.assertIn('tinyMCE_language', context)
+
+
+class MixinTests(TestCase):
+
+    def test_pass_request_to_form_mixin(self):
+        class CustomFormView(PassRequestToFormViewMixin, FormView):
+            pass
+
+        request = RequestFactory().get('/')
+        view = CustomFormView()
+        view.setup(request)
+        kwargs = view.get_form_kwargs()
+        self.assertIn('request', kwargs)
 
 
 class MockedManager:

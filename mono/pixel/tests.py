@@ -6,7 +6,6 @@ from django.views.generic.edit import FormView
 
 from .admin import SiteAdmin
 from .forms import SiteForm
-from .mixins import PassRequestToFormViewMixin
 from .models import Site
 
 User = get_user_model()
@@ -42,19 +41,6 @@ class AdminTests(TestCase):
         qs = Site.objects.all()
         self.admin.undo_deletion(self.request, qs)
         self.assertGreater(Site.objects.filter(deleted_at__isnull=True).count(), 0)
-
-
-class MixinTests(TestCase):
-
-    def test_pass_request_to_form_mixin(self):
-        class CustomFormView(PassRequestToFormViewMixin, FormView):
-            pass
-
-        request = RequestFactory().get('/')
-        view = CustomFormView()
-        view.setup(request)
-        kwargs = view.get_form_kwargs()
-        self.assertIn('request', kwargs)
 
 
 class FormTests(TestCase):
