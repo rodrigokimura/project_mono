@@ -202,17 +202,8 @@ class InviteAdmin(admin.ModelAdmin):
 
 @admin.register(models.Chart)
 class ChartAdmin(admin.ModelAdmin):
-    list_display = [
-        "title",
-        "type",
-        "metric",
-        "field",
-        "axis",
-        "category",
-        "filters",
-        "created_by",
-        "order",
-    ]
+    list_display = [field.name for field in models.Chart._meta.get_fields()]
+
     list_filter = [
         "type",
         "metric",
@@ -235,52 +226,4 @@ class ConfigurationAdmin(admin.ModelAdmin):
     list_filter = [
         "user",
         "main_page",
-    ]
-
-
-@admin.register(models.Plan)
-class PlanAdmin(admin.ModelAdmin):
-    list_display = [
-        "product_id",
-        "name",
-        "type",
-        "order"
-    ]
-    list_filter = [
-        "type",
-    ]
-    ordering = ('order',)
-
-
-@admin.register(models.Feature)
-class FeatureAdmin(admin.ModelAdmin):
-    list_display = [
-        "plan",
-        "short_description",
-        "icon",
-        "display",
-    ]
-    list_filter = [
-        "plan",
-        "display",
-    ]
-    ordering = ('plan',)
-
-
-@admin.register(models.Subscription)
-class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = [
-        "user",
-        "plan",
-        "created_at",
-        "updated_at",
-        "cancel_at",
-        "event_id",
-    ]
-    list_filter = [
-        "user",
-        "plan",
-        "created_at",
-        "updated_at",
-        "cancel_at",
     ]

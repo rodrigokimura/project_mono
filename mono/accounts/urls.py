@@ -27,4 +27,7 @@ urlpatterns = [
     path('api-me/', views.ApiMeView.as_view(), name='api_me'),
     path('api-logout/', views.ApiLogoutView.as_view(), name='api_logout'),
 
+    path('plans/', views.PlansView.as_view(), name='plans'),
+    path('checkout/', views.CheckoutView.as_view(), name='checkout'),
+    path('stripe/webhook/', views.StripeWebhookView.as_view(), name='stripe_webhook'),
 ]

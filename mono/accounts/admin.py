@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
 
-from .models import Notification, UserProfile
+from .models import Feature, Notification, Plan, Subscription, UserProfile
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -75,3 +75,51 @@ class NotificationAdmin(admin.ModelAdmin):
         'action_url',
     ]
     actions = [read, duplicate]
+
+
+@admin.register(Plan)
+class PlanAdmin(admin.ModelAdmin):
+    list_display = [
+        "product_id",
+        "name",
+        "type",
+        "order"
+    ]
+    list_filter = [
+        "type",
+    ]
+    ordering = ('order',)
+
+
+@admin.register(Feature)
+class FeatureAdmin(admin.ModelAdmin):
+    list_display = [
+        "plan",
+        "short_description",
+        "icon",
+        "display",
+    ]
+    list_filter = [
+        "plan",
+        "display",
+    ]
+    ordering = ('plan',)
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = [
+        "user",
+        "plan",
+        "created_at",
+        "updated_at",
+        "cancel_at",
+        "event_id",
+    ]
+    list_filter = [
+        "user",
+        "plan",
+        "created_at",
+        "updated_at",
+        "cancel_at",
+    ]
