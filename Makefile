@@ -46,7 +46,7 @@ runserver:  ## Run development server
 commit:  ## Stage, commit, bump version and push changes
 	@git add . 
 	@cz c
-	@cz bump ch
+	@cz bump -ch
 	@git push
 
 pull:  ## Pull changes
