@@ -43,6 +43,13 @@ makemigrations:  ## Write migration files
 runserver:  ## Run development server
 	@export APP_ENV=DEV && pipenv run python mono/manage.py runserver 127.0.0.42:8080
 
+commit:  ## Stage, commit and push changes
+	@echo "Message: "; \
+  read MESSAGE; \
+  git add .; \
+  git commit -m "$$MESSAGE"; \
+  git push
+
 
 # ==== EXPERIMENTAL FEATURES ====
 
