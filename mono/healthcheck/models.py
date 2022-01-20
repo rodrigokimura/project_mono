@@ -29,6 +29,7 @@ class PullRequest(models.Model):
     """Stores pull requests coming from GitHub webhook."""
     number = models.IntegerField(unique=True, help_text="GitHub unique identifier.")
     author = models.CharField(max_length=100, help_text="Login username that triggered the pull request.")
+    last_commit_sha = models.CharField(max_length=50, help_text="SHA of the last commit.", null=True, blank=True)
     commits = models.IntegerField(default=0)
     additions = models.IntegerField(default=0)
     deletions = models.IntegerField(default=0)
