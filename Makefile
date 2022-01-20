@@ -50,6 +50,9 @@ commit:  ## Stage, commit and push changes
   git commit -m "$$MESSAGE"; \
   git push
 
+pull:  ## Pull changes
+	@git reset HEAD --hard; \
+  git pull
 
 # ==== EXPERIMENTAL FEATURES ====
 
