@@ -54,7 +54,7 @@ def github_webhook(request):
         if not is_valid_signature(x_hub_signature, request.body):
             logging.info("Invalid signature.")
             return HttpResponse(status=403)
-        
+
         event = request.headers.get('X-GitHub-Event')
         if event == 'ping':
             logging.info("Ping sent from GitHub.")
