@@ -7,14 +7,27 @@ from django.utils import timezone
 from ...models import PullRequest
 
 logger = logging.getLogger(__name__)
+
+
+def find_last_merge_commit():
+    repo = git.Repo(search_parent_directories=True)
+    headcommit = repo.head.commit 
+    while True: 
+        headcommit = headcommit.parents[0] 
+        if len(headcommit.parents) is not 1: break 
+    return str(headcommit)
+
+
 class Command(BaseCommand):
     help = 'Command to deploy the app based on last pulled PR'
 
     def handle(self, *args, **options):
         try:
-            repo = git.Repo(search_parent_directories=True)
-            sha = repo.head.object.hexsha
-            qs = PullRequest.objects.filter(last_commit_sha=sha)
+            # repo = git.Repo(search_parent_directories=True)
+            # sha = repo.head.object.hexsha
+            qs = PullRequest.objects.filter(
+                last_commit_sha=find_last_merge_commit()
+            )
 
             if not qs.exists():
                 raise PullRequest.DoesNotExist(f'No PR found with this SHA: {sha}')
