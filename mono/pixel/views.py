@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from urllib.parse import urlparse
 
 import pytz
+from __mono.mixins import PassRequestToFormViewMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Avg, Count
 from django.db.models.functions import TruncDay
@@ -22,7 +23,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .forms import SiteForm
-from .mixins import PassRequestToFormViewMixin
 from .models import Ping, Site
 
 

@@ -1,3 +1,4 @@
+from __mono.mixins import PassRequestToFormViewMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -5,13 +6,6 @@ from django.views.generic.edit import CreateView
 
 from .forms import FeedbackForm
 from .models import Feedback
-
-
-class PassRequestToFormViewMixin:
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
 
 
 class FeedbackCreateView(PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):

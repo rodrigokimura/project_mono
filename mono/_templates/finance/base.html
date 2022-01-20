@@ -22,7 +22,7 @@
       'set card order'              : "{% url 'finance:card_order' %}",
       {% if request.user.is_superuser %}
       'deploy'                      : '/hc/deploy/',
-      'checkout'                    : "{% url 'finance:checkout' %}",
+      'checkout'                    : "{% url 'accounts:checkout' %}",
       'login as'                    : "{% url 'accounts:login_as' %}",
       {% endif %}
       successTest: function(response) {
@@ -83,7 +83,6 @@
         <a class="item" href="{% url 'api-root' %}">API Root</a>
         <a class="item" href="{% url 'finance:faker' %}">Faker</a>
         <a class="item" href="{% url 'finance:icons' %}">Icons</a>
-        <a class="item" href="{% url 'finance:plans' %}">Checkout</a>
         <a class="item" href="{% url 'finance:restricted_area' %}">Restricted Area</a>
       </div>
     </div>

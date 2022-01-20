@@ -4,9 +4,10 @@
 [![Python](https://img.shields.io/badge/maintained%3F-yes-green.svg)](#)
 [![Python](https://img.shields.io/website-up-down-green-red/https/www.monoproject.info.svg)](https://www.monoproject.info/)
 
+[![Flake8 Status](mono/reports/flake8/flake8-badge.svg?dummy=8484744)](#)
+[![Pylint Status](mono/reports/pylint/pylint-badge.svg?dummy=8484744)](#)
 [![Tests Status](mono/reports/junit/junit-badge.svg?dummy=8484744)](#)
 [![Coverage Status](mono/reports/coverage/coverage-badge.svg?dummy=8484744)](#)
-[![Flake8 Status](mono/reports/flake8/flake8-badge.svg?dummy=8484744)](#)
 
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 

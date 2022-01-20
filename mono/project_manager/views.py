@@ -1,5 +1,6 @@
 from typing import Any, Optional
 
+from __mono.mixins import PassRequestToFormViewMixin
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.humanize.templatetags.humanize import NaturalTimeFormatter
@@ -21,7 +22,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .forms import BoardForm, ProjectForm
-from .mixins import PassRequestToFormViewMixin
 from .models import (
     Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Tag,
     Theme, TimeEntry, User,
