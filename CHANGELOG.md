@@ -1,3 +1,9 @@
+## 1.1.1 (2022-01-20)
+
+### Refactor
+
+- **healthcheck**: change way to retrieve last merge commit
+
 ## 1.1.0 (2022-01-20)
 
 ### Feat
