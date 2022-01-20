@@ -1,3 +1,13 @@
+## 0.1.2 (2022-01-20)
+
+### Fix
+
+- **mono**: adjust commit command in makefile
+
+### Refactor
+
+- **mono**: change makefile
+
 ## 0.1.1 (2022-01-20)
 
 ### Refactor
