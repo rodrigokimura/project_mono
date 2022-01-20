@@ -13,4 +13,4 @@ class Command(BaseCommand):
             for config in configs:
                 config.create_transaction()
         except Exception as e:
-            CommandError(repr(e))
+            raise CommandError(repr(e))

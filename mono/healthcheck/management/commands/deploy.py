@@ -16,4 +16,4 @@ class Command(BaseCommand):
             else:
                 print(f'{pr} was already deployed at {pr.deployed_at}')
         except Exception as e:
-            CommandError(repr(e))
+            raise CommandError(repr(e))

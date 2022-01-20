@@ -28,4 +28,4 @@ class Command(BaseCommand):
                     Icon.objects.update_or_create(markup=line.strip())
 
         except Exception as e:
-            CommandError(repr(e))
+            raise CommandError(repr(e))

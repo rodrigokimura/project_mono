@@ -78,4 +78,4 @@ class Command(BaseCommand):
                     else:
                         print(f"Customer {customer.id} has no subscriptions (FREE PLAN).")
         except Exception as e:
-            CommandError(repr(e))
+            raise CommandError(repr(e))
