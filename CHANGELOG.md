@@ -1,3 +1,13 @@
+## 1.0.0 (2022-01-20)
+
+### Feat
+
+- **healthcheck**: save last commit's SHA to PR instance
+
+### BREAKING CHANGE
+
+- new PR model field
+
 ## 0.1.3 (2022-01-20)
 
 ### Refactor
