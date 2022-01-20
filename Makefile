@@ -115,6 +115,12 @@ pull:  ## Pull changes
 	@git reset HEAD --hard
 	@git pull
 
+last-commit:  ## Show last commit
+	@git log --pretty=format:"%H" -1 | grep -o '^[a-z0-9]*'
+
+mark-as-deployed:
+	$(DJANGO) mark_as_deployed
+
 # ========== GIT ============================================================= #
 
 
