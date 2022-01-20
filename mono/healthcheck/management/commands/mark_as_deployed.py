@@ -11,10 +11,11 @@ logger = logging.getLogger(__name__)
 
 def find_last_merge_commit():
     repo = git.Repo(search_parent_directories=True)
-    headcommit = repo.head.commit 
-    while True: 
-        headcommit = headcommit.parents[0] 
-        if len(headcommit.parents) is not 1: break 
+    headcommit = repo.head.commit
+    while True:
+        headcommit = headcommit.parents[0]
+        if len(headcommit.parents) != 1:
+            break
     return str(headcommit)
 
 
@@ -25,8 +26,9 @@ class Command(BaseCommand):
         try:
             # repo = git.Repo(search_parent_directories=True)
             # sha = repo.head.object.hexsha
+            sha = find_last_merge_commit()
             qs = PullRequest.objects.filter(
-                last_commit_sha=find_last_merge_commit()
+                last_commit_sha=sha
             )
 
             if not qs.exists():
