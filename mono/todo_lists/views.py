@@ -52,6 +52,7 @@ class ListDeleteView(ProtectedDeleteView):
 
 # API views
 
+
 class ListListAPIView(APIView):
     """
     List all lists, or create a new list.

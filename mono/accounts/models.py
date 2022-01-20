@@ -1,8 +1,10 @@
 import random
-from datetime import timedelta
+from datetime import datetime, timedelta
 from xml.sax.saxutils import escape as xml_escape
 
 import jwt
+import pytz
+import stripe
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files import File
@@ -165,3 +167,121 @@ class UserProfile(models.Model):
             )
         except OSError:
             pass
+
+
+class Plan(models.Model):
+    """
+    Stores data about the plans user can subscribve to.
+    This models has data used to populate the checkout page.
+    Those are related to Stripe products."""
+
+    FREE = 'FR'
+    LIFETIME = 'LT'
+    DEFAULT = 'DF'
+    RECOMMENDED = 'RC'
+
+    TYPE_CHOICES = [
+        (FREE, _('Free')),
+        (LIFETIME, _('Lifetime')),
+        (DEFAULT, _('Default')),
+        (RECOMMENDED, _('Recommended')),
+    ]
+
+    product_id = models.CharField(max_length=100, help_text="Stores the stripe unique identifiers")
+    name = models.CharField(max_length=100, help_text="Display name used on the template")
+    description = models.TextField(max_length=500, help_text="Description text used on the template")
+    icon = models.CharField(max_length=50, help_text="Icon rendered in the template")
+    type = models.CharField(
+        max_length=2,
+        choices=TYPE_CHOICES,
+        help_text="Used to customize the template based on this field. For instance, the basic plan will be muted and the recommended one is highlighted."
+    )
+    order = models.IntegerField(unique=True, help_text="Used to sort plans on the template.")
+
+    class Meta:
+        verbose_name = _("plan")
+        verbose_name_plural = _("plans")
+        ordering = ["order"]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Feature(models.Model):
+    """
+    Stores features related to the plans user can subscribe to.
+    This models is used to populate the checkout page.
+    Those are related to plans that are related to Stripe products."""
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
+    icon = models.CharField(max_length=50, help_text="Icon rendered in the template")
+    short_description = models.CharField(max_length=30)
+    full_description = models.TextField(max_length=200)
+    internal_description = models.TextField(max_length=1000, null=True, blank=True, default=None, help_text="This is used by staff and is not displayed to user in the template.")
+    display = models.BooleanField(help_text="Controls wether feature is shown on the template", default=True)
+
+    class Meta:
+        verbose_name = _("feature")
+        verbose_name_plural = _("features")
+
+    def __str__(self) -> str:
+        return f"{self.plan.name} - {self.short_description}"
+
+
+class Subscription(models.Model):
+    """
+    Stores subscriptions made by users. This is used to provide plan features and limitations to user."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    cancel_at = models.DateTimeField(null=True, blank=True)
+    event_id = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name = _("subscription")
+        verbose_name_plural = _("subscriptions")
+
+    @property
+    def status(self):
+        if self.cancel_at is None:
+            status = "active"
+        elif self.cancel_at > timezone.now():
+            status = "pending"
+        elif self.cancel_at <= timezone.now():
+            status = "error"
+        return status
+
+    def cancel_at_period_end(self):
+        try:
+            # Update Stripe
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            customer = stripe.Customer.list(email=self.user.email).data[0]
+            subscription = stripe.Subscription.list(customer=customer.id).data[0]
+            subscription = stripe.Subscription.modify(subscription.id, cancel_at_period_end=True)
+
+            # Update model
+            self.cancel_at = timezone.make_aware(
+                datetime.fromtimestamp(subscription.cancel_at),
+                pytz.timezone(settings.STRIPE_TIMEZONE)
+            )
+            self.save()
+            return (True, "Your subscription has been scheduled to be cancelled at the end of your renewal date.")
+        except Exception as e:
+            return (False, e)
+
+    def abort_cancellation(self):
+        if self.cancel_at is not None:
+            # Update Stripe
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            customer = stripe.Customer.list(email=self.user.email).data[0]
+            subscription = stripe.Subscription.list(customer=customer.id).data[0]
+            subscription = stripe.Subscription.modify(subscription.id, cancel_at_period_end=False)
+
+            # Update model
+            self.cancel_at = None
+            self.save()
+
+    # def cancel_now(self):
+    #     self.cancel_at = None
+    #     self.plan = Plan.objects.get(type=Plan.FREE)
+    #     self.save()

@@ -1,5 +1,4 @@
-from django.test import RequestFactory, TestCase
-from django.views.generic.edit import FormView
+from django.test import TestCase
 
 from .models import List, User
 
