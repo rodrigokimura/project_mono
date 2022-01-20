@@ -109,7 +109,7 @@ commit:  ## Stage, commit, bump version and push changes
 	@git add . 
 	@cz c
 	@cz bump -ch
-	@git push
+	@git push origin --tags
 
 pull:  ## Pull changes
 	@git reset HEAD --hard
