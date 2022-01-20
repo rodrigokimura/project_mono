@@ -1,3 +1,9 @@
+## 0.1.1 (2022-01-20)
+
+### Refactor
+
+- **mono**: change dependencies in pipfile
+
 ## 0.1.0 (2022-01-20)
 
 ### Refactor
