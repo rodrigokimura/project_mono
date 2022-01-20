@@ -1,3 +1,9 @@
+## 1.1.2 (2022-01-20)
+
+### Fix
+
+- **healthcheck**: fix syntax error
+
 ## 1.1.1 (2022-01-20)
 
 ### Refactor
