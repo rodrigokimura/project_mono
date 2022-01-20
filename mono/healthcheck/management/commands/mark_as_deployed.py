@@ -22,6 +22,7 @@ class Command(BaseCommand):
                 raise PullRequest.MultipleObjectsReturned(f'Multiple PRs found with this SHA: {sha}')
 
             pr: PullRequest = qs.latest('number')
+            pr.pull()
             pr.deployed_at = timezone.now()
             pr.save()
             logger.info(f"Successfully deployed {pr}.")
