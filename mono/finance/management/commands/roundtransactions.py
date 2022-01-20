@@ -16,4 +16,4 @@ class Command(BaseCommand):
                 t.save()
             print(f"{qs.count()} transactions rounded.")
         except Exception as e:
-            CommandError(repr(e))
+            raise CommandError(repr(e))

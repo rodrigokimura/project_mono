@@ -11,4 +11,4 @@ class Command(BaseCommand):
             print("Sending report...")
             Report().send()
         except Exception as e:
-            CommandError(repr(e))
+            raise CommandError(repr(e))
