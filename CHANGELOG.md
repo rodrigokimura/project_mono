@@ -1,3 +1,10 @@
+## 0.1.3 (2022-01-20)
+
+### Refactor
+
+- **accounts**: move models, views and routes related to stripe
+- remove code dups
+
 ## 0.1.2 (2022-01-20)
 
 ### Fix
