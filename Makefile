@@ -111,6 +111,11 @@ commit:  ## Stage, commit, bump version and push changes
 	@cz bump -ch
 	@git push origin --tags
 
+pull-request:  ## Create pull request
+	@gh pr create \
+		--fill \
+		--base master \
+
 pull:  ## Pull changes
 	@git reset HEAD --hard
 	@git pull
