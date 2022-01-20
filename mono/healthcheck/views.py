@@ -51,31 +51,35 @@ def github_webhook(request):
     """
     if request.method == "POST":
         x_hub_signature = request.headers.get('X-Hub-Signature')
-        if is_valid_signature(x_hub_signature, request.body):
-            body = json.loads(request.body.decode('utf-8'))
-            event = request.headers.get('X-GitHub-Event')
-            if event == "pull_request":
-                ref = body['pull_request']['base']['ref']
-                if body["action"] == "closed" and body["pull_request"]["merged"] and ref == 'master':
-                    pull_request = body['pull_request']
-                    pr, created = PullRequest.objects.update_or_create(
-                        number=pull_request["number"],
-                        defaults={
-                            'author': pull_request["user"]['login'],
-                            'commits': pull_request["commits"],
-                            'additions': pull_request["additions"],
-                            'deletions': pull_request["deletions"],
-                            'changed_files': pull_request["changed_files"],
-                            'merged_at': string_to_localized_datetime(pull_request["merged_at"])
-                        }
-                    )
-            elif event == "ping":
-                logging.info("Ping sent from GitHub.")
-                return HttpResponse("pong")
-            else:
-                logging.info("Invalid event.")
-        else:
+        if not is_valid_signature(x_hub_signature, request.body):
             logging.info("Invalid signature.")
+            return HttpResponse(status=403)
+        
+        event = request.headers.get('X-GitHub-Event')
+        if event == 'ping':
+            logging.info("Ping sent from GitHub.")
+            return HttpResponse("pong")
+
+        if event != "pull_request":
+            logging.info("Invalid event.")
+            return HttpResponse(status=403)
+
+        body = json.loads(request.body.decode('utf-8'))
+        ref = body['pull_request']['base']['ref']
+        if body["action"] == "closed" and body["pull_request"]["merged"] and ref == 'master':
+            pull_request = body['pull_request']
+            PullRequest.objects.update_or_create(
+                number=pull_request["number"],
+                defaults={
+                    'author': pull_request["user"]['login'],
+                    'last_commit_sha': pull_request['base']['sha'],
+                    'commits': pull_request["commits"],
+                    'additions': pull_request["additions"],
+                    'deletions': pull_request["deletions"],
+                    'changed_files': pull_request["changed_files"],
+                    'merged_at': string_to_localized_datetime(pull_request["merged_at"])
+                }
+            )
     return HttpResponse("ok")
 
 

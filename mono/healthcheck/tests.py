@@ -66,7 +66,10 @@ class GithubWebhookView(TestCase):
         self.valid_payload = {
             'pull_request': {
                 'number': '1',
-                'base': {'ref': 'master'},
+                'base': {
+                    'ref': 'master',
+                    'sha': 'a' * 40,
+                },
                 'merged': True,
                 'user': {'login': 'rodrigokimura'},
                 'commits': '2',
@@ -124,7 +127,7 @@ class GithubWebhookView(TestCase):
             content_type='application/json',
             **headers
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
 
     def test_invalid_signature_algorithm(self):
         c = Client()
@@ -139,7 +142,7 @@ class GithubWebhookView(TestCase):
             content_type='application/json',
             **headers
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
 
     def test_invalid_event(self):
         c = Client()
@@ -156,7 +159,7 @@ class GithubWebhookView(TestCase):
             content_type='application/json',
             **headers
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
 
 
 class HealthCheckView(TestCase):
