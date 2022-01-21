@@ -1,3 +1,9 @@
+## 1.1.4 (2022-01-21)
+
+### Refactor
+
+- **mono**: improve pylint score
+
 ## 1.1.3 (2022-01-20)
 
 ### Refactor
