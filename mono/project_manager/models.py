@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
 from django.core.signing import TimestampSigner
 from django.db import models
-from django.db.models import DurationField, Sum, Value as V
+from django.db.models import DurationField, QuerySet, Sum, Value as V
 from django.db.models.aggregates import Count, Max
 from django.db.models.fields import IntegerField
 from django.db.models.functions import Coalesce
@@ -44,7 +44,7 @@ class Project(BaseModel):
         ]
 
     @property
-    def allowed_users(self):
+    def allowed_users(self) -> QuerySet[User]:
         return (User.objects.filter(id=self.created_by.id) | self.assigned_to.all()).distinct()
 
     @property
