@@ -1,3 +1,4 @@
+"""Healthcheck's models."""
 import logging
 from pathlib import Path
 
@@ -13,15 +14,20 @@ logger = logging.getLogger(__name__)
 
 
 def is_there_migrations_to_make(app_label, silent=False):
+    """Check for migrations to make."""
     # This doesn's work when a third-party app requires migrations
     try:
         if silent:
-            execute_from_command_line(["manage.py", "makemigrations", app_label, "--check", "--dry-run", "--verbosity", "0"])
+            execute_from_command_line(
+                ["manage.py", "makemigrations", app_label, "--check", "--dry-run", "--verbosity", "0"]
+            )
         else:  # pragma: no cover
-            execute_from_command_line(["manage.py", "makemigrations", app_label, "--check", "--dry-run", "--verbosity", "3"])
+            execute_from_command_line(
+                ["manage.py", "makemigrations", app_label, "--check", "--dry-run", "--verbosity", "3"]
+            )
         system_exit = 0
-    except SystemExit as e:  # pragma: no cover
-        system_exit = e
+    except SystemExit as system_exit_exception:  # pragma: no cover
+        system_exit = system_exit_exception
     return system_exit != 0
 
 
@@ -66,6 +72,9 @@ class PullRequest(models.Model):
 
     @property
     def build_number(self):
+        """
+        Simple code to identify app version.
+        """
         year = self.merged_at.year
         count = PullRequest.objects.filter(number__lte=self.number).values('number').distinct().count()
         return f'{year}.{count}'
@@ -82,7 +91,7 @@ class PullRequest(models.Model):
             self.pulled_at = timezone.now()
             self.save()
 
-        d = {
+        context = {
             'title': 'Merged PR',
             'warning_message': f'Pull Request #{self.number}',
             'first_line': 'Detected merged PR',
@@ -102,6 +111,6 @@ class PullRequest(models.Model):
 
         mail_admins(
             subject=f'Delivery Notification - {self}',
-            message=get_template('email/alert.txt').render(d),
-            html_message=get_template('email/alert.html').render(d)
+            message=get_template('email/alert.txt').render(context),
+            html_message=get_template('email/alert.html').render(context),
         )

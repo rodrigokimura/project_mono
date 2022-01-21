@@ -1,5 +1,6 @@
 import random
 from datetime import datetime, timedelta
+from typing import Tuple
 from xml.sax.saxutils import escape as xml_escape
 
 import jwt
@@ -251,7 +252,7 @@ class Subscription(models.Model):
             status = "error"
         return status
 
-    def cancel_at_period_end(self):
+    def cancel_at_period_end(self) -> Tuple[bool, str]:
         try:
             # Update Stripe
             stripe.api_key = settings.STRIPE_SECRET_KEY
