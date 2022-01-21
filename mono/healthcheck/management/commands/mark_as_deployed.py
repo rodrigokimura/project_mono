@@ -1,3 +1,6 @@
+"""
+Command to mark a release as deployed.
+"""
 import logging
 
 import git
@@ -10,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def find_last_merge_commit():
+    """Find the last merge commit and return its hash."""
     repo = git.Repo(search_parent_directories=True)
     headcommit = repo.head.commit
     while True:
@@ -36,11 +40,11 @@ class Command(BaseCommand):
             if qs.count() > 1:
                 raise PullRequest.MultipleObjectsReturned(f'Multiple PRs found with this SHA: {sha}')
 
-            pr: PullRequest = qs.latest('number')
-            pr.pull()
-            pr.deployed_at = timezone.now()
-            pr.save()
-            logger.info(f"Successfully deployed {pr}.")
+            pull_request: PullRequest = qs.latest('number')
+            pull_request.pull()
+            pull_request.deployed_at = timezone.now()
+            pull_request.save()
+            logger.info("Successfully deployed %s.", pull_request)
 
         except Exception as any_exception:
             raise CommandError(repr(any_exception)) from any_exception

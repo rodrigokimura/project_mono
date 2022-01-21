@@ -110,6 +110,7 @@ commit:  ## Stage, commit, bump version and push changes
 	@cz c
 	@cz bump -ch
 	@git push origin --tags
+	@git push
 
 pull-request:  ## Create pull request
 	@gh pr create \
@@ -125,6 +126,9 @@ last-commit:  ## Show last commit
 
 mark-as-deployed:
 	$(DJANGO) mark_as_deployed
+
+ssh:
+	@ssh kimura@ssh.pythonanywhere.com
 
 # ========== GIT ============================================================= #
 

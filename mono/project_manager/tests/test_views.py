@@ -450,19 +450,19 @@ class BoardLastUpdatedDetailApiViewTests(APITestCase):
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
 
-    def test_board_detail_view_get(self):
+    def test_board_last_update_view_get(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/last-updated/')
         self.assertEqual(response.status_code, 200)
 
-    def test_board_detail_view_get_invalid_board(self):
+    def test_board_last_update_view_get_invalid_board(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/9999999/last-updated/')
         self.assertEqual(response.status_code, 404)
 
-    def test_board_detail_view_get_not_allowed(self):
+    def test_board_last_update_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
         client.login(username='test_not_allowed', password='supersecret')

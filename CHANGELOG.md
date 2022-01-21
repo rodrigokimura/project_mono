@@ -1,3 +1,15 @@
+## 1.1.4 (2022-01-21)
+
+### Refactor
+
+- **mono**: improve pylint score
+
+## 1.1.3 (2022-01-20)
+
+### Refactor
+
+- **makefile**: add command to SSH into prod server
+
 ## 1.1.2 (2022-01-20)
 
 ### Fix
