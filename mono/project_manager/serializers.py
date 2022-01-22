@@ -517,28 +517,35 @@ class CardMoveSerializer(Serializer):
 
 
 class BucketMoveSerializer(Serializer):
+    """Serializer to apply bucket movement"""
     board = serializers.IntegerField()
     bucket = serializers.IntegerField()
     order = serializers.IntegerField()
 
-    def validate_board(self, value):
+    def validate_board(self, value): # pylint: disable=R0201
+        """Board needs to exist"""
         if Board.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid board")
 
-    def validate_bucket(self, value):
+    def validate_bucket(self, value): # pylint: disable=R0201
+        """Buckes need to exist"""
         if Bucket.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid bucket")
 
-    def validate_order(self, value):
+    def validate_order(self, value):  # pylint: disable=R0201
+        """Order needs to be positive"""
         if value > 0:
             return value
         raise serializers.ValidationError("Invalid order")
 
-    def validate(self, data):
-        bucket = Bucket.objects.get(id=data['bucket'])
-        board = Board.objects.get(id=data['board'])
+    def validate(self, attrs):
+        """
+        Validate user and board
+        """
+        bucket = Bucket.objects.get(id=attrs['bucket'])
+        board = Board.objects.get(id=attrs['board'])
 
         if self.context['request'].user not in board.allowed_users:
             raise serializers.ValidationError("User not allowed")
@@ -546,9 +553,18 @@ class BucketMoveSerializer(Serializer):
         if bucket not in board.bucket_set.all():
             raise serializers.ValidationError("Bucket outside board")
 
-        return data
+        return attrs
 
-    def save(self):
+    def create(self, validated_data):
+        raise NotImplementedError
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError
+
+    def save(self, *args, **kwargs):
+        """
+        Apply bucket movement
+        """
         bucket = Bucket.objects.get(
             id=self.validated_data['bucket']
         )
