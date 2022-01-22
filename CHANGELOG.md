@@ -1,3 +1,9 @@
+## 1.1.10 (2022-01-22)
+
+### Refactor
+
+- **restricted_area**: apply pylint changes
+
 ## 1.1.9 (2022-01-22)
 
 ### Refactor
