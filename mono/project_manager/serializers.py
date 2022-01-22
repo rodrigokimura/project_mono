@@ -1,3 +1,4 @@
+"""Project manager's serializers"""
 import json
 import os
 
@@ -15,6 +16,7 @@ from .models import (
 
 
 class ThemeSerializer(ModelSerializer):
+    """Serializer for theme"""
     class Meta:
         model = Theme
         fields = [
@@ -27,6 +29,7 @@ class ThemeSerializer(ModelSerializer):
 
 
 class InviteSerializer(ModelSerializer):
+    """Serializer for invite"""
     created_by = UserSerializer(many=False, read_only=True)
     accepted_by = UserSerializer(many=False, read_only=True)
     link = serializers.ReadOnlyField()
@@ -63,6 +66,7 @@ class InviteSerializer(ModelSerializer):
 
 
 class ProjectSerializer(ModelSerializer):
+    """Serializer for project"""
     class Meta:
         model = Project
         fields = [
@@ -75,6 +79,7 @@ class ProjectSerializer(ModelSerializer):
 
 
 class BoardSerializer(ModelSerializer):
+    """Serializer for board"""
     allowed_users = UserSerializer(many=True, read_only=True)
 
     class Meta:
@@ -99,6 +104,7 @@ class BoardSerializer(ModelSerializer):
             os.remove(path)
 
     def update(self, instance, validated_data):
+        """Handle background image deletion upon update"""
         if 'background_image' in validated_data:
             if instance.background_image:
                 self._delete_file(instance.background_image.path)
@@ -108,6 +114,7 @@ class BoardSerializer(ModelSerializer):
 
 
 class BucketSerializer(ModelSerializer):
+    """Serializer for bucket"""
 
     color = ThemeSerializer(many=False, read_only=True)
 
@@ -137,6 +144,7 @@ class BucketSerializer(ModelSerializer):
 
 
 class IconSerializer(ModelSerializer):
+    """Serializer for icon"""
     class Meta:
         model = Icon
         fields = [
@@ -146,6 +154,7 @@ class IconSerializer(ModelSerializer):
 
 
 class TagSerializer(ModelSerializer):
+    """Serializer for tag"""
 
     icon = IconSerializer(many=False, read_only=True, required=False)
     color = ThemeSerializer(many=False, read_only=True, required=False)
@@ -165,6 +174,7 @@ class TagSerializer(ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
+        """Handle icon and color"""
         if 'icon' in validated_data:
             del validated_data['icon']
         icon_id = self.context['request'].data.get('icon')
@@ -187,6 +197,7 @@ class TagSerializer(ModelSerializer):
 
 
 class CardFileSerializer(ModelSerializer):
+    """Serializer for card file"""
     name = serializers.ReadOnlyField()
     image = serializers.ReadOnlyField()
     extension = serializers.ReadOnlyField()
@@ -211,6 +222,7 @@ class CardFileSerializer(ModelSerializer):
 
 
 class CardSerializer(ModelSerializer):
+    """Serializer for card"""
     is_running = serializers.ReadOnlyField()
     total_time = serializers.ReadOnlyField()
     checked_items = serializers.ReadOnlyField()
@@ -252,23 +264,26 @@ class CardSerializer(ModelSerializer):
         }
 
     def _create_tags(self, requested_tags, card, board):
+        """Create tags from data"""
         tags = []
-        if requested_tags is not None:
-            for tag_dict in requested_tags:
-                if tag_dict['name'].strip() == '':
-                    continue
-                tag, _ = Tag.objects.update_or_create(
-                    name=tag_dict['name'],
-                    board=card.bucket.board,
-                    defaults={
-                        'created_by': self.context['request'].user,
-                        'board': board,
-                    }
-                )
-                tags.append(tag)
+        if requested_tags is None:
+            return tags
+        for tag_dict in requested_tags:
+            if tag_dict['name'].strip() == '':
+                continue
+            tag, _ = Tag.objects.update_or_create(
+                name=tag_dict['name'],
+                board=card.bucket.board,
+                defaults={
+                    'created_by': self.context['request'].user,
+                    'board': board,
+                }
+            )
+            tags.append(tag)
         return tags
 
     def _apply_status(self, card: Card, status: str):
+        """Apply status to card"""
         if status == Bucket.COMPLETED:
             card.mark_as_completed(
                 user=self.context['request'].user
@@ -281,6 +296,7 @@ class CardSerializer(ModelSerializer):
             card.mark_as_not_started()
 
     def create(self, validated_data):
+        """Process creation"""
         instance = super().create(validated_data)
         instance.bucket.touch()
         if 'tag' in validated_data:
@@ -315,6 +331,7 @@ class CardSerializer(ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
+        """Process update"""
         instance.bucket.touch()
         if 'tag' in validated_data:
             del validated_data['tag']
@@ -349,6 +366,7 @@ class CardSerializer(ModelSerializer):
 
 
 class ItemSerializer(ModelSerializer):
+    """Serializer for item"""
     checked = serializers.ReadOnlyField()
 
     class Meta:
@@ -376,6 +394,7 @@ class ItemSerializer(ModelSerializer):
 
 
 class TimeEntrySerializer(ModelSerializer):
+    """Serializer for time entry"""
 
     class Meta:
         model = TimeEntry
@@ -401,6 +420,7 @@ class TimeEntrySerializer(ModelSerializer):
 
 
 class CommentSerializer(ModelSerializer):
+    """Serializer for comment"""
     created_by = UserSerializer(many=False, read_only=True)
 
     class Meta:
@@ -424,32 +444,38 @@ class CommentSerializer(ModelSerializer):
 
 
 class CardMoveSerializer(Serializer):
+    """Serializer to apply card movement"""
     source_bucket = serializers.IntegerField()
     target_bucket = serializers.IntegerField()
     order = serializers.IntegerField()
     card = serializers.IntegerField()
 
-    def validate_source_bucket(self, value):
+    def validate_source_bucket(self, value):  # pylint: disable=R0201
+        """Bucket needs to exist"""
         if Bucket.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid bucket")
 
-    def validate_target_bucket(self, value):
+    def validate_target_bucket(self, value):  # pylint: disable=R0201
+        """Bucket needs to exist"""
         if Bucket.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid bucket")
 
-    def validate_card(self, value):
+    def validate_card(self, value):  # pylint: disable=R0201
+        """Card needs to exist"""
         if Card.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid card")
 
-    def validate_order(self, value):
+    def validate_order(self, value):  # pylint: disable=R0201
+        """Order has to be positive"""
         if value > 0:
             return value
         raise serializers.ValidationError("Invalid order")
 
     def validate(self, attrs):
+        """Validate buckets and user"""
         source_bucket = Bucket.objects.get(id=attrs['source_bucket'])
         target_bucket = Bucket.objects.get(id=attrs['target_bucket'])
 
@@ -462,6 +488,7 @@ class CardMoveSerializer(Serializer):
         return attrs
 
     def move(self):
+        """Apply movement"""
         status_changed = False
         timer_action = 'none'
         source_bucket = Bucket.objects.get(
@@ -515,6 +542,12 @@ class CardMoveSerializer(Serializer):
             'timer_action': timer_action,
         }
 
+    def create(self, validated_data):
+        raise NotImplementedError
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError
+
 
 class BucketMoveSerializer(Serializer):
     """Serializer to apply bucket movement"""
@@ -522,13 +555,13 @@ class BucketMoveSerializer(Serializer):
     bucket = serializers.IntegerField()
     order = serializers.IntegerField()
 
-    def validate_board(self, value): # pylint: disable=R0201
+    def validate_board(self, value):  # pylint: disable=R0201
         """Board needs to exist"""
         if Board.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid board")
 
-    def validate_bucket(self, value): # pylint: disable=R0201
+    def validate_bucket(self, value):  # pylint: disable=R0201
         """Buckes need to exist"""
         if Bucket.objects.filter(id=value).exists():
             return value
