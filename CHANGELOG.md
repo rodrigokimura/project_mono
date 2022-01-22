@@ -1,3 +1,9 @@
+## 1.1.12 (2022-01-22)
+
+### Refactor
+
+- **project_manager**: apply pylint changes
+
 ## 1.1.11 (2022-01-22)
 
 ### Refactor
