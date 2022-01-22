@@ -1,3 +1,9 @@
+## 1.1.8 (2022-01-22)
+
+### Fix
+
+- **shiper**: add comparison for sorting
+
 ## 1.1.7 (2022-01-21)
 
 ### Refactor
