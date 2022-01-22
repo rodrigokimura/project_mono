@@ -1,9 +1,13 @@
+"""Todo lists's serializers"""
 from rest_framework.serializers import ModelSerializer
 
 from .models import List, Task
 
 
 class ListSerializer(ModelSerializer):
+    """
+    List serializer
+    """
 
     class Meta:
         model = List
@@ -16,6 +20,9 @@ class ListSerializer(ModelSerializer):
 
 
 class TaskSerializer(ModelSerializer):
+    """
+    Task serializer
+    """
     class Meta:
         model = Task
         fields = [

@@ -1,6 +1,6 @@
+"""Todo Lists' urls"""
 from django.urls import path
 
-# from django.views.generic.base import RedirectView
 from . import views
 
 app_name = 'todo_lists'
@@ -21,5 +21,9 @@ urlpatterns = [
     path('api/lists/<int:list_pk>/tasks/', views.TaskListAPIView.as_view(), name='api_tasks_list'),
     path('api/lists/<int:list_pk>/tasks/<int:pk>/', views.TaskDetailAPIView.as_view(), name='api_tasks_detail'),
     path('api/lists/<int:list_pk>/tasks/<int:pk>/check/', views.TaskCheckApiView.as_view(), name='api_tasks_check'),
-    path('api/lists/<int:list_pk>/tasks/<int:pk>/uncheck/', views.TaskUncheckApiView.as_view(), name='api_tasks_uncheck'),
+    path(
+        'api/lists/<int:list_pk>/tasks/<int:pk>/uncheck/',
+        views.TaskUncheckApiView.as_view(),
+        name='api_tasks_uncheck'
+    ),
 ]
