@@ -1,3 +1,9 @@
+## 1.1.7 (2022-01-21)
+
+### Refactor
+
+- **shipper**: apply pylint changes
+
 ## 1.1.6 (2022-01-21)
 
 ### Refactor
