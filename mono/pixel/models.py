@@ -1,3 +1,4 @@
+"""Pixel's models"""
 import uuid
 from datetime import timedelta
 
@@ -13,6 +14,7 @@ JS_SNIPPET = """<script>
 
 
 class Site(models.Model):
+    """Group tracking information"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     host = models.CharField(
         max_length=1024,
@@ -27,18 +29,21 @@ class Site(models.Model):
         return str(self.id)
 
     def soft_delete(self):
+        """Mark site as unregistered"""
         self.deleted_at = timezone.now()
         self.save()
 
     @property
     def snippet(self):
+        """Generate script tag customized for this site"""
         snippet = JS_SNIPPET % ("http://127.0.0.42:8080", self.id)
-        return snippet.replace("/n", "").replace("/r", "")
+        return snippet.replace("/n", "").replace("/r", "").strip()
 
     def flush_pings(self):
         self.ping_set.all().delete()
 
     def get_online_users(self):
+        """Get distinct users from unclosed sessions"""
         return self.ping_set.filter(
             event='pageload',
             pageclose_timestamp__isnull=True,
@@ -46,31 +51,34 @@ class Site(models.Model):
         ).values('user_id').distinct()
 
     def get_pings(self, initial_datetime=timezone.now() - timedelta(days=30), final_datetime=timezone.now()):
+        """Get pings in a date range"""
         return self.ping_set.filter(
-            timestamp__date__gte=initial_datetime,
-            timestamp__date__lte=final_datetime,
+            timestamp__range=[initial_datetime, final_datetime],
         )
 
     def get_visitors(self, pings=None, **kwargs):
+        """Get unique visitors in a date range"""
         if pings is None:
             pings = self.get_pings(**kwargs)
-        return pings.values('user_id').distinct()
+        return pings.values_list('user_id', flat=True).distinct()
 
     def get_views(self, pings=None, **kwargs):
+        """Get page views in a date range"""
         if pings is None:
             pings = self.get_pings(**kwargs)
         return pings.filter(event='pageload')
 
     def get_avg_duration(self, pings=None, **kwargs):
+        """Get avg session durations in a date range"""
         if pings is None:
             pings = self.get_pings(**kwargs)
         qs = pings.exclude(duration__isnull=True)
         if qs.exists():
             return str(qs.aggregate(d=Avg('duration'))['d'])
-        else:
-            return '0:00:00.000'
+        return '0:00:00.000'
 
     def get_bounce_rate(self, pings=None, **kwargs):
+        """Get bounce rate in a date range"""
         if pings is None:
             pings = self.get_pings(**kwargs)
         closed_sessions = pings.filter(
@@ -83,30 +91,41 @@ class Site(models.Model):
         visitors = self.get_visitors(pings=pings)
 
         bounces = 0
-        for v in visitors:
-            c = closed_sessions.filter(user_id=v['user_id']).values('document_location').distinct().count()
-            if c == 1:
-                bounces += 1
+        for visitor in visitors:
+            closed_sessions_count = (
+                closed_sessions
+                .filter(user_id=visitor)
+                .values('document_location')
+                .distinct()
+                .count()
+            )
+            bounces += 1 if closed_sessions_count == 1 else 0
 
         return bounces / closed_sessions.count()
 
     def get_document_locations(self, pings=None, **kwargs):
+        """Get distinct document locations in a date range"""
         if pings is None:
             pings = self.get_pings(**kwargs)
         return pings.values('document_location').distinct()
 
     def get_referrer_locations(self, pings=None, **kwargs):
+        """Get distinct referrer locations in a date range"""
         if pings is None:
             pings = self.get_pings(**kwargs)
         return pings.values('referrer_location').distinct()
 
     def get_browsers(self, pings=None, **kwargs):
+        """Get distinct browsers in a date range"""
         if pings is None:
             pings = self.get_pings(**kwargs)
         return pings.values('browser_name').distinct()
 
 
 class Ping(models.Model):
+    """
+    Tracked data for each pixel request
+    """
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
     user_id = models.CharField(max_length=1024, null=True)
     event = models.CharField(max_length=1024, null=True)

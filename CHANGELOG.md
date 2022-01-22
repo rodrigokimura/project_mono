@@ -1,3 +1,27 @@
+## 1.1.13 (2022-01-22)
+
+### Refactor
+
+- **pixel**: apply pylint changes
+
+## 1.1.12 (2022-01-22)
+
+### Refactor
+
+- **project_manager**: apply pylint changes
+
+## 1.1.11 (2022-01-22)
+
+### Refactor
+
+- **project_manager**: apply pylint changes
+
+## 1.1.10 (2022-01-22)
+
+### Refactor
+
+- **restricted_area**: apply pylint changes
+
 ## 1.1.9 (2022-01-22)
 
 ### Refactor

@@ -1,3 +1,4 @@
+"""Pixel admin"""
 from django.contrib import admin
 
 from . import models
@@ -6,13 +7,13 @@ from . import models
 @admin.register(models.Site)
 class SiteAdmin(admin.ModelAdmin):
 
-    def flush_pings(self, request, queryset):
+    def flush_pings(self, request, queryset):  # pylint: disable=R0201
         for site in queryset:
             site.flush_pings()
 
     flush_pings.short_description = "Delete all pings"
 
-    def undo_deletion(self, request, queryset):
+    def undo_deletion(self, request, queryset):  # pylint: disable=R0201
         queryset.update(deleted_at=None)
 
     undo_deletion.short_description = "Undo deletion"

@@ -1,9 +1,11 @@
+"""Pixel's forms"""
 from django import forms
 
 from .models import Site
 
 
 class SiteForm(forms.ModelForm):
+    """Site registration form"""
 
     error_css_class = 'error'
 
