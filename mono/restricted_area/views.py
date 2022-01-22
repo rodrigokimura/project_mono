@@ -1,3 +1,4 @@
+"""Restricted area's views"""
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic.base import TemplateView, View
 
@@ -5,6 +6,9 @@ from .report import Report
 
 
 class IndexView(UserPassesTestMixin, TemplateView):
+    """
+    Root view
+    """
 
     template_name = 'restricted_area/index.html'
 
@@ -13,6 +17,7 @@ class IndexView(UserPassesTestMixin, TemplateView):
 
 
 class ForceError500View(UserPassesTestMixin, View):
+    """Simulate error"""
 
     def test_func(self):
         return self.request.user.is_superuser
@@ -22,6 +27,7 @@ class ForceError500View(UserPassesTestMixin, View):
 
 
 class ViewError500View(UserPassesTestMixin, TemplateView):
+    """Display error page"""
 
     template_name = '500.html'
 
@@ -30,6 +36,7 @@ class ViewError500View(UserPassesTestMixin, TemplateView):
 
 
 class ReportView(UserPassesTestMixin, TemplateView):
+    """Show report of models"""
 
     template_name = 'restricted_area/report.html'
 
