@@ -4,15 +4,21 @@ import os
 
 from __mono.utils import validate_file_size
 from accounts.serializers import UserSerializer
-from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, Serializer
 
 from .models import (
     Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Tag,
-    Theme, TimeEntry,
+    Theme, TimeEntry, User
 )
+
+
+
+def _delete_file(path):
+    """ Deletes file from filesystem. """
+    if os.path.isfile(path):
+        os.remove(path)
 
 
 class ThemeSerializer(ModelSerializer):
@@ -98,16 +104,11 @@ class BoardSerializer(ModelSerializer):
         ]
         extra_kwargs = {'created_by': {'read_only': True}}
 
-    def _delete_file(self, path):
-        """ Deletes file from filesystem. """
-        if os.path.isfile(path):
-            os.remove(path)
-
     def update(self, instance, validated_data):
         """Handle background image deletion upon update"""
         if 'background_image' in validated_data:
             if instance.background_image:
-                self._delete_file(instance.background_image.path)
+                _delete_file(instance.background_image.path)
             if validated_data['background_image'] is None:
                 instance.background_image = None
         return super().update(instance, validated_data)
@@ -212,8 +213,8 @@ class CardFileSerializer(ModelSerializer):
             'extension',
         ]
 
-    def validate_file(self, f):
-        return validate_file_size(f, 10)
+    def validate_file(self, file):  # pylint: disable=R0201
+        return validate_file_size(file, 10)
 
     def create(self, validated_data):
         instance = super().create(validated_data)
