@@ -1,9 +1,11 @@
+"""Watcher's models"""
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
 
 
 class Issue(models.Model):
+    """Problem encountered by Watcher"""
     hash = models.CharField(max_length=256)
     name = models.CharField(max_length=256)
     description = models.CharField(max_length=1000)
@@ -30,21 +32,33 @@ class Issue(models.Model):
         return self.name
 
     def resolve(self, user):
+        """
+        Mark issues as resolved
+        """
         self.resolved_at = timezone.now()
         self.resolved_by = user
         self.save()
 
     def unresolve(self):
+        """
+        Mark issue as unresolved
+        """
         self.resolved_at = None
         self.resolved_by = None
         self.save()
 
     def ignore(self, user):
+        """
+        Mark issue as ignored
+        """
         self.ignored_at = timezone.now()
         self.ignored_by = user
         self.save()
 
     def unignore(self):
+        """
+        Mark issue as not ignored
+        """
         self.ignored_at = None
         self.ignored_by = None
         self.save()
@@ -63,6 +77,9 @@ class Issue(models.Model):
 
 
 class Event(models.Model):
+    """
+    When an issue happens
+    """
     issue = models.ForeignKey(Issue, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
     user = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True)
@@ -72,6 +89,9 @@ class Event(models.Model):
 
 
 class Traceback(models.Model):
+    """
+    Hold information about the traceback
+    """
     issue = models.ForeignKey(Issue, on_delete=models.CASCADE)
     order = models.PositiveSmallIntegerField()
     file_name = models.CharField(max_length=1000)
@@ -85,16 +105,17 @@ class Traceback(models.Model):
 
     @property
     def short_file_name(self):
-        fn: str = self.file_name
-        if 'site-packages/' in fn:
-            return fn.split('site-packages/')[-1]
-        if 'project_mono/mono/' in fn:
-            return fn.split('project_mono/mono/')[-1]
-        items = fn.split('/')
+        """
+        Short version of traceback's filename
+        """
+        if 'site-packages/' in self.file_name:
+            return self.file_name.rsplit('site-packages/', maxsplit=1)[-1]
+        if 'project_mono/mono/' in self.file_name:
+            return self.file_name.rsplit('project_mono/mono/', maxsplit=1)[-1]
+        items = self.file_name.split('/')
         if len(items) > 1:
             return '/'.join(items[len(items) - 2:])
-        else:
-            return items[-1]
+        return items[-1]
 
     @property
     def vars(self):

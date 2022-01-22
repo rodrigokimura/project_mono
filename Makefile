@@ -1,5 +1,6 @@
 export PIPENV_VERBOSITY=-1
 export PIPENV_IGNORE_VIRTUALENVS=1
+export DJANGO_SETTINGS_MODULE=__mono.settings
 
 help:
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z0-9_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -107,8 +108,8 @@ update:
 
 commit:  ## Stage, commit, bump version and push changes
 	@git add . 
-	@cz c
-	@cz bump -ch
+	@pipenv run cz c
+	@pipenv run cz bump -ch
 	@git push origin --tags
 	@git push
 
