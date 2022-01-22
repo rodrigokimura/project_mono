@@ -1,3 +1,4 @@
+"""Project manager's urls"""
 from django.urls import path
 from django.views.generic.base import RedirectView
 
@@ -5,6 +6,7 @@ from . import views
 
 app_name = 'project_manager'
 
+# pylint: disable=C0301
 urlpatterns = [
 
     path('', RedirectView.as_view(pattern_name='project_manager:projects'), name='index'),

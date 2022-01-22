@@ -34,6 +34,11 @@ _pylint:
 	@cat /dev/null > mono/$(R_PL)pylint.txt
 	@pipenv run pylint --rcfile=.pylintrc --output-format=text mono | tee mono/$(R_PL)pylint.txt \
 
+pylint-app: list-apps
+	@echo Choose app: \
+		&& read APP \
+		&& pipenv run pylint mono/$$APP
+
 _tests:
 	@export APP_ENV=TEST \
 		&& cd mono \
@@ -139,3 +144,6 @@ ssh:
 copy-termux-shortcuts:
 	@rm -r $(HOME)/.shortcuts/*
 	@cp -a ./scripts/termux/. $(HOME)/.shortcuts/
+
+list-apps:
+	@tree mono -dL 1 -I _*\|reports
