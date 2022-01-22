@@ -1,3 +1,4 @@
+"""Utility classes to handle portmanteaus"""
 import re
 from typing import Iterator, List, NamedTuple
 
@@ -11,12 +12,16 @@ class Morpheme(str):
 
 
 class Word:
+    """Represent word (no spaces)"""
 
     def __init__(self, text) -> None:
         self.text = text
 
     @property
     def morphemes(self) -> List[Morpheme]:
+        """
+        Split word in morphemes
+        """
         ex = r'([^aeiou]*[aeiou]*)|[aeiou]*[^aeiou]*[aeiou]*'
         root = self.text
         morphemes = []
@@ -31,26 +36,33 @@ class Word:
 
 
 class PortmanteauConfig(NamedTuple):
+    """Named tuple hold portmanteau configuration"""
     parent: Word
     index: int
     onwards: bool
 
     def __str__(self) -> str:
+        """Build part of the portmanteau"""
         if self.onwards:
             return ''.join(self.parent.morphemes[:self.index])
-        else:
-            return ''.join(self.parent.morphemes[self.index:])
+        return ''.join(self.parent.morphemes[self.index:])
 
 
 class Portmanteau:
+    """
+    Represent a portmanteau
+    """
 
-    def __init__(self, first_config: PortmanteauConfig, second_config: PortmanteauConfig, inverted: bool = False) -> None:
-        self.first_config = first_config
-        self.second_config = second_config
+    def __init__(self, first: PortmanteauConfig, second: PortmanteauConfig, inverted: bool = False) -> None:
+        self.first_config = first
+        self.second_config = second
         self.inverted = inverted
 
     def __str__(self) -> str:
         return str(self.first_config) + str(self.second_config)
+
+    def __lt__(self, other):
+        return str(self) < str(other)
 
     @property
     def first_parent(self) -> str:
@@ -78,32 +90,39 @@ class Portmanteau:
 
     @property
     def first_summary(self):
+        """
+        Return details of the first part of portmanteau
+        """
         if self.first_config.onwards:
             return (
                 (self.first_partial, True),
                 (self.first_remainder, False),
             )
-        else:
-            return (
-                (self.first_remainder, False),
-                (self.first_partial, True),
-            )
+        return (
+            (self.first_remainder, False),
+            (self.first_partial, True),
+        )
 
     @property
     def second_summary(self):
+        """
+        Return details of the second part of portmanteau
+        """
         if self.second_config.onwards:
             return (
                 (self.second_partial, True),
                 (self.second_remainder, False),
             )
-        else:
-            return (
-                (self.second_remainder, False),
-                (self.second_partial, True),
-            )
+        return (
+            (self.second_remainder, False),
+            (self.second_partial, True),
+        )
 
 
 class WordPair:
+    """
+    Pair of words
+    """
 
     def __init__(self, first: Word, second: Word) -> None:
         self.first = first
@@ -113,6 +132,9 @@ class WordPair:
         return f"{self.first} + {self.second}"
 
     def get_portmanteaus(self, same_direction: bool = False) -> List[Portmanteau]:
+        """
+        Retrieve list of possible portmanteaus
+        """
         morphemes_a = self.first.morphemes
         morphemes_b = self.second.morphemes
 
@@ -120,34 +142,37 @@ class WordPair:
         for i in range(1, len(morphemes_a)):
             for j in range(1, len(morphemes_b)):
                 if same_direction:
-                    p = Portmanteau(
+                    portmanteau = Portmanteau(
                         PortmanteauConfig(self.first, i, True),
                         PortmanteauConfig(self.second, j, True),
                         inverted=False,
                     )
-                    portmanteaus.append(p)
-                    p = Portmanteau(
+                    portmanteaus.append(portmanteau)
+                    portmanteau = Portmanteau(
                         PortmanteauConfig(self.second, j, True),
                         PortmanteauConfig(self.first, i, True),
                         inverted=True,
                     )
-                    portmanteaus.append(p)
-                p = Portmanteau(
+                    portmanteaus.append(portmanteau)
+                portmanteau = Portmanteau(
                     PortmanteauConfig(self.first, i, True),
                     PortmanteauConfig(self.second, j, False),
                     inverted=False,
                 )
-                portmanteaus.append(p)
-                p = Portmanteau(
+                portmanteaus.append(portmanteau)
+                portmanteau = Portmanteau(
                     PortmanteauConfig(self.second, j, True),
                     PortmanteauConfig(self.first, i, False),
                     inverted=True,
                 )
-                portmanteaus.append(p)
+                portmanteaus.append(portmanteau)
         return portmanteaus
 
 
 class CompoundWordPair:
+    """
+    Pair of compound words (words with spaces)
+    """
 
     def __init__(self, first: CompoundWord, second: CompoundWord) -> None:
         self.first = first
@@ -155,12 +180,18 @@ class CompoundWordPair:
 
     @property
     def word_pairs(self) -> Iterator[WordPair]:
+        """
+        Generate possible word pair combinations
+        """
         for w_1 in self.first.split():
             for w_2 in self.second.split():
                 yield WordPair(Word(w_1), Word(w_2))
 
     def get_portmanteaus(self, same_direction: bool = False) -> List[Portmanteau]:
+        """
+        Retrieve list of all possible portmanteaus
+        """
         portmanteaus = []
         for pair in self.word_pairs:
             portmanteaus.extend(pair.get_portmanteaus(same_direction))
-        return sorted(portmanteaus, key=lambda p: str(p))
+        return sorted(portmanteaus)
