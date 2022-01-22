@@ -61,6 +61,9 @@ class Portmanteau:
     def __str__(self) -> str:
         return str(self.first_config) + str(self.second_config)
 
+    def __lt__(self, other):
+        return str(self) < str(other)
+
     @property
     def first_parent(self) -> str:
         return str(self.first_config.parent).lower()
