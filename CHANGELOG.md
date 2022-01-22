@@ -1,3 +1,9 @@
+## 1.1.5 (2022-01-21)
+
+### Refactor
+
+- **watcher**: apply pylint changes
+
 ## 1.1.4 (2022-01-21)
 
 ### Refactor

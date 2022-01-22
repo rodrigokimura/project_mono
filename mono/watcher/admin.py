@@ -1,3 +1,4 @@
+"""Django admin config for Watcher"""
 from django.contrib import admin
 
 from . import models
@@ -5,6 +6,9 @@ from . import models
 
 @admin.register(models.Issue)
 class IssueAdmin(admin.ModelAdmin):
+    """
+    Config for issues
+    """
 
     list_display = [
         'id',
@@ -21,6 +25,9 @@ class IssueAdmin(admin.ModelAdmin):
 
 @admin.register(models.Event)
 class EventAdmin(admin.ModelAdmin):
+    """
+    Config for events
+    """
 
     list_display = [
         'id',
@@ -35,6 +42,9 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(models.Traceback)
 class TracebackAdmin(admin.ModelAdmin):
+    """
+    Config for tracebacks
+    """
 
     list_display = [
         'issue',
