@@ -1,3 +1,4 @@
+"""Project manager's forms"""
 from __mono.widgets import ToggleWidget
 from django import forms
 
@@ -5,6 +6,7 @@ from .models import Board, Project
 
 
 class ProjectForm(forms.ModelForm):
+    """Project form"""
     error_css_class = 'error'
 
     def __init__(self, *args, **kwargs):
@@ -12,6 +14,7 @@ class ProjectForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
+        """Handle project save"""
         project = self.instance
         if project.pk is None:
             project.created_by = self.request.user
@@ -25,6 +28,7 @@ class ProjectForm(forms.ModelForm):
 
 
 class BoardForm(forms.ModelForm):
+    """Board form"""
     error_css_class = 'error'
 
     def __init__(self, *args, **kwargs):
@@ -35,6 +39,7 @@ class BoardForm(forms.ModelForm):
         self.fields['assigned_to'].queryset = self.project.allowed_users
 
     def save(self, *args, **kwargs):
+        """Handle board save"""
         board = self.instance
         if board.pk is None:
             board.created_by = self.request.user

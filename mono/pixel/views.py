@@ -1,4 +1,6 @@
+"""Pixel's views"""
 import logging
+from abc import abstractmethod
 from base64 import b64decode
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
@@ -10,7 +12,7 @@ from django.db.models import Avg, Count
 from django.db.models.functions import TruncDay
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
-from django.http.response import Http404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.urls.base import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
@@ -27,12 +29,12 @@ from .models import Ping, Site
 
 
 def get_timestamp(query_dict):
-    if 'ts' in query_dict:
-        EPOCH = datetime(1970, 1, 1, tzinfo=pytz.UTC)
-        milliseconds = int(query_dict.get('ts'))
-        return EPOCH + timedelta(milliseconds=milliseconds)
-    else:
+    """Get formatted timestamp from query_dict"""
+    if 'ts' not in query_dict:
         return None
+    epoch = datetime(1970, 1, 1, tzinfo=pytz.UTC)
+    milliseconds = int(query_dict.get('ts'))
+    return epoch + timedelta(milliseconds=milliseconds)
 
 
 def get_implicit_domain_name_url(full_url):
@@ -46,6 +48,7 @@ def get_implicit_domain_name_url(full_url):
 
 
 def shorten_url(full_url: str, site_id: str):
+    """Convert to relative url is from same site"""
     qs = Site.objects.filter(id=site_id)
     if not qs.exists():
         return full_url
@@ -61,6 +64,7 @@ def shorten_url(full_url: str, site_id: str):
 
 
 def get_tracking_info(query_dict):
+    """Parse data from query_dict"""
     site_id = query_dict.get('id').replace('ID-', '')
     tracking_info = {
         'site_id': site_id,
@@ -89,40 +93,45 @@ def get_tracking_info(query_dict):
 
 
 def store_tracking_info(tracking_info):
-    if Site.objects.filter(id=tracking_info.get('site_id')).exists():
-        event = tracking_info['event']
-        if event == 'pageclose':
-            ping: Ping = Ping.objects.filter(
-                site_id=tracking_info['site_id'],
-                user_id=tracking_info['user_id'],
-                document_location=tracking_info['document_location'],
-            ).last()
-            if ping is not None:
-                ping.pageclose_timestamp = tracking_info['timestamp']
-                ping.duration = tracking_info['timestamp'] - ping.pageload_timestamp
-                ping.save()
-        else:
-            if tracking_info['event'] == 'pageload':
-                tracking_info['pageload_timestamp'] = tracking_info['timestamp']
-            ping = Ping.objects.create(**tracking_info)
-    else:
+    """Create ping instance"""
+    if not Site.objects.filter(id=tracking_info.get('site_id')).exists():
         logging.warning('Invalid ping')
+        return
+    event = tracking_info['event']
+    if event == 'pageclose':
+        ping: Ping = Ping.objects.filter(
+            site_id=tracking_info['site_id'],
+            user_id=tracking_info['user_id'],
+            document_location=tracking_info['document_location'],
+        ).last()
+        if ping is not None:
+            ping.pageclose_timestamp = tracking_info['timestamp']
+            ping.duration = tracking_info['timestamp'] - ping.pageload_timestamp
+            ping.save()
+    if tracking_info['event'] == 'pageload':
+        tracking_info['pageload_timestamp'] = tracking_info['timestamp']
+    ping = Ping.objects.create(**tracking_info)
 
 
 @csrf_exempt
 def pixel_gif(request):
+    """Pixel view that tracks data"""
     if request.GET:
         tracking_info = get_tracking_info(request.GET)
         store_tracking_info(tracking_info)
-    PIXEL_GIF_DATA = b64decode(b"R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
-    return HttpResponse(PIXEL_GIF_DATA, content_type='image/gif')
+    return HttpResponse(
+        b64decode(b"R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"),
+        content_type='image/gif'
+    )
 
 
 class RootView(LoginRequiredMixin, RedirectView):
+    """Root view"""
     permanent = False
     query_string = False
 
     def get_redirect_url(self, *args, **kwargs):
+        """Redirect to list of tags"""
         if not self.request.user.is_authenticated:
             # TODO: redirect to an informational page
             return None
@@ -130,12 +139,14 @@ class RootView(LoginRequiredMixin, RedirectView):
 
 
 class SiteCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, CreateView):
+    """Register a new site"""
     model = Site
     form_class = SiteForm
     success_url = reverse_lazy('pixel:tags')
 
 
 class SitesView(LoginRequiredMixin, ListView):
+    """Display all registered sites"""
 
     model = Site
 
@@ -149,6 +160,7 @@ class SitesView(LoginRequiredMixin, ListView):
 
 
 class DashboardView(UserPassesTestMixin, DetailView):
+    """Display tracking info of a given site"""
 
     model = Site
     template_name = 'pixel/dashboard.html'
@@ -159,15 +171,11 @@ class DashboardView(UserPassesTestMixin, DetailView):
 
 
 class SiteDetailApiView(LoginRequiredMixin, APIView):
+    """Unregister a site"""
 
-    def get_object(self, pk):
-        try:
-            return Site.objects.get(pk=pk)
-        except Site.DoesNotExist:
-            raise Http404
-
-    def delete(self, request, pk, format=None, **kwargs):
-        site: Site = self.get_object(pk)
+    def delete(self, request, pk, **kwargs):
+        """Unregister a site"""
+        site = get_object_or_404(Site, pk=pk)
         if request.user == site.created_by:
             site.soft_delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -175,32 +183,39 @@ class SiteDetailApiView(LoginRequiredMixin, APIView):
 
 
 class DashboardBaseApiView(LoginRequiredMixin, APIView):
+    """
+    Base view to be used by all views
+    that return data for chart rendering
+    """
 
-    def get_object(self, pk):
-        try:
-            return Site.objects.get(pk=pk)
-        except Site.DoesNotExist:
-            raise Http404
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.site = None
+        self.pings = None
 
+    @abstractmethod
     def process_data(self):
-        return {}
+        pass
 
-    def get(self, request, pk, format=None):
-        self.site: Site = self.get_object(pk)
-        if self.request.user == self.site.created_by:
-            self.pings = self.site.get_pings(
-                initial_datetime=self.request.query_params.get('start'),
-                final_datetime=self.request.query_params.get('end'),
-            )
-            data = self.process_data()
-            data['success'] = True
-            return Response(data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+    def get(self, request, pk):
+        """Get site, pings and process data"""
+        self.site = get_object_or_404(Site, pk=pk)
+        if self.request.user != self.site.created_by:
+            return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        self.pings = self.site.get_pings(
+            initial_datetime=self.request.query_params.get('start'),
+            final_datetime=self.request.query_params.get('end'),
+        )
+        data = self.process_data()
+        data['success'] = True
+        return Response(data)
 
 
 class DashboardGeneralInfoApiView(DashboardBaseApiView):
+    """General info"""
 
     def process_data(self):
+        """General aggregated info"""
         online_users = self.site.get_online_users()
         visitors = self.site.get_visitors(pings=self.pings)
         views = self.site.get_views(pings=self.pings)
@@ -211,13 +226,15 @@ class DashboardGeneralInfoApiView(DashboardBaseApiView):
             'visitors': visitors.count(),
             'views': views.count(),
             'duration': avg_duration,
-            'bounce': "{:.0%}".format(bounce_rate),
+            'bounce': f"{bounce_rate:.0%}",
         }
 
 
 class DashboardAggregatedByDateApiView(DashboardBaseApiView):
+    """By date"""
 
     def process_data(self):
+        """Info by date"""
         qs = self.pings.filter(
             event='pageload'
         ).annotate(
@@ -239,18 +256,25 @@ class DashboardAggregatedByDateApiView(DashboardBaseApiView):
                 item['bounce'] = None
             else:
                 bounces = 0
-                for v in self.pings.values('user_id').distinct():
-                    c = closed_sessions.filter(user_id=v['user_id']).values('document_location').distinct().count()
-                    if c == 1:
-                        bounces += 1
+                for user_id in self.pings.values_list('user_id', flat=True).distinct():
+                    closed_sessions_count = (
+                        closed_sessions
+                        .filter(user_id=user_id)
+                        .values('document_location')
+                        .distinct()
+                        .count()
+                    )
+                    bounces += 1 if closed_sessions_count == 1 else 0
                 item['bounce'] = bounces / closed_sessions.count()
             data.append(item)
         return {'data': data}
 
 
 class DashboardAggregatedByDocLocApiView(DashboardBaseApiView):
+    """By document location"""
 
     def process_data(self):
+        """Info by document location"""
         qs = self.pings.filter(
             event='pageload'
         ).values('document_location')

@@ -1,3 +1,4 @@
+"""Project manager's models"""
 import imghdr
 import os
 import re
@@ -22,6 +23,9 @@ User = get_user_model()
 
 
 class BaseModel(models.Model):
+    """
+    Base model for this app
+    """
     name = models.CharField(max_length=50, null=False, blank=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -35,6 +39,9 @@ class BaseModel(models.Model):
 
 
 class Project(BaseModel):
+    """
+    Project that holds boards
+    """
     deadline = models.DateTimeField(null=True, blank=True)
     assigned_to = models.ManyToManyField(User, related_name="assigned_projects", blank=True)
 
@@ -53,6 +60,9 @@ class Project(BaseModel):
 
     @property
     def progress(self):
+        """
+        Display detailed information about project's progress
+        """
         qs = Card.objects.filter(bucket__board__project=self.id)
         total_cards = qs.count()
         not_started = qs.filter(status='NS').aggregate(count=Count('id'))['count']
@@ -75,6 +85,9 @@ class Project(BaseModel):
 
     @property
     def share_link(self):
+        """
+        Display link to share
+        """
         invite: Invite = Invite.objects.get_or_create(
             project=self,
             email__isnull=True,
@@ -84,9 +97,12 @@ class Project(BaseModel):
 
 
 class Board(BaseModel):
+    """
+    Board that holds buckets
+    """
 
-    def _background_image_path(instance, filename):
-        return 'project_{0}/board_{1}/{2}'.format(instance.project.id, instance.id, filename)
+    def _background_image_path(self, filename):
+        return f'project_{self.project.id}/board_{self.id}/{filename}'
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     assigned_to = models.ManyToManyField(User, related_name="assigned_boards", blank=True)
@@ -132,6 +148,7 @@ class Board(BaseModel):
 
     @property
     def progress(self):
+        """Display detailed information about board's progress"""
         qs = Card.objects.filter(bucket__board=self.id)
         total_cards = qs.count()
         not_started = qs.filter(status='NS').aggregate(count=Count('id'))['count']
@@ -154,6 +171,9 @@ class Board(BaseModel):
 
 
 class Bucket(BaseModel):
+    """
+    Bucket that holds cards
+    """
     NONE = 'N'
     NOT_STARTED = 'NS'
     IN_PROGRESS = 'IP'
@@ -193,12 +213,16 @@ class Bucket(BaseModel):
         self.save()
 
     def sort(self):
+        """Fix card order"""
         for index, card in enumerate(self.card_set.all()):
             card.order = index + 1
             card.save()
 
 
 class Tag(BaseModel):
+    """
+    Tag for generic information and filtering
+    """
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     icon = models.ForeignKey('Icon', on_delete=models.SET_NULL, default=None, null=True, blank=True)
     color = models.ForeignKey('Theme', on_delete=models.SET_NULL, default=None, null=True, blank=True)
@@ -210,10 +234,14 @@ class Tag(BaseModel):
 
 
 class Card(BaseModel):
+    """
+    Card, main entity, holds information about tasks
+    """
 
-    def _card_directory_path(instance, filename):
-        # file will be uploaded to MEDIA_ROOT/project_<id>/<filename>
-        return 'project_{0}/{1}'.format(instance.bucket.board.project.id, filename)
+    def _card_directory_path(self, filename):
+        """file will be uploaded to MEDIA_ROOT/project_<id>/<filename>"""
+        p_id = self.bucket.board.project.id
+        return f'project_{p_id}/{filename}'
 
     STATUSES = [
         (Bucket.NOT_STARTED, _('Not started')),
@@ -230,17 +258,25 @@ class Card(BaseModel):
     started_at = models.DateTimeField(blank=True, null=True)
     started_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="started_cards", blank=True, null=True)
     completed_at = models.DateTimeField(blank=True, null=True)
-    completed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="completed_cards", blank=True, null=True)
+    completed_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="completed_cards",
+        blank=True,
+        null=True
+    )
     color = models.ForeignKey('Theme', on_delete=models.CASCADE, blank=True, null=True, default=None)
     tag = models.ManyToManyField(Tag, blank=True, default=None)
 
     def mark_as_completed(self, user):
+        """Mark card as completed"""
         self.status = Bucket.COMPLETED
         self.completed_at = timezone.now()
         self.completed_by = user
         self.save()
 
     def mark_as_in_progress(self, user):
+        """Mark card as in progress"""
         self.status = Bucket.IN_PROGRESS
         self.started_at = timezone.now()
         self.started_by = user
@@ -249,6 +285,7 @@ class Card(BaseModel):
         self.save()
 
     def mark_as_not_started(self):
+        """Mark card as not started"""
         self.status = Bucket.NOT_STARTED
         self.started_at = None
         self.started_by = None
@@ -266,6 +303,7 @@ class Card(BaseModel):
 
     @property
     def total_time(self):
+        """Total time tracked for this card"""
         stopped_entries = self.timeentry_set.filter(
             stopped_at__isnull=False
         )
@@ -280,24 +318,23 @@ class Card(BaseModel):
 
     def start_timer(self, user):
         """
-            Create new time entry if no running entry is found.
+        Create new time entry if no running entry is found.
         """
         running_time_entries = self.timeentry_set.filter(stopped_at__isnull=True)
         if running_time_entries.exists():
             return {'action': 'none'}
-        else:
-            time_entry = TimeEntry.objects.create(
-                name="Time entry",
-                card=self,
-                started_at=timezone.now(),
-                created_by=user
-            )
-            time_entry.card.bucket.touch()
-            return {'action': 'start'}
+        time_entry = TimeEntry.objects.create(
+            name="Time entry",
+            card=self,
+            started_at=timezone.now(),
+            created_by=user
+        )
+        time_entry.card.bucket.touch()
+        return {'action': 'start'}
 
     def stop_timer(self):
         """
-            Stop any running time entry.
+        Stop any running time entry.
         """
         running_time_entries = self.timeentry_set.filter(stopped_at__isnull=True)
         if running_time_entries.exists():
@@ -306,10 +343,12 @@ class Card(BaseModel):
                 time_entry.save()
                 time_entry.card.bucket.touch()
             return {'action': 'stop'}
-        else:
-            return {'action': 'none'}
+        return {'action': 'none'}
 
     def start_stop_timer(self, user):
+        """
+        Toggle timer
+        """
         running_time_entries = self.timeentry_set.filter(stopped_at__isnull=True)
         if running_time_entries.exists():
             for time_entry in running_time_entries:
@@ -317,15 +356,14 @@ class Card(BaseModel):
                 time_entry.save()
                 time_entry.card.bucket.touch()
             return {'action': 'stop'}
-        else:
-            time_entry = TimeEntry.objects.create(
-                name="Time entry",
-                card=self,
-                started_at=timezone.now(),
-                created_by=user
-            )
-            time_entry.card.bucket.touch()
-            return {'action': 'start'}
+        time_entry = TimeEntry.objects.create(
+            name="Time entry",
+            card=self,
+            started_at=timezone.now(),
+            created_by=user
+        )
+        time_entry.card.bucket.touch()
+        return {'action': 'start'}
 
     @property
     def max_order(self):
@@ -359,41 +397,58 @@ class Card(BaseModel):
 
 
 class CardFile(models.Model):
+    """File stored in card"""
 
-    def _card_directory_path(instance, filename):
-        return 'project_{0}/board_{1}/{2}'.format(
-            instance.card.bucket.board.project.id,
-            instance.card.bucket.board.id,
-            filename
-        )
+    def _card_directory_path(self, filename):
+        """Format path to store card files"""
+        p_id = self.card.bucket.board.project.id
+        b_id = self.card.bucket.board.id
+        return f'project_{p_id}/board_{b_id}/{filename}'
 
     file = models.FileField(
         upload_to=_card_directory_path,
-        max_length=1000)
+        max_length=1000
+    )
     card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='files')
 
     @property
     def image(self):
+        """
+        Get image type
+        """
         try:
             img = imghdr.what(self.file)
-        except Exception:
+        except OSError:
             img = None
         return img
 
     @property
     def extension(self):
+        """
+        Get file extension
+        """
         try:
-            name, extension = os.path.splitext(self.file.name)
-        except Exception:
+            _, extension = os.path.splitext(self.file.name)
+        except OSError:
             extension = ''
         return extension
 
 
 class Item(BaseModel):
+    """
+    Checklist item in a card
+    """
     order = models.IntegerField()
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
     checked_at = models.DateTimeField(null=True, blank=True, default=None)
-    checked_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="checked_items", default=None, null=True, blank=True)
+    checked_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name="checked_items",
+        default=None,
+        null=True,
+        blank=True
+    )
 
     class Meta:
         ordering = [
@@ -409,17 +464,20 @@ class Item(BaseModel):
         return self.card.bucket.board.allowed_users
 
     def mark_as_checked(self, user):
+        """Mark item as checked"""
         self.checked_at = timezone.now()
         self.checked_by = user
         self.save()
 
     def mark_as_unchecked(self):
+        """Mark item as unchecked"""
         self.checked_at = None
         self.checked_by = None
         self.save()
 
 
 class Comment(models.Model):
+    """Comment in a card"""
     text = models.TextField(max_length=1000, null=False, blank=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="card_comments")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -437,17 +495,18 @@ class Comment(models.Model):
 
     @property
     def mentioned_users(self):
+        """Get users referenced in comment text"""
         users = []
-        for m in re.finditer('@', self.text):
-            space = self.text.find(' ', m.start() + 1)
-            if m.start() > 0:
-                previous_char = self.text[m.start() - 1]
+        for match in re.finditer('@', self.text):
+            space = self.text.find(' ', match.start() + 1)
+            if match.start() > 0:
+                previous_char = self.text[match.start() - 1]
                 if previous_char not in [' ', '\n']:
                     continue
             if space != -1:
-                username = self.text[m.start() + 1:space]
+                username = self.text[match.start() + 1:space]
             else:
-                username = self.text[m.start() + 1:]
+                username = self.text[match.start() + 1:]
             print(username)
             try:
                 user = User.objects.get(username=username)
@@ -457,6 +516,7 @@ class Comment(models.Model):
         return users
 
     def notify_mentioned_users(self):
+        """Send email to mentioned users"""
         text = get_template('email/card_comment.txt')
         html = get_template('email/card_comment.html')
 
@@ -491,6 +551,7 @@ class Comment(models.Model):
             )
 
     def notify_assignees(self):
+        """Send email to assignee"""
 
         text = get_template('email/card_comment.txt')
         html = get_template('email/card_comment.html')
@@ -529,6 +590,7 @@ class Comment(models.Model):
 
 
 class TimeEntry(BaseModel):
+    """Time entry in a card"""
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
     started_at = models.DateTimeField(default=timezone.now)
     stopped_at = models.DateTimeField(blank=True, null=True)
@@ -552,6 +614,9 @@ class TimeEntry(BaseModel):
 
 
 class Theme(models.Model):
+    """
+    Color theme of cards or boards
+    """
     DEFAULT_THEMES = [
         ('Red', '#f44336', '#b71c1c', '#ffebee'),
         ('Orange', '#ff9800', '#e65100', '#fff3e0'),
@@ -576,9 +641,13 @@ class Theme(models.Model):
     def __str__(self) -> str:
         return self.name
 
-    def _create_defaults():
-        for theme in Theme.DEFAULT_THEMES:
-            Theme.objects.update_or_create(
+    @classmethod
+    def _create_defaults(cls):
+        """
+        Create default themes
+        """
+        for theme in cls.DEFAULT_THEMES:
+            cls.objects.update_or_create(
                 name=theme[0],
                 defaults={
                     'primary': theme[1],
@@ -589,6 +658,9 @@ class Theme(models.Model):
 
 
 class Icon(models.Model):
+    """
+    Icon used for tags
+    """
     DEFAULT_ICONS = [
         'home',
         'exclamation',
@@ -598,9 +670,11 @@ class Icon(models.Model):
     def __str__(self) -> str:
         return self.markup
 
-    def _create_defaults():
-        for markup in Icon.DEFAULT_ICONS:
-            Icon.objects.update_or_create(markup=markup)
+    @classmethod
+    def _create_defaults(cls):
+        """Create default icons"""
+        for markup in cls.DEFAULT_ICONS:
+            cls.objects.update_or_create(markup=markup)
 
     class Meta:
         verbose_name = _("icon")
@@ -608,11 +682,26 @@ class Icon(models.Model):
 
 
 class Invite(models.Model):
+    """Invite to assign user to project"""
     email = models.EmailField(max_length=1000, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True, related_name="created_project_invites")
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        default=None,
+        null=True,
+        blank=True,
+        related_name="created_project_invites"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
-    accepted_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True, related_name="accepted_project_invites")
+    accepted_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        default=None,
+        null=True,
+        blank=True,
+        related_name="accepted_project_invites"
+    )
     accepted_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
@@ -624,6 +713,9 @@ class Invite(models.Model):
         return self.accepted_by is not None
 
     def accept(self, user):
+        """
+        Accept invite
+        """
         project = self.project
         project.assigned_to.add(user)
         self.accepted_by = user
@@ -639,6 +731,9 @@ class Invite(models.Model):
 
     @property
     def link(self):
+        """
+        Display valid link to accept invite
+        """
         signer = TimestampSigner(salt="project_invite")
         token = signer.sign_object({
             "id": self.id,
@@ -646,7 +741,9 @@ class Invite(models.Model):
         return f"{settings.SITE}{reverse('project_manager:invite_acceptance')}?t={token}"
 
     def send(self):
-
+        """
+        Send invite via email
+        """
         text = get_template('email/invitation.txt')
         html = get_template('email/invitation.html')
 
