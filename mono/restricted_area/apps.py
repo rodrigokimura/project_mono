@@ -1,3 +1,4 @@
+"""Restricted area's app"""
 from django.apps import AppConfig
 
 
