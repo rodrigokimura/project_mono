@@ -1,3 +1,4 @@
+"""Shipper's models"""
 import uuid
 
 from django.db import models
@@ -8,6 +9,7 @@ from .utils import (
 
 
 class Ship(models.Model):
+    """Ship configuration"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name_1 = models.CharField(max_length=100)
     name_2 = models.CharField(max_length=100)
@@ -20,6 +22,7 @@ class Ship(models.Model):
         return f'{self.name_1} + {self.name_2}'
 
     def generate_portmanteaus(self):
+        """Generate portmanteau instances"""
         cwp = CompoundWordPair(self.name_1, self.name_2)
         portmanteaus = [
             Portmanteau(
@@ -38,6 +41,7 @@ class Ship(models.Model):
 
 
 class Portmanteau(models.Model):
+    """Ship name combined from two names"""
     ship = models.ForeignKey(Ship, on_delete=models.CASCADE, related_name='portmanteaus')
     first_parent = models.CharField(max_length=100)
     first_index = models.SmallIntegerField()
@@ -49,26 +53,26 @@ class Portmanteau(models.Model):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._Portmanteau = _Portmanteau(
+        self._portmanteau = _Portmanteau(
             PortmanteauConfig(Word(self.first_parent), self.first_index, self.first_flag_onwards),
             PortmanteauConfig(Word(self.second_parent), self.second_index, self.second_flag_onwards),
         )
 
     def __str__(self) -> str:
-        return str(self._Portmanteau)
+        return str(self._portmanteau)
 
     @property
     def first_partial(self):
-        return str(self._Portmanteau.first_partial)
+        return str(self._portmanteau.first_partial)
 
     @property
     def second_partial(self):
-        return str(self._Portmanteau.second_partial)
+        return str(self._portmanteau.second_partial)
 
     @property
     def first_summary(self):
-        return self._Portmanteau.first_summary
+        return self._portmanteau.first_summary
 
     @property
     def second_summary(self):
-        return self._Portmanteau.second_summary
+        return self._portmanteau.second_summary
