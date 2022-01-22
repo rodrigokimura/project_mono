@@ -37,7 +37,7 @@ _pylint:
 pylint-app: list-apps
 	@echo Choose app: \
 		&& read APP \
-		&& pipenv run pylint mono/$$APP
+		&& pipenv run pylint mono/$$APP --exit-zero
 
 _tests:
 	@export APP_ENV=TEST \
