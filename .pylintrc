@@ -570,3 +570,7 @@ valid-metaclass-classmethod-first-arg=cls
 # "BaseException, Exception".
 overgeneral-exceptions=BaseException,
                        Exception
+
+# DJANGO
+
+# django-settings-module=mono.__mono.settings
