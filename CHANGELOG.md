@@ -1,3 +1,9 @@
+## 1.1.6 (2022-01-21)
+
+### Refactor
+
+- **todo_lists**: apply pylint changes
+
 ## 1.1.5 (2022-01-21)
 
 ### Refactor
