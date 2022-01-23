@@ -1,9 +1,9 @@
+"""Homepage's models"""
 from django.db import models
-
-# Create your models here.
 
 
 class Module(models.Model):
+    """Group of things to easily activate"""
     name = models.CharField(max_length=50, null=False, blank=False, unique=True)
     active = models.BooleanField(default=True)
 

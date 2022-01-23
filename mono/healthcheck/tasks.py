@@ -1,3 +1,4 @@
+"""Healthcheck's tasks"""
 import logging
 from pathlib import Path
 
@@ -25,18 +26,20 @@ def get_pending_migrations(database=DEFAULT_DB_ALIAS):
 
 
 def restart_production_app():
+    """Restart web server in production"""
     if settings.APP_ENV == 'PRD':  # pragma: no cover
-        WSGI_FILE = '/var/www/www_monoproject_info_wsgi.py'
-        Path(WSGI_FILE).touch()
-        logger.info(f"{WSGI_FILE} has been touched.")
+        wsgi_file = '/var/www/www_monoproject_info_wsgi.py'
+        Path(wsgi_file).touch()
+        logger.info("%s has been touched.", wsgi_file)
 
 
 @background(schedule=30)
 def deploy_app(pull_request_number):
-    pr: PullRequest = PullRequest.objects.get(number=pull_request_number)
+    """Script to deploy last version of app"""
+    pull_request: PullRequest = PullRequest.objects.get(number=pull_request_number)
 
     # Pull code
-    pr.pull()
+    pull_request.pull()
 
     # Install dependencies
     # Collect Static files
@@ -49,8 +52,8 @@ def deploy_app(pull_request_number):
     if pending_migrations:  # pragma: no cover
         logger.info("Unapplied migrations found.")
         execute_from_command_line(["manage.py", "migrate"])
-        pr.migrations = len(pending_migrations)
-        pr.save()
+        pull_request.migrations = len(pending_migrations)
+        pull_request.save()
         migrations_text_lines = [f'Migrations applied ({len(pending_migrations)})']
         migrations_text_lines.extend([f'+ {m.app_label}.{m.name}' for m in pending_migrations])
     else:
@@ -59,28 +62,28 @@ def deploy_app(pull_request_number):
 
     # Restart app
     restart_production_app()
-    logger.info(f"Successfully deployed {pr}.")
-    pr.deployed_at = timezone.now()
-    pr.save()
+    logger.info("Successfully deployed %s.", pull_request)
+    pull_request.deployed_at = timezone.now()
+    pull_request.save()
 
     main_text_lines = [
-        f'Merged by: {pr.author}',
-        f'Merged at: {pr.merged_at}',
-        f'Commits: {pr.commits}',
-        f'Additions: {pr.additions}',
-        f'Deletions: {pr.deletions}',
-        f'Changed files: {pr.changed_files}',
+        f'Merged by: {pull_request.author}',
+        f'Merged at: {pull_request.merged_at}',
+        f'Commits: {pull_request.commits}',
+        f'Additions: {pull_request.additions}',
+        f'Deletions: {pull_request.deletions}',
+        f'Changed files: {pull_request.changed_files}',
         '',
-        f'Build number: {pr.build_number}',
-        f'Deployed at: {pr.deployed_at}',
+        f'Build number: {pull_request.build_number}',
+        f'Deployed at: {pull_request.deployed_at}',
         '',
     ]
     main_text_lines.extend(migrations_text_lines)
 
-    d = {
+    context = {
         'title': 'Merged PR',
-        'warning_message': f'Deployment Notification - {pr}',
-        'first_line': f'{pr} has been deployed.',
+        'warning_message': f'Deployment Notification - {pull_request}',
+        'first_line': f'{pull_request} has been deployed.',
         'main_text_lines': main_text_lines,
         'button_link': settings.ALLOWED_HOSTS[0],
         'button_text': 'Go to app',
@@ -91,6 +94,6 @@ def deploy_app(pull_request_number):
     logger.info("Notifying admins about the deployment.")
     mail_admins(
         subject='Deploy Notification',
-        message=get_template('email/alert.txt').render(d),
-        html_message=get_template('email/alert.html').render(d)
+        message=get_template('email/alert.txt').render(context),
+        html_message=get_template('email/alert.html').render(context)
     )

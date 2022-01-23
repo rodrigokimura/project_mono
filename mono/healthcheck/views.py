@@ -1,3 +1,4 @@
+"""Healthcheck's views"""
 import hmac
 import json
 import logging
@@ -22,6 +23,9 @@ from .tasks import deploy_app
 
 
 def is_valid_signature(x_hub_signature, data):
+    """
+    Check if payload is correctly signed
+    """
     private_key = settings.GITHUB_SECRET
     sha_name, signature = x_hub_signature.split('=')
     if sha_name != 'sha1':
@@ -30,12 +34,11 @@ def is_valid_signature(x_hub_signature, data):
     return hmac.compare_digest(force_bytes(mac.hexdigest()), force_bytes(signature))
 
 
-def string_to_localized_datetime(datetime_string):
+def string_to_localized_datetime(dt_string):
     return pytz.timezone("UTC").localize(
-        datetime.strptime(
-            datetime_string,
-            "%Y-%m-%dT%H:%M:%SZ"
-        ), is_dst=None)
+        datetime.strptime(dt_string, "%Y-%m-%dT%H:%M:%SZ"),
+        is_dst=None
+    )
 
 
 def healthcheck(request):
@@ -84,6 +87,7 @@ def github_webhook(request):
 
 
 class Deploy(UserPassesTestMixin, TemplateView):
+    """Deploy app"""
     template_name = 'healthcheck/deploy.html'
 
     def test_func(self):
@@ -95,21 +99,18 @@ class Deploy(UserPassesTestMixin, TemplateView):
         pull_requests = PullRequest.objects.all()
         context['pull_requests'] = pull_requests
 
-        d = datetime.today() - timedelta(weeks=52)
+        temp_date = datetime.today() - timedelta(weeks=52)
         initial_date = datetime.fromisocalendar(
-            year=d.isocalendar()[0],
-            week=d.isocalendar()[1],
+            year=temp_date.isocalendar()[0],
+            week=temp_date.isocalendar()[1],
             day=1,
         ) - timedelta(days=1)
         days = (datetime.today() - initial_date).days
 
-        data_0 = []
-        data_1 = []
-        data_2 = []
-        data_3 = []
-        data_4 = []
-        data_5 = []
-        data_6 = []
+        context_data = {
+            f'data_{i}': []
+            for i in range(7)
+        }
         for i in range(days + 1):
             date = initial_date + timedelta(days=i)
             data = pull_requests.filter(
@@ -121,27 +122,10 @@ class Deploy(UserPassesTestMixin, TemplateView):
                     output_field=IntegerField()
                 )
             )['sum']
-            if i % 7 == 0:
-                data_0.append({'d': date, 'c': data})
-            elif i % 7 == 1:
-                data_1.append({'d': date, 'c': data})
-            elif i % 7 == 2:
-                data_2.append({'d': date, 'c': data})
-            elif i % 7 == 3:
-                data_3.append({'d': date, 'c': data})
-            elif i % 7 == 4:
-                data_4.append({'d': date, 'c': data})
-            elif i % 7 == 5:
-                data_5.append({'d': date, 'c': data})
-            elif i % 7 == 6:
-                data_6.append({'d': date, 'c': data})
-        context['data_0'] = data_0
-        context['data_1'] = data_1
-        context['data_2'] = data_2
-        context['data_3'] = data_3
-        context['data_4'] = data_4
-        context['data_5'] = data_5
-        context['data_6'] = data_6
+            context_data[f'data_{i % 7}'].append(
+                {'d': date, 'c': data}
+            )
+        context = {**context_data, **context}
         return context
 
     # def get_context_data(self, **kwargs):
@@ -176,14 +160,15 @@ class Deploy(UserPassesTestMixin, TemplateView):
     #     return context
 
     def post(self, request):
-        pr = get_object_or_404(PullRequest, pk=request.POST.get('pk', None))
-        deploy_app(pr.number)
+        """Deploy pull request"""
+        pull_request = get_object_or_404(PullRequest, pk=request.POST.get('pk', None))
+        deploy_app(pull_request.number)
         return JsonResponse(
             {
                 'success': True,
                 'message': 'Successfully scheduled deployment.',
                 'data': {
-                    'number': pr.number,
+                    'number': pull_request.number,
                 },
             }
         )

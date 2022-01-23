@@ -1,3 +1,4 @@
+"""Homepage's tests"""
 from django.test import TestCase
 
 from .models import Module
