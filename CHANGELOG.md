@@ -1,3 +1,9 @@
+## 1.1.14 (2022-01-23)
+
+### Refactor
+
+- **notes**: apply pylint changes
+
 ## 1.1.13 (2022-01-22)
 
 ### Refactor
