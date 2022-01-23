@@ -146,4 +146,4 @@ copy-termux-shortcuts:
 	@cp -a ./scripts/termux/. $(HOME)/.shortcuts/
 
 list-apps:
-	@tree mono -dL 1 -I _*\|reports
+	@tree mono -dL 1 -I _*\|reports\|htmlcov

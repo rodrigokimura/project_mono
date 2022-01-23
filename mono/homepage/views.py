@@ -1,3 +1,4 @@
+"""Homepage's views"""
 from django.contrib.auth import views
 from django.views.generic.base import TemplateView
 

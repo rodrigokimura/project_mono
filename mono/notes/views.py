@@ -1,3 +1,4 @@
+"""Notes' views"""
 from collections import defaultdict
 from typing import Any, Dict
 
@@ -35,6 +36,9 @@ def attach(branch, trunk):
 
 
 def generate_tree(tree):
+    """
+    Render tree of files and folders
+    """
 
     def index_maker():
         def _index(files):
@@ -48,23 +52,25 @@ def generate_tree(tree):
                         }
                     )
                     continue
-                else:
-                    for f in files[mfile]:
-                        id = f.split(':')[0]
-                        title = f[len(id) + 1:]
-                        yield loader.render_to_string(
-                            'notes/p_file.html',
-                            {
-                                'id': id,
-                                'title': title,
-                            }
-                        )
+                for file in files[mfile]:
+                    file_id = file.split(':')[0]
+                    title = file[len(file_id) + 1:]
+                    yield loader.render_to_string(
+                        'notes/p_file.html',
+                        {
+                            'id': file_id,
+                            'title': title,
+                        }
+                    )
         return _index(tree)
 
     return index_maker()
 
 
 class NoteCreateView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
+    """
+    Create note
+    """
     form_class = NoteForm
     template_name = 'notes/note_form.html'
     success_url = reverse_lazy('notes:notes')
@@ -72,6 +78,9 @@ class NoteCreateView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormV
 
 
 class NoteFormView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormViewMixin, UpdateView):
+    """
+    Edit note
+    """
     model = Note
     form_class = NoteForm
     template_name = 'notes/note_form.html'
@@ -80,13 +89,19 @@ class NoteFormView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormVie
 
 
 class NoteDetailApiView(LoginRequiredMixin, View):
+    """
+    Detailed info about a note
+    """
     def get(self, request, *args, **kwargs):
-        id = kwargs['pk']
-        note = Note.objects.get(id=id)
-        request.session['note'] = id
+        """
+        Detailed info about a note
+        """
+        note_id = kwargs['pk']
+        note = Note.objects.get(id=note_id)
+        request.session['note'] = note_id
         return JsonResponse(
             {
-                'id': id,
+                'id': note_id,
                 'title': note.title,
                 'text': note.text,
                 'html': markdownify(note.text),
@@ -97,6 +112,9 @@ class NoteDetailApiView(LoginRequiredMixin, View):
 
 
 class NoteListView(LoginRequiredMixin, ListView):
+    """
+    List all user's notes
+    """
     model = Note
 
     def get_queryset(self):
@@ -118,6 +136,9 @@ class NoteListView(LoginRequiredMixin, ListView):
 
 
 class NoteDeleteView(ProtectedDeleteView):
+    """
+    Delete note
+    """
     model = Note
     success_url = reverse_lazy('notes:notes')
     success_message = _("Note was deleted successfully")
