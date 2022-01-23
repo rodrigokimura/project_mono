@@ -611,7 +611,7 @@ class FakerForm(forms.Form):
             return r
 
         if model == 'transaction':
-            for i in range(batch_amount):
+            for _ in range(batch_amount):
                 if range_start is not None and range_end is not None:
                     timestamp = random_date(range_start, range_end)
                 else:
