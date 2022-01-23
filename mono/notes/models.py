@@ -1,3 +1,4 @@
+"""Notes' models"""
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls.base import reverse
@@ -8,11 +9,13 @@ User = get_user_model()
 
 
 def user_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'notes/user_{0}/{1}'.format(instance.user.id, filename)
+    """file will be uploaded to MEDIA_ROOT/user_<id>/<filename>"""
+    user_id = instance.user.id
+    return f'notes/user_{user_id}/{filename}'
 
 
 class Note(models.Model):
+    """Text note in markdown syntax"""
     title = models.CharField(
         max_length=100,
         verbose_name=_("title"),
@@ -55,13 +58,14 @@ class Note(models.Model):
 
     @property
     def full_path(self):
+        """Get notes' full path"""
         if self.location == '':
             return f'{self.id}:{self.title}'
-        else:
-            return f'{self.location}/{self.id}:{self.title}'
+        return f'{self.location}/{self.id}:{self.title}'
 
 
 class Tag(models.Model):
+    """Generic tag"""
     name = models.CharField(
         max_length=100,
         verbose_name=_("name"),

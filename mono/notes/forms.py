@@ -1,3 +1,4 @@
+"""Notes' forms"""
 from django import forms
 from django.contrib.auth import get_user_model
 
@@ -7,6 +8,7 @@ User = get_user_model()
 
 
 class NoteForm(forms.ModelForm):
+    """Note form"""
     error_css_class = 'error'
 
     def __init__(self, *args, **kwargs):
@@ -24,6 +26,8 @@ class NoteForm(forms.ModelForm):
 
     class Meta:
         model = Note
-        fields = '__all__'
-        exclude = ['created_by']
-        widgets = {}
+        fields = [
+            'title',
+            'location',
+            'text',
+        ]
