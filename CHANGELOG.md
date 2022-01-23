@@ -1,3 +1,9 @@
+## 1.1.16 (2022-01-23)
+
+### Refactor
+
+- **finance**: apply pylint changes
+
 ## 1.1.15 (2022-01-23)
 
 ### Refactor
