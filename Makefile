@@ -2,10 +2,29 @@ export PIPENV_VERBOSITY=-1
 export PIPENV_IGNORE_VIRTUALENVS=1
 export DJANGO_SETTINGS_MODULE=__mono.settings
 
+GREEN  := $(shell tput -Txterm setaf 2)
+YELLOW := $(shell tput -Txterm setaf 3)
+WHITE  := $(shell tput -Txterm setaf 7)
+RESET  := $(shell tput -Txterm sgr0)
+
+TARGET_MAX_CHAR_NUM=20
+
+## Show help
 help:
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z0-9_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-
-
+	@echo ''
+	@echo 'Usage:'
+	@echo '  ${YELLOW}make${RESET} ${GREEN}<target>${RESET}'
+	@echo ''
+	@echo 'Targets:'
+	@awk '/^[a-zA-Z\-\_0-9]+:/ { \
+		helpMessage = match(lastLine, /^## (.*)/); \
+		if (helpMessage) { \
+			helpCommand = substr($$1, 0, index($$1, ":")-1); \
+			helpMessage = substr(lastLine, RSTART + 3, RLENGTH); \
+			printf "  ${YELLOW}%-$(TARGET_MAX_CHAR_NUM)s${RESET} ${GREEN}%s${RESET}\n", helpCommand, helpMessage; \
+		} \
+	} \
+	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 # ========== CODE QUALITY ==================================================== #
 
 BADGE=pipenv run genbadge
@@ -15,7 +34,8 @@ R_COV=reports/coverage/
 R_F8=reports/flake8/
 R_PL=reports/pylint/
 
-qa-tests-ff:  ## Run all test suites, with multithreading and failfast
+## Run all test suites, with multithreading and failfast
+qa-tests-ff:
 	@export APP_ENV=TEST \
 		&& cd mono \
 		&& pipenv run python manage.py test --parallel 12 --failfast
@@ -34,6 +54,7 @@ _pylint:
 	@cat /dev/null > mono/$(R_PL)pylint.txt
 	@pipenv run pylint --rcfile=.pylintrc --output-format=text mono | tee mono/$(R_PL)pylint.txt \
 
+## Run pylint on given app
 pylint-app: list-apps
 	@echo Choose app: \
 		&& read APP \
@@ -62,19 +83,24 @@ _open-coverage-report:
 		&& $(COV) html \
 		&& google-chrome htmlcov/index.html
 
-qa-flake8: _flake8  ## Run flake8 and generate badge
+## Run flake8 and generate badge
+qa-flake8: _flake8
 	@$(BADGE) flake8 -v -i mono/$(R_F8)flake8stats.txt -o mono/$(R_F8)flake8-badge.svg
 
-qa-pylint: _pylint  ## Run pylint and generate badge
+## Run pylint and generate badge
+qa-pylint: _pylint
 	@export score=$$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' mono/$(R_PL)pylint.txt) \
 		&& echo "Pylint score was $$score" \
 		&& pipenv run anybadge --value=$$score --file=mono/$(R_PL)pylint-badge.svg --label pylint -o
 
-qa-tests: _tests _tests-badge  ## Run all test suites and generate badge
+## Run all test suites and generate badge
+qa-tests: _tests _tests-badge
 
-qa-coverage: _coverage _coverage-badge  ## Run all test suites with coverage and generate badge
+## Run all test suites with coverage and generate badge
+qa-coverage: _coverage _coverage-badge
 
-qa-full: _isort qa-flake8 qa-pylint qa-coverage _tests-badge  ## Run all quality checks, generating reports and badges
+## Run all quality checks, generating reports and badges
+qa: _isort qa-flake8 qa-pylint qa-coverage _tests-badge
 
 # ========== CODE QUALITY ==================================================== #
 
@@ -83,16 +109,20 @@ qa-full: _isort qa-flake8 qa-pylint qa-coverage _tests-badge  ## Run all quality
 
 DJANGO=export APP_ENV=DEV && pipenv run python mono/manage.py
 
-django-superuser:  ## Create superuser
+## Create superuser
+django-superuser:
 	@$(DJANGO) createsuperuser
 
-django-devserver:  ## Run development server
+## Run development server
+django-devserver:
 	@$(DJANGO) runserver 127.0.0.42:8080
 
-django-migrations:  ## Write migration files
+## Write migration files
+django-migrations:
 	@$(DJANGO) makemigrations
 
-django-migrate:  ## Apply all migrations
+## Apply all migrations
+django-migrate:
 	@$(DJANGO) migrate
 
 # ========== DJANGO ========================================================== #
@@ -111,28 +141,33 @@ update:
 
 # ========== GIT ============================================================= #
 
-commit:  ## Stage, commit, bump version and push changes
+## Stage, commit, bump version and push changes
+commit:
 	@git add . 
 	@pipenv run cz c
 	@pipenv run cz bump -ch
 	@git push origin --tags
 	@git push
 
-pull-request:  ## Create pull request
+## Create pull request
+pr:
 	@gh pr create \
 		--fill \
 		--base master \
 
-pull:  ## Pull changes
+## Pull changes
+pull:
 	@git reset HEAD --hard
 	@git pull
 
-last-commit:  ## Show last commit
+## Show last commit
+last-commit:
 	@git log --pretty=format:"%H" -1 | grep -o '^[a-z0-9]*'
 
 mark-as-deployed:
 	$(DJANGO) mark_as_deployed
 
+## Connect to Production server
 ssh:
 	@ssh kimura@ssh.pythonanywhere.com
 
