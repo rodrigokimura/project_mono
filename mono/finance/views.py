@@ -35,7 +35,7 @@ from .forms import (
 from .models import (
     Account, Budget, BudgetConfiguration, Category, Chart, Configuration, Goal,
     Group, Icon, Installment, Invite, RecurrentTransaction, Transaction,
-    Transference, User
+    Transference, User,
 )
 from .permissions import IsCreator
 from .serializers import ChartMoveSerializer, ChartSerializer
@@ -605,9 +605,9 @@ class CategoryListView(LoginRequiredMixin, ListView):
             internal_type=Category.DEFAULT
         )
 
-        type = self.request.GET.get('type', '')
-        if type != '':
-            qs = qs.filter(type=type)
+        category_type = self.request.GET.get('type', '')
+        if category_type != '':
+            qs = qs.filter(type=category_type)
 
         return qs
 
@@ -617,12 +617,12 @@ class CategoryListApi(View):
 
     def get(self, request):
         """List categories"""
-        type = request.GET.get("type", '')
+        category_type = request.GET.get("type", '')
         account = request.GET.get("account", '')
-        if type != '':
+        if category_type != '':
             qs = Category.objects.filter(
                 created_by=request.user,
-                type=type,
+                type=category_type,
                 internal_type=Category.DEFAULT
             )
         else:

@@ -1,3 +1,4 @@
+"""Blog's forms"""
 from django import forms
 from tinymce.widgets import TinyMCE
 
@@ -5,12 +6,16 @@ from .models import Post
 
 
 class PostForm(forms.ModelForm):
+    """Form for creating and updating posts"""
     error_css_class = 'error'
 
     class Meta:
         model = Post
-        fields = '__all__'
-        exclude = []
+        fields = [
+            "title",
+            "content",
+            "author",
+        ]
         widgets = {
             "content": TinyMCE(
                 attrs={

@@ -1,15 +1,11 @@
 """Project manager's app"""
-import logging
-
+from __mono.utils import load_signals
 from django.apps import AppConfig
 
 
-logger = logging.getLogger(__name__)
-
 class ProjectManagerConfig(AppConfig):
-    """Project manager app config"""
+    """Project manager's app config"""
     name = 'project_manager'
 
     def ready(self):
-        from project_manager import signals  # pylint: disable=C0415
-        logger.info('Loading signals from %s', signals.__name__)
+        load_signals('project_manager')

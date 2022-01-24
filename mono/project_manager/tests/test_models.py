@@ -320,13 +320,13 @@ class NotificationTests(TestCase):
 class CreateDefaultsTest(TestCase):
 
     def test_create_default_themes(self):
-        Theme._create_defaults()
+        Theme.create_defaults()
         for theme in Theme.DEFAULT_THEMES:
             name = theme[0]
             self.assertTrue(Theme.objects.filter(name=name).exists())
 
     def test_create_default_icons(self):
-        Icon._create_defaults()
+        Icon.create_defaults()
         for icon in Icon.DEFAULT_ICONS:
             self.assertTrue(Icon.objects.filter(markup=icon).exists())
 

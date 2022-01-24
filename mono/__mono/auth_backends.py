@@ -1,8 +1,10 @@
+"""Custom authentication backends for the Django framework."""
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
 
 
+# pylint: disable=inconsistent-return-statements
 class EmailOrUsernameModelBackend(ModelBackend):
     """
     Authentication backend which allows users to authenticate using either their
@@ -21,7 +23,7 @@ class EmailOrUsernameModelBackend(ModelBackend):
         # technically a given email address could be present in either field,
         # possibly even for different users, so we'll query for all matching
         # records and test each one.
-        users = user_model._default_manager.filter(
+        users = user_model.objects.filter(
             Q(**{user_model.USERNAME_FIELD: username}) | Q(email__iexact=username)
         )
 

@@ -1,4 +1,5 @@
 """Finance's forms"""
+import logging
 from datetime import datetime, timedelta
 from random import randint, randrange
 from typing import Dict, List
@@ -24,6 +25,8 @@ from .models import (
 from .widgets import CategoryWidget
 
 User = get_user_model()
+
+logger = logging.getLogger(__name__)
 
 
 class AccountForm(forms.ModelForm):
@@ -208,9 +211,9 @@ class UniversalTransactionForm(forms.Form):
         return errors
 
     def clean(self):
-        type = self.cleaned_data['type']
+        transaction_type = self.cleaned_data['type']
         errors = {}
-        if type == 'TRF':
+        if transaction_type == 'TRF':
             # if Transfer, from and to accounts are required
             errors = self._validate_required_fields(errors, ['from_account', 'to_account'])
         elif self.cleaned_data['is_recurrent_or_installment']:
@@ -421,7 +424,6 @@ class CategoryForm(forms.ModelForm):
             'name',
             'description',
             'type',
-            'created_at',
             'group',
             'icon',
             'active',
@@ -474,13 +476,11 @@ class GoalForm(forms.ModelForm):
         model = Goal
         fields = [
             'name',
-            'created_at',
             'start_date',
             'target_date',
             'target_amount',
             'group',
             'progression_mode',
-            'frequency'
         ]
         widgets = {
             'start_date': CalendarWidget,
@@ -684,7 +684,9 @@ class FakerForm(forms.Form):
             return start + timedelta(seconds=random_second)
 
         if model == 'transaction':
-            for _ in range(batch_amount):
+            for i in range(batch_amount):
+                logger.info('Creating fake transaction #%s', i)
+
                 if range_start is not None and range_end is not None:
                     timestamp = random_date(range_start, range_end)
                 else:

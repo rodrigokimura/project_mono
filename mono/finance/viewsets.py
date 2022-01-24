@@ -3,7 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from .models import (
     Account, Category, Installment, RecurrentTransaction, Transaction,
-    Transference, User
+    Transference, User,
 )
 from .permissions import IsCreator
 from .serializers import (
@@ -11,6 +11,7 @@ from .serializers import (
     RecurrentTransactionSerializer, TransactionSerializer,
     TransferenceSerializer, UserSerializer,
 )
+
 # pylint: disable=R0901
 
 

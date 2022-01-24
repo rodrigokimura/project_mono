@@ -1,3 +1,4 @@
+"""Accounts' signals"""
 import logging
 import os
 
@@ -7,9 +8,12 @@ from django.dispatch.dispatcher import receiver
 from .models import User, UserProfile
 
 
-@receiver(post_save, sender=User, dispatch_uid="email_verification")
-def email_verification(sender, instance, created, **kwargs):
-    if created:
+@receiver(post_save, sender=User, dispatch_uid="initial_user_setup")
+def initial_user_setup(sender, instance, created, **kwargs):
+    """
+    Send verification email and generate avatar for new users
+    """
+    if created and sender == User:
         profile, created = UserProfile.objects.get_or_create(
             user=instance,
         )
@@ -18,13 +22,14 @@ def email_verification(sender, instance, created, **kwargs):
 
 
 @receiver(pre_delete, sender=UserProfile, dispatch_uid="delete_profile_picture")
-def delete_profile_picture(sender, instance: UserProfile, using, **kwargs):
-
-    def _delete_file(path):
-        """ Deletes file from filesystem. """
-        if os.path.isfile(path):
-            os.remove(path)
-    try:
-        _delete_file(instance.avatar.path)
-    except ValueError:
-        logging.warning('No file found')
+def delete_profile_picture(sender, instance: UserProfile, **kwargs):
+    """Delete avatar file when profile is deleted"""
+    if sender == UserProfile:
+        def _delete_file(path):
+            """ Deletes file from filesystem. """
+            if os.path.isfile(path):
+                os.remove(path)
+        try:
+            _delete_file(instance.avatar.path)
+        except ValueError:
+            logging.warning('No file found')

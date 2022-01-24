@@ -1,9 +1,9 @@
+"""Accounts' forms"""
 from captcha.fields import ReCaptchaField
 from django import forms
 from django.contrib.auth import (
     authenticate, forms as auth_forms, get_user_model, login,
 )
-from django.contrib.auth.models import User
 from django.forms import ValidationError
 from django.utils.translation import gettext as _
 
@@ -11,6 +11,7 @@ from . import models
 
 
 class UserForm(auth_forms.UserCreationForm):
+    """User form"""
 
     error_css_class = 'error'
 
@@ -32,7 +33,7 @@ class UserForm(auth_forms.UserCreationForm):
 
     def clean(self):
         email = self.cleaned_data.get('email')
-        if User.objects.filter(email=email).exists():
+        if models.User.objects.filter(email=email).exists():
             raise ValidationError(_("Email already exists. Please use another one."))
         return self.cleaned_data
 
@@ -47,30 +48,8 @@ class UserForm(auth_forms.UserCreationForm):
         return user
 
 
-class UserCreateForm(auth_forms.UserCreationForm):
-    error_css_class = 'error'
-
-    class Meta:
-        fields = ("username", "email", "password1", "password2")
-        model = get_user_model()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["username"].label = "Display name"
-        self.fields['username'].widget.attrs.update({'placeholder': 'Username'})
-        self.fields["email"].label = "Email address"
-        self.fields['email'].widget.attrs.update({'placeholder': 'Email address'})
-        self.fields['password1'].widget.attrs.update({'placeholder': 'Password'})
-        self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm password'})
-
-    def clean(self):
-        email = self.cleaned_data.get('email')
-        if User.objects.filter(email=email).exists():
-            raise ValidationError("Email exists")
-        return self.cleaned_data
-
-
 class UserProfileForm(forms.ModelForm):
+    """User profile form"""
     error_css_class = 'error'
 
     def __init__(self, *args, **kwargs):

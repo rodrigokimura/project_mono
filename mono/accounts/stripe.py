@@ -69,3 +69,22 @@ def get_products():
                 next_page = False
 
     return products
+
+
+def get_all_customers():
+    """Get all Stripe customers"""
+    customers = stripe.Customer.list(limit=100).data
+    if len(customers) == 100:
+        next_page = True
+        max_loops = 10
+        loop = 0
+        last_customer = customers[-1]
+        while next_page and loop < max_loops:
+            loop += 1
+            new_customers = stripe.Customer.list(limit=100, starting_after=last_customer).data
+            if len(new_customers) == 100:
+                customers.extend(new_customers)
+                last_customer = new_customers[-1]
+            else:
+                next_page = False
+    return customers

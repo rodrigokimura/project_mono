@@ -1,3 +1,4 @@
+"""Command to prepopulate database"""
 import os
 
 from django.conf import settings
@@ -9,9 +10,10 @@ class Command(BaseCommand):
     help = 'Command to prepopulate database'
 
     def handle(self, *args, **options):
+        """Command to prepopulate database"""
         try:
-            Theme._create_defaults()
-            # Icon._create_defaults()
+            Theme.create_defaults()
+            # Icon.create_defaults()
             print('ok')
             path = os.path.join(
                 settings.BASE_DIR,
@@ -19,13 +21,10 @@ class Command(BaseCommand):
                 'management',
                 'commands'
             )
-            print(path)
-            icons_file = open(os.path.join(path, 'icons.txt'), 'r')
-            print(icons_file)
-            for line in icons_file.readlines():
-                print(line)
-                if line.strip() != '':
-                    Icon.objects.update_or_create(markup=line.strip())
+            with open(os.path.join(path, 'icons.txt'), encoding='utf-8', mode='r') as icons_file:
+                for line in icons_file.readlines():
+                    if line.strip() != '':
+                        Icon.objects.update_or_create(markup=line.strip())
 
-        except Exception as e:
-            raise CommandError(repr(e))
+        except Exception as any_exception:  # pylint: disable=broad-except
+            raise CommandError(repr(any_exception)) from any_exception

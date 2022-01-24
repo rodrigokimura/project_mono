@@ -104,7 +104,7 @@ def store_tracking_info(tracking_info):
             user_id=tracking_info['user_id'],
             document_location=tracking_info['document_location'],
         ).last()
-        if ping is not None:
+        if ping is not None and ping.pageload_timestamp is not None:
             ping.pageclose_timestamp = tracking_info['timestamp']
             ping.duration = tracking_info['timestamp'] - ping.pageload_timestamp
             ping.save()
