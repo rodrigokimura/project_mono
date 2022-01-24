@@ -1,3 +1,4 @@
+"""Django URL patterns for the mono app."""
 import logging
 
 from django.conf import settings
@@ -7,7 +8,7 @@ from django.urls import include, path
 from finance.urls import router as finance_router
 from rest_framework.authtoken import views
 
-from .ascii_arts import ascii_art_1
+from .ascii_arts import ASCII_ART
 
 # from filebrowser.sites import site
 # import debug_toolbar
@@ -46,4 +47,4 @@ urlpatterns = [
 
 # Aesthetics-only
 logger = logging.getLogger(__name__)
-logger.warning(f'\033[1;32m{ascii_art_1}\033[0m')
+logger.warning('\033[1;32m%s\033[0m', ASCII_ART)

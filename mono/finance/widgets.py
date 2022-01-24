@@ -1,10 +1,16 @@
+"""Finance's widgets"""
 from django.forms.widgets import Widget
 from django.template import loader
 from django.utils.safestring import mark_safe
 
 
 class CategoryWidget(Widget):
+    """Dropdown widget with icons"""
     template_name = 'widgets/ui_category.html'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.queryset = None
 
     def get_context(self, name, value, attrs=None):
         return {

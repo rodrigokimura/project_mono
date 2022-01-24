@@ -1,3 +1,4 @@
+"""Finance's urls"""
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
@@ -19,6 +20,7 @@ router.register('transferences', TransferenceViewSet)
 router.register('accounts', AccountViewSet)
 router.register('categories', CategoryViewSet)
 
+# pylint: disable=C0301
 urlpatterns = [
 
     path("", views.HomePageView.as_view(), name='index'),

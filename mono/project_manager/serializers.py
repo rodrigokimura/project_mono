@@ -10,9 +10,8 @@ from rest_framework.serializers import ModelSerializer, Serializer
 
 from .models import (
     Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Tag,
-    Theme, TimeEntry, User
+    Theme, TimeEntry, User,
 )
-
 
 
 def _delete_file(path):

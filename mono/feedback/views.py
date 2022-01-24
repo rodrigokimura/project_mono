@@ -1,3 +1,4 @@
+"""Feedback's views"""
 from __mono.mixins import PassRequestToFormViewMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
@@ -9,6 +10,7 @@ from .models import Feedback
 
 
 class FeedbackCreateView(PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    """Create feedback"""
     model = Feedback
     form_class = FeedbackForm
     success_url = reverse_lazy('home')

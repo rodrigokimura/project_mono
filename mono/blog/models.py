@@ -1,3 +1,4 @@
+"""Blog's models"""
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -7,6 +8,7 @@ User = get_user_model()
 
 
 class Post(models.Model):
+    """Blog post"""
     title = models.CharField(_("title"), max_length=100)
     content = HTMLField(_("content"))
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name=_("author"))
@@ -19,6 +21,7 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
+    """Comment on a blog post"""
     post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name=_("post"))
     description = models.TextField(_("description"), max_length=1000)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name=_("author"))
