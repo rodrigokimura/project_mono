@@ -975,17 +975,15 @@ class ChartsView(LoginRequiredMixin, TemplateView):
 
 
 class ChartDataApiView(LoginRequiredMixin, APIView):
+    """
+    
+    """
 
     permission_classes = [IsCreator]
 
-    def get_object(self, pk):
-        try:
-            return Chart.objects.get(pk=pk)
-        except Chart.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        chart: Chart = self.get_object(pk)
+    def get(self, request, pk):
+        """Retrieve chart data"""
+        chart = get_object_or_404(Chart, pk=pk)
         data = chart.get_queryset(request.user)
         return Response({
             'success': True,
@@ -1002,30 +1000,33 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
             },
         })
 
-    def put(self, request, pk, format=None):
-        chart: Chart = self.get_object(pk)
+    def put(self, request, pk):
+        """Edit chart"""
+        chart = get_object_or_404(Chart, pk=pk)
         serializer = ChartSerializer(chart, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                'success': True,
-                'data': serializer.data,
-            })
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response({
+            'success': True,
+            'data': serializer.data,
+        })
 
-    def patch(self, request, pk, format=None):
-        chart: Chart = self.get_object(pk)
+    def patch(self, request, pk):
+        """Edit chart"""
+        chart = get_object_or_404(Chart, pk=pk)
         serializer = ChartSerializer(chart, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                'success': True,
-                'data': serializer.data,
-            })
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response({
+            'success': True,
+            'data': serializer.data,
+        })
 
-    def delete(self, request, pk, format=None):
-        chart: Chart = self.get_object(pk)
+    def delete(self, request, pk):
+        """Delete a chart"""
+        chart = get_object_or_404(Chart, pk=pk)
         chart.delete()
         return Response({
             'success': True,
@@ -1033,27 +1034,38 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
 
 
 class ChartListApiView(LoginRequiredMixin, APIView):
+    """
+    List or create charts
+    """
 
     def get(self, request, format=None):
+        """List all user's charts"""
         charts = request.user.charts.all()
         return Response({
             'success': True,
             'data': [c.id for c in charts]
         })
 
-    def post(self, request, format=None):
+    def post(self, request):
+        """Create new chart"""
         serializer = ChartSerializer(data=request.data, context={"request": request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                'success': True,
-                'data': serializer.data,
-            })
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response({
+            'success': True,
+            'data': serializer.data,
+        })
 
 
 class ChartMoveApiView(LoginRequiredMixin, APIView):
-    def post(self, request, format=None):
+    """
+    Apply chart movement
+    """
+    def post(self, request):
+        """
+        Apply chart movement
+        """
         serializer = ChartMoveSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             result = serializer.move()
