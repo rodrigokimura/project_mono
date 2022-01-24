@@ -1,3 +1,4 @@
+"""Finance's signals"""
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
@@ -9,6 +10,7 @@ from .models import (
 
 @receiver(post_save, sender=User, dispatch_uid="initial_setup")
 def initial_setup(sender, instance, created, **kwargs):
+    """Create initial accounts and categories"""
     if created and sender == User:
         # Initial accounts
         Account.objects.get_or_create(name="Wallet", owned_by=instance, created_by=instance)
@@ -39,6 +41,7 @@ def initial_setup(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Group, dispatch_uid="group_initial_setup")
 def group_initial_setup(sender, instance, created, **kwargs):
+    """Create setup for group"""
     if created and sender == Group:
         # Initial categories for the group
         for category in Category.INITIAL_CATEGORIES:
@@ -62,6 +65,7 @@ def group_initial_setup(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Installment, dispatch_uid="installments_creation")
 def installments_creation(sender, instance, created, **kwargs):
+    """Create transactions for installments"""
     if sender == Installment:
         if created:
             instance.create_transactions()
@@ -85,18 +89,18 @@ def recurrent_transaction_creation(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Transference, dispatch_uid="transference_creation")
 def transference_creation(sender, instance, created, **kwargs):
+    """Create transactions for transference"""
     if sender == Transference:
         if created:
             instance.create_transactions()
         else:
-            transactions = Transaction.objects.filter(transference=instance)
-            for transaction in transactions:
-                transaction.delete()
+            Transaction.objects.filter(transference=instance).delete()
             instance.create_transactions()
 
 
 @receiver(pre_save, sender=Transaction, dispatch_uid="round_transaction")
 def round_transaction(sender, instance, **kwargs):
+    """Round transaction"""
     if sender == Transaction:
         instance.round_amount()
 
