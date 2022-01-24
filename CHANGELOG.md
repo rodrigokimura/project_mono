@@ -1,3 +1,9 @@
+## 1.1.19 (2022-01-24)
+
+### Refactor
+
+- **mono**: apply pylint changes
+
 ## 1.1.18 (2022-01-24)
 
 ### Refactor
