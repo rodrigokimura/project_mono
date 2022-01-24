@@ -106,7 +106,7 @@ class ContextProcessorsTest(TestCase):
         request.LANGUAGE_CODE = 'pt-br'
         context = language_extras(request=request)
         self.assertIn('LANGUAGE_EXTRAS', context)
-        self.assertIn('tinyMCE_language', context)
+        self.assertIn('tinymce_language', context)
 
 
 class MixinTests(TestCase):

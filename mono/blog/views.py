@@ -1,3 +1,4 @@
+"""Blog's views"""
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -10,6 +11,7 @@ from .models import Post
 
 
 class PostCreateView(UserPassesTestMixin, SuccessMessageMixin, CreateView):
+    """Create blog post"""
     model = Post
     form_class = PostForm
     success_url = reverse_lazy('blog:posts')
@@ -20,6 +22,7 @@ class PostCreateView(UserPassesTestMixin, SuccessMessageMixin, CreateView):
 
 
 class PostUpdateView(UserPassesTestMixin, SuccessMessageMixin, UpdateView):
+    """Edit blog post"""
     model = Post
     form_class = PostForm
     success_url = reverse_lazy('blog:posts')
@@ -30,6 +33,7 @@ class PostUpdateView(UserPassesTestMixin, SuccessMessageMixin, UpdateView):
 
 
 class PostDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    """Delete blog post"""
     model = Post
     success_url = reverse_lazy('blog:posts')
     success_message = "Post was deleted successfully"
@@ -43,6 +47,7 @@ class PostDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
 
 
 class PostListView(UserPassesTestMixin, ListView):
+    """List blog posts"""
     model = Post
 
     def test_func(self):

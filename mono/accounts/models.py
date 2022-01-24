@@ -1,3 +1,4 @@
+"""Finance's models"""
 import random
 from datetime import datetime, timedelta
 from typing import Tuple
@@ -6,6 +7,7 @@ from xml.sax.saxutils import escape as xml_escape
 import jwt
 import pytz
 import stripe
+from __mono.decorators import stripe_exception_handler
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files import File
@@ -22,11 +24,12 @@ User = get_user_model()
 
 
 def user_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'user_{0}/{1}'.format(instance.user.id, filename)
+    """file will be uploaded to MEDIA_ROOT/user_<id>/<filename>"""
+    return f'user_{instance.user.id}/{filename}'
 
 
 class Notification(models.Model):
+    """Notification model"""
     title = models.CharField(max_length=50)
     message = models.CharField(max_length=255)
     to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
@@ -57,6 +60,7 @@ class Notification(models.Model):
 
 
 class UserProfile(models.Model):
+    """User profile stores extra information about the user"""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     avatar = models.ImageField(
         upload_to=user_directory_path,
@@ -70,6 +74,7 @@ class UserProfile(models.Model):
         return str(self.user)
 
     def verify(self):
+        """Activate the user's account"""
         self.verified_at = timezone.now()
         self.save()
         Notification.objects.create(
@@ -80,6 +85,7 @@ class UserProfile(models.Model):
         )
 
     def send_verification_email(self):
+        """Send an email to the user to verify their account"""
 
         token = jwt.encode(
             {
@@ -100,7 +106,7 @@ class UserProfile(models.Model):
 
         full_link = site + f"{reverse('accounts:verify')}?t={token}"
 
-        d = {
+        context = {
             'warning_message': 'Account verification',
             'first_line': 'We need to verify your account. Please click the button below.',
             'button_text': 'Verify',
@@ -109,10 +115,10 @@ class UserProfile(models.Model):
 
         msg = EmailMultiAlternatives(
             subject='Invite',
-            body=text.render(d),
+            body=text.render(context),
             from_email=settings.EMAIL_HOST_USER,
             to=[self.user.email])
-        msg.attach_alternative(html.render(d), "text/html")
+        msg.attach_alternative(html.render(context), "text/html")
         msg.send(fail_silently=False)
 
         Notification.objects.create(
@@ -123,7 +129,8 @@ class UserProfile(models.Model):
         )
 
     def generate_initials_avatar(self):
-        COLORS = [
+        """Generate an avatar in SVG format from the user's initials"""
+        colors = [
             ['#DF7FD7', '#DF7FD7', '#591854'],
             ['#E3CAC8', '#DF8A82', '#5E3A37'],
             ['#E6845E', '#E05118', '#61230B'],
@@ -133,7 +140,7 @@ class UserProfile(models.Model):
             ['#78A2AD', '#104F61', '#9BD1E0'],
             ['#78AD8A', '#0A6129', '#9BE0B3'],
         ]
-        INITIALS_SVG_TEMPLATE = """
+        initials_svg_template = """
             <svg xmlns="http://www.w3.org/2000/svg"
                     pointer-events="none"
                     width="200" height="200">
@@ -150,8 +157,8 @@ class UserProfile(models.Model):
             </svg>
         """.strip()
         initials = self.user.username[0]
-        random_color = random.choice(COLORS)
-        svg_avatar = INITIALS_SVG_TEMPLATE.format(**{
+        random_color = random.choice(colors)
+        svg_avatar = initials_svg_template.format(**{
             'color1': random_color[0],
             'color2': random_color[1],
             'text_color': random_color[2],
@@ -195,7 +202,8 @@ class Plan(models.Model):
     type = models.CharField(
         max_length=2,
         choices=TYPE_CHOICES,
-        help_text="Used to customize the template based on this field. For instance, the basic plan will be muted and the recommended one is highlighted."
+        help_text="Used to customize the template based on this field."
+        "For instance, the basic plan will be muted and the recommended one is highlighted."
     )
     order = models.IntegerField(unique=True, help_text="Used to sort plans on the template.")
 
@@ -217,7 +225,13 @@ class Feature(models.Model):
     icon = models.CharField(max_length=50, help_text="Icon rendered in the template")
     short_description = models.CharField(max_length=30)
     full_description = models.TextField(max_length=200)
-    internal_description = models.TextField(max_length=1000, null=True, blank=True, default=None, help_text="This is used by staff and is not displayed to user in the template.")
+    internal_description = models.TextField(
+        max_length=1000,
+        null=True,
+        blank=True,
+        default=None,
+        help_text="This is used by staff and is not displayed to user in the template."
+    )
     display = models.BooleanField(help_text="Controls wether feature is shown on the template", default=True)
 
     class Meta:
@@ -244,6 +258,7 @@ class Subscription(models.Model):
 
     @property
     def status(self):
+        """Get subcription status"""
         if self.cancel_at is None:
             status = "active"
         elif self.cancel_at > timezone.now():
@@ -252,25 +267,25 @@ class Subscription(models.Model):
             status = "error"
         return status
 
+    @stripe_exception_handler
     def cancel_at_period_end(self) -> Tuple[bool, str]:
-        try:
-            # Update Stripe
-            stripe.api_key = settings.STRIPE_SECRET_KEY
-            customer = stripe.Customer.list(email=self.user.email).data[0]
-            subscription = stripe.Subscription.list(customer=customer.id).data[0]
-            subscription = stripe.Subscription.modify(subscription.id, cancel_at_period_end=True)
+        """Set the subscription to cancel at period end"""
+        # Update Stripe
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        customer = stripe.Customer.list(email=self.user.email).data[0]
+        subscription = stripe.Subscription.list(customer=customer.id).data[0]
+        subscription = stripe.Subscription.modify(subscription.id, cancel_at_period_end=True)
 
-            # Update model
-            self.cancel_at = timezone.make_aware(
-                datetime.fromtimestamp(subscription.cancel_at),
-                pytz.timezone(settings.STRIPE_TIMEZONE)
-            )
-            self.save()
-            return (True, "Your subscription has been scheduled to be cancelled at the end of your renewal date.")
-        except Exception as e:
-            return (False, e)
+        # Update model
+        self.cancel_at = timezone.make_aware(
+            datetime.fromtimestamp(subscription.cancel_at),
+            pytz.timezone(settings.STRIPE_TIMEZONE)
+        )
+        self.save()
+        return (True, "Your subscription has been scheduled to be cancelled at the end of your renewal date.")
 
     def abort_cancellation(self):
+        """Abort the cancellation of the Stripe subscription."""
         if self.cancel_at is not None:
             # Update Stripe
             stripe.api_key = settings.STRIPE_SECRET_KEY

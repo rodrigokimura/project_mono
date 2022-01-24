@@ -1,19 +1,21 @@
-from django.contrib.auth.models import User
+"""Finance's serializers"""
 from rest_framework import fields, serializers
 
 from .models import (
     Account, Category, Chart, Icon, Installment, RecurrentTransaction,
-    Transaction, Transference,
+    Transaction, Transference, User,
 )
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    """User serializer"""
     class Meta:
         model = User
         fields = ['url', 'username', 'email', 'is_staff']
 
 
 class AccountSerializer(serializers.ModelSerializer):
+    """Account serializer"""
     id = serializers.PrimaryKeyRelatedField(read_only=False, queryset=Account.objects.all())
 
     class Meta:
@@ -44,6 +46,7 @@ class AccountSerializer(serializers.ModelSerializer):
 
 
 class IconSerializer(serializers.ModelSerializer):
+    """Icon serializer"""
     class Meta:
         model = Icon
         fields = [
@@ -52,6 +55,7 @@ class IconSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Category serializer"""
     id = serializers.PrimaryKeyRelatedField(read_only=False, queryset=Category.objects.all())
     icon = serializers.StringRelatedField(read_only=True)
 
@@ -83,6 +87,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
+    """Transaction serializer"""
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
@@ -119,6 +124,7 @@ class TransactionSerializer(serializers.ModelSerializer):
 
 
 class RecurrentTransactionSerializer(serializers.ModelSerializer):
+    """Recurrent transaction serializer"""
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
@@ -156,6 +162,7 @@ class RecurrentTransactionSerializer(serializers.ModelSerializer):
 
 
 class InstallmentSerializer(serializers.ModelSerializer):
+    """Installment serializer"""
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
@@ -194,16 +201,17 @@ class InstallmentSerializer(serializers.ModelSerializer):
 
 
 class TransferenceSerializer(serializers.ModelSerializer):
+    """Transference serializer"""
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
     from_account = AccountSerializer()
     to_account = AccountSerializer()
 
-    def validate(self, data):
-        if data['from_account'] == data['to_account']:
+    def validate(self, attrs):
+        if attrs['from_account'] == attrs['to_account']:
             raise serializers.ValidationError('Accounts must be different')
-        return data
+        return attrs
 
     class Meta:
         model = Transference
@@ -229,6 +237,7 @@ class TransferenceSerializer(serializers.ModelSerializer):
 
 
 class ChartSerializer(serializers.ModelSerializer):
+    """Chart serializer"""
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
@@ -252,35 +261,49 @@ class ChartSerializer(serializers.ModelSerializer):
 
 
 class ChartMoveSerializer(serializers.Serializer):
+    """Apply chart movement"""
     order = serializers.IntegerField()
     chart = serializers.IntegerField()
 
-    def validate_chart(self, value):
+    def validate_chart(self, value):  # pylint: disable=R0201
+        """Chart must exist"""
         if Chart.objects.filter(id=value).exists():
             return value
-        else:
-            raise serializers.ValidationError("Invalid chart")
+        raise serializers.ValidationError("Invalid chart")
 
-    def validate_order(self, value):
+    def validate_order(self, value):  # pylint: disable=R0201
+        """Order must be positive"""
         if value > 0:
             return value
-        else:
-            raise serializers.ValidationError("Invalid order")
+        raise serializers.ValidationError("Invalid order")
+
+    def _change_other_charts_order(self, order):
+        """Fix other charts order"""
+        other_charts = (
+            self.context['request'].user.charts
+            .exclude(id=self.validated_data['chart'])
+        )
+        for i, chart in enumerate(other_charts):
+            if i + 1 < order:
+                chart.order = i + 1
+                chart.save()
+            else:
+                chart.order = i + 2
+                chart.save()
 
     def move(self):
+        """Apply chart movement"""
         chart = Chart.objects.get(
             id=self.validated_data['chart']
         )
         order = self.validated_data['order']
-
-        for i, c in enumerate(self.context['request'].user.charts.exclude(id=self.validated_data['chart'])):
-            if i + 1 < order:
-                c.order = i + 1
-                c.save()
-            else:
-                c.order = i + 2
-                c.save()
+        self._change_other_charts_order(order)
         chart.order = order
         chart.save()
-
         return {'success': True}
+
+    def create(self, validated_data):
+        raise NotImplementedError
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError

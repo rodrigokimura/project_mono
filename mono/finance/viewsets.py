@@ -1,9 +1,9 @@
-from django.contrib.auth.models import User
+"""Finance's viewsets"""
 from rest_framework.viewsets import ModelViewSet
 
 from .models import (
     Account, Category, Installment, RecurrentTransaction, Transaction,
-    Transference,
+    Transference, User,
 )
 from .permissions import IsCreator
 from .serializers import (
@@ -12,14 +12,18 @@ from .serializers import (
     TransferenceSerializer, UserSerializer,
 )
 
+# pylint: disable=R0901
+
 
 class UserViewSet(ModelViewSet):
+    """User viewset"""
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
 class CategoryViewSet(ModelViewSet):
+    """Category viewset"""
 
     queryset = Category.objects.order_by('id').all()
     serializer_class = CategorySerializer
@@ -34,6 +38,7 @@ class CategoryViewSet(ModelViewSet):
 
 
 class AccountViewSet(ModelViewSet):
+    """Account viewset"""
 
     queryset = Account.objects.order_by('id').all()
     serializer_class = AccountSerializer
@@ -45,6 +50,7 @@ class AccountViewSet(ModelViewSet):
 
 
 class TransactionViewSet(ModelViewSet):
+    """Transaction viewset"""
 
     queryset = Transaction.objects.order_by('id').all()
     serializer_class = TransactionSerializer
@@ -56,6 +62,7 @@ class TransactionViewSet(ModelViewSet):
 
 
 class RecurrentTransactionViewSet(ModelViewSet):
+    """Recurrent transaction viewset"""
 
     queryset = RecurrentTransaction.objects.order_by('id').all()
     serializer_class = RecurrentTransactionSerializer
@@ -67,6 +74,7 @@ class RecurrentTransactionViewSet(ModelViewSet):
 
 
 class InstallmentViewSet(ModelViewSet):
+    """Installment viewset"""
 
     queryset = Installment.objects.order_by('id').all()
     serializer_class = InstallmentSerializer
@@ -78,6 +86,7 @@ class InstallmentViewSet(ModelViewSet):
 
 
 class TransferenceViewSet(ModelViewSet):
+    """Transference viewset"""
 
     queryset = Transference.objects.order_by('id').all()
     serializer_class = TransferenceSerializer

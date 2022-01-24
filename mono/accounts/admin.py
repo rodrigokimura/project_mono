@@ -1,18 +1,22 @@
+"""Accounts' admin"""
 from django.contrib import admin
-from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
 
-from .models import Feature, Notification, Plan, Subscription, UserProfile
+from .models import (
+    Feature, Notification, Plan, Subscription, User, UserProfile,
+)
 
 
 class UserAdmin(admin.ModelAdmin):
+    """User admin"""
 
     actions = ['force_initial_setup']
 
-    def force_initial_setup(self, request, queryset):
-        for u in queryset:
-            post_save.send(User, instance=u, created=True)
+    def force_initial_setup(self, request, queryset):  # pylint: disable=no-self-use
+        """Force initial setup for selected users"""
+        for user in queryset:
+            post_save.send(User, instance=user, created=True)
 
     force_initial_setup.short_description = "Force initial setup"
 
@@ -23,10 +27,12 @@ admin.site.register(User, UserAdmin)
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
+    """UserProfile admin"""
 
-    def generate_avatar(self, request, queryset):
-        for p in queryset:
-            p.generate_initials_avatar()
+    def generate_avatar(self, request, queryset):  # pylint: disable=no-self-use
+        """Generate avatar for selected users"""
+        for profile in queryset:
+            profile.generate_initials_avatar()
 
     generate_avatar.short_description = "Generate avatar picture"
 
@@ -45,15 +51,18 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
+    """Notification admin"""
 
-    def read(self, request, queryset: QuerySet[Notification]):
-        for n in queryset:
-            n.mark_as_read()
+    def read(self, request, queryset: QuerySet[Notification]):  # pylint: disable=no-self-use
+        """Mark notifications as read"""
+        for notification in queryset:
+            notification.mark_as_read()
 
-    def duplicate(self, request, queryset: QuerySet[Notification]):
-        for n in queryset:
-            n.pk = None
-            n.save()
+    def duplicate(self, request, queryset: QuerySet[Notification]):  # pylint: disable=no-self-use
+        """Duplicate notifications"""
+        for notification in queryset:
+            notification.pk = None
+            notification.save()
 
     read.short_description = "Mark notification as read"
     duplicate.short_description = "Clone notifications"

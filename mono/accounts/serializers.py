@@ -1,11 +1,12 @@
+"""Accounts' serializers"""
 from __mono.utils import validate_file_size
-from django.contrib.auth.models import User
 from rest_framework.serializers import ModelSerializer
 
-from .models import UserProfile
+from .models import User, UserProfile
 
 
 class ProfileSerializer(ModelSerializer):
+    """User profile serializer"""
 
     class Meta:
         model = UserProfile
@@ -13,11 +14,12 @@ class ProfileSerializer(ModelSerializer):
             'avatar'
         ]
 
-    def validate_avatar(self, f):
-        return validate_file_size(f, 10)
+    def validate_avatar(self, file):  # pylint: disable=no-self-use
+        return validate_file_size(file, 10)
 
 
 class UserSerializer(ModelSerializer):
+    """User serializer"""
     profile = ProfileSerializer(many=False, read_only=True)
 
     class Meta:
@@ -37,14 +39,14 @@ class UserSerializer(ModelSerializer):
     def create(self, validated_data):
         avatar = validated_data.get('avatar')
         instance = super().create(validated_data)
-        p = instance.profile
-        p.avatar = avatar
-        p.save()
+        profile = instance.profile
+        profile.avatar = avatar
+        profile.save()
         return instance
 
     def update(self, instance, validated_data):
         avatar = validated_data.get('avatar')
-        p = instance.profile
-        p.avatar = avatar
-        p.save()
+        profile = instance.profile
+        profile.avatar = avatar
+        profile.save()
         return super().update(instance, validated_data)

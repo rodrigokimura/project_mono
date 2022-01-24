@@ -1,4 +1,4 @@
-import time
+"""Finance's views"""
 from datetime import datetime
 
 import jwt
@@ -7,12 +7,10 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import F, FloatField, Q, Sum, Value as V
 from django.db.models.functions import Coalesce, TruncDay
 from django.http import HttpResponse, JsonResponse
-from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -37,23 +35,24 @@ from .forms import (
 from .models import (
     Account, Budget, BudgetConfiguration, Category, Chart, Configuration, Goal,
     Group, Icon, Installment, Invite, RecurrentTransaction, Transaction,
-    Transference,
+    Transference, User,
 )
 from .permissions import IsCreator
 from .serializers import ChartMoveSerializer, ChartSerializer
 
 
 class HomePageView(LoginRequiredMixin, TemplateView):
+    """Root view"""
     template_name = "finance/index.html"
 
     def get_context_data(self, **kwargs):
-        context = super(HomePageView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         if self.request.user.is_anonymous:
             return context
 
         balance = 0
-        for a in self.request.user.owned_accountset.all():
-            balance += a.current_balance
+        for account in self.request.user.owned_accountset.all():
+            balance += account.current_balance
         context["total_balance"] = balance
 
         transactions_this_month = Transaction.objects.filter(
@@ -113,6 +112,7 @@ class HomePageView(LoginRequiredMixin, TemplateView):
 
 
 class CardOrderView(LoginRequiredMixin, TemplateView):
+    """Apply card movement"""
     template_name = "finance/card_order.html"
 
     def get_context_data(self, **kwargs):
@@ -128,12 +128,12 @@ class CardOrderView(LoginRequiredMixin, TemplateView):
         if user_cards:
             for card in user_cards:
                 cards.append(
-                    (card, [n for v, n in available_cards if v == card][0], True)
+                    (card, [name for value, name in available_cards if value == card][0], True)
                 )
-        for v, n in available_cards:
-            if v not in [v for v, n, b in cards]:
+        for value, name in available_cards:
+            if value not in [val for val, _, _ in cards]:
                 cards.append(
-                    (v, n, False)
+                    (value, name, False)
                 )
 
         context['cards'] = cards
@@ -141,6 +141,7 @@ class CardOrderView(LoginRequiredMixin, TemplateView):
         return context
 
     def post(self, request):
+        """Apply card movement"""
         cards = request.POST.get('cards')
         configuration = request.user.configuration
         configuration.cards = cards
@@ -247,6 +248,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
 
 
 class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, FormView):
+    """Create transaction"""
     template_name = "finance/universal_transaction_form.html"
     form_class = UniversalTransactionForm
     success_url = reverse_lazy('finance:transactions')
@@ -299,6 +301,7 @@ class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
 
 
 class TransactionUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    """Update transaction"""
     model = Transaction
     form_class = TransactionForm
     success_url = reverse_lazy('finance:transactions')
@@ -306,6 +309,7 @@ class TransactionUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
 
 
 class TransactionDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    """Delete transaction"""
     model = Transaction
     success_url = reverse_lazy('finance:transactions')
     success_message = _("Transaction was deleted successfully")
@@ -315,42 +319,45 @@ class TransactionDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(TransactionDeleteView, self).delete(request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
-class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
+class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):  # pylint: disable=R0901
+    """List transactions monthly"""
     queryset = Transaction.objects.all()
     date_field = "timestamp"
     allow_future = True
     allow_empty = True
 
     def get_queryset(self):
+        """Apply filters"""
         qs = Transaction.objects.filter(created_by=self.request.user)
 
-        category = self.request.GET.get('category', None)
-        if category not in [None, ""]:
+        category = self.request.GET.get('category', '')
+        if category != '':
             qs = qs.filter(category__in=category.split(','))
 
-        account = self.request.GET.get('account', None)
-        if account not in [None, ""]:
+        account = self.request.GET.get('account', '')
+        if account != '':
             qs = qs.filter(account__in=account.split(','))
 
         return qs
 
     def get_context_data(self, **kwargs):
+        """Add eextra context"""
         context = super().get_context_data(**kwargs)
         context['weekday'] = context['month'].isoweekday()
         context['weekday_range'] = range(context['month'].isoweekday())
         context['month_range'] = range((context['next_month'] - context['month']).days)
 
         context['categories'] = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
-        category = self.request.GET.get('category', None)
-        if category not in [None, ""]:
+        category = self.request.GET.get('category', '')
+        if category != '':
             context['filtered_categories'] = category.split(',')
 
         context['accounts'] = Account.objects.filter(owned_by=self.request.user)
-        account = self.request.GET.get('account', None)
-        if account not in [None, ""]:
+        account = self.request.GET.get('account', '')
+        if account != '':
             context['filtered_accounts'] = account.split(',')
 
         qs = context['object_list']
@@ -377,13 +384,13 @@ class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
 
 
 class RecurrentTransactionListView(LoginRequiredMixin, ListView):
+    """List recurrent transactions"""
     model = RecurrentTransaction
 
     def get_queryset(self):
-        qs = RecurrentTransaction.objects.filter(
+        return RecurrentTransaction.objects.filter(
             created_by=self.request.user
         ).order_by('-timestamp')
-        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -392,6 +399,7 @@ class RecurrentTransactionListView(LoginRequiredMixin, ListView):
 
 
 class RecurrentTransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    """Create recurrent transaction"""
     model = RecurrentTransaction
     form_class = RecurrentTransactionForm
     success_url = reverse_lazy('finance:recurrent_transactions')
@@ -399,6 +407,7 @@ class RecurrentTransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMi
 
 
 class RecurrentTransactionUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    """Edit recurrent transaction"""
     model = RecurrentTransaction
     form_class = RecurrentTransactionForm
     success_url = reverse_lazy('finance:recurrent_transactions')
@@ -406,6 +415,7 @@ class RecurrentTransactionUpdateView(LoginRequiredMixin, PassRequestToFormViewMi
 
 
 class RecurrentTransactionDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    """Delete recurrent transaction"""
     model = RecurrentTransaction
     success_url = reverse_lazy('finance:recurrent_transactions')
     success_message = _("Transaction was deleted successfully")
@@ -415,24 +425,21 @@ class RecurrentTransactionDeleteView(UserPassesTestMixin, SuccessMessageMixin, D
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(RecurrentTransactionDeleteView, self).delete(request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
 class InstallmentListView(LoginRequiredMixin, ListView):
+    """List installments"""
     model = Installment
 
     def get_queryset(self):
-        qs = Installment.objects.filter(
+        return Installment.objects.filter(
             created_by=self.request.user
         ).order_by('-timestamp')
-        return qs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
 
 
 class InstallmentCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    """Create installment"""
     model = Installment
     form_class = InstallmentForm
     success_url = reverse_lazy('finance:installments')
@@ -440,6 +447,7 @@ class InstallmentCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
 
 
 class InstallmentUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    """Edit installment"""
     model = Installment
     form_class = InstallmentForm
     success_url = reverse_lazy('finance:installments')
@@ -447,6 +455,7 @@ class InstallmentUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
 
 
 class InstallmentDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    """Delete installment"""
     model = Installment
     success_url = reverse_lazy('finance:installments')
     success_message = _("Installment group was deleted successfully")
@@ -456,13 +465,15 @@ class InstallmentDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(InstallmentDeleteView, self).delete(request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
 class AccountListView(LoginRequiredMixin, ListView):
+    """List accounts"""
     model = Account
 
     def get_context_data(self, **kwargs):
+        """Add extra context"""
         context = super().get_context_data(**kwargs)
         groups = self.request.user.shared_groupset.all()
         context['groups'] = groups
@@ -471,26 +482,29 @@ class AccountListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
+        """Apply filters"""
         owned_accounts = self.request.user.owned_accountset.all()
         shared_accounts = Account.objects.filter(group__members=self.request.user)
         qs = (owned_accounts | shared_accounts).distinct()
 
-        group = self.request.GET.get('group', None)
-        if group not in [None, ""]:
+        group = self.request.GET.get('group', '')
+        if group != '':
             qs = qs.filter(group=group)
 
-        member = self.request.GET.get('member', None)
-        if member not in [None, ""]:
+        member = self.request.GET.get('member', '')
+        if member != '':
             qs = qs.filter(group__members=member)
 
         return qs
 
 
 class AccountDetailView(LoginRequiredMixin, DetailView):
+    """Retrieve account"""
     model = Account
 
 
 class AccountCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    """Create account"""
     model = Account
     form_class = AccountForm
     success_url = reverse_lazy('finance:accounts')
@@ -498,6 +512,7 @@ class AccountCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
 
 
 class AccountUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    """Edit account"""
     model = Account
     form_class = AccountForm
     success_url = reverse_lazy('finance:accounts')
@@ -508,6 +523,7 @@ class AccountUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, Success
 
 
 class AccountDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    """Delete account"""
     model = Account
     success_url = reverse_lazy('finance:accounts')
     success_message = "Account was deleted successfully"
@@ -517,13 +533,15 @@ class AccountDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(AccountDeleteView, self).delete(request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
 class GroupListView(LoginRequiredMixin, ListView):
+    """List groups"""
     model = Group
 
     def get_context_data(self, **kwargs):
+        """Add extra context"""
         context = super().get_context_data(**kwargs)
         groups = Group.objects.filter(members=self.request.user)
         members = [m.id for g in groups for m in g.members.all()]
@@ -531,16 +549,18 @@ class GroupListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
+        """Apply filters"""
         qs = Group.objects.filter(members=self.request.user)
 
-        member = self.request.GET.get('member', None)
-        if member not in [None, ""]:
+        member = self.request.GET.get('member', '')
+        if member != '':
             qs = qs.filter(members=member)
 
         return qs
 
 
 class GroupCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    """Create group"""
     model = Group
     form_class = GroupForm
     success_url = reverse_lazy('finance:groups')
@@ -548,6 +568,7 @@ class GroupCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
 
 
 class GroupUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    """Update group"""
     model = Group
     form_class = GroupForm
     success_url = reverse_lazy('finance:groups')
@@ -555,6 +576,7 @@ class GroupUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
 
 
 class GroupDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    """Delete group"""
     model = Group
     success_url = reverse_lazy('finance:groups')
     success_message = "Group was deleted successfully"
@@ -564,10 +586,11 @@ class GroupDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(GroupDeleteView, self).delete(request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
 class CategoryListView(LoginRequiredMixin, ListView):
+    """List categories"""
     model = Category
 
     def get_context_data(self, **kwargs):
@@ -576,27 +599,30 @@ class CategoryListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
+        """Apply filters"""
         qs = Category.objects.filter(
             created_by=self.request.user,
             internal_type=Category.DEFAULT
         )
 
-        type = self.request.GET.get('type', None)
-        if type not in [None, ""]:
-            qs = qs.filter(type=type)
+        category_type = self.request.GET.get('type', '')
+        if category_type != '':
+            qs = qs.filter(type=category_type)
 
         return qs
 
 
 class CategoryListApi(View):
+    """List categories"""
+
     def get(self, request):
-        time.sleep(.5)
-        type = request.GET.get("type")
-        account = request.GET.get("account")
-        if type not in [None, ""]:
+        """List categories"""
+        category_type = request.GET.get("type", '')
+        account = request.GET.get("account", '')
+        if category_type != '':
             qs = Category.objects.filter(
                 created_by=request.user,
-                type=type,
+                type=category_type,
                 internal_type=Category.DEFAULT
             )
         else:
@@ -609,14 +635,13 @@ class CategoryListApi(View):
                 }
             )
 
-        if account not in [None, ""]:
+        if account != '':
             account = Account.objects.get(id=int(account))
             qs = qs.filter(group=account.group)
         else:
             qs = qs.filter(group=None)
 
-        qs = qs.values('name')
-        qs = qs.annotate(
+        qs = qs.values('name').annotate(
             value=F('id'),
             icon=F('icon__markup'),
         )
@@ -630,6 +655,7 @@ class CategoryListApi(View):
 
 
 class CategoryCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    """Create category"""
     model = Category
     form_class = CategoryForm
     success_url = reverse_lazy('finance:categories')
@@ -637,6 +663,7 @@ class CategoryCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, Success
 
 
 class CategoryUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    """Update category"""
     model = Category
     form_class = CategoryForm
     success_url = reverse_lazy('finance:categories')
@@ -644,6 +671,7 @@ class CategoryUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, Success
 
 
 class CategoryDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    """Delete category"""
     model = Category
     success_url = reverse_lazy('finance:categories')
     success_message = "Category was deleted successfully"
@@ -653,10 +681,11 @@ class CategoryDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(CategoryDeleteView, self).delete(request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
 class IconListView(UserPassesTestMixin, ListView):
+    """List icons"""
     model = Icon
 
     def test_func(self):
@@ -668,6 +697,7 @@ class IconListView(UserPassesTestMixin, ListView):
 
 
 class IconCreateView(UserPassesTestMixin, SuccessMessageMixin, CreateView):
+    """Create icon"""
     model = Icon
     form_class = IconForm
     success_url = reverse_lazy('finance:icons')
@@ -678,6 +708,7 @@ class IconCreateView(UserPassesTestMixin, SuccessMessageMixin, CreateView):
 
 
 class IconUpdateView(UserPassesTestMixin, SuccessMessageMixin, UpdateView):
+    """Update icon"""
     model = Icon
     form_class = IconForm
     success_url = reverse_lazy('finance:icons')
@@ -688,6 +719,7 @@ class IconUpdateView(UserPassesTestMixin, SuccessMessageMixin, UpdateView):
 
 
 class IconDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    """Delete icon"""
     model = Icon
     success_url = reverse_lazy('finance:icons')
     success_message = "Icon was deleted successfully"
@@ -697,10 +729,11 @@ class IconDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(IconDeleteView, self).delete(request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
 class GoalListView(LoginRequiredMixin, ListView):
+    """List goals"""
     model = Goal
 
     def get_queryset(self):
@@ -709,6 +742,7 @@ class GoalListView(LoginRequiredMixin, ListView):
 
 
 class GoalCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    """Create goal"""
     model = Goal
     form_class = GoalForm
     success_url = reverse_lazy('finance:goals')
@@ -716,6 +750,7 @@ class GoalCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMess
 
 
 class GoalUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    """Update goal"""
     model = Goal
     form_class = GoalForm
     success_url = reverse_lazy('finance:goals')
@@ -723,19 +758,21 @@ class GoalUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMess
 
 
 class GoalDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    """Delete goal"""
     model = Goal
     success_url = reverse_lazy('finance:goals')
     success_message = "Goal was deleted successfully"
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(GoalDeleteView, self).delete(request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
 class InviteApi(LoginRequiredMixin, View):
+    """Create invite"""
 
     def post(self, request):
-        time.sleep(2)
+        """Create invite"""
         group_id = request.POST.get("group")
         email = request.POST.get("email")
         user = request.user
@@ -768,19 +805,14 @@ class InviteApi(LoginRequiredMixin, View):
 
 
 class InviteListApiView(View):
-    def get(self, request):
-        time.sleep(1)
+    """List invites"""
+
+    def get(self, request, *args, **kwargs):
+        """List invites"""
         group_id = request.GET.get("group")
-        user = request.user
         group = Group.objects.get(id=int(group_id))
 
-        if user in group.members.all():
-            pass
-        else:
-            print("not in")
-
-        qs = Invite.objects.filter(group=group, accepted=False)
-        qs = qs.values('email')
+        qs = Invite.objects.filter(group=group, accepted=False).values('email')
 
         if qs.count() == 0:
             response = {
@@ -798,32 +830,37 @@ class InviteListApiView(View):
 
 
 class InviteAcceptanceView(LoginRequiredMixin, TemplateView):
+    """Accept invitation"""
     template_name = "finance/invite_acceptance.html"
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
+        """Accept invitation"""
         token = request.GET.get('t', None)
 
         if token is None:
             return HttpResponse("error")
-        else:
-            payload = jwt.decode(
-                token,
-                settings.SECRET_KEY,
-                algorithms=["HS256"]
-            )
 
-            invite = get_object_or_404(Invite, pk=payload['id'])
-            user_already_member = request.user in invite.group.members.all()
-            if not invite.accepted and not user_already_member:
-                invite.accept(request.user)
-                invite.save()
-            return self.render_to_response({
-                "accepted": invite.accepted,
-                "user_already_member": user_already_member,
-            })
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=["HS256"]
+        )
+
+        invite = get_object_or_404(Invite, pk=payload['id'])
+        user_already_member = request.user in invite.group.members.all()
+        if not invite.accepted and not user_already_member:
+            invite.accept(request.user)
+            invite.save()
+        return self.render_to_response({
+            "accepted": invite.accepted,
+            "user_already_member": user_already_member,
+        })
 
 
 class BudgetListView(LoginRequiredMixin, ListView):
+    """
+    List budgets
+    """
     model = Budget
 
     def get_context_data(self, **kwargs):
@@ -833,23 +870,27 @@ class BudgetListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
+        """Apply filters"""
         qs = Budget.objects.filter(
             created_by=self.request.user,
             start_date__lte=timezone.now().date()
         )
 
-        category = self.request.GET.get('category', None)
-        if category not in [None, ""]:
+        category = self.request.GET.get('category', '')
+        if category != '':
             qs = qs.filter(categories=category)
 
-        account = self.request.GET.get('account', None)
-        if account not in [None, ""]:
+        account = self.request.GET.get('account', '')
+        if account != '':
             qs = qs.filter(accounts=account)
 
         return qs
 
 
 class BudgetCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    """
+    Create budget
+    """
     model = Budget
     form_class = BudgetForm
     success_url = reverse_lazy('finance:budgets')
@@ -857,6 +898,9 @@ class BudgetCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMe
 
 
 class BudgetUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    """
+    Update budget
+    """
     model = Budget
     form_class = BudgetForm
     success_url = reverse_lazy('finance:budgets')
@@ -867,6 +911,9 @@ class BudgetUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, SuccessM
 
 
 class BudgetDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    """
+    Delete budget
+    """
     model = Budget
     success_url = reverse_lazy('finance:budgets')
     success_message = "Budget was deleted successfully"
@@ -876,34 +923,40 @@ class BudgetDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(BudgetDeleteView, self).delete(request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
 class BudgetConfigurationListView(LoginRequiredMixin, ListView):
+    """
+    List BudgetConfiguration
+    """
     model = BudgetConfiguration
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()
         context['categories'] = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
         context['accounts'] = Account.objects.filter(owned_by=self.request.user)
         return context
 
     def get_queryset(self):
+        """Apply filters"""
         qs = BudgetConfiguration.objects.filter(created_by=self.request.user)
 
-        category = self.request.GET.get('category', None)
-        if category not in [None, ""]:
+        category = self.request.GET.get('category', '')
+        if category != '':
             qs = qs.filter(categories=category)
 
-        account = self.request.GET.get('account', None)
-        if account not in [None, ""]:
+        account = self.request.GET.get('account', '')
+        if account != '':
             qs = qs.filter(accounts=account)
 
         return qs
 
 
 class BudgetConfigurationCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+    """
+    Create BudgetConfiguration
+    """
     model = BudgetConfiguration
     form_class = BudgetConfigurationForm
     success_url = reverse_lazy('finance:budgetconfigurations')
@@ -911,6 +964,9 @@ class BudgetConfigurationCreateView(LoginRequiredMixin, PassRequestToFormViewMix
 
 
 class BudgetConfigurationUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+    """
+    Update BudgetConfiguration
+    """
     model = BudgetConfiguration
     form_class = BudgetConfigurationForm
     success_url = reverse_lazy('finance:budgetconfigurations')
@@ -921,6 +977,9 @@ class BudgetConfigurationUpdateView(UserPassesTestMixin, PassRequestToFormViewMi
 
 
 class BudgetConfigurationDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    """
+    Delete BudgetConfiguration
+    """
     model = BudgetConfiguration
     success_url = reverse_lazy('finance:budgetconfigurations')
     success_message = "BudgetConfiguration was deleted successfully"
@@ -930,10 +989,13 @@ class BudgetConfigurationDeleteView(UserPassesTestMixin, SuccessMessageMixin, De
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(BudgetConfigurationDeleteView, self).delete(request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)
 
 
 class FakerView(UserPassesTestMixin, FormView):
+    """
+    Create fake instances
+    """
     template_name = "finance/faker.html"
     form_class = FakerForm
     success_url = "/fn/faker/"
@@ -942,14 +1004,22 @@ class FakerView(UserPassesTestMixin, FormView):
         return self.request.user.is_superuser
 
     def form_valid(self, form) -> HttpResponse:
-
-        success, message = form.create_fake_instances()
-        messages.add_message(self.request, message['level'], message['message'])
-
+        """
+        Create fake instances
+        """
+        _, message = form.create_fake_instances()
+        messages.add_message(
+            self.request,
+            message['level'],
+            message['message']
+        )
         return super().form_valid(form)
 
 
 class RestrictedAreaView(LoginRequiredMixin, TemplateView):
+    """
+    Restricted area
+    """
     template_name = "finance/restricted_area.html"
 
     def get_context_data(self, **kwargs):
@@ -961,6 +1031,7 @@ class RestrictedAreaView(LoginRequiredMixin, TemplateView):
 
 
 class ChartsView(LoginRequiredMixin, TemplateView):
+    """View all charts"""
     template_name = "finance/charts.html"
 
     def get_context_data(self, **kwargs):
@@ -975,17 +1046,15 @@ class ChartsView(LoginRequiredMixin, TemplateView):
 
 
 class ChartDataApiView(LoginRequiredMixin, APIView):
+    """
+    Retrieve, update or delete chart
+    """
 
     permission_classes = [IsCreator]
 
-    def get_object(self, pk):
-        try:
-            return Chart.objects.get(pk=pk)
-        except Chart.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        chart: Chart = self.get_object(pk)
+    def get(self, request, pk):
+        """Retrieve chart data"""
+        chart = get_object_or_404(Chart, pk=pk)
         data = chart.get_queryset(request.user)
         return Response({
             'success': True,
@@ -1002,30 +1071,33 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
             },
         })
 
-    def put(self, request, pk, format=None):
-        chart: Chart = self.get_object(pk)
+    def put(self, request, pk):
+        """Edit chart"""
+        chart = get_object_or_404(Chart, pk=pk)
         serializer = ChartSerializer(chart, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                'success': True,
-                'data': serializer.data,
-            })
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response({
+            'success': True,
+            'data': serializer.data,
+        })
 
-    def patch(self, request, pk, format=None):
-        chart: Chart = self.get_object(pk)
+    def patch(self, request, pk):
+        """Edit chart"""
+        chart = get_object_or_404(Chart, pk=pk)
         serializer = ChartSerializer(chart, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                'success': True,
-                'data': serializer.data,
-            })
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response({
+            'success': True,
+            'data': serializer.data,
+        })
 
-    def delete(self, request, pk, format=None):
-        chart: Chart = self.get_object(pk)
+    def delete(self, request, pk):
+        """Delete a chart"""
+        chart = get_object_or_404(Chart, pk=pk)
         chart.delete()
         return Response({
             'success': True,
@@ -1033,27 +1105,38 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
 
 
 class ChartListApiView(LoginRequiredMixin, APIView):
+    """
+    List or create charts
+    """
 
-    def get(self, request, format=None):
+    def get(self, request):
+        """List all user's charts"""
         charts = request.user.charts.all()
         return Response({
             'success': True,
             'data': [c.id for c in charts]
         })
 
-    def post(self, request, format=None):
+    def post(self, request):
+        """Create new chart"""
         serializer = ChartSerializer(data=request.data, context={"request": request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                'success': True,
-                'data': serializer.data,
-            })
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response({
+            'success': True,
+            'data': serializer.data,
+        })
 
 
 class ChartMoveApiView(LoginRequiredMixin, APIView):
-    def post(self, request, format=None):
+    """
+    Apply chart movement
+    """
+    def post(self, request):
+        """
+        Apply chart movement
+        """
         serializer = ChartMoveSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             result = serializer.move()

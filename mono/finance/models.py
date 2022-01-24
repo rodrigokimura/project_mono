@@ -1,3 +1,4 @@
+"""Finance's models"""
 from datetime import datetime, timedelta
 
 import jwt
@@ -49,9 +50,29 @@ class Transaction(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
     account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
     active = models.BooleanField(_("active"), default=True)
-    recurrent = models.ForeignKey('RecurrentTransaction', on_delete=models.SET_NULL, null=True, blank=True, default=None)
-    installment = models.ForeignKey('Installment', verbose_name=_("installment"), on_delete=models.CASCADE, null=True, blank=True, default=None)
-    transference = models.ForeignKey('Transference', verbose_name=_("installment"), on_delete=models.CASCADE, null=True, blank=True, default=None)
+    recurrent = models.ForeignKey(
+        'RecurrentTransaction',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        default=None
+    )
+    installment = models.ForeignKey(
+        'Installment',
+        verbose_name=_("installment"),
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        default=None
+    )
+    transference = models.ForeignKey(
+        'Transference',
+        verbose_name=_("installment"),
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        default=None
+    )
 
     class Meta:
         verbose_name = _("transaction")
@@ -78,6 +99,7 @@ class Transaction(models.Model):
 
 
 class RecurrentTransaction(models.Model):
+    """Recurrent transaction stores configuration for transactions that shoud be created frequently."""
     WEEKLY = 'W'
     MONTHLY = 'M'
     YEARLY = 'Y'
@@ -86,33 +108,43 @@ class RecurrentTransaction(models.Model):
         (MONTHLY, _('Monthly')),
         (YEARLY, _('Yearly')),
     ]
-    description = models.CharField(max_length=50, null=False, blank=False,
-                                   verbose_name=_("description"),
-                                   help_text="A short description, so that the user can identify the transaction.")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
-                                   verbose_name=_("created by"),
-                                   help_text="Identifies who created the transaction.")
-    timestamp = models.DateTimeField(_("timestamp"), default=timezone.now,
-                                     help_text="Timestamp when transaction occurred. User defined.")
-    amount = models.FloatField(_("amount"), help_text="Amount related to the transaction. Absolute value, no positive/negative signs.")
+    description = models.CharField(
+        max_length=50,
+        null=False,
+        blank=False,
+        verbose_name=_("description"),
+        help_text="A short description, so that the user can identify the transaction."
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name=_("created by"),
+        help_text="Identifies who created the transaction."
+    )
+    timestamp = models.DateTimeField(
+        _("timestamp"),
+        default=timezone.now,
+        help_text="Timestamp when transaction occurred. User defined."
+    )
+    amount = models.FloatField(
+        _("amount"),
+        help_text="Amount related to the transaction. Absolute value, no positive/negative signs."
+    )
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
     account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
     active = models.BooleanField(_("active"), default=True)
     frequency = models.CharField(_("frequency"), max_length=1, choices=FREQUENCY, default=MONTHLY)
 
     def is_schedule_date(self, reference_date):
-        if reference_date < self.timestamp.date():
-            return False
-        elif reference_date == self.timestamp.date():
-            return True
-        else:
-
+        """Check if the transaction should be created for the given date."""
+        if reference_date > self.timestamp.date():
             if self.frequency == self.WEEKLY:
                 return reference_date.weekday() == self.timestamp.weekday()
-            elif self.frequency == self.MONTHLY:
+            if self.frequency == self.MONTHLY:
                 return reference_date.day == self.timestamp.day
-            elif self.frequency == self.YEARLY:
+            if self.frequency == self.YEARLY:
                 return reference_date.day == self.timestamp.day and reference_date.month == self.timestamp.month
+        return reference_date == self.timestamp.date()
 
     @property
     def type(self):
@@ -121,6 +153,7 @@ class RecurrentTransaction(models.Model):
 
     @property
     def verbose_interval(self):
+        """Gets the verbose interval for the recurrent transaction."""
         weekdays = [
             _('Monday'),
             _('Tuesday'),
@@ -146,13 +179,21 @@ class RecurrentTransaction(models.Model):
         ]
         if self.frequency == self.WEEKLY:
             return _('Every %(d)s of each week.') % {'d': weekdays[self.timestamp.weekday()]}
-        elif self.frequency == self.MONTHLY:
+        if self.frequency == self.MONTHLY:
             return _('Every day %(d)s of each month.') % {'d': self.timestamp.day}
-        elif self.frequency == self.YEARLY:
-            return _('Every day %(d)s of %(m)s of each year.') % {'d': self.timestamp.day, 'm': months[self.timestamp.month]}
+        if self.frequency == self.YEARLY:
+            return _(
+                'Every day %(d)s of %(m)s of each year.'
+            ) % {'d': self.timestamp.day, 'm': months[self.timestamp.month]}
+        raise NotImplementedError('Unknown frequency')
 
     def create_transaction(self, reference_date=(timezone.now() + timedelta(1)).date()):
-        if not Transaction.objects.filter(recurrent=self, timestamp__date=reference_date).exists() and self.is_schedule_date(reference_date):
+        """Creates a transaction for the given date."""
+        transaction_exists = Transaction.objects.filter(
+            recurrent=self,
+            timestamp__date=reference_date
+        ).exists()
+        if not transaction_exists and self.is_schedule_date(reference_date):
             transaction = Transaction(
                 description=self.description,
                 created_by=self.created_by,
@@ -188,6 +229,7 @@ class RecurrentTransaction(models.Model):
 
 
 class Installment(models.Model):
+    """Installment stores configuration for a group of installments."""
     FIRST = 'F'
     LAST = 'L'
     HANDLE_REMAINDER = [
@@ -195,17 +237,29 @@ class Installment(models.Model):
         (LAST, _('Add to last transaction')),
     ]
     months = models.IntegerField(_("months"), default=12)
-    description = models.CharField(_("description"), max_length=50, null=False, blank=False,
-                                   help_text="A short description, so that the user can identify the transaction.")
+    description = models.CharField(
+        _("description"),
+        max_length=50,
+        null=False,
+        blank=False,
+        help_text="A short description, so that the user can identify the transaction."
+    )
     created_by = models.ForeignKey(User, verbose_name=_("created by"), on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(_("timestamp"), default=timezone.now,
-                                     help_text="Timestamp when transaction occurred. User defined.")
-    total_amount = models.FloatField(_("total amount"), help_text="Amount related to the transaction. Absolute value, no positive/negative signs.")
+    timestamp = models.DateTimeField(
+        _("timestamp"),
+        default=timezone.now,
+        help_text="Timestamp when transaction occurred. User defined."
+    )
+    total_amount = models.FloatField(
+        _("total amount"),
+        help_text="Amount related to the transaction. Absolute value, no positive/negative signs."
+    )
     category = models.ForeignKey('Category', on_delete=models.CASCADE, null=False, verbose_name=_("category"))
     account = models.ForeignKey('Account', on_delete=models.CASCADE, verbose_name=_("account"))
     handle_remainder = models.CharField(_("handle remainder"), max_length=1, choices=HANDLE_REMAINDER, default=FIRST)
 
     def create_transactions(self):
+        """Create transactions for this installment."""
         if self.id is None:
             self.save()
         decimals = 2
@@ -302,6 +356,7 @@ class Transference(models.Model):
 
 
 class Icon(models.Model):
+    """Icon stores icons for categories."""
     markup = models.CharField(max_length=50, unique=True)
 
     def __str__(self) -> str:
@@ -313,6 +368,7 @@ class Icon(models.Model):
 
 
 class Category(models.Model):
+    """Category stores categories for transactions."""
     INCOME = 'INC'
     EXPENSE = 'EXP'
     TRANSACTION_TYPES = [
@@ -378,6 +434,7 @@ class Category(models.Model):
 
 
 class Group(models.Model):
+    """Group stores groups to share transactions."""
     name = models.CharField(max_length=50)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_groupset")
     owned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owned_groupset")
@@ -396,6 +453,7 @@ class Group(models.Model):
 
 
 class Account(models.Model):
+    """Account groups transactions."""
     name = models.CharField(max_length=50)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="created_accountset", null=True)
     owned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owned_accountset")
@@ -423,6 +481,7 @@ class Account(models.Model):
 
     @property
     def current_balance(self):
+        """Get the current balance of the account."""
         decimals = 2
         qs = self.transaction_set.all()
         income_sum = Coalesce(
@@ -446,15 +505,16 @@ class Account(models.Model):
         balance = qs.aggregate(
             balance=income_sum - expense_sum
         )['balance']
-        sum = self.initial_balance + balance
-        return round(sum, decimals)
+        return round(self.initial_balance + balance, decimals)
 
     @property
     def total_transactions(self):
+        """Get the total number of transactions in the account."""
         qs = Transaction.objects.filter(account=self.pk)
         return qs.count()
 
     def _get_coalesce_sum(self) -> Coalesce:
+        """Get sum of amount wrapped in coalesce"""
         return Coalesce(
             Sum(
                 'amount',
@@ -465,6 +525,7 @@ class Account(models.Model):
         )
 
     def _get_credit_card_transactions(self, year, month):
+        """Get queryset of transactions for the credit card."""
 
         qs: QuerySet[Transaction] = self.transaction_set.all()
 
@@ -483,6 +544,7 @@ class Account(models.Model):
         return qs.filter(timestamp__range=[range_start, range_end])
 
     def _get_credit_card_payments(self, year, month):
+        """Get queryset of payments for the credit card."""
 
         qs: QuerySet[Transaction] = self.transaction_set.all()
 
@@ -501,27 +563,32 @@ class Account(models.Model):
         return qs.filter(timestamp__range=[range_start, range_end])
 
     def get_credit_card_expenses(self, year, month):
+        """Get all expenses for the credit card."""
         qs = self._get_credit_card_transactions(year, month)
         qs = qs.filter(category__type='EXP')
         return qs.aggregate(sum=-self._get_coalesce_sum())['sum']
 
     def get_credit_card_adjustments(self, year, month):
+        """Get all adjustments for the credit card."""
         qs = self._get_credit_card_transactions(year, month)
         qs = qs.filter(category__type='INC').filter(category__internal_type='ADJ')
         return qs.aggregate(sum=self._get_coalesce_sum())['sum']
 
     def get_credit_card_payments(self, year, month):
+        """Get all payments for the credit card."""
         qs = self._get_credit_card_payments(year, month)
         qs = qs.filter(category__type='INC')
         return qs.aggregate(sum=self._get_coalesce_sum())['sum']
 
     def is_invoice_paid(self, year, month):
+        """Check if invoice is paid."""
         payments = self.get_credit_card_payments(year, month)
         expenses = self.get_credit_card_expenses(year, month)
         return round(payments, 2) >= -round(expenses, 2)
 
     @property
     def current_invoice(self):
+        """Get the current invoice balance for this account."""
         now = timezone.now()
         exp = self.get_credit_card_expenses(now.year, now.month)
         inc = self.get_credit_card_adjustments(now.year, now.month)
@@ -529,11 +596,13 @@ class Account(models.Model):
 
     @property
     def current_invoice_is_paid(self):
+        """Check if current invoice is paid."""
         now = timezone.now()
         return self.is_invoice_paid(now.year, now.month)
 
     @property
     def last_closed_invoice(self):
+        """Get expenses from last closed invoice"""
         now = timezone.now()
         month = now.month
         if self.settlement_date >= 15:
@@ -544,6 +613,7 @@ class Account(models.Model):
 
     @property
     def last_closed_invoice_is_paid(self):
+        """Check if last closed invoice is paid."""
         now = timezone.now()
         month = now.month
         if self.settlement_date >= 15:
@@ -553,17 +623,18 @@ class Account(models.Model):
         return self.is_invoice_paid(now.year, month)
 
     def adjust_balance(self, target, user):
+        """Adjust the balance of the account given a target."""
         diff = target - self.current_balance
         if diff < 0:
-            type = Category.EXPENSE
+            category_type = Category.EXPENSE
         elif diff > 0:
-            type = Category.INCOME
+            category_type = Category.INCOME
         else:
             return
 
         qs = Category.objects.filter(
             created_by=user,
-            type=type,
+            type=category_type,
             internal_type=Category.ADJUSTMENT
         )
         if qs.exists():
@@ -595,6 +666,7 @@ class Account(models.Model):
 
 
 class Goal(models.Model):
+    """Goal model"""
     WEEKLY = 'W'
     MONTHLY = 'M'
     YEARLY = 'Y'
@@ -628,6 +700,7 @@ class Goal(models.Model):
 
 
 class BudgetConfiguration(models.Model):
+    """Budget configuration that creates scheduled budgets"""
     WEEKLY = 'W'
     MONTHLY = 'M'
     YEARLY = 'Y'
@@ -647,21 +720,19 @@ class BudgetConfiguration(models.Model):
     active = models.BooleanField(default=True)
 
     def is_schedule_date(self, reference_date):
-        if reference_date < self.start_date:
-            return False
-        elif reference_date == self.start_date:
-            return True
-        else:
-
+        """Check if the reference date matches a schedule date"""
+        if reference_date > self.start_date:
             if self.frequency == self.WEEKLY:
                 return reference_date.weekday() == self.start_date.weekday()
-            elif self.frequency == self.MONTHLY:
+            if self.frequency == self.MONTHLY:
                 return reference_date.day == self.start_date.day
-            elif self.frequency == self.YEARLY:
+            if self.frequency == self.YEARLY:
                 return reference_date.day == self.start_date.day and reference_date.month == self.start_date.month
+        return reference_date == self.start_date
 
     @property
     def verbose_interval(self):
+        """Get verbose interval"""
         weekdays = [
             _('Monday'),
             _('Tuesday'),
@@ -687,12 +758,16 @@ class BudgetConfiguration(models.Model):
         ]
         if self.frequency == self.WEEKLY:
             return _('Every %(d)s of each week.') % {'d': weekdays[self.start_date.weekday()]}
-        elif self.frequency == self.MONTHLY:
+        if self.frequency == self.MONTHLY:
             return _('Every day %(d)s of each month.') % {'d': self.start_date.day}
-        elif self.frequency == self.YEARLY:
-            return _('Every day %(d)s of %(m)s of each year.') % {'d': self.start_date.day, 'm': months[self.start_date.month]}
+        if self.frequency == self.YEARLY:
+            return _(
+                'Every day %(d)s of %(m)s of each year.'
+            ) % {'d': self.start_date.day, 'm': months[self.start_date.month]}
+        raise NotImplementedError(f'Verbose interval not implemented for frequency {self.frequency}')
 
     def create_budget(self):
+        """Create budget instance for this configuration"""
         reference_date = (timezone.now() + timedelta(1)).date()
 
         if self.frequency == self.WEEKLY:
@@ -702,7 +777,9 @@ class BudgetConfiguration(models.Model):
         elif self.frequency == self.YEARLY:
             delta = relativedelta(years=1)
 
-        if not Budget.objects.filter(configuration=self, start_date=reference_date).exists() and self.is_schedule_date(reference_date):
+        budget_exists = Budget.objects.filter(configuration=self, start_date=reference_date).exists()
+
+        if not budget_exists and self.is_schedule_date(reference_date):
             budget = Budget(
                 created_by=self.created_by,
                 amount=self.amount,
@@ -712,7 +789,6 @@ class BudgetConfiguration(models.Model):
                 all_accounts=self.all_accounts,
                 all_categories=self.all_categories,
             )
-            budget.save()
             budget.accounts.set(self.accounts.all())
             budget.categories.set(self.categories.all())
             budget.save()
@@ -723,6 +799,9 @@ class BudgetConfiguration(models.Model):
 
 
 class Budget(models.Model):
+    """
+    Budgets are used to set a limit on the amount of money that can be spent on a given filter.
+    """
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.FloatField(_("amount"))
     start_date = models.DateField(_("start date"), default=timezone.now)
@@ -731,7 +810,13 @@ class Budget(models.Model):
     categories = models.ManyToManyField(Category, verbose_name=_("categories"))
     all_accounts = models.BooleanField(_("all accounts"), default=False)
     all_categories = models.BooleanField(_("all categories"), default=False)
-    configuration = models.ForeignKey(BudgetConfiguration, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("configuration"))
+    configuration = models.ForeignKey(
+        BudgetConfiguration,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_("configuration")
+    )
 
     class Meta:
         verbose_name = _("budget")
@@ -746,10 +831,10 @@ class Budget(models.Model):
 
     @property
     def time_spent(self):
+        """Return the amount of time spent on this budget"""
         if self.end_date < timezone.now().date():
             return (self.end_date - self.start_date).days + 1
-        else:
-            return (timezone.now().date() - self.start_date).days
+        return (timezone.now().date() - self.start_date).days
 
     @property
     def time_total(self):
@@ -757,6 +842,7 @@ class Budget(models.Model):
 
     @property
     def time_progress(self):
+        """Show the time progress of the budget in percentage."""
         if self.open:
             try:
                 progress = (timezone.now().date() - self.start_date) / (self.end_date - self.start_date)
@@ -768,6 +854,7 @@ class Budget(models.Model):
 
     @property
     def spent_queryset(self):
+        """Return queryset of transactions that are within the budget's time range."""
 
         if self.all_accounts:
             owned_accounts = Account.objects.filter(owned_by=self.created_by)
@@ -804,6 +891,7 @@ class Budget(models.Model):
 
     @property
     def amount_progress(self):
+        """Returns the amount of money spent on the budget"""
         try:
             progress = self.amount_spent / self.amount
         except ZeroDivisionError:
@@ -812,6 +900,7 @@ class Budget(models.Model):
 
     @property
     def status(self):
+        """Returns the status of the budget."""
         threshold = (.9 * self.amount)
         if self.amount_spent < threshold:
             status = 'success'
@@ -823,6 +912,7 @@ class Budget(models.Model):
 
     @property
     def progress_bar_color(self):
+        """Return color according to the progress of the budget"""
         if self.amount_progress < .6:
             color = 'green'
         elif .6 <= self.amount_progress < .8:
@@ -837,6 +927,7 @@ class Budget(models.Model):
 
 
 class Invite(models.Model):
+    """Invite to join a group"""
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
@@ -848,6 +939,7 @@ class Invite(models.Model):
         verbose_name_plural = _("invites")
 
     def accept(self, user):
+        """Apply invite acceptance"""
         group = self.group
         group.members.add(user)
         self.accepted = True
@@ -862,6 +954,7 @@ class Invite(models.Model):
 
     @property
     def link(self):
+        """Valid link to accept invite"""
         token = jwt.encode(
             {
                 "exp": timezone.now() + timedelta(days=1),
@@ -873,6 +966,7 @@ class Invite(models.Model):
         return f"{reverse('finance:invite_acceptance')}?t={token}"
 
     def send(self, request):
+        """Send invite via email"""
 
         template_html = 'email/invitation.html'
         template_text = 'email/invitation.txt'
@@ -884,18 +978,18 @@ class Invite(models.Model):
 
         full_link = site + self.link
 
-        d = {
+        context = {
             'site': site,
             'link': full_link
         }
 
-        subject, from_email, to = _('Invite'), settings.EMAIL_HOST_USER, self.email
+        subject, from_email, to_email = _('Invite'), settings.EMAIL_HOST_USER, self.email
         msg = EmailMultiAlternatives(
             subject=subject,
-            body=text.render(d),
+            body=text.render(context),
             from_email=from_email,
-            to=[to])
-        msg.attach_alternative(html.render(d), "text/html")
+            to=[to_email])
+        msg.attach_alternative(html.render(context), "text/html")
         msg.send(fail_silently=False)
         if User.objects.filter(email=self.email).exists():
             Notification.objects.create(
@@ -911,6 +1005,9 @@ class Invite(models.Model):
 
 
 class Configuration(models.Model):
+    """
+    Configuration for the finance app.
+    """
 
     HOME = 'HOM'
     ACCOUNTS = 'ACC'
@@ -958,23 +1055,26 @@ class Configuration(models.Model):
 
     @property
     def cards_list(self):
+        """List of card codes"""
         if self.cards:
             return list(map(int, self.cards.split(',')))
-        else:
-            return None
+        return None
 
     @property
     def decoded_cards(self):
+        """List of card names"""
         if self.cards:
             cards_list = []
             for i in self.cards_list:
                 cards_list.append([n for v, n in self.CARDS if v == i][0])
             return cards_list
-        else:
-            return None
+        return None
 
 
 class Chart(models.Model):
+    """
+    Chart is a model that stores the data for a chart.
+    """
     TYPE_CHOICES = [
         ('bar', _('Bar')),
         ('line', _('Line')),
@@ -1044,6 +1144,7 @@ class Chart(models.Model):
         return text
 
     def _apply_field(self, user) -> QuerySet:
+        """Apply entity field to queryset"""
         if self.field == 'transaction':
             qs = Transaction.objects.filter(created_by=user)
         elif self.field == 'transference':
@@ -1057,7 +1158,8 @@ class Chart(models.Model):
         return qs
 
     def _apply_filter(self, qs: QuerySet) -> QuerySet:
-        FILTERS = [
+        """Apply filter to queryset"""
+        filters = [
             ('expenses', lambda qs: qs.filter(category__type=Category.EXPENSE)),
             ('incomes', lambda qs: qs.filter(category__type=Category.INCOME)),
             ('balance_adjustments', lambda qs: qs.filter(category__internal_type=Category.ADJUSTMENT)),
@@ -1069,12 +1171,13 @@ class Chart(models.Model):
             ('current_month', lambda qs: qs.filter(timestamp__month=timezone.now().month)),
             ('past_month', lambda qs: qs.filter(timestamp__month=timezone.now().month - 1)),
         ]
-        for filter_name, filter_func in FILTERS:
+        for filter_name, filter_func in filters:
             if filter_name in self.filters:
                 qs = filter_func(qs)
         return qs
 
     def _apply_axis(self, qs: QuerySet) -> QuerySet:
+        """Apply axis to queryset"""
         if self.axis is None:
             return qs.annotate(axis=V("No axis"))
 
@@ -1082,20 +1185,20 @@ class Chart(models.Model):
 
         if self.axis in [None, '']:
             return qs.annotate(axis=V("No axis"))
-        elif self.axis == 'year':
-            format = {
+        if self.axis == 'year':
+            date_format = {
                 'django.db.backends.mysql': '%Y',
                 'django.db.backends.sqlite3': '%Y',
             }
             qs = qs.annotate(date=TruncYear('timestamp'))
         elif self.axis == 'month':
-            format = {
+            date_format = {
                 'django.db.backends.mysql': '%Y-%m',
                 'django.db.backends.sqlite3': '%Y-%m',
             }
             qs = qs.annotate(date=TruncMonth('timestamp'))
         elif self.axis == 'week':
-            format = {
+            date_format = {
                 'django.db.backends.mysql': '%Y-%V',
                 'django.db.backends.sqlite3': '%Y-%W',
             }
@@ -1106,7 +1209,7 @@ class Chart(models.Model):
             qs = qs.annotate(
                 axis=Func(
                     F('date'),
-                    V(format[db_engine]),
+                    V(date_format[db_engine]),
                     function='DATE_FORMAT',
                     output_field=models.CharField()
                 )
@@ -1114,7 +1217,7 @@ class Chart(models.Model):
         elif db_engine == "django.db.backends.sqlite3":
             qs = qs.annotate(
                 axis=Func(
-                    V(format[db_engine]),
+                    V(date_format[db_engine]),
                     F('date'),
                     function='strftime',
                     output_field=models.CharField()
@@ -1125,6 +1228,7 @@ class Chart(models.Model):
         return qs
 
     def _apply_metric(self, qs: QuerySet) -> QuerySet:
+        """Apply metric to queryset"""
         if self.metric == 'count':
             qs = qs.annotate(
                 metric=Coalesce(
@@ -1154,6 +1258,7 @@ class Chart(models.Model):
         return qs
 
     def _apply_category(self, qs: QuerySet):
+        """Apply category filter to queryset"""
         if self.category in [None, '']:
             return qs.annotate(categ=V(f"{self.get_metric_display()} of {self.get_field_display()}"))
         if self.category == 'category':
@@ -1165,6 +1270,7 @@ class Chart(models.Model):
         return qs
 
     def get_queryset(self, user) -> QuerySet:
+        """Apply filters and return queryset"""
         qs = self._apply_field(user)
         qs = self._apply_filter(qs)
         qs = self._apply_axis(qs)

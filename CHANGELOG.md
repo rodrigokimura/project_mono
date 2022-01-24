@@ -1,3 +1,27 @@
+## 1.1.19 (2022-01-24)
+
+### Refactor
+
+- **mono**: apply pylint changes
+
+## 1.1.18 (2022-01-24)
+
+### Refactor
+
+- **finance**: apply pylint changes
+
+## 1.1.17 (2022-01-23)
+
+### Refactor
+
+- **finance**: apply pylint changes
+
+## 1.1.16 (2022-01-23)
+
+### Refactor
+
+- **finance**: apply pylint changes
+
 ## 1.1.15 (2022-01-23)
 
 ### Refactor
