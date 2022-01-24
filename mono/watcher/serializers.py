@@ -16,6 +16,7 @@ class IssueResolverSerializer(Serializer):
     def update(self, instance, validated_data):
         raise NotImplementedError
 
+
 class IssueIgnorerSerializer(Serializer):
     """
     Simple serializer to mark as ignored

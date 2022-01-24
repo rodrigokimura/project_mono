@@ -1,3 +1,4 @@
+"""Useful context processors"""
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
@@ -9,11 +10,12 @@ def environment(request):
 
 
 def language_extras(request):
-    tinyMCE_languages = {
+    """Extra language settings for the template context"""
+    tinymce_languages = {
         'pt-br': 'pt_BR'
     }
-    tinyMCE_language = tinyMCE_languages.get(request.LANGUAGE_CODE)
+    tinymce_language = tinymce_languages.get(request.LANGUAGE_CODE)
     return {
         'LANGUAGE_EXTRAS': settings.LANGUAGE_EXTRAS,
-        'tinyMCE_language': tinyMCE_language
+        'tinymce_language': tinymce_language
     }

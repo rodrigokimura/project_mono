@@ -1,3 +1,4 @@
+"""Deploy manage.py command"""
 from django.core.management.base import BaseCommand, CommandError
 
 from ...models import PullRequest
@@ -9,11 +10,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            pr: PullRequest = PullRequest.objects.latest('number')
-            print(f"Last PR: {pr}")
-            if not pr.deployed:
-                deploy_app(pr.number)
+            pull_request: PullRequest = PullRequest.objects.latest('number')
+            print(f"Last PR: {pull_request}")
+            if not pull_request.deployed:
+                deploy_app(pull_request.number)
             else:
-                print(f'{pr} was already deployed at {pr.deployed_at}')
-        except Exception as e:
-            raise CommandError(repr(e))
+                print(f'{pull_request} was already deployed at {pull_request.deployed_at}')
+        except Exception as any_exception:
+            raise CommandError(repr(any_exception)) from any_exception

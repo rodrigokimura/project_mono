@@ -1,3 +1,4 @@
+"""Widgets for the Mono application."""
 from dateutil.parser import parse
 from django.conf import settings
 from django.forms.widgets import Widget
@@ -7,12 +8,10 @@ from django.utils.translation import gettext as _
 
 
 class CalendarWidget(Widget):
+    """Render calendar widget"""
     template_name = 'widgets/ui_calendar.html'
     type = 'datetime'
     format = 'n/d/Y h:i A'
-
-    def __init__(self, attrs=None, *args, **kwargs):
-        super().__init__(attrs)
 
     def get_context(self, name, value, attrs=None):
         return {
@@ -28,16 +27,17 @@ class CalendarWidget(Widget):
 
     def render(self, name, value, attrs=None, renderer=None):
         context = self.get_context(name, value, attrs)
-        if type(value) == str:
+        if isinstance(value, str):
             value = parse(value, ignoretz=False)
         template = get_template(self.template_name).render(context)
         return mark_safe(template)
 
 
 class RadioWidget(Widget):
+    """Render a set of radio buttons."""
     template_name = 'widgets/ui_radio.html'
 
-    def __init__(self, attrs=None, *args, **kwargs):
+    def __init__(self, attrs=None, **kwargs):
         self.choices = kwargs.pop('choices')
         super().__init__(attrs)
 
@@ -57,6 +57,7 @@ class RadioWidget(Widget):
 
 
 class ToggleWidget(Widget):
+    """Render toggle widget"""
     template_name = 'widgets/ui_toggle.html'
 
     def get_context(self, name, value, attrs=None):
@@ -74,9 +75,10 @@ class ToggleWidget(Widget):
 
 
 class ButtonsWidget(Widget):
+    """Render option of grouped buttons"""
     template_name = 'widgets/ui_buttons.html'
 
-    def __init__(self, attrs=None, *args, **kwargs):
+    def __init__(self, attrs=None, **kwargs):
         self.choices = kwargs.pop('choices')
         super().__init__(attrs)
 
@@ -96,6 +98,7 @@ class ButtonsWidget(Widget):
 
 
 class SliderWidget(Widget):
+    """Render a slider widget"""
     template_name = 'widgets/ui_slider.html'
 
     def get_context(self, name, value, attrs=None):
@@ -114,6 +117,7 @@ class SliderWidget(Widget):
 
 
 class IconWidget(Widget):
+    """Widget for selecting an icon"""
     template_name = 'widgets/ui_icon.html'
 
     def __init__(self, entity_type, *args, **kwargs) -> None:

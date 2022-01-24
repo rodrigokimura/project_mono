@@ -642,7 +642,7 @@ class Theme(models.Model):
         return self.name
 
     @classmethod
-    def _create_defaults(cls):
+    def create_defaults(cls):
         """
         Create default themes
         """
@@ -671,7 +671,7 @@ class Icon(models.Model):
         return self.markup
 
     @classmethod
-    def _create_defaults(cls):
+    def create_defaults(cls):
         """Create default icons"""
         for markup in cls.DEFAULT_ICONS:
             cls.objects.update_or_create(markup=markup)

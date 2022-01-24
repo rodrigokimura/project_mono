@@ -1,9 +1,11 @@
+"""Feedback's models"""
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
 class Feedback(models.Model):
+    """Feedback given from any user."""
 
     FEELING_CHOICES = [
         (1, "angry"),

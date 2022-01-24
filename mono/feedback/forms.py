@@ -1,3 +1,4 @@
+"""Feedback's forms"""
 from __mono.widgets import ButtonsWidget, SliderWidget
 from django import forms
 from django.utils.translation import gettext as _
@@ -6,6 +7,7 @@ from .models import Feedback
 
 
 class FeedbackForm(forms.ModelForm):
+    """Feedback form"""
     error_css_class = 'error'
 
     def __init__(self, *args, **kwargs):

@@ -3,7 +3,7 @@ from rest_framework import fields, serializers
 
 from .models import (
     Account, Category, Chart, Icon, Installment, RecurrentTransaction,
-    Transaction, Transference, User
+    Transaction, Transference, User,
 )
 
 

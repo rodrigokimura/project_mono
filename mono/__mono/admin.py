@@ -1,3 +1,4 @@
+"""Mono admin"""
 from django.contrib import admin
 
 
