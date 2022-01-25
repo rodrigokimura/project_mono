@@ -209,6 +209,7 @@ build:
 	@git switch master
 	@git reset HEAD --hard
 	@git pull
+	@pipenv install
 	@pipenv run python mono/manage.py collectstatic --noinput
 	@pipenv run python mono/manage.py makemigrations
 	@pipenv run python mono/manage.py migrate
