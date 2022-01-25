@@ -1,3 +1,13 @@
+## 2.0.0 (2022-01-25)
+
+### Refactor
+
+- **mono**: squash migrations
+
+### BREAKING CHANGE
+
+- sensitive change, since it changes models on almost every app
+
 ## 1.1.19 (2022-01-24)
 
 ### Refactor
