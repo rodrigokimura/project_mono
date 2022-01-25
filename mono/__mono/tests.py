@@ -1,3 +1,7 @@
+import warnings
+from unittest.mock import Mock
+
+import stripe
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import RequestFactory, TestCase
@@ -7,6 +11,7 @@ from .admin import MyAdminSite
 from .asgi import application as asgi_app
 from .auth_backends import EmailOrUsernameModelBackend
 from .context_processors import environment, language_extras
+from .decorators import ignore_warnings, stripe_exception_handler
 from .mixins import PassRequestToFormViewMixin
 from .widgets import (
     ButtonsWidget, CalendarWidget, IconWidget, RadioWidget, SliderWidget,
@@ -107,6 +112,30 @@ class ContextProcessorsTest(TestCase):
         context = language_extras(request=request)
         self.assertIn('LANGUAGE_EXTRAS', context)
         self.assertIn('tinymce_language', context)
+
+
+class DecoratorsTests(TestCase):
+
+    def test_ignore_warnings(self):
+        decorated_func = ignore_warnings(lambda: warnings.warn("test", UserWarning))
+        with warnings.catch_warnings(record=True) as w:
+            decorated_func()
+            self.assertEqual(len(w), 0)
+
+    def test_stripe_exception_handler(self):
+        func = Mock(side_effect=stripe.error.CardError("test", "param", "code"))
+        decorated_func = stripe_exception_handler(func)
+        try:
+            decorated_func()
+        except (
+            stripe.error.CardError,
+            stripe.error.RateLimitError,
+            stripe.error.InvalidRequestError,
+            stripe.error.AuthenticationError,
+            stripe.error.APIConnectionError,
+            stripe.error.StripeError
+        ):
+            self.fail('Error was raised')
 
 
 class MixinTests(TestCase):

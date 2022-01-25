@@ -2,7 +2,7 @@
 import hmac
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from hashlib import sha1
 
 import pytz
@@ -17,9 +17,14 @@ from django.shortcuts import get_object_or_404
 from django.utils.encoding import force_bytes
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import PullRequest
+from .serializers import CommitsByDateSerializer
 from .tasks import deploy_app
+from .utils import format_to_heatmap, get_commits_by_date, get_commits_context
 
 
 def is_valid_signature(x_hub_signature, data):
@@ -98,22 +103,8 @@ class Deploy(UserPassesTestMixin, TemplateView):
         context['last_pr'] = PullRequest.objects.latest('number')
         pull_requests = PullRequest.objects.all()
         context['pull_requests'] = pull_requests
-
-        temp_date = datetime.today() - timedelta(weeks=52)
-        initial_date = datetime.fromisocalendar(
-            year=temp_date.isocalendar()[0],
-            week=temp_date.isocalendar()[1],
-            day=1,
-        ) - timedelta(days=1)
-        days = (datetime.today() - initial_date).days
-
-        context_data = {
-            f'data_{i}': []
-            for i in range(7)
-        }
-        for i in range(days + 1):
-            date = initial_date + timedelta(days=i)
-            data = pull_requests.filter(
+        context_data = format_to_heatmap(
+            lambda date: pull_requests.filter(
                 merged_at__date=date
             ).aggregate(
                 sum=Coalesce(
@@ -122,9 +113,7 @@ class Deploy(UserPassesTestMixin, TemplateView):
                     output_field=IntegerField()
                 )
             )['sum']
-            context_data[f'data_{i % 7}'].append(
-                {'d': date, 'c': data}
-            )
+        )
         context = {**context_data, **context}
         return context
 
@@ -172,3 +161,51 @@ class Deploy(UserPassesTestMixin, TemplateView):
                 },
             }
         )
+
+
+class HealthcheckHomePage(UserPassesTestMixin, TemplateView):
+    """
+    Healthcheck homepage
+    Show a overview of the project.
+    Apps, commits, code lines, quality metrics, etc.
+    """
+    template_name = 'healthcheck/home.html'
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get_context_data(self, **kwargs):
+        """Add extra context"""
+        context = super().get_context_data(**kwargs)
+        commits_context = get_commits_context()
+
+        context = {**commits_context, **context}
+        return context
+
+
+class CommitsByDateView(UserPassesTestMixin, APIView):
+    """Get commit info by date"""
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get(self, request, *args, **kwargs):
+        """
+        Get commits by date
+        """
+        serializer = CommitsByDateSerializer(data=request.query_params)
+        if serializer.is_valid():
+            date = serializer.validated_data['date']
+            commits = get_commits_by_date(date=date)
+            return Response(
+                [
+                    {
+                        'hexsha': commit.hexsha,
+                        'author': commit.author.name,
+                        'date': commit.authored_date,
+                        'message': commit.message,
+                    }
+                    for commit in commits
+                ]
+            )
+        return Response(status=status.HTTP_400_BAD_REQUEST)

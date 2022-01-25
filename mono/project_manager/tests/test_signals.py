@@ -1,5 +1,6 @@
 from unittest.mock import MagicMock, patch
 
+from __mono.decorators import ignore_warnings
 from django.test import TestCase
 
 from ..signals import delete_background_image, delete_card_file
@@ -41,6 +42,7 @@ class SignalsTest(TestCase):
         delete_background_image(None, FakeObject(), None)
         mock_remove.assert_called_once_with('path')
 
+    @ignore_warnings
     @patch('os.path.isfile')
     @patch('os.remove')
     def test_delete_card_file(self, mock_remove: MagicMock, mock_isfile: MagicMock):
