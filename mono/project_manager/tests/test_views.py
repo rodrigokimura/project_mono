@@ -447,6 +447,7 @@ class BoardDetailApiViewTests(APITestCase):
             {'name': ''})
         self.assertEqual(response.status_code, 400)
 
+    @ignore_warnings
     def test_board_detail_view_delete(self):
         board = Board.objects.create(name='test board to delete', created_by=self.user, project=self.project)
         client = APIClient()

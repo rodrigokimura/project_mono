@@ -180,6 +180,63 @@ class HealthCheckView(TestCase):
         self.assertContains(response, 'build_number')
 
 
+class HomePageView(TestCase):
+
+    fixtures = ["icon", "project_manager_icons"]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create(username="notsuperuser", email="test@test.com")
+        self.superuser = User.objects.create(username="superuser", email="test@test.com")
+        self.superuser.is_superuser = True
+        self.superuser.save()
+
+    @ignore_warnings
+    def test_get(self):
+        c = Client()
+        c.force_login(self.superuser)
+        response = c.get('/hc/home/')
+        self.assertEqual(response.status_code, 200)
+
+    @ignore_warnings
+    def test_get_forbidden(self):
+        c = Client()
+        c.force_login(self.user)
+        response = c.get('/hc/home/')
+        self.assertEqual(response.status_code, 403)
+
+
+class CommitsByDateView(TestCase):
+
+    fixtures = ["icon", "project_manager_icons"]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create(username="notsuperuser", email="test@test.com")
+        self.superuser = User.objects.create(username="superuser", email="test@test.com")
+        self.superuser.is_superuser = True
+        self.superuser.save()
+
+    @ignore_warnings
+    def test_get(self):
+        c = Client()
+        c.force_login(self.superuser)
+        response = c.get('/hc/api/commits/by-date/', {'date': '2020-01-01'})
+        self.assertEqual(response.status_code, 200)
+
+    @ignore_warnings
+    def test_get_bad_request(self):
+        c = Client()
+        c.force_login(self.superuser)
+        response = c.get('/hc/api/commits/by-date/')
+        self.assertEqual(response.status_code, 400)
+
+    @ignore_warnings
+    def test_get_forbidden(self):
+        c = Client()
+        c.force_login(self.user)
+        response = c.get('/hc/api/commits/by-date/', {'date': '2020-01-01'})
+        self.assertEqual(response.status_code, 403)
+
+
 class DeployView(TestCase):
 
     fixtures = ["icon", "project_manager_icons"]

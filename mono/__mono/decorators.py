@@ -32,9 +32,9 @@ def stripe_exception_handler(func):
 
 def ignore_warnings(test_func):
     """Ignore warnings, useful when running tests"""
-    def do_test(self, *args, **kwargs):
+    def do_test(*args, **kwargs):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             logging.disable(logging.CRITICAL)
-            test_func(self, *args, **kwargs)
+            test_func(*args, **kwargs)
     return do_test
