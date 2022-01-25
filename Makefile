@@ -51,7 +51,7 @@ R_F8=reports/flake8/
 R_PL=reports/pylint/
 
 ## Run all test suites, with multithreading and failfast
-qa-tests-ff:
+tests-ff:
 	@export APP_ENV=TEST \
 		&& cd mono \
 		&& pipenv run python manage.py test --parallel 12 --failfast
@@ -76,10 +76,20 @@ pylint-app: list-apps
 		&& read APP \
 		&& pipenv run pylint mono/$$APP --exit-zero
 
+## Run tests on given app
+test-app: list-apps
+	@echo Choose app: \
+		&& read APP \
+		&& export APP_ENV=TEST \
+		&& export TEST_OUTPUT_VERBOSE=3 \
+		&& export TEST_RUNNER=redgreenunittest.django.runner.RedGreenDiscoverRunner \
+		&& cd mono \
+		&& pipenv run python manage.py test -v 2 pylint $$APP --force-color
+
 _tests:
 	@export APP_ENV=TEST \
 		&& cd mono \
-		&& pipenv run python manage.py test -v 2
+		&& pipenv run python manage.py test -v 2 --force-color
 
 _tests-badge:
 	@$(BADGE) tests -v -i mono/$(R_JUNIT)junit.xml -o mono/$(R_JUNIT)junit-badge.svg
@@ -100,23 +110,23 @@ _open-coverage-report:
 		&& google-chrome htmlcov/index.html
 
 ## Run flake8 and generate badge
-qa-flake8: _flake8
+flake8: _flake8
 	@$(BADGE) flake8 -v -i mono/$(R_F8)flake8stats.txt -o mono/$(R_F8)flake8-badge.svg
 
 ## Run pylint and generate badge
-qa-pylint: _pylint
+pylint: _pylint
 	@export score=$$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' mono/$(R_PL)pylint.txt) \
 		&& echo "Pylint score was $$score" \
 		&& pipenv run anybadge --value=$$score --file=mono/$(R_PL)pylint-badge.svg --label pylint -o
 
 ## Run all test suites and generate badge
-qa-tests: _tests _tests-badge
+tests: _tests _tests-badge
 
 ## Run all test suites with coverage and generate badge
-qa-coverage: _coverage _coverage-badge
+coverage: _coverage _coverage-badge
 
 ## Run all quality checks, generating reports and badges
-qa: art _isort qa-flake8 qa-pylint qa-coverage _tests-badge
+qa: art _isort flake8 pylint coverage _tests-badge
 
 # ========== CODE QUALITY ==================================================== #
 
@@ -140,6 +150,14 @@ django-migrations:
 ## Apply all migrations
 django-migrate:
 	@$(DJANGO) migrate
+
+## Apply all migrations
+django-squash: list-apps
+	@echo Choose app: \
+		&& read APP \
+		&& echo Choose migration: \
+		&& read MIGRATION \
+		&& $(DJANGO) squashmigrations $$APP $$MIGRATION
 
 # ========== DJANGO ========================================================== #
 
@@ -186,6 +204,17 @@ mark-as-deployed:
 ## Connect to Production server
 ssh: art
 	@ssh kimura@ssh.pythonanywhere.com
+
+build:
+	@git switch master
+	@git reset HEAD --hard
+	@git pull
+	@pipenv run python mono/manage.py collectstatic --noinput
+	@pipenv run python mono/manage.py makemigrations
+	@pipenv run python mono/manage.py migrate
+	@pipenv run python mono/manage.py mark_as_deployed
+	@touch /var/www/www_monoproject_info_wsgi.py
+	@tail /var/log/www.monoproject.info.server.log -n 100 --follow
 
 # ========== GIT ============================================================= #
 
