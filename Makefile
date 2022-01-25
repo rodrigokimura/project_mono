@@ -206,7 +206,7 @@ ssh: art
 	@ssh kimura@ssh.pythonanywhere.com
 
 build:
-	@git switch master
+	@git checkout master
 	@git reset HEAD --hard
 	@git pull
 	@pipenv install
