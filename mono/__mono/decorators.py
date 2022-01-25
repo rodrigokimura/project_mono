@@ -1,5 +1,6 @@
 """Useful decorators"""
 import logging
+import warnings
 
 import stripe
 
@@ -27,3 +28,13 @@ def stripe_exception_handler(func):
         except stripe.error.StripeError:
             logger.warning('Stripe generic error')
     return wrapper
+
+
+def ignore_warnings(test_func):
+    """Ignore warnings, useful when running tests"""
+    def do_test(*args, **kwargs):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            logging.disable(logging.CRITICAL)
+            test_func(*args, **kwargs)
+    return do_test

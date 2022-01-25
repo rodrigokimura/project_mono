@@ -1,11 +1,46 @@
+.PHONY: tput
+
 export PIPENV_VERBOSITY=-1
 export PIPENV_IGNORE_VIRTUALENVS=1
 export DJANGO_SETTINGS_MODULE=__mono.settings
 
-help:
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z0-9_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+RED := $(shell tput -Txterm setaf 1)
+GREEN  := $(shell tput -Txterm setaf 2)
+ORANGE := $(shell tput -Txterm setaf 3)
+BLUE := $(shell tput -Txterm setaf 4)
+PURPLE := $(shell tput -Txterm setaf 5)
+CYAN := $(shell tput -Txterm setaf 6)
+WHITE := $(shell tput -Txterm setaf 7)
+BOLD  := $(shell tput bold)
+DIM  := $(shell tput dim)
+RESET  := $(shell tput -Txterm sgr0)
 
+TARGET_MAX_CHAR_NUM=20
 
+## Show help
+help: art
+	@echo ''
+	@echo '${DIM}Usage:${RESET}'
+	@echo '    ${GREY}make${RESET} ${CYAN}${BOLD}[target]${RESET}'
+	@echo ''
+	@echo '${DIM}Targets:${RESET}'
+	@awk '/^[a-zA-Z\-0-9]+:/ { \
+		helpMessage = match(lastLine, /^## (.*)/); \
+		if (helpMessage) { \
+			helpCommand = substr($$1, 0, index($$1, ":")-1); \
+			helpMessage = substr(lastLine, RSTART + 3, RLENGTH); \
+			printf "    ${CYAN}${BOLD}%-$(TARGET_MAX_CHAR_NUM)s${RESET} ${DIM}%s${RESET}\n", helpCommand, helpMessage; \
+		} \
+	} \
+	{ lastLine = $$0 }' $(MAKEFILE_LIST)
+	@echo ''
+
+art:
+	@echo '${GREEN}'
+	@echo '█▀█ █▀█ █▀█ ░░█ █▀▀ █▀▀ ▀█▀   █▀▄▀█ █▀█ █▄░█ █▀█'
+	@echo '█▀▀ █▀▄ █▄█ █▄█ ██▄ █▄▄ ░█░   █░▀░█ █▄█ █░▀█ █▄█'
+	@echo '${RESET}'
+	
 # ========== CODE QUALITY ==================================================== #
 
 BADGE=pipenv run genbadge
@@ -15,7 +50,8 @@ R_COV=reports/coverage/
 R_F8=reports/flake8/
 R_PL=reports/pylint/
 
-qa-tests-ff:  ## Run all test suites, with multithreading and failfast
+## Run all test suites, with multithreading and failfast
+tests-ff:
 	@export APP_ENV=TEST \
 		&& cd mono \
 		&& pipenv run python manage.py test --parallel 12 --failfast
@@ -34,15 +70,26 @@ _pylint:
 	@cat /dev/null > mono/$(R_PL)pylint.txt
 	@pipenv run pylint --rcfile=.pylintrc --output-format=text mono | tee mono/$(R_PL)pylint.txt \
 
+## Run pylint on given app
 pylint-app: list-apps
 	@echo Choose app: \
 		&& read APP \
 		&& pipenv run pylint mono/$$APP --exit-zero
 
+## Run tests on given app
+test-app: list-apps
+	@echo Choose app: \
+		&& read APP \
+		&& export APP_ENV=TEST \
+		&& export TEST_OUTPUT_VERBOSE=3 \
+		&& export TEST_RUNNER=redgreenunittest.django.runner.RedGreenDiscoverRunner \
+		&& cd mono \
+		&& pipenv run python manage.py test -v 2 pylint $$APP --force-color
+
 _tests:
 	@export APP_ENV=TEST \
 		&& cd mono \
-		&& pipenv run python manage.py test
+		&& pipenv run python manage.py test -v 2 --force-color
 
 _tests-badge:
 	@$(BADGE) tests -v -i mono/$(R_JUNIT)junit.xml -o mono/$(R_JUNIT)junit-badge.svg
@@ -62,19 +109,24 @@ _open-coverage-report:
 		&& $(COV) html \
 		&& google-chrome htmlcov/index.html
 
-qa-flake8: _flake8  ## Run flake8 and generate badge
+## Run flake8 and generate badge
+flake8: _flake8
 	@$(BADGE) flake8 -v -i mono/$(R_F8)flake8stats.txt -o mono/$(R_F8)flake8-badge.svg
 
-qa-pylint: _pylint  ## Run pylint and generate badge
+## Run pylint and generate badge
+pylint: _pylint
 	@export score=$$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' mono/$(R_PL)pylint.txt) \
 		&& echo "Pylint score was $$score" \
 		&& pipenv run anybadge --value=$$score --file=mono/$(R_PL)pylint-badge.svg --label pylint -o
 
-qa-tests: _tests _tests-badge  ## Run all test suites and generate badge
+## Run all test suites and generate badge
+tests: _tests _tests-badge
 
-qa-coverage: _coverage _coverage-badge  ## Run all test suites with coverage and generate badge
+## Run all test suites with coverage and generate badge
+coverage: _coverage _coverage-badge
 
-qa-full: _isort qa-flake8 qa-pylint qa-coverage _tests-badge  ## Run all quality checks, generating reports and badges
+## Run all quality checks, generating reports and badges
+qa: art _isort flake8 pylint coverage _tests-badge
 
 # ========== CODE QUALITY ==================================================== #
 
@@ -83,17 +135,29 @@ qa-full: _isort qa-flake8 qa-pylint qa-coverage _tests-badge  ## Run all quality
 
 DJANGO=export APP_ENV=DEV && pipenv run python mono/manage.py
 
-django-superuser:  ## Create superuser
+## Create superuser
+django-superuser:
 	@$(DJANGO) createsuperuser
 
-django-devserver:  ## Run development server
+## Run development server
+django-devserver:
 	@$(DJANGO) runserver 127.0.0.42:8080
 
-django-migrations:  ## Write migration files
+## Write migration files
+django-migrations:
 	@$(DJANGO) makemigrations
 
-django-migrate:  ## Apply all migrations
+## Apply all migrations
+django-migrate:
 	@$(DJANGO) migrate
+
+## Apply all migrations
+django-squash: list-apps
+	@echo Choose app: \
+		&& read APP \
+		&& echo Choose migration: \
+		&& read MIGRATION \
+		&& $(DJANGO) squashmigrations $$APP $$MIGRATION
 
 # ========== DJANGO ========================================================== #
 
@@ -111,30 +175,47 @@ update:
 
 # ========== GIT ============================================================= #
 
-commit:  ## Stage, commit, bump version and push changes
+## Stage, commit, bump version and push changes
+commit: art
 	@git add . 
 	@pipenv run cz c
 	@pipenv run cz bump -ch
 	@git push origin --tags
 	@git push
 
-pull-request:  ## Create pull request
+## Create pull request
+pr: art
 	@gh pr create \
 		--fill \
 		--base master \
 
-pull:  ## Pull changes
+## Pull changes
+pull: art
 	@git reset HEAD --hard
 	@git pull
 
-last-commit:  ## Show last commit
+## Show last commit
+last-commit:
 	@git log --pretty=format:"%H" -1 | grep -o '^[a-z0-9]*'
 
 mark-as-deployed:
 	$(DJANGO) mark_as_deployed
 
-ssh:
+## Connect to Production server
+ssh: art
 	@ssh kimura@ssh.pythonanywhere.com
+
+build:
+	@git switch master
+	@git reset HEAD --hard
+	@git pull
+	@pipenv install
+	@pipenv run python mono/manage.py collectstatic --noinput
+	@pipenv run python mono/manage.py makemigrations
+	@pipenv run python mono/manage.py migrate
+	@pipenv run python mono/manage.py mark_as_deployed
+	@touch /var/www/www_monoproject_info_wsgi.py
+	@tail /var/log/www.monoproject.info.server.log -n 100 --follow
 
 # ========== GIT ============================================================= #
 

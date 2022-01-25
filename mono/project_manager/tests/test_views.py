@@ -1,5 +1,10 @@
+from unittest import mock
+
+from __mono.decorators import ignore_warnings
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
+from django.core.files import File
+from django.core.files.storage import Storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.signing import BadSignature, TimestampSigner
 from django.test import RequestFactory, TestCase
@@ -86,6 +91,7 @@ class ViewTests(TestCase):
         request = client.get(f'/pm/project/{project.id}/board/{board.id}/')
         self.assertEqual(request.status_code, 200)
 
+    @ignore_warnings
     def test_board_detail_view_not_assigned_user(self):
         project = Project.objects.create(name='test project', created_by=self.user)
         board = Board.objects.create(
@@ -169,6 +175,7 @@ class ViewTests(TestCase):
             target_status_code=200, fetch_redirect_response=True
         )
 
+    @ignore_warnings
     def test_invite_acceptance_view_no_token(self):
         client = Client()
         client.force_login(self.user)
@@ -181,6 +188,7 @@ class ViewTests(TestCase):
             fetch_redirect_response=True
         )
 
+    @ignore_warnings
     def test_invite_acceptance_view_invalid_token(self):
         client = Client()
         client.force_login(self.user)
@@ -210,6 +218,7 @@ class ProjectListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_project_list_view_post_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -230,6 +239,7 @@ class ProjectDetailApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{project.id}/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_project_detail_view_get_not_allowed(self):
         project = Project.objects.create(name='test project', created_by=self.user)
         User.objects.create_user(username="test2", email="test2@test.com", password="supersecret")
@@ -239,6 +249,7 @@ class ProjectDetailApiViewTests(APITestCase):
         self.assertEqual(request.status_code, 403)
         self.assertEqual(str(request.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_project_detail_view_get_invalid_project(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -256,6 +267,7 @@ class ProjectDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['name'], 'test project changed')
 
+    @ignore_warnings
     def test_project_detail_view_put_invalid_data(self):
         project = Project.objects.create(name='test project', created_by=self.user)
         client = APIClient()
@@ -266,6 +278,7 @@ class ProjectDetailApiViewTests(APITestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+    @ignore_warnings
     def test_project_detail_view_put_not_allowed(self):
         project = Project.objects.create(name='test project', created_by=self.user)
         User.objects.create_user(username="test4", email="test4@test.com", password="supersecret")
@@ -283,6 +296,7 @@ class ProjectDetailApiViewTests(APITestCase):
         self.assertEqual(request.status_code, 200)
         self.assertTrue(request.json()['success'])
 
+    @ignore_warnings
     def test_project_detail_view_delete_not_allowed(self):
         project = Project.objects.create(name='test project', created_by=self.user)
         User.objects.create_user(username="test5", email="test5@test.com", password="supersecret")
@@ -306,6 +320,7 @@ class BoardListApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_board_list_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -323,6 +338,7 @@ class BoardListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_board_list_view_post_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -333,6 +349,7 @@ class BoardListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_board_list_view_post_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -356,12 +373,14 @@ class BoardDetailApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_board_detail_view_get_invalid_board(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/9999999/')
         self.assertEqual(response.status_code, 404)
 
+    @ignore_warnings
     def test_board_detail_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -379,6 +398,7 @@ class BoardDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_board_detail_view_put_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -389,6 +409,7 @@ class BoardDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_board_detail_view_put_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -406,6 +427,7 @@ class BoardDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_board_detail_view_patch_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -416,6 +438,7 @@ class BoardDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_board_detail_view_patch_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -424,6 +447,7 @@ class BoardDetailApiViewTests(APITestCase):
             {'name': ''})
         self.assertEqual(response.status_code, 400)
 
+    @ignore_warnings
     def test_board_detail_view_delete(self):
         board = Board.objects.create(name='test board to delete', created_by=self.user, project=self.project)
         client = APIClient()
@@ -432,6 +456,7 @@ class BoardDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Board.objects.filter(id=board.id).exists())
 
+    @ignore_warnings
     def test_board_detail_view_delete_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -456,12 +481,14 @@ class BoardLastUpdatedDetailApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/last-updated/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_board_last_update_view_get_invalid_board(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/9999999/last-updated/')
         self.assertEqual(response.status_code, 404)
 
+    @ignore_warnings
     def test_board_last_update_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -490,6 +517,7 @@ class BucketListApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_bucket_list_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -516,6 +544,7 @@ class BucketListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_bucket_list_view_post_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -526,6 +555,7 @@ class BucketListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_bucket_list_view_post_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -560,12 +590,14 @@ class BucketDetailApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_bucket_detail_view_get_invalid_bucket(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/99999999/')
         self.assertEqual(response.status_code, 404)
 
+    @ignore_warnings
     def test_bucket_detail_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -592,6 +624,7 @@ class BucketDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_bucket_detail_view_put_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -602,6 +635,7 @@ class BucketDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_bucket_detail_view_put_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -623,6 +657,7 @@ class BucketDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 204)
         self.assertFalse(Bucket.objects.filter(id=bucket.id).exists())
 
+    @ignore_warnings
     def test_bucket_detail_view_delete_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -652,6 +687,7 @@ class TagListApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/tags/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_tag_list_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -678,6 +714,7 @@ class TagListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_tag_list_view_post_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -688,6 +725,7 @@ class TagListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_tag_list_view_post_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -725,12 +763,14 @@ class TagDetailApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/tags/{self.tag.id}/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_tag_detail_view_get_invalid_tag(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/tags/99999999/')
         self.assertEqual(response.status_code, 404)
 
+    @ignore_warnings
     def test_tag_detail_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -757,6 +797,7 @@ class TagDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_tag_detail_view_put_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -767,6 +808,7 @@ class TagDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_tag_detail_view_put_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -775,6 +817,7 @@ class TagDetailApiViewTests(APITestCase):
             {'name': ''})
         self.assertEqual(response.status_code, 400)
 
+    @ignore_warnings
     def test_tag_detail_view_delete(self):
         tag = Tag.objects.create(
             name='test tag to delete',
@@ -789,6 +832,7 @@ class TagDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 204)
         self.assertFalse(Tag.objects.filter(id=tag.id).exists())
 
+    @ignore_warnings
     def test_tag_detail_view_delete_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -818,6 +862,7 @@ class CardListApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_card_list_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -844,6 +889,7 @@ class CardListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_card_list_view_post_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -854,6 +900,7 @@ class CardListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_card_list_view_post_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -894,12 +941,14 @@ class CardDetailApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_card_detail_view_get_invalid_card(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/9999999/')
         self.assertEqual(response.status_code, 404)
 
+    @ignore_warnings
     def test_card_detail_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -944,6 +993,7 @@ class CardDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_card_detail_view_put_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -954,6 +1004,7 @@ class CardDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_card_detail_view_put_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -970,6 +1021,7 @@ class CardDetailApiViewTests(APITestCase):
             {'name': 'test', 'bucket': self.bucket.id})
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_card_detail_view_patch_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -980,6 +1032,7 @@ class CardDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_card_detail_view_patch_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1001,6 +1054,7 @@ class CardDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 204)
         self.assertFalse(Card.objects.filter(id=card.id).exists())
 
+    @ignore_warnings
     def test_card_detail_view_delete_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1031,6 +1085,7 @@ class ItemListApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_item_list_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1048,6 +1103,7 @@ class ItemListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_item_list_view_post_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1058,6 +1114,7 @@ class ItemListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_item_list_view_post_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1104,12 +1161,14 @@ class ItemDetailApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/{self.item.id}/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_item_detail_view_get_invalid_item(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/items/999999/')
         self.assertEqual(response.status_code, 404)
 
+    @ignore_warnings
     def test_item_detail_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1127,6 +1186,7 @@ class ItemDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_item_detail_view_put_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1137,6 +1197,7 @@ class ItemDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_item_detail_view_put_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1154,6 +1215,7 @@ class ItemDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_item_detail_view_patch_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1164,6 +1226,7 @@ class ItemDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_item_detail_view_patch_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1185,6 +1248,7 @@ class ItemDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 204)
         self.assertFalse(Item.objects.filter(id=item.id).exists())
 
+    @ignore_warnings
     def test_item_detail_view_delete_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1215,6 +1279,7 @@ class TimeEntryListApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/time-entries/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_time_entry_list_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1232,6 +1297,7 @@ class TimeEntryListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_time_entry_list_view_post_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1242,6 +1308,7 @@ class TimeEntryListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_time_entry_list_view_post_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1287,12 +1354,14 @@ class TimeEntryDetailApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/time-entries/{self.time_entry.id}/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_time_entry_detail_view_get_invalid_time_entry(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/time-entries/999999/')
         self.assertEqual(response.status_code, 404)
 
+    @ignore_warnings
     def test_time_entry_detail_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1310,6 +1379,7 @@ class TimeEntryDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_time_entry_detail_view_put_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1320,6 +1390,7 @@ class TimeEntryDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_time_entry_detail_view_put_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1337,6 +1408,7 @@ class TimeEntryDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['name'], 'test')
 
+    @ignore_warnings
     def test_time_entry_detail_view_patch_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1347,6 +1419,7 @@ class TimeEntryDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_time_entry_detail_view_patch_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1367,6 +1440,7 @@ class TimeEntryDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 204)
         self.assertFalse(TimeEntry.objects.filter(id=time_entry.id).exists())
 
+    @ignore_warnings
     def test_time_entry_detail_view_delete_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1398,6 +1472,7 @@ class CommentListApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/comments/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_comment_list_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1415,6 +1490,7 @@ class CommentListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['text'], 'test')
 
+    @ignore_warnings
     def test_comment_list_view_post_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1425,6 +1501,7 @@ class CommentListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_comment_list_view_post_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1470,12 +1547,14 @@ class CommentDetailApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/comments/{self.comment.id}/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_comment_detail_view_get_invalid_comment(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/comments/999999/')
         self.assertEqual(response.status_code, 404)
 
+    @ignore_warnings
     def test_comment_detail_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1493,6 +1572,7 @@ class CommentDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['text'], 'test')
 
+    @ignore_warnings
     def test_comment_detail_view_patch_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1503,6 +1583,7 @@ class CommentDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_comment_detail_view_patch_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1523,6 +1604,7 @@ class CommentDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 204)
         self.assertFalse(Comment.objects.filter(id=comment.id).exists())
 
+    @ignore_warnings
     def test_comment_detail_view_delete_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1540,6 +1622,15 @@ class CardFileListApiViewTests(APITestCase):
     ]
 
     def setUp(self) -> None:
+        self.file_mock = mock.MagicMock(spec=File, name='FileMock')
+        self.file_mock.name = 'test1.jpg'
+        self.field_mock = mock.MagicMock(name='get_db_prep_save')
+        self.field_mock.return_value = 'test1.jpg'
+        self.imghdr_mock = mock.MagicMock(name='what')
+        self.imghdr_mock.return_value = '.jpg'
+        self.storage_mock = mock.MagicMock(spec=Storage, name='StorageMock')
+        self.storage_mock.url = mock.MagicMock(name='url')
+        self.storage_mock.url.return_value = '/tmp/test1.jpg'
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -1554,6 +1645,7 @@ class CardFileListApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/files/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_file_list_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1565,11 +1657,15 @@ class CardFileListApiViewTests(APITestCase):
     def test_file_list_view_post(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
-        response = client.post(
-            f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/files/',
-            {'file': self.file, 'card': self.card.id})
+        with mock.patch('django.core.files.storage.default_storage._wrapped', self.storage_mock):
+            with mock.patch('django.db.models.FileField.get_db_prep_save', self.field_mock):
+                with mock.patch('imghdr.what', self.imghdr_mock):
+                    response = client.post(
+                        f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/files/',
+                        {'file': self.file, 'card': self.card.id})
         self.assertEqual(response.status_code, 201)
 
+    @ignore_warnings
     def test_file_list_view_post_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1580,6 +1676,7 @@ class CardFileListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(str(response.json()), 'User not allowed')
 
+    @ignore_warnings
     def test_file_list_view_post_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1597,6 +1694,17 @@ class CardFileDetailApiViewTests(APITestCase):
     ]
 
     def setUp(self) -> None:
+        self.file_mock = mock.MagicMock(spec=File, name='FileMock')
+        self.file_mock.name = 'test1.jpg'
+        self.another_file_mock = mock.MagicMock(spec=File, name='FileMock')
+        self.another_file_mock.name = 'another.jpg'
+        self.field_mock = mock.MagicMock(name='get_db_prep_save')
+        self.field_mock.return_value = 'test1.jpg'
+        self.another_field_mock = mock.MagicMock(name='get_db_prep_save')
+        self.another_field_mock.return_value = 'another.jpg'
+        self.storage_mock = mock.MagicMock(spec=Storage, name='StorageMock')
+        self.storage_mock.url = mock.MagicMock(name='url')
+        self.storage_mock.url.return_value = '/tmp/test1.jpg'
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -1612,29 +1720,35 @@ class CardFileDetailApiViewTests(APITestCase):
             bucket=self.bucket,
             order=1,
         )
-        self.file = CardFile.objects.create(
-            file=SimpleUploadedFile('test.txt', b'test file'),
-            card=self.card,
-        )
+        with mock.patch('django.core.files.storage.default_storage._wrapped', self.storage_mock):
+            with mock.patch('django.db.models.FileField.get_db_prep_save', self.field_mock):
+                self.file = CardFile.objects.create(
+                    file=self.file_mock,
+                    card=self.card,
+                )
         self.theme = Theme.objects.first()
 
     def test_file_detail_view_delete(self):
-        file = CardFile.objects.create(
-            file=SimpleUploadedFile('anothertest.txt', b'test file'),
-            card=self.card,
-        )
+        with mock.patch('django.core.files.storage.default_storage._wrapped', self.storage_mock):
+            with mock.patch('django.db.models.FileField.get_db_prep_save', self.another_field_mock):
+                file = CardFile.objects.create(
+                    file=self.another_file_mock,
+                    card=self.card,
+                )
         client = APIClient()
         client.login(username='test', password='supersecret')
         response = client.delete(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/files/{file.id}/')
         self.assertEqual(response.status_code, 204)
         self.assertFalse(CardFile.objects.filter(id=file.id).exists())
 
+    @ignore_warnings
     def test_file_detail_view_delete_not_exist(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
         response = client.delete(f'/pm/api/projects/{self.project.id}/boards/{self.board.id}/buckets/{self.bucket.id}/cards/{self.card.id}/files/99999/')
         self.assertEqual(response.status_code, 404)
 
+    @ignore_warnings
     def test_file_detail_view_delete_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -1691,6 +1805,7 @@ class ItemCheckApiViewTests(APITestCase):
             {'checked': 'false'})
         self.assertEqual(response.status_code, 204)
 
+    @ignore_warnings
     def test_item_check_view_invalid_item(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1699,6 +1814,7 @@ class ItemCheckApiViewTests(APITestCase):
             {'checked': 'true'})
         self.assertEqual(response.status_code, 404)
 
+    @ignore_warnings
     def test_item_check_view_invalid_request(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1707,6 +1823,7 @@ class ItemCheckApiViewTests(APITestCase):
             {'checked': 'None'})
         self.assertEqual(response.status_code, 400)
 
+    @ignore_warnings
     def test_item_check_view_not_allowed_user(self):
         User.objects.create_user(username="forbidden", email="forbidden@test.com", password="supersecret")
         client = APIClient()
@@ -1925,6 +2042,7 @@ class CardMoveApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['success'])
 
+    @ignore_warnings
     def test_card_move_invalid_card(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1940,6 +2058,7 @@ class CardMoveApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['card'][0], 'Invalid card')
 
+    @ignore_warnings
     def test_card_move_invalid_order(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1955,6 +2074,7 @@ class CardMoveApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['order'][0], 'Invalid order')
 
+    @ignore_warnings
     def test_card_move_invalid_source_bucket(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1970,6 +2090,7 @@ class CardMoveApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['source_bucket'][0], 'Invalid bucket')
 
+    @ignore_warnings
     def test_card_move_invalid_target_bucket(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -1985,6 +2106,7 @@ class CardMoveApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['target_bucket'][0], 'Invalid bucket')
 
+    @ignore_warnings
     def test_card_move_user_not_allowed_in_source_bucket(self):
         user = User.objects.create_user(username="not_allowed_source_bucket", email="test@test.com", password="supersecret")
         project = Project.objects.create(name='not_allowed_source_bucket', created_by=user)
@@ -2009,6 +2131,7 @@ class CardMoveApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['non_field_errors'][0], 'User not allowed')
 
+    @ignore_warnings
     def test_card_move_user_not_allowed_in_target_bucket(self):
         user = User.objects.create_user(username="not_allowed_target_bucket", email="test@test.com", password="supersecret")
         project = Project.objects.create(name='not_allowed_target_bucket', created_by=user)
@@ -2067,6 +2190,7 @@ class BucketMoveApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['order'], 2)
 
+    @ignore_warnings
     def test_bucket_move_invalid_bucket(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -2081,6 +2205,7 @@ class BucketMoveApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['bucket'][0], 'Invalid bucket')
 
+    @ignore_warnings
     def test_bucket_move_invalid_board(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -2095,6 +2220,7 @@ class BucketMoveApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['board'][0], 'Invalid board')
 
+    @ignore_warnings
     def test_bucket_move_invalid_order(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -2109,6 +2235,7 @@ class BucketMoveApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['order'][0], 'Invalid order')
 
+    @ignore_warnings
     def test_bucket_move_user_not_allowed(self):
         User.objects.create_user(username="not_allowed", email="not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -2124,6 +2251,7 @@ class BucketMoveApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['non_field_errors'][0], 'User not allowed')
 
+    @ignore_warnings
     def test_bucket_move_bucket_outside_board(self):
         outside_board = Board.objects.create(name='outside_board', created_by=self.user, project=self.project)
         client = APIClient()
@@ -2180,6 +2308,7 @@ class StartStopTimerAPIViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['success'])
 
+    @ignore_warnings
     def test_start_stop_timer_invalid_card(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -2188,6 +2317,7 @@ class StartStopTimerAPIViewTests(APITestCase):
         )
         self.assertEqual(response.status_code, 404)
 
+    @ignore_warnings
     def test_start_stop_timer_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -2211,6 +2341,7 @@ class InviteListApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/invites/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_invite_list_view_get_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -2228,6 +2359,7 @@ class InviteListApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['email'], 'test@test.com')
 
+    @ignore_warnings
     def test_invite_list_view_post_not_allowed(self):
         User.objects.create_user(username="test_not_allowed", email="test_not_allowed@test.com", password="supersecret")
         client = APIClient()
@@ -2238,6 +2370,7 @@ class InviteListApiViewTests(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    @ignore_warnings
     def test_invite_list_view_post_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -2259,12 +2392,14 @@ class InviteDetailApiViewTests(APITestCase):
         response = client.get(f'/pm/api/projects/{self.project.id}/invites/{self.invite.id}/')
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_invite_detail_view_get_invalid_invite(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
         response = client.get(f'/pm/api/projects/{self.project.id}/invites/999999/')
         self.assertEqual(response.status_code, 404)
 
+    @ignore_warnings
     def test_invite_detail_view_get_not_allowed(self):
         User.objects.create_user(username="test2", email="test2@test.com", password="supersecret")
         client = APIClient()
@@ -2283,6 +2418,7 @@ class InviteDetailApiViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['email'], 'asd@asd.com')
 
+    @ignore_warnings
     def test_invite_detail_view_put_invalid_data(self):
         client = APIClient()
         client.login(username='test', password='supersecret')
@@ -2292,6 +2428,7 @@ class InviteDetailApiViewTests(APITestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+    @ignore_warnings
     def test_invite_detail_view_put_not_allowed(self):
         User.objects.create_user(username="test4", email="test4@test.com", password="supersecret")
         client = APIClient()
@@ -2307,6 +2444,7 @@ class InviteDetailApiViewTests(APITestCase):
         request = client.delete(f'/pm/api/projects/{self.project.id}/invites/{invite.id}/')
         self.assertEqual(request.status_code, 204)
 
+    @ignore_warnings
     def test_invite_detail_view_delete_not_allowed(self):
         User.objects.create_user(username="test5", email="test5@test.com", password="supersecret")
         client = APIClient()

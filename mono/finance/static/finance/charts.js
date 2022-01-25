@@ -136,6 +136,7 @@ function getOptions(data) {
         },
         'chart': {
             'height': 350,
+            'fontFamily': "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
             'toolbar': {
                 'show': false
             }

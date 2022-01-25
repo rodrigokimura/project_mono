@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 from hashlib import sha1
 
+from __mono.decorators import ignore_warnings
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -114,6 +115,7 @@ class GithubWebhookView(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_invalid_signature(self):
         c = Client()
         payload = {'test': True}
@@ -129,6 +131,7 @@ class GithubWebhookView(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    @ignore_warnings
     def test_invalid_signature_algorithm(self):
         c = Client()
         payload = {'test': True}
@@ -144,6 +147,7 @@ class GithubWebhookView(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    @ignore_warnings
     def test_invalid_event(self):
         c = Client()
         payload = {'test': True}
@@ -176,6 +180,63 @@ class HealthCheckView(TestCase):
         self.assertContains(response, 'build_number')
 
 
+class HomePageView(TestCase):
+
+    fixtures = ["icon", "project_manager_icons"]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create(username="notsuperuser", email="test@test.com")
+        self.superuser = User.objects.create(username="superuser", email="test@test.com")
+        self.superuser.is_superuser = True
+        self.superuser.save()
+
+    @ignore_warnings
+    def test_get(self):
+        c = Client()
+        c.force_login(self.superuser)
+        response = c.get('/hc/home/')
+        self.assertEqual(response.status_code, 200)
+
+    @ignore_warnings
+    def test_get_forbidden(self):
+        c = Client()
+        c.force_login(self.user)
+        response = c.get('/hc/home/')
+        self.assertEqual(response.status_code, 403)
+
+
+class CommitsByDateView(TestCase):
+
+    fixtures = ["icon", "project_manager_icons"]
+
+    def setUp(self) -> None:
+        self.user = User.objects.create(username="notsuperuser", email="test@test.com")
+        self.superuser = User.objects.create(username="superuser", email="test@test.com")
+        self.superuser.is_superuser = True
+        self.superuser.save()
+
+    @ignore_warnings
+    def test_get(self):
+        c = Client()
+        c.force_login(self.superuser)
+        response = c.get('/hc/api/commits/by-date/', {'date': '2020-01-01'})
+        self.assertEqual(response.status_code, 200)
+
+    @ignore_warnings
+    def test_get_bad_request(self):
+        c = Client()
+        c.force_login(self.superuser)
+        response = c.get('/hc/api/commits/by-date/')
+        self.assertEqual(response.status_code, 400)
+
+    @ignore_warnings
+    def test_get_forbidden(self):
+        c = Client()
+        c.force_login(self.user)
+        response = c.get('/hc/api/commits/by-date/', {'date': '2020-01-01'})
+        self.assertEqual(response.status_code, 403)
+
+
 class DeployView(TestCase):
 
     fixtures = ["icon", "project_manager_icons"]
@@ -190,6 +251,7 @@ class DeployView(TestCase):
             merged_at=timezone.now()
         )
 
+    @ignore_warnings
     def test_invalid_user(self):
         c = Client()
         c.force_login(self.user)
