@@ -79,7 +79,7 @@ pylint-app: list-apps
 _tests:
 	@export APP_ENV=TEST \
 		&& cd mono \
-		&& pipenv run python manage.py test
+		&& pipenv run python manage.py test -v 2
 
 _tests-badge:
 	@$(BADGE) tests -v -i mono/$(R_JUNIT)junit.xml -o mono/$(R_JUNIT)junit-badge.svg
