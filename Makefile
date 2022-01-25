@@ -1,30 +1,46 @@
+.PHONY: tput
+
 export PIPENV_VERBOSITY=-1
 export PIPENV_IGNORE_VIRTUALENVS=1
 export DJANGO_SETTINGS_MODULE=__mono.settings
 
+RED := $(shell tput -Txterm setaf 1)
 GREEN  := $(shell tput -Txterm setaf 2)
-YELLOW := $(shell tput -Txterm setaf 3)
-WHITE  := $(shell tput -Txterm setaf 7)
+ORANGE := $(shell tput -Txterm setaf 3)
+BLUE := $(shell tput -Txterm setaf 4)
+PURPLE := $(shell tput -Txterm setaf 5)
+CYAN := $(shell tput -Txterm setaf 6)
+WHITE := $(shell tput -Txterm setaf 7)
+BOLD  := $(shell tput bold)
+DIM  := $(shell tput dim)
 RESET  := $(shell tput -Txterm sgr0)
 
 TARGET_MAX_CHAR_NUM=20
 
 ## Show help
-help:
+help: art
 	@echo ''
-	@echo 'Usage:'
-	@echo '  ${YELLOW}make${RESET} ${GREEN}<target>${RESET}'
+	@echo '${DIM}Usage:${RESET}'
+	@echo '    ${GREY}make${RESET} ${CYAN}${BOLD}[target]${RESET}'
 	@echo ''
-	@echo 'Targets:'
-	@awk '/^[a-zA-Z\-\_0-9]+:/ { \
+	@echo '${DIM}Targets:${RESET}'
+	@awk '/^[a-zA-Z\-0-9]+:/ { \
 		helpMessage = match(lastLine, /^## (.*)/); \
 		if (helpMessage) { \
 			helpCommand = substr($$1, 0, index($$1, ":")-1); \
 			helpMessage = substr(lastLine, RSTART + 3, RLENGTH); \
-			printf "  ${YELLOW}%-$(TARGET_MAX_CHAR_NUM)s${RESET} ${GREEN}%s${RESET}\n", helpCommand, helpMessage; \
+			printf "    ${CYAN}${BOLD}%-$(TARGET_MAX_CHAR_NUM)s${RESET} ${DIM}%s${RESET}\n", helpCommand, helpMessage; \
 		} \
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
+	@echo ''
+
+art:
+	@echo '${GREEN}'
+	@echo '█▀█ █▀█ █▀█ ░░█ █▀▀ █▀▀ ▀█▀   █▀▄▀█ █▀█ █▄░█ █▀█'
+	@echo '█▀▀ █▀▄ █▄█ █▄█ ██▄ █▄▄ ░█░   █░▀░█ █▄█ █░▀█ █▄█'
+	@echo '${RESET}'
+	
 # ========== CODE QUALITY ==================================================== #
 
 BADGE=pipenv run genbadge
@@ -100,7 +116,7 @@ qa-tests: _tests _tests-badge
 qa-coverage: _coverage _coverage-badge
 
 ## Run all quality checks, generating reports and badges
-qa: _isort qa-flake8 qa-pylint qa-coverage _tests-badge
+qa: art _isort qa-flake8 qa-pylint qa-coverage _tests-badge
 
 # ========== CODE QUALITY ==================================================== #
 
@@ -142,7 +158,7 @@ update:
 # ========== GIT ============================================================= #
 
 ## Stage, commit, bump version and push changes
-commit:
+commit: art
 	@git add . 
 	@pipenv run cz c
 	@pipenv run cz bump -ch
@@ -150,13 +166,13 @@ commit:
 	@git push
 
 ## Create pull request
-pr:
+pr: art
 	@gh pr create \
 		--fill \
 		--base master \
 
 ## Pull changes
-pull:
+pull: art
 	@git reset HEAD --hard
 	@git pull
 
@@ -168,7 +184,7 @@ mark-as-deployed:
 	$(DJANGO) mark_as_deployed
 
 ## Connect to Production server
-ssh:
+ssh: art
 	@ssh kimura@ssh.pythonanywhere.com
 
 # ========== GIT ============================================================= #
