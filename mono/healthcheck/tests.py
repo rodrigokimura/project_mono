@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 from hashlib import sha1
 
+from __mono.decorators import ignore_warnings
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -114,6 +115,7 @@ class GithubWebhookView(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_invalid_signature(self):
         c = Client()
         payload = {'test': True}
@@ -129,6 +131,7 @@ class GithubWebhookView(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    @ignore_warnings
     def test_invalid_signature_algorithm(self):
         c = Client()
         payload = {'test': True}
@@ -144,6 +147,7 @@ class GithubWebhookView(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    @ignore_warnings
     def test_invalid_event(self):
         c = Client()
         payload = {'test': True}
@@ -190,6 +194,7 @@ class DeployView(TestCase):
             merged_at=timezone.now()
         )
 
+    @ignore_warnings
     def test_invalid_user(self):
         c = Client()
         c.force_login(self.user)
