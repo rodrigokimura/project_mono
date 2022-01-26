@@ -1,19 +1,17 @@
-.PHONY: tput
-
 export PIPENV_VERBOSITY=-1
 export PIPENV_IGNORE_VIRTUALENVS=1
 export DJANGO_SETTINGS_MODULE=__mono.settings
 
-RED := $(shell tput -Txterm setaf 1)
-GREEN  := $(shell tput -Txterm setaf 2)
-ORANGE := $(shell tput -Txterm setaf 3)
-BLUE := $(shell tput -Txterm setaf 4)
-PURPLE := $(shell tput -Txterm setaf 5)
-CYAN := $(shell tput -Txterm setaf 6)
-WHITE := $(shell tput -Txterm setaf 7)
-BOLD  := $(shell tput bold)
-DIM  := $(shell tput dim)
-RESET  := $(shell tput -Txterm sgr0)
+RED		:= $(shell tput -Txterm setaf 1)
+GREEN	:= $(shell tput -Txterm setaf 2)
+ORANGE	:= $(shell tput -Txterm setaf 3)
+BLUE	:= $(shell tput -Txterm setaf 4)
+PURPLE	:= $(shell tput -Txterm setaf 5)
+CYAN	:= $(shell tput -Txterm setaf 6)
+WHITE	:= $(shell tput -Txterm setaf 7)
+BOLD	:= $(shell tput bold)
+DIM		:= $(shell tput dim)
+RESET	:= $(shell tput -Txterm sgr0)
 
 TARGET_MAX_CHAR_NUM=20
 
@@ -218,6 +216,30 @@ build:
 	@tail /var/log/www.monoproject.info.server.log -n 100 --follow | grep 'www_monoproject_info_wsgi.py has been touched'
 
 # ========== GIT ============================================================= #
+
+
+# ========== GITHUB ========================================================== #
+
+## Get last PR number
+last-pr:
+	@gh pr list | tail -n 1 | awk '{print $1}'
+
+## Check if there is any open PR
+check-open-pr:
+ifeq ($(last-pr),)
+	@echo 'No open PRs'
+else
+	@echo 'Open PRs:'
+endif
+
+get-last-pr:
+	@LAST_PR=$(gh pr list -L 1 | grep -o '^[a-z0-9]*')
+
+## Merge current PR
+merge:
+	@gh pr merge -m --auto
+
+# ========== GITHUB ========================================================== #
 
 
 # ==== EXPERIMENTAL FEATURES ====
