@@ -30,11 +30,11 @@ jobs:
       - name: Get current version tag
         run: |
           mono_version=$(pipenv run cz version --project)
-          echo 'Current version is $mono_version'
+          echo Current version is $mono_version
       - name: Commit changes
         uses: EndBug/add-and-commit@v8
         with:
           default_author: github_actions
           message: 'Update changes made by github actions'
           add: '.'
-          tag: '$mono_version'
+          tag: $mono_version
