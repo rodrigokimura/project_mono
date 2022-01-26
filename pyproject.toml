@@ -5,7 +5,8 @@ version = "2.0.1"
 tag_format = "$version"
 version_files = [
     "mono/__mono/settings.py",
-    "pyproject.toml:version"
+    "pyproject.toml:version",
+    "VERSION",
 ]
 style = [
     ["qmark", "fg:#ff9d00 bold"],
