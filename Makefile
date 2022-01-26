@@ -215,7 +215,7 @@ build:
 	@pipenv run python mono/manage.py migrate
 	@pipenv run python mono/manage.py mark_as_deployed
 	@touch /var/www/www_monoproject_info_wsgi.py
-	@tail /var/log/www.monoproject.info.server.log -n 100 --follow
+	@tail /var/log/www.monoproject.info.server.log -n 100 --follow | grep 'www_monoproject_info_wsgi.py has been touched'
 
 # ========== GIT ============================================================= #
 
