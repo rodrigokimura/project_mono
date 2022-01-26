@@ -177,9 +177,7 @@ update:
 commit: art
 	@git add . 
 	@pipenv run cz c
-	@pipenv run cz bump -ch
-	@git push origin --tags
-	@git push
+	@((pipenv run cz bump -ch) && (git push origin --tags) && (git push)) || (git push)
 
 _pr: art
 	@gh pr create \
