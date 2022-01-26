@@ -35,7 +35,7 @@ jobs:
         run: | 
           echo dummy > dummy
           echo '::echo::on'
-          echo 'MONO_VERSION::$(pipenv run cz version --project)' >> $GITHUB_ENV
+          echo 'MONO_VERSION=$(pipenv run cz version --project)' >> $GITHUB_ENV
       - name: Commit changes
         uses: EndBug/add-and-commit@v8
         with:
