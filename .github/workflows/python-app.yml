@@ -32,7 +32,7 @@ jobs:
       #     make qa
       - id: check_version
         name: Check version for possible tagging
-        run: | 
+        run: |
           echo dummy > dummy
           echo '::echo::on'
           echo 'MONO_VERSION=$(pipenv run cz version --project)' >> $GITHUB_ENV
@@ -44,10 +44,15 @@ jobs:
       #     add: '.'
       #     tag: ${pipenv run cz version --project}
       - name: Commit dummy
-        run: |
+        run: | 
           git config --global user.name 'Github Actions'
           git config --global user.email ''
           git add .
+          git fetch --tags -f
           git commit -am "Automated commit"
-          git tag $(pipenv run cz version --project)
-          git push origin --tags -f
+          if [[ $(git ls-remote origin refs/tags/$(pipenv run cz version --project)) ]]; then
+            git push
+          else
+            git tag $(pipenv run cz version --project)
+            git push --tags
+          fi
