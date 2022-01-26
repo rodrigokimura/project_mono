@@ -36,10 +36,16 @@ jobs:
           echo dummy > dummy
           echo '::echo::on'
           echo 'MONO_VERSION=$(pipenv run cz version --project)' >> $GITHUB_ENV
-      - name: Commit changes
-        uses: EndBug/add-and-commit@v8
-        with:
-          default_author: github_actions
-          message: 'Update changes made by Github Actions'
-          add: '.'
-          tag: ${pipenv run cz version --project}
+      # - name: Commit changes
+      #   uses: EndBug/add-and-commit@v8
+      #   with:
+      #     default_author: github_actions
+      #     message: 'Update changes made by Github Actions'
+      #     add: '.'
+      #     tag: ${pipenv run cz version --project}
+      - name: Commit dummy
+        run: |
+          git config --global user.name 'Your Name'
+          git config --global user.email 'your-username@users.noreply.github.com'
+          git commit -am "Automated report"
+          git push origin $(pipenv run cz version --project)
