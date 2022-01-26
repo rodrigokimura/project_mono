@@ -45,7 +45,8 @@ jobs:
       #     tag: ${pipenv run cz version --project}
       - name: Commit dummy
         run: |
-          git config --global user.name 'Your Name'
-          git config --global user.email 'your-username@users.noreply.github.com'
-          git commit -am "Automated report"
+          git config --global user.name 'Github Actions'
+          git config --global user.email ''
+          git add .
+          git commit -am "Automated commit"
           git push origin $(pipenv run cz version --project)
