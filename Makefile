@@ -181,11 +181,17 @@ commit: art
 	@git push origin --tags
 	@git push
 
-## Create pull request
-pr: art
+_pr: art
 	@gh pr create \
 		--fill \
 		--base master \
+
+
+_merge:
+	@gh pr merge -m --auto
+
+## Create pull request and set to auto-merge
+pr: _pr _merge
 
 ## Pull changes
 pull: art
@@ -194,7 +200,20 @@ pull: art
 
 ## Show last commit
 last-commit:
-	@git log --pretty=format:"%H" -1 | grep -o '^[a-z0-9]*'
+	@echo '${RED}'$$(git log --pretty=format:"%H" -1 | grep -o '^[a-z0-9]*')'${RESET}'
+
+PR_INFO_FILTER := 'title\|state\|author'
+
+## Show state and checks of last pull request
+check-pr:
+	@LAST_PR=$$(gh pr list --state all --limit 1  | tail -n 1 | grep -o '^[0-9]*') \
+		&& echo '' \
+		&& echo '${DIM}Showing status for last PR:${RESET}''${RED}' \#$$LAST_PR '${RESET}'\
+		&& echo '' \
+		&& echo "$$(gh pr view $$LAST_PR | head -n 100 | grep ${PR_INFO_FILTER})" | awk 'BEGIN {FS = ":"} {printf "${CYAN}%-20s${RESET} %s\n", $$1, $$2}' \
+		&& echo '' \
+		&& gh pr checks $$LAST_PR \
+		&& echo ''
 
 mark-as-deployed:
 	$(DJANGO) mark_as_deployed
@@ -215,31 +234,8 @@ build:
 	@touch /var/www/www_monoproject_info_wsgi.py
 	@tail /var/log/www.monoproject.info.server.log -n 100 --follow | grep 'www_monoproject_info_wsgi.py has been touched'
 
+
 # ========== GIT ============================================================= #
-
-
-# ========== GITHUB ========================================================== #
-
-## Get last PR number
-last-pr:
-	@gh pr list | tail -n 1 | awk '{print $1}'
-
-## Check if there is any open PR
-check-open-pr:
-ifeq ($(last-pr),)
-	@echo 'No open PRs'
-else
-	@echo 'Open PRs:'
-endif
-
-get-last-pr:
-	@LAST_PR=$(gh pr list -L 1 | grep -o '^[a-z0-9]*')
-
-## Merge current PR
-merge:
-	@gh pr merge -m --auto
-
-# ========== GITHUB ========================================================== #
 
 
 # ==== EXPERIMENTAL FEATURES ====
