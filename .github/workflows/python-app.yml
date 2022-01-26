@@ -49,4 +49,5 @@ jobs:
           git config --global user.email ''
           git add .
           git commit -am "Automated commit"
-          git push origin $(pipenv run cz version --project)
+          git tag $(pipenv run cz version --project)
+          git push origin --tags
