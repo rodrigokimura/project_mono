@@ -30,21 +30,13 @@ jobs:
       #     STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
       #   run: |
       #     make qa
-      - name: Generate version file
-        run: |
-          echo "$(pipenv run cz version --project)" > VERSION
-      - name: Check if version file was corretly created
-        id: check_version
-        run: |
-          echo Current version is $(cat VERSION)
-          echo '::set-output name=VERSION::$(cat VERSION)'
-      - name: Tag last commit
-        run: |
-          echo ${{ steps.check_version.outputs.VERSION }}
+      - id: check_version
+        name: Check version for possible tagging
+        run: echo '::set-output name=VERSION::$(pipenv run cz version --project)'
       - name: Commit changes
-        id: commit_changes
         uses: EndBug/add-and-commit@v8
         with:
           default_author: github_actions
-          message: 'Update changes made by github actions'
+          message: 'Update changes made by Github Actions'
           add: '.'
+          tag: ${{ steps.check_version.outputs.VERSION }}
