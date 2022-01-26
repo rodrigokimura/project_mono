@@ -12,7 +12,7 @@ load_dotenv()
 
 APP_ENV = os.getenv('APP_ENV', 'PRD')
 
-APP_VERSION = "2.0.0"
+APP_VERSION = "2.0.1"
 
 if APP_ENV in ['DEV', 'TEST']:
     GITHUB_SECRET = 'GITHUB_SECRET'
@@ -96,7 +96,6 @@ MIDDLEWARE = [
     'django.contrib.admindocs.middleware.XViewMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'maintenance_mode.middleware.MaintenanceModeMiddleware',
-    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 # INTERNAL_IPS = ['127.0.0.1']
@@ -254,7 +253,7 @@ TEST_RUNNER = os.getenv(
     'TEST_RUNNER',
     'xmlrunner.extra.djangotestrunner.XMLTestRunner'
 )
-TEST_OUTPUT_VERBOSE = int(os.getenv('TEST_OUTPUT_VERBOSE', 1))
+TEST_OUTPUT_VERBOSE = int(os.getenv('TEST_OUTPUT_VERBOSE', '1'))
 TEST_OUTPUT_DIR = os.path.join(BASE_DIR, 'reports', 'junit')
 TEST_OUTPUT_FILE_NAME = 'junit.xml'
 
