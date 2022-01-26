@@ -31,10 +31,14 @@ jobs:
         run: |
           export MONO_VERSION=$(pipenv run cz version --project)
           echo Current version is $MONO_VERSION
+      - name: Check if version was assigned to var
+        run: |
+          echo Current version is ${{ env.MONO_VERSION }}
       - name: Commit changes
         uses: EndBug/add-and-commit@v8
         with:
           default_author: github_actions
           message: 'Update changes made by github actions'
           add: '.'
+          push: origin master
           # tag: ${{ env.MONO_VERSION }}
