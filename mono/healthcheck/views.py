@@ -103,8 +103,9 @@ class Deploy(UserPassesTestMixin, TemplateView):
         context['last_pr'] = PullRequest.objects.latest('number')
         pull_requests = PullRequest.objects.all()
         context['pull_requests'] = pull_requests
-        context_data = format_to_heatmap(
-            lambda date: pull_requests.filter(
+
+        def _get_commits_by_date(pull_requests, date):
+            return pull_requests.filter(
                 merged_at__date=date
             ).aggregate(
                 sum=Coalesce(
@@ -113,6 +114,10 @@ class Deploy(UserPassesTestMixin, TemplateView):
                     output_field=IntegerField()
                 )
             )['sum']
+
+        context_data = format_to_heatmap(
+            pull_requests,
+            _get_commits_by_date,
         )
         context = {**context_data, **context}
         return context
