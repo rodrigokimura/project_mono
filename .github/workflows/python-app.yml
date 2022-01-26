@@ -50,4 +50,4 @@ jobs:
           git add .
           git commit -am "Automated commit"
           git tag $(pipenv run cz version --project)
-          git push origin --tags
+          git push origin --tags -f
