@@ -392,4 +392,10 @@ MARKDOWNX_MARKDOWN_EXTENSIONS = [
     'markdown.extensions.extra',
     'markdown_checklist.extension',
 ]
+
+if APP_ENV == 'TEST':
+
+    import warnings
+
+    warnings.simplefilter("ignore", Warning)
  
