@@ -24,12 +24,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install pipenv
           pipenv install --dev
-      # - name: Run tests
-      #   env:
-      #     APP_ENV: TEST
-      #     STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-      #   run: |
-      #     make qa
+      - name: Run tests
+        env:
+          APP_ENV: TEST
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: |
+          make qa
       - id: check_version
         name: Check version for possible tagging
         run: echo '::set-output name=VERSION::$(pipenv run cz version --project)'
