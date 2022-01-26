@@ -96,7 +96,6 @@ MIDDLEWARE = [
     'django.contrib.admindocs.middleware.XViewMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'maintenance_mode.middleware.MaintenanceModeMiddleware',
-    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 # INTERNAL_IPS = ['127.0.0.1']
@@ -393,9 +392,4 @@ MARKDOWNX_MARKDOWN_EXTENSIONS = [
     'markdown.extensions.extra',
     'markdown_checklist.extension',
 ]
-
-if APP_ENV == 'TEST':
-
-    import warnings
-
-    warnings.simplefilter("ignore", Warning)
+ 
