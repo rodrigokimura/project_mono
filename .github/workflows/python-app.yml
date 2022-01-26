@@ -42,4 +42,4 @@ jobs:
           default_author: github_actions
           message: 'Update changes made by Github Actions'
           add: '.'
-          tag: '$(pipenv run cz version --project)'
+          tag: ${pipenv run cz version --project}
