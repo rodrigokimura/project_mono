@@ -1,7 +1,7 @@
 """Utility functions for healthcheck."""
 import time
 from datetime import datetime, timedelta
-from typing import Callable
+from typing import Any, Callable, Dict, List
 
 from django.conf import settings
 from git import Repo
@@ -16,7 +16,10 @@ def _int_to_date(i: int):
     ).date()
 
 
-def format_to_heatmap(get_data_by_date: Callable[[datetime.date], int]):
+def format_to_heatmap(
+    collection: List[Any],
+    get_data_by_date: Callable[[List[Any], datetime.date], int]
+) -> Dict[str, List[Dict[str, int]]]:
     """Format data to heatmap."""
     temp_date = datetime.today() - timedelta(weeks=52)
     initial_date = datetime.fromisocalendar(
@@ -31,8 +34,8 @@ def format_to_heatmap(get_data_by_date: Callable[[datetime.date], int]):
         for i in range(7)
     }
     for i in range(days + 1):
-        date = initial_date + timedelta(days=i)
-        data = get_data_by_date(date)
+        date = (initial_date + timedelta(days=i)).date()
+        data = get_data_by_date(collection, date)
         context_data[f'data_{i % 7}'].append(
             {'d': date, 'c': data}
         )
@@ -54,8 +57,12 @@ def get_commits_context():
         commits
     ))
 
+    def _get_commits_by_date(commits, date):
+        return len(list(filter(lambda commit: commit['dt'] == date, commits)))
+
     context_data = format_to_heatmap(
-        lambda date: len(list(filter(lambda commit: commit['dt'] == date, commits)))
+        commits,
+        _get_commits_by_date
     )
     return context_data
 
