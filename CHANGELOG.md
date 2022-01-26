@@ -1,3 +1,9 @@
+## 2.0.1 (2022-01-26)
+
+### Fix
+
+- **mono**: suppress warnings on tests
+
 ## 2.0.0 (2022-01-25)
 
 ### Refactor
