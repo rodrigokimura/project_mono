@@ -9,6 +9,8 @@
 [![Tests Status](mono/reports/junit/junit-badge.svg?dummy=8484744)](#)
 [![Coverage Status](mono/reports/coverage/coverage-badge.svg?dummy=8484744)](#)
 
+[![Python application](https://github.com/rodrigokimura/project_mono/actions/workflows/python-app.yml/badge.svg)](https://github.com/rodrigokimura/project_mono/actions/workflows/python-app.yml)
+
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
 # Project Mono
