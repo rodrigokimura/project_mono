@@ -70,13 +70,13 @@ _pylint:
 
 ## Run pylint on given app
 pylint-app: list-apps
-	@echo Choose app: \
+	@echo 'Choose app from above:' \
 		&& read APP \
 		&& pipenv run pylint mono/$$APP --exit-zero
 
 ## Run tests on given app
 test-app: list-apps
-	@echo Choose app: \
+	@echo 'Choose app from above:' \
 		&& read APP \
 		&& export APP_ENV=TEST \
 		&& export TEST_OUTPUT_VERBOSE=3 \
@@ -149,9 +149,33 @@ django-migrations:
 django-migrate:
 	@$(DJANGO) migrate
 
-## Apply all migrations
+
+## Rollback to specific migration
+rollback: list-apps
+	@echo && read -p 'Choose app from above: ${BOLD}${CYAN}' APP \
+		&& echo '${RESET}' \
+		&& if ! test -d mono/$$APP; \
+			then echo App '${RED}'$$APP'${RESET}' not found && exit 0; \
+		fi \
+		&& tree mono/$$APP/migrations --noreport -L 1 -P '*.py' -I '__*' \
+		&& echo && read -p 'Choose the number of the migration target from above: ${BOLD}${CYAN}' MIGRATION \
+		&& MIGRATION=$$(printf "%04d\n" $${MIGRATION}) && echo '${RESET}' \
+		&& if test -f mono/$$APP/migrations/$$(ls mono/$$APP/migrations | grep $$MIGRATION); \
+			then echo Selected migration: '${GREEN}'$$(ls mono/$$APP/migrations | grep $$MIGRATION)'${RESET}'\\n; \
+			else echo '${RED}'Migration not found '${RESET}' && exit 0; \
+		fi \
+		&& $(DJANGO) migrate $$APP $$MIGRATION --plan \
+		&& echo \
+		&& read -p 'The operations shown above will be applied. ${BOLD}Are you sure?${RESET} [${GREEN}y${RESET}/${RED}N${RESET}] ${BOLD}${CYAN}' REPLY \
+		&& echo \
+		&& case "$$REPLY" in [Yy][Ee][Ss]|[Yy] ) \
+			$(DJANGO) migrate $$APP $$MIGRATION ;; *) \
+			echo '${RED}'Rollback canceled!'${RESET}' ;; \
+		esac && echo && exit 0 
+
+## Squash migrations
 django-squash: list-apps
-	@echo Choose app: \
+	@echo 'Choose app from above:' \
 		&& read APP \
 		&& echo Choose migration: \
 		&& read MIGRATION \
@@ -194,6 +218,7 @@ pr: _pr _merge
 ## Pull changes
 pull: art
 	@git reset HEAD --hard
+	@git fetch --tags -f
 	@git pull
 
 ## Show last commit
@@ -243,4 +268,4 @@ copy-termux-shortcuts:
 	@cp -a ./scripts/termux/. $(HOME)/.shortcuts/
 
 list-apps:
-	@tree mono -dL 1 -I _*\|reports\|htmlcov
+	@tree mono -dL 1 -I _*\|reports\|htmlcov --noreport
