@@ -218,6 +218,7 @@ pr: _pr _merge
 ## Pull changes
 pull: art
 	@git reset HEAD --hard
+	@git fetch --tags -f
 	@git pull
 
 ## Show last commit
