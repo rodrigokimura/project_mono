@@ -1,3 +1,9 @@
+## 2.0.2 (2022-01-29)
+
+### Refactor
+
+- **accounts**: remove nested block
+
 ## 2.0.1 (2022-01-26)
 
 ### Fix
