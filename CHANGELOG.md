@@ -1,3 +1,9 @@
+## 2.0.3 (2022-01-29)
+
+### Refactor
+
+- **mono**: delete unnecessary files
+
 ## 2.0.2 (2022-01-29)
 
 ### Refactor
