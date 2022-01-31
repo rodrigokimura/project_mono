@@ -1,3 +1,9 @@
+## 2.2.0 (2022-01-31)
+
+### Feat
+
+- **watcher**: add timestamps to the main page
+
 ## 2.1.0 (2022-01-31)
 
 ### Feat
