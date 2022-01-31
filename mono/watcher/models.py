@@ -1,7 +1,11 @@
 """Watcher's models"""
+import uuid
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
+
+User = get_user_model()
 
 
 class Issue(models.Model):
@@ -12,14 +16,14 @@ class Issue(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     resolved_at = models.DateTimeField(null=True, blank=True, default=None)
     resolved_by = models.ForeignKey(
-        get_user_model(),
+        User,
         on_delete=models.SET_NULL,
         null=True,
         related_name='resolved_issues'
     )
     ignored_at = models.DateTimeField(null=True, blank=True, default=None)
     ignored_by = models.ForeignKey(
-        get_user_model(),
+        User,
         on_delete=models.SET_NULL,
         null=True,
         related_name='ignored_issues'
@@ -82,7 +86,7 @@ class Event(models.Model):
     """
     issue = models.ForeignKey(Issue, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
-    user = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return str(self.issue)
@@ -123,3 +127,19 @@ class Traceback(models.Model):
 
     class Meta:
         ordering = ['-order']
+
+
+class Request(models.Model):
+    """
+    Hold information about requests for analytics purposes
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    started_at = models.DateTimeField(auto_now_add=True)
+    duration = models.DurationField()
+    method = models.CharField(max_length=10)
+    path = models.CharField(max_length=2000)
+    route = models.CharField(max_length=2000, null=True, blank=True)
+    url_name = models.CharField(max_length=200, null=True, blank=True)
+    app_name = models.CharField(max_length=200, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=None)

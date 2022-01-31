@@ -1,3 +1,27 @@
+## 2.3.0 (2022-01-31)
+
+### Feat
+
+- **watcher**: add request tracking
+
+## 2.2.0 (2022-01-31)
+
+### Feat
+
+- **watcher**: add timestamps to the main page
+
+## 2.1.0 (2022-01-31)
+
+### Feat
+
+- **shipper**: allow portmanteaus in same direction
+
+## 2.0.3 (2022-01-29)
+
+### Refactor
+
+- **mono**: delete unnecessary files
+
 ## 2.0.2 (2022-01-29)
 
 ### Refactor

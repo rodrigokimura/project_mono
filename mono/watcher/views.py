@@ -1,5 +1,6 @@
 """Watcher's views"""
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
@@ -7,7 +8,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Issue
+from .models import Issue, Request
 from .serializers import IssueIgnorerSerializer, IssueResolverSerializer
 
 
@@ -27,6 +28,8 @@ class RootView(UserPassesTestMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['unresolved_issues'] = Issue.objects.filter(resolved_at__isnull=True)
         context['resolved_issues'] = Issue.objects.exclude(resolved_at__isnull=True)
+        context['requests'] = Request.objects.all()
+        context['requests_by_app'] = Request.objects.values('app_name').annotate(avg=Avg('duration'))
         return context
 
     def dispatch(self, *args, **kwargs):

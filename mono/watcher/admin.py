@@ -61,3 +61,22 @@ class TracebackAdmin(admin.ModelAdmin):
         'function_name',
         'line_number',
     ]
+
+
+@admin.register(models.Request)
+class RequestAdmin(admin.ModelAdmin):
+    """
+    Config for requests
+    """
+
+    list_display = [
+        'id',
+        'app_name',
+        'url_name',
+        'route',
+        'started_at',
+        'duration',
+    ]
+    list_filter = [
+        'started_at',
+    ]

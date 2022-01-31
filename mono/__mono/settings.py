@@ -12,7 +12,7 @@ load_dotenv()
 
 APP_ENV = os.getenv('APP_ENV', 'PRD')
 
-APP_VERSION = "2.0.2"
+APP_VERSION = "2.3.0"
 
 if APP_ENV in ['DEV', 'TEST']:
     GITHUB_SECRET = 'GITHUB_SECRET'
@@ -85,6 +85,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'watcher.middlewares.StatisticsStartMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -96,6 +97,7 @@ MIDDLEWARE = [
     'django.contrib.admindocs.middleware.XViewMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'maintenance_mode.middleware.MaintenanceModeMiddleware',
+    'watcher.middlewares.StatisticsFinishMiddleware',
 ]
 
 # INTERNAL_IPS = ['127.0.0.1']
@@ -362,6 +364,8 @@ else:
             },
         },
     }
+
+WATCHER_REQUEST_RATE = int(os.getenv('WATCHER_REQUEST_RATE', '10'))
 
 
 TINYMCE_DEFAULT_CONFIG = {
