@@ -1,3 +1,9 @@
+## 2.3.0 (2022-01-31)
+
+### Feat
+
+- **watcher**: add request tracking
+
 ## 2.2.0 (2022-01-31)
 
 ### Feat
