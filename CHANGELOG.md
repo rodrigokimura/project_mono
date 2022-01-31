@@ -1,3 +1,9 @@
+## 2.1.0 (2022-01-31)
+
+### Feat
+
+- **shipper**: allow portmanteaus in same direction
+
 ## 2.0.3 (2022-01-29)
 
 ### Refactor
