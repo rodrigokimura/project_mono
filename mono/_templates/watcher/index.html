@@ -1,6 +1,7 @@
 {% extends "watcher/base.html" %}
 {% load static %}
 {% load i18n %}
+{% load humanize %}
 
 
 {% block head %}
@@ -26,13 +27,15 @@
                         </div>
                         <div class="active content">
                             <div style="overflow-y: auto;">
-                                <table class="ui celled unstackable table">
+                                <table class="ui celled unstackable striped table">
                                     <thead>
                                         <tr><th>ID</th>
                                         <th>Name</th>
                                         <th>Description</th>
                                         <th>Events</th>
                                         <th>Users</th>
+                                        <th>First event</th>
+                                        <th>Last event</th>
                                     </tr></thead>
                                     <tbody>
                                         {% for issue in unresolved_issues %}
@@ -42,6 +45,8 @@
                                             <td data-label="Description">{{ issue.description }}</td>
                                             <td data-label="Events">{{ issue.event_set.all.count }}</td>
                                             <td data-label="Users">{{ issue.users.count }}</td>
+                                            <td data-label="First event">{{ issue.event_set.first.timestamp|date:"SHORT_DATETIME_FORMAT" }}</td>
+                                            <td data-label="Last event">{{ issue.event_set.last.timestamp|date:"SHORT_DATETIME_FORMAT" }}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -82,6 +87,23 @@
             <div class="ui tab" data-tab="tab-2">
                 <div class="ui segment">
                     <h1 class="ui dividing header">{% translate "Performance" %}</h1>
+                    <h1 class="ui header">{{ requests.count }}</h1>
+                    <div style="overflow-y: auto;">
+                        <table class="ui celled unstackable table">
+                            <thead>
+                                <tr><th>App</th>
+                                <th>Duration</th>
+                            </tr></thead>
+                            <tbody>
+                                {% for result in requests_by_app %}
+                                <tr>
+                                    <td data-label="App">{{ result.app_name }}</td>
+                                    <td data-label="Duration">{{ result.avg }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             <div class="ui tab" data-tab="tab-3">

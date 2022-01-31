@@ -35,7 +35,7 @@ class Ship(models.Model):
                 second_flag_onwards=p.second_config.onwards,
                 is_inverted=p.inverted,
             )
-            for p in cwp.get_portmanteaus(same_direction=False)
+            for p in cwp.get_portmanteaus(same_direction=True)
         ]
         Portmanteau.objects.bulk_create(portmanteaus)
 
