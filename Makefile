@@ -230,13 +230,13 @@ PR_INFO_FILTER := 'title\|state\|author'
 ## Show state and checks of last pull request
 check-pr:
 	@LAST_PR=$$(gh pr list --state all --limit 1  | tail -n 1 | grep -o '^[0-9]*') \
-		&& echo '' \
+		&& echo \
 		&& echo '${DIM}Showing status for last PR:${RESET}''${RED}' \#$$LAST_PR '${RESET}'\
-		&& echo '' \
+		&& echo \
 		&& echo "$$(gh pr view $$LAST_PR | head -n 100 | grep ${PR_INFO_FILTER})" | awk 'BEGIN {FS = ":"} {printf "${CYAN}%-20s${RESET} %s\n", $$1, $$2}' \
-		&& echo '' \
-		&& gh pr checks $$LAST_PR \
-		&& echo ''
+		&& echo \
+		&& gh pr checks $$LAST_PR || true\
+		&& echo
 
 mark-as-deployed:
 	$(DJANGO) mark_as_deployed

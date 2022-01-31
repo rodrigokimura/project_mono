@@ -263,7 +263,7 @@ class CardSerializer(ModelSerializer):
             'completed_at': {'read_only': True},
         }
 
-    def _create_tags(self, requested_tags, card, board):
+    def _create_tags(self, requested_tags, card):
         """Create tags from data"""
         tags = []
         if requested_tags is None:
@@ -276,7 +276,7 @@ class CardSerializer(ModelSerializer):
                 board=card.bucket.board,
                 defaults={
                     'created_by': self.context['request'].user,
-                    'board': board,
+                    'board': card.bucket.board,
                 }
             )
             tags.append(tag)
@@ -308,7 +308,7 @@ class CardSerializer(ModelSerializer):
         else:
             requested_tags = []
 
-        tags = self._create_tags(requested_tags, instance, validated_data['bucket'].board)
+        tags = self._create_tags(requested_tags, instance)
 
         requested_assignees = self.context['request'].data.get('assigned_to')
         if requested_assignees is not None:
@@ -339,7 +339,7 @@ class CardSerializer(ModelSerializer):
         requested_tags = self.context['request'].data.get('tag')
         if requested_tags is not None:
             requested_tags = json.loads(requested_tags)
-        tags = self._create_tags(requested_tags, instance, validated_data['bucket'].board)
+        tags = self._create_tags(requested_tags, instance)
 
         requested_assignees = self.context['request'].data.get('assigned_to')
         if requested_assignees is not None:
