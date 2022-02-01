@@ -22,7 +22,6 @@
       'set card order'              : "{% url 'finance:card_order' %}",
       {% if request.user.is_superuser %}
       'deploy'                      : '/hc/deploy/',
-      'checkout'                    : "{% url 'accounts:checkout' %}",
       'login as'                    : "{% url 'accounts:login_as' %}",
       {% endif %}
       successTest: function(response) {

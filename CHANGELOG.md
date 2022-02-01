@@ -1,3 +1,14 @@
+## 2.4.2 (2022-02-01)
+
+### Refactor
+
+- **accounts**: bound checkout view to button in config page
+
+### Fix
+
+- **accounts**: fix customer creation
+- **watcher**: localize timestamp
+
 ## 2.4.1 (2022-02-01)
 
 ### Fix
