@@ -231,11 +231,21 @@ PR_INFO_FILTER := 'title\|state\|author'
 check-pr:
 	@LAST_PR=$$(gh pr list --state all --limit 1  | tail -n 1 | grep -o '^[0-9]*') \
 		&& echo \
-		&& echo '${DIM}Showing status for last PR:${RESET}''${RED}${BOLD}' $$LAST_PR '${RESET}' \
+		&& echo '${DIM}Showing status for last PR:${RESET}''${BLUE}${BOLD}' $$LAST_PR '${RESET}' \
 		&& echo \
-		&& echo "$$(gh pr view $$LAST_PR | head -n 100 | grep ${PR_INFO_FILTER})" | awk 'BEGIN {FS = ":"} {printf "${CYAN}%-5s${RESET} %s\n", $$1, $$2}' \
+		&& echo "$$(gh pr view $$LAST_PR | head -n 10 | grep ${PR_INFO_FILTER})" | \
+			awk 'BEGIN {FS = ":"} \
+				{ \
+					if ($$2 ~ /MERGED/) printf "${CYAN}%-5s${RESET} ${GREEN}%s ✓${RESET}\n", $$1, $$2; \
+					else printf "${CYAN}%-5s${RESET} %s\n", $$1, $$2 \
+				}' \
 		&& echo \
-		&& gh pr checks $$LAST_PR || true \
+		&& echo "$$(gh pr checks $$LAST_PR)" | \
+			awk 'BEGIN {FS = "\t"} \
+				{ \
+					if ($$2 ~ /pass/) printf "${CYAN}%-7s${RESET} ${GREEN}pass ✓ ${RESET} %7s   ${DIM}%s${RESET}\n", $$1, $$3, $$4; \
+					else printf "${CYAN}%-7s${RESET} %s %7s   ${DIM}%s${RESET}\n", $$1, $$2, $$3, $$4 \
+				}' \
 		&& echo
 
 mark-as-deployed:
