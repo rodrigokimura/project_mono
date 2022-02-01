@@ -6,6 +6,7 @@ from datetime import datetime
 from logging import LogRecord
 from types import TracebackType
 
+import pytz
 from django.http import HttpRequest
 
 
@@ -93,7 +94,10 @@ def store_log(record: LogRecord):
         handle_traceback(traceback, issue)
     Event.objects.create(
         issue=issue,
-        timestamp=datetime.fromtimestamp(record.created),
+        timestamp=datetime.fromtimestamp(
+            record.created,
+            tz=pytz.UTC
+        ),
         user=user,
     )
 
