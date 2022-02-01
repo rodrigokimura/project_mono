@@ -508,7 +508,7 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
-        customer, _ = get_or_create_customer(request.user)
+        customer, _ = get_or_create_customer(request.user.email)
         payment_methods = get_payment_methods(customer)
 
         # Dettaching all payment methods
