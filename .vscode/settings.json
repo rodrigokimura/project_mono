@@ -24,6 +24,7 @@
         "mono",
         "restricted_area",
         "shipper",
-        "notes"
+        "notes",
+        "accounts"
     ],
 }

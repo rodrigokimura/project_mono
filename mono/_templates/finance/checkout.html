@@ -40,6 +40,7 @@
     }
   </style>
   <script src="https://js.stripe.com/v3/"></script>
+  <script src="{% static 'js/jquery.serialize-object.min.js' %}"></script>
 {% endblock head %}
 
 {% block main %}
@@ -246,9 +247,9 @@
         $('button#submit').removeClass('loading');
       } else {
         $.api({ 
-          action: 'checkout',
           on: 'now',
           method: 'POST',
+          url: "{% url 'accounts:checkout' %}",
           serializeForm: true,
           mode: 'same-origin',
           headers: {'X-CSRFToken': csrftoken},
@@ -257,6 +258,14 @@
             price_id: $('input[name=plan]').val(),
           },
           onResponse: () =>{$('button#submit').removeClass('loading');},
+          onFailure: (errorMessage, element, xhr) => {
+            $('body').toast({
+              message: errorMessage,
+              position: 'bottom center',
+              showProgress: 'bottom',
+              classProgress: 'primary'
+            }); 
+          },
           onError: (errorMessage, element, xhr) => {
             $('body').toast({
               message: errorMessage,
@@ -272,6 +281,7 @@
               showProgress: 'bottom',
               classProgress: 'primary'
             }); 
+            setTimeout(() => { window.location.href = "/accounts/config/?tab=subscription" }, 3000);
           }
         })
       };
