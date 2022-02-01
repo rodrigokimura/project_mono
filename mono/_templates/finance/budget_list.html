@@ -72,7 +72,7 @@
           <div class="bar">
             <div class="progress"></div>
           </div>
-          <div class="label">{{ budget.amount_spent }} of {{ budget.amount }} spent</div>
+          <div class="label">{{ budget.amount_spent|stringformat:'.2f' }} of {{ budget.amount|stringformat:'.2f' }} spent</div>
         </div>
         <div class="ui time progress" data-value="{{ budget.time_spent }}" data-total="{{ budget.time_total }}">
           <div class="bar">
