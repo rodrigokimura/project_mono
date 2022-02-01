@@ -881,13 +881,14 @@ class Budget(models.Model):
         return Transaction.objects.filter(
             account__in=accounts,
             category__in=categories,
-            timestamp__date__gte=self.start_date,
-            timestamp__date__lte=self.end_date,
+            timestamp__date__range=[self.start_date, self.end_date],
         )
 
     @property
     def amount_spent(self):
-        return self.spent_queryset.aggregate(sum=Coalesce(Sum("amount"), V(0), output_field=FloatField()))['sum']
+        return round(self.spent_queryset.aggregate(
+            sum=Coalesce(Sum("amount"), V(0), output_field=FloatField())
+        )['sum'], 2)
 
     @property
     def amount_progress(self):

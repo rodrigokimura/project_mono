@@ -29,7 +29,14 @@ class RootView(UserPassesTestMixin, TemplateView):
         context['unresolved_issues'] = Issue.objects.filter(resolved_at__isnull=True)
         context['resolved_issues'] = Issue.objects.exclude(resolved_at__isnull=True)
         context['requests'] = Request.objects.all()
-        context['requests_by_app'] = Request.objects.values('app_name').annotate(avg=Avg('duration'))
+        requests_by_app = [
+            {
+                'app_name': result['app_name'],
+                'avg': round(result['avg'].total_seconds() * 1000, 2)
+            }
+            for result in Request.objects.values('app_name').annotate(avg=Avg('duration'))
+        ]
+        context['requests_by_app'] = requests_by_app
         return context
 
     def dispatch(self, *args, **kwargs):
