@@ -139,7 +139,7 @@ class Request(models.Model):
     duration = models.DurationField()
     method = models.CharField(max_length=10)
     path = models.CharField(max_length=2000)
-    route = models.CharField(max_length=2000, null=True, blank=True)
+    route = models.CharField(max_length=2000, null=True, blank=True, help_text="URL pattern")
     url_name = models.CharField(max_length=200, null=True, blank=True)
     app_name = models.CharField(max_length=200, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=None)

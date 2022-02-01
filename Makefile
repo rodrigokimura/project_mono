@@ -241,10 +241,17 @@ check-pr:
 				}' \
 		&& echo \
 		&& echo "$$(gh pr checks $$LAST_PR)" | \
-			awk 'BEGIN {FS = "\t"} \
+			awk 'BEGIN \
 				{ \
-					if ($$2 ~ /pass/) printf "${CYAN}%-7s${RESET} ${GREEN}pass ✓ ${RESET} %7s   ${DIM}%s${RESET}\n", $$1, $$3, $$4; \
-					else printf "${CYAN}%-7s${RESET} %s %7s   ${DIM}%s${RESET}\n", $$1, $$2, $$3, $$4 \
+					FS = "\t"; \
+					pass = "${CYAN}%-7s${RESET} ${GREEN}pass ✓     ${RESET} %7s   ${DIM}%s${RESET}\n"; \
+					pending = "${CYAN}%-7s${RESET} ${ORANGE}pending *  ${RESET} %7s   ${DIM}%s${RESET}\n"; \
+					fail = "${CYAN}%-7s${RESET} ${GREEN}pass ✓     ${RESET} %7s   ${DIM}%s${RESET}\n"; \
+				} \
+				{ \
+					if ($$2 ~ /pass/) printf pass, $$1, $$3, $$4; \
+					else if ($$2 ~ /pending/) printf pending, $$1, $$3, $$4; \
+					else printf "${CYAN}%-7s${RESET} %-10s %7s   ${DIM}%s${RESET}\n", $$1, $$2, $$3, $$4 \
 				}' \
 		&& echo
 
