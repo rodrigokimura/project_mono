@@ -1,3 +1,9 @@
+## 2.4.0 (2022-01-31)
+
+### Feat
+
+- **watcher**: show duration in milliseconds
+
 ## 2.3.1 (2022-01-31)
 
 ### Fix
