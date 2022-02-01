@@ -1,3 +1,9 @@
+## 2.4.1 (2022-02-01)
+
+### Fix
+
+- **finance**: round budget amount
+
 ## 2.4.0 (2022-01-31)
 
 ### Feat
