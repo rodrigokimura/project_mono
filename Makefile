@@ -234,17 +234,31 @@ check-pr:
 		&& echo '${DIM}Showing status for last PR:${RESET}''${BLUE}${BOLD}' $$LAST_PR '${RESET}' \
 		&& echo \
 		&& echo "$$(gh pr view $$LAST_PR | head -n 10 | grep ${PR_INFO_FILTER})" | \
-			awk 'BEGIN {FS = ":"} \
+			awk 'BEGIN \
 				{ \
-					if ($$2 ~ /MERGED/) printf "${CYAN}%-5s${RESET} ${GREEN}%s ✓${RESET}\n", $$1, $$2; \
-					else printf "${CYAN}%-5s${RESET} %s\n", $$1, $$2 \
+					FS = ":\t"; \
+					merged = "${CYAN}%-7s${RESET} ${PURPLE}MERGED ✓${RESET}\n"; \
+					open = "${CYAN}%-7s${RESET} ${GREEN}OPEN ↺${RESET}\n"; \
+				} \
+				{ \
+					if ($$1 ~ /state/ && $$2 ~ /MERGED/) printf merged, $$1; \
+					else if ($$1 ~ /state/ && $$2 ~ /OPEN/) printf open, $$1; \
+					else printf "${CYAN}%-7s${RESET} %s\n", $$1, $$2 \
 				}' \
 		&& echo \
 		&& echo "$$(gh pr checks $$LAST_PR)" | \
-			awk 'BEGIN {FS = "\t"} \
+			awk 'BEGIN \
 				{ \
-					if ($$2 ~ /pass/) printf "${CYAN}%-7s${RESET} ${GREEN}pass ✓ ${RESET} %7s   ${DIM}%s${RESET}\n", $$1, $$3, $$4; \
-					else printf "${CYAN}%-7s${RESET} %s %7s   ${DIM}%s${RESET}\n", $$1, $$2, $$3, $$4 \
+					FS = "\t"; \
+					pass = "${CYAN}%-7s${RESET} ${GREEN}pass ✓     ${RESET} %7s   ${DIM}%s${RESET}\n"; \
+					pending = "${CYAN}%-7s${RESET} ${ORANGE}pending *  ${RESET} %7s   ${DIM}%s${RESET}\n"; \
+					fail = "${CYAN}%-7s${RESET} ${RED}fail ✗     ${RESET} %7s   ${DIM}%s${RESET}\n"; \
+				} \
+				{ \
+					if ($$2 ~ /pass/) printf pass, $$1, $$3, $$4; \
+					else if ($$2 ~ /pending/) printf pending, $$1, $$3, $$4; \
+					else if ($$2 ~ /fail/) printf fail, $$1, $$3, $$4; \
+					else printf "${CYAN}%-7s${RESET} %-10s %7s   ${DIM}%s${RESET}\n", $$1, $$2, $$3, $$4 \
 				}' \
 		&& echo
 
