@@ -13,6 +13,7 @@ from .auth_backends import EmailOrUsernameModelBackend
 from .context_processors import environment, language_extras
 from .decorators import ignore_warnings, stripe_exception_handler
 from .mixins import PassRequestToFormViewMixin
+from .permissions import IsCreator
 from .widgets import (
     ButtonsWidget, CalendarWidget, IconWidget, RadioWidget, SliderWidget,
     ToggleWidget,
@@ -278,3 +279,29 @@ class WidgetTests(TestCase):
         widget = IconWidget(entity_type=MockedModel)
         render = widget.render(name='bool', value='1')
         self.assertIn('name="bool"', str(render))
+
+
+class ObjMock:
+    def __init__(self, user):
+        self.created_by = user
+
+
+class PermissionTests(TestCase):
+    fixtures = ['icon']
+
+    def test_user_with_permission(self):
+        request = RequestFactory().get('/')
+        user = User.objects.create(username='testuser')
+        request.user = user
+        obj = ObjMock(user)
+        has_permission = IsCreator().has_object_permission(request, None, obj)
+        self.assertTrue(has_permission)
+
+    def test_user_without_permission(self):
+        request = RequestFactory().get('/')
+        user = User.objects.create(username='testuser')
+        not_permitted_user = User.objects.create(username='not_permitted')
+        request.user = not_permitted_user
+        obj = ObjMock(user)
+        has_permission = IsCreator().has_object_permission(request, None, obj)
+        self.assertFalse(has_permission)
