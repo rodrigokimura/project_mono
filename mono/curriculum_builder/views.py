@@ -1,6 +1,7 @@
 """Curriculum Builder's views"""
 from django.views.generic.base import TemplateView
 
+
 class RootView(TemplateView):
     """
     App's first view.
