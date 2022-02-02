@@ -30,6 +30,10 @@
     - `pkg install openssl`
     - `pkg install mariadb`
     - `pkg install libjpeg-turbo`
+    - `pkg install libxml2`
+    - `pkg install libxslt`
+    - `CFLAGS="-O0" pipenv install lxml`
+    - `LDFLAGS="-L/opt/local/lib" CFLAGS="-I/opt/local/include" pipenv install cryptography`
 
 ## Useful links
 - [Django documentation](https://docs.djangoproject.com/en/3.2/)
