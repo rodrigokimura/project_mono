@@ -3,6 +3,7 @@ from datetime import datetime
 
 import jwt
 from __mono.mixins import PassRequestToFormViewMixin
+from __mono.permissions import IsCreator
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib import messages
@@ -37,7 +38,6 @@ from .models import (
     Group, Icon, Installment, Invite, RecurrentTransaction, Transaction,
     Transference, User,
 )
-from .permissions import IsCreator
 from .serializers import ChartMoveSerializer, ChartSerializer
 
 
