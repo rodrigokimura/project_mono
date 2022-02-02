@@ -1,7 +1,6 @@
 """Curriculum Builder's models"""
 from django.contrib.auth import get_user_model
 from django.db import models
-
 from ordered_model.models import OrderedModel
 
 User = get_user_model()
