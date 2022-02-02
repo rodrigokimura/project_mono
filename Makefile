@@ -15,31 +15,35 @@ RESET	:= $(shell tput -Txterm sgr0)
 
 TARGET_MAX_CHAR_NUM=20
 
-## Show help
-help: art
-	@echo ''
-	@echo '${DIM}Usage:${RESET}'
-	@echo '    ${GREY}make${RESET} ${CYAN}${BOLD}[target]${RESET}'
-	@echo ''
-	@echo '${DIM}Targets:${RESET}'
-	@awk '/^[a-zA-Z\-0-9]+:/ { \
-		helpMessage = match(lastLine, /^## (.*)/); \
-		if (helpMessage) { \
-			helpCommand = substr($$1, 0, index($$1, ":")-1); \
-			helpMessage = substr(lastLine, RSTART + 3, RLENGTH); \
-			printf "    ${CYAN}${BOLD}%-$(TARGET_MAX_CHAR_NUM)s${RESET} ${DIM}%s${RESET}\n", helpCommand, helpMessage; \
+
+##@ Misc
+
+help: art  ## Show help
+	@awk 'BEGIN \
+		{ \
+			FS = ":.*##"; \
+			print "${DIM}Usage:${RESET}"; \
+			print "    ${GREY}make${RESET} ${CYAN}${BOLD}[target]${RESET}\n"; \
+			print "${DIM}Targets:${RESET}"; \
 		} \
-	} \
-	{ lastLine = $$0 }' $(MAKEFILE_LIST)
-	@echo ''
+		/^[a-zA-Z_-]+:.*?##/ \
+		{ \
+			printf "  ${CYAN}${BOLD}%-10s${RESET} ${DIM}%s${RESET}\n", $$1, $$2; \
+		} \
+		/^##@/ \
+		{ \
+			printf "\n${BLUE}${BOLD}%-$(TARGET_MAX_CHAR_NUM)s${RESET} \n", toupper(substr($$0, 5)); \
+		}' $(MAKEFILE_LIST)
+	@echo
 
 art:
 	@echo '${GREEN}'
 	@echo '█▀█ █▀█ █▀█ ░░█ █▀▀ █▀▀ ▀█▀   █▀▄▀█ █▀█ █▄░█ █▀█'
 	@echo '█▀▀ █▀▄ █▄█ █▄█ ██▄ █▄▄ ░█░   █░▀░█ █▄█ █░▀█ █▄█'
 	@echo '${RESET}'
-	
-# ========== CODE QUALITY ==================================================== #
+
+
+##@ Code quality
 
 BADGE=pipenv run genbadge
 COV=pipenv run coverage
@@ -48,8 +52,7 @@ R_COV=reports/coverage/
 R_F8=reports/flake8/
 R_PL=reports/pylint/
 
-## Run all test suites, with multithreading and failfast
-tests-ff:
+tests-ff:  ## Run all test suites, with multithreading and failfast
 	@export APP_ENV=TEST \
 		&& cd mono \
 		&& pipenv run python manage.py test --parallel 12 --failfast
@@ -68,14 +71,12 @@ _pylint:
 	@cat /dev/null > mono/$(R_PL)pylint.txt
 	@pipenv run pylint --rcfile=.pylintrc --output-format=text mono | tee mono/$(R_PL)pylint.txt \
 
-## Run pylint on given app
-pylint-app: list-apps
+pylint-app: list-apps  ## Run pylint on given app
 	@echo 'Choose app from above:' \
 		&& read APP \
 		&& pipenv run pylint mono/$$APP --exit-zero
 
-## Run tests on given app
-test-app: list-apps
+test-app: list-apps  ## Run tests on given app
 	@echo 'Choose app from above:' \
 		&& read APP \
 		&& export APP_ENV=TEST \
@@ -107,51 +108,38 @@ _open-coverage-report:
 		&& $(COV) html \
 		&& google-chrome htmlcov/index.html
 
-## Run flake8 and generate badge
-flake8: _flake8
+flake8: _flake8  ## Run flake8 and generate badge
 	@$(BADGE) flake8 -v -i mono/$(R_F8)flake8stats.txt -o mono/$(R_F8)flake8-badge.svg
 
-## Run pylint and generate badge
-pylint: _pylint
+pylint: _pylint  ## Run pylint and generate badge
 	@export score=$$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' mono/$(R_PL)pylint.txt) \
 		&& echo "Pylint score was $$score" \
 		&& pipenv run anybadge --value=$$score --file=mono/$(R_PL)pylint-badge.svg --label pylint -o
 
-## Run all test suites and generate badge
-tests: _tests _tests-badge
+tests: _tests _tests-badge  ## Run all test suites and generate badge
 
-## Run all test suites with coverage and generate badge
-coverage: _coverage _coverage-badge
+coverage: _coverage _coverage-badge  ## Run all test suites with coverage and generate badge
 
-## Run all quality checks, generating reports and badges
-qa: art _isort flake8 pylint coverage _tests-badge
-
-# ========== CODE QUALITY ==================================================== #
+qa: art _isort flake8 pylint coverage _tests-badge  ## Run all quality checks, generating reports and badges
 
 
-# ========== DJANGO ========================================================== #
+##@ Django
 
 DJANGO=export APP_ENV=DEV && pipenv run python mono/manage.py
 
-## Create superuser
-django-superuser:
+superuser:  ## Create superuser
 	@$(DJANGO) createsuperuser
 
-## Run development server
-django-devserver:
+devserver:  ## Run development server
 	@$(DJANGO) runserver 127.0.0.42:8080
 
-## Write migration files
-django-migrations:
+migrations:  ## Write migration files
 	@$(DJANGO) makemigrations
 
-## Apply all migrations
-django-migrate:
+migrate:  ## Apply all migrations
 	@$(DJANGO) migrate
 
-
-## Rollback to specific migration
-rollback: list-apps
+rollback: list-apps  ## Rollback to specific migration
 	@echo && read -p 'Choose app from above: ${BOLD}${CYAN}' APP \
 		&& echo '${RESET}' \
 		&& if ! test -d mono/$$APP; \
@@ -173,32 +161,30 @@ rollback: list-apps
 			echo '${RED}'Rollback canceled!'${RESET}' ;; \
 		esac && echo && exit 0 
 
-## Squash migrations
-django-squash: list-apps
+squash: list-apps  ## Squash migrations
 	@echo 'Choose app from above:' \
 		&& read APP \
 		&& echo Choose migration: \
 		&& read MIGRATION \
 		&& $(DJANGO) squashmigrations $$APP $$MIGRATION
 
-# ========== DJANGO ========================================================== #
 
+##@ Pipenv
 
-# ========== PIPENV ========================================================== #
-
-install:
+install:  ## Install dependencies
 	@pipenv install
 
-update:
+update:  ## Update dependencies
 	@pipenv update
 
-# ========== PIPENV ========================================================== #
+##@ Dev worflow
 
+pull: art  ## Pull changes
+	@git reset HEAD --hard
+	@git fetch --tags -f
+	@git pull
 
-# ========== GIT ============================================================= #
-
-## Stage, commit, bump version and push changes
-commit: art
+commit: art  ## Stage, commit, bump version and push changes
 	@git add . 
 	@pipenv run cz c
 	@((pipenv run cz bump -ch) && (git push origin --tags) && (git push)) || (git push)
@@ -206,29 +192,16 @@ commit: art
 _pr: art
 	@gh pr create \
 		--fill \
-		--base master \
-
+		--base master
 
 _merge:
 	@gh pr merge -m --auto
 
-## Create pull request and set to auto-merge
-pr: _pr _merge
-
-## Pull changes
-pull: art
-	@git reset HEAD --hard
-	@git fetch --tags -f
-	@git pull
-
-## Show last commit
-last-commit:
-	@echo '${RED}'$$(git log --pretty=format:"%H" -1 | grep -o '^[a-z0-9]*')'${RESET}'
+pr: _pr _merge  ## Create pull request and set to auto-merge
 
 PR_INFO_FILTER := 'title\|state\|author'
 
-## Show state and checks of last pull request
-check-pr:
+check:  ## Show state and checks of last pull request
 	@LAST_PR=$$(gh pr list --state all --limit 1  | tail -n 1 | grep -o '^[0-9]*') \
 		&& echo \
 		&& echo '${DIM}Showing status for last PR:${RESET}''${BLUE}${BOLD}' $$LAST_PR '${RESET}' \
@@ -237,39 +210,40 @@ check-pr:
 			awk 'BEGIN \
 				{ \
 					FS = ":\t"; \
-					merged = "${CYAN}%-7s${RESET} ${PURPLE}MERGED ✓${RESET}\n"; \
-					open = "${CYAN}%-7s${RESET} ${GREEN}OPEN ↺${RESET}\n"; \
+					format = "${CYAN}%-7s${RESET} %s\n"; \
 				} \
 				{ \
-					if ($$1 ~ /state/ && $$2 ~ /MERGED/) printf merged, $$1; \
-					else if ($$1 ~ /state/ && $$2 ~ /OPEN/) printf open, $$1; \
-					else printf "${CYAN}%-7s${RESET} %s\n", $$1, $$2 \
+					if 			($$1 ~ /state/ && $$2 ~ /MERGED/) 	{ value = "${PURPLE}MERGED ✓${RESET}"; } \
+					else if 	($$1 ~ /state/ && $$2 ~ /OPEN/) 	{ value = "${GREEN}OPEN ↺${RESET}"; } \
+					else { value = $$2; } \
+					printf format, $$1, value \
 				}' \
 		&& echo \
 		&& echo "$$(gh pr checks $$LAST_PR)" | \
 			awk 'BEGIN \
 				{ \
 					FS = "\t"; \
-					pass = "${CYAN}%-7s${RESET} ${GREEN}pass ✓     ${RESET} %7s   ${DIM}%s${RESET}\n"; \
-					pending = "${CYAN}%-7s${RESET} ${ORANGE}pending *  ${RESET} %7s   ${DIM}%s${RESET}\n"; \
-					fail = "${CYAN}%-7s${RESET} ${RED}fail ✗     ${RESET} %7s   ${DIM}%s${RESET}\n"; \
+					format = "${CYAN}%-7s${RESET} %s %7s ${DIM}%s${RESET}\n"; \
 				} \
 				{ \
-					if ($$2 ~ /pass/) printf pass, $$1, $$3, $$4; \
-					else if ($$2 ~ /pending/) printf pending, $$1, $$3, $$4; \
-					else if ($$2 ~ /fail/) printf fail, $$1, $$3, $$4; \
-					else printf "${CYAN}%-7s${RESET} %-10s %7s   ${DIM}%s${RESET}\n", $$1, $$2, $$3, $$4 \
-				}' \
-		&& echo
+					if 			($$2 ~ /pass/) 		{ status = "${GREEN}pass ✓     ${RESET}"; } \
+					else if 	($$2 ~ /pending/) 	{ status = "${ORANGE}pending *  ${RESET}"; } \
+					else if 	($$2 ~ /fail/) 		{ status = "${RED}fail ✗     ${RESET}"; } \
+					else 							{ status = $$2; } \
+					printf format, $$1, status, $$3, $$4; \
+				}'
+		@echo
+
+ssh: art  ## Connect to Production server
+	@ssh kimura@ssh.pythonanywhere.com || true
 
 mark-as-deployed:
 	$(DJANGO) mark_as_deployed
 
-## Connect to Production server
-ssh: art
-	@ssh kimura@ssh.pythonanywhere.com || true
+last-commit:
+	@echo '${RED}'$$(git log --pretty=format:"%H" -1 | grep -o '^[a-z0-9]*')'${RESET}'
 
-build:
+build:  ## Execute commands to build app in production
 	@git checkout master
 	@git reset HEAD --hard
 	@git pull
@@ -279,13 +253,7 @@ build:
 	@pipenv run python mono/manage.py migrate
 	@pipenv run python mono/manage.py mark_as_deployed
 	@touch /var/www/www_monoproject_info_wsgi.py
-	@tail /var/log/www.monoproject.info.server.log -n 100 --follow | grep 'www_monoproject_info_wsgi.py has been touched'
-
-
-# ========== GIT ============================================================= #
-
-
-# ==== EXPERIMENTAL FEATURES ====
+	@tail /var/log/www.monoproject.info.server.log -n 100 --follow | grep 'www_monoproject_info_wsgi.py has been touched' || true
 
 copy-termux-shortcuts:
 	@rm -r $(HOME)/.shortcuts/*
