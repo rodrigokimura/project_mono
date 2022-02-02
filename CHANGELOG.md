@@ -1,3 +1,9 @@
+## 3.0.0 (2022-02-02)
+
+### Feat
+
+- **curriculum_builder**: add new app
+
 ## 2.4.2 (2022-02-01)
 
 ### Refactor
