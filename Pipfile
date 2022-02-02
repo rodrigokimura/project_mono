@@ -32,6 +32,8 @@ markdown-checklist = "*"
 django-multiselectfield = "*"
 unittest-xml-reporting = "*"
 redgreenunittest = "*"
+django-ordered-model = "*"
+lxml = "*"
 
 [dev-packages]
 coverage = "*"
