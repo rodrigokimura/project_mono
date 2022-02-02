@@ -1,3 +1,9 @@
+## 3.1.0 (2022-02-02)
+
+### Feat
+
+- **curriculum_builder**: add viewsets, serializers and urls
+
 ## 3.0.0 (2022-02-02)
 
 ### Feat
