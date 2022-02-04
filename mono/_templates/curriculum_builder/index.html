@@ -1,0 +1,26 @@
+{% extends "curriculum_builder/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="row">
+            <div class="column">
+                <h1 class="ui header">
+                    <div class="content">
+                        Curriculum Builder
+                    </div>
+                </h1>
+                <div class="ui header">App to create curriculum</div>
+                <a href="{% url 'curriculum_builder:curriculum_list' %}" class="ui primary right labeled icon button">
+                    <i class="right arrow icon"></i>
+                    View your curricula
+                </a>
+                <a href="{% url 'shipper:ship_create' %}" class="ui primary right labeled icon button">
+                    <i class="right arrow icon"></i>
+                    Create new curriculum
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
