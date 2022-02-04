@@ -1,3 +1,9 @@
+## 3.2.0 (2022-02-03)
+
+### Feat
+
+- **curriculum_builder**: add view to list curricula
+
 ## 3.1.0 (2022-02-02)
 
 ### Feat
