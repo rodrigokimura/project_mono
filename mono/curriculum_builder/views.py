@@ -1,6 +1,7 @@
 """Curriculum Builder's views"""
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 
 from .models import Curriculum
 
@@ -22,3 +23,11 @@ class CurriculumListView(ListView):
 
     def get_queryset(self):
         return Curriculum.objects.filter(created_by=self.request.user)
+
+
+class CurriculumDetailView(DetailView):
+    """
+    Curriculum detail view.
+    """
+    model = Curriculum
+    template_name = 'curriculum_builder/curriculum_detail.html'

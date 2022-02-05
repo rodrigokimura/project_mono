@@ -19,7 +19,18 @@
                     {% for c in object_list %}
                         <div class="ui card">
                             <div class="content">
-                                {{ c }}
+                                <div class="header">
+                                    {{ c }}
+                                </div>
+                                <div class="description">
+                                    {{ c.bio }}
+                                </div>
+                            </div>
+                            <div class="extra content">
+                                <div class="ui two buttons">
+                                    <a class="ui basic button" href="{% url 'curriculum_builder:curriculum_detail' pk=c.id %}">View</a>
+                                    <a class="ui basic yellow button" href="">Edit</a>
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
