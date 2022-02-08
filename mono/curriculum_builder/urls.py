@@ -23,5 +23,6 @@ urlpatterns = [
     path("", views.RootView.as_view(), name='index'),
     path("curriculum/", views.CurriculumListView.as_view(), name='curriculum_list'),
     path("curriculum/<int:pk>/", views.CurriculumDetailView.as_view(), name='curriculum_detail'),
-    path("api", include(router.urls))
+    path("curriculum/<int:pk>/edit/", views.CurriculumEditView.as_view(), name='curriculum_edit'),
+    path("api/", include(router.urls))
 ]
