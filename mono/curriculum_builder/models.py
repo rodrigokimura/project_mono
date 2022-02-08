@@ -25,7 +25,7 @@ class Curriculum(BaseModel):
     bio = models.TextField(max_length=1000)
     social_media_profiles = models.ManyToManyField('SocialMediaProfile')
     skills = models.ManyToManyField('Skill')
-    work_experiences = models.ManyToManyField('WorkExperience')
+    companies = models.ManyToManyField('Company')
 
     class Meta:
         verbose_name = 'curriculum'
@@ -68,7 +68,7 @@ class WorkExperience(BaseModel):
     """Work experiences as part of a Curriculum"""
     started_at = models.DateField()
     ended_at = models.DateField(null=True, blank=True)
-    company = models.ForeignKey('Company', on_delete=models.CASCADE)
+    company = models.ForeignKey('Company', on_delete=models.CASCADE, related_name='work_experiences')
     job_title = models.TextField(max_length=50)
     description = models.TextField(max_length=1000)
 
@@ -94,7 +94,7 @@ class Acomplishment(BaseModel, OrderedModel):
     """Acomplishments realized within a work experience"""
     title = models.CharField(max_length=100)
     description = models.TextField(max_length=1000)
-    work_experience = models.ForeignKey(WorkExperience, on_delete=models.CASCADE)
+    work_experience = models.ForeignKey(WorkExperience, on_delete=models.CASCADE, related_name="acomplishments")
 
     order_with_respect_to = 'work_experience'
 

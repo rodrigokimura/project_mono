@@ -31,3 +31,11 @@ class CurriculumDetailView(DetailView):
     """
     model = Curriculum
     template_name = 'curriculum_builder/curriculum_detail.html'
+
+
+class CurriculumEditView(DetailView):
+    """
+    Curriculum edit view.
+    """
+    model = Curriculum
+    template_name = 'curriculum_builder/curriculum_edit.html'
