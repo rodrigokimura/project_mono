@@ -1,3 +1,9 @@
+## 3.3.1 (2022-02-08)
+
+### Refactor
+
+- **curriculum_builder**: change modeling
+
 ## 3.3.0 (2022-02-04)
 
 ### Feat
