@@ -1,0 +1,41 @@
+{% extends "curriculum_builder/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="row">
+            <div class="column">
+                <h1 class="ui header">
+                    <div class="content">
+                        Your snippets
+                    </div>
+                </h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <div class="ui four cards">
+                    {% for s in object_list %}
+                        <div class="ui card">
+                            <div class="content">
+                                <div class="header">
+                                    {{ s.title }}
+                                </div>
+                                <div class="description">
+                                    {{ s.code }}
+                                </div>
+                            </div>
+                            <div class="extra content">
+                                <div class="ui two buttons">
+                                    <a class="ui basic button" href="{% url 'coder:snippet_detail' pk=s.id %}">View</a>
+                                    <a class="ui basic yellow button" href="">Edit</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
