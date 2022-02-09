@@ -1,3 +1,9 @@
+## 4.1.0 (2022-02-09)
+
+### Feat
+
+- **coder**: improve snippet list page
+
 ## 4.0.0 (2022-02-09)
 
 ### Feat
