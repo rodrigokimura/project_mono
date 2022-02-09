@@ -1,41 +1,198 @@
-{% extends "curriculum_builder/base.html" %}
+{% extends "coder/base.html" %}
 {% load static %}
 {% load i18n %}
 
-{% block main %}
-    <div class="ui stackable grid container" style="padding-top: 5em;">
-        <div class="row">
-            <div class="column">
-                <h1 class="ui header">
-                    <div class="content">
-                        Your snippets
-                    </div>
-                </h1>
+{% block head %}
+    <style>
+        {{ snippet_css }}
+        .main.grid {
+            padding-top: 4em !important;
+            padding-left: 21em !important;
+            padding-right: 1em !important;
+        }
+        @media screen and (max-width: 767px) {
+            .computer.only {
+                display: none !important;
+                width: 0 !important;
+            }
+            .main.grid {
+                padding-top: 4em !important;
+                padding-left: 1em !important;
+                padding-right: 1em !important;
+            }
+        }
+        #snippet {
+            overflow: auto;
+        }
+        .snippet.highlight {
+            border-radius: 1em;
+            padding: 1em;
+        }
+    </style>
+{% endblock head %}
+
+{% block sidebars %}
+    <div class="ui vertical left fixed computer only inverted menu" style="padding-top: 3em; width: 20em;">
+        <div class="header item">
+            <div class="ui inverted header">
+                <em data-emoji=":card_box:" class="small"></em>
+                <span style="padding-left: .5em;">Snippets</span>
             </div>
         </div>
+        <a class="item" id="show-all" onclick="showAll()">
+            Show all
+            <div class="ui teal left pointing label" id="count-all"></div>
+        </a>
+        <div class="item">
+            <div class="ui basic fitted languages segment">
+                Languages
+                <div class="languages inverted menu" style="padding-top: .5em; min-height: 1em;">
+                </div>
+            </div>
+        </div>
+        <div class="item">
+            Tags
+            <div class="menu">
+                {% for tag in tags %}
+                    <a class="item" data-language="{{ tag }}" onclick="selectTag('{{ tag }}')">
+                        {{ tag|title }}
+                        <div class="ui label">51</div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock sidebars %}
+
+{% block menu %}
+    <div class="item">
+        Snippets
+    </div>
+{% endblock menu %}
+
+{% block main %}
+    <div class="ui stackable compact main grid">
         <div class="row">
-            <div class="column">
-                <div class="ui four cards">
-                    {% for s in object_list %}
-                        <div class="ui card">
-                            <div class="content">
-                                <div class="header">
-                                    {{ s.title }}
-                                </div>
-                                <div class="description">
-                                    {{ s.code }}
-                                </div>
-                            </div>
-                            <div class="extra content">
-                                <div class="ui two buttons">
-                                    <a class="ui basic button" href="{% url 'coder:snippet_detail' pk=s.id %}">View</a>
-                                    <a class="ui basic yellow button" href="">Edit</a>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
+            <div class="four wide column">
+               <div class="full height" style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;">
+
+                    <div class="ui top attached teal segment" style="width: 100%;">
+                        <div class="ui fluid input"><input type="text" placeholder="Search..." id="search"></div>
+                    </div>
+                    <div class="ui bottom attached vertical segment menu snippets" style="padding: 0; width: 100%; flex: 1 0 auto;">
+                    </div>
+                    <div class="ui fluid green right labeled icon button" style="width: 100%; flex: 0 0 auto;">
+                        Add new snippet
+                        <i class="add icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="twelve wide column">
+                <div class="ui teal segment" style="height: calc(100vh - 5em)" id="snippet">
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        function desselectButtons() {
+            $('.menu .item').removeClass('teal').removeClass('active');
+        }
+        function showAll() {
+            desselectButtons();
+            button = $('#show-all');
+            button.addClass('active');
+            getSnippets();
+        }
+        function selectLanguage(language) {
+            desselectButtons();
+            button = $(`.menu .item[data-language=${language}]`);
+            button.addClass('active');
+            getSnippets(filter={'language': language});
+        }
+        function selectSnippet(snippetId) {
+            desselectButtons();
+            button = $(`.menu .item[data-snippet-id=${snippetId}]`);
+            button.addClass('teal').addClass('active');
+            let el = $('#snippet');
+            snippets = JSON.parse(sessionStorage.getItem('snippets'))
+            snippet = snippets.find(snippet => snippet.id == snippetId);
+            el.empty();
+            el.append(
+            `
+                <h1 class="ui header">${snippet.title}</h1>
+                <div class="ui header">${snippet.language}</div>
+                <div class="snippet highlight">${snippet.html}</div>
+            `
+            )
+        }
+        function getSnippets(filter = undefined) {
+            let url = '/cd/api/snippets/';
+            if (filter) {
+                url += '?' + $.param(filter);
+            }
+            $.api({
+                on: 'now',
+                url: url,
+                stateContext: '.snippets',
+                onSuccess: function(response) {
+                    snippets = response.results;
+                    sessionStorage.setItem('snippets', JSON.stringify(snippets));
+                    renderSnippets(snippets);
+                    if (!filter) { $('#count-all').text(snippets.length); }
+                }
+            })
+        }
+        function renderSnippets(snippets) {
+            let el = $('.snippets');
+            el.empty();
+            if (snippets.length > 0) {
+                snippets.forEach(snippet => {
+                    el.append(`
+                        <a class="item" data-snippet-id="${snippet.id}" onclick="selectSnippet('${snippet.id}')">
+                            ${snippet.title}
+                        </a>
+                    `);
+                });
+            }
+        }
+        function getLanguages() {
+            let el = $('.languages.menu');
+            $.api({
+                on: 'now',
+                url: '/cd/api/snippets/languages/',
+                stateContext: '.languages.segment',
+                onSuccess: r => {
+                    console.log(r);
+                    renderLanguages(r);
+                }
+            })
+        }
+        function renderLanguages(languages) {
+            let el = $('.languages.menu');
+            el.empty();
+            if (languages.length > 0) {
+                languages.forEach(item => {
+                    el.append(
+                        `
+                        <a class="item" data-language="${item.language}" onclick="selectLanguage('${item.language}')" style="padding-right: 0; padding-left: 0;">
+                            ${item.language}
+                            <div class="ui label">${item.count}</div>
+                        </a>
+                        `
+                    );
+                });
+            } else {
+                el.append(`
+                    <div class="ui disabled item" style="padding-right: 0; padding-left: 0;">
+                        No languages found
+                    </div>
+                `);
+            }
+        }
+
+        $(document).ready(e => {
+            getLanguages();
+            getSnippets();
+        });
+    </script>
 {% endblock %}

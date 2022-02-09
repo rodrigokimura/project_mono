@@ -14,7 +14,6 @@ router.register('snippets', SnippetViewSet)
 urlpatterns = [
     path("", views.RootView.as_view(), name='index'),
     path("snippet/", views.SnippetListView.as_view(), name='snippet_list'),
-    path("snippet/<int:pk>/", views.SnippetDetailView.as_view(), name='snippet_detail'),
     path("snippet/<int:pk>/edit/", views.SnippetEditView.as_view(), name='snippet_edit'),
     path("api/", include(router.urls))
 ]

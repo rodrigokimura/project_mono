@@ -28,9 +28,7 @@ class Snippet(BaseModel, OrderedModel):
     """Store snippets of code"""
     title = models.CharField(max_length=100, blank=True, default='')
     code = models.TextField()
-    linenos = models.BooleanField(default=False)
     language = models.CharField(choices=LANGUAGE_CHOICES, default='python', max_length=100)
-    style = models.CharField(choices=STYLE_CHOICES, default='friendly', max_length=100)
 
     order_with_respect_to = 'created_by'
 
@@ -38,8 +36,17 @@ class Snippet(BaseModel, OrderedModel):
     def html(self):
         """Output code in formatted html"""
         lexer = get_lexer_by_name(self.language, stripall=True)
+        config = Configuration.objects.get_or_create(user = self.created_by)[0]
         formatter = HtmlFormatter(
-            linenos=self.linenos,
-            style=self.style
+            linenos=config.linenos,
+            style=config.style
         )
         return highlight(self.code, lexer, formatter)
+
+class Configuration(models.Model):
+    """Store user configuration"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='coder_config')
+    style = models.CharField(choices=STYLE_CHOICES, default='monokai', max_length=100)
+    linenos = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
