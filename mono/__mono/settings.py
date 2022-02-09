@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'maintenance_mode',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_filters',
     'social_django',
     'markdownx',
     'multiselectfield',

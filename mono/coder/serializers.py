@@ -8,4 +8,11 @@ class SnippetSerializer(serializers.ModelSerializer):
     """Snippet serializer"""
     class Meta:
         model = Snippet
-        fields = ['id', 'title', 'code', 'linenos', 'language', 'style']
+        fields = [
+            'id',
+            'title',
+            'code',
+            'language',
+            'html'
+        ]
+        read_only_fields = ['html']
