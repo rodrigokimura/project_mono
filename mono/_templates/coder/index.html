@@ -1,0 +1,30 @@
+{% extends "curriculum_builder/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="row">
+            <div class="column">
+                <h1 class="ui header">
+                    <div class="content">
+                        Coder
+                    </div>
+                </h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <div class="ui header">App to create curriculum</div>
+                <a href="{% url 'coder:snippet_list' %}" class="ui primary right labeled icon button">
+                    <i class="right arrow icon"></i>
+                    View your snippets
+                </a>
+                <a href="" class="ui primary right labeled icon button">
+                    <i class="right arrow icon"></i>
+                    Create new snipept
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

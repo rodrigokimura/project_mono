@@ -5,7 +5,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from finance.urls import router as finance_router
 from rest_framework.authtoken import views
 
 from .ascii_arts import ASCII_ART
@@ -31,7 +30,6 @@ urlpatterns = [
     path('hc/', include('healthcheck.urls')),
     path('fb/', include('feedback.urls')),
     path('fn/', include('finance.urls')),
-    path('fn/api/', include(finance_router.urls)),
     path('bl/', include('blog.urls')),
     path('todo/', include('todo_lists.urls')),
     path('nt/', include('notes.urls')),
@@ -39,6 +37,8 @@ urlpatterns = [
     path('watcher/', include('watcher.urls')),
     path('restricted-area/', include('restricted_area.urls')),
     path('shipper/', include('shipper.urls')),
+    path('cb/', include('curriculum_builder.urls')),
+    path('cd/', include('coder.urls')),
     # path('__debug__/', include(debug_toolbar.urls)),
     path('i18n/', include('django.conf.urls.i18n')),
     path('markdownx/', include('markdownx.urls')),

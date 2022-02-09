@@ -1,3 +1,43 @@
+## 4.1.0 (2022-02-09)
+
+### Feat
+
+- **coder**: improve snippet list page
+
+## 4.0.0 (2022-02-09)
+
+### Feat
+
+- **coder**: add coder app
+
+### BREAKING CHANGE
+
+- new app and dependency
+
+## 3.3.1 (2022-02-08)
+
+### Refactor
+
+- **curriculum_builder**: change modeling
+
+## 3.3.0 (2022-02-04)
+
+### Feat
+
+- **curriculum_builder**: add curriculum detail view
+
+## 3.2.0 (2022-02-03)
+
+### Feat
+
+- **curriculum_builder**: add view to list curricula
+
+## 3.1.0 (2022-02-02)
+
+### Feat
+
+- **curriculum_builder**: add viewsets, serializers and urls
+
 ## 3.0.0 (2022-02-02)
 
 ### Feat
