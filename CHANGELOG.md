@@ -1,3 +1,13 @@
+## 4.0.0 (2022-02-09)
+
+### Feat
+
+- **coder**: add coder app
+
+### BREAKING CHANGE
+
+- new app and dependency
+
 ## 3.3.1 (2022-02-08)
 
 ### Refactor
