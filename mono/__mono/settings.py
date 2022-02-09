@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     'restricted_area',
     'shipper',
     'curriculum_builder',
+    'coder',
     'django.forms',
 ]
 

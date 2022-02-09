@@ -38,6 +38,7 @@ urlpatterns = [
     path('restricted-area/', include('restricted_area.urls')),
     path('shipper/', include('shipper.urls')),
     path('cb/', include('curriculum_builder.urls')),
+    path('cd/', include('coder.urls')),
     # path('__debug__/', include(debug_toolbar.urls)),
     path('i18n/', include('django.conf.urls.i18n')),
     path('markdownx/', include('markdownx.urls')),
