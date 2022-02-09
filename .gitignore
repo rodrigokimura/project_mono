@@ -10,6 +10,7 @@ venv/
 .idea/
 mono/__mono/maintenance_mode_state.txt
 mono/_media
+mono/_static
 ngrok
 **/.coverage
 mono/htmlcov

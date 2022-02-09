@@ -1,5 +1,5 @@
 """Finance's urls"""
-from django.urls import path
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from . import views
@@ -90,6 +90,7 @@ urlpatterns = [
     path('api/charts/<int:pk>/', views.ChartDataApiView.as_view(), name='chart_data'),
     path('api/charts/', views.ChartListApiView.as_view(), name='chart_list'),
     path('api/chart-move/', views.ChartMoveApiView.as_view(), name='chart_move'),
+    path('api/', include(router.urls)),
 
     path('restricted-area/', views.RestrictedAreaView.as_view(), name='restricted_area'),
 ]

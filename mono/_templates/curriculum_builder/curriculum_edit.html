@@ -1,0 +1,85 @@
+{% extends "curriculum_builder/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="row">
+            <div class="column">
+                <form class="ui form">
+                    <div class="two fields">
+                        <div class="field">
+                            <label>First Name</label>
+                            <input type="text" name="first-name" placeholder="First Name">
+                        </div>
+                        <div class="field">
+                            <label>Last Name</label>
+                            <input type="text" name="last-name" placeholder="Last Name">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Bio</label>
+                        <textarea type="text" name="bio" placeholder="Bio"></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Address</label>
+                        <input type="text" name="address" placeholder="Address">
+                    </div>
+                    <a class="ui button" onclick="getCurriculum()">Save</a>
+                </form>
+                <div class="ui dividing header">Companies</div>
+                <div class="ui basic companies segment"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const CURRICULUM_ID = "{{ object.id }}";
+        function getCurriculum() {
+            $.api({
+                on: 'now',
+                method: 'GET',
+                url: `/cb/api/curricula/${1}/`,
+                onSuccess: curriculum => {
+                    renderCurriculum(curriculum);
+                    $('body').toast({
+                        message: 'Curruculum loaded'
+                    })
+                },
+            })
+        }
+        function renderCurriculum(curriculum) {
+            $('input[name=first-name]').val(curriculum.first_name);
+            $('input[name=last-name]').val(curriculum.last_name);
+            $('textarea[name=bio]').val(curriculum.bio);
+            $('input[name=address]').val(curriculum.address);
+            renderCompanies(curriculum.companies)
+        }
+        function renderCompanies(companies) {
+            el = $('.companies.segment');
+            el.empty();
+            for (company of companies) {
+                el.append(`
+                    <div class="ui fluid card">
+                        ${company.name}
+                    </div>
+                `)
+            }
+        }
+        function saveCurriculum() {
+            $.api({
+                on: 'now',
+                method: 'PATCH',
+                headers: { 'X-CSRFToken': csrftoken },
+                url: `/cb/api/curricula/${1}/`,
+                onSuccess: r => {
+                    $('body').toast({
+                        message: CURRICULUM_ID
+                    })
+                },
+            })
+        }
+        $(document).ready(e => {
+            getCurriculum();
+        })
+    </script>
+{% endblock %}

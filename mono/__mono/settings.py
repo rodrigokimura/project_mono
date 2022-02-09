@@ -12,7 +12,7 @@ load_dotenv()
 
 APP_ENV = os.getenv('APP_ENV', 'PRD')
 
-APP_VERSION = "3.0.0"
+APP_VERSION = "4.1.0"
 
 if APP_ENV in ['DEV', 'TEST']:
     GITHUB_SECRET = 'GITHUB_SECRET'
@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'maintenance_mode',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_filters',
     'social_django',
     'markdownx',
     'multiselectfield',
@@ -82,6 +83,7 @@ INSTALLED_APPS = [
     'restricted_area',
     'shipper',
     'curriculum_builder',
+    'coder',
     'django.forms',
 ]
 
