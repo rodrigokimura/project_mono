@@ -1,3 +1,10 @@
+## 4.5.0 (2022-02-10)
+
+### Feat
+
+- **coder**: change style of page
+- **coder**: add button to copy snippet
+
 ## 4.3.0 (2022-02-10)
 
 ### Feat
