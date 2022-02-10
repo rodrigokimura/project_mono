@@ -21,6 +21,14 @@
                 padding-right: 1em !important;
             }
         }
+        #code-textarea {
+            width: 100%;
+            height: 100%;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #
+        }
         #snippet {
             overflow: auto;
         }
@@ -29,6 +37,42 @@
             padding: 1em;
         }
     </style>
+    <script>
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+          
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+          
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Fallback: Copying text command was ' + msg);
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+          
+            document.body.removeChild(textArea);
+        }
+        function copyTextToClipboard(text) {
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+              return;
+            }
+            navigator.clipboard.writeText(text).then(function() {
+                console.log('Async: Copying to clipboard was successful!');
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+    </script>
 {% endblock head %}
 
 {% block sidebars %}
@@ -104,14 +148,14 @@
             </div>
             <div class="field">
                 <label>Language</label>
-                <div class="ui search selection dropdown">
+                <div class="ui search selection dropdown" id="languages-dropdown">
                     <i class="dropdown icon"></i>
                     <div class="default text">Language</div>
                 </div>
             </div>
             <div class="field">
                 <label>Code</label>
-                <textarea name="code"></textarea>
+                <textarea name="code" id="code-textarea" rows=20></textarea>
             </div>
         </div>
         <div class="actions">
@@ -141,25 +185,39 @@
             button.addClass('active');
             getSnippets(filter={'language': language});
         }
+        function getSnippetFromStorage(snippetId) {
+            snippets = JSON.parse(sessionStorage.getItem('snippets'));
+            return snippets.find(snippet => snippet.id == snippetId);
+        }
         function selectSnippet(snippetId) {
             desselectButtons();
             button = $(`.menu .item[data-snippet-id=${snippetId}]`);
             button.addClass('teal').addClass('active');
+            snippet = getSnippetFromStorage(snippetId);
             let el = $('#snippet');
-            snippets = JSON.parse(sessionStorage.getItem('snippets'))
-            snippet = snippets.find(snippet => snippet.id == snippetId);
             el.empty();
-            el.append(
-            `
+            el.append(`
                 <h1 class="ui header">
                     ${snippet.title}
-                    <div class="ui right floated red icon button" onclick="deleteSnippet(${snippetId})"><i class="delete icon"></i></div>
-                    <div class="ui right floated yellow icon button" onclick="showModal(${snippetId})"><i class="edit icon"></i></div>
+                    <div class="ui right floated red icon button" onclick="deleteSnippet(${snippetId})" data-content="Delete" data-variation="inverted">
+                        <i class="delete icon"></i>
+                    </div>
+                    <div class="ui right floated yellow icon button" onclick="showModal(${snippetId})" data-content="Edit" data-variation="inverted">
+                        <i class="edit icon"></i>
+                    </div>
+                    <div class="ui right floated icon button" onclick="copySnippet(${snippetId})" data-content="Copy" data-variation="inverted">
+                        <i class="copy icon"></i>
+                    </div>
                 </h1>
                 <div class="ui header">${snippet.language}</div>
                 <div class="snippet highlight">${snippet.html}</div>
-            `
-            )
+            `);
+            $('.icon.button').popup(
+                {
+                    position: 'top center',
+                    inverted: true,
+                }
+            );
         }
         function getSnippets(filter = undefined) {
             $('#snippet').empty();
@@ -262,7 +320,7 @@
             }
         }
         function getFormInputData() {
-            language = $('.ui.dropdown').dropdown('get value');
+            language = $('#languages-dropdown').dropdown('get value');
             title = $('input[name=title]').val();
             code = $('textarea[name=code]').val();
             return {
@@ -272,9 +330,8 @@
             }
         }
         function setFormInputData(snippetId) {
-            snippets = JSON.parse(sessionStorage.getItem('snippets'))
-            snippet = snippets.find(snippet => snippet.id == snippetId);
-            $('.ui.dropdown').dropdown('set value', snippet.language);
+            snippet = getSnippetFromStorage(snippetId);
+            $('#languages-dropdown').dropdown('set value', snippet.language);
             $('input[name=title]').val(snippet.title);
             $('textarea[name=code]').val(snippet.code);
         }
@@ -315,7 +372,7 @@
                 .modal('show');
         }
         function initializeLanguagesDropdown() {
-            $('.ui.dropdown').dropdown({
+            $('#languages-dropdown').dropdown({
                 values: [
                     {% for key, value in languages %}
                         {
@@ -330,9 +387,17 @@
             });
         }
         function resetLanguagesDropdown() {
-            $('.ui.dropdown').dropdown('restore defaults');
+            $('#languages-dropdown').dropdown('restore defaults');
         }
-
+        function copySnippet(snippetId) {
+            snippet = getSnippetFromStorage(snippetId);
+            copyTextToClipboard(snippet.code);
+            $('body').toast({
+                title: 'Copying',
+                message: 'Snippet copied successfully.',
+                class: 'success'
+            });
+        }
         $(document).ready(e => {
             getLanguages();
             getSnippets();
