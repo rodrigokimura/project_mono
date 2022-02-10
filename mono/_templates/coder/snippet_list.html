@@ -29,12 +29,28 @@
             line-height: 1.42857143;
             color: #
         }
-        #snippet {
+        .snippet.highlight {
+            padding: 0 0 0 1em !important;
             overflow: auto;
         }
-        .snippet.highlight {
-            border-radius: 1em;
-            padding: 1em;
+        /* width */
+        ::-webkit-scrollbar {
+            width: 10px !important;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1 !important;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: #888 !important;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555 !important;
         }
     </style>
     <script>
@@ -118,8 +134,7 @@
     <div class="ui stackable compact main grid">
         <div class="row">
             <div class="four wide column">
-               <div class="full height" style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;">
-
+                <div class="full height" style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;">
                     <div class="ui top attached teal segment" style="width: 100%;">
                         <div class="ui fluid input"><input type="text" placeholder="Search..." id="search"></div>
                     </div>
@@ -132,8 +147,7 @@
                 </div>
             </div>
             <div class="twelve wide column">
-                <div class="ui teal segment" style="height: calc(100vh - 5em)" id="snippet">
-                </div>
+                <div style="display: flex; flex-flow: column nowrap; height: calc(100vh - 5em);" id="snippet"></div>
             </div>
         </div>
     </div>
@@ -197,20 +211,38 @@
             let el = $('#snippet');
             el.empty();
             el.append(`
-                <h1 class="ui header">
-                    ${snippet.title}
-                    <div class="ui right floated red icon button" onclick="deleteSnippet(${snippetId})" data-content="Delete" data-variation="inverted">
-                        <i class="delete icon"></i>
+                <div class="ui top attached teal segment" style="flex: 0 0 auto;">
+                    <h1 class="ui header">
+                        ${snippet.title}
+                        <div class="ui right floated red icon button" onclick="deleteSnippet(${snippetId})" data-content="Delete" data-variation="inverted">
+                            <i class="delete icon"></i>
+                        </div>
+                        <div class="ui right floated yellow icon button" onclick="showModal(${snippetId})" data-content="Edit" data-variation="inverted">
+                            <i class="edit icon"></i>
+                        </div>
+                        <div class="ui right floated icon button" onclick="copySnippet(${snippetId})" data-content="Copy" data-variation="inverted">
+                            <i class="copy icon"></i>
+                        </div>
+                        <div class="ui right floated icon button" onclick="shareSnippet(${snippetId})" data-content="Share" data-variation="inverted">
+                            <i class="share alternate icon"></i>
+                        </div>
+                    </h1>
+                    <div class="ui header">${snippet.language}</div>
+                </div>
+                <div class="snippet highlight" style="width: 100%; overflow: auto; padding: 1em; flex: 1 1 auto;">${snippet.html}</div>
+                <div class="ui bottom attached segment" style="display: flex; flex-flow: row nowrap; justify-content: space-between; align-items: baseline; width: 100%; padding: 1em; flex: 0 1 auto; margin-bottom: 0;">
+                    <div class="ui slider checkbox">
+                        <input type="checkbox" name="newsletter">
+                        <label>Public</label>
                     </div>
-                    <div class="ui right floated yellow icon button" onclick="showModal(${snippetId})" data-content="Edit" data-variation="inverted">
-                        <i class="edit icon"></i>
+                    <div class="ui action input">
+                        <input type="text" value="">
+                        <button class="ui teal right labeled icon button">
+                            <i class="copy icon"></i>
+                            Copy
+                        </button>
                     </div>
-                    <div class="ui right floated icon button" onclick="copySnippet(${snippetId})" data-content="Copy" data-variation="inverted">
-                        <i class="copy icon"></i>
-                    </div>
-                </h1>
-                <div class="ui header">${snippet.language}</div>
-                <div class="snippet highlight">${snippet.html}</div>
+                </div>
             `);
             $('.icon.button').popup(
                 {
@@ -218,6 +250,7 @@
                     inverted: true,
                 }
             );
+            $('.ui.checkbox').checkbox();
         }
         function getSnippets(filter = undefined) {
             $('#snippet').empty();
@@ -292,7 +325,6 @@
                 url: '/cd/api/snippets/languages/',
                 stateContext: '.languages.segment',
                 onSuccess: r => {
-                    console.log(r);
                     renderLanguages(r);
                 }
             })

@@ -18,6 +18,11 @@ class SnippetSerializer(serializers.ModelSerializer):
             'code',
             'language',
             'html',
-            'created_by'
+            'public',
+            'public_id',
+            'created_by',
         ]
-        read_only_fields = ['html']
+        read_only_fields = [
+            'html',
+            'public_id',
+        ]

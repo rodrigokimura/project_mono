@@ -38,3 +38,11 @@ class SnippetEditView(DetailView):
     """
     model = Snippet
     template_name = 'coder/snippet_edit.html'
+
+
+class SnippetPublicView(DetailView):
+    """
+    Snippet public view.
+    """
+    model = Snippet
+    template_name = 'coder/snippet_public.html'

@@ -1,4 +1,6 @@
 """Coder's models"""
+import uuid
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from ordered_model.models import OrderedModel
@@ -30,6 +32,8 @@ class Snippet(BaseModel, OrderedModel):
     title = models.CharField(max_length=100, blank=True, default='')
     code = models.TextField()
     language = models.CharField(choices=LANGUAGE_CHOICES, default='python', max_length=100)
+    public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
+    public = models.BooleanField(default=False)
 
     order_with_respect_to = 'created_by'
 
