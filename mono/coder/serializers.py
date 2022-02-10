@@ -9,6 +9,7 @@ class SnippetSerializer(serializers.ModelSerializer):
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
+
     class Meta:
         model = Snippet
         fields = [
