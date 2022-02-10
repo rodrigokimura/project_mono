@@ -1,3 +1,15 @@
+## 4.3.0 (2022-02-10)
+
+### Feat
+
+- **coder**: implement update
+
+## 4.2.0 (2022-02-10)
+
+### Feat
+
+- **coder**: add buttons to create and delete snippets
+
 ## 4.1.0 (2022-02-09)
 
 ### Feat

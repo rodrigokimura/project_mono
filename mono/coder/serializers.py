@@ -6,6 +6,9 @@ from .models import Snippet
 
 class SnippetSerializer(serializers.ModelSerializer):
     """Snippet serializer"""
+    created_by = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
     class Meta:
         model = Snippet
         fields = [
@@ -13,6 +16,7 @@ class SnippetSerializer(serializers.ModelSerializer):
             'title',
             'code',
             'language',
-            'html'
+            'html',
+            'created_by'
         ]
         read_only_fields = ['html']
