@@ -1,3 +1,9 @@
+## 4.6.0 (2022-02-10)
+
+### Feat
+
+- **coder**: Add button to copy public link
+
 ## 4.5.0 (2022-02-10)
 
 ### Feat
