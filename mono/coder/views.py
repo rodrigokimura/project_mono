@@ -6,7 +6,7 @@ from django.views.generic.list import ListView
 from pygments.formatters import \
     HtmlFormatter  # pylint: disable=no-name-in-module
 
-from .models import Configuration, Snippet, LANGUAGE_CHOICES
+from .models import LANGUAGE_CHOICES, Configuration, Snippet
 
 
 class RootView(TemplateView):
