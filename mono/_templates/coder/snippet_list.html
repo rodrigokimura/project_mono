@@ -33,6 +33,9 @@
             padding: 0 0 0 1em !important;
             overflow: auto;
         }
+        .hidden {
+            display: none !important;
+        }
         /* width */
         ::-webkit-scrollbar {
             width: 10px !important;
@@ -230,14 +233,14 @@
                     <div class="ui header">${snippet.language}</div>
                 </div>
                 <div class="snippet highlight" style="width: 100%; overflow: auto; padding: 1em; flex: 1 1 auto;">${snippet.html}</div>
-                <div class="ui bottom attached segment" style="display: flex; flex-flow: row nowrap; justify-content: space-between; align-items: baseline; width: 100%; padding: 1em; flex: 0 1 auto; margin-bottom: 0;">
-                    <div class="ui slider checkbox">
+                <div class="ui bottom attached segment" style="display: flex; flex-flow: row nowrap; justify-content: space-between; align-items: baseline; width: 100%; padding: .5em; flex: 0 1 auto; margin-bottom: 0;">
+                    <div class="ui slider checkbox" id="public-checkbox" style="padding: 1em;">
                         <input type="checkbox" name="newsletter">
                         <label>Public</label>
                     </div>
-                    <div class="ui action input">
-                        <input type="text" value="">
-                        <button class="ui teal right labeled icon button">
+                    <div class="ui action hidden input" style="flex: 1 0 auto; padding-left: .5em !important; padding-right: .75em !important;" id="public-id">
+                        <input type="text" value="${snippet.public_id}">
+                        <button class="ui teal right labeled icon button" onclick="copyPublicLink(${snippet.id})">
                             <i class="copy icon"></i>
                             Copy
                         </button>
@@ -250,7 +253,14 @@
                     inverted: true,
                 }
             );
-            $('.ui.checkbox').checkbox();
+            $('.ui.checkbox').checkbox({
+                onChecked: () => { $('#public-id').removeClass('hidden') },
+                onUnchecked: () => { $('#public-id').addClass('hidden') },
+            });
+            if (snippet.public) {
+                $('#public-checkbox').checkbox('check');
+            }
+            console.log(snippet.public);
         }
         function getSnippets(filter = undefined) {
             $('#snippet').empty();
@@ -427,6 +437,15 @@
             $('body').toast({
                 title: 'Copying',
                 message: 'Snippet copied successfully.',
+                class: 'success'
+            });
+        }
+        function copyPublicLink(snippetId) {
+            snippet = getSnippetFromStorage(snippetId);
+            copyTextToClipboard(`${window.location.origin}/cd/snippet/${snippet.public_id}/`);
+            $('body').toast({
+                title: 'Copying',
+                message: 'Public link copied successfully.',
                 class: 'success'
             });
         }
