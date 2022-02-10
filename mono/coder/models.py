@@ -24,6 +24,7 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+
 class Snippet(BaseModel, OrderedModel):
     """Store snippets of code"""
     title = models.CharField(max_length=100, blank=True, default='')
@@ -36,12 +37,13 @@ class Snippet(BaseModel, OrderedModel):
     def html(self):
         """Output code in formatted html"""
         lexer = get_lexer_by_name(self.language, stripall=True)
-        config = Configuration.objects.get_or_create(user = self.created_by)[0]
+        config = Configuration.objects.get_or_create(user=self.created_by)[0]
         formatter = HtmlFormatter(
             linenos=config.linenos,
             style=config.style
         )
         return highlight(self.code, lexer, formatter)
+
 
 class Configuration(models.Model):
     """Store user configuration"""
