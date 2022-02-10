@@ -6,7 +6,7 @@ from django.views.generic.list import ListView
 from pygments.formatters import \
     HtmlFormatter  # pylint: disable=no-name-in-module
 
-from .models import Configuration, Snippet
+from .models import Configuration, Snippet, LANGUAGE_CHOICES
 
 
 class RootView(TemplateView):
@@ -27,7 +27,7 @@ class SnippetListView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['languages'] = self.get_queryset().values_list('language', flat=True).distinct()
+        context['languages'] = LANGUAGE_CHOICES
         config: Configuration = Configuration.objects.get_or_create(user = self.request.user)[0]
         context['snippet_css'] = HtmlFormatter(style=config.style).get_style_defs('.highlight')
         # context['snippet_css'] = HtmlFormatter(style=config.style)
