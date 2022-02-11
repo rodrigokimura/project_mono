@@ -1,11 +1,11 @@
 """Coder's viewsets"""
 from __mono.permissions import IsCreator
-from django.db.models import Count, QuerySet
+from django.db.models import Count, F, QuerySet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from .models import Snippet
+from .models import Snippet, Tag
 from .serializers import SnippetSerializer
 
 # pylint: disable=R0901
@@ -27,7 +27,11 @@ class SnippetViewSet(BaseViewSet):
     """Snippet viewset"""
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
-    filterset_fields = ['language']
+    filterset_fields = {
+        'language': ['exact'],
+        'tags__name': ['exact'],
+        'tags': ['isnull'],
+    }
 
     @action(detail=False, methods=['get'])
     def languages(self, request):
@@ -38,3 +42,20 @@ class SnippetViewSet(BaseViewSet):
                 count=Count('id', distinct=True),
             ).distinct()
         )
+
+    @action(detail=False, methods=['get'])
+    def tags(self, request):
+        """Return list of tags"""
+        snippets: QuerySet[Snippet] = self.get_queryset()
+        tags: QuerySet[Tag] = Tag.objects.filter(created_by=request.user)
+        result = list(tags.annotate(
+            tag=F('name'),
+            count=Count('snippet__id'),
+        ).values('tag', 'count').distinct())
+        result.append(
+            {
+                'tag': None,
+                'count': snippets.filter(tags__isnull=True).count(),
+            }
+        )
+        return Response(result)
