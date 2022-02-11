@@ -1,3 +1,15 @@
+## 4.7.1 (2022-02-11)
+
+### Fix
+
+- **coder**: create migrations
+
+## 4.7.0 (2022-02-11)
+
+### Feat
+
+- **coder**: add tag model
+
 ## 4.6.0 (2022-02-10)
 
 ### Feat

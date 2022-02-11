@@ -27,6 +27,35 @@ class BaseModel(models.Model):
         abstract = True
 
 
+class Tag(BaseModel, OrderedModel):
+    """Store tags"""
+
+    class Color(models.TextChoices):
+        """Color choices"""
+        RED = 'red', 'Red'
+        ORANGE = 'orange', 'Orange'
+        YELLOW = 'yellow', 'Yellow'
+        OLIVE = 'olive', 'Olive'
+        GREEN = 'green', 'Green'
+        TEAL = 'teal', 'Teal'
+        BLUE = 'blue', 'Blue'
+        VIOLET = 'violet', 'Violet'
+        PURPLE = 'purple', 'Purple'
+        PINK = 'pink', 'Pink'
+        BROWN = 'brown', 'Brown'
+        GREY = 'grey', 'Grey'
+        BLACK = 'black', 'Black'
+
+    name = models.CharField(max_length=100, blank=True, default='')
+    color = models.CharField(choices=Color.choices, default=Color.BLUE.value, max_length=100)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='coder_tags')
+
+    order_with_respect_to = 'created_by'
+
+    def __str__(self) -> str:
+        return f'#{self.name}'
+
+
 class Snippet(BaseModel, OrderedModel):
     """Store snippets of code"""
     title = models.CharField(max_length=100, blank=True, default='')
@@ -34,8 +63,12 @@ class Snippet(BaseModel, OrderedModel):
     language = models.CharField(choices=LANGUAGE_CHOICES, default='python', max_length=100)
     public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
     public = models.BooleanField(default=False)
+    tags = models.ManyToManyField(Tag, blank=True)
 
     order_with_respect_to = 'created_by'
+
+    def __str__(self) -> str:
+        return self.title
 
     @property
     def html(self):
