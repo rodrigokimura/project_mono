@@ -1,5 +1,7 @@
 """Coder's views"""
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from pygments.formatters import \
@@ -40,9 +42,17 @@ class SnippetEditView(DetailView):
     template_name = 'coder/snippet_edit.html'
 
 
-class SnippetPublicView(DetailView):
+class SnippetPublicView(TemplateView):
     """
     Snippet public view.
     """
-    model = Snippet
     template_name = 'coder/snippet_public.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        snippet = get_object_or_404(Snippet, public_id=kwargs.get('public_id'))
+        if not snippet.public:
+            raise Http404
+        context['snippet'] = snippet
+        context['snippet_css'] = HtmlFormatter(style='monokai').get_style_defs('.highlight')
+        return context
