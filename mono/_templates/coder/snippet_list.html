@@ -226,9 +226,6 @@
                         <div class="ui right floated icon button" onclick="copySnippet(${snippetId})" data-content="Copy" data-variation="inverted">
                             <i class="copy icon"></i>
                         </div>
-                        <div class="ui right floated icon button" onclick="shareSnippet(${snippetId})" data-content="Share" data-variation="inverted">
-                            <i class="share alternate icon"></i>
-                        </div>
                     </h1>
                     <div class="ui header">${snippet.language}</div>
                 </div>
@@ -239,7 +236,7 @@
                         <label>Public</label>
                     </div>
                     <div class="ui action hidden input" style="flex: 1 0 auto; padding-left: .5em !important; padding-right: .75em !important;" id="public-id">
-                        <input type="text" value="${snippet.public_id}">
+                        <input type="url" readonly value="${`${window.location.origin}/cd/snippet/${snippet.public_id}/`}">
                         <button class="ui teal right labeled icon button" onclick="copyPublicLink(${snippet.id})">
                             <i class="copy icon"></i>
                             Copy
@@ -253,14 +250,46 @@
                     inverted: true,
                 }
             );
-            $('.ui.checkbox').checkbox({
-                onChecked: () => { $('#public-id').removeClass('hidden') },
-                onUnchecked: () => { $('#public-id').addClass('hidden') },
-            });
             if (snippet.public) {
                 $('#public-checkbox').checkbox('check');
+                $('#public-id').removeClass('hidden');
             }
-            console.log(snippet.public);
+            $('.ui.checkbox').checkbox({
+                onChecked: () => {
+                    $.api({
+                        on: 'now',
+                        url: `/cd/api/snippets/${snippetId}/`,
+                        method: 'PATCH',
+                        data: { public: true },
+                        headers: { 'X-CSRFToken': csrftoken },
+                        stateContext: '.ui.bottom.attached.segment',
+                        onSuccess: r => {
+                            $('#public-id').removeClass('hidden');
+                            $('body').toast({
+                                title: 'Publish',
+                                message: 'Snippet visibility was set to public.'
+                            });
+                        }
+                    });
+                },
+                onUnchecked: () => {
+                    $.api({
+                        on: 'now',
+                        url: `/cd/api/snippets/${snippetId}/`,
+                        method: 'PATCH',
+                        data: { public: false },
+                        headers: { 'X-CSRFToken': csrftoken },
+                        stateContext: '.ui.bottom.attached.segment',
+                        onSuccess: r => {
+                            $('#public-id').addClass('hidden');
+                            $('body').toast({
+                                title: 'Publish',
+                                message: 'Snippet is now private.'
+                            });
+                        }
+                    });
+                },
+            });
         }
         function getSnippets(filter = undefined) {
             $('#snippet').empty();
@@ -311,7 +340,7 @@
                             })
                             showAll();
                         }
-                    })
+                    });
                 }
             }).modal('show');
         }
