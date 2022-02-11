@@ -9,6 +9,7 @@ class SnippetSerializer(serializers.ModelSerializer):
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
+
     class Meta:
         model = Snippet
         fields = [
@@ -17,6 +18,11 @@ class SnippetSerializer(serializers.ModelSerializer):
             'code',
             'language',
             'html',
-            'created_by'
+            'public',
+            'public_id',
+            'created_by',
         ]
-        read_only_fields = ['html']
+        read_only_fields = [
+            'html',
+            'public_id',
+        ]

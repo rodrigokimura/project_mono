@@ -21,14 +21,77 @@
                 padding-right: 1em !important;
             }
         }
-        #snippet {
-            overflow: auto;
+        #code-textarea {
+            width: 100%;
+            height: 100%;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #
         }
         .snippet.highlight {
-            border-radius: 1em;
-            padding: 1em;
+            padding: 0 0 0 1em !important;
+            overflow: auto;
+        }
+        .hidden {
+            display: none !important;
+        }
+        /* width */
+        ::-webkit-scrollbar {
+            width: 10px !important;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1 !important;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: #888 !important;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555 !important;
         }
     </style>
+    <script>
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+          
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+          
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Fallback: Copying text command was ' + msg);
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+          
+            document.body.removeChild(textArea);
+        }
+        function copyTextToClipboard(text) {
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+              return;
+            }
+            navigator.clipboard.writeText(text).then(function() {
+                console.log('Async: Copying to clipboard was successful!');
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+    </script>
 {% endblock head %}
 
 {% block sidebars %}
@@ -74,8 +137,7 @@
     <div class="ui stackable compact main grid">
         <div class="row">
             <div class="four wide column">
-               <div class="full height" style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;">
-
+                <div class="full height" style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;">
                     <div class="ui top attached teal segment" style="width: 100%;">
                         <div class="ui fluid input"><input type="text" placeholder="Search..." id="search"></div>
                     </div>
@@ -88,8 +150,7 @@
                 </div>
             </div>
             <div class="twelve wide column">
-                <div class="ui teal segment" style="height: calc(100vh - 5em)" id="snippet">
-                </div>
+                <div style="display: flex; flex-flow: column nowrap; height: calc(100vh - 5em);" id="snippet"></div>
             </div>
         </div>
     </div>
@@ -104,14 +165,14 @@
             </div>
             <div class="field">
                 <label>Language</label>
-                <div class="ui search selection dropdown">
+                <div class="ui search selection dropdown" id="languages-dropdown">
                     <i class="dropdown icon"></i>
                     <div class="default text">Language</div>
                 </div>
             </div>
             <div class="field">
                 <label>Code</label>
-                <textarea name="code"></textarea>
+                <textarea name="code" id="code-textarea" rows=20></textarea>
             </div>
         </div>
         <div class="actions">
@@ -141,25 +202,94 @@
             button.addClass('active');
             getSnippets(filter={'language': language});
         }
+        function getSnippetFromStorage(snippetId) {
+            snippets = JSON.parse(sessionStorage.getItem('snippets'));
+            return snippets.find(snippet => snippet.id == snippetId);
+        }
         function selectSnippet(snippetId) {
             desselectButtons();
             button = $(`.menu .item[data-snippet-id=${snippetId}]`);
             button.addClass('teal').addClass('active');
+            snippet = getSnippetFromStorage(snippetId);
             let el = $('#snippet');
-            snippets = JSON.parse(sessionStorage.getItem('snippets'))
-            snippet = snippets.find(snippet => snippet.id == snippetId);
             el.empty();
-            el.append(
-            `
-                <h1 class="ui header">
-                    ${snippet.title}
-                    <div class="ui right floated red icon button" onclick="deleteSnippet(${snippetId})"><i class="delete icon"></i></div>
-                    <div class="ui right floated yellow icon button" onclick="showModal(${snippetId})"><i class="edit icon"></i></div>
-                </h1>
-                <div class="ui header">${snippet.language}</div>
-                <div class="snippet highlight">${snippet.html}</div>
-            `
-            )
+            el.append(`
+                <div class="ui top attached teal segment" style="flex: 0 0 auto;">
+                    <h1 class="ui header">
+                        ${snippet.title}
+                        <div class="ui right floated red icon button" onclick="deleteSnippet(${snippetId})" data-content="Delete" data-variation="inverted">
+                            <i class="delete icon"></i>
+                        </div>
+                        <div class="ui right floated yellow icon button" onclick="showModal(${snippetId})" data-content="Edit" data-variation="inverted">
+                            <i class="edit icon"></i>
+                        </div>
+                        <div class="ui right floated icon button" onclick="copySnippet(${snippetId})" data-content="Copy" data-variation="inverted">
+                            <i class="copy icon"></i>
+                        </div>
+                    </h1>
+                    <div class="ui header">${snippet.language}</div>
+                </div>
+                <div class="snippet highlight" style="width: 100%; overflow: auto; padding: 1em; flex: 1 1 auto;">${snippet.html}</div>
+                <div class="ui bottom attached segment" style="display: flex; flex-flow: row nowrap; justify-content: space-between; align-items: baseline; width: 100%; padding: .5em; flex: 0 1 auto; margin-bottom: 0;">
+                    <div class="ui slider checkbox" id="public-checkbox" style="padding: 1em;">
+                        <input type="checkbox" name="newsletter">
+                        <label>Public</label>
+                    </div>
+                    <div class="ui action hidden input" style="flex: 1 0 auto; padding-left: .5em !important; padding-right: .75em !important;" id="public-id">
+                        <input type="url" readonly value="${`${window.location.origin}/cd/snippet/${snippet.public_id}/`}">
+                        <button class="ui teal right labeled icon button" onclick="copyPublicLink(${snippet.id})">
+                            <i class="copy icon"></i>
+                            Copy
+                        </button>
+                    </div>
+                </div>
+            `);
+            $('.icon.button').popup(
+                {
+                    position: 'top center',
+                    inverted: true,
+                }
+            );
+            if (snippet.public) {
+                $('#public-checkbox').checkbox('check');
+                $('#public-id').removeClass('hidden');
+            }
+            $('.ui.checkbox').checkbox({
+                onChecked: () => {
+                    $.api({
+                        on: 'now',
+                        url: `/cd/api/snippets/${snippetId}/`,
+                        method: 'PATCH',
+                        data: { public: true },
+                        headers: { 'X-CSRFToken': csrftoken },
+                        stateContext: '.ui.bottom.attached.segment',
+                        onSuccess: r => {
+                            $('#public-id').removeClass('hidden');
+                            $('body').toast({
+                                title: 'Publish',
+                                message: 'Snippet visibility was set to public.'
+                            });
+                        }
+                    });
+                },
+                onUnchecked: () => {
+                    $.api({
+                        on: 'now',
+                        url: `/cd/api/snippets/${snippetId}/`,
+                        method: 'PATCH',
+                        data: { public: false },
+                        headers: { 'X-CSRFToken': csrftoken },
+                        stateContext: '.ui.bottom.attached.segment',
+                        onSuccess: r => {
+                            $('#public-id').addClass('hidden');
+                            $('body').toast({
+                                title: 'Publish',
+                                message: 'Snippet is now private.'
+                            });
+                        }
+                    });
+                },
+            });
         }
         function getSnippets(filter = undefined) {
             $('#snippet').empty();
@@ -210,7 +340,7 @@
                             })
                             showAll();
                         }
-                    })
+                    });
                 }
             }).modal('show');
         }
@@ -234,7 +364,6 @@
                 url: '/cd/api/snippets/languages/',
                 stateContext: '.languages.segment',
                 onSuccess: r => {
-                    console.log(r);
                     renderLanguages(r);
                 }
             })
@@ -262,7 +391,7 @@
             }
         }
         function getFormInputData() {
-            language = $('.ui.dropdown').dropdown('get value');
+            language = $('#languages-dropdown').dropdown('get value');
             title = $('input[name=title]').val();
             code = $('textarea[name=code]').val();
             return {
@@ -272,9 +401,8 @@
             }
         }
         function setFormInputData(snippetId) {
-            snippets = JSON.parse(sessionStorage.getItem('snippets'))
-            snippet = snippets.find(snippet => snippet.id == snippetId);
-            $('.ui.dropdown').dropdown('set value', snippet.language);
+            snippet = getSnippetFromStorage(snippetId);
+            $('#languages-dropdown').dropdown('set value', snippet.language);
             $('input[name=title]').val(snippet.title);
             $('textarea[name=code]').val(snippet.code);
         }
@@ -315,7 +443,7 @@
                 .modal('show');
         }
         function initializeLanguagesDropdown() {
-            $('.ui.dropdown').dropdown({
+            $('#languages-dropdown').dropdown({
                 values: [
                     {% for key, value in languages %}
                         {
@@ -330,9 +458,26 @@
             });
         }
         function resetLanguagesDropdown() {
-            $('.ui.dropdown').dropdown('restore defaults');
+            $('#languages-dropdown').dropdown('restore defaults');
         }
-
+        function copySnippet(snippetId) {
+            snippet = getSnippetFromStorage(snippetId);
+            copyTextToClipboard(snippet.code);
+            $('body').toast({
+                title: 'Copying',
+                message: 'Snippet copied successfully.',
+                class: 'success'
+            });
+        }
+        function copyPublicLink(snippetId) {
+            snippet = getSnippetFromStorage(snippetId);
+            copyTextToClipboard(`${window.location.origin}/cd/snippet/${snippet.public_id}/`);
+            $('body').toast({
+                title: 'Copying',
+                message: 'Public link copied successfully.',
+                class: 'success'
+            });
+        }
         $(document).ready(e => {
             getLanguages();
             getSnippets();
