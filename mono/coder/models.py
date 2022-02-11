@@ -1,4 +1,6 @@
 """Coder's models"""
+import uuid
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from ordered_model.models import OrderedModel
@@ -24,11 +26,14 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+
 class Snippet(BaseModel, OrderedModel):
     """Store snippets of code"""
     title = models.CharField(max_length=100, blank=True, default='')
     code = models.TextField()
     language = models.CharField(choices=LANGUAGE_CHOICES, default='python', max_length=100)
+    public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
+    public = models.BooleanField(default=False)
 
     order_with_respect_to = 'created_by'
 
@@ -36,12 +41,13 @@ class Snippet(BaseModel, OrderedModel):
     def html(self):
         """Output code in formatted html"""
         lexer = get_lexer_by_name(self.language, stripall=True)
-        config = Configuration.objects.get_or_create(user = self.created_by)[0]
+        config = Configuration.objects.get_or_create(user=self.created_by)[0]
         formatter = HtmlFormatter(
             linenos=config.linenos,
             style=config.style
         )
         return highlight(self.code, lexer, formatter)
+
 
 class Configuration(models.Model):
     """Store user configuration"""

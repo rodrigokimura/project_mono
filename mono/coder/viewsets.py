@@ -1,6 +1,4 @@
 """Coder's viewsets"""
-from time import sleep
-
 from __mono.permissions import IsCreator
 from django.db.models import Count, QuerySet
 from rest_framework.decorators import action
@@ -30,7 +28,6 @@ class SnippetViewSet(BaseViewSet):
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
     filterset_fields = ['language']
-
 
     @action(detail=False, methods=['get'])
     def languages(self, request):
