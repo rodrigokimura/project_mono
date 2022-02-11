@@ -131,26 +131,26 @@
             if (files.length > 0 ) {
                 fd.append('background_image', files[0]);
                 $(e.target).api({
-                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-                on: 'now',
-                method: 'PATCH',
-                headers: { 'X-CSRFToken': csrftoken },
-                data: fd,
-                contentType: false,
-                processData: false,
-                successTest: r => r != 0,
-                onSuccess: r => {
-                    wallpaper = r.background_image;
-                    setWallpaper();
-                    $('body').toast({
-                    title: 'Background image',
-                    message: 'Background image successfully updated!',
-                    showProgress: 'bottom',
-                    classProgress: 'green',
-                    displayTime: 5000,
-                    })
-                },
-            });
+                    url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+                    on: 'now',
+                    method: 'PATCH',
+                    headers: { 'X-CSRFToken': csrftoken },
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    successTest: r => r != 0,
+                    onSuccess: r => {
+                        wallpaper = r.background_image;
+                        setWallpaper();
+                        $('body').toast({
+                        title: 'Background image',
+                        message: 'Background image successfully updated!',
+                        showProgress: 'bottom',
+                        classProgress: 'green',
+                        displayTime: 5000,
+                        })
+                    },
+                });
             } else {
                 alert("Please select a file.");
             }
