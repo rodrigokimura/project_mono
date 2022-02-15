@@ -1,3 +1,9 @@
+## 4.8.0 (2022-02-15)
+
+### Feat
+
+- **coder**: add modal to manage tags
+
 ## 4.7.1 (2022-02-11)
 
 ### Fix
