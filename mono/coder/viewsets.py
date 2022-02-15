@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Snippet, Tag
-from .serializers import SnippetSerializer
+from .serializers import SnippetSerializer, TagSerializer
 
 # pylint: disable=R0901
 
@@ -21,6 +21,12 @@ class BaseViewSet(ModelViewSet):
         return qs.filter(
             created_by=self.request.user,
         )
+
+
+class TagViewSet(BaseViewSet):
+    """Tag viewset"""
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
 
 
 class SnippetViewSet(BaseViewSet):

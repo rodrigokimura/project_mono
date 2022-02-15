@@ -11,7 +11,7 @@ function showAll() {
     button.addClass('active');
     getSnippets();
     getLanguages();
-    getTags();
+    getSnippetTags();
 }
 function selectLanguage(language) {
     desselectButtons();
@@ -46,7 +46,7 @@ function filterSnippets(query) {
     renderSnippets(snippets.filter(snippet => snippet.code.includes(query)));
     sessionStorage.setItem('lastFilterTimestamp', Date.now());
 }
-function getTagsHtml(tags) {
+function getSnippetTagsHtml(tags) {
     if (tags.length == 0) {
         return '';
     }
@@ -78,7 +78,7 @@ function selectSnippet(snippetId) {
                 </div>
             </h1>
             <div class="ui header">${snippet.language}</div>
-            ${getTagsHtml(snippet.tags)}
+            ${getSnippetTagsHtml(snippet.tags)}
         </div>
         <div class="snippet highlight" style="width: 100%; overflow: auto; padding: 1em; flex: 1 1 auto;">${snippet.html}</div>
         <div class="ui bottom attached segment" style="display: flex; flex-flow: row nowrap; justify-content: space-between; align-items: baseline; width: 100%; padding: .5em; flex: 0 1 auto; margin-bottom: 0;">
@@ -241,18 +241,18 @@ function renderLanguages(languages) {
         `);
     }
 }
-function getTags() {
+function getSnippetTags() {
     let el = $('.tags.menu');
     $.api({
         on: 'now',
         url: '/cd/api/snippets/tags/',
         stateContext: '.tags.segment',
         onSuccess: r => {
-            renderTags(r);
+            renderSnippetTags(r);
         }
     })
 }
-function renderTags(tags) {
+function renderSnippetTags(tags) {
     let el = $('.tags.menu');
     el.empty();
     if (tags.length > 0) {
@@ -304,7 +304,7 @@ function showModal(id = null) {
         setFormInputData(id);
     }
     $('#modal-title').text(title);
-    $('.ui.modal')
+    $('#snippet-modal')
         .modal({
             onApprove: () => {
                 $.api({
@@ -351,4 +351,77 @@ function copyPublicLink(snippetId) {
         message: 'Public link copied successfully.',
         class: 'success'
     });
+}
+function manageTags() {
+    getTags();
+    $('#tags-modal')
+        .modal({
+            onHidden: () => {
+              console.log('teste');
+            },
+        })
+        .modal('show');
+}
+async function getTags() {
+    $.api({
+        on: 'now',
+        url: '/cd/api/tags/',
+        stateContext: '#tags-modal .form.content',
+        autofocus: false,
+        onSuccess: r => {
+            renderTags(r.results);
+        }
+    })
+}
+var tagUpdateTimeout;
+function renderTags(tags) {
+    let el = $('#tags-modal .form.content');
+    el.empty();
+    for (tag of tags) {
+        el.append(`
+            <div class="two fields">
+                <div class="field">
+                    <label>Color</label>
+                    <div class="ui selection tag-color dropdown" data-tag-id=${tag.id}>
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Color</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Name</label>
+                    <input class="tag-name" type="text" value="${tag.name}" data-tag-id=${tag.id}>
+                </div>
+            </div>
+        `)
+        $(`.tag-color.dropdown[data-tag-id=${tag.id}]`).dropdown({
+            values: COLORS,
+            showOnFocus: false,
+            onChange: (value, text, choice) => {
+                tagId = choice.closest('.ui.dropdown').attr('data-tag-id');
+                updateTag(tagId, {color: value})
+            },
+        }).dropdown('set selected', tag.color, null, true);
+    }
+    $(`.tag-name`).on('input', e => {
+        clearTimeout(tagUpdateTimeout);
+        tagUpdateTimeout = setTimeout(function() {
+            tagId = $(e.target).attr('data-tag-id');
+            updateTag(tagId, {name: $(e.target).val()}); 
+        }, 1000);
+    })
+}
+function updateTag(tagId, data) {
+    $.api({
+        on: 'now',
+        method: 'PATCH',
+        url: `/cd/api/tags/${tagId}/`,
+        headers: { 'X-CSRFToken': csrftoken },
+        data: data,
+        onSuccess: r => {
+            $('body').toast({
+                title: 'Tag updated',
+                message: 'Tag updated successfully.'
+            })
+        }
+    })
 }
