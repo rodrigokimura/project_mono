@@ -1,3 +1,9 @@
+## 4.9.0 (2022-02-16)
+
+### Feat
+
+- **coder**: add all tag related operations
+
 ## 4.8.0 (2022-02-15)
 
 ### Feat
