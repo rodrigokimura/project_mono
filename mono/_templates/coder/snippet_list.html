@@ -109,6 +109,7 @@
         </a>
         <div class="item">
             <div class="ui basic fitted languages inverted segment">
+                <i class="file code icon"></i>
                 Languages
                 <div class="languages inverted pointing menu" style="padding-top: .5em; min-height: 1em;">
                 </div>
@@ -116,10 +117,12 @@
         </div>
         <div class="item">
             <div class="ui basic fitted tags inverted segment">
+                <i class="tags icon"></i>
                 Tags
                 <div class="tags inverted menu" style="padding-top: .5em; min-height: 1em;">
                 </div>
             </div>
+            <div class="ui fluid small inverted button" onclick="manageTags()">Manage tags</div>
         </div>
     </div>
 {% endblock sidebars %}
@@ -152,7 +155,7 @@
         </div>
     </div>
 
-    <div class="ui modal">
+    <div class="ui modal" id="snippet-modal">
         <i class="close icon"></i>
         <div class="header" id="modal-title"></div>
         <div class="ui form content">
@@ -183,7 +186,32 @@
         </div>
     </div>
 
+    <div class="ui modal" id="tags-modal">
+        <i class="close icon"></i>
+        <div class="header">Manage tags</div>
+        <div class="ui form content">
+            
+        </div>
+        <div class="actions">
+            <div class="ui black deny button">
+                Close
+            </div>
+        </div>
+    </div>
+
     <script>
+        COLORS = [
+            {% for key, value in colors %}
+                {
+                    name: '{{ value }}',
+                    icon: '{{ key }} circle',
+                    value: '{{ key }}',
+                    {% if key == 'blue' %}
+                    selected: true,
+                    {% endif %}
+                },
+            {% endfor %}
+        ]
         function initializeLanguagesDropdown() {
             $('#languages-dropdown').dropdown({
                 values: [
@@ -200,6 +228,8 @@
             });
         }
         $(document).ready(e => {
+            sessionStorage.clear();
+            getTags(render = false);
             showAll();
             initializeLanguagesDropdown();
             $('#search').keyup(e => {

@@ -11,22 +11,22 @@ function showAll() {
     button.addClass('active');
     getSnippets();
     getLanguages();
-    getTags();
+    getSnippetTags();
 }
 function selectLanguage(language) {
     desselectButtons();
     button = $(`.menu .item[data-language='${language}']`);
     button.addClass('active');
-    getSnippets(filter={'language': language});
+    getSnippets(filter = { 'language': language });
 }
-function selectTag(tag) {
+function selectTag(tagId) {
     desselectButtons();
-    button = $(`.menu .item[data-tag='${tag}']`);
+    button = $(`.menu .item[data-tag='${tagId}']`);
     button.addClass('active');
-    if (tag == 'null') {
-        getSnippets(filter={'tags__isnull': true});
+    if (tagId == 'null') {
+        getSnippets(filter = { 'tags__isnull': true });
     } else {
-        getSnippets(filter={'tags__name': tag});
+        getSnippets(filter = { 'tags__id': tagId });
     }
 }
 function getSnippetFromStorage(snippetId) {
@@ -46,17 +46,37 @@ function filterSnippets(query) {
     renderSnippets(snippets.filter(snippet => snippet.code.includes(query)));
     sessionStorage.setItem('lastFilterTimestamp', Date.now());
 }
-function getTagsHtml(tags) {
-    if (tags.length == 0) {
-        return '';
-    }
+function getSnippetTagsHtml(snippetTags, snippetId) {
+    
     html = '';
-    for (tag of tags) {
-        html += `<div class="ui ${tag.color} label" data-tag-id="${tag.id}" style="margin-right: .5em;">${tag.name}</div>`;
+    dropdownHtml = `
+        <div class="ui floating dropdown tiny icon button" id="tags-dropdown">
+            <i class="tags icon"></i>
+            <div class="menu">
+                <div class="ui search icon input">
+                    <i class="search icon"></i>
+                    <input name="search" placeholder="Search issues..." type="text">
+                </div>
+                <div class="divider"></div>
+                ${getTagsHtmlForDropdown(snippetTags.map(tag => tag.id))}
+            </div>
+        </div>
+    `;
+    for (tag of snippetTags) {
+        html += `
+            <div class="ui ${tag.color} label" data-tag-id="${tag.id}" style="margin-right: .5em;">
+                ${tag.name}
+                <i class="delete icon" onclick="untagSnippet(${tag.id}, ${snippetId})"></i>
+            </div>
+        `;
     }
-    return `<div>${html}</div>`;
+    return `<div>
+        ${html}
+        ${dropdownHtml}
+    </div>`;
 }
 function selectSnippet(snippetId) {
+    sessionStorage.setItem('selectedSnippet', snippetId);
     desselectButtons(sidebar = false);
     button = $(`.menu .item[data-snippet-id=${snippetId}]`);
     button.addClass('teal').addClass('active');
@@ -78,7 +98,7 @@ function selectSnippet(snippetId) {
                 </div>
             </h1>
             <div class="ui header">${snippet.language}</div>
-            ${getTagsHtml(snippet.tags)}
+            ${getSnippetTagsHtml(snippet.tags, snippetId)}
         </div>
         <div class="snippet highlight" style="width: 100%; overflow: auto; padding: 1em; flex: 1 1 auto;">${snippet.html}</div>
         <div class="ui bottom attached segment" style="display: flex; flex-flow: row nowrap; justify-content: space-between; align-items: baseline; width: 100%; padding: .5em; flex: 0 1 auto; margin-bottom: 0;">
@@ -141,8 +161,37 @@ function selectSnippet(snippetId) {
             });
         },
     });
+    initializeTagsDropdown(snippetId);
 }
-function getSnippets(filter = undefined) {
+function getTagsHtmlForDropdown(excludedTags = []) {
+    let html = '';
+    let allTags = JSON.parse(sessionStorage.getItem('tags'));
+    tags = allTags.filter(tag => !excludedTags.includes(tag.id));
+    for (tag of tags) {
+        html += `
+            <div class="tag item" data-value="${tag.id}">
+                <i class="${tag.color} empty circle icon"></i>
+                ${tag.name == '' ? 'No name' : tag.name}
+            </div>
+        `
+    }
+    return html
+}
+function initializeTagsDropdown(snippetId) {
+    if ($('.tag.item').length == 0) {
+        $('#tags-dropdown').remove();
+        return;
+    }
+    $('#tags-dropdown').dropdown({
+        action: 'hide',
+        direction: 'downward',
+        fullTextSearch: true,
+        onChange: (value, text, $choice) => {
+            tagSnippet(value, snippetId);
+        }
+    });
+}
+async function getSnippets(filter = undefined, callback = undefined, args = []) {
     $('#snippet').empty();
     let url = '/cd/api/snippets/';
     if (filter) {
@@ -152,11 +201,12 @@ function getSnippets(filter = undefined) {
         on: 'now',
         url: url,
         stateContext: '.snippets',
-        onSuccess: function(response) {
+        onSuccess: function (response) {
             snippets = response.results;
             sessionStorage.setItem('snippets', JSON.stringify(snippets));
             renderSnippets(snippets);
             if (!filter) { $('#count-all').text(snippets.length); }
+            if (callback) { callback(...args); }
         }
     })
 }
@@ -169,11 +219,11 @@ function deleteSnippet(id) {
         actions: [
             {
                 text: 'Cancel',
-                 class: 'black deny'
+                class: 'black deny'
             },
             {
                 text: 'Yes, delete it.',
-                 class: 'red approve'
+                class: 'red approve'
             },
         ],
         onApprove: () => {
@@ -184,7 +234,7 @@ function deleteSnippet(id) {
                 method: 'DELETE',
                 headers: { 'X-CSRFToken': csrftoken },
                 stateContext: '.delete.button',
-                onSuccess: function(response) {
+                onSuccess: r => {
                     $('body').toast({
                         title: 'Deletion',
                         message: 'Snippet deleted successfully.'
@@ -241,27 +291,30 @@ function renderLanguages(languages) {
         `);
     }
 }
-function getTags() {
+function getSnippetTags() {
     let el = $('.tags.menu');
     $.api({
         on: 'now',
         url: '/cd/api/snippets/tags/',
         stateContext: '.tags.segment',
         onSuccess: r => {
-            renderTags(r);
+            renderSnippetTags(r);
         }
     })
 }
-function renderTags(tags) {
+function renderSnippetTags(tags) {
     let el = $('.tags.menu');
     el.empty();
     if (tags.length > 0) {
-        tags.forEach(item => {
+        tags.forEach(tag => {
             el.append(
                 `
-                <a class="item" data-tag="${item.tag}" onclick="selectTag('${item.tag}')" style="padding-right: 0; padding-left: 0;">
-                    ${item.tag ? item.tag : 'No tag'}
-                    <div class="ui label">${item.count}</div>
+                <a class="item" data-tag="${tag.id}" onclick="selectTag('${tag.id}')" style="padding-right: 0; padding-left: 0;">
+                    <span>    
+                        <i class="empty ${tag.color} circle icon"></i>
+                        ${tag.id === null ? 'No tag' : tag.name === '' ? 'No name' : tag.name}
+                    </span>    
+                    <div class="ui label">${tag.count}</div>
                 </a>
                 `
             );
@@ -304,7 +357,7 @@ function showModal(id = null) {
         setFormInputData(id);
     }
     $('#modal-title').text(title);
-    $('.ui.modal')
+    $('#snippet-modal')
         .modal({
             onApprove: () => {
                 $.api({
@@ -351,4 +404,158 @@ function copyPublicLink(snippetId) {
         message: 'Public link copied successfully.',
         class: 'success'
     });
+}
+function tagSnippet(tagId, snippetId) {
+    $.api({
+        on: 'now',
+        method: 'POST',
+        url: `/cd/api/snippets/${snippetId}/tag/`,
+        headers: { 'X-CSRFToken': csrftoken },
+        data: { tag: tagId },
+        successTest: r => true,
+        onSuccess: r => {
+            getSnippets(undefined, selectSnippet, [snippetId]);
+            getSnippetTags();
+            $('body').toast({
+                title: 'Tagging',
+                message: 'Snippet tagged successfully.',
+            })
+        }
+    })
+}
+function untagSnippet(tagId, snippetId) {
+    $.api({
+        on: 'now',
+        method: 'POST',
+        url: `/cd/api/snippets/${snippetId}/untag/`,
+        headers: { 'X-CSRFToken': csrftoken },
+        data: { tag: tagId },
+        successTest: r => true,
+        onSuccess: r => {
+            getSnippets(undefined, selectSnippet, [snippetId]);
+            getSnippetTags();
+            $('body').toast({
+                title: 'Untagging',
+                message: 'Snippet untagged successfully.',
+            })
+        }
+    })
+}
+function refreshSnippet(snippetId = undefined) {
+    if (!snippetId) { 
+        sessionStorage.getItem('selectedSnippet') ? snippetId = sessionStorage.getItem('selectedSnippet') : snippetId = undefined;
+    }
+    if (snippetId) { 
+        getSnippets(undefined, selectSnippet, [snippetId]);
+    }
+}
+function manageTags() {
+    getTags(render = true);
+    $('#tags-modal')
+        .modal('show');
+}
+async function getTags(render = false) {
+    $.api({
+        on: 'now',
+        url: '/cd/api/tags/',
+        stateContext: '#tags-modal .form.content',
+        autofocus: false,
+        onSuccess: r => {
+            if (render) { renderTags(r.results) };
+            sessionStorage.setItem('tags', JSON.stringify(r.results));
+        }
+    })
+}
+var tagUpdateTimeout;
+async function renderTags(tags) {
+    let el = $('#tags-modal .form.content');
+    el.empty();
+    for (tag of tags) {
+        el.append(`
+            <div class="two fields">
+                <div class="field">
+                    <label>Color</label>
+                    <div class="ui selection tag-color dropdown" data-tag-id=${tag.id}>
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Color</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Name</label>
+                    <input class="tag-name" type="text" value="${tag.name}" data-tag-id=${tag.id}>
+                </div>
+                <div class="ui red icon button" style="margin: 1.5em .5em 0 .5em;" onclick="deleteTag(${tag.id})"><i class="delete icon"></i></div>
+            </div>
+        `)
+        $(`.tag-color.dropdown[data-tag-id=${tag.id}]`).dropdown({
+            values: COLORS,
+            showOnFocus: false,
+            onChange: (value, text, choice) => {
+                tagId = choice.closest('.ui.dropdown').attr('data-tag-id');
+                updateTag(tagId, { color: value })
+            },
+        }).dropdown('set selected', tag.color, null, true);
+    }
+    $(`.tag-name`).on('input', e => {
+        clearTimeout(tagUpdateTimeout);
+        tagUpdateTimeout = setTimeout(function () {
+            tagId = $(e.target).attr('data-tag-id');
+            updateTag(tagId, { name: $(e.target).val() });
+        }, 1000);
+    });
+    el.append(`
+        <div class="ui green icon labeled button" onclick="addTag()">Add tag<i class="add icon"></i></div>
+    `)
+}
+function updateTag(tagId, data) {
+    $.api({
+        on: 'now',
+        method: 'PATCH',
+        url: `/cd/api/tags/${tagId}/`,
+        headers: { 'X-CSRFToken': csrftoken },
+        data: data,
+        onSuccess: r => {
+            getTags(render = false);
+            getSnippetTags();
+            refreshSnippet();
+            $('body').toast({
+                title: 'Tag updated',
+                message: 'Tag updated successfully.'
+            })
+        }
+    })
+}
+function addTag() {
+    $.api({
+        on: 'now',
+        method: 'POST',
+        url: `/cd/api/tags/`,
+        headers: { 'X-CSRFToken': csrftoken },
+        onSuccess: r => {
+            getTags(render = true);
+            getSnippetTags();
+            refreshSnippet();
+            $('body').toast({
+                title: 'Tag updated',
+                message: 'Tag updated successfully.'
+            })
+        }
+    })
+}
+function deleteTag(tagId) {
+    $.api({
+        on: 'now',
+        method: 'DELETE',
+        url: `/cd/api/tags/${tagId}/`,
+        headers: { 'X-CSRFToken': csrftoken },
+        onSuccess: r => {
+            getTags(render = true);
+            getSnippetTags();
+            refreshSnippet();
+            $('body').toast({
+                title: 'Tag deleted',
+                message: 'Tag deleted successfully.'
+            })
+        }
+    })
 }

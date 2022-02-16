@@ -3,12 +3,13 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from . import views
-from .viewsets import SnippetViewSet
+from .viewsets import SnippetViewSet, TagViewSet
 
 app_name = 'coder'
 
 router = DefaultRouter()
 router.register('snippets', SnippetViewSet)
+router.register('tags', TagViewSet)
 
 # pylint: disable=C0301
 urlpatterns = [
