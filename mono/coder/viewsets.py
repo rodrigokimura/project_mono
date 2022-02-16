@@ -1,12 +1,13 @@
 """Coder's viewsets"""
 from __mono.permissions import IsCreator
 from django.db.models import Count, F, QuerySet
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Snippet, Tag
-from .serializers import SnippetSerializer
+from .serializers import SnippetSerializer, TagSerializer
 
 # pylint: disable=R0901
 
@@ -23,13 +24,19 @@ class BaseViewSet(ModelViewSet):
         )
 
 
+class TagViewSet(BaseViewSet):
+    """Tag viewset"""
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+
+
 class SnippetViewSet(BaseViewSet):
     """Snippet viewset"""
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
     filterset_fields = {
         'language': ['exact'],
-        'tags__name': ['exact'],
+        'tags__id': ['exact'],
         'tags': ['isnull'],
     }
 
@@ -49,13 +56,30 @@ class SnippetViewSet(BaseViewSet):
         snippets: QuerySet[Snippet] = self.get_queryset()
         tags: QuerySet[Tag] = Tag.objects.filter(created_by=request.user)
         result = list(tags.annotate(
-            tag=F('name'),
             count=Count('snippet__id'),
-        ).values('tag', 'count').distinct())
+        ).values('id', 'name', 'color', 'count').distinct())
         result.append(
             {
-                'tag': None,
+                'id': None,
+                'name': None,
+                'name': None,
                 'count': snippets.filter(tags__isnull=True).count(),
             }
         )
         return Response(result)
+
+    @action(detail=True, methods=['post'])
+    def untag(self, request, *args, **kwargs):
+        """Untag snippet"""
+        snippet: Snippet = self.get_object()
+        tag = get_object_or_404(Tag, id=request.data.get('tag'))
+        snippet.tags.remove(tag)
+        return Response(status=204)
+
+    @action(detail=True, methods=['post'])
+    def tag(self, request, *args, **kwargs):
+        """Tag snippet"""
+        snippet: Snippet = self.get_object()
+        tag = get_object_or_404(Tag, id=request.data.get('tag'))
+        snippet.tags.add(tag)
+        return Response(status=204)

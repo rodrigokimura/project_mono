@@ -25,6 +25,7 @@
         "restricted_area",
         "shipper",
         "notes",
-        "accounts"
+        "accounts",
+        "coder"
     ],
 }

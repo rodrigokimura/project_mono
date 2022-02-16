@@ -1,3 +1,15 @@
+## 4.9.0 (2022-02-16)
+
+### Feat
+
+- **coder**: add all tag related operations
+
+## 4.8.0 (2022-02-15)
+
+### Feat
+
+- **coder**: add modal to manage tags
+
 ## 4.7.1 (2022-02-11)
 
 ### Fix
