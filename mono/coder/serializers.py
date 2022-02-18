@@ -1,7 +1,7 @@
 """Coder's serializers"""
 from rest_framework import serializers
 
-from .models import Snippet, Tag, Configuration
+from .models import Configuration, Snippet, Tag
 
 
 class ConfigurationSerializer(serializers.ModelSerializer):
