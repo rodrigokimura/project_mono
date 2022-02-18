@@ -100,8 +100,10 @@ function selectSnippet(snippetId) {
             <div class="ui header">${snippet.language}</div>
             ${getSnippetTagsHtml(snippet.tags, snippetId)}
         </div>
-        <div class="snippet highlight" style="width: 100%; overflow: auto; padding: 1em; flex: 1 1 auto;">${snippet.html}</div>
-        <div class="ui bottom attached segment" style="display: flex; flex-flow: row nowrap; justify-content: space-between; align-items: baseline; width: 100%; padding: .5em; flex: 0 1 auto; margin-bottom: 0;">
+        <div class="ui attached segment" style="padding: 0; flex: 1 1 auto; overflow: auto; display: flex; flex-flow: column nowrap;">
+            <div id="snippet-code" class="${sessionStorage.getItem('style')} snippet highlight">${snippet.html}</div>
+        </div>
+        <div class="ui bottom attached segment" style="display: flex; flex-flow: row nowrap; justify-content: space-between; align-items: baseline; wpadding: .5em; flex: 0 1 auto; margin-bottom: 0;">
             <div class="ui slider checkbox" id="public-checkbox" style="padding: 1em;">
                 <input type="checkbox" name="newsletter">
                 <label>Public</label>
@@ -125,7 +127,7 @@ function selectSnippet(snippetId) {
         $('#public-checkbox').checkbox('check');
         $('#public-id').removeClass('hidden');
     }
-    $('.ui.checkbox').checkbox({
+    $('#public-checkbox').checkbox({
         onChecked: () => {
             $.api({
                 on: 'now',
@@ -556,6 +558,66 @@ function deleteTag(tagId) {
                 title: 'Tag deleted',
                 message: 'Tag deleted successfully.'
             })
+        }
+    })
+}
+function initializeStylesDropdown() {
+    $('#code-style-dropdown').dropdown({
+        values: STYLES,
+        showOnFocus: false,
+        onChange: (value, text, choice) => {
+            $('#demo').removeClass().addClass(value);
+        },
+    })
+}
+function initializeLineNumbersCheckbox() {
+    $('#lineno-checkbox').checkbox();
+}
+function readConfig() {
+    $.api({
+        on: 'now',
+        method: 'GET',
+        url: '/cd/api/config/',
+        onSuccess: r => {
+            $('#lineno-checkbox').checkbox(r.linenos ? 'check' : 'uncheck');
+            $('#code-style-dropdown').dropdown('set selected', r.style);
+        }
+    })
+}
+function showConfigModal() {
+    readConfig();
+    $('#config-modal')
+        .modal({
+            onApprove: () => {
+                lineno = $('#lineno-checkbox').checkbox('is checked');
+                style = $('#code-style-dropdown').dropdown('get value');
+                $.api({
+                    on: 'now',
+                    method: 'PATCH',
+                    url: '/cd/api/config/',
+                    headers: { 'X-CSRFToken': csrftoken },
+                    data: { lineno: lineno, style: style },
+                    onSuccess: r => {
+                        setSnippetStyle();
+                        refreshSnippet();
+                        $('body').toast({
+                            title: 'Config updated',
+                            message: 'Config updated successfully.'
+                        })
+                    }
+                })
+            }
+        })
+        .modal('show');
+}
+async function setSnippetStyle() {
+    $.api({
+        on: 'now',
+        method: 'GET',
+        url: '/cd/api/config/',
+        onSuccess: r => {
+            $('#snippet-code').addClass(r.style);
+            sessionStorage.setItem('style', r.style);
         }
     })
 }

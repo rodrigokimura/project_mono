@@ -1,20 +1,18 @@
 """Coder's views"""
-from __mono.permissions import IsCreator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
-from rest_framework.generics import RetrieveUpdateAPIView
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from pygments import highlight
 from pygments.formatters import \
     HtmlFormatter  # pylint: disable=no-name-in-module
-from pygments.lexers import get_all_lexers, get_lexer_by_name
-from pygments.styles import get_all_styles
+from pygments.lexers import get_lexer_by_name
+from rest_framework.generics import RetrieveUpdateAPIView
 
-from .models import LANGUAGE_CHOICES, Configuration, Snippet, Tag
+from .models import (
+    LANGUAGE_CHOICES, STYLE_CHOICES, Configuration, Snippet, Tag,
+)
 from .serializers import ConfigurationSerializer
 
 
@@ -35,11 +33,28 @@ class SnippetListView(LoginRequiredMixin, TemplateView):
         return Snippet.objects.filter(created_by=self.request.user)
 
     def get_context_data(self, *args, **kwargs):
+        code = [
+            'def fib(n):',
+            '   """Print Fibonacci sequence"""',
+            '    a, b = 0, 1',
+            '    while a < n:',
+            '        print(a, end=\' \')',
+            '        a, b = b, a + b',
+            'fib(1000)',
+        ]
         context = super().get_context_data(*args, **kwargs)
         context['languages'] = LANGUAGE_CHOICES
+        context['styles'] = STYLE_CHOICES
         context['colors'] = Tag.Color.choices
-        config: Configuration = Configuration.objects.get_or_create(created_by=self.request.user)[0]
-        context['snippet_css'] = HtmlFormatter(style=config.style).get_style_defs('.highlight')
+        context['all_styles_css'] = ''.join(
+            HtmlFormatter(style=style[0]).get_style_defs(f'.{style[0]}')
+            for style in STYLE_CHOICES
+        )
+        context['demo_code'] = highlight(
+            '\n'.join(code),
+            lexer=get_lexer_by_name('python', stripall=True),
+            formatter=HtmlFormatter(linenos=True),
+        )
         return context
 
 
@@ -74,33 +89,3 @@ class ConfigAPIView(RetrieveUpdateAPIView):
 
     def get_object(self):
         return Configuration.objects.get_or_create(created_by=self.request.user)[0]
-
-
-class DemoAPIView(APIView):
-
-    def get(self, request):
-        linenos = request.query_params.get('linenos', True)
-        style = request.query_params.get('style', 'monokai')
-
-        code = """
-            def fib(n):
-                a, b = 0, 1
-                while a < n:
-                    print(a, end=' ')
-                    a, b = b, a+b
-                    print()
-            
-            fib(1000)
-        """
-
-        lexer = get_lexer_by_name('python', stripall=True)
-        formatter = HtmlFormatter(
-            linenos=linenos,
-            style=style
-        )
-        css = HtmlFormatter(style=style).get_style_defs('.demo')
-        html = highlight(code, lexer, formatter)
-        return Response(
-            f"""<style>{css}</style>
-            <div class="demo">{html}</div>"""
-        )
