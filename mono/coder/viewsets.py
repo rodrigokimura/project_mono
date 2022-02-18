@@ -1,14 +1,13 @@
 """Coder's viewsets"""
 from __mono.permissions import IsCreator
-from django.db.models import Count, F, QuerySet
+from django.db.models import Count, QuerySet
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
-from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin
+from rest_framework.viewsets import ModelViewSet
 
-from .models import Configuration, Snippet, Tag
-from .serializers import ConfigurationSerializer, SnippetSerializer, TagSerializer
+from .models import Snippet, Tag
+from .serializers import SnippetSerializer, TagSerializer
 
 # pylint: disable=R0901
 
@@ -62,7 +61,6 @@ class SnippetViewSet(BaseViewSet):
         result.append(
             {
                 'id': None,
-                'name': None,
                 'name': None,
                 'count': snippets.filter(tags__isnull=True).count(),
             }

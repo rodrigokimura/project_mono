@@ -26,6 +26,18 @@ from multiselectfield import MultiSelectField
 User = get_user_model()
 
 
+def _get_coalesce_sum() -> Coalesce:
+        """Get sum of amount wrapped in coalesce"""
+        return Coalesce(
+            Sum(
+                'amount',
+                output_field=FloatField()
+            ),
+            V(0),
+            output_field=FloatField()
+        )
+
+
 class Transaction(models.Model):
     """Stores financial transactions."""
     description = models.CharField(
@@ -513,16 +525,7 @@ class Account(models.Model):
         qs = Transaction.objects.filter(account=self.pk)
         return qs.count()
 
-    def _get_coalesce_sum(self) -> Coalesce:
-        """Get sum of amount wrapped in coalesce"""
-        return Coalesce(
-            Sum(
-                'amount',
-                output_field=FloatField()
-            ),
-            V(0),
-            output_field=FloatField()
-        )
+    
 
     def _get_credit_card_transactions(self, year, month):
         """Get queryset of transactions for the credit card."""
@@ -566,19 +569,19 @@ class Account(models.Model):
         """Get all expenses for the credit card."""
         qs = self._get_credit_card_transactions(year, month)
         qs = qs.filter(category__type='EXP')
-        return qs.aggregate(sum=-self._get_coalesce_sum())['sum']
+        return qs.aggregate(sum=-_get_coalesce_sum())['sum']
 
     def get_credit_card_adjustments(self, year, month):
         """Get all adjustments for the credit card."""
         qs = self._get_credit_card_transactions(year, month)
         qs = qs.filter(category__type='INC').filter(category__internal_type='ADJ')
-        return qs.aggregate(sum=self._get_coalesce_sum())['sum']
+        return qs.aggregate(sum=_get_coalesce_sum())['sum']
 
     def get_credit_card_payments(self, year, month):
         """Get all payments for the credit card."""
         qs = self._get_credit_card_payments(year, month)
         qs = qs.filter(category__type='INC')
-        return qs.aggregate(sum=self._get_coalesce_sum())['sum']
+        return qs.aggregate(sum=_get_coalesce_sum())['sum']
 
     def is_invoice_paid(self, year, month):
         """Check if invoice is paid."""
