@@ -1,3 +1,9 @@
+## 4.12.0 (2022-02-18)
+
+### Feat
+
+- **coder**: implement style configuration
+
 ## 4.11.0 (2022-02-18)
 
 ### Feat
