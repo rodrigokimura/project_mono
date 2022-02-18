@@ -1,3 +1,9 @@
+## 4.10.0 (2022-02-17)
+
+### Feat
+
+- **project_manager**: change progress bar order
+
 ## 4.9.0 (2022-02-16)
 
 ### Feat
