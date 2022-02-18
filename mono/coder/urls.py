@@ -17,5 +17,6 @@ urlpatterns = [
     path("snippet/", views.SnippetListView.as_view(), name='snippet_list'),
     path("snippet/<int:pk>/edit/", views.SnippetEditView.as_view(), name='snippet_edit'),
     path("snippet/<uuid:public_id>/", views.SnippetPublicView.as_view(), name='snippet_public'),
-    path("api/", include(router.urls))
+    path("api/", include(router.urls)),
+    path("api/config/", views.ConfigAPIView.as_view(), name='config'),
 ]

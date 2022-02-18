@@ -414,7 +414,6 @@ class PlansView(UserPassesTestMixin, TemplateView):
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
-        # TODO: Sort products according to business rules
         product_ids = [product.id for product in get_products()]
 
         context['plans'] = Plan.objects.filter(product_id__in=product_ids)

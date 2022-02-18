@@ -1,3 +1,21 @@
+## 4.12.0 (2022-02-18)
+
+### Feat
+
+- **coder**: implement style configuration
+
+## 4.11.0 (2022-02-18)
+
+### Feat
+
+- **coder**: add config api
+
+## 4.10.0 (2022-02-17)
+
+### Feat
+
+- **project_manager**: change progress bar order
+
 ## 4.9.0 (2022-02-16)
 
 ### Feat

@@ -133,7 +133,6 @@ class RootView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         """Redirect to list of tags"""
         if not self.request.user.is_authenticated:
-            # TODO: redirect to an informational page
             return None
         return reverse('pixel:tags')
 

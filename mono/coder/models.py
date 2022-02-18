@@ -74,7 +74,7 @@ class Snippet(BaseModel, OrderedModel):
     def html(self):
         """Output code in formatted html"""
         lexer = get_lexer_by_name(self.language, stripall=True)
-        config = Configuration.objects.get_or_create(user=self.created_by)[0]
+        config = Configuration.objects.get_or_create(created_by=self.created_by)[0]
         formatter = HtmlFormatter(
             linenos=config.linenos,
             style=config.style
@@ -84,8 +84,8 @@ class Snippet(BaseModel, OrderedModel):
 
 class Configuration(models.Model):
     """Store user configuration"""
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='coder_config')
     style = models.CharField(choices=STYLE_CHOICES, default='monokai', max_length=100)
     linenos = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.OneToOneField(User, on_delete=models.CASCADE, related_name='coder_config')
