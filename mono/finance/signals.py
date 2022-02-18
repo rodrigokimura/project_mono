@@ -103,5 +103,3 @@ def round_transaction(sender, instance, **kwargs):
     """Round transaction"""
     if sender == Transaction:
         instance.round_amount()
-
-# TODO: Add signal to automatically set Chart order

@@ -4,7 +4,7 @@
 
 {% block head %}
     <style>
-        {{ snippet_css }}
+        {{ all_styles_css }}
         .main.grid {
             padding-top: 4em !important;
             padding-left: 21em !important;
@@ -29,9 +29,10 @@
             line-height: 1.42857143;
             color: #
         }
-        .snippet.highlight {
+        #snippet-code {
             padding: 0 0 0 1em !important;
-            overflow: auto;
+            width: 100%;
+            flex: 1 0 auto;
         }
         .hidden {
             display: none !important;
@@ -54,6 +55,13 @@
         /* Handle on hover */
         ::-webkit-scrollbar-thumb:hover {
             background: #555 !important;
+        }
+        td.linenos .normal {
+            color: inherit !important;
+            opacity: 0.5 !important;
+            background-color: transparent !important;
+            padding-left: 5px !important;
+            padding-right: 10px !important;
         }
     </style>
     <script>
@@ -101,6 +109,9 @@
             <div class="ui inverted header">
                 <em data-emoji=":card_box:" class="small"></em>
                 <span style="padding-left: .5em;">Snippets</span>
+                <button class="circular ui icon right floated basic inverted button" onclick="showConfigModal()">
+                    <i class="cog icon"></i>
+                </button>
             </div>
         </div>
         <a class="item" id="show-all" onclick="showAll()">
@@ -128,9 +139,9 @@
 {% endblock sidebars %}
 
 {% block menu %}
-    <div class="item">
+    {% comment %} <div class="item">
         Snippets
-    </div>
+    </div> {% endcomment %}
 {% endblock menu %}
 
 {% block main %}
@@ -199,6 +210,39 @@
         </div>
     </div>
 
+    <div class="ui modal" id="config-modal">
+        <i class="close icon"></i>
+        <div class="header">Config</div>
+        <div class="ui content">
+            <div class="ui form">
+                <div class="field">
+                    <label>Style</label>
+                    <div class="ui search selection code-style dropdown" id="code-style-dropdown">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Style</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui slider checkbox" id="lineno-checkbox" style="padding: 1em;">
+                        <input type="checkbox">
+                        <label>Show line numbers</label>
+                    </div>
+                </div>
+            </div>
+            <div id="demo" style="margin-top: 1em; padding-left: .5em; border-radius: .5em; border: 1px solid #ccc!important">
+                {{ demo_code|safe }}
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui black deny button">
+                Close
+            </div>
+            <div class="ui green approve button">
+                Save
+            </div>
+        </div>
+    </div>
+
     <script>
         COLORS = [
             {% for key, value in colors %}
@@ -207,6 +251,17 @@
                     icon: '{{ key }} circle',
                     value: '{{ key }}',
                     {% if key == 'blue' %}
+                    selected: true,
+                    {% endif %}
+                },
+            {% endfor %}
+        ]
+        STYLES = [
+            {% for key, value in styles %}
+                {
+                    name: '{{ value }}',
+                    value: '{{ key }}',
+                    {% if key == 'monokai' %}
                     selected: true,
                     {% endif %}
                 },
@@ -229,9 +284,12 @@
         }
         $(document).ready(e => {
             sessionStorage.clear();
+            setSnippetStyle();
             getTags(render = false);
             showAll();
             initializeLanguagesDropdown();
+            initializeStylesDropdown();
+            initializeLineNumbersCheckbox();
             $('#search').keyup(e => {
                 if (e.keyCode == 13) {
                     filterSnippets($('#search').val());

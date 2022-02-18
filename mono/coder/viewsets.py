@@ -1,6 +1,6 @@
 """Coder's viewsets"""
 from __mono.permissions import IsCreator
-from django.db.models import Count, F, QuerySet
+from django.db.models import Count, QuerySet
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -61,7 +61,6 @@ class SnippetViewSet(BaseViewSet):
         result.append(
             {
                 'id': None,
-                'name': None,
                 'name': None,
                 'count': snippets.filter(tags__isnull=True).count(),
             }

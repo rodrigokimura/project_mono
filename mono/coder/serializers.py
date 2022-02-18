@@ -1,7 +1,25 @@
 """Coder's serializers"""
 from rest_framework import serializers
 
-from .models import Snippet, Tag
+from .models import Configuration, Snippet, Tag
+
+
+class ConfigurationSerializer(serializers.ModelSerializer):
+    """Configuration serializer"""
+    created_by = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
+    class Meta:
+        model = Configuration
+        fields = [
+            'id',
+            'style',
+            'linenos',
+            'created_at',
+            'updated_at',
+            'created_by',
+        ]
 
 
 class TagSerializer(serializers.ModelSerializer):
