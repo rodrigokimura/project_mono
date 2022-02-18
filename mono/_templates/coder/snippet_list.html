@@ -123,6 +123,7 @@
                 </div>
             </div>
             <div class="ui fluid small inverted button" onclick="manageTags()">Manage tags</div>
+            <div class="ui fluid small inverted button" onclick="showConfigModal()">Config</div>
         </div>
     </div>
 {% endblock sidebars %}
@@ -199,6 +200,17 @@
         </div>
     </div>
 
+    <div class="ui modal" id="config-modal">
+        <i class="close icon"></i>
+        <div class="header">Config</div>
+        <div class="content" id="demo"></div>
+        <div class="actions">
+            <div class="ui black deny button">
+                Close
+            </div>
+        </div>
+    </div>
+
     <script>
         COLORS = [
             {% for key, value in colors %}
@@ -226,6 +238,31 @@
                     {% endfor %}
                 ]
             });
+        }
+        function showConfigModal() {
+            viewDemo();
+            $('#config-modal')
+                .modal()
+                .modal('show');
+        }
+        function viewDemo(style, lineno) {
+            let url = '/cd/api/demo/';
+            let params = {};
+            let el = $('#demo');
+            if (style) { params['style'] = style; }
+            if (lineno) { params['style'] = style; }
+            if (style || lineno) {
+                url += '?' + $.param(params);
+            }
+            $.api({
+                on: 'now',
+                method: 'GET',
+                url: url,
+                onSuccess: r => {
+                    el.empty();
+                    el.append(r);
+                }
+            })
         }
         $(document).ready(e => {
             sessionStorage.clear();
