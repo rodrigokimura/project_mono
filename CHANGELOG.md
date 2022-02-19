@@ -1,3 +1,9 @@
+## 4.13.5 (2022-02-19)
+
+### Fix
+
+- **feedback**: create subclass of widget customizing template
+
 ## 4.13.4 (2022-02-19)
 
 ### Fix

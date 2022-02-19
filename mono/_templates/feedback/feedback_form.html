@@ -9,8 +9,6 @@
 <div class="ui center aligned stackable grid container">
   <div class="row">
     <div class="ten wide column">
-    
-
       <div class="ui attached message">
         <div class="header">
           <p>{% translate "Hi! Can you help us improve?" %}</p>
@@ -55,20 +53,23 @@
           </div>
         </div>
 
-        <div class="fluid ui buttons">
-          <button class="ui button primary" type="submit" form="feedback_form">
-            {% translate "Save" %}
-          </button>
-          <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
-            {% translate "Cancel" %}
-          </a>
+        <div class="ui grid">
+            <div class="two column row">
+                <div class="column">
+                    <a class="ui fluid button" href="{{ request.META.HTTP_REFERER }}">
+                        {% translate "Cancel" %}
+                    </a>
+                </div>
+                <div class="column">
+                    <button class="ui primary right labeled fluid icon button" type="submit" form="feedback_form">
+                        <i class="save icon"></i>
+                        {% translate "Save" %}
+                    </button>
+                </div>
+            </div>
         </div>
       </form>
     </div>
   </div>
-
 </div>
-
-<script>
-</script>
 {% endblock main %}

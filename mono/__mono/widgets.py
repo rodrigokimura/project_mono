@@ -97,6 +97,11 @@ class ButtonsWidget(Widget):
         return mark_safe(template)
 
 
+class IconButtonsWidget(ButtonsWidget):
+    """Render option of grouped buttons with icons"""
+    template_name = 'widgets/ui_icon_buttons.html'
+
+
 class SliderWidget(Widget):
     """Render a slider widget"""
     template_name = 'widgets/ui_slider.html'
