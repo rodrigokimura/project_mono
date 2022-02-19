@@ -1,3 +1,9 @@
+## 4.13.2 (2022-02-19)
+
+### Fix
+
+- **project_manager**: change progress bar order
+
 ## 4.13.1 (2022-02-19)
 
 ### Fix
