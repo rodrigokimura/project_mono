@@ -1,3 +1,9 @@
+## 4.13.3 (2022-02-19)
+
+### Fix
+
+- **finance**: remove uncorrect attribute from serializer
+
 ## 4.13.2 (2022-02-19)
 
 ### Fix
