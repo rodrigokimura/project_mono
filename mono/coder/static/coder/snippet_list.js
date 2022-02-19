@@ -393,9 +393,11 @@ function copySnippet(snippetId) {
     snippet = getSnippetFromStorage(snippetId);
     copyTextToClipboard(snippet.code);
     $('body').toast({
-        title: 'Copying',
-        message: 'Snippet copied successfully.',
-        class: 'success'
+        title: 'Snippet copied!',
+        position: 'bottom right',
+        class: 'black',
+        showIcon: 'copy',
+        showProgress: 'bottom'
     });
 }
 function copyPublicLink(snippetId) {
