@@ -3,50 +3,49 @@
 {% load i18n %}
 
 {% block head %}
-<style>{{ snippet_css }}</style>
-<script>
-    function fallbackCopyTextToClipboard(text) {
-        var textArea = document.createElement("textarea");
-        textArea.value = text;
-        
-        // Avoid scrolling to bottom
-        textArea.style.top = "0";
-        textArea.style.left = "0";
-        textArea.style.position = "fixed";
-      
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-      
-        try {
-            var successful = document.execCommand('copy');
-            var msg = successful ? 'successful' : 'unsuccessful';
-            console.log('Fallback: Copying text command was ' + msg);
-        } catch (err) {
-            console.error('Fallback: Oops, unable to copy', err);
+    <style>{{ snippet_css }}</style>
+    <script>
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+          
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+          
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Fallback: Copying text command was ' + msg);
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+          
+            document.body.removeChild(textArea);
         }
-      
-        document.body.removeChild(textArea);
-    }
-    function copyTextToClipboard(text) {
-        if (!navigator.clipboard) {
-            fallbackCopyTextToClipboard(text);
-          return;
+        function copyTextToClipboard(text) {
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+              return;
+            }
+            navigator.clipboard.writeText(text).then(function() {
+                console.log('Async: Copying to clipboard was successful!');
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
         }
-        navigator.clipboard.writeText(text).then(function() {
-            console.log('Async: Copying to clipboard was successful!');
-        }, function(err) {
-            console.error('Async: Could not copy text: ', err);
-        });
-    }
-</script>
+    </script>
 {% endblock head %}
 
 {% block main %}
     <div class="ui stackable grid container" style="padding-top: 5em;">
         <div class="row">
-            <div class="column">
-                
+            <div class="column" style="height: calc(100vh - 10em); display: flex; flex-flow: column nowrap;">
                 <div class="ui top attached teal segment" style="flex: 0 0 auto;">
                     <h1 class="ui header">
                         {{ snippet.title }}
@@ -69,9 +68,11 @@
             code = JSON.parse($('#snippet-code').text());
             copyTextToClipboard(code);
             $('body').toast({
-                title: 'Copying',
-                message: 'Snippet copied successfully.',
-                class: 'success'
+                title: 'Snippet copied!',
+                position: 'bottom right',
+                class: 'black',
+                showIcon: 'copy',
+                showProgress: 'bottom'
             });
         }
         $(document).ready(e => {
