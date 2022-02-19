@@ -1,3 +1,9 @@
+## 4.13.1 (2022-02-19)
+
+### Fix
+
+- **project_manager**: change progress order
+
 ## 4.13.0 (2022-02-18)
 
 ### Feat
