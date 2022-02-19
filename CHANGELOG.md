@@ -1,3 +1,21 @@
+## 4.13.3 (2022-02-19)
+
+### Fix
+
+- **finance**: remove uncorrect attribute from serializer
+
+## 4.13.2 (2022-02-19)
+
+### Fix
+
+- **project_manager**: change progress bar order
+
+## 4.13.1 (2022-02-19)
+
+### Fix
+
+- **project_manager**: change progress order
+
 ## 4.13.0 (2022-02-18)
 
 ### Feat
