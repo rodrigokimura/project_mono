@@ -32,7 +32,6 @@ class AccountSerializer(serializers.ModelSerializer):
             "due_date"
         ]
         read_only_fields = [
-            'url',
             "name",
             "created_by",
             "owned_by",
@@ -61,7 +60,6 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = [
-            "url",
             "id",
             "name",
             "description",
@@ -73,7 +71,6 @@ class CategorySerializer(serializers.ModelSerializer):
             "active"
         ]
         read_only_fields = [
-            "url",
             "name",
             "description",
             "type",
@@ -96,7 +93,6 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = [
-            'url',
             'description',
             'account',
             'category',
@@ -133,7 +129,6 @@ class RecurrentTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecurrentTransaction
         fields = [
-            'url',
             'description',
             'account',
             'category',
@@ -171,7 +166,6 @@ class InstallmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Installment
         fields = [
-            'url',
             'description',
             'account',
             'category',
@@ -215,7 +209,6 @@ class TransferenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transference
         fields = [
-            'url',
             'description',
             'to_account',
             'from_account',
