@@ -1,5 +1,5 @@
 """Feedback's forms"""
-from __mono.widgets import ButtonsWidget, SliderWidget
+from __mono.widgets import IconButtonsWidget, SliderWidget
 from django import forms
 from django.utils.translation import gettext as _
 
@@ -30,7 +30,7 @@ class FeedbackForm(forms.ModelForm):
         model = Feedback
         fields = ['feeling', 'message', 'public']
         widgets = {
-            'feeling': ButtonsWidget(choices=Feedback.FEELING_CHOICES),
+            'feeling': IconButtonsWidget(choices=Feedback.FEELING_CHOICES),
             'public': SliderWidget,
         }
         error_messages = {
