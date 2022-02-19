@@ -27,15 +27,15 @@ User = get_user_model()
 
 
 def _get_coalesce_sum() -> Coalesce:
-        """Get sum of amount wrapped in coalesce"""
-        return Coalesce(
-            Sum(
-                'amount',
-                output_field=FloatField()
-            ),
-            V(0),
+    """Get sum of amount wrapped in coalesce"""
+    return Coalesce(
+        Sum(
+            'amount',
             output_field=FloatField()
-        )
+        ),
+        V(0),
+        output_field=FloatField()
+    )
 
 
 class Transaction(models.Model):
@@ -524,8 +524,6 @@ class Account(models.Model):
         """Get the total number of transactions in the account."""
         qs = Transaction.objects.filter(account=self.pk)
         return qs.count()
-
-    
 
     def _get_credit_card_transactions(self, year, month):
         """Get queryset of transactions for the credit card."""
