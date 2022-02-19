@@ -78,9 +78,9 @@ class Project(BaseModel):
             not_started_perc = 100 - completed_perc - in_progress_perc
 
         return {
-            'not_started': [not_started, not_started_perc],
-            'in_progress': [in_progress, in_progress_perc],
             'completed': [completed, completed_perc],
+            'in_progress': [in_progress, in_progress_perc],
+            'not_started': [not_started, not_started_perc],
         }
 
     @property
@@ -164,9 +164,9 @@ class Board(BaseModel):
             not_started_perc = 100 - completed_perc - in_progress_perc
 
         return {
-            'not_started': [not_started, not_started_perc],
-            'in_progress': [in_progress, in_progress_perc],
             'completed': [completed, completed_perc],
+            'in_progress': [in_progress, in_progress_perc],
+            'not_started': [not_started, not_started_perc],
         }
 
 
