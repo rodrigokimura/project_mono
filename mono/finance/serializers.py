@@ -7,11 +7,11 @@ from .models import (
 )
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     """User serializer"""
     class Meta:
         model = User
-        fields = ['url', 'username', 'email', 'is_staff']
+        fields = ['username', 'email', 'is_staff']
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -21,7 +21,6 @@ class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = [
-            'url',
             "id",
             "name",
             "created_by",
