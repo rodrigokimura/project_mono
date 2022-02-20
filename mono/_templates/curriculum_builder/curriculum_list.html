@@ -29,7 +29,7 @@
                             <div class="extra content">
                                 <div class="ui two buttons">
                                     <a class="ui basic button" href="{% url 'curriculum_builder:curriculum_detail' pk=c.id %}">View</a>
-                                    <a class="ui basic yellow button" href="">Edit</a>
+                                    <a class="ui basic yellow button"  href="{% url 'curriculum_builder:curriculum_edit' pk=c.id %}">Edit</a>
                                 </div>
                             </div>
                         </div>
