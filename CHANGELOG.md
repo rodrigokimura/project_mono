@@ -1,3 +1,9 @@
+## 4.14.0 (2022-02-20)
+
+### Feat
+
+- **curriculum_builder**: implement function to add company
+
 ## 4.13.5 (2022-02-19)
 
 ### Fix
