@@ -9,21 +9,13 @@ from .models import (
 )
 
 
-class CompanySerializer(serializers.ModelSerializer):
-    """Company serializer"""
-    created_by = serializers.HiddenField(
-        default=serializers.CurrentUserDefault()
-    )
-
-    class Meta:
-        model = Company
-        fields = (
-            'name',
-            'description',
-            'image',
-            'created_by',
-        )
-        read_only_fields = []
+class UserFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
+    def get_queryset(self):
+        request = self.context.get('request', None)
+        queryset = super().get_queryset()
+        if not request or not queryset:
+            return None
+        return queryset.filter(created_by=request.user)
 
 
 class AcomplishmentSerializer(serializers.ModelSerializer):
@@ -59,13 +51,13 @@ class WorkExperienceSerializer(serializers.ModelSerializer):
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
-    company = CompanySerializer()
+    # company = CompanySerializer()
     acomplishments = AcomplishmentSerializer(many=True)
 
     class Meta:
         model = WorkExperience
         fields = (
-            'company',
+            # 'company',
             'job_title',
             'description',
             'started_at',
@@ -86,6 +78,29 @@ class WorkExperienceSerializer(serializers.ModelSerializer):
         instance.company = validated_data.pop('company')['id']
         instance = super().update(instance, validated_data)
         return instance
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    """Company serializer"""
+    created_by = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+    work_experiences = WorkExperienceSerializer(many=True, required=False)
+    curriculum = UserFilteredPrimaryKeyRelatedField(
+        queryset=Curriculum.objects.all()
+    )
+
+    class Meta:
+        model = Company
+        fields = (
+            'name',
+            'description',
+            'image',
+            'curriculum',
+            'work_experiences',
+            'created_by',
+        )
+        read_only_fields = []
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -128,7 +143,7 @@ class CurriculumSerializer(serializers.ModelSerializer):
     )
     social_media_profiles = SocialMediaProfileSerializer(many=True)
     skills = SkillSerializer(many=True)
-    work_experiences = WorkExperienceSerializer(many=True)
+    companies = CompanySerializer(many=True)
 
     class Meta:
         model = Curriculum
@@ -138,9 +153,8 @@ class CurriculumSerializer(serializers.ModelSerializer):
             'last_name',
             'profile_picture',
             'bio',
+            'companies',
             'social_media_profiles',
             'skills',
-            'companies',
             'created_by',
         )
-        read_only_fields = []

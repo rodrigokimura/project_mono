@@ -23,9 +23,8 @@ class Curriculum(BaseModel):
     last_name = models.CharField(max_length=50)
     profile_picture = models.ImageField(null=True, blank=True)
     bio = models.TextField(max_length=1000)
-    social_media_profiles = models.ManyToManyField('SocialMediaProfile')
-    skills = models.ManyToManyField('Skill')
-    companies = models.ManyToManyField('Company')
+    social_media_profiles = models.ManyToManyField('SocialMediaProfile', null=True, blank=True)
+    skills = models.ManyToManyField('Skill', null=True, blank=True)
 
     class Meta:
         verbose_name = 'curriculum'
@@ -81,6 +80,7 @@ class Company(BaseModel):
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=1000)
     image = models.ImageField(null=True, blank=True)
+    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE, related_name="companies")
 
     class Meta:
         verbose_name = 'company'
