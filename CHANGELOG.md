@@ -1,3 +1,9 @@
+## 4.15.0 (2022-02-22)
+
+### Feat
+
+- **curriculum_builder**: add functions to edit and delete company
+
 ## 4.14.0 (2022-02-20)
 
 ### Feat
