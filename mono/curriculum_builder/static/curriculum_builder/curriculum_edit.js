@@ -25,8 +25,8 @@ function renderCompanies(companies) {
         el.append(`
             <div class="ui fluid card">
                 <div class="content">
-                    <div class="ui right floated red icon button"><i class="delete icon"></i></div>
-                    <div class="ui right floated yellow icon button"><i class="edit icon"></i></div>
+                    <div class="ui right floated red icon button" onclick="deleteCompany(${company.id})"><i class="delete icon"></i></div>
+                    <div class="ui right floated yellow icon button" onclick="editCompany(${company.id})"><i class="edit icon"></i></div>
                     <div class="header">
                         <i class="building icon"></i>
                         ${company.name}
@@ -106,12 +106,28 @@ function saveCurriculum() {
         },
     })
 }
-function showCompanyModal(id=undefined) {
+async function loadCompanyToModal(id) {
+    $.api({
+        on: 'now',
+        method: 'GET',
+        url: `/cb/api/companies/${id}/`,
+        onSuccess: company => {
+            modal = $('#company-modal');
+            modal.find('input[name=name]').val(company.name);
+            modal.find('textarea[name=description]').val(company.description);
+        },
+    })
+}
+async function showCompanyModal(id=undefined) {
     let modal = $('#company-modal');
     if (id === undefined) {
+        modal.find('.header').text('Add new company');
+        modal.find('input[name=name]').val('');
+        modal.find('textarea[name=description]').val('');
         method = 'POST';
         url = `/cb/api/companies/` 
     } else {
+        modal.find('.header').text('Edit company');
         method = 'PATCH';
         url = `/cb/api/companies/${id}/`;
     }
@@ -138,4 +154,40 @@ function showCompanyModal(id=undefined) {
 }
 function addCompany() {
     showCompanyModal();
+}
+function editCompany(id) {
+    loadCompanyToModal(id);
+    showCompanyModal(id);
+}
+function deleteCompany(id) {
+    $('body').modal({
+        title: 'Confirmation',
+        class: 'mini',
+        closeIcon: true,
+        content: 'Are you sure you want to delete this company?',
+        actions: [
+            {
+                text: 'Cancel',
+                class: 'black deny',
+            },
+            {
+                text: 'Yes, delete it',
+                class: 'red approve',
+            },
+        ],
+        onApprove: () => {
+            $.api({
+                on: 'now',
+                method: 'DELETE',
+                url: `/cb/api/companies/${id}/`,
+                headers: { 'X-CSRFToken': csrftoken },
+                onSuccess: r => {
+                    $('body').toast({
+                        message: 'Company deleted'
+                    });
+                    getCurriculum();
+                }
+            })
+        }
+    }).modal('show');
 }
