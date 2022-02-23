@@ -33,51 +33,30 @@ class AcomplishmentSerializer(serializers.ModelSerializer):
         )
         read_only_fields = []
 
-    def create(self, validated_data: Dict):
-        transaction = Acomplishment.objects.create(
-            work_experience=validated_data.pop('work_experience')['id'],
-            **validated_data,
-        )
-        return transaction
-
-    def update(self, instance: Acomplishment, validated_data: Dict):
-        instance.work_experience = validated_data.pop('work_experience')['id']
-        instance = super().update(instance, validated_data)
-        return instance
-
 
 class WorkExperienceSerializer(serializers.ModelSerializer):
     """WorkExperience serializer"""
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
-    # company = CompanySerializer()
-    acomplishments = AcomplishmentSerializer(many=True)
+    acomplishments = AcomplishmentSerializer(many=True, required=False)
+    company = UserFilteredPrimaryKeyRelatedField(
+        queryset=Company.objects.all()
+    )
 
     class Meta:
         model = WorkExperience
         fields = (
-            # 'company',
+            'id',
             'job_title',
             'description',
             'started_at',
             'ended_at',
             'created_by',
             'acomplishments',
+            'company',
         )
         read_only_fields = []
-
-    def create(self, validated_data: Dict):
-        transaction = WorkExperience.objects.create(
-            company=validated_data.pop('company')['id'],
-            **validated_data,
-        )
-        return transaction
-
-    def update(self, instance: WorkExperience, validated_data: Dict):
-        instance.company = validated_data.pop('company')['id']
-        instance = super().update(instance, validated_data)
-        return instance
 
 
 class CompanySerializer(serializers.ModelSerializer):
