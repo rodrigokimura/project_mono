@@ -1,3 +1,9 @@
+## 4.16.0 (2022-02-23)
+
+### Feat
+
+- **curriculum_builder**: add feature to add, update and delete work experiences
+
 ## 4.15.0 (2022-02-22)
 
 ### Feat
