@@ -1,3 +1,9 @@
+## 4.17.0 (2022-02-26)
+
+### Feat
+
+- **curriculum_builder**: implement functions to create, edit and delete acomplishments
+
 ## 4.16.0 (2022-02-23)
 
 ### Feat
