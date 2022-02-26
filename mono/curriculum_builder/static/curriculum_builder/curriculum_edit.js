@@ -75,22 +75,22 @@ function getWorkExperiencesHTML(workExperiences, companyId) {
                     <span class="right floated">${workExperience.started_at}</span>
                 </div>
                 <div class="extra content">
-                    ${getAcomplishmentsHTML(workExperience.acomplishments)}
-                    <div class="ui basic primary button">Add new acomplishment</div>
+                    ${getAcomplishmentsHTML(workExperience.acomplishments, workExperience.id)}
+                    <div class="ui basic primary button" onclick="addAcomplishment(${workExperience.id})">Add new acomplishment</div>
                 </div>
             </div>
         `;
     }
     return html;
 }
-function getAcomplishmentsHTML(acomplishments) {
+function getAcomplishmentsHTML(acomplishments, workExperienceId) {
     html = '';
     for (acomplishment of acomplishments) {
         html += `
             <div class="ui fluid card">
                 <div class="content">
-                    <div class="ui right floated red icon button"><i class="delete icon"></i></div>
-                    <div class="ui right floated yellow icon button"><i class="edit icon"></i></div>
+                    <div class="ui right floated red icon button" onclick="deleteAcomplishment(${acomplishment.id})"><i class="delete icon"></i></div>
+                    <div class="ui right floated yellow icon button" onclick="editAcomplishment(${acomplishment.id},${workExperienceId})"><i class="edit icon"></i></div>
                     <div class="header">
                         ${acomplishment.title}
                     </div>
@@ -292,6 +292,94 @@ function deleteWorkExperience(id) {
                 onSuccess: r => {
                     $('body').toast({
                         message: 'Work experience deleted'
+                    });
+                    getCurriculum();
+                }
+            })
+        }
+    }).modal('show');
+}
+async function loadAcomplishmentToModal(id) {
+    $.api({
+        on: 'now',
+        method: 'GET',
+        url: `/cb/api/acomplishments/${id}/`,
+        onSuccess: acomplishment => {
+            modal = $('#acomplishment-modal');
+            modal.find('input[name=title]').val(acomplishment.title);
+            modal.find('textarea[name=description]').val(acomplishment.description);
+        },
+    })
+}
+async function showAcomplishmentModal(id, workExperienceId) {
+    let modal = $('#acomplishment-modal');
+    if (id === undefined) {
+        modal.find('.header').text('Add new acomplishment');
+        modal.find('input[name=title]').val('');
+        modal.find('textarea[name=description]').val('');
+        method = 'POST';
+        url = `/cb/api/acomplishments/` 
+    } else {
+        modal.find('.header').text('Edit acomplishment');
+        method = 'PATCH';
+        url = `/cb/api/acomplishments/${id}/`;
+    }
+    modal
+        .modal({
+            onApprove: () => {
+                $.api({
+                    on: 'now',
+                    method: method,
+                    url: url,
+                    headers: { 'X-CSRFToken': csrftoken },
+                    data: {
+                        title: modal.find('input[name=title]').val(),
+                        description: modal.find('textarea[name=description]').val(),
+                        work_experience: workExperienceId,
+                    },
+                    onSuccess: r => {
+                        getCurriculum();
+                    },
+                    onFailure: r => {
+                        $('body').toast({ title: JSON.stringify(r) })
+                    }
+                })
+            }
+        })
+        .modal('show');
+}
+function addAcomplishment(workExperienceId) {
+    showAcomplishmentModal(undefined, workExperienceId);
+}
+function editAcomplishment(id, workExperienceId) {
+    loadAcomplishmentToModal(id);
+    showAcomplishmentModal(id, workExperienceId);
+}
+function deleteAcomplishment(id) {
+    $('body').modal({
+        title: 'Confirmation',
+        class: 'mini',
+        closeIcon: true,
+        content: 'Are you sure you want to delete this acomplishment?',
+        actions: [
+            {
+                text: 'Cancel',
+                class: 'black deny',
+            },
+            {
+                text: 'Yes, delete it',
+                class: 'red approve',
+            },
+        ],
+        onApprove: () => {
+            $.api({
+                on: 'now',
+                method: 'DELETE',
+                url: `/cb/api/acomplishments/${id}/`,
+                headers: { 'X-CSRFToken': csrftoken },
+                onSuccess: r => {
+                    $('body').toast({
+                        message: 'Acomplishment deleted'
                     });
                     getCurriculum();
                 }

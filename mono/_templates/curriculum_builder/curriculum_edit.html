@@ -66,7 +66,7 @@
 
     <div class="ui modal" id="work-experience-modal">
         <i class="close icon"></i>
-        <div class="header">Company</div>
+        <div class="header">Work Experience</div>
         <div class="ui form content">
             <div class="field">
                 <label>Job title</label>
@@ -105,6 +105,32 @@
             </div>
         </div>
     </div>
+
+
+    <div class="ui modal" id="acomplishment-modal">
+        <i class="close icon"></i>
+        <div class="header">Acomplishment</div>
+        <div class="ui form content">
+            <div class="field">
+                <label>Title</label>
+                <input type="text" name="title">
+            </div>
+            <div class="field">
+                <label>Description</label>
+                <textarea name="description"></textarea>
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui black deny button">
+                Cancel
+            </div>
+            <div class="ui positive right labeled icon button">
+                Save
+                <i class="checkmark icon"></i>
+            </div>
+        </div>
+    </div>
+
     
     <script>
         const CURRICULUM_ID = "{{ object.id }}";

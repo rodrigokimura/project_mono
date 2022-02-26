@@ -23,13 +23,18 @@ class AcomplishmentSerializer(serializers.ModelSerializer):
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
+    work_experience = UserFilteredPrimaryKeyRelatedField(
+        queryset=WorkExperience.objects.all()
+    )
 
     class Meta:
         model = Acomplishment
         fields = (
+            'id',
             'title',
             'description',
             'created_by',
+            'work_experience',
         )
         read_only_fields = []
 
