@@ -1,3 +1,9 @@
+## 4.18.0 (2022-03-04)
+
+### Feat
+
+- **curriculum_builder**: improve ui
+
 ## 4.17.0 (2022-02-26)
 
 ### Feat
