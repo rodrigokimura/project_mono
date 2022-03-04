@@ -81,11 +81,16 @@ class CompanySerializer(serializers.ModelSerializer):
             'name',
             'description',
             'image',
+            'started_at',
+            'ended_at',
             'curriculum',
             'work_experiences',
             'created_by',
         )
-        read_only_fields = []
+        read_only_fields = (
+            'started_at',
+            'ended_at',
+        )
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -93,14 +98,20 @@ class SkillSerializer(serializers.ModelSerializer):
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
+    curriculum = UserFilteredPrimaryKeyRelatedField(
+        queryset=Curriculum.objects.all()
+    )
+
 
     class Meta:
         model = Skill
         fields = (
+            'id',
             'name',
             'description',
             'image',
             'created_by',
+            'curriculum',
         )
         read_only_fields = []
 
@@ -110,15 +121,20 @@ class SocialMediaProfileSerializer(serializers.ModelSerializer):
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
+    curriculum = UserFilteredPrimaryKeyRelatedField(
+        queryset=Curriculum.objects.all()
+    )
 
     class Meta:
         model = SocialMediaProfile
         fields = (
+            'id',
             'platform',
+            'get_platform_display',
             'link',
             'created_by',
+            'curriculum',
         )
-        read_only_fields = []
 
 
 class CurriculumSerializer(serializers.ModelSerializer):

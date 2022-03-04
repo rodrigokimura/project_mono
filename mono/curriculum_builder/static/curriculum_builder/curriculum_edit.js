@@ -13,9 +13,6 @@ function getCurriculum() {
         url: `/cb/api/curricula/${CURRICULUM_ID}/`,
         onSuccess: curriculum => {
             renderCurriculum(curriculum);
-            $('body').toast({
-                message: 'Curruculum loaded'
-            })
         },
     })
 }
@@ -24,7 +21,9 @@ function renderCurriculum(curriculum) {
     $('input[name=last-name]').val(curriculum.last_name);
     $('textarea[name=bio]').val(curriculum.bio);
     $('input[name=address]').val(curriculum.address);
-    renderCompanies(curriculum.companies)
+    renderCompanies(curriculum.companies);
+    renderSkills(curriculum.skills);
+    renderSocialMediaProfiles(curriculum.social_media_profiles);
 }
 function renderCompanies(companies) {
     el = $('#companies');
@@ -33,22 +32,59 @@ function renderCompanies(companies) {
         el.append(`
             <div class="ui fluid card">
                 <div class="content">
-                    <div class="ui right floated red icon button" onclick="deleteCompany(${company.id})"><i class="delete icon"></i></div>
-                    <div class="ui right floated yellow icon button" onclick="editCompany(${company.id})"><i class="edit icon"></i></div>
-                    <div class="header">
+                    <div class="header" style="padding-top: .5em;">
                         <i class="building icon"></i>
                         ${company.name}
+                        <div class="ui right floated red icon button" onclick="deleteCompany(${company.id})"><i class="delete icon"></i></div>
+                        <div class="ui right floated yellow icon button" onclick="editCompany(${company.id})"><i class="edit icon"></i></div>
                     </div>
                     <div class="meta">
-                        From to
+                        From ${company.started_at} to ${company.ended_at}
                     </div>
                 </div>
                 <div class="extra content">
                     <div class="work-experiences ui cards">
                         ${getWorkExperiencesHTML(company.work_experiences, company.id)}
                     </div>
-                    <div class="ui basic primary button" style="margin-top: 1em;" onclick="addWorkExperience(${company.id})">
+                    <div class="ui green right labeled icon button" style="margin-top: 1em;" onclick="addWorkExperience(${company.id})">
                         Add new work experience
+                        <i class="add icon"></i>
+                    </div>
+                </div>
+            </div>
+        `)
+    }
+}
+function renderSkills(skills) {
+    el = $('#skills');
+    el.empty();
+    for (skill of skills) {
+        el.append(`
+            <div class="ui fluid card">
+                <div class="content">
+                    <div class="header" style="padding-top: .5em;">
+                        <i class="building icon"></i>
+                        ${skill.name}
+                        <div class="ui right floated red icon button" onclick="deleteSkill(${skill.id})"><i class="delete icon"></i></div>
+                        <div class="ui right floated yellow icon button" onclick="editSkill(${skill.id})"><i class="edit icon"></i></div>
+                    </div>
+                </div>
+            </div>
+        `)
+    }
+}
+function renderSocialMediaProfiles(socialMediaProfiles) {
+    el = $('#social-media-profiles');
+    el.empty();
+    for (profile of socialMediaProfiles) {
+        el.append(`
+            <div class="ui fluid card">
+                <div class="content">
+                    <div class="header" style="padding-top: .5em;">
+                        <i class="building icon"></i>
+                        ${profile.get_platform_display}
+                        <div class="ui right floated red icon button" onclick="deleteSocialMediaProfile(${profile.id})"><i class="delete icon"></i></div>
+                        <div class="ui right floated yellow icon button" onclick="editSocialMediaProfile(${profile.id})"><i class="edit icon"></i></div>
                     </div>
                 </div>
             </div>
@@ -61,11 +97,11 @@ function getWorkExperiencesHTML(workExperiences, companyId) {
         html += `
             <div class="ui fluid card">
                 <div class="content">
-                    <div class="ui right floated red icon button" onclick="deleteWorkExperience(${workExperience.id})"><i class="delete icon"></i></div>
-                    <div class="ui right floated yellow icon button" onclick="editWorkExperience(${workExperience.id}, ${companyId})"><i class="edit icon"></i></div>
-                    <div class="header">
+                    <div class="header" style="padding-top: .5em;">
                         <i class="briefcase icon"></i>
                         ${workExperience.job_title}
+                        <div class="ui right floated red icon button" onclick="deleteWorkExperience(${workExperience.id})"><i class="delete icon"></i></div>
+                        <div class="ui right floated yellow icon button" onclick="editWorkExperience(${workExperience.id}, ${companyId})"><i class="edit icon"></i></div>
                     </div>
                     <div class="meta">
                         ${workExperience.description}
@@ -76,7 +112,10 @@ function getWorkExperiencesHTML(workExperiences, companyId) {
                 </div>
                 <div class="extra content">
                     ${getAcomplishmentsHTML(workExperience.acomplishments, workExperience.id)}
-                    <div class="ui basic primary button" onclick="addAcomplishment(${workExperience.id})">Add new acomplishment</div>
+                    <div class="ui green right labeled icon button" onclick="addAcomplishment(${workExperience.id})">
+                        Add new acomplishment
+                        <i class="add icon"></i>
+                    </div>
                 </div>
             </div>
         `;
@@ -89,10 +128,10 @@ function getAcomplishmentsHTML(acomplishments, workExperienceId) {
         html += `
             <div class="ui fluid card">
                 <div class="content">
-                    <div class="ui right floated red icon button" onclick="deleteAcomplishment(${acomplishment.id})"><i class="delete icon"></i></div>
-                    <div class="ui right floated yellow icon button" onclick="editAcomplishment(${acomplishment.id},${workExperienceId})"><i class="edit icon"></i></div>
-                    <div class="header">
+                    <div class="header" style="padding-top: .5em;">
                         ${acomplishment.title}
+                        <div class="ui right floated red icon button" onclick="deleteAcomplishment(${acomplishment.id})"><i class="delete icon"></i></div>
+                        <div class="ui right floated yellow icon button" onclick="editAcomplishment(${acomplishment.id},${workExperienceId})"><i class="edit icon"></i></div>
                     </div>
                     <div class="meta">
                         ${acomplishment.description}
@@ -116,274 +155,275 @@ function saveCurriculum() {
         },
     })
 }
-async function loadCompanyToModal(id) {
+
+async function loadResourceToModal(resourceId, url, modalSelector, inputMapping) {
     $.api({
         on: 'now',
         method: 'GET',
-        url: `/cb/api/companies/${id}/`,
-        onSuccess: company => {
-            modal = $('#company-modal');
-            modal.find('input[name=name]').val(company.name);
-            modal.find('textarea[name=description]').val(company.description);
+        url: `${url}/${resourceId}/`,
+        onSuccess: resource => {
+            modal = $(modalSelector);
+            for ([prop, selector] of Object.entries(inputMapping)) {
+                if (selector.includes('dropdown')) { 
+                    modal.find(selector).dropdown('set selected', resource[prop]);
+                } else if (selector.includes('calendar')) { 
+                    modal.find(selector).calendar('set date', stringToDate(resource[prop]));
+                } else {
+                    modal.find(selector).val(resource[prop]);
+                }
+            }
         },
     })
 }
-async function showCompanyModal(id) {
-    let modal = $('#company-modal');
-    if (id === undefined) {
-        modal.find('.header').text('Add new company');
-        modal.find('input[name=name]').val('');
-        modal.find('textarea[name=description]').val('');
+async function showResourceModal(resourceId, url, modalSelector, resourceType, fkMapping, inputMapping) {
+    let modal = $(modalSelector);
+    if (resourceId === undefined) {
+        modal.find('.header').text(`Add new ${resourceType}`);
+        for ([prop, selector] of Object.entries(inputMapping)) {
+            if (selector.includes('dropdown')) {
+                modal.find(selector).dropdown('clear');
+            } else if (selector.includes('calendar')) {
+                modal.find(selector).calendar('clear');
+            } else {
+                modal.find(selector).val('');
+            }
+        }
         method = 'POST';
-        url = `/cb/api/companies/` 
+        url = `${url}/`
     } else {
-        modal.find('.header').text('Edit company');
+        modal.find('.header').text(`Edit ${resourceType}`);
         method = 'PATCH';
-        url = `/cb/api/companies/${id}/`;
+        url = `${url}/${resourceId}/`;
     }
     modal
         .modal({
+            autofocus: false,
+            onShow: () => {
+                for ([prop, selector] of Object.entries(inputMapping)) {
+                    if (selector.includes('dropdown')) {
+                        modal.find(selector).dropdown();
+                    } else if (selector.includes('calendar')) {
+                        modal.find(selector).calendar({ type: 'date' });
+                    }
+                }
+            },
             onApprove: () => {
+                data = {};
+                for ([prop, selector] of Object.entries(inputMapping)) {
+                    if (selector.includes('dropdown')) {
+                        data[prop] = modal.find(selector).dropdown('get value');
+                    } else if (selector.includes('calendar')) {
+                        data[prop] = dateToString(modal.find(selector).calendar('get date'));
+                    } else {
+                        data[prop] = modal.find(selector).val();
+                    }
+                }
+                for ([fkName, fkValue] of Object.entries(fkMapping)) {
+                    data[fkName] = fkValue;
+                }
                 $.api({
                     on: 'now',
                     method: method,
                     url: url,
                     headers: { 'X-CSRFToken': csrftoken },
-                    data: {
-                        name: modal.find('input[name=name]').val(),
-                        description: modal.find('textarea[name=description]').val(),
-                        curriculum: CURRICULUM_ID,
-                    },
+                    data: data,
                     onSuccess: r => {
                         getCurriculum();
+                    },
+                    onFailure: r => {
+                        $('body').toast({ title: JSON.stringify(r) })
+                    },
+                    onError: r => {
+                        $('body').toast({ title: JSON.stringify(r) })
                     }
                 })
             }
         })
         .modal('show');
 }
+async function deleteResource(resourceId, url, resourceType) {
+    $('body').modal({
+        title: 'Confirmation',
+        class: 'mini',
+        closeIcon: true,
+        content: `Are you sure you want to delete this ${resourceType}?`,
+        actions: [
+            {
+                text: 'Cancel',
+                class: 'black deny',
+            },
+            {
+                text: 'Yes, delete it',
+                class: 'red approve',
+            },
+        ],
+        onApprove: () => {
+            $.api({
+                on: 'now',
+                method: 'DELETE',
+                url: `${url}/${resourceId}/`,
+                headers: { 'X-CSRFToken': csrftoken },
+                onSuccess: r => {
+                    $('body').toast({
+                        message: `${resourceType} deleted`
+                    });
+                    getCurriculum();
+                }
+            })
+        }
+    }).modal('show');
+}
+
 function addCompany() {
-    showCompanyModal();
+    showResourceModal(
+        undefined,
+        '/cb/api/companies',
+        '#company-modal',
+        'company',
+        {curriculum: CURRICULUM_ID},
+        {name: 'input[name=name]', description: 'textarea[name=description]'}
+    );
 }
 function editCompany(id) {
-    loadCompanyToModal(id);
-    showCompanyModal(id);
+    loadResourceToModal(id, '/cb/api/companies', '#company-modal', {name: 'input[name=name]', description: 'textarea[name=description]'});
+    showResourceModal(
+        id,
+        '/cb/api/companies',
+        '#company-modal',
+        'company',
+        {curriculum: CURRICULUM_ID},
+        {name: 'input[name=name]', description: 'textarea[name=description]'}
+    );
 }
 function deleteCompany(id) {
-    $('body').modal({
-        title: 'Confirmation',
-        class: 'mini',
-        closeIcon: true,
-        content: 'Are you sure you want to delete this company?',
-        actions: [
-            {
-                text: 'Cancel',
-                class: 'black deny',
-            },
-            {
-                text: 'Yes, delete it',
-                class: 'red approve',
-            },
-        ],
-        onApprove: () => {
-            $.api({
-                on: 'now',
-                method: 'DELETE',
-                url: `/cb/api/companies/${id}/`,
-                headers: { 'X-CSRFToken': csrftoken },
-                onSuccess: r => {
-                    $('body').toast({
-                        message: 'Company deleted'
-                    });
-                    getCurriculum();
-                }
-            })
-        }
-    }).modal('show');
+    deleteResource(id, '/cb/api/companies', 'company');
 }
-async function loadWorkExperienceToModal(id) {
-    $.api({
-        on: 'now',
-        method: 'GET',
-        url: `/cb/api/work_experiences/${id}/`,
-        onSuccess: workExperience => {
-            modal = $('#work-experience-modal');
-            modal.find('input[name=job_title]').val(workExperience.job_title);
-            modal.find('textarea[name=description]').val(workExperience.description);
-            modal.find('.ui.calendar[data-name=started_at]').calendar('set date', stringToDate(workExperience.started_at));
-            modal.find('.ui.calendar[data-name=ended_at]').calendar('set date', stringToDate(workExperience.ended_at));
-        },
-    })
-}
-async function showWorkExperienceModal(id, companyId) {
-    let modal = $('#work-experience-modal');
-    if (id === undefined) {
-        modal.find('.header').text('Add new work experience');
-        modal.find('input[name=job_title]').val('');
-        modal.find('textarea[name=description]').val('');
-        modal.find('.ui.calendar[data-name=started_at]').calendar('clear');
-        modal.find('.ui.calendar[data-name=ended_at]').calendar('clear');
-        method = 'POST';
-        url = `/cb/api/work_experiences/` 
-    } else {
-        modal.find('.header').text('Edit work experience');
-        method = 'PATCH';
-        url = `/cb/api/work_experiences/${id}/`;
-    }
-    modal
-        .modal({
-            onShow: () => {
-                modal.find('.ui.calendar[data-name=started_at]').calendar({ type: 'date' });
-                modal.find('.ui.calendar[data-name=ended_at]').calendar({ type: 'date' });
-            },
-            onApprove: () => {
-                $.api({
-                    on: 'now',
-                    method: method,
-                    url: url,
-                    headers: { 'X-CSRFToken': csrftoken },
-                    data: {
-                        job_title: modal.find('input[name=job_title]').val(),
-                        description: modal.find('textarea[name=description]').val(),
-                        started_at: dateToString(modal.find('.ui.calendar[data-name=started_at]').calendar('get date')),
-                        ended_at: dateToString(modal.find('.ui.calendar[data-name=ended_at]').calendar('get date')),
-                        company: companyId,
-                    },
-                    onSuccess: r => {
-                        getCurriculum();
-                    },
-                    onFailure: r => {
-                        $('body').toast({ title: JSON.stringify(r) })
-                    }
-                })
-            }
-        })
-        .modal('show');
-}
+
 function addWorkExperience(companyId) {
-    showWorkExperienceModal(undefined, companyId);
+    showResourceModal(
+        undefined,
+        '/cb/api/work_experiences',
+        '#work-experience-modal',
+        'work experience',
+        { company: companyId },
+        {
+            job_title: 'input[name=job_title]',
+            description: 'textarea[name=description]',
+            started_at: '.ui.calendar[data-name=started_at]',
+            ended_at: '.ui.calendar[data-name=ended_at]',
+        }
+    );
 }
 function editWorkExperience(id, companyId) {
-    loadWorkExperienceToModal(id);
-    showWorkExperienceModal(id, companyId);
+    loadResourceToModal(id, '/cb/api/work_experiences', '#work-experience-modal', {
+        job_title: 'input[name=job_title]',
+        description: 'textarea[name=description]',
+        started_at: '.ui.calendar[data-name=started_at]',
+        ended_at: '.ui.calendar[data-name=ended_at]',
+    })
+    showResourceModal(
+        id,
+        '/cb/api/work_experiences',
+        '#work-experience-modal',
+        'work experience',
+        { company: companyId },
+        {
+            job_title: 'input[name=job_title]',
+            description: 'textarea[name=description]',
+            started_at: '.ui.calendar[data-name=started_at]',
+            ended_at: '.ui.calendar[data-name=ended_at]',
+        }
+    );
 }
 function deleteWorkExperience(id) {
-    $('body').modal({
-        title: 'Confirmation',
-        class: 'mini',
-        closeIcon: true,
-        content: 'Are you sure you want to delete this work experience?',
-        actions: [
-            {
-                text: 'Cancel',
-                class: 'black deny',
-            },
-            {
-                text: 'Yes, delete it',
-                class: 'red approve',
-            },
-        ],
-        onApprove: () => {
-            $.api({
-                on: 'now',
-                method: 'DELETE',
-                url: `/cb/api/work_experiences/${id}/`,
-                headers: { 'X-CSRFToken': csrftoken },
-                onSuccess: r => {
-                    $('body').toast({
-                        message: 'Work experience deleted'
-                    });
-                    getCurriculum();
-                }
-            })
-        }
-    }).modal('show');
+    deleteResource(id, '/cb/api/work_experiences', 'work experience');
 }
-async function loadAcomplishmentToModal(id) {
-    $.api({
-        on: 'now',
-        method: 'GET',
-        url: `/cb/api/acomplishments/${id}/`,
-        onSuccess: acomplishment => {
-            modal = $('#acomplishment-modal');
-            modal.find('input[name=title]').val(acomplishment.title);
-            modal.find('textarea[name=description]').val(acomplishment.description);
-        },
-    })
-}
-async function showAcomplishmentModal(id, workExperienceId) {
-    let modal = $('#acomplishment-modal');
-    if (id === undefined) {
-        modal.find('.header').text('Add new acomplishment');
-        modal.find('input[name=title]').val('');
-        modal.find('textarea[name=description]').val('');
-        method = 'POST';
-        url = `/cb/api/acomplishments/` 
-    } else {
-        modal.find('.header').text('Edit acomplishment');
-        method = 'PATCH';
-        url = `/cb/api/acomplishments/${id}/`;
-    }
-    modal
-        .modal({
-            onApprove: () => {
-                $.api({
-                    on: 'now',
-                    method: method,
-                    url: url,
-                    headers: { 'X-CSRFToken': csrftoken },
-                    data: {
-                        title: modal.find('input[name=title]').val(),
-                        description: modal.find('textarea[name=description]').val(),
-                        work_experience: workExperienceId,
-                    },
-                    onSuccess: r => {
-                        getCurriculum();
-                    },
-                    onFailure: r => {
-                        $('body').toast({ title: JSON.stringify(r) })
-                    }
-                })
-            }
-        })
-        .modal('show');
-}
+
 function addAcomplishment(workExperienceId) {
-    showAcomplishmentModal(undefined, workExperienceId);
+    showResourceModal(
+        undefined,
+        '/cb/api/acomplishments',
+        '#acomplishment-modal',
+        'acomplishment',
+        { work_experience: workExperienceId },
+        {
+            title: 'input[name=title]',
+            description: 'textarea[name=description]',
+        }
+    );
 }
 function editAcomplishment(id, workExperienceId) {
-    loadAcomplishmentToModal(id);
-    showAcomplishmentModal(id, workExperienceId);
+    loadResourceToModal(id, '/cb/api/acomplishments', '#acomplishment-modal', {
+        title: 'input[name=title]',
+        description: 'textarea[name=description]',
+    });
+    showResourceModal(
+        id,
+        '/cb/api/acomplishments',
+        '#acomplishment-modal',
+        'acomplishment',
+        { work_experience: workExperienceId },
+        {
+            title: 'input[name=title]',
+            description: 'textarea[name=description]',
+        }
+    );
 }
 function deleteAcomplishment(id) {
-    $('body').modal({
-        title: 'Confirmation',
-        class: 'mini',
-        closeIcon: true,
-        content: 'Are you sure you want to delete this acomplishment?',
-        actions: [
-            {
-                text: 'Cancel',
-                class: 'black deny',
-            },
-            {
-                text: 'Yes, delete it',
-                class: 'red approve',
-            },
-        ],
-        onApprove: () => {
-            $.api({
-                on: 'now',
-                method: 'DELETE',
-                url: `/cb/api/acomplishments/${id}/`,
-                headers: { 'X-CSRFToken': csrftoken },
-                onSuccess: r => {
-                    $('body').toast({
-                        message: 'Acomplishment deleted'
-                    });
-                    getCurriculum();
-                }
-            })
-        }
-    }).modal('show');
+    deleteResource(id, '/cb/api/acomplishments', 'acomplishment');
+}
+
+function addSkill() {
+    showResourceModal(
+        undefined,
+        '/cb/api/skills',
+        '#skill-modal',
+        'skill',
+        {curriculum: CURRICULUM_ID},
+        {name: 'input[name=name]', description: 'textarea[name=description]'}
+    );
+}
+function editSkill(id) {
+    loadResourceToModal(id, '/cb/api/skills', '#skill-modal', {name: 'input[name=name]', description: 'textarea[name=description]'});
+    showResourceModal(
+        id,
+        '/cb/api/skills',
+        '#skill-modal',
+        'skill',
+        {curriculum: CURRICULUM_ID},
+        {name: 'input[name=name]', description: 'textarea[name=description]'}
+    );
+}
+function deleteSkill(id) {
+    deleteResource(id, '/cb/api/skills', 'skill');
+}
+
+function addSocialMediaProfile() {
+    showResourceModal(
+        undefined,
+        '/cb/api/social_media_profiles',
+        '#social-media-profile-modal',
+        'social media profile',
+        {curriculum: CURRICULUM_ID},
+        {link: 'input[name=link]', platform: '.ui.dropdown[data-name=platform]'}
+    );
+}
+function editSocialMediaProfile(id) {
+    loadResourceToModal(
+        id,
+        '/cb/api/social_media_profiles',
+        '#social-media-profile-modal',
+        {link: 'input[name=link]', platform: '.ui.dropdown[data-name=platform]'}
+    );
+    showResourceModal(
+        id,
+        '/cb/api/social_media_profiles',
+        '#social-media-profile-modal',
+        'social media profile',
+        {curriculum: CURRICULUM_ID},
+        {link: 'input[name=link]', platform: '.ui.dropdown[data-name=platform]'}
+    );
+}
+function deleteSocialMediaProfile(id) {
+    deleteResource(id, '/cb/api/social_media_profiles', 'social media profile');
 }

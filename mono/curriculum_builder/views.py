@@ -3,7 +3,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from .models import Curriculum
+from .models import Curriculum, SocialMediaProfile
 
 
 class RootView(TemplateView):
@@ -39,3 +39,91 @@ class CurriculumEditView(DetailView):
     """
     model = Curriculum
     template_name = 'curriculum_builder/curriculum_edit.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['company_modal'] = {
+            'id': 'company-modal',
+            'fields': [
+                {
+                    'name': 'name',
+                    'type': 'text',
+                },
+                {
+                    'name': 'description',
+                    'type': 'textarea',
+                },
+            ]
+        }
+        context['work_experience_modal'] = {
+            'id': 'work-experience-modal',
+            'fields': [
+                {
+                    'label': 'Job title',
+                    'name': 'job_title',
+                    'type': 'text',
+                },
+                {
+                    'label': 'Description',
+                    'name': 'description',
+                    'type': 'textarea',
+                },
+                {
+                    'label': 'Started at',
+                    'name': 'started_at',
+                    'type': 'calendar',
+                },
+                {
+                    'label': 'Ended at',
+                    'name': 'ended_at',
+                    'type': 'calendar',
+                },
+            ]
+        }
+        context['acomplishment_modal'] = {
+            'id': 'acomplishment-modal',
+            'fields': [
+                {
+                    'label': 'Title',
+                    'name': 'title',
+                    'type': 'text',
+                },
+                {
+                    'label': 'Description',
+                    'name': 'description',
+                    'type': 'textarea',
+                },
+            ]
+        }
+        context['skill_modal'] = {
+            'id': 'skill-modal',
+            'fields': [
+                {
+                    'label': 'Name',
+                    'name': 'name',
+                    'type': 'text',
+                },
+                {
+                    'label': 'Description',
+                    'name': 'description',
+                    'type': 'textarea',
+                },
+            ]
+        }
+        context['social_media_profile_modal'] = {
+            'id': 'social-media-profile-modal',
+            'fields': [
+                {
+                    'label': 'Platform',
+                    'name': 'platform',
+                    'type': 'dropdown',
+                    'choices': SocialMediaProfile.Platform.choices,
+                },
+                {
+                    'label': 'Link',
+                    'name': 'link',
+                    'type': 'text',
+                },
+            ]
+        }
+        return context

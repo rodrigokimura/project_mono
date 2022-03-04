@@ -10,133 +10,80 @@
     <div class="ui stackable grid container" style="padding-top: 5em;">
         <div class="row">
             <div class="column">
-                <form class="ui form">
-                    <div class="two fields">
-                        <div class="field">
-                            <label>First Name</label>
-                            <input type="text" name="first-name" placeholder="First Name">
-                        </div>
-                        <div class="field">
-                            <label>Last Name</label>
-                            <input type="text" name="last-name" placeholder="Last Name">
-                        </div>
+                <form class="ui segment form">
+                            <div class="two fields">
+                                <div class="field">
+                                    <label>First Name</label>
+                                    <input type="text" name="first-name" placeholder="First Name">
+                                </div>
+                                <div class="field">
+                                    <label>Last Name</label>
+                                    <input type="text" name="last-name" placeholder="Last Name">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Bio</label>
+                                <textarea type="text" name="bio" placeholder="Bio"></textarea>
+                            </div>
+                            <div class="field">
+                                <label>Address</label>
+                                <input type="text" name="address" placeholder="Address">
+                            </div>
+                            <a class="ui button" onclick="getCurriculum()">Save</a>
+                        </form>
+                <div class="ui fluid styled accordion">
+                    <div class="title">
+                        <i class="dropdown icon"></i>
+                        Companies
                     </div>
-                    <div class="field">
-                        <label>Bio</label>
-                        <textarea type="text" name="bio" placeholder="Bio"></textarea>
-                    </div>
-                    <div class="field">
-                        <label>Address</label>
-                        <input type="text" name="address" placeholder="Address">
-                    </div>
-                    <a class="ui button" onclick="getCurriculum()">Save</a>
-                </form>
-                <div class="ui dividing header">Companies</div>
-                <div class="ui basic companies cards segment" style="padding: 0;" id="companies"></div>
-                <div class="ui basic primary button" style="margin-top: 1em;" onclick="addCompany()">Add new company</div>
-            </div>
-        </div>
-    </div>
-    
-
-    <div class="ui modal" id="company-modal">
-        <i class="close icon"></i>
-        <div class="header">Company</div>
-        <div class="ui form content">
-            <div class="field">
-                <label>Name</label>
-                <input type="text" name="name">
-            </div>
-            <div class="field">
-                <label>Description</label>
-                <textarea name="description"></textarea>
-            </div>
-        </div>
-        <div class="actions">
-            <div class="ui black deny button">
-                Cancel
-            </div>
-            <div class="ui positive right labeled icon button">
-                Save
-                <i class="checkmark icon"></i>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="ui modal" id="work-experience-modal">
-        <i class="close icon"></i>
-        <div class="header">Work Experience</div>
-        <div class="ui form content">
-            <div class="field">
-                <label>Job title</label>
-                <input type="text" name="job_title">
-            </div>
-            <div class="field">
-                <label>Description</label>
-                <textarea name="description"></textarea>
-            </div>
-            <div class="two fields">
-                <div class="field">
-                    <div class="ui calendar" data-name="started_at">
-                        <div class="ui input left icon">
-                            <i class="calendar icon"></i>
-                            <input type="text" placeholder="Started at">
+                    <div class="content">
+                        <div class="ui basic companies cards segment" style="padding: 0;" id="companies"></div>
+                        <div class="ui green right labeled icon button" style="margin-top: 1em;" onclick="addCompany()">
+                            Add new company
+                            <i class="add icon"></i>
                         </div>
                     </div>
-                </div>
-                <div class="field">
-                    <div class="ui calendar" data-name="ended_at">
-                        <div class="ui input left icon">
-                            <i class="calendar icon"></i>
-                            <input type="text" placeholder="Ended at">
+                    
+                    <div class="title">
+                        <i class="dropdown icon"></i>
+                        Skills
+                    </div>
+                    <div class="content">
+                        <div class="ui basic companies cards segment" style="padding: 0;" id="skills"></div>
+                        <div class="ui green right labeled icon button" style="margin-top: 1em;" onclick="addSkill()">
+                            Add new skill
+                            <i class="add icon"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="title">
+                        <i class="dropdown icon"></i>
+                        Social Media Profiles
+                    </div>
+                    <div class="content">
+                        <div class="ui basic companies cards segment" style="padding: 0;" id="social-media-profiles"></div>
+                        <div class="ui green right labeled icon button" style="margin-top: 1em;" onclick="addSocialMediaProfile()">
+                            Add new social media profile
+                            <i class="add icon"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="actions">
-            <div class="ui black deny button">
-                Cancel
-            </div>
-            <div class="ui positive right labeled icon button">
-                Save
-                <i class="checkmark icon"></i>
-            </div>
-        </div>
     </div>
-
-
-    <div class="ui modal" id="acomplishment-modal">
-        <i class="close icon"></i>
-        <div class="header">Acomplishment</div>
-        <div class="ui form content">
-            <div class="field">
-                <label>Title</label>
-                <input type="text" name="title">
-            </div>
-            <div class="field">
-                <label>Description</label>
-                <textarea name="description"></textarea>
-            </div>
-        </div>
-        <div class="actions">
-            <div class="ui black deny button">
-                Cancel
-            </div>
-            <div class="ui positive right labeled icon button">
-                Save
-                <i class="checkmark icon"></i>
-            </div>
-        </div>
-    </div>
-
     
+    {% include 'curriculum_builder/_modal.html' with modal=company_modal %}
+    {% include 'curriculum_builder/_modal.html' with modal=work_experience_modal %}
+    {% include 'curriculum_builder/_modal.html' with modal=acomplishment_modal %}
+    {% include 'curriculum_builder/_modal.html' with modal=skill_modal %}
+    {% include 'curriculum_builder/_modal.html' with modal=social_media_profile_modal %}
+
     <script>
         const CURRICULUM_ID = "{{ object.id }}";
         $(document).ready(e => {
             getCurriculum();
             $('.ui.calendar').calendar();
+            $('.ui.accordion').accordion();
         })
     </script>
 {% endblock %}
