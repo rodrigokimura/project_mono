@@ -154,6 +154,7 @@ class CurriculumSerializer(serializers.ModelSerializer):
             'last_name',
             'profile_picture',
             'bio',
+            'style',
             'companies',
             'social_media_profiles',
             'skills',

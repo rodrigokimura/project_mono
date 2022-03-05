@@ -19,17 +19,31 @@ class BaseModel(models.Model):
 
 class Curriculum(BaseModel):
     """Curriculum created by user"""
+    
+    class Style(models.TextChoices):
+        """
+        Page style choices.
+        Each option must map to a template /curriculum_builder/styles/{value}.html
+        """
+        SEMANTIC = 'semantic', 'Semantic'
+        TYPEWRITER = 'typewriter', 'Typewriter'
+
     address = models.CharField(max_length=200)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     profile_picture = models.ImageField(null=True, blank=True)
     bio = models.TextField(max_length=1000)
+    style = models.CharField(choices=Style.choices, default=Style.SEMANTIC.value, max_length=50)
 
     class Meta:
         verbose_name = 'curriculum'
         verbose_name_plural = 'curricula'
 
     def __str__(self) -> str:
+        return f'{self.first_name} {self.last_name}'
+
+    @property
+    def full_name(self):
         return f'{self.first_name} {self.last_name}'
 
 
