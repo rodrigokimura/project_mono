@@ -21,6 +21,7 @@ function renderCurriculum(curriculum) {
     $('input[name=last-name]').val(curriculum.last_name);
     $('textarea[name=bio]').val(curriculum.bio);
     $('input[name=address]').val(curriculum.address);
+    $('.ui.dropdown[data-name=style]').dropdown('set selected', curriculum.style);
     renderCompanies(curriculum.companies);
     renderSkills(curriculum.skills);
     renderSocialMediaProfiles(curriculum.social_media_profiles);
@@ -146,12 +147,20 @@ function saveCurriculum() {
     $.api({
         on: 'now',
         method: 'PATCH',
+        url: `/cb/api/curricula/${CURRICULUM_ID}/`,
         headers: { 'X-CSRFToken': csrftoken },
-        url: `/cb/api/curricula/${1}/`,
+        data: {
+            first_name: $('input[name=first-name]').val(),
+            last_name: $('input[name=last-name]').val(),
+            bio: $('textarea[name=bio]').val(),
+            address: $('input[name=address]').val(),
+            style: $('.ui.dropdown[data-name=style]').dropdown('get value'),
+        },
         onSuccess: r => {
+            getCurriculum();
             $('body').toast({
-                message: CURRICULUM_ID
-            })
+                message: 'Curriculum updated!'
+            });
         },
     })
 }

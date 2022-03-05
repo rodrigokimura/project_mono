@@ -31,6 +31,10 @@ class CurriculumDetailView(DetailView):
     """
     model = Curriculum
     template_name = 'curriculum_builder/curriculum_detail.html'
+    
+    def get_template_names(self, *args, **kwargs):
+        curriculum = self.get_object()
+        return [f'curriculum_builder/styles/{curriculum.style}.html']
 
 
 class CurriculumEditView(DetailView):
@@ -126,4 +130,5 @@ class CurriculumEditView(DetailView):
                 },
             ]
         }
+        context['style_choices'] = Curriculum.Style.choices
         return context
