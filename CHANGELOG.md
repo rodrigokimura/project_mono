@@ -1,3 +1,9 @@
+## 4.19.0 (2022-03-04)
+
+### Feat
+
+- **curriculum_builder**: add style option
+
 ## 4.18.0 (2022-03-04)
 
 ### Feat
