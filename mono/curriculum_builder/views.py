@@ -24,6 +24,35 @@ class CurriculumListView(ListView):
     def get_queryset(self):
         return Curriculum.objects.filter(created_by=self.request.user)
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['curriculum_modal'] = {
+            'id': 'curriculum-modal',
+            'fields': [
+                {
+                    'label': 'First name',
+                    'name': 'first_name',
+                    'type': 'text',
+                },
+                {
+                    'label': 'Last name',
+                    'name': 'last_name',
+                    'type': 'text',
+                },
+                {
+                    'label': 'Address',
+                    'name': 'address',
+                    'type': 'text',
+                },
+                {
+                    'label': 'Bio',
+                    'name': 'bio',
+                    'type': 'textarea',
+                },
+            ]
+        }
+        return context
+
 
 class CurriculumDetailView(DetailView):
     """

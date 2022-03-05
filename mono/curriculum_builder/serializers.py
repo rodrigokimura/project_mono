@@ -142,9 +142,9 @@ class CurriculumSerializer(serializers.ModelSerializer):
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
-    social_media_profiles = SocialMediaProfileSerializer(many=True)
-    skills = SkillSerializer(many=True)
-    companies = CompanySerializer(many=True)
+    social_media_profiles = SocialMediaProfileSerializer(many=True, required=False)
+    skills = SkillSerializer(many=True, required=False)
+    companies = CompanySerializer(many=True, required=False)
 
     class Meta:
         model = Curriculum
@@ -160,3 +160,4 @@ class CurriculumSerializer(serializers.ModelSerializer):
             'skills',
             'created_by',
         )
+
