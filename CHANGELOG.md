@@ -1,3 +1,9 @@
+## 4.20.0 (2022-03-15)
+
+### Feat
+
+- **curriculum_builder**: change template
+
 ## 4.19.0 (2022-03-04)
 
 ### Feat
