@@ -49,6 +49,23 @@
                         </div>
                     {% endfor %}
                 </div>  
+                <h2 class="ui dividing header">Skills</h2>
+                <div class="ui segments">
+                    {% for skill in object.skills.all %}
+                        <div class="ui segment">
+                            {{ skill.name }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <h2 class="ui dividing header">Social Media Profiles</h2>
+                <div class="ui segments">
+                    {% for profile in object.social_media_profiles.all %}
+                        <div class="ui segment">
+                            <i class="{{ profile.get_platform_display|lower }} icon"></i>
+                            <a href="{{ profile.link }}">{{ profile.get_platform_display }}</a>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
