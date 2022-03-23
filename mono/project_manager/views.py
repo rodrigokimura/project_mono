@@ -27,10 +27,10 @@ from .models import (
     Theme, TimeEntry, User,
 )
 from .serializers import (
-    BoardSerializer, BoardMoveSerializer, BucketMoveSerializer, BucketSerializer,
-    CardFileSerializer, CardMoveSerializer, CardSerializer, CommentSerializer,
-    InviteSerializer, ItemSerializer, ProjectSerializer, TagSerializer,
-    TimeEntrySerializer,
+    BoardMoveSerializer, BoardSerializer, BucketMoveSerializer,
+    BucketSerializer, CardFileSerializer, CardMoveSerializer, CardSerializer,
+    CommentSerializer, InviteSerializer, ItemSerializer, ProjectSerializer,
+    TagSerializer, TimeEntrySerializer,
 )
 
 
