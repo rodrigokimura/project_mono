@@ -1,3 +1,9 @@
+## 4.21.0 (2022-03-22)
+
+### Feat
+
+- **project_manager**: add fields order to models
+
 ## 4.20.0 (2022-03-15)
 
 ### Feat
