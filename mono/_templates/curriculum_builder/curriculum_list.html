@@ -15,7 +15,7 @@
         </div>
         <div class="row">
             <div class="column">
-                <div class="ui four cards">
+                <div class="ui stackable four cards">
                     {% for c in object_list %}
                         <div class="ui card">
                             <div class="content">
@@ -23,13 +23,13 @@
                                     {{ c }}
                                 </div>
                                 <div class="description">
-                                    {{ c.bio }}
+                                    {{ c.bio|truncatechars:100 }}
                                 </div>
                             </div>
                             <div class="extra content">
                                 <div class="ui two buttons">
                                     <a class="ui basic button" href="{% url 'curriculum_builder:curriculum_detail' pk=c.id %}">View</a>
-                                    <a class="ui basic yellow button" href="">Edit</a>
+                                    <a class="ui basic yellow button"  href="{% url 'curriculum_builder:curriculum_edit' pk=c.id %}">Edit</a>
                                 </div>
                             </div>
                         </div>
@@ -37,5 +37,53 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="column">
+                <div class="ui green right labeled icon button" onclick="addCurriculum()">
+                    Add new curriculum
+                    <i class="add icon"></i>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    {% include 'curriculum_builder/_modal.html' with modal=curriculum_modal %}
+    
+    <script>
+        function addCurriculum() {
+            console.log('ok')
+            $('#curriculum-modal').modal({
+                onApprove: saveCurriculum,
+            }).modal('show');
+        }
+        function saveCurriculum() {
+            $.api({
+                on: 'now',
+                method: 'POST',
+                url: `/cb/api/curricula/`,
+                headers: { 'X-CSRFToken': csrftoken },
+                data: {
+                    first_name: $('input[name=first_name]').val(),
+                    last_name: $('input[name=last_name]').val(),
+                    bio: $('textarea[name=bio]').val(),
+                    address: $('input[name=address]').val(),
+                },
+                onSuccess: r => {
+                    $('body').toast({
+                        message: 'Curriculum created!',
+                        onHide() {
+                            document.location.reload(true);
+                        }
+                    });
+                },
+                onFailure: r => {
+                    $('body').toast({ title: JSON.stringify(r) })
+                },
+                onError: r => {
+                    $('body').toast({ title: JSON.stringify(r) })
+                }
+            })
+        }
+    </script>
+    
 {% endblock %}

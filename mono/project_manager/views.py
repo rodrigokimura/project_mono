@@ -27,10 +27,10 @@ from .models import (
     Theme, TimeEntry, User,
 )
 from .serializers import (
-    BoardSerializer, BucketMoveSerializer, BucketSerializer,
-    CardFileSerializer, CardMoveSerializer, CardSerializer, CommentSerializer,
-    InviteSerializer, ItemSerializer, ProjectSerializer, TagSerializer,
-    TimeEntrySerializer,
+    BoardMoveSerializer, BoardSerializer, BucketMoveSerializer,
+    BucketSerializer, CardFileSerializer, CardMoveSerializer, CardSerializer,
+    CommentSerializer, InviteSerializer, ItemSerializer, ProjectSerializer,
+    TagSerializer, TimeEntrySerializer,
 )
 
 
@@ -88,7 +88,7 @@ class ProjectDetailView(UserPassesTestMixin, DetailView):
         """
         context = super().get_context_data(**kwargs)
 
-        qs: QuerySet[Board] = self.get_object().board_set.all()
+        qs: QuerySet[Board] = self.get_object().board_set.all().order_by('order')
 
         field = self.request.GET.get('field')
         direction = self.request.GET.get('direction', 'asc')
@@ -1323,6 +1323,22 @@ class BucketMoveApiView(LoginRequiredMixin, APIView):
         Apply bucket movement.
         """
         serializer = BucketMoveSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BoardMoveApiView(LoginRequiredMixin, APIView):
+    """
+    Change board order in a project.
+    """
+
+    def post(self, request):
+        """
+        Apply board movement.
+        """
+        serializer = BoardMoveSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
