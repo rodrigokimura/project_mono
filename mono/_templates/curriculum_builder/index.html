@@ -2,24 +2,31 @@
 {% load static %}
 {% load i18n %}
 
+{% block head %}
+    <style>
+        #app-name { font-size: 42pt !important; }
+        #app-name .sub.header { font-size: 24pt !important; }
+    </style>
+{% endblock head %}
+
 {% block main %}
     <div class="ui stackable grid container" style="padding-top: 5em;">
         <div class="row">
             <div class="column">
-                <h1 class="ui header">
-                    <div class="content">
-                        Curriculum Builder
+                <div class="ui placeholder segment">
+                    <div class="ui huge center aligned header" id="app-name">
+                        Curriculum builder
+                        <div class="sub header">
+                            Create, view and share your curriculum as a web page!
+                        </div>
                     </div>
-                </h1>
-                <div class="ui header">App to create curriculum</div>
-                <a href="{% url 'curriculum_builder:curriculum_list' %}" class="ui primary right labeled icon button">
-                    <i class="right arrow icon"></i>
-                    View your curricula
-                </a>
-                <a href="{% url 'shipper:ship_create' %}" class="ui primary right labeled icon button">
-                    <i class="right arrow icon"></i>
-                    Create new curriculum
-                </a>
+                    <a class="ui animated secondary big button" tabindex="0" href="{% url 'curriculum_builder:curriculum_list' %}">
+                        <div class="visible content">Next</div>
+                            <div class="hidden content">
+                            <i class="right arrow icon"></i>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
     </div>

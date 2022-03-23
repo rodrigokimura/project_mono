@@ -44,6 +44,7 @@ class Project(BaseModel):
     """
     deadline = models.DateTimeField(null=True, blank=True)
     assigned_to = models.ManyToManyField(User, related_name="assigned_projects", blank=True)
+    order = models.IntegerField(default=1)
 
     class Meta:
         ordering = [
@@ -95,6 +96,9 @@ class Project(BaseModel):
         )[0]
         return invite.link
 
+    def touch(self):
+        self.save()
+
 
 class Board(BaseModel):
     """
@@ -106,6 +110,7 @@ class Board(BaseModel):
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     assigned_to = models.ManyToManyField(User, related_name="assigned_boards", blank=True)
+    order = models.IntegerField(default=1)
     fullscreen = models.BooleanField(default=False)
     compact = models.BooleanField(default=False)
     dark = models.BooleanField(default=False)
@@ -113,7 +118,7 @@ class Board(BaseModel):
     updated_at = models.DateTimeField(auto_now=True)
     background_image = models.ImageField(upload_to=_background_image_path, blank=True, null=True)
 
-    tags_feature = models.BooleanField(default=True, help_text='Enables taga on cards')
+    tags_feature = models.BooleanField(default=True, help_text='Enables tags on cards')
     color_feature = models.BooleanField(default=True, help_text='Enables color on cards')
     due_date_feature = models.BooleanField(default=True, help_text='Enables cards to have due dates')
     status_feature = models.BooleanField(default=True, help_text='Enables status on cards')

@@ -1,3 +1,51 @@
+## 4.21.0 (2022-03-22)
+
+### Feat
+
+- **project_manager**: add fields order to models
+
+## 4.20.0 (2022-03-15)
+
+### Feat
+
+- **curriculum_builder**: change template
+
+## 4.19.0 (2022-03-04)
+
+### Feat
+
+- **curriculum_builder**: add style option
+
+## 4.18.0 (2022-03-04)
+
+### Feat
+
+- **curriculum_builder**: improve ui
+
+## 4.17.0 (2022-02-26)
+
+### Feat
+
+- **curriculum_builder**: implement functions to create, edit and delete acomplishments
+
+## 4.16.0 (2022-02-23)
+
+### Feat
+
+- **curriculum_builder**: add feature to add, update and delete work experiences
+
+## 4.15.0 (2022-02-22)
+
+### Feat
+
+- **curriculum_builder**: add functions to edit and delete company
+
+## 4.14.0 (2022-02-20)
+
+### Feat
+
+- **curriculum_builder**: implement function to add company
+
 ## 4.13.5 (2022-02-19)
 
 ### Fix

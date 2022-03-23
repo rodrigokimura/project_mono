@@ -1,0 +1,91 @@
+{% extends "project_manager/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+
+<div class="pusher">
+    {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
+    <div class="ui center aligned stackable grid container">
+      <div class="row">
+        <div class="eight wide left aligned column">
+          <div class="ui raised segment">
+            <form method="post" class="ui {% if form.errors %}error{% endif %} form" id="board_form" enctype="multipart/form-data">
+              {% csrf_token %}
+              {% include "_form.html" with form=form %}
+              <div class="fluid ui buttons">
+                <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
+                  {% translate "Cancel" %}
+                </a>
+                {% if object %}
+                <a class="ui delete red button">
+                  <i class="delete icon"></i>
+                  {% translate "Delete" %}
+                </a>
+                {% endif %}
+                <button class="ui button primary" type="submit" form="board_form">
+                  <i class="save icon"></i>
+                  {% translate "Save" %}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ui basic mini modal">
+  <div class="ui icon header">
+    <i class="delete icon"></i>
+    Delete this board
+  </div>
+  <div class="content">
+    <p>Are you sure you want to delete this board?</p>
+  </div>
+  <div class="actions">
+    <div class="ui red basic cancel inverted button">
+      <i class="remove icon"></i>
+      No
+    </div>
+    <div class="ui green ok inverted button">
+      <i class="checkmark icon"></i>
+      Yes
+    </div>
+  </div>
+</div>
+
+<script>
+  $('*.ui.dropdown').dropdown();
+
+  {% if project %}
+  $('.ui.project.dropdown').dropdown('set selected', {{project.id}});
+  {% endif %}
+
+  
+  {% if object %}
+  $('.ui.delete.button').click(()=>{
+    $('.ui.modal').modal({
+      onApprove: () => {
+        $.api(
+          {
+            url: `/pm/api/projects/{{ object.project.id }}/boards/{{ object.id }}/`,
+            method: 'DELETE',
+            mode: 'same-origin',
+            headers: {'X-CSRFToken': csrftoken},
+            cache: false,
+            on: 'now',
+            onSuccess: response => {
+              window.location.replace(response.url);
+            },
+            onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
+            onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+          }
+        );
+      }
+    }).modal('show');
+  })
+  {% endif %}
+</script>
+{% endblock %}

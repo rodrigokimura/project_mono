@@ -1,0 +1,75 @@
+{% extends "curriculum_builder/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="row">
+            <div class="column">
+                <h1 class="ui header">
+                    <i class="user icon"></i>
+                    <div class="content">
+                        {{ object.full_name }}
+                    </div>
+                </h1>
+                <div class="ui segment">
+                    <h4 class="ui header">Description</h4>
+                    {{ object.bio|linebreaks }}
+                </div>
+                <h2 class="ui dividing header">Professional experience</h2>
+                <div class="ui styled fluid accordion">
+                    {% for c in object.companies.all %}
+                        <div class="title">
+                            <h3 class="ui header">
+                                <i class="dropdown icon"></i>
+                                <span class="ui blue text"><i class="building icon"></i>{{ c }}</span>
+                            </h3>
+                            {{ c.started_at|date:"M Y" }} - {{ c.ended_at|date:"M Y" }}
+                        </div>
+                        <div class="content">
+                            {% for we in c.work_experiences.all %}
+                                <div class="ui message">
+                                    <div class="header">
+                                        {{ we.job_title }}
+                                        <div class="ui right floated label">{{ we.started_at|date:"M Y" }} - {{ we.ended_at|date:"M Y" }}</div>
+                                    </div>
+                                    <div class="content">
+                                        <span class="ui text">{{ we.description|linebreaks }}</span>
+                                    </div>
+                                    <h5 class="ui header">Acomplishments</h5>
+                                    <div class="ui bulleted list">
+                                        {% for a in we.acomplishments.all %}
+                                            <div class="ui item">
+                                                {{ a.title }} - {{ a.description }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>  
+                <h2 class="ui dividing header">Skills</h2>
+                <div class="ui segments">
+                    {% for skill in object.skills.all %}
+                        <div class="ui segment">
+                            {{ skill.name }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <h2 class="ui dividing header">Social Media Profiles</h2>
+                <div class="ui segments">
+                    {% for profile in object.social_media_profiles.all %}
+                        <div class="ui segment">
+                            <i class="{{ profile.get_platform_display|lower }} icon"></i>
+                            <a href="{{ profile.link }}">{{ profile.get_platform_display }}</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" charset="utf-8">
+        $('.ui.accordion').accordion();
+    </script>
+{% endblock %}
