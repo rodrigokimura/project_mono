@@ -19,7 +19,7 @@ class BaseModel(models.Model):
 
 class Curriculum(BaseModel):
     """Curriculum created by user"""
-    
+
     class Style(models.TextChoices):
         """
         Page style choices.
@@ -112,6 +112,7 @@ class Company(BaseModel):
 
     @property
     def ended_at(self):
+        """End date of the last work experience"""
         qs = WorkExperience.objects.filter(
             company=self,
         )
