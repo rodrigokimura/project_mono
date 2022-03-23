@@ -47,6 +47,7 @@ urlpatterns = [
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/time-entries/<int:pk>/', views.TimeEntryDetailAPIView.as_view()),
     path('api/card-move/', views.CardMoveApiView.as_view()),
     path('api/bucket-move/', views.BucketMoveApiView.as_view()),
+    path('api/board-move/', views.BoardMoveApiView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:pk>/timer/', views.StartStopTimerAPIView.as_view()),
     path('api/projects/<int:project_pk>/remove-user/', views.ProjectRemoveUserAPIView.as_view()),
     path('api/projects/<int:project_pk>/invites/', views.InviteListAPIView.as_view()),

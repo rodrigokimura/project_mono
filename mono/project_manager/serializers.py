@@ -616,3 +616,72 @@ class BucketMoveSerializer(Serializer):
         bucket.order = order
         bucket.save()
         bucket.board.touch()
+
+
+class BoardMoveSerializer(Serializer):
+    """Serializer to apply board movement"""
+    project = serializers.IntegerField()
+    board = serializers.IntegerField()
+    order = serializers.IntegerField()
+
+    def validate_project(self, value):  # pylint: disable=R0201
+        """Project needs to exist"""
+        if Project.objects.filter(id=value).exists():
+            return value
+        raise serializers.ValidationError("Invalid project")
+
+    def validate_board(self, value):  # pylint: disable=R0201
+        """Board needs to exist"""
+        if Board.objects.filter(id=value).exists():
+            return value
+        raise serializers.ValidationError("Invalid board")
+
+    def validate_order(self, value):  # pylint: disable=R0201
+        """Order needs to be positive"""
+        if value > 0:
+            return value
+        raise serializers.ValidationError("Invalid order")
+
+    def validate(self, attrs):
+        """
+        Validate user and board
+        """
+        board = Board.objects.get(id=attrs['board'])
+        project = Project.objects.get(id=attrs['project'])
+
+        if self.context['request'].user not in project.allowed_users:
+            raise serializers.ValidationError("User not allowed")
+
+        if board not in project.board_set.all():
+            raise serializers.ValidationError("Board outside project")
+
+        return attrs
+
+    def create(self, validated_data):
+        raise NotImplementedError
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError
+
+    def save(self, *args, **kwargs):
+        """
+        Apply board movement
+        """
+        board = Board.objects.get(
+            id=self.validated_data['board']
+        )
+        project = Project.objects.get(
+            id=self.validated_data['bucket']
+        )
+        order = self.validated_data['order']
+
+        for i, other_board in enumerate(project.board_set.exclude(id=self.validated_data['board'])):
+            if i + 1 < order:
+                other_board.order = i + 1
+                other_board.save()
+            else:
+                other_board.order = i + 2
+                other_board.save()
+        board.order = order
+        board.save()
+        board.project.touch()
