@@ -1,3 +1,9 @@
+## 4.22.2 (2022-04-01)
+
+### Refactor
+
+- **mono**: change to pytest
+
 ## 4.22.1 (2022-03-23)
 
 ### Refactor
