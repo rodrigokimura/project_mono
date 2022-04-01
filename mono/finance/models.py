@@ -20,7 +20,7 @@ from django.db.models.query import QuerySet
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from multiselectfield import MultiSelectField
 
 User = get_user_model()
