@@ -48,6 +48,8 @@ pylint = "*"
 pylint-django = "*"
 commitizen = "*"
 anybadge = "*"
+pytest = "*"
+pytest-django = "*"
 
 [scripts]
 collectstatic = "python mono/manage.py collectstatic --noinput"

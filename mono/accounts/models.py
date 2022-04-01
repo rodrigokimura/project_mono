@@ -18,7 +18,7 @@ from django.db.models.fields import DateTimeField
 from django.template.loader import get_template
 from django.urls.base import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 
