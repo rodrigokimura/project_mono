@@ -1,0 +1,108 @@
+{% extends "finance/base.html" %}
+{% load i18n %}
+
+{% block head %}
+  <style type="text/css" media="all">
+    .hidden{
+      display: none !important;
+    }
+  </style>
+{% endblock head %}
+
+{% block main %}
+
+<div class="ui stackable grid container" style="margin-bottom: 1em;">
+
+  <div class="four wide column">
+    <form class="ui fluid form" method="GET" id="filter">
+      <div class="field">
+        <label>{% translate "Category" %}</label>
+        <div class="ui search multiple selection dropdown" data-name="category">
+          <input type="hidden" name="category">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
+        </div>
+      </div>
+      <div class="field">
+        <label>{% translate "Account" %}</label>
+        <div class="ui search multiple selection dropdown" data-name="account">
+          <input type="hidden" name="account">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
+        </div>
+      </div>
+      <div class="ui fluid buttons">
+        <button class="ui button primary" type="submit" form="filter">{% translate "Filter" %}</button>
+        <a class="ui button" href="{% url 'finance:transactions' %}">{% translate "Clear" %}</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="eight wide column">
+
+    {% for installment in object_list %}
+    <div class="ui horizontal divider">{{ name }}</div>
+    <div class="ui segments">
+      <div class="ui secondary grey segment" style="padding: .5em 1em;" 
+        data-toggle="segments">
+        <a href="{% url 'finance:installment_update' pk=installment.pk  %}">
+          {{ installment.description }}
+        </a>
+      </div>
+      
+      <div class="ui segment">
+        <div class="ui bulleted list">
+          <div class="item">Months: {{ installment.months }}</div>
+          <div class="item">Description: {{ installment.description }}</div>
+          <div class="item">Timestamp: {{ installment.timestamp }}</div>
+          <div class="item">Amount: {{ installment.total_amount }}</div>
+          <div class="item">Category: <div class="ui small tag label"><i class="{{ installment.category.icon }} icon"></i>{{ installment.category }}</div></div>
+          <div class="item">Account: <div class="ui small label">{{ installment.account }}</div></div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+  
+  <div class="four wide column">
+
+    <div class="ui horizontal divider"><i class="play circle outline icon"></i> {% translate "Actions" %}</div>
+    <div class="row">
+      <a class="ui fluid primary labeled icon button" href="{% url "finance:transaction_create" %}"
+        style="margin-bottom: 1rem;">
+        <i class="plus icon"></i>
+        {% translate "Add transaction" %}
+      </a>
+      <a class="ui fluid primary labeled icon button" href="{% url "finance:recurrent_transaction_create" %}">
+        <i class="plus icon"></i>
+        {% translate "Add recurrent transaction" %}
+      </a>
+    </div>
+    
+    <div class="ui horizontal divider"><i class="eye outline icon"></i> {% translate "Views" %}</div>
+    <div class="row">
+      <a class="ui fluid basic labeled icon button" 
+        href="{% url "finance:transactions" %}">
+          <i class="calendar alternate outline icon"></i>
+          {% translate "Go to transactions" %}
+      </a>
+    </div>
+  </div>
+
+</div>
+
+
+<script>
+  $('.message .close').click(function() {
+    $(this)
+    .closest('.message')
+    .transition('fade');
+  });
+
+  $("*[data-toggle=segments]").click(e=>{
+    $(e.target).siblings('.ui.segment').toggle('swing');
+  })
+</script>
+
+{% endblock %}

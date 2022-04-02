@@ -1,0 +1,134 @@
+{% extends "notes/base.html" %}
+{% load i18n %}
+
+{% block head %}
+  <style>
+    .hidden {
+      display: none;
+    }
+    @media only screen and (min-width: 768px) {
+      a.toc {
+        display: none !important;
+      }
+    }
+    a.content {
+      color: inherit;
+      text-decoration: underline 0.1em rgba(0, 0, 0, 0);
+      transition: text-decoration-color 300ms;
+    }
+    a.content:hover {
+      text-decoration-color: rgba(0, 0, 0, 1);
+    }
+
+  </style>
+{% endblock head %}
+
+{% block menu %}
+  <a class="toc computer only item"><i class="sidebar icon"></i></a>
+  <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
+  </div>
+{% endblock menu %}
+
+{% block sidebar %}
+  <div class="ui sidebar inverted menu" style="padding: 1em;">
+    <div class="ui inverted big list" data-notes-list="true" style="width: 100%;"></div>
+  </div>
+{% endblock sidebar %}
+ 
+
+{% block main %}
+  <div class="row">
+    <div class="four wide computer only column">
+      <div class="ui segment">
+        <div class="ui big list" data-notes-list="true" style="width: 100%;"></div>
+      </div>
+    </div>
+    <div class="eight wide column">
+      <div class="ui note hidden segment"></div>
+    </div>
+    <div class="four wide computer only column">
+      <a style="margin-bottom: 1em;" class="ui fluid green icon labeled create button" href="{% url 'notes:note_create' %}" data-tooltip="{% translate 'Create' %}" data-inverted=""><i class="add icon"></i>{% translate 'Create' %}</a>
+      <a style="margin-bottom: 1em;" class="ui fluid yellow icon labeled edit disabled button" data-tooltip="{% translate 'Edit' %}" data-inverted=""><i class="edit icon"></i>{% translate 'Edit' %}</a>
+      <a style="margin-bottom: 1em;" class="ui fluid red icon labeled delete disabled button" data-tooltip="{% translate 'Delete' %}" data-inverted=""><i class="delete icon"></i>{% translate 'Delete' %}</a>
+    </div>
+    <div class="four wide mobile only column">
+      <a style="margin-bottom: 1em;" class="ui green icon create button" href="{% url 'notes:note_create' %}" data-tooltip="{% translate 'Create' %}" data-inverted=""><i class="add icon"></i></a>
+      <div class="ui right floated buttons">
+        <a style="margin-bottom: 1em;" class="ui icon yellow edit disabled button" data-tooltip="{% translate 'Edit' %}" data-inverted=""><i class="edit icon"></i></a>
+        <a style="margin-bottom: 1em;" class="ui icon red delete disabled button" data-tooltip="{% translate 'Delete' %}" data-inverted=""><i class="delete icon"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $('*[data-notes-list=true]').html(
+      `
+      <div class="item">
+        <div class="header">
+          {% translate 'My notes' %}
+        </div>
+      </div>
+      {% for f in subfiles %}
+      {{ f }}
+      {% endfor %}
+      `
+    );
+
+    const getNote = id => {
+      var noteSegment = $('.ui.note.segment');
+      noteSegment.removeClass('hidden').addClass('loading');
+      $.get(
+        url=`/nt/api/notes/${id}/`
+      )
+      .done(r => {
+        $(".note.segment").html(r.html);
+        $('.ui.edit.button')
+          .removeClass('disabled')
+          .attr('href', r.url);
+        $('.ui.delete.button')
+          .removeClass('disabled')
+          .attr('href', r.delete_url);
+      })
+      .fail(() => {
+        noteSegment.addClass('hidden');
+      })
+      .always(() => {
+        noteSegment.removeClass('loading');
+      })
+    }
+    
+    {% if 'note' in request.session %}
+        getNote({{ request.session.note }});
+    {% else %}
+        {% if request.user.note_set.all %}
+            getNote({{ request.user.note_set.first.id }});
+        {% endif %}
+    {% endif %}
+    
+    
+    $('.file.item').click(function(e) {
+      getNote($(e.target).closest('.file.item').attr('data-id'));
+    });
+    
+    $('.folder').click(function() {
+      $(this).siblings('.list').toggle();
+      $(this).parent().children('.icon').toggleClass('open');
+    })
+    $('.ui.sidebar')
+      .sidebar('setting', 'transition', 'slide along')
+      .sidebar('setting', 'mobileTransition', 'slide along')
+      .sidebar('attach events', '.toc.item');
+
+    MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+    var observer = new MutationObserver(function(mutations, observer) {
+      $('table').addClass('ui table');
+    });
+    observer.observe(document, {
+      subtree: true,
+      attributes: true
+    });
+
+  </script>
+
+  {{ form.media }}
+{% endblock main %}

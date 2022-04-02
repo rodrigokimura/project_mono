@@ -1,0 +1,39 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head %}
+{% endblock head %}
+
+{% block main %}
+<div class="ui stackable grid container">
+
+<div class="ui four wide column "></div>
+
+<div class="ui eight wide column ">
+    <div class="row">
+      <div class="ui attached message">
+        <div class="header">
+          {% translate "Sign up here!" %}
+        </div>
+      </div>
+      <div class="ui attached segment">
+        <form class="ui form {% if form.errors %}error{% endif %}" method="POST">
+          {% csrf_token %}
+          {% include "_form.html" with form=form %}
+          <button type="submit" class="ui fluid submit primary button">{% translate "Signup" %}</button>
+          <div class="ui error message"></div>
+        </form>
+      </div>
+    </div>
+    <div class="ui bottom attached message">
+      <p><i class="question circle icon"></i><a href="{% url 'accounts:password_reset' %}">{% translate "Forgot your password?" %}</a></p>
+      <p><i class="info circle icon"></i><a href="{% url 'accounts:login' %}">{% translate "Already signed up? Login here instead." %}</a></p>  
+    </div>
+  </div>
+
+<div class="ui four wide column "></div>
+
+<script>
+</script>
+{% endblock main %}

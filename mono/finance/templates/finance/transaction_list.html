@@ -1,0 +1,775 @@
+{% extends "finance/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block head %}
+  <style type="text/css" media="all">
+    .hidden{
+      display: none !important;
+    }
+
+    #floating-button {
+      display: none;
+    }
+
+    @media only screen and (max-width: 768px) {
+      #floating-button {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        right: 1rem;
+        z-index: 10;
+      }
+    }
+  </style>
+{% endblock head %}
+
+{% block main %}
+
+<div id="floating-button">
+  <a class="ui primary circular huge teal icon mobile only button" 
+    onclick="showTransactionModal()"
+    style="margin-bottom: 1rem;">
+    <i class="plus icon"></i>
+  </a>
+</div>
+
+<div class="ui stackable grid container" style="margin-bottom: 1em;">
+
+  <div class="four wide column">
+    <form class="ui fluid form" method="GET" id="filter">
+      <div class="field">
+        <label>{% translate "Category" %}</label>
+        <div class="ui search multiple selection filter dropdown" data-name="category">
+          <input type="hidden" name="category">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
+        </div>
+      </div>
+      <div class="field">
+        <label>{% translate "Account" %}</label>
+        <div class="ui search multiple selection filter dropdown" data-name="account">
+          <input type="hidden" name="account">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
+        </div>
+      </div>
+      <div class="field">
+        <div class="ui slider checkbox" data-name="future">
+          <input type="checkbox" name="future">
+          <label>{% translate 'Show future transactions' %}</label>
+        </div>
+      </div>
+      <div class="ui fluid buttons">
+        <button class="ui button primary" type="submit" form="filter">{% translate "Filter" %}</button>
+        <a class="ui button" href="{% url 'finance:transactions' %}">{% translate "Clear" %}</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="eight wide column">
+    {% if page_obj.object_list %}
+    {% for date in daily_grouped %}
+    
+    <div class="hidden ui segments" data-date="{{ date.date|date:'Y-m-d' }}">
+      <div class="ui secondary grey segment" style="padding: .5em 1em;" 
+        onclick="$(this).siblings('.ui.segment').toggle('swing');">
+        <div class="ui grid">
+          <div class="eight wide column">
+            <div style="display:flex; flex-flow: row nowrap;">
+              <div style="flex: 0 0 auto;margin-right:.1em;">
+                <span class="ui big text">{{ date.date|date:"d" }}</span>
+              </div>
+              <div style="flex: 0 0 auto; display:flex; flex-flow: column nowrap; 
+                margin-top:-.25em;">
+                <div style="flex: 0 0 auto;">
+                  <span class="ui small text">{{ date.date|date:"b" }}</span>
+                </div>
+                <div style="flex: 0 0 auto; margin-top: -.5em;">
+                  <span class="ui small text">{{ date.date|date:"Y" }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+            <span class="ui green text">
+              <strong>
+                {{ date.total_income|floatformat:2 }}
+              </strong>
+            </span>
+          </div>
+          <div class="four wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+            <span class="ui red text">
+              <strong>
+                {{ date.total_expense|floatformat:2 }}
+              </strong>
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      {% for transaction in page_obj.object_list %}
+      {% if transaction.date == date.date %}
+      <script type="text/javascript" charset="utf-8">
+        $("[data-date='{{ date.date|date:'Y-m-d' }}']").removeClass("hidden");
+      </script>
+      <div class="ui segment" style="padding: .5em 1em;" data-transaction="{{ transaction.id }}">
+        <div class="ui grid">
+          <div class="seven wide column">
+            <span class="ui small label">
+              {% if transaction.category %}
+              <i class="{{ transaction.category.icon }} icon"></i>
+              {{ transaction.category }}
+              {% else %}
+              <i class="unlink icon"></i>
+              No category
+              {% endif %}
+            </span>
+            <br>
+            <span class="ui small text">
+              {{ transaction.description }}
+            </span>
+          </div>
+          <div class="four wide column" style="display:flex; align-items:center;">
+            {{ transaction.account }}
+          </div>
+          <div class="five wide column" style="display:flex; justify-content:flex-end; align-items:center;">
+            {% if transaction.installment %}
+            <div class="ui small installment modal" data-id="{{ transaction.pk }}">
+              <div class="ui header">
+                {% translate "Installment" %}
+              </div>
+              <div class="content">
+                <p>{% translate "You are trying to edit a installment. Do you want to edit the group of installments, or just this one?" %}</p>
+              </div>
+              <div class="actions">
+                <div class="ui red cancel button">{% translate "Cancel" %}</div>
+                <a class="ui button" href="{% url 'finance:transaction_update' pk=transaction.pk %}">{% translate "Just this one" %}</a>
+                <a class="ui primary button" href="{% url 'finance:installment_update' pk=transaction.installment.pk %}">{% translate "Group of installments" %}</a>
+              </div>
+            </div>
+            <span
+              {% if transaction.category.type == 'INC' %}
+              class="ui green text"
+              {% elif transaction.category.type == 'EXP' %}
+              class="ui red text"
+              {% endif %}
+              >
+              <i class="credit card icon"></i>
+                {{ transaction.amount|floatformat:2 }}
+            </span>
+            <a class="ui tiny icon button" style="margin-left: 1em;" data-id="{{ transaction.pk }}" style="cursor: pointer;" data-tooltip="{% translate 'Edit' %}" data-inverted="">
+              <i class="edit icon">
+              </i>
+            </a>
+            <script>
+              $('.ui.installment.modal[data-id={{ transaction.pk }}]').modal(
+                'attach events', 
+                'a[data-id={{ transaction.pk }}]', 
+                'show'
+              );
+            </script>
+            {% elif transaction.recurrent %}
+            <span
+              {% if transaction.category.type == 'INC' %}
+              class="ui green text"
+              {% elif transaction.category.type == 'EXP' %}
+              class="ui red text"
+              {% endif %}
+              >
+              <i class="history icon"></i>
+                {{ transaction.amount|floatformat:2 }}
+            </span>
+            <a class="ui tiny icon button" style="margin-left: 1em;" href="{% url 'finance:transaction_update' pk=transaction.pk %}" data-tooltip="{% translate 'Edit' %}" data-inverted="">
+              <i class="edit icon">
+              </i>
+            </a>
+            {% else %}
+            <span
+              {% if transaction.category.type == 'INC' %}
+              class="ui green text"
+              {% elif transaction.category.type == 'EXP' %}
+              class="ui red text"
+              {% endif %}
+              >
+                {{ transaction.amount|floatformat:2 }}
+            </span>
+            <a class="ui tiny icon button" style="margin-left: 1em;" href="{% url 'finance:transaction_update' pk=transaction.pk %}" data-tooltip="{% translate 'Edit' %}" data-inverted="">
+              <i class="edit icon">
+              </i>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <img 
+      src="{% static 'image/undraw_empty_xct9.png' %}" 
+      alt=""
+      width="100%"
+      >
+    {% endif %}
+
+    {% include "_pagination.html" with page_obj=page_obj %}
+
+  </div>
+  
+  <div class="four wide column">
+
+    <div class="ui horizontal divider"><i class="play circle outline icon"></i> {% translate "Actions" %}</div>
+    <div class="row">
+      <a class="ui fluid primary labeled icon button" onclick="showTransactionModal()"
+        style="margin-bottom: 1rem;">
+        <i class="plus icon"></i>
+        {% translate "Add transaction" %}
+      </a>
+    </div>
+    
+    <div class="ui horizontal divider"><i class="eye outline icon"></i> {% translate "Views" %}</div>
+    <div class="row">
+      <a class="ui fluid basic labeled icon button" 
+        href="{% url "finance:transaction_month" month=now|date:'m' year=now|date:'Y' %}"
+        style="margin-bottom: 1rem;">
+          <i class="calendar alternate outline icon"></i>
+          {% translate "Go to Calendar View" %}
+      </a>
+      <a class="ui fluid basic labeled icon button" 
+        href="{% url "finance:installments" %}"
+        style="margin-bottom: 1rem;">
+          <i class="calendar alternate outline icon"></i>
+          {% translate "Go to installments" %}
+      </a>
+      <a class="ui fluid basic labeled icon button" 
+        href="{% url "finance:recurrent_transactions" %}">
+          <i class="calendar alternate outline icon"></i>
+          {% translate "Go to recurrent transactions" %}
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<div class="ui transaction tiny modal">
+  <i class="close icon"></i>
+  <div class="header">
+    {% translate "Transaction" %}
+  </div>
+  <div class="content">
+    <div class="ui transaction form">
+      <div class="ui secondary menu" id="transaction-type">
+        {% for value, text in transaction_types %}
+          {% if value == 'EXP' %}
+            <a class="red item" data-value="{{ value }}"><i class="minus circle icon"></i>{{ text }}</a>
+          {% elif value == 'INC' %}
+            <a class="green item" data-value="{{ value }}"><i class="plus circle icon"></i>{{ text }}</a>
+          {% elif value == 'TRF' %}
+            <a class="grey item" data-value="{{ value }}"><i class="equals icon"></i>{{ text }}</a>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="field">
+        <label>{% translate "Amount" %}</label>
+        <input type="number" name="amount" step="any" placeholder="{% translate "Amount" %}">
+        <div class="ui basic red pointing label" style="display:none;" data-name="amount"></div>
+      </div>
+      <div class="field">
+        <label>{% translate "Description" %}</label>
+        <input type="text" name="description" placeholder="{% translate "Description" %}">
+        <div class="ui basic red pointing label" style="display:none;" data-name="description"></div>
+      </div>
+      <div class="field">
+        <label>{% translate "Account" %}</label>
+        <select name="account" class="ui search selection dropdown" id="accounts-dropdown"></select>
+        <div class="ui basic red pointing label" style="display:none;" data-name="account"></div>
+      </div>
+      <div class="two fields">
+        <div class="field">
+          <label>{% translate "From account" %}</label>
+          <select name="from_account" class="ui search selection dropdown" id="from-accounts-dropdown"></select>
+          <div class="ui basic red pointing label" style="display:none;" data-name="from_account"></div>
+        </div>
+        <div class="field">
+          <label>{% translate "To account" %}</label>
+          <select name="to_account" class="ui search selection dropdown" id="to-accounts-dropdown"></select>
+          <div class="ui basic red pointing label" style="display:none;" data-name="to_account"></div>
+        </div>
+        <script>
+          $('#from-accounts-dropdown').dropdown({
+            placeholder: '{% translate "From account" %}',
+            apiSettings: {
+              url: '/fn/api/accounts/',
+              cache: false,
+              successTest: r => r.count > 0,
+              onResponse: r => {
+                results = r.results
+                  .map(e => ({
+                    name: e.name,
+                    value: e.id,
+                  }))
+                  .filter(
+                    e => e.value != $('#to-accounts-dropdown').dropdown('get value')
+                  );
+                return {
+                  count: r.count,
+                  results: results,
+                };
+              }
+            },
+            filterRemoteData: true,
+          })
+          $('#to-accounts-dropdown').dropdown({
+            placeholder: '{% translate "To account" %}',
+            apiSettings: {
+              url: '/fn/api/accounts/',
+              cache: false,
+              successTest: r => r.count > 0,
+              onResponse: r => {
+                results = r.results
+                  .map(e => ({
+                    name: e.name,
+                    value: e.id,
+                  }))
+                  .filter(
+                    e => e.value != $('#from-accounts-dropdown').dropdown('get value')
+                  );
+                return {
+                  count: r.count,
+                  results: results,
+                };
+              }
+            },
+            filterRemoteData: true,
+          })
+        </script>
+      </div>
+      <div class="field">
+        <label>{% translate "Category" %}</label>
+        <select name="category" class="ui search selection dropdown" id="categories-dropdown"></select>
+        <div class="ui basic red pointing label" style="display:none;" data-name="category"></div>
+      </div>
+      <div class="field">
+        <label>{% translate "Timestamp" %}</label>
+        <div class="ui calendar" id="timestamp" name="timestamp">
+          <div class="ui input left icon">
+            <i class="calendar icon"></i>
+            <input type="text" placeholder="{% translate "Timestamp" %}" name="timestamp">
+          </div>
+        </div>
+        <div class="ui basic red pointing label" style="display:none;" data-name="timestamp"></div>
+      </div>
+      <div class="field">
+        <label>{% translate "Recurrent or installment?" %}</label>
+        <div class="ui toggle checked checkbox" id="is-recurrent-or-installment"> 
+          <input type="checkbox">
+          <label></label>
+        </div>
+      </div>
+      <div id="recurrent-or-installment" class="recurrent-or-installment" style="margin-bottom: 1em;">
+        <div class="inline fields">
+          <div class="field">
+            <div class="ui radio recurrent checkbox">
+              <input type="radio" name="recurrent-or-installment">
+              <label>{% translate "Recurrent" %}</label>
+            </div>
+          </div> 
+          <div class="field">
+            <div class="ui radio installment checkbox">
+              <input type="radio" name="recurrent-or-installment">
+              <label>{% translate "Installment" %}</label>
+            </div>
+          </div>                 
+        </div>
+        <div class="field" data-type="recurrent">
+          <label>{% translate "Frequency" %}</label>
+          <select name="frequency" class="ui selection dropdown" id="frequency-dropdown">
+            {% for value, text in frequency %}
+              <option value="{{ value }}">{{ text }}</option>
+            {% endfor %}
+          </select>
+          <div class="ui basic red pointing label" style="display:none;" data-name="frequency"></div>
+          <script>
+            $('#frequency-dropdown').dropdown({
+              placeholder: '{% translate "Frequency" %}',
+              direction: 'upward',
+            });
+          </script>
+        </div>
+        <div class="field" data-type="installment">
+          <label>{% translate "Months" %}</label>
+          <input type="number" name="months" value="12" required="" placeholder="{% translate "Months" %}">
+          <div class="ui basic red pointing label" style="display:none;" data-name="months"></div>
+        </div>
+        <div class="field" data-type="installment">
+          <label>{% translate "Handle remainder" %}</label>
+          <select name="handle_remainder" class="ui selection dropdown" id="remainder-dropdown">
+            {% for value, text in remainder %}
+              <option value="{{ value }}">{{ text }}</option>
+            {% endfor %}
+          </select>
+          <div class="ui basic red pointing label" style="display:none;" data-name="handle_remainder"></div>
+          <script>
+            $('#remainder-dropdown').dropdown({
+              placeholder: '{% translate "Handle remainder" %}',
+              direction: 'upward',
+            });
+          </script>
+        </div>
+      </div>
+      <div class="ui error message"></div>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui black deny button">
+      <i class="delete icon"></i>
+      {% translate "Cancel" %}
+    </div>
+    <div class="ui positive icon labeled button" id="save-modal">
+      <i class="save icon"></i>
+      {% translate "Save" %}
+    </div>
+  </div>
+</div>
+
+<script>
+  function getObjectType() {
+    if ($('#is-recurrent-or-installment').checkbox('is checked')) {
+      if ($('.ui.radio.installment.checkbox').checkbox('is checked')) {
+        type = "installment"
+      }
+      if ($('.ui.radio.recurrent.checkbox').checkbox('is checked')) {
+        type = "recurrent"
+      }
+    } else {
+      type = "transaction"
+    }
+    return type
+  }
+
+  function submitForm() {
+    type = getObjectType();
+    if (type == "transaction") {
+      if (getTransactionType() == 'TRF') {
+          url = '/fn/api/transferences/';
+          payload = JSON.stringify({
+            description: $('[name="description"]').val(),
+            amount: $('[name="amount"]').val(),
+            from_account:  {
+              id: $('#from-accounts-dropdown').dropdown('get value'),
+            },
+            to_account: {
+              id: $('#to-accounts-dropdown').dropdown('get value'),
+            },
+            timestamp: $('#timestamp').calendar('get date'),
+          });
+      } else {
+        url = '/fn/api/transactions/';
+        payload = JSON.stringify({
+          amount: $('[name="amount"]').val(),
+          description: $('[name="description"]').val(),
+          account: {
+            id: $('#accounts-dropdown').dropdown('get value'),
+          },
+          category: {
+            id: $('#categories-dropdown').dropdown('get value'),
+          },
+          timestamp: $('#timestamp').calendar('get date'),
+        });
+      }
+    } else if (type == "recurrent") {
+      url = '/fn/api/recurrent-transactions/';
+      payload = JSON.stringify({
+        amount: $('[name="amount"]').val(),
+        description: $('[name="description"]').val(),
+        account: {
+          id: $('#accounts-dropdown').dropdown('get value'),
+        },
+        category: {
+          id: $('#categories-dropdown').dropdown('get value'),
+        },
+        timestamp: $('#timestamp').calendar('get date'),
+        frequency: $('#frequency-dropdown').dropdown('get value'),
+      });
+    } else if (type == "installment") {
+      url = '/fn/api/installments/';
+      payload = JSON.stringify({
+        total_amount: $('[name="amount"]').val(),
+        description: $('[name="description"]').val(),
+        account: {
+          id: $('#accounts-dropdown').dropdown('get value'),
+        },
+        category: {
+          id: $('#categories-dropdown').dropdown('get value'),
+        },
+        timestamp: $('#timestamp').calendar('get date'),
+        months: $('[name="months"]').val(),
+        handle_remainder: $('#remainder-dropdown').dropdown('get value'),
+      });
+    }
+    $('.ui.transaction.form .field').removeClass('error');
+    $('.pointing.label').hide();
+    $.api({
+      on: 'now',
+      url: url,
+      method: 'POST',
+      headers: {'X-CSRFToken': csrftoken},
+      contentType: 'application/json',
+      data: payload,
+      successTest: r => {
+        return true;
+      },
+      onSuccess: r => {
+        console.log(r.status_code);
+        $('.ui.transaction.modal').modal('hide');
+        location.reload(); 
+      },
+      onError(errorMessage, element, xhr) {
+        if (xhr.status == 400) {
+          for (p in xhr.responseJSON) {
+            if (p == 'non_field_errors') {
+              $('.ui.transaction.form').form(
+                'add errors',
+                errors
+              )
+            } else {
+              if (p == "total_amount") {
+                xhr.responseJSON["amount"] = xhr.responseJSON["total_amount"]
+                p = "amount";
+              }
+              if ('id' in xhr.responseJSON[p]) {
+                prompt = xhr.responseJSON[p]['id'].toString();
+              } else {
+                prompt = xhr.responseJSON[p].toString();
+              }
+              $('.ui.transaction.form').form('add prompt', p);
+              $(`.pointing.label[data-name=${p}]`).empty().text(prompt).fadeIn();
+            }
+          }
+        }
+      },
+    })
+  }
+
+  function clearForm() {
+    $('#recurrent-or-installment').hide('swing');
+    $('#is-recurrent-or-installment').checkbox('uncheck');
+    $('.ui.transaction.form').form('clear');
+    $('.pointing.label').hide();
+    $('.ui.radio.recurrent.checkbox').checkbox('check');
+    $('#transaction-type .item[data-value=EXP]').click();
+  }
+
+  function resetForm() {
+    ts = $('#timestamp').calendar('get date');
+    $('#recurrent-or-installment').hide('swing');
+    $('#is-recurrent-or-installment').checkbox('uncheck');
+    $('.ui.transaction.form').form('clear');
+    $('.pointing.label').hide();
+    $('.ui.radio.recurrent.checkbox').checkbox('check');
+    $('#timestamp').calendar('set date', ts);
+  }
+
+  function showTransactionModal() {
+    $('.ui.transaction.modal')
+      .modal({
+        onShow: () => {
+          clearForm();
+          $('#timestamp').calendar({
+            on: 'focus',
+            today: true,
+            touchReadonly: false,
+          }).calendar('set date', new Date());
+        },
+        onApprove: () => {
+          submitForm();
+          return false;
+        }
+      })
+      .modal('show');
+  }
+
+  function getTransactionType() {
+    return $('#transaction-type .item.active').attr('data-value');
+  }
+  
+  function initializeAccountDropdown() {
+    $('#accounts-dropdown').dropdown({
+      placeholder: '{% translate "Account" %}',
+      apiSettings: {
+        url: '/fn/api/accounts/',
+        cache: false,
+        successTest: r => r.count > 0,
+        onResponse: r => {
+          results = r.results
+            .map(e => ({
+              name: e.name,
+              value: e.id,
+            }));
+          return {
+            count: r.count,
+            results: results,
+          };
+        }
+      },
+      forceSelection: false,
+      filterRemoteData: true,
+      onChange: () => {
+        $('#categories-dropdown').dropdown('show', true);
+      },
+    })
+  }
+
+  function initializeCategoryDropdown() {
+    $('#categories-dropdown').dropdown({
+      placeholder: '{% translate "Category" %}',
+      apiSettings: {
+        url: '/fn/api/categories/',
+        cache: false,
+        successTest: r => r.count > 0,
+        onResponse: r => {
+          results = r.results
+            .filter(
+              e => e.type == getTransactionType()
+            )
+            .map(e => ({
+              name: e.name,
+              value: e.id,
+              icon: e.icon,
+            }));
+          return {
+            count: r.count,
+            results: results,
+          };
+        },
+      },
+      forceSelection: false,
+      filterRemoteData: true,
+      allowReselection: true,
+    })
+  }
+
+  function initializeFutureCheckbox() {
+    $('.ui.checkbox[data-name=future]').checkbox();
+    {% if 'future' in request.GET %}
+      $('.ui.checkbox[data-name=future]').checkbox('check');
+    {% endif %}
+  }
+  
+  function onEnterTab() {
+    
+    function onEnterFocusNext(currentEl, callback) {
+      $(currentEl).on("keypress", function(e) {
+        if (e.keyCode == 13) {
+          callback();
+        }
+      });
+    }
+    
+    onEnterFocusNext(
+      'input[name=amount]',
+      () => { $('input[name=description]').select() }
+    );
+    onEnterFocusNext(
+      'input[name=description]',
+      () => { $('#accounts-dropdown').dropdown('show') }
+    );
+  }
+
+  function highlightTransaction(id) {
+    $(`.ui.segment[data-transaction=${id}]`).css('transition', '1s');
+    $(`.ui.segment[data-transaction=${id}]`)
+      .css('background-color', '#fff8db')
+      .css('color', '#b58105')
+      .css('box-shadow', '0 0 0 1px #b58105 inset,0 0 0 0 transparent');
+  }
+
+  $(document).ready(e => {
+    initializeAccountDropdown();
+    initializeCategoryDropdown();
+    initializeFutureCheckbox();
+    onEnterTab();
+    $('select[name=from_account]').closest('.fields').hide('swing');
+    $('#transaction-type .item').on('click', e => {
+      $('#transaction-type .item').removeClass('active');
+      resetForm();
+      $(e.currentTarget).addClass('active');
+      if ($(e.currentTarget).attr('data-value') == 'TRF') {
+        $('select[name=account]').closest('.field').hide('swing');
+        $('select[name=category]').closest('.field').hide('swing');
+        $('#is-recurrent-or-installment').closest('.field').hide('swing');
+        $('select[name=from_account]').closest('.fields').show('swing');
+      } else {
+        $('select[name=account]').closest('.field').show('swing');
+        $('select[name=category]').closest('.field').show('swing');
+        $('#is-recurrent-or-installment').closest('.field').show('swing');
+        $('select[name=from_account]').closest('.fields').hide('swing');
+      }
+    });
+    $('#is-recurrent-or-installment').checkbox({
+      fireOnInit : true,
+      onChecked: () => {
+        $('#recurrent-or-installment').show('swing');
+      },
+      onUnchecked: () => {
+        $('#recurrent-or-installment').hide('swing');
+      },
+    });
+    $('#is-recurrent-or-installment').checkbox('uncheck');
+    $('.ui.radio.recurrent.checkbox').checkbox({
+      onChecked: () => {
+        $('.field[data-type=recurrent]').show('swing');
+        $('.field[data-type=installment]').hide('swing');
+      },
+    });
+    $('.ui.radio.installment.checkbox').checkbox({
+      onChecked: () => {
+        $('.field[data-type=recurrent]').hide('swing');
+        $('.field[data-type=installment]').show('swing');
+      },
+    });
+    {% if "transaction" in request.GET %}
+      highlightTransaction({{ request.GET.transaction }});
+    {% endif %}
+  })
+
+  $('.ui.filter.dropdown[data-name=category]').dropdown({
+    placeholder: "{% translate 'Select a category' %}",
+    forceSelection: false,
+    values: [
+      {% for c in categories %}
+      {
+        name: "{{ c.name }}",
+        value: {{ c.id }},
+        {% if c.id|stringformat:"i" in filtered_categories %}
+        selected : true
+        {% endif %}
+      },
+      {% endfor %}
+    ]
+  });
+  $('.ui.filter.dropdown[data-name=account]').dropdown({
+    placeholder: "{% translate 'Select an account' %}",
+    forceSelection: false,
+    values: [
+      {% for a in accounts %}
+      {
+        name: "{{ a.name }}",
+        value: {{ a.id }},
+        {% if a.id|stringformat:"i" in filtered_accounts %}
+        selected : true
+        {% endif %}
+      },
+      {% endfor %}
+    ]
+  });
+  $('.message .close').click(function() {
+    $(this)
+    .closest('.message')
+    .transition('fade');
+  });
+</script>
+
+{% endblock %}

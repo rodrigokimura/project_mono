@@ -1,0 +1,300 @@
+{% extends "coder/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head %}
+    <style>
+        {{ all_styles_css }}
+        .main.grid {
+            padding-top: 4em !important;
+            padding-left: 21em !important;
+            padding-right: 1em !important;
+        }
+        @media screen and (max-width: 767px) {
+            .computer.only {
+                display: none !important;
+                width: 0 !important;
+            }
+            .main.grid {
+                padding-top: 4em !important;
+                padding-left: 1em !important;
+                padding-right: 1em !important;
+            }
+        }
+        #code-textarea {
+            width: 100%;
+            height: 100%;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #
+        }
+        #snippet-code {
+            padding: 0 0 0 1em !important;
+            width: 100%;
+            flex: 1 0 auto;
+        }
+        .hidden {
+            display: none !important;
+        }
+        /* width */
+        ::-webkit-scrollbar {
+            width: 10px !important;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1 !important;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: #888 !important;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555 !important;
+        }
+        td.linenos .normal {
+            color: inherit !important;
+            opacity: 0.5 !important;
+            background-color: transparent !important;
+            padding-left: 5px !important;
+            padding-right: 10px !important;
+        }
+    </style>
+    <script>
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+          
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+          
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Fallback: Copying text command was ' + msg);
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+          
+            document.body.removeChild(textArea);
+        }
+        function copyTextToClipboard(text) {
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+              return;
+            }
+            navigator.clipboard.writeText(text).then(function() {
+                console.log('Async: Copying to clipboard was successful!');
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+    </script>
+    <script src="{% static '/coder/snippet_list.js' %}"></script>
+{% endblock head %}
+
+{% block sidebars %}
+    <div class="ui vertical left fixed computer only inverted main menu" style="padding-top: 3em; width: 20em;">
+        <div class="header item">
+            <div class="ui inverted header">
+                <em data-emoji=":card_box:" class="small"></em>
+                <span style="padding-left: .5em;">Snippets</span>
+                <button class="circular ui icon right floated basic inverted button" onclick="showConfigModal()">
+                    <i class="cog icon"></i>
+                </button>
+            </div>
+        </div>
+        <a class="item" id="show-all" onclick="showAll()">
+            Show all
+            <div class="ui teal left pointing label" id="count-all"></div>
+        </a>
+        <div class="item">
+            <div class="ui basic fitted languages inverted segment">
+                <i class="file code icon"></i>
+                Languages
+                <div class="languages inverted pointing menu" style="padding-top: .5em; min-height: 1em;">
+                </div>
+            </div>
+        </div>
+        <div class="item">
+            <div class="ui basic fitted tags inverted segment">
+                <i class="tags icon"></i>
+                Tags
+                <div class="tags inverted menu" style="padding-top: .5em; min-height: 1em;">
+                </div>
+            </div>
+            <div class="ui fluid small inverted button" onclick="manageTags()">Manage tags</div>
+        </div>
+    </div>
+{% endblock sidebars %}
+
+{% block menu %}
+    {% comment %} <div class="item">
+        Snippets
+    </div> {% endcomment %}
+{% endblock menu %}
+
+{% block main %}
+    <div class="ui stackable compact main grid">
+        <div class="row">
+            <div class="four wide column">
+                <div class="full height" style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;">
+                    <div class="ui top attached teal segment" style="width: 100%;">
+                        <div class="ui fluid input"><input type="text" placeholder="Search..." id="search"></div>
+                    </div>
+                    <div class="ui bottom attached vertical segment snippets menu" style="padding: 0; width: 100%; flex: 1 0 auto;">
+                    </div>
+                    <div class="ui fluid green right labeled icon button" style="width: 100%; flex: 0 0 auto;" onclick="showModal()">
+                        Add new snippet
+                        <i class="add icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="twelve wide column">
+                <div style="display: flex; flex-flow: column nowrap; height: calc(100vh - 5em);" id="snippet"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui modal" id="snippet-modal">
+        <i class="close icon"></i>
+        <div class="header" id="modal-title"></div>
+        <div class="ui form content">
+            <div class="field">
+                <label>Title</label>
+                <input type="text" name="title">
+            </div>
+            <div class="field">
+                <label>Language</label>
+                <div class="ui search selection dropdown" id="languages-dropdown">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Language</div>
+                </div>
+            </div>
+            <div class="field">
+                <label>Code</label>
+                <textarea name="code" id="code-textarea" rows=20></textarea>
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui black deny button">
+                Cancel
+            </div>
+            <div class="ui positive right labeled icon button">
+                Save
+                <i class="checkmark icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui modal" id="tags-modal">
+        <i class="close icon"></i>
+        <div class="header">Manage tags</div>
+        <div class="ui form content">
+            
+        </div>
+        <div class="actions">
+            <div class="ui black deny button">
+                Close
+            </div>
+        </div>
+    </div>
+
+    <div class="ui modal" id="config-modal">
+        <i class="close icon"></i>
+        <div class="header">Config</div>
+        <div class="ui content">
+            <div class="ui form">
+                <div class="field">
+                    <label>Style</label>
+                    <div class="ui search selection code-style dropdown" id="code-style-dropdown">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Style</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui slider checkbox" id="lineno-checkbox" style="padding: 1em;">
+                        <input type="checkbox">
+                        <label>Show line numbers</label>
+                    </div>
+                </div>
+            </div>
+            <div id="demo" style="margin-top: 1em; padding-left: .5em; border-radius: .5em; border: 1px solid #ccc!important">
+                {{ demo_code|safe }}
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui black deny button">
+                Close
+            </div>
+            <div class="ui green approve button">
+                Save
+            </div>
+        </div>
+    </div>
+
+    <script>
+        COLORS = [
+            {% for key, value in colors %}
+                {
+                    name: '{{ value }}',
+                    icon: '{{ key }} circle',
+                    value: '{{ key }}',
+                    {% if key == 'blue' %}
+                    selected: true,
+                    {% endif %}
+                },
+            {% endfor %}
+        ]
+        STYLES = [
+            {% for key, value in styles %}
+                {
+                    name: '{{ value }}',
+                    value: '{{ key }}',
+                    {% if key == 'monokai' %}
+                    selected: true,
+                    {% endif %}
+                },
+            {% endfor %}
+        ]
+        function initializeLanguagesDropdown() {
+            $('#languages-dropdown').dropdown({
+                values: [
+                    {% for key, value in languages %}
+                        {
+                            name: '{{ value }}',
+                            value: '{{ key }}',
+                            {% if key == 'python' %}
+                            selected: true,
+                            {% endif %}
+                        },
+                    {% endfor %}
+                ]
+            });
+        }
+        $(document).ready(e => {
+            sessionStorage.clear();
+            setSnippetStyle();
+            getTags(render = false);
+            showAll();
+            initializeLanguagesDropdown();
+            initializeStylesDropdown();
+            initializeLineNumbersCheckbox();
+            $('#search').keyup(e => {
+                if (e.keyCode == 13) {
+                    filterSnippets($('#search').val());
+                }
+            });
+        });
+    </script>
+{% endblock %}

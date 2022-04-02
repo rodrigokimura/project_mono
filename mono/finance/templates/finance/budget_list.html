@@ -1,0 +1,189 @@
+{% extends "finance/base.html" %}
+{% load i18n %}
+
+{% block head %}
+  <style>
+  </style>
+{% endblock head %}
+
+{% block main %}
+
+<div class="ui stackable grid container" style="margin-bottom: 1em;">
+
+  <div class="four wide column">
+    <form class="ui fluid form" method="GET" id="filter">
+      <div class="field">
+        <label>Category</label>
+        <div class="ui search selection dropdown" data-name="category">
+          <input type="hidden" name="category">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
+        </div>
+      </div>
+      <div class="field">
+        <label>Account</label>
+        <div class="ui search selection dropdown" data-name="account">
+          <input type="hidden" name="account">
+          <div class="text"></div>
+          <i class="dropdown icon"></i>
+        </div>
+      </div>
+      <div class="ui fluid buttons">
+        <button class="ui button primary" type="submit" form="filter">Filter</button>
+        <a class="ui button" href="{% url 'finance:budgets' %}">Clear</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="eight wide column">
+    {% for budget in object_list %}
+    {% if not budget.is_shared %}
+    <div class="ui segments">
+      <div class="ui secondary grey segment" data-toggle="segments">
+        <a href="{% url 'finance:budget_update' pk=budget.pk %}">
+          From {{ budget.start_date }} to {{ budget.end_date }}
+        </a>
+      </div>
+      <div class="ui segment">
+
+        {% if budget.all_accounts %}
+          <div class="ui small label">{% translate "All accounts" %}</div> 
+        {% else %}
+          {% for account in budget.accounts.all %}
+          <a class="ui small label" href="{% url 'finance:account_update' account.pk %}">
+          {{ account }}
+          </a> 
+          {% endfor %}
+        {% endif %}
+
+        {% if budget.all_categories %}
+          <div class="ui small label">{% translate "All categories" %}</div> 
+        {% else %}
+          {% for category in budget.categories.all %}
+          <a class="ui small tag label" style="margin-top: .2em;" href="{% url 'finance:category_update' category.pk %}">
+            <i class="{{ category.icon }} icon"></i>{{ category }}
+          </a> 
+          {% endfor %}
+        {% endif %}
+
+      </div>
+      <div class="ui segment">
+        <div class="ui amount {{ budget.progress_bar_color }} progress" data-value="{{ budget.amount_spent|stringformat:'f' }}" data-total="{{ budget.amount|stringformat:'f' }}">
+          <div class="bar">
+            <div class="progress"></div>
+          </div>
+          <div class="label">{{ budget.amount_spent|stringformat:'.2f' }} of {{ budget.amount|stringformat:'.2f' }} spent</div>
+        </div>
+        <div class="ui time progress" data-value="{{ budget.time_spent }}" data-total="{{ budget.time_total }}">
+          <div class="bar">
+            <div class="progress"></div>
+          </div>
+          <div class="label">{{ budget.time_spent }} of {{ budget.time_total }} days past</div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="four wide column">
+
+    <div class="ui horizontal divider"><i class="play circle outline icon"></i> {% translate "Actions" %}</div>
+    <div class="row">
+      <a class="ui fluid primary labeled icon button" href="{% url "finance:budget_create" %}" style="margin-bottom: 1rem;">
+        <i class="plus icon"></i>
+        {% translate "Add budget" %}
+      </a>
+      <a class="ui fluid primary labeled icon button" href="{% url "finance:budgetconfiguration_create" %}">
+        <i class="plus icon"></i>
+        {% translate "Schedule budgets" %}
+      </a>
+    </div>
+    
+    <div class="ui horizontal divider"><i class="eye outline icon"></i> {% translate "Views" %}</div>
+    <div class="row">
+      <a class="ui fluid basic labeled icon button" href="{% url "finance:budgetconfigurations" %}">
+          <i class="calendar alternate outline icon"></i>
+          {% translate "Go to Scheduled Budgets" %}
+      </a>
+    </div>
+  </div>
+
+</div>
+
+
+<script>
+  $('.ui.dropdown[data-name=category]').dropdown({
+    placeholder: "Select a category",
+    forceSelection: false,
+    values: [
+      {% for c in categories %}
+      {
+        name: "{{ c.name }}",
+        value: {{ c.id }},
+        {% if c.id|stringformat:"i" == request.GET.category %}
+        selected : true
+        {% endif %}
+      },
+      {% endfor %}
+    ]
+  });
+  $('.ui.dropdown[data-name=account]').dropdown({
+    placeholder: "Select an account",
+    forceSelection: false,
+    values: [
+      {% for a in accounts %}
+      {
+        name: "{{ a.name }}",
+        value: {{ a.id }},
+        {% if a.id|stringformat:"i" == request.GET.account %}
+        selected : true
+        {% endif %}
+      },
+      {% endfor %}
+    ]
+  });
+  $('.message .close').click(function() {
+    $(this)
+    .closest('.message')
+    .transition('fade');
+  });
+  $('*.ui.amount.progress').toArray().forEach(
+    item => {
+      value = $(item).data('value');
+      total = $(item).data('total');
+      percent = Math.round(value/total*100)
+      $(item).progress(
+        {
+          autoSuccess: false,
+          showActivity: false,
+          text: {
+            percent: `${percent}%`,
+          },
+        }
+      );
+    }
+  );
+  $('*.ui.time.progress').toArray().forEach(
+    item => {
+      value = $(item).data('value');
+      total = $(item).data('total');
+      percent = Math.round(value/total*100)
+      $(item).progress(
+        {
+          showActivity: false,
+          text: {
+            percent: `${percent}%`,
+          }
+        }
+      ); 
+    }
+  );
+  
+  $("*[data-toggle=segments]").click(e=>{
+      $(e.target).siblings('.ui.segment').toggle('swing');
+  })
+  
+</script>
+
+{% endblock %}

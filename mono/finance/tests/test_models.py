@@ -55,7 +55,7 @@ class AccountModelTests(TestCase):
 
     def test_adjust_balance(self):
         account = Account.objects.filter(created_by=self.user).first()
-        self.assertEquals(account.current_balance, 0)
+        self.assertEqual(account.current_balance, 0)
 
         account.adjust_balance(100, self.user)
         self.assertGreater(account.current_balance, 0)
@@ -104,7 +104,7 @@ class UserCreationTests(TestCase):
         )
         self.assertIsNotNone(self.group)
         self.group.members.add(self.user_1)
-        self.assertEquals(self.group.members.count(), 1)
+        self.assertEqual(self.group.members.count(), 1)
         self.group.members.add(self.user_2)
         self.assertGreater(self.group.members.count(), 1)
         self.account = Account.objects.filter(owned_by=self.user_1).first()
@@ -127,34 +127,6 @@ class UserCreationTests(TestCase):
         )
         request = self.factory.get(f'/fn/transaction/{transaction.pk}/delete/')
         request.user = self.user_1
-
-        # # Test my_view() as if it were deployed at /customer/details
-        # response = my_view(request)
-        # # Use this syntax for class-based views.
-        # response = MyView.as_view()(request)
-        # self.assertEqual(response.status_code, 200)
-
-# User default accounts creation
-# User default category creation
-
-# class TestView(TestCase):
-
-#     fixtures = ["icon"]
-
-#     def setUp(self):
-#         self.user = User.objects.create(
-#             username="teste")
-#         self.factory = RequestFactory()
-#         self.view = AccountCreateView
-
-#     def test_index_page(self):
-#         url = reverse(self.view.as_view())
-#         request = self.factory.get(url)
-#         request.user = self.user
-#         response = self.view.as_view()(request)
-#         self.assertEqual(response.status_code, 200)
-        # self.assertTemplateUsed(response, 'index.html')
-        # self.assertContains(response, 'Company Name XYZ')
 
 
 class StripeTests(TestCase):

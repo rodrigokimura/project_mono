@@ -1,0 +1,77 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head %}
+<script src="{% static 'js/jquery.datetimepicker.full.min.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.datetimepicker.min.css' %}"/>
+{% endblock head %}
+
+{% block main %}
+
+<div class="pusher">
+  <div class="ui vertical stripe segment">
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+        <div class="eight wide column">
+          <div class="ui container">
+            <form method="post" class="ui {% if form.errors %}error {% endif %}form" id="installment_form">
+              {% csrf_token %}
+              {% include "_form.html" with form=form %}
+              <div class="fluid ui buttons">
+                <button class="ui button primary" type="submit" form="installment_form">
+                  {% translate "Save" %}
+                </button>
+                <div class="{% translate 'or' %}"></div>
+                {% if object %}
+                <a class="ui button red" href="{% url 'finance:installment_delete' pk=object.pk %}">
+                  <i class="trash icon"></i>
+                  {% translate "Delete" %}
+                </a>
+                <div class="{% translate 'or' %}"></div>
+                {% endif %}
+                <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
+                  {% translate "Cancel" %}
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+<script>
+  $('select[name=handle_remainder]').dropdown();
+  $('select[name=account]').dropdown(
+    {
+      onChange: function(value, text, choice) {
+        if (typeof value !== "undefined") {
+          dropdown_element.dropdown('clear');
+          updateDropdown($("input[name=type]").val(), value);
+        }
+      }
+    }
+  );
+  $('select[name=frequency]').dropdown();
+  
+  $("input[name=type]").change(e=>{
+    type = $(e.target).val();
+    dropdown_element.dropdown('clear');
+    updateDropdown(type, $('select[name=account]').dropdown("get value"));
+  })
+  
+  if ($('select[name=account]').dropdown("get value").length > 0) {
+    dropdown_element.dropdown('clear');
+    updateDropdown($("input[name=type]").val(), $('select[name=account]').dropdown("get value"));
+  }
+  
+  {% if object %}
+    dropdown_element.dropdown('set text', "<i class='{{ object.category.icon }} icon'></i>{{ object.category }}");
+    dropdown_element.dropdown("set value", "{{ object.category.pk }}")
+  {% endif %}
+   
+  
+</script>
+{% endblock %}

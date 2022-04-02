@@ -1,0 +1,47 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head %}
+{% endblock head %}
+
+{% block main %}
+
+  <div class="ui stackable grid container" style="margin-bottom: .5rem;">
+
+
+    {% if user.is_authenticated %}
+    <div class="sixteen wide column">
+      <h1 class="ui header">{% translate "Hi, " %}{% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}!</h1>
+    </div>
+    {% with cards=user.configuration.decoded_cards user=user %}
+    {% for card in cards %}
+    <div class="four wide column">
+      {% include 'finance/_card.html' %}
+    </div>
+    {% endfor %}
+    {% endwith %}
+
+    <div class="sixteen wide column">
+      <a class="ui fluid basic button" href="{% url 'finance:card_order' %}">
+        {% translate "Personalize" %}
+      </a>
+    </div>
+
+    {% else %}
+
+      <div class="ui text container">
+      <div class="ui buttons">
+        <a class="ui big right labeled icon button" href="{% url 'finance:login' %}">
+          Log in
+          <i class="sign in alternate icon"></i>
+        </a>
+        <a class="ui big primary right labeled icon button" href="{% url 'finance:signup' %}">Sign Up<i class="right arrow icon"></i></a>
+      </div>
+      </div>
+
+    {% endif %}
+
+  </div>
+
+{% endblock main %}

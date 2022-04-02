@@ -1,0 +1,31 @@
+{% load humanize %}
+
+<div class="ui message" data-notification-id="{{ notification.id }}">
+    <div class="header">
+        <div class="ui checkbox" data-notification-id="{{ notification.id }}">
+            <input type="checkbox">
+            <label></label>
+        </div>
+        <a href="{% url 'accounts:notification_action' pk=notification.id %}">
+        <i class="{{ notification.icon }} icon"></i>
+            {{ notification.title }}
+        </a>
+    </div>
+    <p>{{ notification.message }}</p>
+    <span class="ui right floated text">{{ notification.created_at|naturaltime }}</span>
+</div>
+<script type="text/javascript" charset="utf-8">
+    $('.ui.message[data-notification-id={{ notification.id }}] .checkbox')
+        .checkbox({
+            onChecked: () => {
+                $('.ui.message[data-notification-id={{ notification.id }}]')
+                    .removeClass('message')
+                    .addClass('info message');
+            },
+            onUnchecked: () => {
+                $('.ui.message[data-notification-id={{ notification.id }}]')
+                    .removeClass('info message')
+                    .addClass('message');
+            },
+        }).checkbox("uncheck");
+</script>

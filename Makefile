@@ -45,6 +45,7 @@ art:
 ##@ Code quality
 
 BADGE=pipenv run genbadge
+# BADGE=pipenv run anybadge
 COV=pipenv run coverage
 R_JUNIT=reports/junit/
 R_COV=reports/coverage/
@@ -119,7 +120,8 @@ tests: _tests _tests-badge  ## Run all test suites and generate badge
 
 coverage: _coverage _coverage-badge  ## Run all test suites with coverage and generate badge
 
-qa: art _isort flake8 pylint coverage _tests-badge  ## Run all quality checks, generating reports and badges
+# qa: art _isort flake8 pylint coverage _tests-badge  ## Run all quality checks, generating reports and badges
+qa: art _isort pylint coverage _tests-badge  ## Run all quality checks, generating reports and badges
 
 
 ##@ Django

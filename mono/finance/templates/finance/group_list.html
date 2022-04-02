@@ -1,0 +1,81 @@
+{% extends "finance/base.html" %}
+
+{% block head %}
+{% endblock head %}
+
+{% block main %}
+  <div class="ui stackable grid container">
+    
+    <div class="four wide column">
+      <form class="ui fluid form" method="GET" id="filter">
+        <div class="field">
+          <label>Member</label>
+          <div class="ui search selection dropdown" data-name="member">
+            <input type="hidden" name="member">
+            <div class="text"></div>
+            <i class="dropdown icon"></i>
+          </div>
+        </div>
+        <div class="ui fluid buttons">
+          <button class="ui button primary" type="submit" form="filter">Filter</button>
+          <a class="ui button" href="{% url 'finance:groups' %}">Clear</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="eight wide column">
+     
+      {% for group in object_list %}
+      <div class="ui segments">
+        <div class="ui secondary grey segment" data-toggle="segments">
+          <a href="{% url 'finance:group_update' pk=group.pk %}">{{ group.name }}</a>
+        </div>
+        {% for m in group.members.all %}
+        <div class="ui grid segment">
+          <div class="ten wide column">
+            {{ m.email }}
+          </div>
+          <div class="six wide right aligned column">
+            {{ m.username }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+
+    </div>
+    
+    <div class="four wide column">
+      <a class="ui fluid button primary" href="{% url "finance:group_create" %}">Add group</a>
+    </div>
+
+  </div>
+
+  <script>
+    $('.ui.dropdown[data-name=member]').dropdown({
+      placeholder: "Select a member of a group",
+      forceSelection: false,
+      values: [
+        {% for m in members %}
+        {
+          name: "{{ m.username }}",
+          value: {{ m.id }},
+          {% if m.id|stringformat:"i" == request.GET.member %}
+          selected : true
+          {% endif %}
+        },
+        {% endfor %}
+      ]
+    });
+    $('.message .close').click(function() {
+      $(this)
+      .closest('.message')
+      .transition('fade');
+    });
+    
+    $("*[data-toggle=segments]").click(e=>{
+      $(e.target).siblings('.ui.segment').toggle('swing');
+    })
+  </script>
+
+{% endblock %}

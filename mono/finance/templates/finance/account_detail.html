@@ -1,0 +1,44 @@
+{% extends "finance/base.html" %}
+{% load static %}
+
+{% block main %}
+
+<div class="pusher">
+  <div class="ui vertical stripe segment">
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+        <div class="column">
+          <table class="ui celled unstackable table">
+            <thead>
+              <tr>
+                <th colspan=2>{{ object.name }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Initial balance</td>
+                <td class="">{{ object.initial_balance }}</td>
+              </tr>
+              <tr>
+                <td>Current balance</td>
+                <td>{{ object.current_balance }}</td>
+              </tr>
+              <tr>
+                <td>Total transactions</td>
+                <td>{{ object.total_transactions }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="ui fluid buttons">
+            <a href="" class="ui yellow button">Editar</a>
+            <a href="" class="ui red button">Excluir</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+<script>
+</script>
+{% endblock %}
