@@ -1,3 +1,9 @@
+## 4.24.0 (2022-04-01)
+
+### Feat
+
+- **project_manager**: add django admin action to sort boards
+
 ## 4.23.0 (2022-04-01)
 
 ### Feat
