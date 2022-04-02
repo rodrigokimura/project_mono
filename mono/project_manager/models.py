@@ -144,6 +144,7 @@ class Board(BaseModel):
     class Meta:
         ordering = [
             "project",
+            "order",
             "created_at",
         ]
 
