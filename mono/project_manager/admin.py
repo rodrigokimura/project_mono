@@ -11,6 +11,12 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = ['deadline', 'name', 'created_by', 'created_at', 'active']
     list_filter = ('created_by', 'created_at', 'active')
     search_fields = ['name']
+    actions = ('sort',)
+
+    @admin.action(description='Sort boards')
+    def sort(self, request, queryset):
+        for p in queryset:
+            p.sort()
 
 
 @admin.register(models.Board)
