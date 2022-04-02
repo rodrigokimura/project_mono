@@ -1,3 +1,9 @@
+## 4.23.0 (2022-04-01)
+
+### Feat
+
+- **project_manager**: change admin columns
+
 ## 4.22.3 (2022-04-01)
 
 ### Fix
