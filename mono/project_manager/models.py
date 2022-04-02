@@ -99,6 +99,12 @@ class Project(BaseModel):
     def touch(self):
         self.save()
 
+    def sort(self):
+        """Fix board order"""
+        for index, board in enumerate(self.board_set.all()):
+            board.order = index + 1
+            board.save()
+
 
 class Board(BaseModel):
     """
