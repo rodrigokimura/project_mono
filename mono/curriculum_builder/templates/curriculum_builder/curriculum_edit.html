@@ -1,0 +1,103 @@
+{% extends "curriculum_builder/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head %}
+    <script src="{% static '/curriculum_builder/curriculum_edit.js' %}"></script>
+{% endblock head %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="row">
+            <div class="column">
+                <form class="ui segment form">
+                    <div class="two fields">
+                        <div class="field">
+                            <label>First Name</label>
+                            <input type="text" name="first-name" placeholder="First Name">
+                        </div>
+                        <div class="field">
+                            <label>Last Name</label>
+                            <input type="text" name="last-name" placeholder="Last Name">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Bio</label>
+                        <textarea type="text" name="bio" placeholder="Bio"></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Address</label>
+                        <input type="text" name="address" placeholder="Address">
+                    </div>
+                    <div class="field">
+                        <label>Style</label>
+                        <div class="ui selection dropdown" data-name="style">
+                            <input type="hidden" name="style">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Style</div>
+                            <div class="menu">
+                                {% for value, name in style_choices %}
+                                    <div class="item" data-value="{{ value }}">{{ name }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <a class="ui button" onclick="saveCurriculum()">Save</a>
+                </form>
+                <div class="ui fluid styled accordion">
+                    <div class="title">
+                        <i class="dropdown icon"></i>
+                        Companies
+                    </div>
+                    <div class="content">
+                        <div class="ui basic companies cards segment" style="padding: 0;" id="companies"></div>
+                        <div class="ui green right labeled icon button" style="margin-top: 1em;" onclick="addCompany()">
+                            Add new company
+                            <i class="add icon"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="title">
+                        <i class="dropdown icon"></i>
+                        Skills
+                    </div>
+                    <div class="content">
+                        <div class="ui basic companies cards segment" style="padding: 0;" id="skills"></div>
+                        <div class="ui green right labeled icon button" style="margin-top: 1em;" onclick="addSkill()">
+                            Add new skill
+                            <i class="add icon"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="title">
+                        <i class="dropdown icon"></i>
+                        Social Media Profiles
+                    </div>
+                    <div class="content">
+                        <div class="ui basic companies cards segment" style="padding: 0;" id="social-media-profiles"></div>
+                        <div class="ui green right labeled icon button" style="margin-top: 1em;" onclick="addSocialMediaProfile()">
+                            Add new social media profile
+                            <i class="add icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% include 'curriculum_builder/_modal.html' with modal=company_modal %}
+    {% include 'curriculum_builder/_modal.html' with modal=work_experience_modal %}
+    {% include 'curriculum_builder/_modal.html' with modal=acomplishment_modal %}
+    {% include 'curriculum_builder/_modal.html' with modal=skill_modal %}
+    {% include 'curriculum_builder/_modal.html' with modal=social_media_profile_modal %}
+
+    <script>
+        const CURRICULUM_ID = "{{ object.id }}";
+        $(document).ready(e => {
+            $('.ui.dropdown[data-name=style]').dropdown();
+            $('.ui.calendar').calendar();
+            $('.ui.accordion').accordion();
+            getCurriculum();
+        })
+    </script>
+{% endblock %}

@@ -1,6 +1,4 @@
 """Curriculum Builder's serializers"""
-from typing import Dict
-
 from rest_framework import serializers
 
 from .models import (
@@ -10,6 +8,7 @@ from .models import (
 
 
 class UserFilteredPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
+    """PrimaryKeyRelatedField filtered by user"""
     def get_queryset(self):
         request = self.context.get('request', None)
         queryset = super().get_queryset()
@@ -102,7 +101,6 @@ class SkillSerializer(serializers.ModelSerializer):
         queryset=Curriculum.objects.all()
     )
 
-
     class Meta:
         model = Skill
         fields = (
@@ -160,4 +158,3 @@ class CurriculumSerializer(serializers.ModelSerializer):
             'skills',
             'created_by',
         )
-

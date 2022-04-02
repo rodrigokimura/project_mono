@@ -1,0 +1,106 @@
+{% load i18n %}
+<div class="ui segments">
+  <div class="ui secondary grey segment">
+    <div class="ui header">
+        {{ card }}
+    </div>
+  </div>
+  <div class="ui segment">
+
+    {% if card == _('Overview') %}
+      <div class="ui sub header">
+        {% translate "Expenses - this month" %}
+      </div>
+      {{ expenses_this_month|floatformat:2 }}
+      <div class="ui sub header">
+        {% translate "Incomes - this month" %}
+      </div>
+      {{ incomes_this_month|floatformat:2 }}
+      <div class="ui sub header">
+        {% translate "Expenses - last month" %}
+      </div>
+      {{ expenses_last_month|floatformat:2 }}
+      <div class="ui sub header">
+        {% translate "Incomes - last month" %}
+      </div>
+      {{ incomes_last_month|floatformat:2 }}
+
+
+
+    {% elif card == _('Balance') %}
+
+      {% with accounts=user.owned_accountset.all %}
+        {% for account in accounts %}
+        <div class="ui sub header">
+        {{ account }}
+        </div>
+        {{ account.current_balance|floatformat:2 }}
+        {% endfor %}
+      {% endwith %}
+      <div class="ui sub header">{% translate "Total balance" %}</div>
+      {{ total_balance|floatformat:2 }}
+
+    {% elif card == _('Budgets') %}
+
+      {% with budgets=open_budgets %}
+        {% for budget in budgets %}
+          <div class="ui amount {{ budget.progress_bar_color }} progress" data-value="{{ budget.amount_spent|stringformat:'f' }}" data-total="{{ budget.amount|stringformat:'f' }}">
+            <div class="bar">
+              <div class="progress"></div>
+            </div>
+            <div class="label">{{ budget.amount_spent|floatformat:2 }} {% translate "of" %} {{ budget.amount|floatformat:2 }} {% translate "spent" %}</div>
+          </div>
+        {% endfor %}
+      {% endwith %}
+
+      <div class="ui sub header">{% translate "Closed budgets" %}</div>
+      {{ closed_budgets.count }}
+      <script>
+      $('*.ui.amount.progress').toArray().forEach(
+        item => {
+          value = $(item).data('value');
+          total = $(item).data('total');
+          percent = Math.round(value/total*100)
+          $(item).progress(
+            {
+              autoSuccess: false,
+              showActivity: false,
+              text: {
+                percent: `${percent}%`,
+              },
+            }
+          );
+        }
+      );
+      </script>
+      
+    {% elif card == _('Wallet') %}
+      <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+      <div id="wallet-chart"></div>
+
+      <script>
+        var walletChart = new ApexCharts(
+          document.querySelector("#wallet-chart"), 
+          {
+            series: [
+              {% for v in wallet.values %}{{ v }},{% endfor %}
+            ],
+            chart: {
+              type: 'donut',
+            },
+            labels: [
+              {% for k in wallet.keys %}"{{ k }}",{% endfor %}
+            ],
+            legend: {
+              show: false
+            }  
+          }
+        );
+        walletChart.render();
+      </script>
+
+    {% endif %}
+
+  </div>
+</div>

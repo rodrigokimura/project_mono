@@ -1,0 +1,58 @@
+{% extends "finance/base.html" %}
+
+{% block head %}
+{% endblock head %}
+
+{% block main %}
+
+<div class="ui container">
+
+  <div class="row" style="margin-bottom: 1em;">
+    
+    
+    <div class="ui segments">
+      <div class="ui secondary grey segment" style="padding: .5em 1em;">
+        <div class="ui grid">
+          <div class="eight wide column">
+            Goals
+          </div>
+        </div>
+      </div>
+      
+      {% for goal in object_list %}
+      <div class="ui segment" style="padding: .5em 1em;">
+        <div class="ui grid">
+          <div class="column">
+            <a href="{% url 'finance:goal_update' pk=goal.pk %}">
+              <span class="ui text">
+                <i class="{{ icon.markup }} icon"></i>
+                {{ goal.name }}
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {% endfor %}
+    </div>
+  </div>
+    
+
+    
+    <div class="row">
+        <a class="ui fluid button primary" href="{% url "finance:goal_create" %}">Add goal</a>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  $('.ui.dropdown').dropdown();
+  $('.message .close').click(function() {
+    $(this)
+    .closest('.message')
+    .transition('fade');
+  });
+</script>
+
+{% endblock %}

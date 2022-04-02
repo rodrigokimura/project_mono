@@ -3,14 +3,19 @@ from django.contrib import admin
 
 from . import models
 
-# Register your models here.
-admin.site.register(models.Board)
 admin.site.register(models.Icon)
 
 
 @admin.register(models.Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ['deadline', 'name', 'created_by', 'created_at', 'active']
+    list_filter = ('created_by', 'created_at', 'active')
+    search_fields = ['name']
+
+
+@admin.register(models.Board)
+class BoardAdmin(admin.ModelAdmin):
+    list_display = ('name', 'created_by', 'created_at', 'order')
     list_filter = ('created_by', 'created_at', 'active')
     search_fields = ['name']
 

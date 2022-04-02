@@ -1,0 +1,64 @@
+{% extends "pixel/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+
+        <div class="row">
+            <div class="column">
+                <h1 class="ui header">
+                    <div class="content">
+                        Ships generated for <span class="ui big blue label">{{ object.name_1|upper }}</span><i class="plus icon"></i><span class="ui big orange label">{{ object.name_2|upper }}</span>
+                    </div>
+                </h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <div class="ui four cards">
+                    {% for p in object.portmanteaus.all %}
+                    <div class="ui card">
+                        <div class="content">
+                            {% comment %} 
+                            <i class="right floated like icon"></i>
+                            <i class="right floated star icon"></i> 
+                            {% endcomment %}
+                            {% comment %} <div class="header">{{ p|upper }}</div> {% endcomment %}
+                            <div class="header">
+                                {% if p.is_inverted %}
+                                    <span class="ui orange text">{{ p.first_partial|upper }}</span><span class="ui blue text">{{ p.second_partial|upper }}</span>
+                                {% else %}
+                                    <span class="ui blue text">{{ p.first_partial|upper }}</span><span class="ui orange text">{{ p.second_partial|upper }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="description">
+                                {% if p.is_inverted %}
+                                    {% for substring, is_partial in p.first_summary %}<span class="ui {% if is_partial %}orange{% endif %} text">{{ substring|upper }}</span>{% endfor %} + {% for substring, is_partial in p.second_summary %}<span class="ui {% if is_partial %}blue{% endif %} text">{{ substring|upper }}</span>{% endfor %}
+                                {% else %}
+                                    {% for substring, is_partial in p.first_summary %}<span class="ui {% if is_partial %}blue{% endif %} text">{{ substring|upper }}</span>{% endfor %} + {% for substring, is_partial in p.second_summary %}<span class="ui {% if is_partial %}orange{% endif %} text">{{ substring|upper }}</span>{% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% comment %} 
+                        <div class="extra content">
+                            <span class="left floated like">
+                                <i class="like icon"></i>
+                                Like
+                            </span>
+                            <span class="right floated star">
+                                <i class="star icon"></i>
+                                Favorite
+                            </span>
+                        </div>
+                        {% endcomment %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(() => { })
+    </script>
+{% endblock %}

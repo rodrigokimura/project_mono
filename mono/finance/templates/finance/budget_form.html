@@ -1,0 +1,94 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+
+<div class="pusher">
+  <div class="ui vertical stripe segment">
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+        <div class="eight wide column">
+          <div class="ui container">
+            <form method="post" class="ui {% if form.errors %}error{% endif %} form" id="budget_form">
+              {% csrf_token %}
+              
+              {% for hidden_field in form.hidden_fields %}
+                {{ hidden_field }}
+              {% endfor %}
+
+              {% include "_field.html" with field=form.amount %}
+
+              {% include "_field.html" with field=form.start_date %}
+
+              {% include "_field.html" with field=form.end_date %}
+
+              <div class="fields" style="flex-flow: row nowrap;">
+                <div class="field" style="flex: 1 0">
+                  {% include "_field.html" with field=form.accounts %}
+                </div>
+                <div class="field" style="flex: 0 0; white-space: nowrap;">
+                  {% include "_field.html" with field=form.all_accounts %}
+                </div>
+              </div>
+
+              <div class="fields" style="flex-flow: row nowrap;">
+                <div class="field" style="flex: 1 0">
+                  {% include "_field.html" with field=form.categories %}
+                </div>
+                <div class="field" style="flex: 0 0; white-space: nowrap;">
+                  {% include "_field.html" with field=form.all_categories %}
+                </div>
+              </div>
+
+
+              {% if form.non_field_errors %}
+                <div class="ui error message">
+                  {% for error in form.non_field_errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              
+              <div class="fluid ui big buttons">
+                <button class="ui button primary" type="submit" form="budget_form">
+                  {% translate "Save" %}
+                </button>
+                <div class="or"></div>
+                {% if object and object.created_by == request.user %}
+                <a class="ui button red" href="{% url 'finance:budget_delete' pk=object.pk %}">
+                  {% translate "Delete" %}
+                </a>
+                <div class="or"></div>
+                {% endif %}
+                <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
+                  {% translate "Cancel" %}
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+<script>
+  $('*.ui.dropdown').dropdown();
+  $('.ui.checkbox[data-name=all_accounts]').checkbox(
+    {
+      onChange: () => { 
+        $('select[name=accounts]').dropdown().toggleClass("disabled");
+      },
+    }
+  );
+  $('.ui.checkbox[data-name=all_categories]').checkbox(
+    {
+      onChange: () => { 
+        $('select[name=categories]').dropdown().toggleClass("disabled");
+      },
+    }
+  );
+</script>
+{% endblock %}

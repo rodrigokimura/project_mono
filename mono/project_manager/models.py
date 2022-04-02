@@ -17,7 +17,7 @@ from django.db.models.functions import Coalesce
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 
@@ -144,6 +144,7 @@ class Board(BaseModel):
     class Meta:
         ordering = [
             "project",
+            "order",
             "created_at",
         ]
 

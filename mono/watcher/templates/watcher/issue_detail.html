@@ -1,0 +1,252 @@
+{% extends "watcher/base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block head %}
+<style>
+    pre {
+        padding: 0;
+        margin: 0;
+    }
+    .tab.segment {
+        overflow-x: auto;
+        overflow-y: auto;
+    }
+</style>
+{% endblock head %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="row">
+            <div class="column">
+                <h1 class="ui header">{% translate "Issue" %} #{{ object.id }}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <div class="ui resolve-issue button" data-resolved="{{ object.resolved|yesno:'true,false' }}"></div>
+                <div class="ui ignore-issue button" data-ignored="{{ object.ignored|yesno:'true,false' }}"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+
+                <div class="ui top attached tabular menu">
+                    <a class="active item" data-tab="tab-1">{% translate "Detail" %}</a>
+                    <a class="item" data-tab="tab-2">{% translate "Traceback" %}</a>
+                    <a class="item" data-tab="tab-3">{% translate "Events" %}</a>
+                </div>
+
+                <div class="ui bottom attached active tab segment" data-tab="tab-1">
+                    <h1 class="ui dividing header">{% translate "Detail" %}</h1>
+                    <p><strong>Hash: </strong>{{ object.hash }}</p>
+                    <p><strong>Name: </strong>{{ object.name }}</p>
+                    <p><strong>Description: </strong>{{ object.description }}</p>
+                    <p><strong>Created at: </strong>{{ object.created_at }}</p>
+                </div>
+
+                <div class="ui bottom attached tab segment" data-tab="tab-2">
+                    <h1 class="ui dividing header">{% translate "Traceback" %}</h1>
+                    <div class="ui fluid styled accordion">
+                        {% for tb in object.traceback_set.all %}
+                        <div class="title">
+                            <i class="dropdown icon"></i>
+                            <span class="ui blue file-name text" data-content="{{ tb.file_name }}" data-inverted="">{{ tb.short_file_name }}</span> in {{ tb.function_name }} at line {{ tb.line_number }}
+                        </div>
+                        <div class="content">
+                            <div style="overflow-y: auto;">
+                                <table class="ui unstackable compact table">
+                                    <thead>
+                                        <tr><th>#</th>
+                                        <th></th>
+                                    </tr></thead>
+                                    <tbody>
+                                        {% for k,v in tb.code_text.items %}
+                                        {% if tb.line_number|stringformat:"i" == k %}
+                                        <tr class="warning">
+                                        {% else%}
+                                        <tr>
+                                        {% endif%}
+                                            <td>{{ k }}</td>
+                                            <td><pre>{{ v }}</pre></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <h2 class="ui header">Variables</h2>
+                            <div style="overflow-y: auto;">
+                                <table class="ui unstackable compact table">
+                                    <thead>
+                                        <tr><th>Variable</th>
+                                        <th>Value</th>
+                                    </tr></thead>
+                                    <tbody>
+                                        {% for k,v in tb.variables.items %}
+                                        <tr>
+                                            <td>{{ k }}</td>
+                                            <td><pre>{{ v }}</pre></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <script>$('.ui.accordion').accordion();</script>
+                </div>
+
+                <div class="ui bottom attached tab segment" data-tab="tab-3">
+                    <h1 class="ui dividing header">{% translate "Events" %}</h1>
+                    <table class="ui celled unstackable table">
+                        <thead>
+                            <tr><th>ID</th>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                        </tr></thead>
+                        <tbody>
+                            {% for event in object.event_set.all %}
+                            <tr>
+                                <td data-label="ID">{{ event.id }}</td>
+                                <td data-label="Timestamp">{{ event.timestamp }}</td>
+                                <td data-label="User">{{ event.user.username }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        const ISSUE_ID = '{{ object.id }}';
+        const RESOLVE_BUTTON = $('.resolve-issue');
+        const IGNORE_BUTTON = $('.ignore-issue');
+        $('.menu .item').tab();
+        $('.file-name').popup();
+        
+        function renderResolveButton() {
+            if (RESOLVE_BUTTON.attr('data-resolved') == 'true') {
+                RESOLVE_BUTTON
+                    .removeClass('button')
+                    .addClass('active green icon button')
+                    .html('<i class="check icon"></i>');
+                RESOLVE_BUTTON.popup({
+                    content: 'Mark issue as unresolved'
+                });
+            } else {
+                RESOLVE_BUTTON
+                    .removeClass('active green icon button')
+                    .addClass('button')
+                    .html('{% translate "Resolve" %}');
+                RESOLVE_BUTTON.popup({
+                    content: 'Mark issue as resolved'
+                });
+            }
+        }
+        function renderIgnoreButton() {
+            if (IGNORE_BUTTON.attr('data-ignored') == 'true') {
+                IGNORE_BUTTON
+                    .removeClass('button')
+                    .addClass('active secondary icon button')
+                    .html('<i class="bell slash icon"></i>');
+                IGNORE_BUTTON.popup({
+                    content: 'Mark issue as not ignored'
+                });
+            } else {
+                IGNORE_BUTTON
+                    .removeClass('active secondary icon button')
+                    .addClass('button')
+                    .html('{% translate "Ignore" %}');
+                IGNORE_BUTTON.popup({
+                    content: 'Mark issue as ignored'
+                });
+            }
+        }
+        
+        renderResolveButton();
+        renderIgnoreButton();
+        
+        RESOLVE_BUTTON.on('click', e => {
+            if (RESOLVE_BUTTON.attr('data-resolved') == 'true') {
+                $.api({
+                    on: 'now',
+                    method: 'POST',
+                    url: '/watcher/issue/{{ object.id }}/resolve/',
+                    data: { resolved: false },
+                    headers: { 'X-CSRFToken': csrftoken },
+                    stateContext: '.resolve-issue',
+                    loadingDuration: 1000,
+                    onSuccess: () => {
+                        $('body').toast({
+                            title: 'Issue update',
+                            message: `Issue ${ISSUE_ID} marked as unresolved.`,
+                        });
+                        RESOLVE_BUTTON.attr('data-resolved', 'false');
+                        renderResolveButton();
+                    }
+                });
+            } else {
+                $.api({
+                    on: 'now',
+                    method: 'POST',
+                    url: '/watcher/issue/{{ object.id }}/resolve/',
+                    data: { resolved: true },
+                    headers: { 'X-CSRFToken': csrftoken },
+                    stateContext: '.resolve-issue',
+                    loadingDuration: 1000,
+                    onSuccess: () => {
+                        $('body').toast({
+                            title: 'Issue update',
+                            message: `Issue ${ISSUE_ID} marked as resolved.`,
+                        });
+                        RESOLVE_BUTTON.attr('data-resolved', 'true');
+                        renderResolveButton();
+                    }
+                });
+            }
+        })
+        IGNORE_BUTTON.on('click', e => {
+            if (IGNORE_BUTTON.attr('data-ignored') == 'true') {
+                $.api({
+                    on: 'now',
+                    method: 'POST',
+                    url: '/watcher/issue/{{ object.id }}/ignore/',
+                    data: { ignored: false },
+                    headers: { 'X-CSRFToken': csrftoken },
+                    stateContext: '.ignore-issue',
+                    loadingDuration: 1000,
+                    onSuccess: () => {
+                        $('body').toast({
+                            title: 'Issue update',
+                            message: `Issue ${ISSUE_ID} marked as not ignored.`,
+                        });
+                        IGNORE_BUTTON.attr('data-ignored', 'false');
+                        renderIgnoreButton();
+                    }
+                });
+            } else {
+                $.api({
+                    on: 'now',
+                    method: 'POST',
+                    url: '/watcher/issue/{{ object.id }}/ignore/',
+                    data: { ignored: true },
+                    headers: { 'X-CSRFToken': csrftoken },
+                    stateContext: '.ignore-issue',
+                    loadingDuration: 1000,
+                    onSuccess: () => {
+                        $('body').toast({
+                            title: 'Issue update',
+                            message: `Issue ${ISSUE_ID} marked as ignored.`,
+                        });
+                        IGNORE_BUTTON.attr('data-ignored', 'true');
+                        renderIgnoreButton();
+                    }
+                });
+            }
+        })
+    </script>
+{% endblock %}

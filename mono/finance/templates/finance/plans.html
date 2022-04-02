@@ -1,0 +1,107 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head %}
+{% endblock head %}
+
+{% block main %}
+<div class="pusher">
+
+  	
+  <div class="ui stackable grid container">
+
+    <div class="row">
+      <div class="column">
+        <div class="ui stackable equal width grid">
+          {% for plan in plans %}
+          <div class="column">
+          
+            <div class="ui fluid card" style="overflow: hidden;">
+            
+              <div class="center aligned content">
+                <p><span class="ui big text"><i class="{{ plan.icon }} icon"></i></span></p>
+                <div class="header">{{ plan.name }}</div>
+              </div>
+              
+              <div class="content" style="overflow: hidden;">
+                {% if plan.type == 'LT' %}
+                <div class="ui right orange corner label"><i class="exclamation icon"></i></div>
+                {% elif plan.type == 'FR' %}
+                <div class="ui right gray corner label"><i class="heart icon"></i></div>
+                {% elif plan.type == 'RC' %}
+                <div class="ui right primary corner label"><i class="star icon"></i></div>
+                {% endif %}
+                <div class="content">
+                  <p>{{ plan.description }}</p>
+                </div>
+              </div>
+              {% if plan == user_plan %}
+                <div class="ui bottom attached disabled button">{% translate "Subscribed" %}</div>
+              {% else %}
+                {% if plan.type == 'FR' %}
+                <a class="ui bottom attached button" onclick="confirmDowngrade()">
+                  {% translate "Select plan" %}
+                </a>
+                {% else %}
+                <a class="ui bottom attached button" href="{% url "accounts:checkout" %}?plan={{ plan.pk }}">
+                  {% translate "Select plan" %}
+                </a>
+                {% endif %}
+              {% endif %}
+            </div>
+
+            {% if plan.feature_set.all %}
+            <h4 class="ui sub header">{% translate "What's included:" %}</h4>
+            <div class="ui list">
+              {% for feature in plan.feature_set.all %}
+              <div class="item">
+                <i class="{{ feature.icon }} icon"></i>
+                <div class="content feature">
+                  {{ feature.short_description }}
+                </div>
+                <div class="ui popup">
+                  {{ feature.full_description }}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  <div class="ui mini modal">
+    <div class="ui icon header">
+      <i class="archive icon"></i>
+      Confirmation
+    </div>
+    <div class="content">
+      <p>Are you sure you want to downgrade your subscription to the free plan?</p>
+      <div class="ui warning message">By doing this, your subscription will be schedule to cancel at the end of your renewal date.</div>
+    </div>
+    <div class="actions">
+      <div class="ui cancel button">No</div>
+      <div class="ui approve red button">Yes, I'm sure</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $('.content.feature').popup();
+  $('.ui.modal').modal(
+    {
+      onApprove: () => {window.location.replace('{% url "accounts:checkout" %}?plan={{ free_plan.pk }}')}
+    }
+  );
+  let confirmDowngrade = () => {
+    $('.ui.modal').modal('show');
+  }
+
+</script>
+
+{% endblock main %}

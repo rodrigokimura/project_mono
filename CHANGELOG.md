@@ -1,3 +1,27 @@
+## 4.23.0 (2022-04-01)
+
+### Feat
+
+- **project_manager**: change admin columns
+
+## 4.22.3 (2022-04-01)
+
+### Fix
+
+- **project_manager**: add migration
+
+## 4.22.2 (2022-04-01)
+
+### Refactor
+
+- **mono**: change to pytest
+
+## 4.22.1 (2022-03-23)
+
+### Refactor
+
+- **mono**: change folder structure
+
 ## 4.22.0 (2022-03-22)
 
 ### Feat

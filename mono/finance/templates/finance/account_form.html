@@ -1,0 +1,61 @@
+{% extends "finance/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+
+<div class="pusher">
+  <div class="ui vertical stripe segment">
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+        <div class="eight wide column">
+          <div class="ui container">
+            <form method="post" class="ui {% if form.errors %}error{% endif %} form" id="account_form">
+              {% csrf_token %}
+              {% include "_form.html" with form=form %}
+              <div class="fluid ui buttons">
+                <button class="ui button primary" type="submit" form="account_form">
+                  {% translate "Save" %}
+                </button>
+                {% if object and object.owned_by == request.user %}
+                <a class="ui button red" href="{% url 'finance:account_delete' pk=object.pk %}">
+                  {% translate "Delete" %}
+                </a>
+                {% endif %}
+                <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
+                  {% translate "Cancel" %}
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+<script>
+  $('.field input[name=settlement_date]').parent().hide();
+  $('.field input[name=due_date]').parent().hide();
+  
+  function changeCreditCardOptions(show=true) {
+    if (show) {
+      $('.field input[name=settlement_date]').parent().show('swing');
+      $('.field input[name=due_date]').parent().show('swing');
+    } else {
+      $('.field input[name=settlement_date]').parent().hide('swing');
+      $('.field input[name=due_date]').parent().hide('swing');
+    }
+  }
+
+  changeCreditCardOptions(false);
+
+  $('*.ui.dropdown').dropdown();
+
+  $('.toggle[data-name=credit_card]').checkbox({
+    onChecked: () => {changeCreditCardOptions(show=true)},
+    onUnchecked: () => {changeCreditCardOptions(show=false)},
+  });
+
+</script>
+{% endblock %}

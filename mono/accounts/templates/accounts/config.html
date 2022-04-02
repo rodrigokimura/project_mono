@@ -1,0 +1,243 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load custom_tags %}
+
+
+{% block head %}
+{% endblock head %}
+
+{% block main %}
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+
+        <div class="four wide column">
+            <div class="ui vertical fluid menu">
+                <a class="item active" data-tab="profile">{% translate "Profile" %}</a>
+                <a class="item" data-tab="settings">{% translate "Settings" %}</a>
+                <a class="item" data-tab="notifications">{% translate "Notifications" %}</a>
+                <a class="item" data-tab="subscription">{% translate "Subscription" %}</a>
+            </div>
+        </div>
+
+        <div class="twelve wide stretched column">
+
+            <div class="ui tab" data-tab="profile">
+                <div class="ui segment">
+                    <h1 class="ui dividing header">{% translate "Profile" %}</h1>
+                    <h2 class="ui header">{% translate "Avatar" %}</h2>
+                    <div class="ui card">
+                        <div class="blurring dimmable image">
+                            <div class="ui dimmer">
+                                <div class="content">
+                                    <div class="center">
+                                        <div class="ui inverted change-picture button">{% translate "Change picture" %}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <img src="{{ request.user.profile.avatar|default_image }}" alt="" class="ui small circular image">
+                        </div>
+                    </div>
+                    <input type="file" class="change-picture" style="display: none;">
+                    <script>
+                        $('.ui.card .image').dimmer({ on: 'hover' });
+                        $(".change-picture.button").click(function(e){
+                            e.preventDefault();
+                            $("input[type=file]").trigger('click');
+                        });
+                    </script>
+                    
+                    <h2 class="ui header">{% translate "General info" %}</h2>
+                    <form class="ui profile form">
+                        {% csrf_token %}
+                        <div class="two fields">
+                            <div class="field">
+                                <label>Username</label>
+                                <div class="ui labeled input">
+                                    <div class="ui label">@</div>
+                                    <input type="text" placeholder="username" value="{{ request.user.username }}" name="username">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Email</label>
+                                <div class="ui labeled input">
+                                    <div class="ui label"><i class="mail icon"></i></div>
+                                    <input type="email" placeholder="username" value="{{ request.user.email }}" name="email">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="two fields">
+                            <div class="field">
+                                <label>First Name</label>
+                                <input type="text" name="first_name" placeholder="First Name" value="{{ request.user.first_name }}">
+                            </div>
+                            <div class="field">
+                                <label>Last Name</label>
+                                <input type="text" name="last_name" placeholder="Last Name" value="{{ request.user.last_name }}">
+                            </div>
+                        </div>
+                        <button class="ui save profile button" type="submit">Save</button>
+                        <div class="ui error message"></div>
+                    </form>
+                    <script>
+                        const USER_ID = "{{ request.user.id }}";
+                        var profileForm = $('.ui.profile.form');
+                        profileForm.form({
+                            onSuccess: (event, fields) => {
+                                event.preventDefault();
+                                var fd = new FormData();
+                                var files = $('input[type=file]')[0].files;
+                                if (files.length > 0) {
+                                    fd.append('avatar', files[0]);
+                                }
+                                fd.append('username', $('input[name=username]').val());
+                                fd.append('email', $('input[name=email]').val());
+                                fd.append('first_name', $('input[name=first_name]').val());
+                                fd.append('last_name', $('input[name=last_name]').val());
+                                $.api({
+                                    on: 'now',
+                                    url: `/accounts/users/${USER_ID}/`,
+                                    method: 'PATCH',
+                                    headers: { 'X-CSRFToken': csrftoken },
+                                    stateContext: '.ui.tab[data-tab=profile] .ui.segment',
+                                    loadingDuration: 1000,
+                                    data: fd,
+                                    contentType: false,
+                                    processData: false,
+                                    onFailure: (response, element, xhr) => {
+                                        for (const [key, value] of Object.entries(response)) {
+                                            profileForm.form('add errors', [value]);
+                                            $(`.field input[name=${key}]`).parents('.field').addClass('error');
+                                        }
+                                    },
+                                    onSuccess: (response) => {
+                                        for (const [key, value] of Object.entries(response)) {
+                                            if (key != 'profile') {
+                                                $(`input[name=${key}]`).val(value);
+                                            } else {
+                                                $('.ui.tab[data-tab=profile] img').attr('src', value.avatar)
+                                            }
+                                        }
+                                        profileForm.form('remove errors');
+                                        $('.field').removeClass('error');
+                                    }
+                                })
+                            },
+                            
+                        })
+                    </script>
+                </div>
+            </div>
+
+            <div class="ui tab" data-tab="settings">
+                <div class="ui segment">
+                    <h1 class="ui dividing header">{% translate "Settings" %}</h1>
+                </div>
+            </div>
+
+            <div class="ui tab" data-tab="notifications">
+                <div class="ui segment" id="notifications">
+                    <h1 class="ui dividing header">{% translate "Notifications" %}</h1>
+                    <div class="ui fluid notifications accordion">
+                        {% for k, v in notifications.items %}
+                            {% if k == 'read' %}
+                            <div class="title">
+                                <i class="dropdown icon"></i>
+                                {% translate "Read notifications" %}
+                            </div>
+                            {% elif k == 'unread' %}
+                            <div class="active title">
+                                <i class="dropdown icon"></i>
+                                {% translate "Unread notifications" %}
+                            </div>
+                            {% endif %}
+                            <div class="{% if k == 'unread' %}active {% endif %}content" data-type="{{ k }}">
+                                {% if k == 'read' %}
+                                <div class="ui right icon labeled button" onclick="markAsUnread()">
+                                    <i class="envelope icon"></i>
+                                    Mark as unread
+                                </div>
+                                {% elif k == 'unread' %}
+                                <div class="ui right icon labeled button" onclick="markAsRead()">
+                                    <i class="envelope open icon"></i>
+                                    Mark as read
+                                </div>
+                                {% endif %}
+                                
+                                {% for notification in v %}
+                                    {% include 'accounts/_notification.html' with notification=notification %}
+                                {% empty %}
+                                    <div class="ui segment">{% translate "No notifications to display" %}</div>
+                                {% endfor %}
+                                
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <script>$('.notifications.accordion').accordion()</script>
+                </div>
+            </div>
+
+            <div class="ui tab" data-tab="subscription">
+                <div class="ui segment">
+                    <h1 class="ui dividing header">{% translate "Subscription" %}</h1>
+                    <div class="ui header">{% translate "Payments" %}</div>
+                    <div class="ui sub header">{% translate "Payment method" %}</div>
+                    <div class="ui list">
+                        <div class="item">{% translate "Card brand: " %}{{ payment_method.card.brand|upper }}</div>
+                        <div class="item">{% translate "Card number: " %}**** **** **** {{ payment_method.card.last4 }}</div>
+                        <div class="item">{% translate "Expiration month: " %}{{ payment_method.card.exp_month }}</div>
+                        <div class="item">{% translate "Expiration year: " %}{{ payment_method.card.exp_year }}</div>
+                    </div>
+                    {% comment %} <div class="ui button">Update payment method</div> {% endcomment %}
+                    <a class="ui button" href="{% url 'accounts:plans' %}">Change plan</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('.menu .item').tab();
+        {% if request.GET.tab %}
+            $('.menu .item').tab('change tab', '{{ request.GET.tab }}');
+        {% endif %}
+        
+        function getSelectedNotifications(type='unread') {
+            checkboxes =  $(`.notifications.accordion .content[data-type=${type}`).find('.ui.checkbox')
+            ids = []
+            for (e of checkboxes) {
+                checked = $(e).checkbox('is checked')
+                id = $(e).attr('data-notification-id')
+                if (checked) {
+                    ids.push(id)
+                }
+            }
+            return ids;
+        }
+        
+        function markAsRead() {
+            ids = getSelectedNotifications(type='unread');
+            $.api({
+                on: 'now',
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                url: `/accounts/notifications/mark-as-read/`,
+                data: { ids: JSON.stringify(ids) },
+                onSuccess: r => {
+                    location.reload();
+                },
+            })
+        }
+        
+        function markAsUnread() {
+            ids = getSelectedNotifications(type='read');
+            $.api({
+                on: 'now',
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                url: `/accounts/notifications/mark-as-unread/`,
+                data: { ids: JSON.stringify(ids) },
+                onSuccess: r => {
+                    location.reload();
+                },
+            })
+        }
+    </script>
+{% endblock %}
