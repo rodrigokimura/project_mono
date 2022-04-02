@@ -1,3 +1,9 @@
+## 4.22.3 (2022-04-01)
+
+### Fix
+
+- **project_manager**: add migration
+
 ## 4.22.2 (2022-04-01)
 
 ### Refactor
