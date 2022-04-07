@@ -1,28 +1,45 @@
 {% extends "notes/base.html" %}
 {% load i18n %}
 
+{% block head %}
+    <style>
+        textarea, .markdownx-preview {
+            width: 100%;
+            height: calc(100vh - 22em);
+            font-size: 14px;
+            line-height: 18px;
+            border: 1px solid #dddddd;
+            overflow-y: auto;
+        }
+        #main-grid {
+            padding-top: 0;
+            padding-left: 1em;
+            padding-right: 1em;
+        }
+    </style>
+{% endblock head %}
+
 {% block main %}
-<div class="row">
-  <div class="column">
-    <form method="POST" action="" class="ui form">{% csrf_token %}
-      {% include '_form.html' with form=form %}
-      <button type="submit" class="ui icon labeled submit green button"><i class="save icon"></i>{% translate "Save" %}</button>
-    </form>
-  </div>
-</div>
-<script>
-
-  $('textarea[name=text]').change(() => {
-    $('table').addClass('ui table');
-  });
-
-  const formatTable = () => {
-    $('table').addClass('ui table');
-    setTimeout(formatTable, 200);
-  }
-  setTimeout(formatTable, 200);
-
-</script>
-
-{{ form.media }}
+    <div class="ui stackable grid" id="main-grid">
+        <div class="row">
+            <div class="column">
+                <form method="POST" action="" class="ui form">
+                    {% csrf_token %}
+                    {% include '_form.html' with form=form %}
+                    <button type="submit" class="ui icon labeled submit green button"><i class="save icon"></i>{% translate "Save" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('textarea[name=text]').change(() => {
+            $('table').addClass('ui table');
+        });
+        const formatTable = () => {
+            $('table').addClass('ui table');
+            setTimeout(formatTable, 200);
+        }
+        setTimeout(formatTable, 200);
+    </script>
+    {{ form.media }}
 {% endblock main %}
