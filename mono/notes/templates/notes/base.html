@@ -4,23 +4,21 @@
 {% block sidebar %}
 {% endblock sidebar %}
 <div class="ui top inverted fixed menu">
-  {% block menu %}
-  {% endblock menu %}
-  <div class="right menu">
-    <div class="ui inverted teal apps item" style="cursor: pointer;"><i class="toolbox icon"></i></div>
-    <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
-      {% include "homepage/_apps_menu.html" %}
+    {% block menu %}
+    {% endblock menu %}
+    <div class="right menu">
+        <div class="ui inverted teal apps item" style="cursor: pointer;"><i class="toolbox icon"></i></div>
+        <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
+            {% include "homepage/_apps_menu.html" %}
+        </div>
+        {% include "_auth_menu.html" %}
     </div>
-    {% include "_auth_menu.html" %}
-  </div>
 </div>
 <div class="pusher" style="padding-top: 4em;">
     {% block main %}
     {% endblock main %}
-  <div class="ui stackable grid" style="padding: 0 1em;">
-  </div>
 </div>
 <script>
-  initializeAppsPopup('.ui.apps.item', '.ui.item');
+    initializeAppsPopup('.ui.apps.item', '.ui.item');
 </script>
 {% endblock body %}
