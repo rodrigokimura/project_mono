@@ -1,3 +1,9 @@
+## 4.25.0 (2022-04-07)
+
+### Feat
+
+- **notes**: change layout of notes list page
+
 ## 4.24.0 (2022-04-01)
 
 ### Feat
