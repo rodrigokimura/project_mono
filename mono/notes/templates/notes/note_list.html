@@ -3,6 +3,23 @@
 
 {% block head %}
   <style>
+    .main.grid {
+        padding-top: 0 !important;
+        padding-left: 21em !important;
+        padding-right: 1em !important;
+        /* padding: 0 1em; */
+    }
+    @media screen and (max-width: 767px) {
+        .computer.only {
+            display: none !important;
+            width: 0 !important;
+        }
+        .main.grid {
+            /* padding-top: 4em !important; */
+            padding-left: 1em !important;
+            padding-right: 1em !important;
+        }
+    }
     .hidden {
       display: none;
     }
@@ -19,7 +36,6 @@
     a.content:hover {
       text-decoration-color: rgba(0, 0, 0, 1);
     }
-
   </style>
 {% endblock head %}
 
@@ -37,42 +53,47 @@
  
 
 {% block main %}
-  <div class="row">
-    <div class="four wide computer only column">
-      <div class="ui segment">
-        <div class="ui big list" data-notes-list="true" style="width: 100%;"></div>
-      </div>
-    </div>
-    <div class="eight wide column">
-      <div class="ui note hidden segment"></div>
-    </div>
-    <div class="four wide computer only column">
-      <a style="margin-bottom: 1em;" class="ui fluid green icon labeled create button" href="{% url 'notes:note_create' %}" data-tooltip="{% translate 'Create' %}" data-inverted=""><i class="add icon"></i>{% translate 'Create' %}</a>
-      <a style="margin-bottom: 1em;" class="ui fluid yellow icon labeled edit disabled button" data-tooltip="{% translate 'Edit' %}" data-inverted=""><i class="edit icon"></i>{% translate 'Edit' %}</a>
-      <a style="margin-bottom: 1em;" class="ui fluid red icon labeled delete disabled button" data-tooltip="{% translate 'Delete' %}" data-inverted=""><i class="delete icon"></i>{% translate 'Delete' %}</a>
-    </div>
-    <div class="four wide mobile only column">
-      <a style="margin-bottom: 1em;" class="ui green icon create button" href="{% url 'notes:note_create' %}" data-tooltip="{% translate 'Create' %}" data-inverted=""><i class="add icon"></i></a>
-      <div class="ui right floated buttons">
-        <a style="margin-bottom: 1em;" class="ui icon yellow edit disabled button" data-tooltip="{% translate 'Edit' %}" data-inverted=""><i class="edit icon"></i></a>
-        <a style="margin-bottom: 1em;" class="ui icon red delete disabled button" data-tooltip="{% translate 'Delete' %}" data-inverted=""><i class="delete icon"></i></a>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    $('*[data-notes-list=true]').html(
-      `
-      <div class="item">
-        <div class="header">
-          {% translate 'My notes' %}
+    <div class="ui vertical left fixed computer only inverted main menu" style="padding-top: 3em; width: 20em; display: flex; flex-flow: column nowrap;">
+        <div class="header item">
+            <div class="ui inverted header">
+                <em data-emoji=":notepad_spiral:" class="small"></em>
+                <span style="padding-left: .5em;">Notes</span>
+                <button class="circular ui icon right floated basic inverted button" onclick="showConfigModal()">
+                    <i class="cog icon"></i>
+                </button>
+            </div>
         </div>
-      </div>
-      {% for f in subfiles %}
-      {{ f }}
-      {% endfor %}
-      `
-    );
+        <div style="overflow-y: auto;">
+            <div class="ui big list" data-notes-list="true" style="width: 100%; padding: 1em;"></div>
+        </div>
+    </div>
+    <div class="ui stackable compact main grid">
+        <div class="row">
+            <div class="twelve wide column">
+                <div class="ui note hidden teal segment" style="height: calc(100vh - 5em)"></div>
+            </div>
+            <div class="four wide computer only column">
+                <a style="margin-bottom: 1em;" class="ui fluid green icon labeled create button" href="{% url 'notes:note_create' %}" data-tooltip="{% translate 'Create' %}" data-inverted=""><i class="add icon"></i>{% translate 'Create' %}</a>
+                <a style="margin-bottom: 1em;" class="ui fluid yellow icon labeled edit disabled button" data-tooltip="{% translate 'Edit' %}" data-inverted=""><i class="edit icon"></i>{% translate 'Edit' %}</a>
+                <a style="margin-bottom: 1em;" class="ui fluid red icon labeled delete disabled button" data-tooltip="{% translate 'Delete' %}" data-inverted=""><i class="delete icon"></i>{% translate 'Delete' %}</a>
+            </div>
+            <div class="four wide mobile only column">
+                <a style="margin-bottom: 1em;" class="ui green icon create button" href="{% url 'notes:note_create' %}" data-tooltip="{% translate 'Create' %}" data-inverted=""><i class="add icon"></i></a>
+                <div class="ui right floated buttons">
+                    <a style="margin-bottom: 1em;" class="ui icon yellow edit disabled button" data-tooltip="{% translate 'Edit' %}" data-inverted=""><i class="edit icon"></i></a>
+                    <a style="margin-bottom: 1em;" class="ui icon red delete disabled button" data-tooltip="{% translate 'Delete' %}" data-inverted=""><i class="delete icon"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('*[data-notes-list=true]').html(
+            `
+            {% for f in subfiles %}
+                {{ f }}
+            {% endfor %}
+            `
+        );
 
     const getNote = id => {
       var noteSegment = $('.ui.note.segment');
@@ -105,13 +126,11 @@
         {% endif %}
     {% endif %}
     
-    
     $('.file.item').click(function(e) {
       getNote($(e.target).closest('.file.item').attr('data-id'));
     });
-    
     $('.folder').click(function() {
-      $(this).siblings('.list').toggle();
+      $(this).parent().siblings('.list').toggle('swing');
       $(this).parent().children('.icon').toggleClass('open');
     })
     $('.ui.sidebar')
