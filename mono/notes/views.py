@@ -3,8 +3,8 @@ from collections import defaultdict
 from typing import Any, Dict
 
 from __mono.mixins import PassRequestToFormViewMixin
-from __mono.views import ProtectedDeleteView
 from __mono.permissions import IsCreator
+from __mono.views import ProtectedDeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
