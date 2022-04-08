@@ -115,7 +115,6 @@ class NoteDetailApiView(LoginRequiredMixin, APIView):
                 'text': note.text,
                 'html': markdownify(note.text),
                 'url': note.get_absolute_url(),
-                'delete_url': note.get_delete_url(),
             }
         )
 
