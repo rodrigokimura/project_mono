@@ -1,3 +1,13 @@
+## 4.26.0 (2022-04-07)
+
+### Feat
+
+- **notes**: add auto save
+
+### Fix
+
+- adjust page layout
+
 ## 4.25.0 (2022-04-07)
 
 ### Feat
