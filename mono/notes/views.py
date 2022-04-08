@@ -131,6 +131,12 @@ class NoteDetailApiView(LoginRequiredMixin, APIView):
             'data': serializer.data,
         })
 
+    def delete(self, request, pk):
+        """Delete note"""
+        note = get_object_or_404(Note, pk=pk)
+        note.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class NoteListView(LoginRequiredMixin, ListView):
     """
@@ -146,20 +152,9 @@ class NoteListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-
         main_dict = defaultdict(dict, ((FILE_MARKER, []),))
         for obj in self.get_queryset():
             attach(obj.full_path, main_dict)
-
         context['subfiles'] = generate_tree(main_dict)
-
         return context
 
-
-class NoteDeleteView(ProtectedDeleteView):
-    """
-    Delete note
-    """
-    model = Note
-    success_url = reverse_lazy('notes:notes')
-    success_message = _("Note was deleted successfully")
