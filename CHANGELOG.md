@@ -1,3 +1,9 @@
+## 4.27.1 (2022-04-07)
+
+### Fix
+
+- **notes**: remove deprecated model instance method
+
 ## 4.27.0 (2022-04-07)
 
 ### Feat
