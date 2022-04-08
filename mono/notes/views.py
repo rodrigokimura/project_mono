@@ -105,12 +105,11 @@ class NoteDetailApiView(LoginRequiredMixin, APIView):
         """
         Detailed info about a note
         """
-        note_id = pk
-        note = Note.objects.get(id=note_id)
-        request.session['note'] = note_id
+        note = get_object_or_404(Note, pk=pk)
+        request.session['note'] = pk
         return JsonResponse(
             {
-                'id': note_id,
+                'id': pk,
                 'title': note.title,
                 'text': note.text,
                 'html': markdownify(note.text),
