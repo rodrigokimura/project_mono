@@ -1,3 +1,9 @@
+## 4.27.0 (2022-04-07)
+
+### Feat
+
+- **notes**: add modal for note deletion
+
 ## 4.26.0 (2022-04-07)
 
 ### Feat
