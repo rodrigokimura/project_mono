@@ -1,6 +1,9 @@
-<div class="item">
-  <span><i class="folder open outline middle aligned icon"></i><a class="folder content">{{ file }}</a></span>
-  <div class="list">
-  {% for f in subfiles %}{{ f }}{% endfor %}
-  </div>
+<div class="folder item wrapper">
+    <div class="folder-item">
+        <i class="folder open outline middle aligned icon"></i>
+        <a class="folder content">{{ file }}</a>
+    </div>
+    <div class="list">
+        {% for f in subfiles %}{{ f }}{% endfor %}
+    </div>
 </div>
