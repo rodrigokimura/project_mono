@@ -53,9 +53,6 @@ class Note(models.Model):
     def get_absolute_url(self):
         return reverse('notes:note_edit', args=[str(self.id)])
 
-    def get_delete_url(self):
-        return reverse('notes:note_delete', args=[str(self.id)])
-
     @property
     def full_path(self):
         """Get notes' full path"""
