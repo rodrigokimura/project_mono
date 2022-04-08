@@ -3,7 +3,18 @@
 
 {% block head %}
     <style>
-        textarea, .markdownx-preview {
+        textarea {
+            font-family: 'Courier New', Courier, monospace !important;
+            font-size: 14px !important;
+            line-height: 1.42857143 !important;
+            width: 100%;
+            height: calc(100vh - 22em - 3.5em);
+            font-size: 14px;
+            line-height: 18px;
+            border: 1px solid #dddddd;
+            overflow-y: auto;
+        }
+        .markdownx-preview {
             width: 100%;
             height: calc(100vh - 22em);
             font-size: 14px;
