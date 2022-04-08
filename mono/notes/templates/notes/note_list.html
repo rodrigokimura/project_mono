@@ -31,7 +31,8 @@
         text-decoration: underline 0.1em rgba(0, 0, 0, 0);
         transition: text-decoration-color 300ms;
     }
-    a.content:hover {
+    .file.item:hover a.file.content,
+    .folder-item:hover a.folder.content {
         text-decoration-color: rgba(255, 255, 255, 1);
     }
   </style>
@@ -93,7 +94,7 @@
             `
         );
 
-        const getNote = id => {
+        function getNote(id) {
             var noteSegment = $('.ui.note.segment');
             noteSegment.removeClass('hidden').addClass('loading');
             $.get(
@@ -127,9 +128,9 @@
         $('.file.item').click(function(e) {
             getNote($(e.target).closest('.file.item').attr('data-id'));
         });
-        $('.folder').click(function() {
-            $(this).parent().siblings('.list').toggle({ duration: 200, easing: 'swing' });
-            $(this).parent().children('.icon').toggleClass('open');
+        $('.folder-item').click(function() {
+            $(this).siblings('.list').toggle({ duration: 200, easing: 'swing' });
+            $(this).children('.icon').toggleClass('open');
         })
         $('.ui.sidebar')
             .sidebar('setting', 'transition', 'slide along')

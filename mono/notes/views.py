@@ -4,9 +4,11 @@ from typing import Any, Dict
 
 from __mono.mixins import PassRequestToFormViewMixin
 from __mono.views import ProtectedDeleteView
+from __mono.permissions import IsCreator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.template import loader
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -14,9 +16,13 @@ from django.views import View
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from markdownx.utils import markdownify
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .forms import NoteForm
 from .models import Note
+from .serializers import NoteSerializer
 
 FILE_MARKER = '<files>'
 
@@ -88,15 +94,18 @@ class NoteFormView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormVie
     success_message = "%(title)s note created successfully"
 
 
-class NoteDetailApiView(LoginRequiredMixin, View):
+class NoteDetailApiView(LoginRequiredMixin, APIView):
     """
-    Detailed info about a note
+    Partially edit a note
     """
-    def get(self, request, *args, **kwargs):
+
+    permission_classes = [IsCreator]
+
+    def get(self, request, pk):
         """
         Detailed info about a note
         """
-        note_id = kwargs['pk']
+        note_id = pk
         note = Note.objects.get(id=note_id)
         request.session['note'] = note_id
         return JsonResponse(
@@ -109,6 +118,18 @@ class NoteDetailApiView(LoginRequiredMixin, View):
                 'delete_url': note.get_delete_url(),
             }
         )
+
+    def patch(self, request, pk):
+        """Edit note"""
+        note = get_object_or_404(Note, pk=pk)
+        serializer = NoteSerializer(note, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response({
+            'success': True,
+            'data': serializer.data,
+        })
 
 
 class NoteListView(LoginRequiredMixin, ListView):
