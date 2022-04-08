@@ -1,3 +1,9 @@
+## 4.27.2 (2022-04-07)
+
+### Fix
+
+- **notes**: return 404 when note is not found
+
 ## 4.27.1 (2022-04-07)
 
 ### Fix
