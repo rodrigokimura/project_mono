@@ -31,22 +31,22 @@
         text-decoration: underline 0.1em rgba(0, 0, 0, 0);
         transition: text-decoration-color 300ms;
     }
-    a.content:hover {
+    .file.item:hover a.file.content,
+    .folder-item:hover a.folder.content {
         text-decoration-color: rgba(255, 255, 255, 1);
     }
   </style>
 {% endblock head %}
 
 {% block menu %}
-  <a class="toc computer only item"><i class="sidebar icon"></i></a>
-  <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
-  </div>
+    <a class="toc computer only item"><i class="sidebar icon"></i></a>
+    <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;"></div>
 {% endblock menu %}
 
 {% block sidebar %}
-  <div class="ui sidebar inverted menu" style="padding: 1em;">
-    <div class="ui inverted big list" data-notes-list="true" style="width: 100%;"></div>
-  </div>
+    <div class="ui sidebar inverted menu" style="padding: 1em;">
+        <div class="ui inverted big list" data-notes-list="true" style="width: 100%;"></div>
+    </div>
 {% endblock sidebar %}
  
 
@@ -92,8 +92,46 @@
             {% endfor %}
             `
         );
+        
+        function deleteNote(id) {
+            $('body').modal({
+                title: 'Confirmation',
+                class: 'mini',
+                closeIcon: true,
+                content: 'Are you sure you want to delete this note?',
+                actions: [
+                    {
+                        text: 'Cancel',
+                        class: 'black deny'
+                    },
+                    {
+                        text: 'Yes, delete it.',
+                        class: 'red approve'
+                    },
+                ],
+                onApprove: () => {
+                    let url = `/nt/api/notes/${id}`;
+                    $.api({
+                        on: 'now',
+                        url: url,
+                        method: 'DELETE',
+                        headers: { 'X-CSRFToken': csrftoken },
+                        stateContext: '.delete.button',
+                        onSuccess: r => {
+                            $('body').toast({
+                                title: 'Deletion',
+                                message: 'Note deleted successfully.',
+                                onHidden: () => {
+                                    location.reload();
+                                }
+                            })
+                        }
+                    });
+                }
+            }).modal('show');
+        }
 
-        const getNote = id => {
+        function getNote(id) {
             var noteSegment = $('.ui.note.segment');
             noteSegment.removeClass('hidden').addClass('loading');
             $.get(
@@ -106,7 +144,8 @@
                     .attr('href', r.url);
                 $('.ui.delete.button')
                     .removeClass('disabled')
-                    .attr('href', r.delete_url);
+                    .off()
+                    .on('click', () => { deleteNote(id) });
             })
             .fail(() => {
                 noteSegment.addClass('hidden');
@@ -127,9 +166,9 @@
         $('.file.item').click(function(e) {
             getNote($(e.target).closest('.file.item').attr('data-id'));
         });
-        $('.folder').click(function() {
-            $(this).parent().siblings('.list').toggle({ duration: 200, easing: 'swing' });
-            $(this).parent().children('.icon').toggleClass('open');
+        $('.folder-item').click(function() {
+            $(this).siblings('.list').toggle({ duration: 200, easing: 'swing' });
+            $(this).children('.icon').toggleClass('open');
         })
         $('.ui.sidebar')
             .sidebar('setting', 'transition', 'slide along')
