@@ -79,7 +79,7 @@ class NoteCreateView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormV
     """
     form_class = NoteForm
     template_name = 'notes/note_form.html'
-    success_url = reverse_lazy('notes:notes')
+    success_url = reverse_lazy('notes:index')
     success_message = "%(title)s note created successfully"
 
 
@@ -90,8 +90,8 @@ class NoteFormView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormVie
     model = Note
     form_class = NoteForm
     template_name = 'notes/note_form.html'
-    success_url = reverse_lazy('notes:notes')
-    success_message = "%(title)s note created successfully"
+    success_url = reverse_lazy('notes:index')
+    success_message = "%(title)s note updated successfully"
 
 
 class NoteDetailApiView(LoginRequiredMixin, APIView):
