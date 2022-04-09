@@ -1,3 +1,9 @@
+## 4.29.0 (2022-04-09)
+
+### Feat
+
+- **notes**: implement more toolbar functions
+
 ## 4.28.0 (2022-04-08)
 
 ### Feat
