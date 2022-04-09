@@ -3,29 +3,27 @@
 
 {% block head %}
     <style>
+        textarea, 
+        .markdownx-preview {
+            height: calc(100vh - 18em);
+            width: 100%;
+            overflow-y: auto;
+        }
         textarea {
             font-family: 'Courier New', Courier, monospace !important;
             font-size: 14px !important;
             line-height: 1.42857143 !important;
-            width: 100%;
-            height: calc(100vh - 22em - 3.5em);
             font-size: 14px;
             line-height: 18px;
-            border: 1px solid #dddddd;
-            overflow-y: auto;
+            resize: none;
         }
         .markdownx-preview {
-            width: 100%;
-            height: calc(100vh - 22em);
             font-size: 14px;
-            line-height: 18px;
-            border: 1px solid #dddddd;
-            overflow-y: auto;
         }
         #main-grid {
             padding-top: 0;
-            padding-left: 1em;
-            padding-right: 1em;
+            margin-left: .5em;
+            margin-right: .5em;
         }
     </style>
 {% endblock head %}
@@ -36,8 +34,37 @@
             <div class="column">
                 <form method="POST" action="" class="ui form">
                     {% csrf_token %}
-                    {% include '_form.html' with form=form %}
-                    <button type="submit" class="ui icon labeled submit green button"><i class="save icon"></i>{% translate "Save" %}</button>
+                    
+                    <div class="two fields">
+                        {% include "_field.html" with field=form.location %}
+                        {% include "_field.html" with field=form.title %}
+                    </div>
+                    <div class="field {% if form.text.errors %}error{% endif %}">
+                        {{ form.text }}
+                        {% if form.text.errors %}
+                            <div class="ui error message">
+                            {% for error in form.text.errors %}
+                                {{ error }}
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if form.non_field_errors %}
+                        <div class="ui error message">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                    <button type="submit" class="ui icon labeled submit green button">
+                        <i class="save icon"></i>
+                        {% if object %}
+                        {% translate "Save and close" %}
+                        {% else %}
+                        {% translate "Create" %}
+                        {% endif %}
+                    </button>
                 </form>
             </div>
         </div>

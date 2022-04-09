@@ -1,34 +1,46 @@
-<div class="markdownx two columns ui stackable grid">
+<div class="markdownx ui stackable compact grid">
     <div class="row">
-        <div class="column">
-            <div style="padding-bottom: 1em; padding-top: 0;">
+        <div class="sixteen wide column">
+            <div class="toolbar" style="padding-bottom: 1em;">
                 <div class="ui icon buttons">
-                    <a class="ui button" onclick="buttonCommand(toggleHeading)"><i class="heading icon"></i></a>
-                    <a class="ui button" onclick="buttonCommand(toggleBold)"><i class="bold icon"></i></a>
-                    <a class="ui button" onclick="buttonCommand(toggleItalic)"><i class="italic icon"></i></a>
-                    <a class="ui button" onclick=""><i class="strikethrough icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleHeading1)" data-content="Heading 1"><i class="heading icon"></i>1</a>
+                    <a class="ui button" onclick="buttonCommand(toggleHeading2)" data-content="Heading 2"><i class="heading icon"></i>2</a>
+                    <a class="ui button" onclick="buttonCommand(toggleHeading3)" data-content="Heading 3"><i class="heading icon"></i>3</a>
+                    <a class="ui button" onclick="buttonCommand(toggleHeading4)" data-content="Heading 4"><i class="heading icon"></i>4</a>
+                    <a class="ui button" onclick="buttonCommand(toggleHeading5)" data-content="Heading 5"><i class="heading icon"></i>5</a>
+                    <a class="ui button" onclick="buttonCommand(toggleHeading6)" data-content="Heading 6"><i class="heading icon"></i>6</a>
                 </div>
                 <div class="ui icon buttons">
-                    <a class="ui button"><i class="list ul icon"></i></a>
-                    <a class="ui button"><i class="list ol icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleBold)" data-content="Bold"><i class="bold icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleItalic)" data-content="Italic"><i class="italic icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleStrikethrough)" data-content="Strikethrough"><i class="strikethrough icon"></i></a>
                 </div>
                 <div class="ui icon buttons">
-                    <a class="ui button"><i class="quote left icon"></i></a>
-                    <a class="ui button"><i class="table icon"></i></a>
-                    <a class="ui button"><i class="paperclip icon"></i></a>
-                    <a class="ui button"><i class="indent icon"></i></a>
-                    <a class="ui button"><i class="outdent icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleUnorderedList)" data-content="Unordered list"><i class="list ul icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleOrderedList)" data-content="Ordered list"><i class="list ol icon"></i></a>
+                </div>
+                <div class="ui icon buttons">
+                    <a class="ui button" onclick="buttonCommand(toggleQuote)" data-content="Quote"><i class="quote left icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleCode)" data-content="Code"><i class="code icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(indent)" data-content="Indent"><i class="indent icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(outdent)" data-content="Outdent"><i class="outdent icon"></i></a>
+                    <a class="ui button"><i class="window minimize outline icon" data-content="Horizontal line"></i></a>
+                    <a class="ui button"><i class="table icon" data-content="Table"></i></a>
+                    <a class="ui button" onclick="" data-content="Link"><i class="paperclip icon"></i></a>
                 </div>
             </div>
+        </div>
+        <div class="eight wide column">
             {% include 'django/forms/widgets/textarea.html' %}
         </div>
-        <div class="column">
+        <div class="eight wide column">
             <div class="markdownx-preview ui segment"></div>
         </div>
     </div>
 </div>
 <script>
     TEXTAREA = $(`textarea[name="{{ widget.name }}"]`)
+    $('.toolbar .ui.button').popup()
     function buttonCommand(command) {
         var curStart = TEXTAREA.prop("selectionStart");
         var curEnd = TEXTAREA.prop("selectionEnd");
@@ -37,6 +49,7 @@
         }
         TEXTAREA.focus()
         TEXTAREA.trigger('input')
+        updatePreview()
     }
     function getSelectedText() {
         var curStart = TEXTAREA.prop("selectionStart");
@@ -66,19 +79,61 @@
         }
         return [TEXTAREA.val().substring(startPos, endPos), [startPos, endPos]]
     }
-    function toggleHeading() {
+    function toggleHeading1() {
+        togglePrefixCommand('# ', true)
+    }
+    function toggleHeading2() {
+        togglePrefixCommand('## ', true)
+    }
+    function toggleHeading3() {
+        togglePrefixCommand('### ', true)
+    }
+    function toggleHeading4() {
+        togglePrefixCommand('#### ', true)
+    }
+    function toggleHeading5() {
+        togglePrefixCommand('##### ', true)
+    }
+    function toggleHeading6() {
+        togglePrefixCommand('###### ', true)
+    }
+    function toggleUnorderedList() {
+        togglePrefixCommand('- ', true)
+    }
+    function toggleOrderedList() {
+        togglePrefixCommand('1. ', true)
+    }
+    function toggleQuote() {
+        togglePrefixCommand('> ', false)
+    }
+    function toggleBold() {
+        toggleWrapCommand('**')
+    }
+    function toggleItalic() {
+        toggleWrapCommand('*')
+    }
+    function toggleStrikethrough() {
+        toggleWrapCommand('del', true)
+    }
+    function toggleCode() {
+        toggleWrapCommand('``')
+    }
+    function indent() {
+        addPrefixCommand('\t', true)
+    }
+    function outdent() {
+        removePrefixCommand('\t', true)
+    }
+    function addPrefixCommand(symbol, ignoreBlank) {
         result = getSelectedParagraphs()
         text = result[0]
         positions = result[1]
         newText = []
         for (p of text.split("\n")) {
             if (p.length == 0) {
-                p = ""
-            }
-            else if (p.startsWith("# ")) {
-                p = p.substring(2)
+                p = ignoreBlank ? "" : symbol
             } else {
-                p = "# " + p
+                p = symbol + p
             }
             newText.push(p)
         }
@@ -86,44 +141,100 @@
         preText = TEXTAREA.val().substring(0, positions[0])
         postText = TEXTAREA.val().substring(positions[1])
         TEXTAREA.val(preText + text + postText)
+        TEXTAREA[0].setSelectionRange(preText.length, preText.length + text.length)
     }
-    function toggleBold() {
-        toggleWrapperCommand('**')
+    function removePrefixCommand(symbol, ignoreBlank) {
+        result = getSelectedParagraphs()
+        text = result[0]
+        positions = result[1]
+        newText = []
+        for (p of text.split("\n")) {
+            if (p.startsWith(symbol)) {
+                p = p.substring(symbol.length)
+            }
+            newText.push(p)
+        }
+        text = newText.join('\n')
+        preText = TEXTAREA.val().substring(0, positions[0])
+        postText = TEXTAREA.val().substring(positions[1])
+        TEXTAREA.val(preText + text + postText)
+        TEXTAREA[0].setSelectionRange(preText.length, preText.length + text.length)
     }
-    function toggleItalic() {
-        toggleWrapperCommand('*')
+    function togglePrefixCommand(symbol, ignoreBlank) {
+        result = getSelectedParagraphs()
+        text = result[0]
+        positions = result[1]
+        newText = []
+        for (p of text.split("\n")) {
+            if (p.length == 0) {
+                p = ignoreBlank ? "" : symbol
+            }
+            else if (p.startsWith(symbol)) {
+                p = p.substring(symbol.length)
+            } else {
+                p = symbol + p
+            }
+            newText.push(p)
+        }
+        text = newText.join('\n')
+        preText = TEXTAREA.val().substring(0, positions[0])
+        postText = TEXTAREA.val().substring(positions[1])
+        TEXTAREA.val(preText + text + postText)
+        TEXTAREA[0].setSelectionRange(preText.length, preText.length + text.length)
     }
-    function toggleWrapperCommand(symbol) {
+    function toggleWrapCommand(symbol, html=false) {
         result = getSelectedText()
         text = result[0]
+        if (text.length == 0) { return }
         positions = result[1]
         preText = TEXTAREA.val().substring(0, positions[0])
         postText = TEXTAREA.val().substring(positions[1])
-        if (!isMultiline(text)) {
-            if (text.startsWith(symbol) && text.endsWith(symbol)) {
-                text = text.substring(symbol.length, text.length - symbol.length)
-            } else if (preText.endsWith(symbol) && postText.startsWith(symbol)) {
-                preText = preText.substring(0, preText.length - symbol.length)
-                postText = postText.substring(symbol.length)
-             } else {
-                text = symbol + text + symbol
-            }
+        if (html) {
+            preSymbol = `<${symbol}>`
+            postSymbol = `</${symbol}>`
         } else {
+            preSymbol = symbol
+            postSymbol = symbol
+        }
+        if (isMultiline(text)) {
             newText = []
             for (p of text.split("\n")) {
                 if (p.length == 0) {
                     p = ""
-                }
-                else if (p.startsWith(symbol) && p.endsWith(symbol)) {
-                    p = p.substring(symbol.length, p.length - symbol.length)
+                } else if (p.startsWith(preSymbol) && p.endsWith(postSymbol)) {
+                    p = p.substring(preSymbol.length, p.length - postSymbol.length)
                 } else {
-                    p = symbol + p + symbol
+                    p = preSymbol + p + postSymbol
                 }
                 newText.push(p)
             }
             text = newText.join('\n')
+        } else {
+            if (text.startsWith(preSymbol) && text.endsWith(postSymbol)) {
+                text = text.substring(preSymbol.length, text.length - postSymbol.length)
+            } else if (preText.endsWith(preSymbol) && postText.startsWith(postSymbol)) {
+                preText = preText.substring(0, preText.length - preSymbol.length)
+                postText = postText.substring(postSymbol.length)
+            } else {
+                text = preSymbol + text + postSymbol
+            }
         }
         TEXTAREA.val(preText + text + postText)
+        TEXTAREA[0].setSelectionRange(preText.length, preText.length + text.length)
     }
-    function updatePreview() {}
+    function updatePreview() {
+        console.log('Updating preview')
+        $.api({
+            on: 'now',
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            url: '/markdownx/markdownify/',
+            data: { content: TEXTAREA.val() },
+            dataType: 'html',
+            successTest: function(r) { return true },
+            onSuccess: r => {
+                $('.markdownx-preview').html(r)
+            },
+        })
+    }
 </script>
