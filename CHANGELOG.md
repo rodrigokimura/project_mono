@@ -1,3 +1,9 @@
+## 4.31.1 (2022-04-11)
+
+### Fix
+
+- **notes**: change text selection in js command
+
 ## 4.31.0 (2022-04-10)
 
 ### Feat
