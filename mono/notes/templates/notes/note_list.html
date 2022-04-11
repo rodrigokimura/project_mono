@@ -35,6 +35,7 @@
     .folder-item:hover a.folder.content {
         text-decoration-color: rgba(255, 255, 255, 1);
     }
+    {% include "notes/_markdown.css" %}
   </style>
 {% endblock head %}
 
@@ -64,22 +65,26 @@
         <div style="overflow-y: auto;">
             <div class="ui big list" data-notes-list="true" style="width: 100%; padding: 1em;"></div>
         </div>
+        <div class="item">
+            <a class="ui fluid green labeled icon button" href="{% url 'notes:note_create' %}"><i class="add icon"></i>{% translate 'New note' %}</a>
+        </div>
     </div>
     <div class="ui stackable compact main grid">
         <div class="row">
-            <div class="twelve wide column">
-                <div class="ui note hidden teal segment" style="height: calc(100vh - 5em); overflow-y: auto;"></div>
-            </div>
-            <div class="four wide computer only column">
-                <a style="margin-bottom: 1em;" class="ui fluid green icon labeled create button" href="{% url 'notes:note_create' %}" data-tooltip="{% translate 'Create' %}" data-inverted=""><i class="add icon"></i>{% translate 'Create' %}</a>
-                <a style="margin-bottom: 1em;" class="ui fluid yellow icon labeled edit disabled button" data-tooltip="{% translate 'Edit' %}" data-inverted=""><i class="edit icon"></i>{% translate 'Edit' %}</a>
-                <a style="margin-bottom: 1em;" class="ui fluid red icon labeled delete disabled button" data-tooltip="{% translate 'Delete' %}" data-inverted=""><i class="delete icon"></i>{% translate 'Delete' %}</a>
-            </div>
-            <div class="four wide mobile only column">
-                <a style="margin-bottom: 1em;" class="ui green icon create button" href="{% url 'notes:note_create' %}" data-tooltip="{% translate 'Create' %}" data-inverted=""><i class="add icon"></i></a>
-                <div class="ui right floated buttons">
-                    <a style="margin-bottom: 1em;" class="ui icon yellow edit disabled button" data-tooltip="{% translate 'Edit' %}" data-inverted=""><i class="edit icon"></i></a>
-                    <a style="margin-bottom: 1em;" class="ui icon red delete disabled button" data-tooltip="{% translate 'Delete' %}" data-inverted=""><i class="delete icon"></i></a>
+            <div class="sixteen wide column">
+                <div class="ui note hidden teal segment" style="height: calc(100vh - 5em); overflow-y: auto;">
+                    <div style="height: 3em;">
+                        <a class="ui right floated red icon delete button" data-content="{% translate 'Delete' %}">
+                            <i class="delete icon"></i>
+                        </a>
+                        <a class="ui right floated yellow icon edit button" data-content="{% translate 'Edit' %}">
+                            <i class="edit icon"></i>
+                        </a>
+                        <div class="ui right floated icon button" onclick="copySnippet(${snippetId})" data-content="Copy">
+                            <i class="copy icon"></i>
+                        </div>
+                    </div>
+                    <div id="note-html"></div>
                 </div>
             </div>
         </div>
@@ -92,6 +97,12 @@
             {% endfor %}
             `
         );
+        $(document).ready(e => {
+            $('*.button').popup({
+                variation: 'inverted',
+                position: 'bottom right'
+            });
+        })
         
         function deleteNote(id) {
             $('body').modal({
@@ -138,13 +149,11 @@
                 url=`/nt/api/notes/${id}/`
             )
             .done(r => {
-                $(".note.segment").html(r.html);
+                $("#note-html").html(r.html);
                 $('.ui.edit.button')
-                    .removeClass('disabled')
                     .attr('href', r.url);
                 $('.ui.delete.button')
-                    .removeClass('disabled')
-                    .off()
+                    .off('click')
                     .on('click', () => { deleteNote(id) });
             })
             .fail(() => {

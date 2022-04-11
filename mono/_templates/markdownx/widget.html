@@ -24,7 +24,7 @@
                     <a class="ui button" onclick="buttonCommand(toggleCode)" data-content="Code"><i class="code icon"></i></a>
                     <a class="ui button" onclick="buttonCommand(indent)" data-content="Indent"><i class="indent icon"></i></a>
                     <a class="ui button" onclick="buttonCommand(outdent)" data-content="Outdent"><i class="outdent icon"></i></a>
-                    <a class="ui button"><i class="window minimize outline icon" data-content="Horizontal line"></i></a>
+                    <a class="ui button" onclick="buttonCommand(addHorizontalLine)" data-content="Horizontal line"><i class="window minimize outline icon" data-content="Horizontal line"></i></a>
                     <a class="ui button"><i class="table icon" data-content="Table"></i></a>
                     <a class="ui button" onclick="" data-content="Link"><i class="paperclip icon"></i></a>
                 </div>
@@ -40,7 +40,7 @@
 </div>
 <script>
     TEXTAREA = $(`textarea[name="{{ widget.name }}"]`)
-    $('.toolbar .ui.button').popup()
+    $('.toolbar .ui.button').popup({ variation: 'inverted' })
     function buttonCommand(command) {
         var curStart = TEXTAREA.prop("selectionStart");
         var curEnd = TEXTAREA.prop("selectionEnd");
@@ -123,6 +123,15 @@
     }
     function outdent() {
         removePrefixCommand('\t', true)
+    }
+    function addHorizontalLine() {
+        result = getSelectedText()
+        text = result[0]
+        positions = result[1]
+        preText = TEXTAREA.val().substring(0, positions[0])
+        postText = TEXTAREA.val().substring(positions[1])
+        TEXTAREA.val(preText + text + '\n\n---\n' + postText)
+        TEXTAREA[0].setSelectionRange(preText.length + text.length, preText.length + text.length + 5)
     }
     function addPrefixCommand(symbol, ignoreBlank) {
         result = getSelectedParagraphs()
@@ -223,7 +232,6 @@
         TEXTAREA[0].setSelectionRange(preText.length, preText.length + text.length)
     }
     function updatePreview() {
-        console.log('Updating preview')
         $.api({
             on: 'now',
             method: 'POST',
