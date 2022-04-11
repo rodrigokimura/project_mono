@@ -131,7 +131,7 @@
         preText = TEXTAREA.val().substring(0, positions[0])
         postText = TEXTAREA.val().substring(positions[1])
         TEXTAREA.val(preText + text + '\n\n---\n' + postText)
-        TEXTAREA[0].setSelectionRange(preText.length + text.length, preText.length + text.length + 5)
+        TEXTAREA[0].setSelectionRange(preText.length + text.length + 1, preText.length + text.length + 7)
     }
     function addPrefixCommand(symbol, ignoreBlank) {
         result = getSelectedParagraphs()
