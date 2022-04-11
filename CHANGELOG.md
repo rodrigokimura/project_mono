@@ -1,3 +1,9 @@
+## 4.31.0 (2022-04-10)
+
+### Feat
+
+- **notes**: implement horizontal line button
+
 ## 4.30.0 (2022-04-10)
 
 ### Feat
