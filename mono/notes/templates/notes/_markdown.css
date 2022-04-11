@@ -1,0 +1,12 @@
+blockquote {
+    border-left-style: solid;
+    border-left-width: .5em;
+    border-left-color: #a0a0a0;
+    padding-left: 1em;
+}
+code {
+    color: white;
+    background-color: grey;
+    border-radius: .2em;
+    padding: .2em;
+}
