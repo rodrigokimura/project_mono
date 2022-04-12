@@ -1,4 +1,22 @@
-<div class="ui three column center aligned grid">
+<style>
+    .app-button {
+        display: inline-block;     
+        position: relative;
+        background-color: rgba(0,0,0,0);
+        color: red;
+        padding: .5em;
+        height: 100%;
+        width: 100%;
+        border-radius: .5em;
+    }
+    .app-button:hover {
+        background-color: rgba(0,0,0,.2);
+    }
+    .app-button:active {
+        background-color: rgba(0,0,0,.3);
+    }
+</style>
+<div class="ui three column center aligned compact grid" style="align-items: center; align-content: stretch,">
 
   {% include "homepage/_app_button.html" with name="Finance" url="/fn/" emoji="dollar" %}
   {% include "homepage/_app_button.html" with name="Project Manager" url="/pm/" emoji="dividers" %}

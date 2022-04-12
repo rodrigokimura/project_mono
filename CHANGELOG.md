@@ -1,3 +1,9 @@
+## 4.33.0 (2022-04-12)
+
+### Feat
+
+- **mono**: improve apps menu style
+
 ## 4.32.0 (2022-04-11)
 
 ### Feat
