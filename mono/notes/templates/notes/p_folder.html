@@ -1,7 +1,8 @@
-<div class="folder item wrapper">
+<div class="folder wrapper">
     <div class="folder-item">
+        {% include 'notes/_indent.html' %}
         <i class="folder open outline middle aligned icon"></i>
-        <a class="folder content">{{ file }}</a>
+        <a class="folder content" title="{{ file }}">{{ file }}</a>
     </div>
     <div class="list">
         {% for f in subfiles %}{{ f }}{% endfor %}
