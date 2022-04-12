@@ -13,9 +13,17 @@
             display: none !important;
             width: 0 !important;
         }
+        .pusher {
+            padding-top: 3.2em !important;
+            padding-bottom: 0 !important;
+        }
         .main.grid {
+            padding-top: -1em !important;
+            padding-bottom: 0 !important;
             padding-left: 1em !important;
             padding-right: 1em !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
         }
     }
     .hidden {
@@ -40,7 +48,7 @@
 {% endblock head %}
 
 {% block menu %}
-    <a class="toc computer only item"><i class="sidebar icon"></i></a>
+    <a class="toc item"><i class="sidebar icon"></i></a>
     <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;"></div>
 {% endblock menu %}
 
@@ -57,9 +65,6 @@
             <div class="ui inverted header">
                 <em data-emoji=":notepad_spiral:" class="small"></em>
                 <span style="padding-left: .5em;">Notes</span>
-                <button class="circular ui icon right floated basic inverted button" onclick="showConfigModal()">
-                    <i class="cog icon"></i>
-                </button>
             </div>
         </div>
         <div style="overflow-y: auto;">
@@ -69,21 +74,25 @@
             <a class="ui fluid green labeled icon button" href="{% url 'notes:note_create' %}"><i class="add icon"></i>{% translate 'New note' %}</a>
         </div>
     </div>
-    <div class="ui stackable compact main grid">
+    <div class="ui compact main grid">
         <div class="row">
             <div class="sixteen wide column">
-                <div class="ui note hidden teal segment" style="height: calc(100vh - 5em); overflow-y: auto;">
-                    <div style="height: 3em;">
-                        <a class="ui right floated red icon delete button" data-content="{% translate 'Delete' %}">
-                            <i class="delete icon"></i>
-                        </a>
-                        <a class="ui right floated yellow icon edit button" data-content="{% translate 'Edit' %}">
-                            <i class="edit icon"></i>
-                        </a>
-                        <div class="ui right floated icon button" onclick="copySnippet(${snippetId})" data-content="Copy">
-                            <i class="copy icon"></i>
-                        </div>
+                <div class="ui note hidden top attached teal segment" style="height: 4.85em; display: flex; flex-flow: row no wrap; align-items: baseline; gap: .5em;">
+                    <div style="flex: 1 0 auto;">
+                        <h3 class="ui header" id="note-title"></h3>
                     </div>
+                    <div class="ui toggle checkbox">
+                        <input type="checkbox" name="public">
+                        <label>Dark mode</label>
+                    </div>
+                    <a class="ui yellow icon edit button" style="flex: 0 1 auto;" data-content="{% translate 'Edit' %}">
+                        <i class="edit icon"></i>
+                    </a>
+                    <a class="ui red icon delete button" style="flex: 0 1 auto;" data-content="{% translate 'Delete' %}">
+                        <i class="delete icon"></i>
+                    </a>
+                </div>
+                <div class="ui note hidden bottom attached segment" style="height: calc(100vh - 10em); overflow-y: auto;">
                     <div id="note-html"></div>
                 </div>
             </div>
@@ -101,7 +110,8 @@
             $('*.button').popup({
                 variation: 'inverted',
                 position: 'bottom right'
-            });
+            })
+            $('.ui.checkbox').checkbox()
         })
         
         function deleteNote(id) {
@@ -150,6 +160,7 @@
             )
             .done(r => {
                 $("#note-html").html(r.html);
+                $("#note-title").text(r.title);
                 $('.ui.edit.button')
                     .attr('href', r.url);
                 $('.ui.delete.button')
