@@ -36,13 +36,15 @@
     }
     .explorer {
         padding: 0 !important;
-        display: inline-block;
         color: white;
         font-size: 120%;
         width: 100%;
         overflow-x: none;
-        overflow-y: hidden;
-        flex: 1 0 auto;
+        overflow-y: scroll;
+        flex: 1 1 auto; 
+        height: 50vh;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
     }
     a.content {
         color: inherit;
@@ -69,6 +71,9 @@
         white-space: nowrap;
         text-overflow: ellipsis;
     }
+    ::-webkit-scrollbar {
+        display: none !important;
+    }
     {% include "notes/_markdown.css" %}
   </style>
 {% endblock head %}
@@ -86,15 +91,15 @@
  
 
 {% block main %}
-    <div class="ui vertical left fixed computer only inverted main menu" style="padding-top: 3em; width: 20em; display: flex; flex-flow: column nowrap;">
-        <div class="header item">
+    <div class="ui vertical left fixed computer only inverted main menu" style="padding-top: 3em; width: 20em; display: flex;">
+        <div class="header item" style="flex: 0 0 auto;">
             <div class="ui inverted header">
                 <em data-emoji=":notepad_spiral:" class="small"></em>
                 <span style="padding-left: .5em;">Notes</span>
             </div>
         </div>
         <div class="explorer" data-notes-list="true"></div>
-        <div class="item">
+        <div class="item" style="flex: 0 0 auto;">
             <a class="ui fluid green right labeled icon button" href="{% url 'notes:note_create' %}"><i class="add icon"></i>{% translate 'New note' %}</a>
         </div>
     </div>
