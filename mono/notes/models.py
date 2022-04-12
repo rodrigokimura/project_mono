@@ -42,6 +42,7 @@ class Note(models.Model):
         verbose_name = _("note")
         verbose_name_plural = _("notes")
         unique_together = ('title', 'location', 'created_by')
+        ordering = ('location', 'title')
 
     def __str__(self) -> str:
         return self.title

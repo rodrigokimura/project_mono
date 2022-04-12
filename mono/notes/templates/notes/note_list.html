@@ -34,14 +34,40 @@
             display: none !important;
         }
     }
+    .explorer {
+        padding: 0 !important;
+        display: inline-block;
+        color: white;
+        font-size: 120%;
+        width: 100%;
+        overflow-x: none;
+        overflow-y: hidden;
+        flex: 1 0 auto;
+    }
     a.content {
         color: inherit;
         text-decoration: underline 0.1em rgba(0, 0, 0, 0);
         transition: text-decoration-color 300ms;
     }
-    .file.item:hover a.file.content,
+    .file-item:hover a.file.content,
     .folder-item:hover a.folder.content {
         text-decoration-color: rgba(255, 255, 255, 1);
+        cursor: pointer;
+    }
+    .file-item:hover,
+    .folder-item:hover {
+        background-color: rgba(255, 255, 255, .1);
+    }
+    .selected.file-item {
+        background-color: rgba(255, 255, 255, .2);
+    }
+    .file-item,
+    .folder-item {
+        overflow: hidden;
+        cursor: pointer;
+        padding: .3em 1em;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
     {% include "notes/_markdown.css" %}
   </style>
@@ -67,11 +93,9 @@
                 <span style="padding-left: .5em;">Notes</span>
             </div>
         </div>
-        <div style="overflow-y: auto;">
-            <div class="ui big list" data-notes-list="true" style="width: 100%; padding: 1em;"></div>
-        </div>
+        <div class="explorer" data-notes-list="true"></div>
         <div class="item">
-            <a class="ui fluid green labeled icon button" href="{% url 'notes:note_create' %}"><i class="add icon"></i>{% translate 'New note' %}</a>
+            <a class="ui fluid green right labeled icon button" href="{% url 'notes:note_create' %}"><i class="add icon"></i>{% translate 'New note' %}</a>
         </div>
     </div>
     <div class="ui compact main grid">
@@ -153,25 +177,25 @@
         }
 
         function getNote(id) {
-            var noteSegment = $('.ui.note.segment');
-            noteSegment.removeClass('hidden').addClass('loading');
-            $.get(
-                url=`/nt/api/notes/${id}/`
-            )
-            .done(r => {
-                $("#note-html").html(r.html);
-                $("#note-title").text(r.title);
-                $('.ui.edit.button')
-                    .attr('href', r.url);
-                $('.ui.delete.button')
-                    .off('click')
-                    .on('click', () => { deleteNote(id) });
-            })
-            .fail(() => {
-                noteSegment.addClass('hidden');
-            })
-            .always(() => {
-                noteSegment.removeClass('loading');
+            noteSegment = $('.ui.note.segment')
+            noteSegment.removeClass('hidden')
+            $.api({
+                on: 'now',
+                method: 'GET',
+                url: `/nt/api/notes/${id}/`,
+                stateContext: noteSegment,
+                successTest: r => r.id,
+                onSuccess: r => {
+                    $("#note-html").html(r.html);
+                    $("#note-title").text(r.title);
+                    $('.ui.edit.button')
+                        .attr('href', r.url);
+                    $('.ui.delete.button')
+                        .off('click')
+                        .on('click', () => { deleteNote(id) });
+                    $('.file-item').removeClass('selected')
+                    $(`.file-item[data-id=${id}]`).addClass('selected')
+                }
             })
         }
         
@@ -183,8 +207,9 @@
             {% endif %}
         {% endif %}
         
-        $('.file.item').click(function(e) {
-            getNote($(e.target).closest('.file.item').attr('data-id'));
+        $('.file-item').click(function(e) {
+            fileItemElement = $(e.target).closest('.file-item')
+            getNote(fileItemElement.attr('data-id'))
         });
         $('.folder-item').click(function() {
             $(this).siblings('.list').toggle({ duration: 200, easing: 'swing' });
