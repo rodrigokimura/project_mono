@@ -1,3 +1,5 @@
-<div class="file item" data-id="{{ id }}" style="width: 100%">
-    <span><i class="file alternate outline middle aligned icon"></i><a class="file content">{{ title }}</a></span>
+<div class="file-item" data-id="{{ id }}" style="width: 100%">
+    {% include 'notes/_indent.html' %}
+    <i class="file alternate outline middle aligned icon"></i>
+    <a class="file content" title="{{ title }}">{{ title }}</a>
 </div>
