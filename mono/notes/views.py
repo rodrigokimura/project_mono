@@ -46,31 +46,32 @@ def generate_tree(tree):
     Render tree of files and folders
     """
 
-    def index_maker():
-        def _index(files):
-            for mfile in files:
-                if mfile != FILE_MARKER:
-                    yield loader.render_to_string(
-                        'notes/p_folder.html',
-                        {
-                            'file': mfile,
-                            'subfiles': _index(files[mfile])
-                        }
-                    )
-                    continue
-                for file in files[mfile]:
-                    file_id = file.split(':')[0]
-                    title = file[len(file_id) + 1:]
-                    yield loader.render_to_string(
-                        'notes/p_file.html',
-                        {
-                            'id': file_id,
-                            'title': title,
-                        }
-                    )
-        return _index(tree)
+    def _index(files, level):
+        for mfile in files:
+            if mfile != FILE_MARKER:
+                yield loader.render_to_string(
+                    'notes/p_folder.html',
+                    {
+                        'file': mfile,
+                        'subfiles': _index(files[mfile], level),
+                        'level': level - 1,
+                    }
+                )
+                continue
+            for file in files[mfile]:
+                file_id = file.split(':')[0]
+                title = file[len(file_id) + 1:]
+                yield loader.render_to_string(
+                    'notes/p_file.html',
+                    {
+                        'id': file_id,
+                        'title': title,
+                        'level': level,
+                    }
+                )
+            level = level + 1
+    return _index(tree, 0)
 
-    return index_maker()
 
 
 class NoteCreateView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
@@ -133,6 +134,8 @@ class NoteDetailApiView(LoginRequiredMixin, APIView):
         """Delete note"""
         note = get_object_or_404(Note, pk=pk)
         note.delete()
+        if request.session.get('note') == pk:
+            del request.session['note']
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
