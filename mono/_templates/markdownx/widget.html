@@ -1,8 +1,8 @@
 <div class="markdownx ui stackable compact grid">
     <div class="row">
         <div class="sixteen wide column">
-            <div class="toolbar" style="padding-bottom: 1em;">
-                <div class="ui icon buttons">
+            <div class="toolbar" style="padding-bottom: 1em; display: flex; flex-flow: row no wrap; gap: .5em; overflow-x: auto;">
+                <div class="ui icon buttons" style="flex: 0 0 auto;">
                     <a class="ui button" onclick="buttonCommand(toggleHeading1)" data-content="Heading 1"><i class="heading icon"></i>1</a>
                     <a class="ui button" onclick="buttonCommand(toggleHeading2)" data-content="Heading 2"><i class="heading icon"></i>2</a>
                     <a class="ui button" onclick="buttonCommand(toggleHeading3)" data-content="Heading 3"><i class="heading icon"></i>3</a>
@@ -10,23 +10,23 @@
                     <a class="ui button" onclick="buttonCommand(toggleHeading5)" data-content="Heading 5"><i class="heading icon"></i>5</a>
                     <a class="ui button" onclick="buttonCommand(toggleHeading6)" data-content="Heading 6"><i class="heading icon"></i>6</a>
                 </div>
-                <div class="ui icon buttons">
+                <div class="ui icon buttons" style="flex: 0 0 auto;">
                     <a class="ui button" onclick="buttonCommand(toggleBold)" data-content="Bold"><i class="bold icon"></i></a>
                     <a class="ui button" onclick="buttonCommand(toggleItalic)" data-content="Italic"><i class="italic icon"></i></a>
                     <a class="ui button" onclick="buttonCommand(toggleStrikethrough)" data-content="Strikethrough"><i class="strikethrough icon"></i></a>
                 </div>
-                <div class="ui icon buttons">
+                <div class="ui icon buttons" style="flex: 0 0 auto;">
                     <a class="ui button" onclick="buttonCommand(toggleUnorderedList)" data-content="Unordered list"><i class="list ul icon"></i></a>
                     <a class="ui button" onclick="buttonCommand(toggleOrderedList)" data-content="Ordered list"><i class="list ol icon"></i></a>
                 </div>
-                <div class="ui icon buttons">
+                <div class="ui icon buttons" style="flex: 0 0 auto;">
                     <a class="ui button" onclick="buttonCommand(toggleQuote)" data-content="Quote"><i class="quote left icon"></i></a>
                     <a class="ui button" onclick="buttonCommand(toggleCode)" data-content="Code"><i class="code icon"></i></a>
                     <a class="ui button" onclick="buttonCommand(indent)" data-content="Indent"><i class="indent icon"></i></a>
                     <a class="ui button" onclick="buttonCommand(outdent)" data-content="Outdent"><i class="outdent icon"></i></a>
                     <a class="ui button" onclick="buttonCommand(addHorizontalLine)" data-content="Horizontal line"><i class="window minimize outline icon" data-content="Horizontal line"></i></a>
-                    <a class="ui button"><i class="table icon" data-content="Table"></i></a>
-                    <a class="ui button" onclick="" data-content="Link"><i class="paperclip icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(addTable)"><i class="table icon" data-content="Table"></i></a>
+                    <a class="ui button" onclick="buttonCommand(addLink)" data-content="Link"><i class="paperclip icon"></i></a>
                 </div>
             </div>
         </div>
@@ -125,13 +125,32 @@
         removePrefixCommand('\t', true)
     }
     function addHorizontalLine() {
+        addToEndCommand('\n---\n')
+    }
+    function addTable() {
+        tableSample = [
+            '',
+            '| Syntax      | Description |',
+            '| ----------- | ----------- |',
+            '| Header      | Title       |',
+            '| Paragraph   | Text        |',
+            '',
+        ].join('\n')
+        addToEndCommand(tableSample)
+    }
+    function addLink() {
         result = getSelectedText()
         text = result[0]
+        if (text.length == 0) {
+            text = 'your-link.here'
+        }
         positions = result[1]
         preText = TEXTAREA.val().substring(0, positions[0])
         postText = TEXTAREA.val().substring(positions[1])
-        TEXTAREA.val(preText + text + '\n\n---\n' + postText)
-        TEXTAREA[0].setSelectionRange(preText.length + text.length + 1, preText.length + text.length + 7)
+        if (isMultiline(text)) { return }
+        text = `[text here](${text})`
+        TEXTAREA.val(preText + text + postText)
+        TEXTAREA[0].setSelectionRange(preText.length, preText.length + text.length)
     }
     function addPrefixCommand(symbol, ignoreBlank) {
         result = getSelectedParagraphs()
@@ -230,6 +249,15 @@
         }
         TEXTAREA.val(preText + text + postText)
         TEXTAREA[0].setSelectionRange(preText.length, preText.length + text.length)
+    }
+    function addToEndCommand(symbol) {
+        result = getSelectedText()
+        text = result[0]
+        positions = result[1]
+        preText = TEXTAREA.val().substring(0, positions[0])
+        postText = TEXTAREA.val().substring(positions[1])
+        TEXTAREA.val(preText + text + '\n' + symbol + postText)
+        TEXTAREA[0].setSelectionRange(preText.length + text.length, preText.length + text.length + 1 + symbol.length)
     }
     function updatePreview() {
         $.api({
