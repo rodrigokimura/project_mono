@@ -1,3 +1,9 @@
+## 4.34.0 (2022-04-12)
+
+### Feat
+
+- **notes**: improve sidebar usability
+
 ## 4.33.0 (2022-04-12)
 
 ### Feat
