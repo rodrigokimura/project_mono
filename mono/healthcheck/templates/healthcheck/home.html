@@ -1,174 +1,133 @@
 {% extends "healthcheck/base.html" %}
 {% load static %}
+{% load l10n %}
 
 {% block head %}
-  <style type="text/css">
-    .hidden { display: none; }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style type="text/css">
+        .hidden { display: none; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 {% endblock head %}
 
 {% block main %}
-  <div class="ui stackable grid container" style="padding-top: 5em;">
-
-    <div class="row">
-      <div class="column">
-        <div class="ui segment" id="chart-2"></div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="column">
-        <div class="ui hidden segments" id="commits"></div>
-      </div>
-    </div>
-  </div>
-  <script>
-
-    function formatDate(dateDDMMYYY) {
-      return dateDDMMYYY.split('/').reverse().join('-');
-    }
-
-    var dateLabels = [
-      [{% for data in data_0 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
-      [{% for data in data_1 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
-      [{% for data in data_2 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
-      [{% for data in data_3 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
-      [{% for data in data_4 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
-      [{% for data in data_5 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
-      [{% for data in data_6 %}"{{ data.d|date:'SHORT_DATE_FORMAT' }}",{% endfor %}],
-    ]
-
-    var commitSeries = [
-      {
-        name: 'S',
-        data: [
-          {% for data in data_6 %}
-            {{ data.c }},
-          {% endfor %}
-        ]
-      },
-      {
-        name: 'F',
-        data: [
-          {% for data in data_5 %}
-            {{ data.c }},
-          {% endfor %}
-        ]
-      },
-      {
-        name: 'T',
-        data: [
-          {% for data in data_4 %}
-            {{ data.c }},
-          {% endfor %}
-        ]
-      },
-      {
-        name: 'W',
-        data: [
-          {% for data in data_3 %}
-            {{ data.c }},
-          {% endfor %}
-        ]
-      },
-      {
-        name: 'T',
-        data: [
-          {% for data in data_2 %}
-            {{ data.c }},
-          {% endfor %}
-        ]
-      },
-      {
-        name: 'M',
-        data: [
-          {% for data in data_1 %}
-            {{ data.c }},
-          {% endfor %}
-        ]
-      },
-      {
-        name: 'S',
-        data: [
-          {% for data in data_0 %}
-            {{ data.c }},
-          {% endfor %}
-        ]
-      },
-    ]
-
-    var options2 = {
-      series: commitSeries,
-      chart: {
-        height: 220,
-        type: 'heatmap',
-        fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
-        events: {
-          dataPointSelection: function(event, chartContext, config) {
-            date = dateLabels[6-config.seriesIndex][config.dataPointIndex];
-            getCommitsByDate(formatDate(date));
-          }
-        }    
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      tooltip: {
-        x: {
-          formatter: (v, o) => dateLabels[6-o.seriesIndex][o.dataPointIndex],
-        },
-      },
-      plotOptions: {
-        heatmap: {
-          radius: 3,
-          colorScale: {
-            min: -1,
-          },
-        },
-      },
-      colors: ["#008FFB"],
-      title: {
-        text: 'Commits'
-      },
-    };
-
-
-    var chart2 = new ApexCharts($('#chart-2')[0], options2);
-    chart2.render();
-
-    function getCommitsByDate(date) {
-      $.api({
-        on: 'now',
-        url: `/hc/api/commits/by-date/?date=${date}`,
-        method: 'GET',
-        onSuccess: r => {
-          renderCommits(r);
-        }
-      })
-    }
-
-    function renderCommits(commits) {
-      var el = $('#commits');
-      el.empty();
-      el.show();
-      for (var i = 0; i < commits.length; i++) {
-        var commit = commits[i];
-        var commitEl = $(`
-        <div class="ui segment">
-          <p class="ui header">
-            <a href="" target="_blank">${commit.message}</a>
-          </p>
-          <p class="ui meta">
-            <span class="date">${commit.date}</span>
-          </p>
+    <div class="ui stackable grid container" style="padding-top: 5em;">
+        <div class="row">
+            <div class="column">
+                <div class="ui segment" id="chart"></div>
+            </div>
         </div>
-        `);
-        el.append(commitEl);
-      }
-      
-    }
-        
+        <div class="row">
+            <div class="column">
+                <div class="ui hidden segments" id="commits"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var dateLabels = [
+            [{% for data in data_0 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
+            [{% for data in data_1 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
+            [{% for data in data_2 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
+            [{% for data in data_3 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
+            [{% for data in data_4 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
+            [{% for data in data_5 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
+            [{% for data in data_6 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
+        ]
+        var commitSeries = [
+            { name: 'S', data: [{% for data in data_6 %}{{ data.c }},{% endfor %}] },
+            { name: 'F', data: [{% for data in data_5 %}{{ data.c }},{% endfor %}] },
+            { name: 'T', data: [{% for data in data_4 %}{{ data.c }},{% endfor %}] },
+            { name: 'W', data: [{% for data in data_3 %}{{ data.c }},{% endfor %}] },
+            { name: 'T', data: [{% for data in data_2 %}{{ data.c }},{% endfor %}] },
+            { name: 'M', data: [{% for data in data_1 %}{{ data.c }},{% endfor %}] },
+            { name: 'S', data: [{% for data in data_0 %}{{ data.c }},{% endfor %}] },
+        ]
+        var options = {
+            series: commitSeries,
+            chart: {
+                height: 200,
+                type: 'heatmap',
+                fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
+                events: {
+                    dataPointSelection: function(event, chartContext, config) {
+                        date = dateLabels[6-config.seriesIndex][config.dataPointIndex]
+                        getCommitsByDate(date)
+                    }
+                },
+                toolbar: { show: false }
+            },
+            dataLabels: { enabled: false },
+            tooltip: {
+                x: {
+                    formatter: (v, o) => dateLabels[6-o.seriesIndex][o.dataPointIndex],
+                },
+            },
+            plotOptions: {
+                heatmap: {
+                    radius: 3,
+                    colorScale: {
+                        min: -1,
+                    },
+                },
+            },
+            colors: [ "#008FFB" ],
+            title: { show: false },
+            xaxis: { labels: { show: false } },
+        };
 
-  </script>
+        var chart = new ApexCharts($('#chart')[0], options)
+        chart.render()
+
+        function getCommitsByDate(date) {
+            $.api({
+                on: 'now',
+                url: `/hc/api/commits/by-date/?date=${date}`,
+                method: 'GET',
+                stateContext: '.segment',
+                onSuccess: r => {
+                    renderCommits(r)
+                }
+            })
+        }
+
+        function renderCommits(commits) {
+            console.log(commits)
+            var el = $('#commits')
+            el.empty()
+            if (commits.length == 0) {
+                $('body').toast({
+                    title: 'No commits found.',
+                    class: 'black',
+                    showProgress: 'bottom',
+                    position: 'right bottom',
+                })
+                el.hide()
+                return
+            } else {
+                $('body').toast({
+                    title: `${commits.length} commits found.`,
+                    class: 'black',
+                    showProgress: 'bottom',
+                    position: 'right bottom',
+                })
+            }
+            el.show()
+            for (var i = 0; i < commits.length; i++) {
+                var commit = commits[i]
+                var commitEl = $(`
+                    <div class="ui segment">
+                        <p class="ui header">
+                            ${commit.message}
+                        </p>
+                        <p class="ui meta">
+                            <span class="date">${commit.author}</span>
+                        </p>
+                        <p class="ui meta">
+                            <span class="hexsha">${commit.hexsha}</span>
+                        </p>
+                    </div>
+                `)
+                el.append(commitEl)
+            }
+        }
+    </script>
 {% endblock main %}
