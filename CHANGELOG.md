@@ -1,3 +1,9 @@
+## 4.35.0 (2022-04-14)
+
+### Feat
+
+- **healthcheck**: add changelog view
+
 ## 4.34.5 (2022-04-14)
 
 ### Refactor
