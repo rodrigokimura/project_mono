@@ -1,3 +1,9 @@
+## 4.34.4 (2022-04-13)
+
+### Fix
+
+- **healthcheck**: standardize date format before API call
+
 ## 4.34.3 (2022-04-12)
 
 ### Refactor
