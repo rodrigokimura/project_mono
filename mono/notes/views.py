@@ -4,7 +4,6 @@ from typing import Any, Dict
 
 from __mono.mixins import PassRequestToFormViewMixin
 from __mono.permissions import IsCreator
-from __mono.views import ProtectedDeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import JsonResponse
@@ -12,7 +11,6 @@ from django.shortcuts import get_object_or_404
 from django.template import loader
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
-from django.views import View
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from markdownx.utils import markdownify

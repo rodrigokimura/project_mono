@@ -17,6 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.encoding import force_bytes
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
+from markdownx.utils import markdownify
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -179,13 +180,19 @@ class HealthcheckHomePage(UserPassesTestMixin, TemplateView):
     def test_func(self):
         return self.request.user.is_superuser
 
-    def get_context_data(self, **kwargs):
-        """Add extra context"""
-        context = super().get_context_data(**kwargs)
-        commits_context = get_commits_context()
 
-        context = {**commits_context, **context}
-        return context
+class CommitsFormattedForHeatmapView(UserPassesTestMixin, APIView):
+    """Get commit info formatted for heatmap chart"""
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get(self, request, *args, **kwargs):
+        """
+        Get commits by date
+        """
+        commits_context = get_commits_context()
+        return Response(commits_context)
 
 
 class CommitsByDateView(UserPassesTestMixin, APIView):
@@ -214,3 +221,23 @@ class CommitsByDateView(UserPassesTestMixin, APIView):
                 ]
             )
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangelogView(UserPassesTestMixin, APIView):
+    """Read changelog markdown file and convert to html"""
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get(self, request, *args, **kwargs):
+        """
+        Read changelog markdown file and convert to html
+        """
+        changelog_file = settings.CHANGELOG_FILE
+        with open(changelog_file, 'r') as f:
+            md = f.read()
+        changelog_html = markdownify(md)
+        return Response({
+            'success': True,
+            'html': changelog_html
+        })
