@@ -187,12 +187,12 @@
             el.empty()
             if (commits.length == 0) {
                 toast('No commits found.')
-                el.hide()
+                $('#commits-table').hide()
                 return
             } else {
                 toast(`${commits.length} commits found.`)
+                $('#commits-table').show()
             }
-            $('#commits-table').show()
             for (var i = 0; i < commits.length; i++) {
                 var commit = commits[i]
                 var commitEl = $(`
