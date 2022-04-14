@@ -1,3 +1,9 @@
+## 4.35.1 (2022-04-14)
+
+### Fix
+
+- **healthcheck**: change html element being toggled
+
 ## 4.35.0 (2022-04-14)
 
 ### Feat
