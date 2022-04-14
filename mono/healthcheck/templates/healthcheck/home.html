@@ -1,82 +1,168 @@
 {% extends "healthcheck/base.html" %}
 {% load static %}
-{% load l10n %}
+{% load i18n %}
 
 {% block head %}
     <style type="text/css">
+        .main.grid {
+            padding-top: 0 !important;
+            padding-left: 21em !important;
+            padding-right: 1em !important;
+        }
+        @media screen and (max-width: 767px) {
+            .computer.only {
+                display: none !important;
+                width: 0 !important;
+            }
+            .pusher {
+                padding-top: 3.2em !important;
+                padding-bottom: 0 !important;
+            }
+            .main.grid {
+                padding-top: -1em !important;
+                padding-bottom: 0 !important;
+                padding-left: 1em !important;
+                padding-right: 1em !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+            }
+        }
         .hidden { display: none; }
+        #chart { min-height: 5em; padding: 0; }
+        .ui.table thead tr:first-child > th {
+            position: sticky !important;
+            top: 3em;
+            z-index: 2;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 {% endblock head %}
 
 {% block main %}
-    <div class="ui stackable grid container" style="padding-top: 5em;">
+    <div class="ui vertical left fixed computer only inverted main menu" style="padding-top: 3em; width: 20em;">
+        <div class="header item">
+            <div class="ui inverted header">
+                <em data-emoji=":thermometer:" class="small"></em>
+                <span style="padding-left: .5em;">Healthcheck</span>
+            </div>
+        </div>
+        <a class="item" data-tab="repo">Repository</a>
+        <a class="item" data-tab="changelog">Changelog</a>
+        {% comment %} <a class="item" data-tab="quality">Quality checks</a> {% endcomment %}
+    </div>
+    <div class="ui compact main tab grid" data-tab="repo">
         <div class="row">
             <div class="column">
-                <div class="ui segment" id="chart"></div>
+                <div class="chart" style="margin: auto; display: flex; justify-content: center;">
+                    <div class="ui segment" id="chart" style="flex: 0 0 auto; width: 1000px; height: 100%;"></div>
+                </div>
             </div>
         </div>
         <div class="row">
             <div class="column">
-                <div class="ui hidden segments" id="commits"></div>
+                <div class="ui basic segment">
+                    <table class="ui selectable striped celled hidden table" id="commits-table">
+                        <thead>
+                            <tr>
+                                <th>SHA</th>
+                                <th>Message</th>
+                                <th>Author</th>
+                            </tr>
+                        </thead>
+                        <tbody style="max-height: 80vh;">
+                        </tbody>
+                    </table>
+                </div>
+                <div style="overflow-y: auto; height: calc(100vh-3em);">
+                    <div class="ui hidden segments" id="commits"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui compact main tab grid" data-tab="changelog">
+        <div class="row">
+            <div class="column">
+                <div class="ui header">Changelog</div>
+                <div class="ui segment" id="changelog" style="height: calc(100vh - 7em); overflow-y: auto;"></div>
             </div>
         </div>
     </div>
     <script>
-        var dateLabels = [
-            [{% for data in data_0 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-            [{% for data in data_1 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-            [{% for data in data_2 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-            [{% for data in data_3 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-            [{% for data in data_4 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-            [{% for data in data_5 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-            [{% for data in data_6 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-        ]
-        var commitSeries = [
-            { name: 'S', data: [{% for data in data_6 %}{{ data.c }},{% endfor %}] },
-            { name: 'F', data: [{% for data in data_5 %}{{ data.c }},{% endfor %}] },
-            { name: 'T', data: [{% for data in data_4 %}{{ data.c }},{% endfor %}] },
-            { name: 'W', data: [{% for data in data_3 %}{{ data.c }},{% endfor %}] },
-            { name: 'T', data: [{% for data in data_2 %}{{ data.c }},{% endfor %}] },
-            { name: 'M', data: [{% for data in data_1 %}{{ data.c }},{% endfor %}] },
-            { name: 'S', data: [{% for data in data_0 %}{{ data.c }},{% endfor %}] },
-        ]
-        var options = {
-            series: commitSeries,
-            chart: {
-                height: 200,
-                type: 'heatmap',
-                fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
-                events: {
-                    dataPointSelection: function(event, chartContext, config) {
-                        date = dateLabels[6-config.seriesIndex][config.dataPointIndex]
-                        getCommitsByDate(date)
-                    }
+        function renderHeatmap() {
+            if ($('#chart').html()) { return }
+            $.api({
+                on: 'now',
+                method: 'GET',
+                url: '/hc/api/commits/for-heatmap/',
+                stateContext: '#chart',
+                onSuccess: r => {
+                    dateLabels = [
+                        r.data_0.map(d => d.d),
+                        r.data_1.map(d => d.d),
+                        r.data_2.map(d => d.d),
+                        r.data_3.map(d => d.d),
+                        r.data_4.map(d => d.d),
+                        r.data_5.map(d => d.d),
+                        r.data_6.map(d => d.d),
+                    ]
+                    commitSeries = [
+                        { name: 'S', data: r.data_0.map(d => d.c) },
+                        { name: 'M', data: r.data_1.map(d => d.c) },
+                        { name: 'T', data: r.data_2.map(d => d.c) },
+                        { name: 'W', data: r.data_3.map(d => d.c) },
+                        { name: 'T', data: r.data_4.map(d => d.c) },
+                        { name: 'F', data: r.data_5.map(d => d.c) },
+                        { name: 'S', data: r.data_6.map(d => d.c) },
+                    ].reverse()
+                    var chart = new ApexCharts($('#chart')[0], getChartOptions(commitSeries, dateLabels))
+                    chart.render()
                 },
-                toolbar: { show: false }
-            },
-            dataLabels: { enabled: false },
-            tooltip: {
-                x: {
-                    formatter: (v, o) => dateLabels[6-o.seriesIndex][o.dataPointIndex],
+            })
+        }
+        function getChartOptions(commitSeries, dateLabels) {
+            return {
+                series: commitSeries,
+                chart: {
+                    height: 180,
+                    type: 'heatmap',
+                    fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
+                    events: {
+                        dataPointSelection: function(event, chartContext, config) {
+                            date = dateLabels[6-config.seriesIndex][config.dataPointIndex]
+                            getCommitsByDate(date)
+                        }
+                    },
+                    toolbar: { show: false }
                 },
-            },
-            plotOptions: {
-                heatmap: {
-                    radius: 3,
-                    colorScale: {
-                        min: -1,
+                dataLabels: { enabled: false },
+                tooltip: {
+                    x: {
+                        formatter: (v, o) => dateLabels[6-o.seriesIndex][o.dataPointIndex],
                     },
                 },
-            },
-            colors: [ "#008FFB" ],
-            title: { show: false },
-            xaxis: { labels: { show: false } },
-        };
-
-        var chart = new ApexCharts($('#chart')[0], options)
-        chart.render()
-
+                grid: {
+                    show: false,
+                    xaxis: { lines: { show: false } },                    
+                    yaxis: { lines: { show: false } },                    
+                },
+                plotOptions: {
+                    heatmap: {
+                        radius: 4,
+                        shadeIntensity: 1,
+                        useFillColorAsStroke: false,
+                        colorScale: {
+                            min: 0,
+                        },
+                    },
+                },
+                colors: [ "#008FFB" ],
+                title: { show: false },
+                xaxis: {
+                    labels: { show: false },
+                    axisBorder: { show: false },
+                },
+            }
+        }
         function getCommitsByDate(date) {
             $.api({
                 on: 'now',
@@ -88,46 +174,66 @@
                 }
             })
         }
-
+        function toast(msg) {
+            $('body').toast({
+                title: msg,
+                class: 'black',
+                showProgress: 'bottom',
+                position: 'right bottom',
+            })
+        }
         function renderCommits(commits) {
-            console.log(commits)
-            var el = $('#commits')
+            var el = $('#commits-table tbody')
             el.empty()
             if (commits.length == 0) {
-                $('body').toast({
-                    title: 'No commits found.',
-                    class: 'black',
-                    showProgress: 'bottom',
-                    position: 'right bottom',
-                })
+                toast('No commits found.')
                 el.hide()
                 return
             } else {
-                $('body').toast({
-                    title: `${commits.length} commits found.`,
-                    class: 'black',
-                    showProgress: 'bottom',
-                    position: 'right bottom',
-                })
+                toast(`${commits.length} commits found.`)
             }
-            el.show()
+            $('#commits-table').show()
             for (var i = 0; i < commits.length; i++) {
                 var commit = commits[i]
                 var commitEl = $(`
-                    <div class="ui segment">
-                        <p class="ui header">
-                            ${commit.message}
-                        </p>
-                        <p class="ui meta">
-                            <span class="date">${commit.author}</span>
-                        </p>
-                        <p class="ui meta">
-                            <span class="hexsha">${commit.hexsha}</span>
-                        </p>
-                    </div>
+                    <tr>
+                        <td data-label="SHA">${commit.hexsha}</td>
+                        <td data-label="Message">${commit.message}</td>
+                        <td data-label="Author">${commit.author}</td>
+                    </tr>
                 `)
                 el.append(commitEl)
             }
         }
+        function initializeTabs() {
+            $('.menu .item').tab({
+                onFirstLoad: (tabPath, parameterArray, historyEvent) => {
+                    switch (tabPath) {
+                        case 'repo':
+                            renderHeatmap()
+                            break
+                        case 'changelog':
+                            renderChangelog()
+                            break
+                        case 'quality':
+                            break
+                    }
+                },
+            })
+        }
+        function renderChangelog() {
+            $.api({
+                on: 'now',
+                method: 'GET',
+                url: '/hc/api/changelog/',
+                stateContext: '#changelog',
+                onSuccess: r => {
+                    $('#changelog').html(r.html)
+                },
+            })
+        }
+        $(document).ready(e => {
+            initializeTabs()
+        })
     </script>
 {% endblock main %}

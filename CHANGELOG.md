@@ -1,3 +1,15 @@
+## 4.35.0 (2022-04-14)
+
+### Feat
+
+- **healthcheck**: add changelog view
+
+## 4.34.5 (2022-04-14)
+
+### Refactor
+
+- **healthcheck**: implement async call
+
 ## 4.34.4 (2022-04-13)
 
 ### Fix
