@@ -5,6 +5,7 @@
 {% block head %}
     <style type="text/css">
         .hidden { display: none; }
+        #chart { min-height: 5em; padding: 0; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 {% endblock head %}
@@ -23,60 +24,81 @@
         </div>
     </div>
     <script>
-        var dateLabels = [
-            [{% for data in data_0 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-            [{% for data in data_1 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-            [{% for data in data_2 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-            [{% for data in data_3 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-            [{% for data in data_4 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-            [{% for data in data_5 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-            [{% for data in data_6 %}"{{ data.d|date:'Y-m-d' }}",{% endfor %}],
-        ]
-        var commitSeries = [
-            { name: 'S', data: [{% for data in data_6 %}{{ data.c }},{% endfor %}] },
-            { name: 'F', data: [{% for data in data_5 %}{{ data.c }},{% endfor %}] },
-            { name: 'T', data: [{% for data in data_4 %}{{ data.c }},{% endfor %}] },
-            { name: 'W', data: [{% for data in data_3 %}{{ data.c }},{% endfor %}] },
-            { name: 'T', data: [{% for data in data_2 %}{{ data.c }},{% endfor %}] },
-            { name: 'M', data: [{% for data in data_1 %}{{ data.c }},{% endfor %}] },
-            { name: 'S', data: [{% for data in data_0 %}{{ data.c }},{% endfor %}] },
-        ]
-        var options = {
-            series: commitSeries,
-            chart: {
-                height: 200,
-                type: 'heatmap',
-                fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
-                events: {
-                    dataPointSelection: function(event, chartContext, config) {
-                        date = dateLabels[6-config.seriesIndex][config.dataPointIndex]
-                        getCommitsByDate(date)
-                    }
+        function renderHeatmap() {
+            $.api({
+                on: 'now',
+                method: 'GET',
+                url: '/hc/api/commits/for-heatmap/',
+                stateContext: '#chart',
+                onSuccess: r => {
+                    dateLabels = [
+                        r.data_0.map(d => d.d),
+                        r.data_1.map(d => d.d),
+                        r.data_2.map(d => d.d),
+                        r.data_3.map(d => d.d),
+                        r.data_4.map(d => d.d),
+                        r.data_5.map(d => d.d),
+                        r.data_6.map(d => d.d),
+                    ]
+                    commitSeries = [
+                        { name: 'S', data: r.data_0.map(d => d.c) },
+                        { name: 'M', data: r.data_1.map(d => d.c) },
+                        { name: 'T', data: r.data_2.map(d => d.c) },
+                        { name: 'W', data: r.data_3.map(d => d.c) },
+                        { name: 'T', data: r.data_4.map(d => d.c) },
+                        { name: 'F', data: r.data_5.map(d => d.c) },
+                        { name: 'S', data: r.data_6.map(d => d.c) },
+                    ].reverse()
+                    var chart = new ApexCharts($('#chart')[0], getChartOptions(commitSeries, dateLabels))
+                    chart.render()
                 },
-                toolbar: { show: false }
-            },
-            dataLabels: { enabled: false },
-            tooltip: {
-                x: {
-                    formatter: (v, o) => dateLabels[6-o.seriesIndex][o.dataPointIndex],
+            })
+        }
+        function getChartOptions(commitSeries, dateLabels) {
+            return {
+                series: commitSeries,
+                chart: {
+                    height: 200,
+                    type: 'heatmap',
+                    fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
+                    events: {
+                        dataPointSelection: function(event, chartContext, config) {
+                            date = dateLabels[6-config.seriesIndex][config.dataPointIndex]
+                            getCommitsByDate(date)
+                        }
+                    },
+                    toolbar: { show: false }
                 },
-            },
-            plotOptions: {
-                heatmap: {
-                    radius: 3,
-                    colorScale: {
-                        min: -1,
+                dataLabels: { enabled: false },
+                tooltip: {
+                    x: {
+                        formatter: (v, o) => dateLabels[6-o.seriesIndex][o.dataPointIndex],
                     },
                 },
-            },
-            colors: [ "#008FFB" ],
-            title: { show: false },
-            xaxis: { labels: { show: false } },
-        };
-
-        var chart = new ApexCharts($('#chart')[0], options)
-        chart.render()
-
+                
+                grid: {
+                    show: false,
+                    xaxis: { lines: { show: false } },                    
+                    yaxis: { lines: { show: false } },                    
+                },
+                plotOptions: {
+                    heatmap: {
+                        radius: 4,
+                        shadeIntensity: 1,
+                        useFillColorAsStroke: false,
+                        colorScale: {
+                            min: 0,
+                        },
+                    },
+                },
+                colors: [ "#008FFB" ],
+                title: { show: false },
+                xaxis: {
+                    labels: { show: false },
+                    axisBorder: { show: false },
+                },
+            }
+        }
         function getCommitsByDate(date) {
             $.api({
                 on: 'now',
@@ -88,27 +110,23 @@
                 }
             })
         }
-
+        function toast(msg) {
+            $('body').toast({
+                title: msg,
+                class: 'black',
+                showProgress: 'bottom',
+                position: 'right bottom',
+            })
+        }
         function renderCommits(commits) {
-            console.log(commits)
             var el = $('#commits')
             el.empty()
             if (commits.length == 0) {
-                $('body').toast({
-                    title: 'No commits found.',
-                    class: 'black',
-                    showProgress: 'bottom',
-                    position: 'right bottom',
-                })
+                toast('No commits found.')
                 el.hide()
                 return
             } else {
-                $('body').toast({
-                    title: `${commits.length} commits found.`,
-                    class: 'black',
-                    showProgress: 'bottom',
-                    position: 'right bottom',
-                })
+                toast(`${commits.length} commits found.`)
             }
             el.show()
             for (var i = 0; i < commits.length; i++) {
@@ -129,5 +147,8 @@
                 el.append(commitEl)
             }
         }
+        $(document).ready(e => {
+            renderHeatmap()
+        })
     </script>
 {% endblock main %}

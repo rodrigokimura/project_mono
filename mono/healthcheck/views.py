@@ -179,13 +179,19 @@ class HealthcheckHomePage(UserPassesTestMixin, TemplateView):
     def test_func(self):
         return self.request.user.is_superuser
 
-    def get_context_data(self, **kwargs):
-        """Add extra context"""
-        context = super().get_context_data(**kwargs)
-        commits_context = get_commits_context()
 
-        context = {**commits_context, **context}
-        return context
+class CommitsFormattedForHeatmapView(UserPassesTestMixin, APIView):
+    """Get commit info formatted for heatmap chart"""
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get(self, request, *args, **kwargs):
+        """
+        Get commits by date
+        """
+        commits_context = get_commits_context()
+        return Response(commits_context)
 
 
 class CommitsByDateView(UserPassesTestMixin, APIView):
