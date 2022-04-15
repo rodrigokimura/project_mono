@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    if: ${{ github.actor != 'github_actions' }}
+    if: ${{ github.actor != 'github-actions' }}
     runs-on: ubuntu-latest
 
     steps:
