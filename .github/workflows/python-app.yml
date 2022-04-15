@@ -23,7 +23,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pipenv
-          pipenv install --dev
+          pipenv install --dev --skip-lock
       - name: Run quality check
         env:
           APP_ENV: TEST
