@@ -29,7 +29,7 @@
         }
         .hidden { display: none; }
         #chart { min-height: 5em; padding: 0; }
-        .ui.table thead tr:first-child > th {
+        #commits-table thead tr:first-child > th {
             position: sticky !important;
             top: 3em;
             z-index: 2;
@@ -48,7 +48,7 @@
         </div>
         <a class="item" data-tab="repo">Repository</a>
         <a class="item" data-tab="changelog">Changelog</a>
-        {% comment %} <a class="item" data-tab="quality">Quality checks</a> {% endcomment %}
+        <a class="item" data-tab="quality">Quality checks</a>
     </div>
     <div class="ui compact main tab grid" data-tab="repo">
         <div class="row">
@@ -87,7 +87,59 @@
             </div>
         </div>
     </div>
+    <div class="ui compact main tab grid" data-tab="quality">
+        <div class="row">
+            <div class="column">
+                <div class="ui header">Tests report</div>
+                <div class="ui basic segment" id="pytest" style="height: calc(100vh - 7em); overflow-y: auto;">
+                    <table class="ui selectable striped celled hidden table" id="pytest-table">
+                        <thead>
+                            <tr>
+                                <th>Test ID</th>
+                                <th>Duration</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody style="max-height: 80vh;">
+                        </tbody>
+                    </table>
+                
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
+        function renderPytestReport() {
+            $.api({
+                on: 'now',
+                method: 'GET',
+                url: '/hc/api/pytest/',
+                stateContext: '#pytest',
+                onSuccess: r => {
+                    var el = $('#pytest-table tbody')
+                    el.empty()
+                    if (r.pytest_results.length == 0) {
+                        toast('No results found.')
+                        $('#pytest-table').hide()
+                        return
+                    } else {
+                        toast(`${r.pytest_results.length} results found.`)
+                        $('#pytest-table').show()
+                    }
+                    for (var i = 0; i < r.pytest_results.length; i++) {
+                        var result = r.pytest_results[i]
+                        var resultEl = $(`
+                            <tr>
+                                <td data-label="Test ID">${result.test_id}</td>
+                                <td data-label="Duration">${result.duration}</td>
+                                <td data-label="Result">${result.result}</td>
+                            </tr>
+                        `)
+                        el.append(resultEl)
+                    }
+                }
+            })
+        }
         function renderHeatmap() {
             if ($('#chart').html()) { return }
             $.api({
@@ -216,6 +268,7 @@
                             renderChangelog()
                             break
                         case 'quality':
+                            renderPytestReport()
                             break
                     }
                 },
