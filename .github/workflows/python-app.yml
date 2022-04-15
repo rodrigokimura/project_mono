@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    if: ${{ github.actor != 'github_actions' }}
     runs-on: ubuntu-latest
 
     steps:
