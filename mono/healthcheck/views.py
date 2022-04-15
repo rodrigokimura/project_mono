@@ -241,3 +241,43 @@ class ChangelogView(UserPassesTestMixin, APIView):
             'success': True,
             'html': changelog_html
         })
+
+
+class QualityCheckView(UserPassesTestMixin, APIView):
+    """Read report files and parse quality check results"""
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get(self, request, *args, **kwargs):
+        """
+        Read changelog markdown file and convert to html
+        """
+        import json
+        from collections import Counter
+        from itertools import groupby
+
+        pytest_report = settings.PYTEST_REPORT_LOG
+        with open(pytest_report, 'r') as f:
+            lines = f.readlines()
+        pytest_log_objects = list(filter(lambda d: d.get('$report_type') == 'TestReport', map(json.loads, lines)))
+        g = groupby(pytest_log_objects, lambda d: d.pop('nodeid'))
+        pytest_results = []
+        for nodeid, node_data in g:
+            c = Counter()
+            outcome = 'passed'
+            for row in node_data: 
+                r = {'duration': row.get('duration')}
+                c.update(r)
+                if row.get('outome') == 'failed':
+                    outcome = 'failed' 
+            pytest_results.append({
+                'test_id': nodeid,
+                'result': outcome, 
+                **dict(c)
+            })
+            
+        return Response({
+            'success': True,
+            'pytest_results': pytest_results
+        })
