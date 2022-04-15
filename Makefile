@@ -52,21 +52,16 @@ R_COV=reports/coverage/
 R_F8=reports/flake8/
 R_PL=reports/pylint/
 
-tests-ff:  ## Run all test suites, with multithreading and failfast
-	@export APP_ENV=TEST \
-		&& cd mono \
-		&& pipenv run python manage.py test --parallel 12 --failfast
-
-_isort:
+isort:
 	@pipenv run isort mono
 
-_flake8:
+flake8:
 	@mkdir -p mono/$(R_F8)
 	@cat /dev/null > mono/$(R_F8)flake8stats.txt
 	@export APP_ENV=TEST && cd mono \
 		&& pipenv run flake8 --statistics --tee --output-file $(R_F8)flake8stats.txt --exit-zero
 
-_pylint:
+pylint:
 	@mkdir -p mono/$(R_PL)
 	@cat /dev/null > mono/$(R_PL)pylint.txt
 	@pipenv run pylint --rcfile=.pylintrc --output-format=text mono | tee mono/$(R_PL)pylint.txt \
@@ -76,52 +71,41 @@ pylint-app: list-apps  ## Run pylint on given app
 		&& read APP \
 		&& pipenv run pylint mono/$$APP --exit-zero
 
-test-app: list-apps  ## Run tests on given app
-	@echo 'Choose app from above:' \
-		&& read APP \
-		&& export APP_ENV=TEST \
-		&& export TEST_OUTPUT_VERBOSE=3 \
-		&& export TEST_RUNNER=redgreenunittest.django.runner.RedGreenDiscoverRunner \
-		&& cd mono \
-		&& pipenv run python manage.py test -v 2 pylint $$APP --force-color
+# test-app: list-apps  ## Run tests on given app
+# 	@echo 'Choose app from above:' \
+# 		&& read APP \
+# 		&& export APP_ENV=TEST \
+# 		&& export TEST_OUTPUT_VERBOSE=3 \
+# 		&& export TEST_RUNNER=redgreenunittest.django.runner.RedGreenDiscoverRunner \
+# 		&& cd mono \
+# 		&& pipenv run python manage.py test -v 2 pylint $$APP --force-color
 
-_tests:
+test:
+	@cat /dev/null > ./mono/reports/pytest/report.json
 	@export APP_ENV=TEST \
 		&& cd mono \
-		&& pipenv run python manage.py test -v 2 --force-color
+		&& pipenv run pytest --report-log=reports/pytest/report.json
 
-_tests-badge:
-	@$(BADGE) tests -v -i mono/$(R_JUNIT)junit.xml -o mono/$(R_JUNIT)junit-badge.svg
-
-_coverage:
+coverage:
 	@mkdir -p mono/$(R_COV)
+	@cat /dev/null > mono/reports/pytest/report.json
 	@cat /dev/null > mono/$(R_COV)coverage.xml
 	@export APP_ENV=TEST && cd mono \
-		&& $(COV) run --source='.' manage.py test -b --timing \
+		&& $(COV) run --source='.' -m pytest --report-log=reports/pytest/report.json \
 		&& $(COV) xml -o $(R_COV)coverage.xml \
-
-_coverage-badge:
-	@$(BADGE) coverage -v -i mono/$(R_COV)coverage.xml -o mono/$(R_COV)coverage-badge.svg
 
 _open-coverage-report:
 	@export APP_ENV=TEST && cd mono \
 		&& $(COV) html \
 		&& google-chrome htmlcov/index.html
 
-flake8: _flake8  ## Run flake8 and generate badge
-	@$(BADGE) flake8 -v -i mono/$(R_F8)flake8stats.txt -o mono/$(R_F8)flake8-badge.svg
-
-pylint: _pylint  ## Run pylint and generate badge
-	@export score=$$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' mono/$(R_PL)pylint.txt) \
-		&& echo "Pylint score was $$score" \
-		&& pipenv run anybadge --value=$$score --file=mono/$(R_PL)pylint-badge.svg --label pylint -o
-
-tests: _tests _tests-badge  ## Run all test suites and generate badge
-
-coverage: _coverage _coverage-badge  ## Run all test suites with coverage and generate badge
+# pylint: _pylint  ## Run pylint and generate badge
+# 	@export score=$$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' mono/$(R_PL)pylint.txt) \
+# 		&& echo "Pylint score was $$score" \
+# 		&& pipenv run anybadge --value=$$score --file=mono/$(R_PL)pylint-badge.svg --label pylint -o
 
 # qa: art _isort flake8 pylint coverage _tests-badge  ## Run all quality checks, generating reports and badges
-qa: art _isort pylint coverage _tests-badge  ## Run all quality checks, generating reports and badges
+qa: art isort flake8 pylint coverage  ## Run all quality checks, generating reports and badges
 
 
 ##@ Django

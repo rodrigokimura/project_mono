@@ -1,13 +1,12 @@
 name: Python application
 
 on:
-  push:
-    branches: [master]
   pull_request:
     branches: [master]
 
 jobs:
   build:
+    if: ${{ github.actor != 'github-actions' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -23,16 +22,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pipenv
-          pipenv install --dev
+          pipenv install --dev --skip-lock
       - name: Run quality check
         env:
           APP_ENV: TEST
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         run: |
           make qa
-      - name: Commit changes
-        uses: EndBug/add-and-commit@v8
-        with:
-          default_author: github_actions
-          message: 'Update changes made by github actions'
-          add: '.'
+    #   - name: Commit changes
+    #     uses: EndBug/add-and-commit@v9
+    #     with:
+    #       default_author: github_actions
+    #       message: 'Update changes made by github actions'
+    #       add: '.'
