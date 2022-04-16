@@ -14,7 +14,7 @@ RESET	:= $(shell tput -Txterm sgr0)
 
 TARGET_MAX_CHAR_NUM=20
 
-ifeq ($(APP_ENV), "TEST")
+ifeq (${APP_ENV}, "TEST")
 MONO_URL := "https://www.monoproject.info"
 else
 MONO_URL := "http://127.0.0.42:8080"
