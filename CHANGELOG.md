@@ -1,3 +1,9 @@
+## 4.37.0 (2022-04-16)
+
+### Feat
+
+- **healthcheck**: add endpoint to upload coverage report files
+
 ## 4.36.0 (2022-04-15)
 
 ### Feat
