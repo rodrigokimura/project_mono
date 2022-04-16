@@ -101,7 +101,7 @@ coverage:
 		&& $(COV) json -o $(R_COV)report.json
 
 upload_coverage_report:
-	@curl ${MONO_URL}/hc/api/coverage/ \
+	@curl $(MONO_URL)/hc/api/coverage/ \
 		-X POST \
 		-H 'Authorization: Token $(MONO_TOKEN)' \
 		-F report_file=@./mono/$(R_COV)report.json
