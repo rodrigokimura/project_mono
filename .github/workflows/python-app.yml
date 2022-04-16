@@ -29,9 +29,9 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         run: |
           make qa
-    #   - name: Commit changes
-    #     uses: EndBug/add-and-commit@v9
-    #     with:
-    #       default_author: github_actions
-    #       message: 'Update changes made by github actions'
-    #       add: '.'
+      - name: Upload Pytest report file
+        env:
+          APP_ENV: TEST
+          MONO_TOKEN: ${{ secrets.MONO_TOKEN }}
+        run: |
+          make upload_report
