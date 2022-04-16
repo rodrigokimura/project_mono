@@ -13,6 +13,6 @@ class CommitsByDateSerializer(Serializer):
         raise NotImplementedError
 
 
-class PytestReportSerializer(Serializer):
-    """Serializer to parse pytest report file"""
+class ReportSerializer(Serializer):
+    """Serializer to parse report file"""
     report_file = FileField(max_length=50, allow_empty_file=False)

@@ -86,8 +86,8 @@ test:
 		&& cd mono \
 		&& pipenv run pytest --report-log=reports/pytest/report.json
 
-upload_report:
-	@curl https://www.monoproject.info/hc/api/pytest/ \
+upload_pytest_report:
+	@curl $(MONO_URL)/hc/api/pytest/ \
 		-X POST \
 		-H 'Authorization: Token $(MONO_TOKEN)' \
 		-F report_file=@./mono/reports/pytest/report.json
@@ -95,10 +95,16 @@ upload_report:
 coverage:
 	@mkdir -p mono/$(R_COV)
 	@cat /dev/null > mono/reports/pytest/report.json
-	@cat /dev/null > mono/$(R_COV)coverage.xml
+	@cat /dev/null > mono/$(R_COV)report.json
 	@export APP_ENV=TEST && cd mono \
 		&& $(COV) run --source='.' -m pytest --report-log=reports/pytest/report.json \
-		&& $(COV) xml -o $(R_COV)coverage.xml \
+		&& $(COV) json -o $(R_COV)report.json
+
+upload_coverage_report:
+	@curl $(MONO_URL)/hc/api/coverage/ \
+		-X POST \
+		-H 'Authorization: Token $(MONO_TOKEN)' \
+		-F report_file=@./mono/$(R_COV)report.json
 
 _open-coverage-report:
 	@export APP_ENV=TEST && cd mono \

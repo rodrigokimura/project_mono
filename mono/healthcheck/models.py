@@ -3,6 +3,9 @@ import logging
 from pathlib import Path
 
 import git
+import json
+from collections import Counter
+from itertools import groupby
 from django.conf import settings
 from django.core.mail import mail_admins
 from django.core.management import execute_from_command_line
@@ -127,9 +130,6 @@ class PytestReport(models.Model):
     @classmethod
     @transaction.atomic
     def process_report_file(cls, report_file):
-        import json
-        from collections import Counter
-        from itertools import groupby
         lines = report_file.readlines()
         report = cls.objects.create(
             pytest_version=json.loads(lines[0]).get('pytest_version')
@@ -153,8 +153,7 @@ class PytestReport(models.Model):
                     **dict(c),
                 )
             )
-        PytestTestResult.objects.bulk_create(pytest_results)
-        return report.results.count()
+        return PytestTestResult.objects.bulk_create(pytest_results)
 
 
 class PytestTestResult(models.Model):
@@ -171,3 +170,41 @@ class PytestTestResult(models.Model):
     node_id = models.CharField(max_length=2000, help_text="Test unique identifier.")
     duration = models.FloatField(help_text="Test duration in seconds.")
     outcome = models.CharField(choices=Outcome.choices, max_length=6, help_text="Test outcome.")
+
+
+class CoverageReport(models.Model):
+    coverage_version = models.CharField(max_length=10)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    @transaction.atomic
+    def process_file(cls, report_file):
+        data = json.loads(report_file.read())
+        version = data.get('meta', {}).get('version')
+        timestamp = data.get('meta', {}).get('timestamp')
+        report = CoverageReport.objects.create(
+            coverage_version=version
+        )
+        files = data.get('files', {})
+        results = [
+            CoverageResult(
+                report=report,
+                file=k,
+                covered_lines=v.get('summary', {}).get('covered_lines'),
+                missing_lines=v.get('summary', {}).get('missing_lines'),
+                excluded_lines=v.get('summary', {}).get('excluded_lines'),
+                num_statements=v.get('summary', {}).get('num_statements'),
+            )
+            for k, v in files.items()
+        ]
+        return CoverageResult.objects.bulk_create(results)
+        
+
+
+class CoverageResult(models.Model):
+    report = models.ForeignKey(CoverageReport, on_delete=models.CASCADE, related_name="results")
+    file = models.CharField(max_length=2000, help_text="File name.")
+    covered_lines = models.PositiveIntegerField()
+    missing_lines = models.PositiveIntegerField()
+    excluded_lines = models.PositiveIntegerField()
+    num_statements = models.PositiveIntegerField()

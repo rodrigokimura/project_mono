@@ -24,8 +24,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
-from .models import PullRequest, PytestReport
-from .serializers import CommitsByDateSerializer, PytestReportSerializer
+from .models import CoverageReport, CoverageResult, PullRequest, PytestReport
+from .serializers import CommitsByDateSerializer, ReportSerializer
 from .tasks import deploy_app
 from .utils import format_to_heatmap, get_commits_by_date, get_commits_context
 
@@ -249,7 +249,7 @@ class PytestReportViewSet(ViewSet):
     """
     Upload and parse pytest report file
     """    
-    serializer_class = PytestReportSerializer
+    serializer_class = ReportSerializer
     permission_classes = (IsAdminUser,)
     
     def test_func(self):
@@ -275,4 +275,39 @@ class PytestReportViewSet(ViewSet):
         """Upload and parse report file"""
         report_file = request.FILES.get('report_file')
         result = PytestReport.process_report_file(report_file)
-        return Response(f'Test results parsed: {result}')
+        return Response(f'Test results parsed: {len(result)}')
+
+
+class CoverageReportViewSet(ViewSet):
+    """
+    Upload and parse coverage report file
+    """    
+    serializer_class = ReportSerializer
+    permission_classes = (IsAdminUser,)
+    
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def list(self, request):
+        """Show results of last uploaded and parsed report file"""
+        last_report = CoverageReport.objects.last()
+        if last_report is None:
+            results = []
+        else:
+            results = last_report.results.values(
+                'file',
+                'covered_lines',
+                'missing_lines',
+                'excluded_lines',
+                'num_statements',
+            )
+        return Response({
+            'success': True,
+            'results': results
+        })
+
+    def create(self, request):
+        """Upload and parse report file"""
+        report_file = request.FILES.get('report_file')
+        result = CoverageReport.process_file(report_file)
+        return Response(f'Coverage results parsed: {len(result)}')

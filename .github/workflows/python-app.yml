@@ -6,7 +6,6 @@ on:
 
 jobs:
   build:
-    if: ${{ github.actor != 'github-actions' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -29,9 +28,10 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         run: |
           make qa
-      - name: Upload Pytest report file
+      - name: Upload report files
         env:
-          APP_ENV: TEST
+          MONO_URL: "https://www.monoproject.info"
           MONO_TOKEN: ${{ secrets.MONO_TOKEN }}
         run: |
-          make upload_report
+          make upload_pytest_report
+        #   make upload_coverage_report
