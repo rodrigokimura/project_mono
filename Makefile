@@ -89,7 +89,7 @@ test:
 upload_report:
 	@curl https://www.monoproject.info/hc/api/pytest/ \
 		-X POST \
-		-H 'Authorization: Token $$MONO_TOKEN' \
+		-H 'Authorization: Token $(MONO_TOKEN)' \
 		-F report_file=@./mono/reports/pytest/report.json
 
 coverage:
