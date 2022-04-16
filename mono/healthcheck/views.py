@@ -18,12 +18,14 @@ from django.utils.encoding import force_bytes
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
 from markdownx.utils import markdownify
-from rest_framework import status
+from rest_framework import generics, status
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ViewSet
 
-from .models import PullRequest
-from .serializers import CommitsByDateSerializer
+from .models import PullRequest, PytestReport
+from .serializers import CommitsByDateSerializer, PytestReportSerializer
 from .tasks import deploy_app
 from .utils import format_to_heatmap, get_commits_by_date, get_commits_context
 
@@ -243,41 +245,34 @@ class ChangelogView(UserPassesTestMixin, APIView):
         })
 
 
-class QualityCheckView(UserPassesTestMixin, APIView):
-    """Read report files and parse quality check results"""
-
+class PytestReportViewSet(ViewSet):
+    """
+    Upload and parse pytest report file
+    """    
+    serializer_class = PytestReportSerializer
+    permission_classes = (IsAdminUser,)
+    
     def test_func(self):
         return self.request.user.is_superuser
 
-    def get(self, request, *args, **kwargs):
-        """
-        Read changelog markdown file and convert to html
-        """
-        import json
-        from collections import Counter
-        from itertools import groupby
-
-        pytest_report = settings.PYTEST_REPORT_LOG
-        with open(pytest_report, 'r') as f:
-            lines = f.readlines()
-        pytest_log_objects = list(filter(lambda d: d.get('$report_type') == 'TestReport', map(json.loads, lines)))
-        g = groupby(pytest_log_objects, lambda d: d.pop('nodeid'))
-        pytest_results = []
-        for nodeid, node_data in g:
-            c = Counter()
-            outcome = 'passed'
-            for row in node_data: 
-                r = {'duration': row.get('duration')}
-                c.update(r)
-                if row.get('outome') == 'failed':
-                    outcome = 'failed' 
-            pytest_results.append({
-                'test_id': nodeid,
-                'result': outcome, 
-                **dict(c)
-            })
-            
+    def list(self, request):
+        """Show results of last uploaded and parsed report file"""
+        last_report = PytestReport.objects.last()
+        if last_report is None:
+            results = []
+        else:
+            results = last_report.results.values(
+                'node_id',
+                'duration',
+                'outcome',
+            )
         return Response({
             'success': True,
-            'pytest_results': pytest_results
+            'pytest_results': results
         })
+
+    def create(self, request):
+        """Upload and parse report file"""
+        report_file = request.FILES.get('report_file')
+        result = PytestReport.process_report_file(report_file)
+        return Response(f'Test results parsed: {result}')

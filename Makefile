@@ -86,6 +86,12 @@ test:
 		&& cd mono \
 		&& pipenv run pytest --report-log=reports/pytest/report.json
 
+upload_report:
+	@curl https://www.monoproject.info/hc/api/pytest/ \
+		-X POST \
+		-H 'Authorization: Token $$MONO_TOKEN' \
+		-F report_file=@./mono/reports/pytest/report.json
+
 coverage:
 	@mkdir -p mono/$(R_COV)
 	@cat /dev/null > mono/reports/pytest/report.json
