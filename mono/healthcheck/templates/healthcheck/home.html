@@ -48,7 +48,8 @@
         </div>
         <a class="item" data-tab="repo">Repository</a>
         <a class="item" data-tab="changelog">Changelog</a>
-        <a class="item" data-tab="quality">Quality checks</a>
+        <a class="item" data-tab="pytest">Pytest</a>
+        <a class="item" data-tab="coverage">Coverage</a>
     </div>
     <div class="ui compact main tab grid" data-tab="repo">
         <div class="row">
@@ -87,10 +88,10 @@
             </div>
         </div>
     </div>
-    <div class="ui compact main tab grid" data-tab="quality">
+    <div class="ui compact main tab grid" data-tab="pytest">
         <div class="row">
             <div class="column">
-                <div class="ui header">Tests report</div>
+                <div class="ui header">Pytest report</div>
                 <div class="ui basic segment" id="pytest" style="height: calc(100vh - 7em); overflow-y: auto;">
                     <table class="ui selectable striped celled hidden table" id="pytest-table">
                         <thead>
@@ -108,7 +109,126 @@
             </div>
         </div>
     </div>
+    <div class="ui compact main tab grid" data-tab="coverage">
+        <div class="row">
+            <div class="column">
+                <div class="ui header">Coverage report</div>
+                <div class="ui basic segment" id="coverage" style="height: calc(100vh - 7em); overflow-y: auto;">
+                    <table class="ui selectable striped celled hidden table" id="coverage-table">
+                        <thead>
+                            <tr>
+                                <th>File</th>
+                                <th>Covered Lines</th>
+                                <th>Missing Lines</th>
+                                <th>Excluded Lines</th>
+                                <th>Number of Statements</th>
+                            </tr>
+                        </thead>
+                        <tbody style="max-height: 80vh;">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
+        function toast(msg) {
+            $('body').toast({
+                title: msg,
+                class: 'black',
+                showProgress: 'bottom',
+                position: 'right bottom',
+            })
+        }
+        
+        function getChartOptions(commitSeries, dateLabels) {
+            return {
+                series: commitSeries,
+                chart: {
+                    height: 180,
+                    type: 'heatmap',
+                    fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
+                    events: {
+                        dataPointSelection: function(event, chartContext, config) {
+                            date = dateLabels[6-config.seriesIndex][config.dataPointIndex]
+                            getCommitsByDate(date)
+                        }
+                    },
+                    toolbar: { show: false }
+                },
+                dataLabels: { enabled: false },
+                tooltip: {
+                    x: {
+                        formatter: (v, o) => dateLabels[6-o.seriesIndex][o.dataPointIndex],
+                    },
+                },
+                grid: {
+                    show: false,
+                    xaxis: { lines: { show: false } },                    
+                    yaxis: { lines: { show: false } },                    
+                },
+                plotOptions: {
+                    heatmap: {
+                        radius: 4,
+                        shadeIntensity: 1,
+                        useFillColorAsStroke: false,
+                        colorScale: {
+                            min: 0,
+                        },
+                    },
+                },
+                colors: [ "#008FFB" ],
+                title: { show: false },
+                xaxis: {
+                    labels: { show: false },
+                    axisBorder: { show: false },
+                },
+            }
+        }
+        function getCommitsByDate(date) {
+            $.api({
+                on: 'now',
+                url: `/hc/api/commits/by-date/?date=${date}`,
+                method: 'GET',
+                stateContext: '.segment',
+                onSuccess: r => {
+                    renderCommits(r)
+                }
+            })
+        }
+        function renderCoverageReport() {
+            $.api({
+                on: 'now',
+                method: 'GET',
+                url: '/hc/api/coverage/',
+                stateContext: '#coverage',
+                onSuccess: r => {
+                    var el = $('#coverage-table tbody')
+                    el.empty()
+                    if (r.results.length == 0) {
+                        toast('No results found.')
+                        $('#coverage-table').hide()
+                        return
+                    } else {
+                        toast(`${r.results.length} results found.`)
+                        $('#coverage-table').show()
+                    }
+                    for (var i = 0; i < r.results.length; i++) {
+                        var result = r.results[i]
+                        var resultEl = $(`
+                            <tr>
+                                <td>${result.file}</td>
+                                <td>${result.covered_lines}</td>
+                                <td>${result.missing_lines}</td>
+                                <td>${result.excluded_lines}</td>
+                                <td>${result.num_statements}</td>
+                            </tr>
+                        `)
+                        el.append(resultEl)
+                    }
+                }
+            })
+        }
         function renderPytestReport() {
             $.api({
                 on: 'now',
@@ -171,67 +291,15 @@
                 },
             })
         }
-        function getChartOptions(commitSeries, dateLabels) {
-            return {
-                series: commitSeries,
-                chart: {
-                    height: 180,
-                    type: 'heatmap',
-                    fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
-                    events: {
-                        dataPointSelection: function(event, chartContext, config) {
-                            date = dateLabels[6-config.seriesIndex][config.dataPointIndex]
-                            getCommitsByDate(date)
-                        }
-                    },
-                    toolbar: { show: false }
-                },
-                dataLabels: { enabled: false },
-                tooltip: {
-                    x: {
-                        formatter: (v, o) => dateLabels[6-o.seriesIndex][o.dataPointIndex],
-                    },
-                },
-                grid: {
-                    show: false,
-                    xaxis: { lines: { show: false } },                    
-                    yaxis: { lines: { show: false } },                    
-                },
-                plotOptions: {
-                    heatmap: {
-                        radius: 4,
-                        shadeIntensity: 1,
-                        useFillColorAsStroke: false,
-                        colorScale: {
-                            min: 0,
-                        },
-                    },
-                },
-                colors: [ "#008FFB" ],
-                title: { show: false },
-                xaxis: {
-                    labels: { show: false },
-                    axisBorder: { show: false },
-                },
-            }
-        }
-        function getCommitsByDate(date) {
+        function renderChangelog() {
             $.api({
                 on: 'now',
-                url: `/hc/api/commits/by-date/?date=${date}`,
                 method: 'GET',
-                stateContext: '.segment',
+                url: '/hc/api/changelog/',
+                stateContext: '#changelog',
                 onSuccess: r => {
-                    renderCommits(r)
-                }
-            })
-        }
-        function toast(msg) {
-            $('body').toast({
-                title: msg,
-                class: 'black',
-                showProgress: 'bottom',
-                position: 'right bottom',
+                    $('#changelog').html(r.html)
+                },
             })
         }
         function renderCommits(commits) {
@@ -267,21 +335,13 @@
                         case 'changelog':
                             renderChangelog()
                             break
-                        case 'quality':
+                        case 'pytest':
                             renderPytestReport()
                             break
+                        case 'coverage':
+                            renderCoverageReport()
+                            break
                     }
-                },
-            })
-        }
-        function renderChangelog() {
-            $.api({
-                on: 'now',
-                method: 'GET',
-                url: '/hc/api/changelog/',
-                stateContext: '#changelog',
-                onSuccess: r => {
-                    $('#changelog').html(r.html)
                 },
             })
         }
