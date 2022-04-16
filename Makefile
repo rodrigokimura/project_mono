@@ -14,12 +14,6 @@ RESET	:= $(shell tput -Txterm sgr0)
 
 TARGET_MAX_CHAR_NUM=20
 
-ifeq (${APP_ENV}, "TEST")
-MONO_URL := "https://www.monoproject.info"
-else
-MONO_URL := "http://127.0.0.42:8080"
-endif
-
 
 ##@ Misc
 
@@ -107,7 +101,7 @@ coverage:
 		&& $(COV) json -o $(R_COV)report.json
 
 upload_coverage_report:
-	@curl $(MONO_URL)/hc/api/coverage/ \
+	@curl ${MONO_URL}/hc/api/coverage/ \
 		-X POST \
 		-H 'Authorization: Token $(MONO_TOKEN)' \
 		-F report_file=@./mono/$(R_COV)report.json
