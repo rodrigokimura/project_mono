@@ -1,3 +1,9 @@
+## 4.38.0 (2022-04-16)
+
+### Feat
+
+- **healthcheck**: add page to view coverage report
+
 ## 4.37.0 (2022-04-16)
 
 ### Feat
