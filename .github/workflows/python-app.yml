@@ -30,7 +30,7 @@ jobs:
           make qa
       - name: Upload report files
         env:
-          APP_ENV: TEST
+          MONO_URL: "https://www.monoproject.info"
           MONO_TOKEN: ${{ secrets.MONO_TOKEN }}
         run: |
           make upload_pytest_report
