@@ -130,9 +130,9 @@
                         var result = r.pytest_results[i]
                         var resultEl = $(`
                             <tr>
-                                <td data-label="Test ID">${result.test_id}</td>
+                                <td data-label="Test ID">${result.node_id}</td>
                                 <td data-label="Duration">${result.duration}</td>
-                                <td data-label="Result">${result.result}</td>
+                                <td data-label="Result">${result.outcome}</td>
                             </tr>
                         `)
                         el.append(resultEl)

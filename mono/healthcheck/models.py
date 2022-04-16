@@ -6,7 +6,7 @@ import git
 from django.conf import settings
 from django.core.mail import mail_admins
 from django.core.management import execute_from_command_line
-from django.db import models
+from django.db import models, transaction
 from django.template.loader import get_template
 from django.utils import timezone
 
@@ -114,3 +114,60 @@ class PullRequest(models.Model):
             message=get_template('email/alert.txt').render(context),
             html_message=get_template('email/alert.html').render(context),
         )
+
+
+class PytestReport(models.Model):
+    """
+    Pytest report
+    """
+
+    pytest_version = models.CharField(max_length=10)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    @transaction.atomic
+    def process_report_file(cls, report_file):
+        import json
+        from collections import Counter
+        from itertools import groupby
+        lines = report_file.readlines()
+        report = cls.objects.create(
+            pytest_version=json.loads(lines[0]).get('pytest_version')
+        )
+        pytest_log_objects = list(filter(lambda d: d.get('$report_type') == 'TestReport', map(json.loads, lines)))
+        g = groupby(pytest_log_objects, lambda d: d.pop('nodeid'))
+        pytest_results = []
+        for nodeid, node_data in g:
+            c = Counter()
+            outcome = 'passed'
+            for row in node_data: 
+                r = {'duration': row.get('duration')}
+                c.update(r)
+                if row.get('outome') == 'failed':
+                    outcome = 'failed' 
+            pytest_results.append(
+                PytestTestResult(
+                    report=report,
+                    node_id=nodeid,
+                    outcome=outcome,
+                    **dict(c),
+                )
+            )
+        PytestTestResult.objects.bulk_create(pytest_results)
+        return report.results.count()
+
+
+class PytestTestResult(models.Model):
+    """
+    Individual test result
+    """
+
+    class Outcome(models.TextChoices):
+        """Outcome choices"""
+        PASSED = 'passed', 'Passed'
+        FAILED = 'failed', 'Failed'
+
+    report = models.ForeignKey(PytestReport, on_delete=models.CASCADE, related_name="results")
+    node_id = models.CharField(max_length=2000, help_text="Test unique identifier.")
+    duration = models.FloatField(help_text="Test duration in seconds.")
+    outcome = models.CharField(choices=Outcome.choices, max_length=6, help_text="Test outcome.")
