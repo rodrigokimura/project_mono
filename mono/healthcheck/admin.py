@@ -49,3 +49,33 @@ class PytestTestResultAdmin(admin.ModelAdmin):
     list_filter = [
         "outcome",
     ]
+
+
+@admin.register(models.CoverageReport)
+class CoverageReportAdmin(admin.ModelAdmin):
+
+    list_display = [
+        "coverage_version",
+        "created_at",
+    ]
+    list_filter = [
+        "coverage_version",
+        "created_at",
+    ]
+
+
+@admin.register(models.CoverageResult)
+class CoverageResultAdmin(admin.ModelAdmin):
+
+    list_display = [
+        "report",
+        "file",
+        "covered_lines",
+        "missing_lines",
+        "excluded_lines",
+        "num_statements",
+    ]
+    list_filter = [
+        "report",
+        "file",
+    ]

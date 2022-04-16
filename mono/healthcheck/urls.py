@@ -8,6 +8,7 @@ app_name = 'healthcheck'
 
 router = routers.DefaultRouter()
 router.register('pytest', views.PytestReportViewSet, basename='pytest')
+router.register('coverage', views.CoverageReportViewSet, basename='coverage')
 
 
 urlpatterns = [
