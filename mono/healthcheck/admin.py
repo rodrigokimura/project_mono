@@ -3,8 +3,6 @@ from django.contrib import admin
 
 from . import models
 
-# Register your models here.
-
 
 @admin.register(models.PullRequest)
 class PullRequestAdmin(admin.ModelAdmin):
@@ -23,4 +21,31 @@ class PullRequestAdmin(admin.ModelAdmin):
     ]
     list_filter = [
         "author",
+    ]
+
+
+@admin.register(models.PytestReport)
+class PytestReportAdmin(admin.ModelAdmin):
+
+    list_display = [
+        "pytest_version",
+        "created_at",
+    ]
+    list_filter = [
+        "pytest_version",
+        "created_at",
+    ]
+
+
+@admin.register(models.PytestTestResult)
+class PytestTestResultAdmin(admin.ModelAdmin):
+
+    list_display = [
+        "report",
+        "node_id",
+        "duration",
+        "outcome",
+    ]
+    list_filter = [
+        "outcome",
     ]

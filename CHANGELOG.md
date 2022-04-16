@@ -1,3 +1,9 @@
+## 4.36.0 (2022-04-15)
+
+### Feat
+
+- **healthcheck**: add endpoint to upload pytest reports
+
 ## 4.35.1 (2022-04-14)
 
 ### Fix
