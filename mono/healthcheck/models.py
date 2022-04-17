@@ -6,12 +6,15 @@ import git
 import json
 from collections import Counter
 from itertools import groupby
+from datetime import timedelta
 from django.conf import settings
 from django.core.mail import mail_admins
 from django.core.management import execute_from_command_line
 from django.db import models, transaction
 from django.template.loader import get_template
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+
 
 logger = logging.getLogger(__name__)
 
@@ -127,6 +130,21 @@ class PytestReport(models.Model):
     pytest_version = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = _("Pytest Report")
+        verbose_name_plural = _("Pytest Reports")
+
+    def __str__(self):
+        return f'Pytest Report #{self.pk}'
+
+    @property
+    def result_count(self):
+        return self.results.count()
+
+    @property
+    def duration(self):
+        return self.results.aggregate(duration=models.Sum('duration', output_field=models.DurationField()))['duration']
+
     @classmethod
     @transaction.atomic
     def process_report_file(cls, report_file):
@@ -141,22 +159,22 @@ class PytestReport(models.Model):
             c = Counter()
             outcome = 'passed'
             for row in node_data: 
-                r = {'duration': row.get('duration')}
+                r = {'duration': row.get('duration', 0)}
                 c.update(r)
                 if row.get('outome') == 'failed':
                     outcome = 'failed' 
             pytest_results.append(
-                PytestTestResult(
+                PytestResult(
                     report=report,
                     node_id=nodeid,
                     outcome=outcome,
-                    **dict(c),
+                    duration=timedelta(seconds=dict(c).get('duration', 0)),
                 )
             )
-        return PytestTestResult.objects.bulk_create(pytest_results)
+        return PytestResult.objects.bulk_create(pytest_results)
 
 
-class PytestTestResult(models.Model):
+class PytestResult(models.Model):
     """
     Individual test result
     """
@@ -168,13 +186,37 @@ class PytestTestResult(models.Model):
 
     report = models.ForeignKey(PytestReport, on_delete=models.CASCADE, related_name="results")
     node_id = models.CharField(max_length=2000, help_text="Test unique identifier.")
-    duration = models.FloatField(help_text="Test duration in seconds.")
+    duration = models.DurationField(help_text="Test duration.")
     outcome = models.CharField(choices=Outcome.choices, max_length=6, help_text="Test outcome.")
 
+    class Meta:
+        verbose_name = _("Pytest Result")
+        verbose_name_plural = _("Pytest Results")
 
 class CoverageReport(models.Model):
     coverage_version = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Coverage Report")
+        verbose_name_plural = _("Coverage Reports")
+
+    def __str__(self):
+        return f'Coverage Report #{self.pk}'
+
+    @property
+    def result_count(self):
+        return self.results.count()
+
+    
+    @property
+    def coverage_percentage(self):
+        try:
+            total_covered_lines = self.results.aggregate(total_covered_lines=models.Sum('covered_lines'))['total_covered_lines']
+            total_missing_lines = self.results.aggregate(total_missing_lines=models.Sum('missing_lines'))['total_missing_lines']
+            return f'{total_covered_lines / (total_covered_lines + total_missing_lines):.1%}'
+        except ZeroDivisionError:
+            return f'{0.0:.1%}'
 
     @classmethod
     @transaction.atomic
@@ -198,7 +240,6 @@ class CoverageReport(models.Model):
             for k, v in files.items()
         ]
         return CoverageResult.objects.bulk_create(results)
-        
 
 
 class CoverageResult(models.Model):
@@ -208,3 +249,48 @@ class CoverageResult(models.Model):
     missing_lines = models.PositiveIntegerField()
     excluded_lines = models.PositiveIntegerField()
     num_statements = models.PositiveIntegerField()
+
+    @property
+    def coverage_percentage(self):
+        try:
+            return f'{self.covered_lines / (self.covered_lines + self.missing_lines):.1%}'
+        except ZeroDivisionError:
+            return f'{0.0:.1%}'
+
+    class Meta:
+        verbose_name = _("Coverage Result")
+        verbose_name_plural = _("Coverage Results")
+
+
+class PylintReport(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Pylint Report #{self.pk}'
+
+    @property
+    def result_count(self):
+        return self.results.count()
+
+    class Meta:
+        verbose_name = _("Pylint Report")
+        verbose_name_plural = _("Pylint Reports")
+
+
+class PylintResult(models.Model):
+    report = models.ForeignKey(PylintReport, on_delete=models.CASCADE, related_name="results")
+    type = models.CharField(max_length=50, help_text="File name.")
+    module = models.CharField(max_length=1000, help_text="Module name.")
+    obj = models.CharField(max_length=1000, help_text="Object within the module (if any).")
+    line = models.PositiveIntegerField(null=True, help_text="Line number.")
+    column = models.PositiveIntegerField(null=True, help_text="Column number.")
+    endLine = models.PositiveIntegerField(null=True, help_text="Line number of the end of the node.")
+    endColumn = models.PositiveIntegerField(null=True, help_text="Column number of the end of the node.")
+    path = models.CharField(max_length=1000, help_text="Relative path to the file.")
+    symbol = models.CharField(max_length=50, help_text="Symbolic name of the message.")
+    message = models.CharField(max_length=100, help_text="Text of the message.")
+    message_id = models.CharField(max_length=10, help_text="Message code.")
+
+    class Meta:
+        verbose_name = _("Pylint Result")
+        verbose_name_plural = _("Pylint Results")
