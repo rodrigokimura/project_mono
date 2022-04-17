@@ -251,9 +251,6 @@ class PytestReportViewSet(ViewSet):
     """    
     serializer_class = ReportSerializer
     permission_classes = (IsAdminUser,)
-    
-    def test_func(self):
-        return self.request.user.is_superuser
 
     def list(self, request):
         """Show results of last uploaded and parsed report file"""
@@ -281,12 +278,9 @@ class PytestReportViewSet(ViewSet):
 class CoverageReportViewSet(ViewSet):
     """
     Upload and parse coverage report file
-    """    
+    """
     serializer_class = ReportSerializer
     permission_classes = (IsAdminUser,)
-    
-    def test_func(self):
-        return self.request.user.is_superuser
 
     def list(self, request):
         """Show results of last uploaded and parsed report file"""
@@ -311,3 +305,17 @@ class CoverageReportViewSet(ViewSet):
         report_file = request.FILES.get('report_file')
         result = CoverageReport.process_file(report_file)
         return Response(f'Coverage results parsed: {len(result)}')
+
+
+class PylintReportViewSet(ViewSet):
+    """
+    Upload and parse pylint report file
+    """
+    serializer_class = ReportSerializer
+    permission_classes = (IsAdminUser,)
+
+    def list(self, request):
+        pass
+
+    def create(self, request):
+        pass

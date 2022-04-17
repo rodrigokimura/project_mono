@@ -47,24 +47,26 @@ art:
 BADGE=pipenv run genbadge
 # BADGE=pipenv run anybadge
 COV=pipenv run coverage
-R_JUNIT=reports/junit/
-R_COV=reports/coverage/
-R_F8=reports/flake8/
-R_PL=reports/pylint/
+R_COV=reports/coverage
+R_F8=reports/flake8
+R_PL=reports/pylint
+R_PT=reports/pytest
 
 isort:
 	@pipenv run isort mono
 
 flake8:
 	@mkdir -p mono/$(R_F8)
-	@cat /dev/null > mono/$(R_F8)flake8stats.txt
+	@cat /dev/null > mono/$(R_F8)/flake8stats.txt
 	@export APP_ENV=TEST && cd mono \
-		&& pipenv run flake8 --statistics --tee --output-file $(R_F8)flake8stats.txt --exit-zero
+		&& pipenv run flake8 --statistics --tee --output-file $(R_F8)/flake8stats.txt --exit-zero
 
 pylint:
 	@mkdir -p mono/$(R_PL)
-	@cat /dev/null > mono/$(R_PL)pylint.txt
-	@pipenv run pylint --rcfile=.pylintrc --output-format=text mono | tee mono/$(R_PL)pylint.txt \
+	@cat /dev/null > mono/$(R_PL)/report.json
+	@pipenv run pylint mono \
+		--rcfile=.pylintrc \
+		--output-format=json:mono/$(R_PL)/report.json,colorized
 
 pylint-app: list-apps  ## Run pylint on given app
 	@echo 'Choose app from above:' \
@@ -81,30 +83,30 @@ pylint-app: list-apps  ## Run pylint on given app
 # 		&& pipenv run python manage.py test -v 2 pylint $$APP --force-color
 
 test:
-	@cat /dev/null > ./mono/reports/pytest/report.json
+	@cat /dev/null > ./mono/$(R_PT)/report.json
 	@export APP_ENV=TEST \
 		&& cd mono \
-		&& pipenv run pytest --report-log=reports/pytest/report.json
+		&& pipenv run pytest --report-log=$(R_PT)/report.json
 
 upload_pytest_report:
 	@curl $(MONO_URL)/hc/api/pytest/ \
 		-X POST \
 		-H 'Authorization: Token $(MONO_TOKEN)' \
-		-F report_file=@./mono/reports/pytest/report.json
+		-F report_file=@./mono/$(R_PT)/report.json
 
 coverage:
 	@mkdir -p mono/$(R_COV)
-	@cat /dev/null > mono/reports/pytest/report.json
-	@cat /dev/null > mono/$(R_COV)report.json
+	@cat /dev/null > mono/$(R_PT)/report.json
+	@cat /dev/null > mono/$(R_COV)/report.json
 	@export APP_ENV=TEST && cd mono \
-		&& $(COV) run --source='.' -m pytest --report-log=reports/pytest/report.json \
-		&& $(COV) json -o $(R_COV)report.json
+		&& $(COV) run --source='.' -m pytest --report-log=$(R_PT)/report.json \
+		&& $(COV) json -o $(R_COV)/report.json
 
 upload_coverage_report:
 	@curl $(MONO_URL)/hc/api/coverage/ \
 		-X POST \
 		-H 'Authorization: Token $(MONO_TOKEN)' \
-		-F report_file=@./mono/$(R_COV)report.json
+		-F report_file=@./mono/$(R_COV)/report.json
 
 _open-coverage-report:
 	@export APP_ENV=TEST && cd mono \
