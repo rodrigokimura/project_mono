@@ -28,8 +28,11 @@ class PullRequestAdmin(admin.ModelAdmin):
 class PytestReportAdmin(admin.ModelAdmin):
 
     list_display = [
+        "id",
         "pytest_version",
         "created_at",
+        "result_count",
+        "duration",
     ]
     list_filter = [
         "pytest_version",
@@ -37,8 +40,8 @@ class PytestReportAdmin(admin.ModelAdmin):
     ]
 
 
-@admin.register(models.PytestTestResult)
-class PytestTestResultAdmin(admin.ModelAdmin):
+@admin.register(models.PytestResult)
+class PytestResultAdmin(admin.ModelAdmin):
 
     list_display = [
         "report",
@@ -49,15 +52,21 @@ class PytestTestResultAdmin(admin.ModelAdmin):
     list_filter = [
         "outcome",
     ]
+    search_fields = (
+        "node_id",
+    )
 
 
 @admin.register(models.CoverageReport)
 class CoverageReportAdmin(admin.ModelAdmin):
 
-    list_display = [
+    list_display = (
+        "id",
         "coverage_version",
         "created_at",
-    ]
+        "result_count",
+        "coverage_percentage",
+    )
     list_filter = [
         "coverage_version",
         "created_at",
@@ -74,8 +83,51 @@ class CoverageResultAdmin(admin.ModelAdmin):
         "missing_lines",
         "excluded_lines",
         "num_statements",
+        "coverage_percentage",
     ]
     list_filter = [
         "report",
         "file",
     ]
+
+
+@admin.register(models.PylintReport)
+class PylintReportAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'created_at',
+        'result_count',
+    )
+    list_filter = (
+        'created_at',
+    )
+
+
+@admin.register(models.PylintResult)
+class PylintResultAdmin(admin.ModelAdmin):
+    list_display = (
+        'report',
+        'type',
+        'module',
+        'obj',
+        'line',
+        'column',
+        'endLine',
+        'endColumn',
+        'path',
+        'symbol',
+        'message',
+        'message_id',
+    )
+    list_filter = (
+        'type',
+        'symbol',
+        'message_id',
+    )
+    search_fields = (
+        'obj',
+        'path',
+        'symbol',
+        'message',
+        'message_id',
+    )
