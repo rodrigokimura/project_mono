@@ -104,13 +104,14 @@ upload_pytest_report:
 		-F report_file=@./mono/$(R_PT)/report.json
 
 coverage:
+	@mkdir -p mono/$(R_PT)
 	@mkdir -p mono/$(R_COV)
 	@touch mono/$(R_PT)/report.json
 	@touch mono/$(R_COV)/report.json
 	@cat /dev/null > mono/$(R_PT)/report.json
 	@cat /dev/null > mono/$(R_COV)/report.json
 	@export APP_ENV=TEST && cd mono \
-		&& $(COV) run --source='.' -m pytest --report-log=$(R_PT)/report.json \
+		&& pipenv run pytest --cov=. --report-log=$(R_PT)/report.json \
 		&& $(COV) json -o $(R_COV)/report.json
 
 upload_coverage_report:
