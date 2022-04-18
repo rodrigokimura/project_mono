@@ -63,6 +63,7 @@ flake8:
 
 pylint:
 	@mkdir -p mono/$(R_PL)
+	@touch mono/$(R_PL)/report.json
 	@cat /dev/null > mono/$(R_PL)/report.json
 	@pipenv run pylint mono \
 		--rcfile=.pylintrc \
@@ -89,7 +90,9 @@ upload_pylint_report:
 # 		&& pipenv run python manage.py test -v 2 pylint $$APP --force-color
 
 test:
-	@cat /dev/null > ./mono/$(R_PT)/report.json
+	@mkdir -p mono/$(R_PT)
+	@touch mono/$(R_PT)/report.json
+	@cat /dev/null > mono/$(R_PT)/report.json
 	@export APP_ENV=TEST \
 		&& cd mono \
 		&& pipenv run pytest --report-log=$(R_PT)/report.json
@@ -102,6 +105,8 @@ upload_pytest_report:
 
 coverage:
 	@mkdir -p mono/$(R_COV)
+	@touch mono/$(R_PT)/report.json
+	@touch mono/$(R_COV)/report.json
 	@cat /dev/null > mono/$(R_PT)/report.json
 	@cat /dev/null > mono/$(R_COV)/report.json
 	@export APP_ENV=TEST && cd mono \
