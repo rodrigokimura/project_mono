@@ -51,6 +51,7 @@ anybadge = "*"
 pytest = "*"
 pytest-django = "*"
 pytest-reportlog = "*"
+pytest-cov = "*"
 
 [scripts]
 collectstatic = "python mono/manage.py collectstatic --noinput"
