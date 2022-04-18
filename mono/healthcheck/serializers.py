@@ -1,5 +1,5 @@
 """Healthcheck's serializers"""
-from rest_framework.serializers import DateField, Serializer, FileField
+from rest_framework.serializers import DateField, FileField, Serializer
 
 
 class CommitsByDateSerializer(Serializer):
