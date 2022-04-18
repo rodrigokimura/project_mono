@@ -1,3 +1,9 @@
+## 4.40.0 (2022-04-18)
+
+### Feat
+
+- **healthcheck**: add page to view pylint report
+
 ## 4.39.0 (2022-04-17)
 
 ### Feat

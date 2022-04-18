@@ -73,6 +73,12 @@ pylint-app: list-apps  ## Run pylint on given app
 		&& read APP \
 		&& pipenv run pylint mono/$$APP --exit-zero
 
+upload_pylint_report:
+	@curl $(MONO_URL)/hc/api/pylint/ \
+		-X POST \
+		-H 'Authorization: Token $(MONO_TOKEN)' \
+		-F report_file=@./mono/$(R_PL)/report.json
+
 # test-app: list-apps  ## Run tests on given app
 # 	@echo 'Choose app from above:' \
 # 		&& read APP \

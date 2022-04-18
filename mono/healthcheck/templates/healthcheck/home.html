@@ -50,6 +50,7 @@
         <a class="item" data-tab="changelog">Changelog</a>
         <a class="item" data-tab="pytest">Pytest</a>
         <a class="item" data-tab="coverage">Coverage</a>
+        <a class="item" data-tab="pylint">Pylint</a>
     </div>
     <div class="ui compact main tab grid" data-tab="repo">
         <div class="row">
@@ -131,6 +132,32 @@
             </div>
         </div>
     </div>
+    <div class="ui compact main tab grid" data-tab="pylint">
+        <div class="row">
+            <div class="column">
+                <div class="ui header">Pylint report</div>
+                <div class="ui basic segment" id="pylint" style="height: calc(100vh - 7em); overflow-y: auto;">
+                    <table class="ui selectable striped celled hidden table" id="pylint-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Module</th>
+                                <th>Object</th>
+                                <th>Line Number</th>
+                                <th>Column Number</th>
+                                <th>Path</th>
+                                <th>Symbol</th>
+                                <th>Message</th>
+                                <th>Message ID</th>
+                            </tr>
+                        </thead>
+                        <tbody style="max-height: 80vh;">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         function toast(msg) {
             $('body').toast({
@@ -140,7 +167,6 @@
                 position: 'right bottom',
             })
         }
-        
         function getChartOptions(commitSeries, dateLabels) {
             return {
                 series: commitSeries,
@@ -193,6 +219,43 @@
                 stateContext: '.segment',
                 onSuccess: r => {
                     renderCommits(r)
+                }
+            })
+        }
+        function renderPylintReport() {
+            $.api({
+                on: 'now',
+                method: 'GET',
+                url: '/hc/api/pylint/',
+                stateContext: '#pylint',
+                onSuccess: r => {
+                    var el = $('#pylint-table tbody')
+                    el.empty()
+                    if (r.results.length == 0) {
+                        toast('No results found.')
+                        $('#pylint-table').hide()
+                        return
+                    } else {
+                        toast(`${r.results.length} results found.`)
+                        $('#pylint-table').show()
+                    }
+                    for (var i = 0; i < r.results.length; i++) {
+                        var result = r.results[i]
+                        var resultEl = $(`
+                            <tr>
+                                <td>${result.type}</td>
+                                <td>${result.module}</td>
+                                <td>${result.obj}</td>
+                                <td>${result.line}</td>
+                                <td>${result.column}</td>
+                                <td>${result.path}</td>
+                                <td>${result.symbol}</td>
+                                <td>${result.message}</td>
+                                <td>${result.message_id}</td>
+                            </tr>
+                        `)
+                        el.append(resultEl)
+                    }
                 }
             })
         }
@@ -340,6 +403,9 @@
                             break
                         case 'coverage':
                             renderCoverageReport()
+                            break
+                        case 'pylint':
+                            renderPylintReport()
                             break
                     }
                 },
