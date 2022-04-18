@@ -147,7 +147,7 @@ class PytestReport(models.Model):
 
     @classmethod
     @transaction.atomic
-    def process_report_file(cls, report_file):
+    def process_file(cls, report_file):
         lines = report_file.readlines()
         report = cls.objects.create(
             pytest_version=json.loads(lines[0]).get('pytest_version')
@@ -224,7 +224,7 @@ class CoverageReport(models.Model):
         data = json.loads(report_file.read())
         version = data.get('meta', {}).get('version')
         timestamp = data.get('meta', {}).get('timestamp')
-        report = CoverageReport.objects.create(
+        report = cls.objects.create(
             coverage_version=version
         )
         files = data.get('files', {})
@@ -276,6 +276,30 @@ class PylintReport(models.Model):
         verbose_name = _("Pylint Report")
         verbose_name_plural = _("Pylint Reports")
 
+    @classmethod
+    @transaction.atomic
+    def process_file(cls, report_file):
+        data = json.loads(report_file.read())
+        report = cls.objects.create()
+        results = [
+            PylintResult(
+                report=report,
+                type=d.get('type'),
+                module=d.get('module'),
+                obj=d.get('obj'),
+                line=d.get('line'),
+                column=d.get('column'),
+                end_line=d.get('endLine'),
+                end_column=d.get('endColumn'),
+                path=d.get('path'),
+                symbol=d.get('symbol'),
+                message=d.get('message'),
+                message_id=d.get('message-id'),
+            )
+            for d in data
+        ]
+        return PylintResult.objects.bulk_create(results)
+
 
 class PylintResult(models.Model):
     report = models.ForeignKey(PylintReport, on_delete=models.CASCADE, related_name="results")
@@ -284,8 +308,8 @@ class PylintResult(models.Model):
     obj = models.CharField(max_length=1000, help_text="Object within the module (if any).")
     line = models.PositiveIntegerField(null=True, help_text="Line number.")
     column = models.PositiveIntegerField(null=True, help_text="Column number.")
-    endLine = models.PositiveIntegerField(null=True, help_text="Line number of the end of the node.")
-    endColumn = models.PositiveIntegerField(null=True, help_text="Column number of the end of the node.")
+    end_line = models.PositiveIntegerField(null=True, help_text="Line number of the end of the node.")
+    end_column = models.PositiveIntegerField(null=True, help_text="Column number of the end of the node.")
     path = models.CharField(max_length=1000, help_text="Relative path to the file.")
     symbol = models.CharField(max_length=50, help_text="Symbolic name of the message.")
     message = models.CharField(max_length=100, help_text="Text of the message.")

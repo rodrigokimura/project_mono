@@ -7,6 +7,7 @@ from . import views
 app_name = 'healthcheck'
 
 router = routers.DefaultRouter()
+router.register('pylint', views.PylintReportViewSet, basename='pylint')
 router.register('pytest', views.PytestReportViewSet, basename='pytest')
 router.register('coverage', views.CoverageReportViewSet, basename='coverage')
 
@@ -19,7 +20,5 @@ urlpatterns = [
     path('api/commits/by-date/', views.CommitsByDateView.as_view(), name='commits_by_date'),
     path('api/commits/for-heatmap/', views.CommitsFormattedForHeatmapView.as_view(), name='commits_for_heatmap'),
     path('api/changelog/', views.ChangelogView.as_view(), name='changelog'),
-    # path('api/pytest/', views.QualityCheckView.as_view(), name='pytest'),
-    # path('api/pytest/', views.PytestReportView.as_view(), name='pytest'),
     path('api/', include(router.urls)),
 ]
