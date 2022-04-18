@@ -24,7 +24,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
-from .models import CoverageReport, CoverageResult, PullRequest, PytestReport
+from .models import CoverageReport, CoverageResult, PullRequest, PytestReport, PylintReport
 from .serializers import CommitsByDateSerializer, ReportSerializer
 from .tasks import deploy_app
 from .utils import format_to_heatmap, get_commits_by_date, get_commits_context
@@ -271,7 +271,7 @@ class PytestReportViewSet(ViewSet):
     def create(self, request):
         """Upload and parse report file"""
         report_file = request.FILES.get('report_file')
-        result = PytestReport.process_report_file(report_file)
+        result = PytestReport.process_file(report_file)
         return Response(f'Test results parsed: {len(result)}')
 
 
@@ -315,7 +315,31 @@ class PylintReportViewSet(ViewSet):
     permission_classes = (IsAdminUser,)
 
     def list(self, request):
-        pass
+        """Show results of last uploaded and parsed report file"""
+        last_report = PylintReport.objects.last()
+        if last_report is None:
+            results = []
+        else:
+            results = last_report.results.values(
+                'type',
+                'module',
+                'obj',
+                'line',
+                'column',
+                'end_line',
+                'end_column',
+                'path',
+                'symbol',
+                'message',
+                'message_id',
+            )
+        return Response({
+            'success': True,
+            'results': results
+        })
 
     def create(self, request):
-        pass
+        """Upload and parse report file"""
+        report_file = request.FILES.get('report_file')
+        result = PylintReport.process_file(report_file)
+        return Response(f'Pylint results parsed: {len(result)}')
