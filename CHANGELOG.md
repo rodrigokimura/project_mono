@@ -1,3 +1,9 @@
+## 4.40.2 (2022-04-20)
+
+### Fix
+
+- **mono**: resolve conflicts
+
 ## 4.40.1 (2022-04-18)
 
 ### Refactor
