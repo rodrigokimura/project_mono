@@ -35,3 +35,4 @@ jobs:
         run: |
           make upload_pytest_report
           make upload_coverage_report
+          make upload_pylint_report

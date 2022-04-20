@@ -1,12 +1,12 @@
 """Healthcheck's models."""
+import json
 import logging
+from collections import Counter
+from datetime import timedelta
+from itertools import groupby
 from pathlib import Path
 
 import git
-import json
-from collections import Counter
-from itertools import groupby
-from datetime import timedelta
 from django.conf import settings
 from django.core.mail import mail_admins
 from django.core.management import execute_from_command_line
@@ -14,7 +14,6 @@ from django.db import models, transaction
 from django.template.loader import get_template
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
 
 logger = logging.getLogger(__name__)
 
@@ -312,7 +311,7 @@ class PylintResult(models.Model):
     end_column = models.PositiveIntegerField(null=True, help_text="Column number of the end of the node.")
     path = models.CharField(max_length=1000, help_text="Relative path to the file.")
     symbol = models.CharField(max_length=50, help_text="Symbolic name of the message.")
-    message = models.CharField(max_length=100, help_text="Text of the message.")
+    message = models.TextField(help_text="Text of the message.")
     message_id = models.CharField(max_length=10, help_text="Message code.")
 
     class Meta:
