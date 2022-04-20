@@ -119,6 +119,17 @@ _open-coverage-report:
 		&& $(COV) html \
 		&& google-chrome htmlcov/index.html
 
+diagrams:
+	@mkdir diagrams
+	@cd mono \
+		&& ls -1 -d */ \
+		| grep -v '__\|_' \
+		| grep -o '[a-z]*' \
+		| while read APP ; \
+			do pipenv run pyreverse $$APP --output=mmd --project=$$APP ; \
+		done \
+		&& mv *.mmd ../diagrams/
+
 # pylint: _pylint  ## Run pylint and generate badge
 # 	@export score=$$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' mono/$(R_PL)pylint.txt) \
 # 		&& echo "Pylint score was $$score" \

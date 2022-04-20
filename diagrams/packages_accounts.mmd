@@ -1,0 +1,39 @@
+classDiagram
+  class accounts {
+  }
+  class admin {
+  }
+  class apps {
+  }
+  class context_processors {
+  }
+  class forms {
+  }
+  class migrations {
+  }
+  class 0001_squashed_0009_alter_plan_type {
+  }
+  class models {
+  }
+  class serializers {
+  }
+  class signals {
+  }
+  class stripe {
+  }
+  class tests {
+  }
+  class urls {
+  }
+  class views {
+  }
+  admin --> models
+  serializers --> models
+  signals --> models
+  tests --> context_processors
+  tests --> forms
+  tests --> models
+  views --> forms
+  views --> models
+  views --> serializers
+  views --> stripe
