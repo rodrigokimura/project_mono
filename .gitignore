@@ -14,6 +14,8 @@ mono/_static
 ngrok
 **/.coverage
 mono/htmlcov
+mono/diagrams
+mono/db.sqlite3
 mono/reports/junit/junit.xml
 mono/reports/coverage/coverage.xml
 mono/reports/flake8/flake8stats.txt

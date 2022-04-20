@@ -1,0 +1,274 @@
+classDiagram
+  class AccountVerificationView {
+    template_name : str
+    get(request)
+  }
+  class AccountsConfig {
+    name : str
+    ready()
+  }
+  class ApiLogoutView {
+    authentication_classes : list
+    permission_classes : list
+    queryset
+    serializer_class
+    post(request)
+  }
+  class ApiMeView {
+    authentication_classes : list
+    permission_classes : list
+    queryset
+    serializer_class
+    get_object()
+  }
+  class CheckoutView {
+    template_name : str
+    get(request)
+    get_context_data()
+    post(request)
+    test_func()
+  }
+  class ConfigView {
+    template_name : str
+    get_context_data()
+  }
+  class ContextProcessorTests {
+    fixtures : list
+    test_user_context_processor()
+    test_user_context_processor_no_notifications()
+  }
+  class Feature {
+    display : BooleanField
+    full_description : TextField
+    icon : CharField
+    internal_description : TextField
+    plan : ForeignKey
+    short_description : CharField
+  }
+  class FeatureAdmin {
+    list_display : list
+    list_filter : list
+    ordering : tuple
+  }
+  class Login {
+    template_name : str
+    form_valid(form)
+  }
+  class LoginAsView {
+    post(request)
+    test_func()
+  }
+  class Logout {
+    next_page : __proxy__
+  }
+  class MarkNotificationsAsReadView {
+    post(request)
+  }
+  class MarkNotificationsAsUnreadView {
+    post(request)
+  }
+  class Meta {
+    fields : tuple
+    model
+  }
+  class Meta {
+    fields : list
+    model
+  }
+  class Meta {
+    ordering : list
+    verbose_name : __proxy__
+    verbose_name_plural : __proxy__
+  }
+  class Meta {
+    ordering : list
+    verbose_name : __proxy__
+    verbose_name_plural : __proxy__
+  }
+  class Meta {
+    verbose_name : __proxy__
+    verbose_name_plural : __proxy__
+  }
+  class Meta {
+    verbose_name : __proxy__
+    verbose_name_plural : __proxy__
+  }
+  class Meta {
+    fields : list
+    model
+  }
+  class Meta {
+    extra_kwargs : dict
+    fields : list
+    model
+  }
+  class Migration {
+    dependencies : list
+    initial : bool
+    operations : list
+    replaces : list
+  }
+  class Notification {
+    action_url : CharField
+    created_at : DateTimeField
+    icon : CharField
+    message : CharField
+    read
+    read_at : DateTimeField
+    read_at : datetime, NoneType
+    title : CharField
+    to : ForeignKey
+    mark_as_read()
+    mark_as_unread()
+  }
+  class NotificationActionView {
+    model
+    get()
+  }
+  class NotificationAdmin {
+    actions : list
+    list_display : list
+    list_filter : list
+    duplicate(request, queryset: QuerySet[Notification])
+    read(request, queryset: QuerySet[Notification])
+  }
+  class NotificationCountView {
+    get()
+  }
+  class PasswordResetCompleteView {
+    template_name : str
+    title
+  }
+  class PasswordResetConfirmView {
+    success_url : __proxy__
+    template_name : str
+    title
+  }
+  class PasswordResetDoneView {
+    template_name : str
+    title
+  }
+  class PasswordResetView {
+    extra_email_context : dict
+    html_email_template_name : str
+    subject_template_name : str
+    success_url : __proxy__
+    template_name : str
+    title
+  }
+  class Plan {
+    DEFAULT : str
+    FREE : str
+    LIFETIME : str
+    RECOMMENDED : str
+    TYPE_CHOICES : list
+    description : TextField
+    icon : CharField
+    name : CharField
+    order : IntegerField
+    product_id : CharField
+    type : CharField
+  }
+  class PlanAdmin {
+    list_display : list
+    list_filter : list
+    ordering : tuple
+  }
+  class PlansView {
+    template_name : str
+    get_context_data()
+    test_func()
+  }
+  class ProfileSerializer {
+    validate_avatar(file)
+  }
+  class SignUp {
+    form_class
+    success_message : str
+    success_url : __proxy__
+    template_name : str
+  }
+  class StripeWebhookView {
+    post(request)
+  }
+  class Subscription {
+    cancel_at : DateTimeField
+    cancel_at : NoneType
+    created_at : DateTimeField
+    event_id : CharField
+    plan : ForeignKey
+    status
+    updated_at : DateTimeField
+    user : OneToOneField
+    abort_cancellation()
+    cancel_at_period_end() -> Tuple[bool, str]
+  }
+  class SubscriptionAdmin {
+    list_display : list
+    list_filter : list
+  }
+  class UserAdmin {
+    actions : list
+    force_initial_setup(request, queryset)
+  }
+  class UserDetailAPIView {
+    patch(request, pk)
+  }
+  class UserForm {
+    captcha : ReCaptchaField
+    email : EmailField
+    error_css_class : str
+    request
+    clean()
+    save(commit)
+  }
+  class UserProfile {
+    avatar : ImageField
+    user : OneToOneField
+    verified_at : DateTimeField
+    verified_at : datetime
+    generate_initials_avatar()
+    send_verification_email()
+    verify()
+  }
+  class UserProfileAdmin {
+    actions : list
+    list_display : list
+    list_filter : list
+    generate_avatar(request, queryset)
+  }
+  class UserProfileDetailAPIView {
+    patch(request, pk)
+  }
+  class UserProfileForm {
+    error_css_class : str
+  }
+  class UserProfileFormTest {
+    test_username_field_label()
+  }
+  class UserProfileModelTests {
+    fixtures : list
+    user
+    setUp()
+    test_generate_initials_avatar_exception()
+    test_methods()
+  }
+  class UserProfileViewTests {
+    fixtures : list
+    user
+    setUp()
+    test_account_verification_view()
+    test_login_as_view()
+  }
+  class UserSerializer {
+    profile
+    create(validated_data)
+    update(instance, validated_data)
+  }
+  UserForm --* SignUp : form_class
+  Notification --* NotificationActionView : model
+  UserProfile --* Meta : model
+  UserProfile --* Meta : model
+  ProfileSerializer --* UserSerializer : profile
+  UserSerializer --* ApiLogoutView : serializer_class
+  UserSerializer --* ApiMeView : serializer_class

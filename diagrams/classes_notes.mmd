@@ -1,0 +1,91 @@
+classDiagram
+  class Meta {
+    fields : list
+    model
+  }
+  class Meta {
+    ordering : tuple
+    unique_together : tuple
+    verbose_name : __proxy__
+    verbose_name_plural : __proxy__
+  }
+  class Meta {
+    fields : list
+    model
+  }
+  class Migration {
+    dependencies : list
+    initial : bool
+    operations : list
+    replaces : list
+  }
+  class Migration {
+    dependencies : list
+    operations : list
+  }
+  class Note {
+    created_at : DateTimeField
+    created_by : ForeignKey
+    full_path
+    location : CharField
+    location : str
+    text : MarkdownxField
+    title : CharField
+    updated_at : DateTimeField
+    get_absolute_url()
+    save()
+  }
+  class NoteAdmin {
+    list_display : tuple
+    list_filter : tuple
+    search_fields : tuple
+  }
+  class NoteCreateView {
+    form_class
+    success_message : str
+    success_url : __proxy__
+    template_name : str
+  }
+  class NoteDetailApiView {
+    permission_classes : list
+    delete(request, pk)
+    get(request, pk)
+    patch(request, pk)
+  }
+  class NoteForm {
+    error_css_class : str
+    request
+    clean()
+    save()
+  }
+  class NoteFormView {
+    form_class
+    model
+    success_message : str
+    success_url : __proxy__
+    template_name : str
+  }
+  class NoteListView {
+    model
+    get_context_data() -> Dict[str, Any]
+    get_queryset()
+  }
+  class NoteSerializer {
+    created_by : HiddenField
+  }
+  class NotesConfig {
+    default_auto_field : str
+    name : str
+  }
+  class Tag {
+    created_at : DateTimeField
+    created_by : ForeignKey
+    name : CharField
+    updated_at : DateTimeField
+  }
+  NoteForm --* NoteCreateView : form_class
+  NoteForm --* NoteFormView : form_class
+  Note --* Meta : model
+  Note --* Meta : model
+  Note --* NoteFormView : model
+  Note --* NoteListView : model

@@ -1,0 +1,46 @@
+classDiagram
+  class healthcheck {
+  }
+  class admin {
+  }
+  class apps {
+  }
+  class migrations {
+  }
+  class 0001_squashed_0011_pullrequest_last_commit_sha {
+  }
+  class 0002_pytestreport_pytesttestresult {
+  }
+  class 0003_coveragereport_coverageresult {
+  }
+  class 0004_rename_covearge_version_coveragereport_coverage_version {
+  }
+  class 0005_pylintreport_pylintresult {
+  }
+  class 0006_auto_20220417_0042 {
+  }
+  class 0007_auto_20220417_0055 {
+  }
+  class 0008_auto_20220417_1825 {
+  }
+  class models {
+  }
+  class serializers {
+  }
+  class tasks {
+  }
+  class tests {
+  }
+  class urls {
+  }
+  class utils {
+  }
+  class views {
+  }
+  tasks --> models
+  tests --> models
+  tests --> tasks
+  views --> models
+  views --> serializers
+  views --> tasks
+  views --> utils
