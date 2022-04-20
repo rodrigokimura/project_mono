@@ -12,11 +12,8 @@ mono/__mono/maintenance_mode_state.txt
 mono/_media
 mono/_static
 ngrok
+diagrams
 **/.coverage
 mono/htmlcov
-mono/diagrams
 mono/db.sqlite3
-mono/reports/junit/junit.xml
-mono/reports/coverage/coverage.xml
-mono/reports/flake8/flake8stats.txt
-mono/reports/pylint/pylint.txt
+mono/reports

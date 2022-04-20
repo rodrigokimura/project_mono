@@ -1,3 +1,9 @@
+## 4.40.1 (2022-04-18)
+
+### Refactor
+
+- **healthcheck**: remove char limit in column
+
 ## 4.40.0 (2022-04-18)
 
 ### Feat

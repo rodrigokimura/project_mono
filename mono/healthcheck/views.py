@@ -24,7 +24,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
-from .models import CoverageReport, CoverageResult, PullRequest, PytestReport, PylintReport
+from .models import (
+    CoverageReport, CoverageResult, PullRequest, PylintReport, PytestReport,
+)
 from .serializers import CommitsByDateSerializer, ReportSerializer
 from .tasks import deploy_app
 from .utils import format_to_heatmap, get_commits_by_date, get_commits_context
