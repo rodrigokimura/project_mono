@@ -13,6 +13,6 @@ def create_first_pixel_site(sender, instance, created, **kwargs):
     if created and sender == get_user_model():
         if instance.is_superuser:
             Site.objects.get_or_create(
-                host=settings.SITE,
+                host=settings.SITE.split('://', 1)[-1],
                 defaults={'created_by': instance}
             )
