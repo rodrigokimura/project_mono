@@ -1,0 +1,51 @@
+classDiagram
+  class finance {
+  }
+  class admin {
+  }
+  class apps {
+  }
+  class forms {
+  }
+  class migrations {
+  }
+  class 0001_squashed_0066_auto_20220120_1639 {
+  }
+  class 0002_auto_20220125_1646 {
+  }
+  class models {
+  }
+  class serializers {
+  }
+  class signals {
+  }
+  class templatetags {
+  }
+  class cool_numbers {
+  }
+  class tests {
+  }
+  class test_models {
+  }
+  class test_views {
+  }
+  class test_widgets {
+  }
+  class urls {
+  }
+  class views {
+  }
+  class viewsets {
+  }
+  class widgets {
+  }
+  forms --> models
+  forms --> widgets
+  serializers --> models
+  signals --> models
+  urls --> viewsets
+  views --> forms
+  views --> models
+  views --> serializers
+  viewsets --> models
+  viewsets --> serializers

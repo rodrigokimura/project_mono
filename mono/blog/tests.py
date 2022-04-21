@@ -1,14 +1,14 @@
 from django.test import TestCase
 from django.test.client import Client
+from finance.models import Icon
 
 from .models import Post, User
 
 
 class BlogViewTests(TestCase):
 
-    fixtures = ['icon']
-
     def setUp(self):
+        Icon.create_defaults()
         self.user = User.objects.create(
             username="test",
             email="test.test@test.com",

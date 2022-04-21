@@ -39,6 +39,7 @@
 {% endblock head %}
 
 {% block main %}
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <div class="ui vertical left fixed computer only inverted main menu" style="padding-top: 3em; width: 20em;">
         <div class="header item">
             <div class="ui inverted header">
@@ -51,6 +52,7 @@
         <a class="item" data-tab="pytest">Pytest</a>
         <a class="item" data-tab="coverage">Coverage</a>
         <a class="item" data-tab="pylint">Pylint</a>
+        <a class="item" data-tab="diagrams">Diagrams</a>
     </div>
     <div class="ui compact main tab grid" data-tab="repo">
         <div class="row">
@@ -155,6 +157,27 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui compact main tab grid" data-tab="diagrams">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+        <script>
+            mermaid.mermaidAPI.initialize({ startOnLoad:false })
+            function teste(){ // Example of using the API var
+                element = document.querySelector("#graphDiv")
+                function insertSvg(svgCode, bindFunctions) {
+                    $('#diagram').html(svgCode)
+                    console.log(svgCode)
+                }; 
+                var graphDefinition = 'graph TB\na-->b'
+                var graph = mermaid.mermaidAPI.render('graphDiv', graphDefinition, insertSvg)
+            };
+        </script>
+        <div class="row">
+            <div class="column">
+                <div class="ui header">Pylint report</div>
+                <div id="diagram"></div>
             </div>
         </div>
     </div>
@@ -406,6 +429,9 @@
                             break
                         case 'pylint':
                             renderPylintReport()
+                            break
+                        case 'diagrams':
+                            teste()
                             break
                     }
                 },

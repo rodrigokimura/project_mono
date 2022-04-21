@@ -23,6 +23,8 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from multiselectfield import MultiSelectField
 
+from .icons import DEFAULT_ICONS
+
 User = get_user_model()
 
 
@@ -377,6 +379,11 @@ class Icon(models.Model):
     class Meta:
         verbose_name = _("icon")
         verbose_name_plural = _("icons")
+
+    @classmethod
+    def create_defaults(cls):
+        icons = [cls(markup=markup) for markup in DEFAULT_ICONS]
+        cls.objects.bulk_create(icons, ignore_conflicts=True)
 
 
 class Category(models.Model):

@@ -25,6 +25,9 @@ class Site(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     deleted_at = models.DateTimeField(null=True, blank=True, default=None)
 
+    class Meta:
+        ordering = ['created_at']
+
     def __str__(self):
         return str(self.id)
 

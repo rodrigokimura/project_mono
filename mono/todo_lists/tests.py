@@ -1,13 +1,13 @@
 from django.test import TestCase
+from finance.models import Icon
 
 from .models import List, User
 
 
 class ViewTests(TestCase):
 
-    fixtures = ['icon']
-
     def setUp(self) -> None:
+        Icon.create_defaults()
         self.user = User.objects.create(username='test', email='test.test@test.com')
         self.client.force_login(self.user)
 
