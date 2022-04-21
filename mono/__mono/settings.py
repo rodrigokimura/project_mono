@@ -123,6 +123,7 @@ TEMPLATES = [
                 '__mono.context_processors.environment',
                 '__mono.context_processors.language_extras',
                 'accounts.context_processors.unread_notification_count',
+                'pixel.context_processors.site',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',

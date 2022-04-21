@@ -6,6 +6,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.client import Client, RequestFactory
 from django.utils import timezone
+from finance.models import Icon
 
 from .context_processors import unread_notification_count
 from .forms import UserProfileForm
@@ -21,9 +22,8 @@ class UserProfileFormTest(TestCase):
 
 class UserProfileModelTests(TestCase):
 
-    fixtures = ['icon']
-
     def setUp(self):
+        Icon.create_defaults()
         self.user = User.objects.create(
             username="test",
             email="test.test@test.com",
@@ -68,9 +68,8 @@ class UserProfileModelTests(TestCase):
 
 class UserProfileViewTests(TestCase):
 
-    fixtures = ['icon']
-
     def setUp(self):
+        Icon.create_defaults()
         self.user = User.objects.create(
             username="test",
             email="test.test@test.com",
@@ -107,7 +106,8 @@ class UserProfileViewTests(TestCase):
 
 class ContextProcessorTests(TestCase):
 
-    fixtures = ['icon']
+    def setUp(self):
+        Icon.create_defaults()
 
     def test_user_context_processor(self):
         request = RequestFactory().get('/')

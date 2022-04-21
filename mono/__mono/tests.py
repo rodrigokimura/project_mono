@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import RequestFactory, TestCase
 from django.views.generic.edit import FormView
+from finance.models import Icon
 
 from .admin import MyAdminSite
 from .asgi import application as asgi_app
@@ -25,10 +26,9 @@ User = get_user_model()
 
 class AdminTest(TestCase):
 
-    fixtures = ["icon"]
-
     @classmethod
     def setUpTestData(cls):
+        Icon.create_defaults()
         cls.username = "test_admin"
         cls.password = User.objects.make_random_password()
         user, created = User.objects.get_or_create(username=cls.username)
@@ -62,10 +62,9 @@ class WsgiTest(TestCase):
 
 class AuthBackEndsTest(TestCase):
 
-    fixtures = ["icon"]
-
     @classmethod
     def setUpTestData(cls):
+        Icon.create_defaults()
         cls.username = "test_admin"
         cls.password = User.objects.make_random_password()
         user, created = User.objects.get_or_create(username=cls.username)
@@ -287,7 +286,9 @@ class ObjMock:
 
 
 class PermissionTests(TestCase):
-    fixtures = ['icon']
+
+    def setUp(self):
+        Icon.create_defaults()
 
     def test_user_with_permission(self):
         request = RequestFactory().get('/')

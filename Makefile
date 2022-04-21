@@ -81,14 +81,15 @@ upload_pylint_report:
 		-H 'Authorization: Token $(MONO_TOKEN)' \
 		-F report_file=@./mono/$(R_PL)/report.json
 
-# test-app: list-apps  ## Run tests on given app
-# 	@echo 'Choose app from above:' \
-# 		&& read APP \
-# 		&& export APP_ENV=TEST \
-# 		&& export TEST_OUTPUT_VERBOSE=3 \
-# 		&& export TEST_RUNNER=redgreenunittest.django.runner.RedGreenDiscoverRunner \
-# 		&& cd mono \
-# 		&& pipenv run python manage.py test -v 2 pylint $$APP --force-color
+test-app: list-apps  ## Run tests on given app
+	@echo && read -p 'Choose app from above: ${BOLD}${CYAN}' APP \
+		&& echo '${RESET}' \
+		&& if ! test -d mono/$$APP; \
+			then echo App '${RED}'$$APP'${RESET}' not found && exit 0; \
+		fi \
+		&& export APP_ENV=TEST \
+		&& cd mono \
+		&& pipenv run pytest $$APP
 
 test:
 	@mkdir -p mono/$(R_PT)
@@ -156,8 +157,20 @@ superuser:  ## Create superuser
 devserver:  ## Run development server
 	@$(DJANGO) runserver 127.0.0.42:8080
 
+clean-db:  ## Delete sqlite database
+	@rm mono/db.sqlite3
+
 migrations:  ## Write migration files
 	@$(DJANGO) makemigrations
+
+empty-migrations: list-apps  ## Write empty migration file
+	@echo && read -p 'Choose app from above: ${BOLD}${CYAN}' APP \
+		&& echo '${RESET}' \
+		&& if ! test -d mono/$$APP; \
+			then echo App '${RED}'$$APP'${RESET}' not found && exit 0; \
+		fi \
+		&& $(DJANGO) makemigrations $$APP --empty \
+		&& echo && exit 0 
 
 migrate:  ## Apply all migrations
 	@$(DJANGO) migrate
@@ -261,6 +274,9 @@ ssh: art  ## Connect to Production server
 	@ssh kimura@ssh.pythonanywhere.com || true
 
 mark-as-deployed:
+	$(DJANGO) mark_as_deployed
+
+init:  ## Populate initial data
 	$(DJANGO) mark_as_deployed
 
 last-commit:
