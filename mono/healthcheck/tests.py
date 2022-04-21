@@ -10,15 +10,12 @@ from django.test import TestCase
 from django.test.client import Client
 from django.utils import timezone
 from django.utils.encoding import force_bytes
+from finance.models import Icon
 
 from .models import PullRequest, is_there_migrations_to_make
 from .tasks import deploy_app
 
 User = get_user_model()
-
-
-class AdminTests(TestCase):
-    fixtures = ['icon']
 
 
 class MigrationsTests(TestCase):
@@ -182,9 +179,8 @@ class HealthCheckView(TestCase):
 
 class HomePageView(TestCase):
 
-    fixtures = ["icon", "project_manager_icons"]
-
     def setUp(self) -> None:
+        Icon.create_defaults()
         self.user = User.objects.create(username="notsuperuser", email="test@test.com")
         self.superuser = User.objects.create(username="superuser", email="test@test.com")
         self.superuser.is_superuser = True
@@ -207,9 +203,8 @@ class HomePageView(TestCase):
 
 class CommitsByDateView(TestCase):
 
-    fixtures = ["icon", "project_manager_icons"]
-
     def setUp(self) -> None:
+        Icon.create_defaults()
         self.user = User.objects.create(username="notsuperuser", email="test@test.com")
         self.superuser = User.objects.create(username="superuser", email="test@test.com")
         self.superuser.is_superuser = True
@@ -239,9 +234,8 @@ class CommitsByDateView(TestCase):
 
 class DeployView(TestCase):
 
-    fixtures = ["icon", "project_manager_icons"]
-
     def setUp(self) -> None:
+        Icon.create_defaults()
         self.user = User.objects.create(username="notsuperuser", email="test@test.com")
         self.superuser = User.objects.create(username="superuser", email="test@test.com")
         self.superuser.is_superuser = True

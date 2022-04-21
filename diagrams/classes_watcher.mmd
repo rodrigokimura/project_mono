@@ -1,0 +1,124 @@
+classDiagram
+  class Event {
+    issue : ForeignKey
+    timestamp : DateTimeField
+    user : ForeignKey
+  }
+  class EventAdmin {
+    list_display : list
+    list_filter : list
+  }
+  class Issue {
+    created_at : DateTimeField
+    description : CharField
+    hash : CharField
+    ignored
+    ignored_at : DateTimeField
+    ignored_at : datetime, NoneType
+    ignored_by : ForeignKey
+    ignored_by : NoneType
+    name : CharField
+    resolved
+    resolved_at : DateTimeField
+    resolved_at : datetime, NoneType
+    resolved_by : ForeignKey
+    resolved_by : NoneType
+    users
+    ignore(user)
+    resolve(user)
+    unignore()
+    unresolve()
+  }
+  class IssueAdmin {
+    list_display : list
+    list_filter : list
+  }
+  class IssueDetailView {
+    model
+  }
+  class IssueIgnoreAPIView {
+    post(request, pk)
+  }
+  class IssueIgnorerSerializer {
+    ignored : BooleanField
+    create(validated_data)
+    update(instance, validated_data)
+  }
+  class IssueResolveAPIView {
+    post(request, pk)
+  }
+  class IssueResolverSerializer {
+    resolved : BooleanField
+    create(validated_data)
+    update(instance, validated_data)
+  }
+  class Meta {
+    ordering : list
+  }
+  class Meta {
+    ordering : list
+  }
+  class Migration {
+    dependencies : list
+    initial : bool
+    operations : list
+    replaces : list
+  }
+  class Migration {
+    dependencies : list
+    operations : list
+  }
+  class Migration {
+    dependencies : list
+    operations : list
+  }
+  class Request {
+    app_name : CharField
+    duration : DurationField
+    id : UUIDField
+    method : CharField
+    path : CharField
+    route : CharField
+    started_at : DateTimeField
+    url_name : CharField
+    user : ForeignKey
+  }
+  class RequestAdmin {
+    list_display : list
+    list_filter : list
+  }
+  class RootView {
+    template_name : str
+    dispatch()
+    get_context_data()
+    test_func()
+  }
+  class StatisticsFinishMiddleware {
+    get_response
+  }
+  class StatisticsStartMiddleware {
+    get_response
+  }
+  class Traceback {
+    code_text : JSONField
+    file_name : CharField
+    function_name : CharField
+    issue : ForeignKey
+    line_number : PositiveIntegerField
+    order : PositiveSmallIntegerField
+    short_file_name
+    variables : JSONField
+    vars
+  }
+  class TracebackAdmin {
+    list_display : list
+    list_filter : list
+  }
+  class WatcherConfig {
+    default_auto_field : str
+    name : str
+  }
+  class WatcherHandler {
+    emit(record: LogRecord)
+  }
+  Issue --* IssueDetailView : model

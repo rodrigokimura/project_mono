@@ -12,7 +12,8 @@ mono/__mono/maintenance_mode_state.txt
 mono/_media
 mono/_static
 ngrok
+diagrams
 **/.coverage
 mono/htmlcov
-mono/reports
 mono/db.sqlite3
+mono/reports

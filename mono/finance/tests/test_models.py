@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import RequestFactory, TestCase
 
-from ..models import Account, Category, Group, Transaction
+from ..models import Account, Category, Group, Icon, Transaction
 from ..views import AccountCreateView
 
 
@@ -28,9 +28,8 @@ class TransactionModelTests(TestCase):
 
 class UserModelTests(TestCase):
 
-    fixtures = ["icon"]
-
     def setUp(self):
+        Icon.create_defaults()
         self.user = User.objects.create(
             username="teste")
 
@@ -46,9 +45,8 @@ class UserModelTests(TestCase):
 
 class AccountModelTests(TestCase):
 
-    fixtures = ["icon"]
-
     def setUp(self):
+        Icon.create_defaults()
         self.user = User.objects.create(
             username="teste")
         self.factory = RequestFactory()
@@ -66,9 +64,8 @@ class AccountModelTests(TestCase):
 
 class AccountFormTests(TestCase):
 
-    fixtures = ["icon"]
-
     def setUp(self):
+        Icon.create_defaults()
         self.user = User.objects.create(username="teste")
         self.factory = RequestFactory()
 
@@ -92,9 +89,8 @@ class AccountFormTests(TestCase):
 
 class UserCreationTests(TestCase):
 
-    fixtures = ["icon"]
-
     def setUp(self):
+        Icon.create_defaults()
         self.user_1 = User.objects.create(username="User_1")
         self.user_2 = User.objects.create(username="User_2")
         self.group = Group.objects.create(
@@ -131,9 +127,9 @@ class UserCreationTests(TestCase):
 
 class StripeTests(TestCase):
     stripe.api_key = settings.STRIPE_SECRET_KEY
-    fixtures = ["icon"]
 
     def setUp(self):
+        Icon.create_defaults()
         self.user = User.objects.create(username="user")
         products = stripe.Product.list(limit=100, active=True).data
         self.products = [product for product in products if product.metadata.app == 'finance']

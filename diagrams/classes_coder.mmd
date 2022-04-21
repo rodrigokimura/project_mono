@@ -1,0 +1,150 @@
+classDiagram
+  class BaseModel {
+    created_at : DateTimeField
+    created_by : ForeignKey
+    updated_at : DateTimeField
+  }
+  class BaseViewSet {
+    permission_classes : list
+    get_queryset()
+  }
+  class Color {
+    name
+  }
+  class ConfigAPIView {
+    serializer_class
+    get_object()
+  }
+  class Configuration {
+    created_at : DateTimeField
+    created_by : OneToOneField
+    linenos : BooleanField
+    style : CharField
+    updated_at : DateTimeField
+  }
+  class ConfigurationSerializer {
+    created_by : HiddenField
+  }
+  class CurriculumBuilderConfig {
+    default_auto_field : str
+    name : str
+  }
+  class Meta {
+    abstract : bool
+  }
+  class Meta {
+    fields : list
+    model
+  }
+  class Meta {
+    fields : list
+    model
+  }
+  class Meta {
+    fields : list
+    model
+    read_only_fields : list
+  }
+  class Migration {
+    dependencies : list
+    initial : bool
+    operations : list
+  }
+  class Migration {
+    dependencies : list
+    operations : list
+  }
+  class Migration {
+    dependencies : list
+    operations : list
+  }
+  class Migration {
+    dependencies : list
+    operations : list
+  }
+  class Migration {
+    dependencies : list
+    operations : list
+  }
+  class Migration {
+    dependencies : list
+    operations : list
+  }
+  class Migration {
+    dependencies : list
+    operations : list
+  }
+  class RootView {
+    template_name : str
+  }
+  class Snippet {
+    code : TextField
+    html
+    language : CharField
+    order_with_respect_to : str
+    public : BooleanField
+    public_id : UUIDField
+    tags : ManyToManyField
+    title : CharField
+  }
+  class SnippetAdmin {
+    list_display : tuple
+    list_filter : tuple
+    search_fields : tuple
+  }
+  class SnippetEditView {
+    model
+    template_name : str
+  }
+  class SnippetListView {
+    template_name : str
+    get_context_data()
+    get_queryset()
+  }
+  class SnippetPublicView {
+    template_name : str
+    get_context_data()
+  }
+  class SnippetSerializer {
+    created_by : HiddenField
+    tags
+  }
+  class SnippetViewSet {
+    filterset_fields : dict
+    queryset
+    serializer_class
+    languages(request)
+    tag(request)
+    tags(request)
+    untag(request)
+  }
+  class Tag {
+    color : CharField
+    created_by : ForeignKey
+    name : CharField
+    order_with_respect_to : str
+  }
+  class TagAdmin {
+    list_display : tuple
+    list_filter : tuple
+    search_fields : tuple
+  }
+  class TagSerializer {
+    created_by : HiddenField
+  }
+  class TagViewSet {
+    queryset
+    serializer_class
+  }
+  Snippet --|> BaseModel
+  Tag --|> BaseModel
+  SnippetViewSet --|> BaseViewSet
+  TagViewSet --|> BaseViewSet
+  Configuration --* Meta : model
+  Snippet --* Meta : model
+  Snippet --* SnippetEditView : model
+  Tag --* Meta : model
+  ConfigurationSerializer --* ConfigAPIView : serializer_class
+  SnippetSerializer --* SnippetViewSet : serializer_class
+  TagSerializer --* SnippetSerializer : tags
+  TagSerializer --* TagViewSet : serializer_class

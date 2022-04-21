@@ -14,9 +14,9 @@ from ..views import CardOrderView, HomePageView, TransactionCreateView
 
 
 class HomePageViewTests(TestCase):
-    fixtures = ["icon"]
 
     def setUp(self):
+        Icon.create_defaults()
         self.user = User.objects.create(
             username='jacob', email='jacob@test.com', password='top_secret')
 
@@ -46,9 +46,9 @@ class HomePageViewTests(TestCase):
 
 
 class CardOrderViewTests(TestCase):
-    fixtures = ["icon"]
 
     def setUp(self):
+        Icon.create_defaults()
         self.user = User.objects.create(
             username='test_card_order', email='test_card_order@test.com', password='top_secret')
 
@@ -93,9 +93,8 @@ class CardOrderViewTests(TestCase):
 
 class TransactionListViewTests(TestCase):
 
-    fixtures = ['icon']
-
     def setUp(self):
+        Icon.create_defaults()
         self.user = User.objects.create(username='test', email='test.test@test.com')
         self.category = Category.objects.create(
             name='test',
@@ -437,9 +436,8 @@ class TransactionListViewTests(TestCase):
 
 class IconViewTests(TestCase):
 
-    fixtures = ['icon']
-
     def setUp(self) -> None:
+        Icon.create_defaults()
         self.superuser = User.objects.create(username='test', email='test.test@test.com')
         self.superuser.is_superuser = True
         self.superuser.save()
@@ -475,9 +473,9 @@ class IconViewTests(TestCase):
 
 
 class InviteTests(TestCase):
-    fixtures = ['icon']
 
     def setUp(self) -> None:
+        Icon.create_defaults()
         self.user = User.objects.create(username='test', email='test@test.com')
         self.group = Group.objects.create(
             name='test',
@@ -516,9 +514,9 @@ class InviteTests(TestCase):
 
 
 class ViewsetTests(TestCase):
-    fixtures = ['icon']
 
     def setUp(self) -> None:
+        Icon.create_defaults()
         self.user = User.objects.create(username='test', email='test@test.com')
 
     def test_viewset(self):
