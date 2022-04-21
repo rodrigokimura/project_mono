@@ -1,3 +1,15 @@
+## 4.40.5 (2022-04-21)
+
+### Fix
+
+- **pixel**: adjust filters
+
+## 4.40.4 (2022-04-21)
+
+### Fix
+
+- **mono**: clean up repo
+
 ## 4.40.3 (2022-04-21)
 
 ### Refactor
