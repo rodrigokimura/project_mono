@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import RequestFactory, TestCase
 from django.test.client import Client
+from finance.models import Icon
 
 from .models import Feedback
 from .views import FeedbackCreateView
@@ -8,9 +9,8 @@ from .views import FeedbackCreateView
 
 class FeedbackViewTests(TestCase):
 
-    fixtures = ["icon"]
-
     def setUp(self):
+        Icon.create_defaults()
         self.user = User.objects.create(username="User")
         self.feedback = Feedback.objects.create(
             user=self.user,

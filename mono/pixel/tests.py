@@ -2,6 +2,7 @@ from django.contrib.admin.sites import AdminSite
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.test.client import RequestFactory
+from finance.models import Icon
 
 from .admin import SiteAdmin
 from .forms import SiteForm
@@ -12,9 +13,8 @@ User = get_user_model()
 
 class AdminTests(TestCase):
 
-    fixtures = ['icon']
-
     def setUp(self):
+        Icon.create_defaults()
         self.user = User.objects.create(username='test', email='test@test.com')
         self.user.is_staff = True
         self.user.save()
@@ -44,7 +44,8 @@ class AdminTests(TestCase):
 
 class FormTests(TestCase):
 
-    fixtures = ["icon"]
+    def setUp(self):
+        Icon.create_defaults()
 
     def test_site_form(self):
         data = {

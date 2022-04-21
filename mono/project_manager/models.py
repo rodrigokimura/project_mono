@@ -19,6 +19,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from .icons import DEFAULT_ICONS
+
 User = get_user_model()
 
 
@@ -519,7 +521,6 @@ class Comment(models.Model):
                 username = self.text[match.start() + 1:space]
             else:
                 username = self.text[match.start() + 1:]
-            print(username)
             try:
                 user = User.objects.get(username=username)
                 users.append(user)
@@ -658,25 +659,14 @@ class Theme(models.Model):
         """
         Create default themes
         """
-        for theme in cls.DEFAULT_THEMES:
-            cls.objects.update_or_create(
-                name=theme[0],
-                defaults={
-                    'primary': theme[1],
-                    'dark': theme[2],
-                    'light': theme[3],
-                }
-            )
+        themes = [cls(name=n, primary=p, dark=d, light=l) for n, p, d, l in cls.DEFAULT_THEMES]
+        cls.objects.bulk_create(themes, ignore_conflicts=True)
 
 
 class Icon(models.Model):
     """
     Icon used for tags
     """
-    DEFAULT_ICONS = [
-        'home',
-        'exclamation',
-    ]
     markup = models.CharField(max_length=50, unique=True)
 
     def __str__(self) -> str:
@@ -685,8 +675,8 @@ class Icon(models.Model):
     @classmethod
     def create_defaults(cls):
         """Create default icons"""
-        for markup in cls.DEFAULT_ICONS:
-            cls.objects.update_or_create(markup=markup)
+        icons = [cls(markup=markup) for markup in DEFAULT_ICONS]
+        cls.objects.bulk_create(icons, ignore_conflicts=True)
 
     class Meta:
         verbose_name = _("icon")

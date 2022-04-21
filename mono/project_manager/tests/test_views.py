@@ -10,6 +10,7 @@ from django.core.signing import BadSignature, TimestampSigner
 from django.test import RequestFactory, TestCase
 from django.test.client import Client
 from django.urls.base import reverse
+from finance.models import Icon as FinanceIcon
 from rest_framework.test import APIClient, APITestCase
 
 from ..models import (
@@ -19,9 +20,11 @@ from ..models import (
 
 
 class ViewTests(TestCase):
-    fixtures = ["icon", "project_manager_icons"]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create(username="test", email="test@test.com")
 
     def test_create_project_view_get(self):
@@ -200,9 +203,11 @@ class ViewTests(TestCase):
 
 
 class ProjectListApiViewTests(APITestCase):
-    fixtures = ["icon", "project_manager_icons"]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
 
     def test_project_list_view_get(self):
@@ -227,9 +232,11 @@ class ProjectListApiViewTests(APITestCase):
 
 
 class ProjectDetailApiViewTests(APITestCase):
-    fixtures = ["icon", "project_manager_icons"]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
 
     def test_project_detail_view_get(self):
@@ -308,9 +315,11 @@ class ProjectDetailApiViewTests(APITestCase):
 
 
 class BoardListApiViewTests(APITestCase):
-    fixtures = ["icon", "project_manager_icons"]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
 
@@ -360,9 +369,11 @@ class BoardListApiViewTests(APITestCase):
 
 
 class BoardDetailApiViewTests(APITestCase):
-    fixtures = ["icon", "project_manager_icons"]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -468,9 +479,10 @@ class BoardDetailApiViewTests(APITestCase):
 
 class BoardLastUpdatedDetailApiViewTests(APITestCase):
 
-    fixtures = ["icon", "project_manager_icons"]
-
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -499,13 +511,11 @@ class BoardLastUpdatedDetailApiViewTests(APITestCase):
 
 
 class BucketListApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -566,13 +576,11 @@ class BucketListApiViewTests(APITestCase):
 
 
 class BucketDetailApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -668,13 +676,11 @@ class BucketDetailApiViewTests(APITestCase):
 
 
 class TagListApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -736,13 +742,11 @@ class TagListApiViewTests(APITestCase):
 
 
 class TagDetailApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -843,13 +847,11 @@ class TagDetailApiViewTests(APITestCase):
 
 
 class CardListApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -911,13 +913,11 @@ class CardListApiViewTests(APITestCase):
 
 
 class CardDetailApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -1065,13 +1065,11 @@ class CardDetailApiViewTests(APITestCase):
 
 
 class ItemListApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -1125,13 +1123,11 @@ class ItemListApiViewTests(APITestCase):
 
 
 class ItemDetailApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -1259,13 +1255,11 @@ class ItemDetailApiViewTests(APITestCase):
 
 
 class TimeEntryListApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -1319,13 +1313,11 @@ class TimeEntryListApiViewTests(APITestCase):
 
 
 class TimeEntryDetailApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -1451,13 +1443,11 @@ class TimeEntryDetailApiViewTests(APITestCase):
 
 
 class CommentListApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -1512,13 +1502,11 @@ class CommentListApiViewTests(APITestCase):
 
 
 class CommentDetailApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -1615,13 +1603,11 @@ class CommentDetailApiViewTests(APITestCase):
 
 
 class CardFileListApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.file_mock = mock.MagicMock(spec=File, name='FileMock')
         self.file_mock.name = 'test1.jpg'
         self.field_mock = mock.MagicMock(name='get_db_prep_save')
@@ -1687,13 +1673,11 @@ class CardFileListApiViewTests(APITestCase):
 
 
 class CardFileDetailApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.file_mock = mock.MagicMock(spec=File, name='FileMock')
         self.file_mock.name = 'test1.jpg'
         self.another_file_mock = mock.MagicMock(spec=File, name='FileMock')
@@ -1759,13 +1743,11 @@ class CardFileDetailApiViewTests(APITestCase):
 
 
 class ItemCheckApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -1835,13 +1817,11 @@ class ItemCheckApiViewTests(APITestCase):
 
 
 class CardMoveApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -2158,13 +2138,11 @@ class CardMoveApiViewTests(APITestCase):
 
 
 class BucketMoveApiViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -2269,13 +2247,11 @@ class BucketMoveApiViewTests(APITestCase):
 
 
 class StartStopTimerAPIViewTests(APITestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -2329,9 +2305,11 @@ class StartStopTimerAPIViewTests(APITestCase):
 
 
 class InviteListApiViewTests(APITestCase):
-    fixtures = ["icon", "project_manager_icons"]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
 
@@ -2379,9 +2357,11 @@ class InviteListApiViewTests(APITestCase):
 
 
 class InviteDetailApiViewTests(APITestCase):
-    fixtures = ["icon", "project_manager_icons"]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.invite = Invite.objects.create(email="test@test.com", project=self.project)
@@ -2456,9 +2436,8 @@ class InviteDetailApiViewTests(APITestCase):
 
 class PermissionTests(TestCase):
 
-    fixtures = ["icon"]
-
     def setUp(self):
+        FinanceIcon.create_defaults()
         self.factory = RequestFactory()
 
     def test_anyone_can_create_projects(self):

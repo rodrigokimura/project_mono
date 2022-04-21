@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
+from finance.models import Icon as FinanceIcon
 
+from ..icons import DEFAULT_ICONS
 from ..models import (
     BaseModel, Board, Bucket, Card, Icon, Invite, Notification, Project, Theme,
     TimeEntry,
@@ -8,9 +10,9 @@ from ..models import (
 
 
 class FunctionTests(TestCase):
-    fixtures = ["icon"]
 
     def setUp(self):
+        FinanceIcon.create_defaults()
         self.user = User.objects.create(username="test_user")
         self.project = Project.objects.create(name='test_project', created_by=self.user)
         self.board = Board.objects.create(
@@ -37,9 +39,9 @@ class FunctionTests(TestCase):
 
 
 class BaseModelTest(TestCase):
-    fixtures = ["icon"]
 
     def setUp(self):
+        FinanceIcon.create_defaults()
         self.user = User.objects.create(username="test_user")
 
     def test_str(self):
@@ -49,9 +51,9 @@ class BaseModelTest(TestCase):
 
 
 class ProjectTests(TestCase):
-    fixtures = ["icon"]
 
     def setUp(self):
+        FinanceIcon.create_defaults()
         self.user_1 = User.objects.create(username="test_user_1")
         self.user_2 = User.objects.create(username="test_user_2")
         self.project = Project.objects.create(name='test_project', created_by=self.user_1)
@@ -62,9 +64,9 @@ class ProjectTests(TestCase):
 
 
 class BoardTests(TestCase):
-    fixtures = ["icon"]
 
     def setUp(self):
+        FinanceIcon.create_defaults()
         self.user_1 = User.objects.create(username="test_user_1")
         self.user_2 = User.objects.create(username="test_user_2")
         self.user_3 = User.objects.create(username="test_user_3")
@@ -104,9 +106,9 @@ class BoardTests(TestCase):
 
 
 class BucketTests(TestCase):
-    fixtures = ["icon"]
 
     def setUp(self):
+        FinanceIcon.create_defaults()
         self.user_1 = User.objects.create(username="test_user_1")
         self.project = Project.objects.create(name='test_project', created_by=self.user_1)
         self.board = Board.objects.create(
@@ -173,13 +175,11 @@ class BucketTests(TestCase):
 
 
 class CardTests(TestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -211,13 +211,11 @@ class CardTests(TestCase):
 
 
 class TimeEntryTests(TestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -244,13 +242,11 @@ class TimeEntryTests(TestCase):
 
 
 class ThemeTests(TestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self) -> None:
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.board = Board.objects.create(name='test', created_by=self.user, project=self.project)
@@ -273,28 +269,12 @@ class ThemeTests(TestCase):
         self.assertEqual(str(self.theme), 'Red')
 
 
-class IconTests(TestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
-
-    def setUp(self) -> None:
-        self.icon = Icon.objects.first()
-
-    def test_icon_str(self):
-        self.assertEqual(str(self.icon), 'heartbeat')
-
-
 class NotificationTests(TestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self):
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.notification: Notification = Notification.objects.create(
             title='test',
@@ -327,18 +307,16 @@ class CreateDefaultsTest(TestCase):
 
     def test_create_default_icons(self):
         Icon.create_defaults()
-        for icon in Icon.DEFAULT_ICONS:
+        for icon in DEFAULT_ICONS:
             self.assertTrue(Icon.objects.filter(markup=icon).exists())
 
 
 class InviteTests(TestCase):
-    fixtures = [
-        "icon",
-        "project_manager_icons",
-        "project_manager_themes",
-    ]
 
     def setUp(self):
+        FinanceIcon.create_defaults()
+        Icon.create_defaults()
+        Theme.create_defaults()
         self.user = User.objects.create_user(username="test", email="test@test.com", password="supersecret")
         self.project = Project.objects.create(name='test', created_by=self.user)
         self.invite = Invite.objects.create(
