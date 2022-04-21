@@ -1,3 +1,9 @@
+## 4.40.3 (2022-04-21)
+
+### Refactor
+
+- **mono**: remove fixture dependencies
+
 ## 4.40.2 (2022-04-20)
 
 ### Fix
