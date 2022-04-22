@@ -267,7 +267,13 @@ class PytestReportViewSet(ViewSet):
             )
         return Response({
             'success': True,
-            'pytest_results': results
+            'pytest_results': [
+                {
+                    **r,
+                    **{'duration': r['duration'].total_seconds()}
+                }
+                for r in results
+            ]
         })
 
     def create(self, request):

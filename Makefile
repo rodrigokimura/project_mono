@@ -75,7 +75,7 @@ pylint-app: list-apps  ## Run pylint on given app
 		&& read APP \
 		&& pipenv run pylint mono/$$APP --exit-zero
 
-upload_pylint_report:
+_upload-pylint-report:
 	@curl $(MONO_URL)/hc/api/pylint/ \
 		-X POST \
 		-H 'Authorization: Token $(MONO_TOKEN)' \
@@ -99,7 +99,7 @@ test:
 		&& cd mono \
 		&& pipenv run pytest --report-log=$(R_PT)/report.json
 
-upload_pytest_report:
+_upload-pytest-report:
 	@curl $(MONO_URL)/hc/api/pytest/ \
 		-X POST \
 		-H 'Authorization: Token $(MONO_TOKEN)' \
@@ -116,7 +116,7 @@ coverage:
 		&& pipenv run pytest --cov=. --report-log=$(R_PT)/report.json \
 		&& $(COV) json -o $(R_COV)/report.json
 
-upload_coverage_report:
+_upload-coverage-report:
 	@curl $(MONO_URL)/hc/api/coverage/ \
 		-X POST \
 		-H 'Authorization: Token $(MONO_TOKEN)' \
@@ -146,6 +146,7 @@ diagrams:
 # qa: art _isort flake8 pylint coverage _tests-badge  ## Run all quality checks, generating reports and badges
 qa: art isort flake8 pylint coverage  ## Run all quality checks, generating reports and badges
 
+upload-reports: _upload-pylint-report _upload-coverage-report _upload-pytest-report
 
 ##@ Django
 
