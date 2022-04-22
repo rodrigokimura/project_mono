@@ -165,7 +165,7 @@ class PytestReport(models.Model):
             pytest_results.append(
                 PytestResult(
                     report=report,
-                    node_id=nodeid,
+                    node_id=nodeid.replace('mono/', '', 1),
                     outcome=outcome,
                     duration=timedelta(seconds=dict(c).get('duration', 0)),
                 )
@@ -216,6 +216,9 @@ class CoverageReport(models.Model):
             return f'{total_covered_lines / (total_covered_lines + total_missing_lines):.1%}'
         except ZeroDivisionError:
             return f'{0.0:.1%}'
+
+    def get_first_level_folders(self):
+        return list(set(map(lambda x: x.split('/', 1)[0], self.results.all().values_list('file', flat=True))))
 
     @classmethod
     @transaction.atomic

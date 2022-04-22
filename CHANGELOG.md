@@ -1,3 +1,9 @@
+## 4.41.0 (2022-04-22)
+
+### Feat
+
+- **healthcheck**: improve statistics
+
 ## 4.40.5 (2022-04-21)
 
 ### Fix
