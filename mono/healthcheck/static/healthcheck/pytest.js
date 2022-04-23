@@ -47,17 +47,17 @@ async function renderPytestReport() {
                 el.append(`
                     <tr data-folder="${resultByFolder.node_id}">
                         <td><strong><i class="caret down icon"></i>${resultByFolder.node_id}</strong></td>
-                        <td><strong>${resultByFolder.count}</strong></td>
-                        <td><strong>${resultByFolder.duration}</strong></td>
-                        <td><strong> - </strong></td>
+                        <td class="right aligned"><strong>${resultByFolder.count}</strong></td>
+                        <td class="right aligned"><strong>${resultByFolder.duration}</strong></td>
+                        <td class="center aligned"><strong> - </strong></td>
                     </tr>
                 `)
                 results.filter(result => result.node_id.startsWith(resultByFolder.node_id + '/')).forEach(x => {
                     el.append(`
                         <tr data-parent="${resultByFolder.node_id}">
                             <td colspan="2">${x.node_id}</td>
-                            <td>${Number.parseFloat(x.duration).toFixed(3)}</td>
-                            <td>${x.outcome}</td>
+                            <td class="right aligned">${Number.parseFloat(x.duration).toFixed(3)}</td>
+                            <td class="center aligned">${x.outcome}</td>
                         </tr>
                     `)
                 })
