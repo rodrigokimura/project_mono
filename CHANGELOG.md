@@ -1,3 +1,9 @@
+## 4.42.0 (2022-04-23)
+
+### Feat
+
+- **healthcheck**: improve pylint report page
+
 ## 4.41.0 (2022-04-22)
 
 ### Feat
