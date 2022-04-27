@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     'finance',
     'blog',
     'todo_lists',
+    'checklists',
     'notes',
     'pixel',
     'watcher',
