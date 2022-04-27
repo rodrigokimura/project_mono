@@ -45,7 +45,7 @@ art:
 
 ##@ Code quality
 
-BADGE=pipenv run genbadge
+# BADGE=pipenv run genbadge
 # BADGE=pipenv run anybadge
 COV=pipenv run coverage
 R_COV=reports/coverage
