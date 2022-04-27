@@ -1,3 +1,17 @@
+## 5.0.0 (2022-04-27)
+
+### Feat
+
+- **checklists**: add new app
+
+### BREAKING CHANGE
+
+- replace todo-lists app
+
+### Refactor
+
+- **mono**: write dummy comment
+
 ## 4.42.1 (2022-04-27)
 
 ### Refactor
