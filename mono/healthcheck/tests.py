@@ -36,6 +36,7 @@ class MigrationsTests(TestCase):
             'social_django',
             'background_task',
             'django.forms',
+            'todo_lists',
         ]
         for app in apps_exception:
             apps.remove(app)
