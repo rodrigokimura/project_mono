@@ -300,7 +300,7 @@ function showNewChecklistModal() {
     modal.modal({
         onShow: () => {
             input.val('')
-            input.on('keyup', function (e) {
+            input.off().on('keyup', function (e) {
                 if (e.key === 'Enter' || e.keyCode === 13) {
                     createChecklist(input.val())
                     modal.modal('hide')
@@ -320,7 +320,7 @@ function editChecklist(checklistId) {
     modal.modal({
         onShow: () => {
             input.val($(`.checklist.item[data-checklist-id=${checklistId}] .checklist-name`).text())
-            input.on('keyup', function (e) {
+            input.off().on('keyup', function (e) {
                 if (e.key === 'Enter' || e.keyCode === 13) {
                     renameChecklist(checklistId, input.val())
                     modal.modal('hide')
@@ -352,7 +352,7 @@ function showNewTaskModal() {
     modal.modal({
         onShow: () => {
             input.val('')
-            input.on('keyup', function (e) {
+            input.off().on('keyup', function (e) {
                 if (e.key === 'Enter' || e.keyCode === 13) {
                     createTask(input.val())
                     modal.modal('hide')
