@@ -1,3 +1,9 @@
+## 5.1.5 (2022-04-28)
+
+### Fix
+
+- **checklists**: dettach events before assigning new ones
+
 ## 5.1.4 (2022-04-28)
 
 ### Fix
