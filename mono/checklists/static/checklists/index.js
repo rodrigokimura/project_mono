@@ -1,17 +1,31 @@
+function toast(title, message) {
+    $('body').toast({
+        title: title,
+        message: message
+    })
+}
+
 function renderList(checklistId, checklistName) {
     listsDiv.append(`
-        <a class="item" data-list-id="${checklistId}" onclick="retrieveTasks(${checklistId})">
-            ${checklistName}
-            <div class="ui icon label" onclick="window.location.href='/cl/list/${checklistId}/edit/'">
-                <i class="edit icon"></i>
+        <a class="teal checklist item" data-checklist-id="${checklistId}" onclick="selectChecklist(${checklistId})" style="display: flex; flex-flow: row nowrap; align-items: center;">
+            <div style="flex: 1 0 0;">
+                <span class="checklist-name">${checklistName}</span>
+            </div>
+            <div style="flex: 0 0 auto;">
+                <div class="ui circular icon mini checklist button" onclick="editChecklist(${checklistId})">
+                    <i class="edit icon"></i>
+                </div>
+                <div class="ui circular icon mini red checklist button" onclick="deleteChecklist(${checklistId})" style="margin-left: .5em;">
+                    <i class="delete icon"></i>
+                </div>
             </div>
         </a>
     `)
 }
 
-function renderTask(checklistId, taskId, taskDescription, checked) {
+function renderTask(taskId, taskDescription, checked) {
     tasksDiv.append(`
-        <a class="task item" data-task-id="${taskId}" data-checked="${checked}" style="display: flex; ">
+        <a class="teal task item" data-task-id="${taskId}" data-checked="${checked}" style="display: flex; ">
             <div class="ui checkbox" data-task-id="${taskId}" style="flex: 0 0 auto;">
                 <input type="checkbox" ${checked ? "checked" : ""}>
             </div>
@@ -29,15 +43,18 @@ function renderTask(checklistId, taskId, taskDescription, checked) {
         },
     })
     $(`.task.item[data-task-id=${taskId}]`).click(e => {
-        if ($(e.target).hasClass('task')) {
-            showTaskDetail(checklistId, taskId)
+        if ($(e.target).hasClass('checkbox') || $(e.target).parent().hasClass('checkbox')) { return }
+        selectedTask = sessionStorage.getItem('selectedTask')
+        if ($(e.target).closest('.task.item').hasClass('active')) {
+            $('#task-detail').parent().toggle('swing')
+        } else {
+            selectTask(taskId)
         }
     })
 }
 
 function createTask(taskDescription) {
     checklistId = sessionStorage.getItem('selectedChecklist')
-    console.log(checklistId)
     $.api({
         on: 'now',
         method: 'POST',
@@ -48,7 +65,7 @@ function createTask(taskDescription) {
             order: 5
         },
         onSuccess: r => {
-            renderTask(checklistId, r.id, r.description, r.checked_at != null)
+            renderTask(r.id, r.description, r.checked_at != null)
         }
     })
 }
@@ -59,7 +76,7 @@ async function createChecklist(checklistName) {
         method: 'POST',
         url: `/cl/api/checklists/`,
         data: {
-            "name": checklistName,
+            name: checklistName,
         },
         onSuccess: r => {
             renderList(r.id, r.name)
@@ -68,12 +85,12 @@ async function createChecklist(checklistName) {
 }
 
 function retrieveLists() {
-    // Retrieves lists from api and inserts to DOM
     $.api({
         on: 'now',
         url: '/cl/api/checklists/',
         successTest: r => true,
         onSuccess: r => {
+            listsDiv.empty()
             r.results.forEach(
                 item => renderList(item.id, item.name)
             )
@@ -81,13 +98,21 @@ function retrieveLists() {
     })
 }
 
-function retrieveTasks(checklistId) {
+function selectChecklist(checklistId) {
+    sessionStorage.removeItem('selectedTask')
+    retrieveTasks(checklistId)
+    $('#task-detail').parent().hide('swing')
+    $('*.checklist.item').removeClass('active')
+    $(`.checklist.item[data-checklist-id=${checklistId}]`).addClass('active')
+}
+
+async function retrieveTasks(checklistId) {
     sessionStorage.setItem('selectedChecklist', checklistId)
     $.api({
         url: `/cl/api/checklists/${checklistId}/`,
         on: 'now',
         method: 'GET',
-        stateContext: '#list-name',
+        stateContext: '#tasks-div',
         onSuccess: task => {
             $('#list-name').text(task.name);
         }
@@ -96,13 +121,14 @@ function retrieveTasks(checklistId) {
         url: `/cl/api/tasks/?checklist__id=${checklistId}`,
         on: 'now',
         method: 'GET',
-        stateContext: '#list-name',
+        stateContext: '#tasks-div',
         onSuccess: r => {
             tasksDiv.empty();
-            tasksDiv.attr("data-list-id", checklistId)
             r.results.forEach(
                 item => {
-                    renderTask(checklistId, item.id, item.description, item.checked_at != null)
+                    renderTask(item.id, item.description, item.checked_at != null)
+                    selectedTask = sessionStorage.getItem('selectedTask')
+                    if (item.id == selectedTask) { $(`.task.item[data-task-id=${selectedTask}]`).addClass('active') }
                 }
             )
         }
@@ -110,85 +136,162 @@ function retrieveTasks(checklistId) {
 }
 
 function checkTask(taskId) {
-    // Marks task as checked
-    $.post(url=`/cl/api/tasks/${taskId}/check/`)
-        .done(tasks => {
-            $(`.task.item[data-task-id=${taskId}]`).attr('data-checked', true);
-            $(`.task.item[data-task-id=${taskId}] input`).prop('checked', true);
-        })
-        .fail()
-        .always()
+    $.api({
+        on: 'now',
+        method: 'post',
+        url: `/cl/api/tasks/${taskId}/check/`,
+        onSuccess(r) {
+            $(`.task.item[data-task-id=${taskId}] .ui.checkbox`).checkbox('check')
+            $(`.task.item[data-task-id=${taskId}]`).attr('data-checked', true)
+            selectedTask = sessionStorage.getItem('selectedTask')
+            if (taskId === selectedTask) {
+                $('#check-icon').addClass('check circle outline')
+                $('#task-description').attr('data-checked', true)
+            }
+        }
+    })
 }
 
 function uncheckTask(taskId) {
-    // Marks task as unchecked
-    $.post(url=`/cl/api/tasks/${taskId}/uncheck/`)
-        .done(tasks => {
-            $(`.task.item[data-task-id="${taskId}"]`).attr('data-checked', false);
-            $(`.task.item[data-task-id="${taskId}"] input`).prop('checked', false);
-        })
-        .fail()
-        .always()
+    $.api({
+        on: 'now',
+        method: 'post',
+        url: `/cl/api/tasks/${taskId}/uncheck/`,
+        onSuccess(r) {
+            $(`.task.item[data-task-id=${taskId}] .ui.checkbox`).checkbox('uncheck')
+            $(`.task.item[data-task-id=${taskId}]`).attr('data-checked', false)
+            selectedTask = sessionStorage.getItem('selectedTask')
+            if (taskId === selectedTask) {
+                $('#check-icon').removeClass('check circle outline').addClass('circle outline')
+                $('#task-description').attr('data-checked', false)
+            }
+        }
+    })
 }
 
-function toggleTask(checklistId, taskId) {
-    checked = $(`.task.item[data-task-id="${taskId}"]`).attr('data-checked');
-    if (checked == "true") {
-        uncheckTask(checklistId, taskId);
+function toggleSelectedTask() {
+    taskId = sessionStorage.getItem('selectedTask')
+    checklistId = sessionStorage.getItem('selectedChecklist')
+    if ($(`.task.item[data-task-id="${taskId}"] .ui.checkbox`).checkbox('is checked')) {
+        uncheckTask(taskId)
     } else {
-        checkTask(checklistId, taskId);
+        checkTask(taskId)
     }
 }
 
-function showTaskDetail(checklistId, taskId) {
+function updateTask() {
+    taskId = sessionStorage.getItem('selectedTask')
+    checklistId = sessionStorage.getItem('selectedChecklist')
+    $.api({
+        on: 'now',
+        method: 'PATCH',
+        url: `/cl/api/tasks/${taskId}/`,
+        stateContext: '#task-detail .segment',
+        data: {
+            description: $('#task-description').val(),
+        },
+        onSuccess: r => {
+            retrieveTasks(checklistId)
+        }
+    })
+}
+
+function selectTask(taskId) {
+    $('*.task.item').removeClass('active')
+    $(`.task.item[data-task-id=${taskId}]`).addClass('active')
     $.api({
         on: 'now',
         url: `/cl/api/tasks/${taskId}/`,
+        stateContext: '#task-detail .segment',
         onSuccess: r => {
-            deleteButton = $("#delete-task-btn")
-            deleteButton.attr("data-list-id", checklistId)
-            deleteButton.attr("data-task-id", taskId)
-            $("#modal-task-description").val(r.description)
+            sessionStorage.setItem('selectedTask', taskId)
+            $("#task-description").val(r.description)
             $('#task-detail').parent().show('swing')
             if (r.checked_at) {
+                $("#task-description").attr('data-checked', true)
+                $('#check-icon').addClass('check circle outline')
                 ts = new Date(r.checked_at)
                 msg = 'Checked at ' + ts.toString()
             } else {
+                $("#task-description").attr('data-checked', false)
+                $('#check-icon').removeClass('check circle outline').addClass('circle outline')
                 ts = new Date(r.created_at)
                 msg = 'Created at ' + ts.toString()
             }
             $('#task-timestamp').text(msg)
-            // $("#edit-task-modal").modal({
-            //     onApprove: () => {
-            //         $.api({
-            //             url: `/cl/api/tasks/${taskId}/`,
-            //             method: 'PATCH',
-            //             on: 'now',
-            //             data: {
-            //                 description: $('#modal-task-description').val(),
-            //             },
-            //             onSuccess: r => {
-            //                 retrieveTasks(checklistId);
-            //             }
-            //         })
-            //     }
-            // }).modal("show");
+            $("#task-description").off().on('input', e => {
+                clearTimeout(updateTaskTimeout)
+                updateTaskTimeout = setTimeout(function () {
+                    updateTask()
+                }, 1000)
+            })
         }
     })
 }
 
 function deleteTask() {
-    deleteButton = $("#delete-task-btn")
-    checklistId = deleteButton.attr("data-list-id")
-    taskId = deleteButton.attr("data-task-id")
-    $.api({
-        method: 'DELETE',
-        url: `/cl/api/tasks/${taskId}`,
-        onSuccess: r => {
-            retrieveTasks(checklistId)
-            $(".ui.task.modal").modal("hide")
+    $('body').modal({
+        title: 'Confirmation',
+        class: 'mini',
+        closeIcon: true,
+        content: 'Are you sure you want to delete this task?',
+        actions: [
+            {
+                text: 'Cancel',
+                class: 'black deny'
+            },
+            {
+                text: 'Yes, delete it.',
+                class: 'red approve'
+            },
+        ],
+        onApprove: () => {
+            taskId = sessionStorage.getItem('selectedTask')
+            checklistId = sessionStorage.getItem('selectedChecklist')
+            $.api({
+                on: 'now',
+                method: 'DELETE',
+                url: `/cl/api/tasks/${taskId}`,
+                onSuccess: r => {
+                    sessionStorage.removeItem('selectedTask')
+                    retrieveTasks(checklistId)
+                    $('#task-detail').parent().hide('swing')
+                }
+            })
         }
-    })
+    }).modal('show');
+}
+function deleteChecklist(id) {
+    $('body').modal({
+        title: 'Confirmation',
+        class: 'mini',
+        closeIcon: true,
+        content: 'Are you sure you want to delete this checklist?',
+        actions: [
+            {
+                text: 'Cancel',
+                class: 'black deny'
+            },
+            {
+                text: 'Yes, delete it.',
+                class: 'red approve'
+            },
+        ],
+        onApprove: () => {
+            $.api({
+                on: 'now',
+                method: 'DELETE',
+                url: `/cl/api/checklists/${id}`,
+                onSuccess: r => {
+                    if (id == sessionStorage.getItem('selectedChecklist')) {
+                        sessionStorage.removeItem('selectedChecklist')
+                        $('#task-detail').parent().hide('swing')
+                    }
+                    retrieveLists()
+                }
+            })
+        }
+    }).modal('show');
 }
 
 function showNewChecklistModal() {
@@ -208,6 +311,39 @@ function showNewChecklistModal() {
             createChecklist(input.val())
         }
     }).modal('show')
+}
+
+function editChecklist(checklistId) {
+    modal = $('#new-checklist')
+    input = modal.find('input[name=name]')
+    selectedChecklist = sessionStorage.getItem('selectedChecklist')
+    modal.modal({
+        onShow: () => {
+            input.val($(`.checklist.item[data-checklist-id=${checklistId}] .checklist-name`).text())
+            input.on('keyup', function (e) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    renameChecklist(checklistId, input.val())
+                    modal.modal('hide')
+                }
+            })
+        },
+        onApprove: () => {
+            renameChecklist(checklistId, input.val())
+        }
+    }).modal('show')
+}
+
+function renameChecklist(id, name) {
+    $.api({
+        on: 'now',
+        method: 'PATCH',
+        url: `/cl/api/checklists/${id}/`,
+        data: { name: name },
+        onSuccess() {
+            toast('Checklist', 'Successfully renamed!')
+            retrieveLists()
+        }
+    })
 }
 
 function showNewTaskModal() {
