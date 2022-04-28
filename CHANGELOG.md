@@ -1,3 +1,9 @@
+## 5.1.2 (2022-04-28)
+
+### Fix
+
+- **checklists**: remove app from migration checker
+
 ## 5.1.1 (2022-04-28)
 
 ### Fix
