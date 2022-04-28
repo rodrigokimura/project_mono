@@ -1,3 +1,9 @@
+## 5.1.3 (2022-04-28)
+
+### Fix
+
+- **healthcheck**: replace migration checker test
+
 ## 5.1.2 (2022-04-28)
 
 ### Fix
