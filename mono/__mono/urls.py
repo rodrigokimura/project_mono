@@ -32,6 +32,7 @@ urlpatterns = [
     path('fn/', include('finance.urls')),
     path('bl/', include('blog.urls')),
     path('todo/', include('todo_lists.urls')),
+    path('cl/', include('checklists.urls')),
     path('nt/', include('notes.urls')),
     path('pixel/', include('pixel.urls')),
     path('watcher/', include('watcher.urls')),

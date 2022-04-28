@@ -35,6 +35,8 @@
     - `CFLAGS="-O0" pipenv install lxml`
     - `LDFLAGS="-L/opt/local/lib" CFLAGS="-I/opt/local/include" pipenv install cryptography`
 
+<!-- dummy text -->
+
 ## Useful links
 - [Django documentation](https://docs.djangoproject.com/en/3.2/)
 - [Fomantic-UI](https://fomantic-ui.com/)

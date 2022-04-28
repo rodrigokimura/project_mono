@@ -1,3 +1,59 @@
+## 5.1.4 (2022-04-28)
+
+### Fix
+
+- **healthcheck**: adjust migration checker test
+
+## 5.1.3 (2022-04-28)
+
+### Fix
+
+- **healthcheck**: replace migration checker test
+
+## 5.1.2 (2022-04-28)
+
+### Fix
+
+- **checklists**: remove app from migration checker
+
+## 5.1.1 (2022-04-28)
+
+### Fix
+
+- **todo_lists**: flag app to be deprecated
+
+## 5.1.0 (2022-04-28)
+
+### Feat
+
+- **checklists**: refactor whole UI
+
+## 5.0.1 (2022-04-28)
+
+### Refactor
+
+- **checklists**: change layout
+
+## 5.0.0 (2022-04-27)
+
+### Feat
+
+- **checklists**: add new app
+
+### BREAKING CHANGE
+
+- replace todo-lists app
+
+### Refactor
+
+- **mono**: write dummy comment
+
+## 4.42.1 (2022-04-27)
+
+### Refactor
+
+- **mono**: write dummy comment
+
 ## 4.42.0 (2022-04-23)
 
 ### Feat
