@@ -5,7 +5,6 @@
 {% block head %}
     <script src="{% static 'checklists/index.js' %}"></script>
     <style>
-        {{ all_styles_css }}
         .main.grid {
             width: 100%;
             padding-top: 4em !important;
@@ -34,19 +33,6 @@
                 padding-right: 1em !important;
             }
         }
-        #code-textarea {
-            width: 100%;
-            height: 100%;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 14px;
-            line-height: 1.42857143;
-            color: #
-        }
-        #snippet-code {
-            padding: 0 0 0 1em !important;
-            width: 100%;
-            flex: 1 0 auto;
-        }
         .hidden {
             display: none !important;
         }
@@ -61,47 +47,6 @@
     </script>
 {% endblock head %}
 
-{% block sidebars %}
-    <div class="ui vertical left fixed computer only inverted main menu" style="padding-top: 3em; width: 20em;">
-        <div class="header item">
-            <div class="ui inverted header">
-                <em data-emoji=":ballot_box_with_check:" class="small"></em>
-                <span style="padding-left: .5em;">Checklists</span>
-                {% comment %} <button class="circular ui icon right floated basic inverted button" onclick="showConfigModal()">
-                    <i class="cog icon"></i>
-                </button> {% endcomment %}
-            </div>
-        </div>
-        <a class="item" id="show-all" onclick="showAll()">
-            Show all
-            <div class="ui teal left pointing label" id="count-all"></div>
-        </a>
-        <div class="item">
-            <div class="ui basic fitted languages inverted segment">
-                <i class="file code icon"></i>
-                Languages
-                <div class="languages inverted pointing menu" style="padding-top: .5em; min-height: 1em;">
-                </div>
-            </div>
-        </div>
-        <div class="item">
-            <div class="ui basic fitted tags inverted segment">
-                <i class="tags icon"></i>
-                Tags
-                <div class="tags inverted menu" style="padding-top: .5em; min-height: 1em;">
-                </div>
-            </div>
-            <div class="ui fluid small inverted button" onclick="manageTags()">Manage tags</div>
-        </div>
-    </div>
-{% endblock sidebars %}
-
-{% block menu %}
-    {% comment %} <div class="item">
-        Snippets
-    </div> {% endcomment %}
-{% endblock menu %}
-
 {% block main %}
     <div class="ui vertical left fixed computer only inverted main menu" style="padding-top: 3em; width: 20em; display: flex; align-items: stretch;">
         <div class="header item" style="flex: 0 0 auto;">
@@ -112,31 +57,47 @@
         </div>
         <div class="explorer" id="lists-div"></div>
         <div class="item" style="flex: 0 0 auto;">
-            <a class="ui fluid green right labeled icon button" href="{% url 'notes:note_create' %}"><i class="add icon"></i>{% translate 'New note' %}</a>
+            <a class="ui fluid green right labeled icon button" onclick="showNewChecklistModal()"><i class="add icon"></i>{% translate 'New checklist' %}</a>
         </div>
     </div>
     <div class="ui stackable compact main grid">
-        <div class="row">
-            <div class="eight wide column">
-                <div class="full height" style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;">
+        <div class="equal width row">
+            <div class="column">
+                <div style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;">
                     <div class="ui top attached teal segment" style="width: 100%;">
                         <div class="ui fluid input"><input type="text" placeholder="Search..." id="search"></div>
                     </div>
-                    <div id="tasks-div" class="ui bottom attached vertical segment snippets menu" style="padding: 0; width: 100%; flex: 1 0 auto;">
+                    <div id="tasks-div" class="ui bottom attached vertical segment menu" style="padding: 0; width: 100%; flex: 1 0 auto;">
                     </div>
-                    <div class="ui fluid green right labeled icon button" style="width: 100%; flex: 0 0 auto;" onclick="showModal()">
-                        Add new snippet
+                    <div class="ui fluid green right labeled icon button" style="width: 100%; flex: 0 0 auto;" onclick="showNewTaskModal()">
+                        New task
                         <i class="add icon"></i>
                     </div>
                 </div>
             </div>
-            <div class="eight wide column">
-                <div style="display: flex; flex-flow: column nowrap; height: calc(100vh - 5em);" id="snippet"></div>
+            <div class="column">
+                <div style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;" id="task-detail">
+                    <div class="ui top attached teal segment" style="width: 100%;">
+                        <span class="ui big text"><i class="check circle outline icon"></i></span>
+                        <div class="ui big input"><input type="text" placeholder="Task description" id="task-description"></div>
+                    </div>
+                    <div class="ui attached vertical segment menu" style="width: 100%; flex: 1 0 auto; padding-right: 1em; padding-left: 1em;">
+                        <p></p>
+                    </div>
+                    <div class="ui bottom attached vertical segment menu" style="width: 100%; flex: 0 0 auto; padding-right: 1em; padding-left: 1em; display: flex; flex-flow: row nowrap; align-items: center;">
+                        <div style="flex: 1 0 auto;">
+                            <span id="task-timestamp"></span>
+                        </div>
+                        <a style="flex: 0 0 auto;" class="ui icon right floated red button"><i class="delete icon"></i></a>
+                    </div>
+                </div>
+                {% comment %} <div style="display: flex; flex-flow: column nowrap; height: calc(100vh - 5em);" id="task-detail">
+                </div> {% endcomment %}
             </div>
         </div>
     </div>
 
-    <div class="ui task mini modal">
+    <div class="ui task mini modal" id="edit-task-modal">
         <div class="header">
             <div class="ui fluid input">
                 <input type=text id="modal-task-description">
@@ -156,6 +117,8 @@
             </div>
         </div>
     </div>
+    {% include 'checklists/_modal.html' with modal_id='new-checklist' input_name='name' header='Checklist' only %}
+    {% include 'checklists/_modal.html' with modal_id='new-task' input_name='name' header='Task' only %}
 
     <script>
         var listsMenu = $('#lists-menu')
@@ -165,106 +128,7 @@
 
         $(document).ready(e => {
             retrieveLists()
-            addEventListeners()
+            $('#task-detail').parent().hide()
         })
     </script>
 {% endblock %}
-
-{% comment %} {% block head %}
-<style>
-    .task.item[data-checked=true] label { text-decoration: line-through }
-    .task.item[data-checked=true] .check .check { }
-    .task.item[data-checked=false] .check .circle { }
-    .task.item[data-checked=false] .check .check { display: none }
-    //.task.modal .header input { border: 0px; }
-</style>
-{% endblock %} {% endcomment %}
-
-    {% comment %} <div class="ui fluid container" style="margin-bottom: 1em;">
-        <div class="ui top fixed menu">
-            <div class="ui lists item">Lists</div>
-            <div class="ui popup">
-                <div class="ui secondary vertical menu">
-                    <div id="lists-div"></div>
-                </div>
-            </div>
-            <div class="right menu">
-                <div class="ui inverted teal apps item" style="cursor: pointer;"><i class="toolbox icon"></i></div>
-                    <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;">
-                        {% include "homepage/_apps_menu.html" %}
-                    </div>
-                    {% include "_auth_menu.html" %}
-                </div>
-            </div>
-            <script>
-                initializeAppsPopup('.ui.apps.item', '.ui.item');
-            </script>
-        </div>
-        <div class="ui stackable grid container" style="padding-top: 3em;">
-            <div class="computer only four wide column">
-                <div class="ui fluid vertical menu" id="lists-menu">
-                    <div id="lists-div">
-                    </div>
-                    <div class="item" id="list-input">
-                        <div class="ui transparent icon input">
-                            <input type="text" placeholder="Create list">
-                            <i class="plus icon"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="eight wide column">
-                <div class="ui list-name top attached fluid segment" style="width: 100%;">
-                    <h2 class="ui center aligned header" id="list-name"></h2>
-                </div>
-                <div class="ui bottom attached fluid vertical menu" id="tasks-menu">
-                    <div id="tasks-div">
-                    </div>
-                    <div class="item" id="add_task">
-                        <div class="ui transparent icon input">
-                            <input type="text" id="task-input" placeholder="Create task">
-                            <i class="plus icon"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="ui task mini modal">
-                    <div class="header">
-                        <div class="ui fluid input">
-                            <input type=text id="modal-task-description">
-                        </div>
-                    </div>
-                    <div class="content">
-                        <div class="ui red basic button" id="delete-task-btn" data-list-id="" data-task-id="" onclick="deleteTask()">
-                            <i class="remove icon"></i>Delete
-                        </div>
-                    </div>
-                    <div class="actions">
-                        <div class="ui black cancel button">
-                            <i class="remove icon"></i>Close
-                        </div>
-                        <div class="ui green ok button">
-                            <i class="checkmark icon"></i>Save
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="four wide column">
-                <a class="ui fluid button primary" href="{% url "checklists:list_create" %}">{% translate "Add list" %}</a>
-            </div>
-        </div>
-    </div>
-
-
-    <script>
-        var listsMenu = $('#lists-menu')
-        var listsDiv = $('*#lists-div')
-        var tasksDiv = $('*#tasks-div')
-        var lists;
-
-        $(document).ready(e => {
-            retrieveLists()
-            addEventListeners()
-        })
-    </script> {% endcomment %}
