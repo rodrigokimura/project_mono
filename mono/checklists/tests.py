@@ -1,7 +1,7 @@
 from django.test import TestCase
 from finance.models import Icon
 
-from .models import List, User
+from .models import Checklist, User
 
 
 class ViewTests(TestCase):
@@ -13,11 +13,11 @@ class ViewTests(TestCase):
 
     def test_root_redirect_if_no_list(self):
         self.user.checklists.all().delete()
-        response = self.client.get('/todo/')
+        response = self.client.get('/cl/')
         self.assertEqual(response.status_code, 302)
 
     def test_root(self):
-        List.objects.create(name='test', created_by=self.user)
-        response = self.client.get('/todo/')
+        Checklist.objects.create(name='test', created_by=self.user)
+        response = self.client.get('/cl/')
         self.assertGreater(self.user.checklists.all().count(), 0)
         self.assertEqual(response.status_code, 200)
