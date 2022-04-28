@@ -1,3 +1,9 @@
+## 5.1.1 (2022-04-28)
+
+### Fix
+
+- **todo_lists**: flag app to be deprecated
+
 ## 5.1.0 (2022-04-28)
 
 ### Feat
