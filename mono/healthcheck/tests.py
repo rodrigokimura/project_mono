@@ -37,6 +37,7 @@ class MigrationsTests(TestCase):
             'background_task',
             'django.forms',
             'todo_lists',
+            'checklists',
         ]
         for app in apps_exception:
             apps.remove(app)
