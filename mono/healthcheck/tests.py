@@ -18,35 +18,6 @@ from .tasks import deploy_app
 User = get_user_model()
 
 
-# class MigrationsTests(TestCase):
-#     def test_no_migrations_to_make(self):
-
-#         apps = settings.INSTALLED_APPS
-#         apps_exception = [
-#             '__mono.apps.MyAdminConfig',
-#             'django.contrib.auth',
-#             'django.contrib.contenttypes',
-#             'django.contrib.sessions',
-#             'django.contrib.messages',
-#             'django.contrib.staticfiles',
-#             'django.contrib.admindocs',
-#             'django.contrib.humanize',
-#             'rest_framework',
-#             'rest_framework.authtoken',
-#             'social_django',
-#             'background_task',
-#             'django.forms',
-#             'todo_lists',
-#             'checklists',
-#         ]
-#         for app in apps_exception:
-#             apps.remove(app)
-#         for app in apps:
-#             self.assertFalse(
-#                 is_there_migrations_to_make(app_label=app, silent=True),
-#                 "You have migrations to make. Run 'manage.py makemigrations'."
-#             )
-
 class MigrationsCheck(TestCase):
     def setUp(self):
         from django.utils import translation
@@ -70,6 +41,12 @@ class MigrationsCheck(TestCase):
             ProjectState.from_apps(apps),
         )
         changes = autodetector.changes(graph=executor.loader.graph)
+        third_party_apps = [
+            'background_task',
+        ]
+        for app in third_party_apps:
+            if app in changes:
+                del changes[app]
         self.assertEqual({}, changes)
 
 
