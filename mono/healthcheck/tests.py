@@ -18,32 +18,36 @@ from .tasks import deploy_app
 User = get_user_model()
 
 
-class MigrationsTests(TestCase):
-    def test_no_migrations_to_make(self):
+class MigrationsCheck(TestCase):
+    def setUp(self):
+        from django.utils import translation
+        self.saved_locale = translation.get_language()
+        translation.deactivate_all()
 
-        apps = settings.INSTALLED_APPS
-        apps_exception = [
-            '__mono.apps.MyAdminConfig',
-            'django.contrib.auth',
-            'django.contrib.contenttypes',
-            'django.contrib.sessions',
-            'django.contrib.messages',
-            'django.contrib.staticfiles',
-            'django.contrib.admindocs',
-            'django.contrib.humanize',
-            'rest_framework',
-            'rest_framework.authtoken',
-            'social_django',
+    def tearDown(self):
+        if self.saved_locale is not None:
+            from django.utils import translation
+            translation.activate(self.saved_locale)
+
+    def test_missing_migrations(self):
+        from django.apps.registry import apps
+        from django.db import connection
+        from django.db.migrations.executor import MigrationExecutor
+        executor = MigrationExecutor(connection)
+        from django.db.migrations.autodetector import MigrationAutodetector
+        from django.db.migrations.state import ProjectState
+        autodetector = MigrationAutodetector(
+            executor.loader.project_state(),
+            ProjectState.from_apps(apps),
+        )
+        changes = autodetector.changes(graph=executor.loader.graph)
+        third_party_apps = [
             'background_task',
-            'django.forms',
         ]
-        for app in apps_exception:
-            apps.remove(app)
-        for app in apps:
-            self.assertFalse(
-                is_there_migrations_to_make(app_label=app, silent=True),
-                "You have migrations to make. Run 'manage.py makemigrations'."
-            )
+        for app in third_party_apps:
+            if app in changes:
+                del changes[app]
+        self.assertEqual({}, changes)
 
 
 class PullRequestModelTests(TestCase):

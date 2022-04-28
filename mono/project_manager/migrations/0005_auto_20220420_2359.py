@@ -8,6 +8,7 @@ def create_default_icons_and_themes(*args, **kwargs):
     Icon.create_defaults()
     Theme.create_defaults()
 
+
 class Migration(migrations.Migration):
 
     dependencies = [

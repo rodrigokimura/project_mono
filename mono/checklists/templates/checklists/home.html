@@ -1,0 +1,138 @@
+{% extends "checklists/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head %}
+    <script src="{% static 'checklists/index.js' %}"></script>
+    <style>
+        #check-icon {
+            cursor: pointer;
+            font-size: 120%;
+        }
+        #task-description[data-checked=true]{
+            text-decoration: line-through;
+        }
+        .task.item[data-checked=true]{
+            text-decoration: line-through;
+        }
+        .checklist.button {
+            display: none;
+        }
+        .checklist.item:hover .checklist.button {
+            display: inline;
+        }
+        .main {
+            width: 100%;
+            padding-top: 4em !important;
+            padding-left: 21em !important;
+            padding-right: 1em !important;
+            display: flex;
+            flex-flow: row nowrap;
+            gap: 1em;
+        }
+        .panel {
+            flex: 1 0 auto;
+        }
+        .explorer {
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100%;
+            overflow-x: none;
+            overflow-y: scroll;
+            flex: 1 1 auto; 
+            height: 50vh;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        @media screen and (max-width: 767px) {
+            .computer.only {
+                display: none !important;
+                width: 0 !important;
+            }
+            .main {
+                padding-top: 4em !important;
+                padding-left: 1em !important;
+                padding-right: 1em !important;
+            }
+        }
+        .hidden {
+            display: none !important;
+        }
+        ::-webkit-scrollbar {
+            display: none !important;
+        }
+    </style>
+    <script>
+        $.ajaxSetup({
+            headers: { 'X-CSRFToken': csrftoken }
+        });
+    </script>
+{% endblock head %}
+
+{% block main %}
+    <div class="ui vertical left fixed computer only inverted menu" style="padding-top: 3em; width: 20em; display: flex; align-items: stretch;">
+        <div class="header item" style="flex: 0 0 auto;">
+            <div class="ui inverted header">
+                <em data-emoji=":ballot_box_with_check:" class="small"></em>
+                <span style="padding-left: .5em;">Checklists</span>
+            </div>
+        </div>
+        <div class="explorer" id="lists-div"></div>
+        <div class="item" style="flex: 0 0 auto;">
+            <a class="ui fluid green right labeled icon button" onclick="showNewChecklistModal()"><i class="add icon"></i>{% translate 'New checklist' %}</a>
+        </div>
+    </div>
+    <div class="ui stackable compact main">
+        <div class="panel" style="min-width: 40%;">
+            <div style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;">
+                <div class="ui top attached teal segment" style="width: 100%;">
+                    <div class="ui fluid input"><input type="text" placeholder="Search..." id="search"></div>
+                </div>
+                <div id="tasks-div" class="ui bottom attached vertical segment menu" style="padding: 0; width: 100%; flex: 1 0 auto;">
+                </div>
+                <div class="ui fluid green right labeled icon button" style="width: 100%; flex: 0 0 auto;" onclick="showNewTaskModal()">
+                    New task
+                    <i class="add icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <div style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;" id="task-detail">
+                <div class="ui top attached teal segment" style="width: 100%; display: flex; flex-flow: row nowrap; align-items: center;">
+                    <div class="check" style="flex: 0 0 auto; padding-right: .5em;">
+                        <span class="ui big text"><i id="check-icon" class="icon" onclick="toggleSelectedTask()"></i></span>
+                    </div>
+                    <div class="ui big input" style="flex: 1 0 auto;">
+                        <input type="text" placeholder="Task description" id="task-description">
+                    </div>
+                </div>
+                <div class="ui attached vertical segment menu" style="width: 100%; flex: 1 0 auto; padding-right: 1em; padding-left: 1em;">
+                    <p></p>
+                </div>
+                <div class="ui bottom attached vertical segment menu" style="width: 100%; flex: 0 0 auto; padding-right: 1em; padding-left: 1em; display: flex; flex-flow: row nowrap; align-items: center;">
+                    <div style="flex: 1 0 auto;">
+                        <span id="task-timestamp"></span>
+                    </div>
+                    <a style="flex: 0 0 auto;" class="ui icon right floated red button" onclick="deleteTask()"><i class="delete icon"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'checklists/_modal.html' with modal_id='new-checklist' input_name='name' header='Checklist' only %}
+    {% include 'checklists/_modal.html' with modal_id='new-task' input_name='name' header='Task' only %}
+
+    <script>
+        var listsMenu = $('#lists-menu')
+        var listsDiv = $('*#lists-div')
+        var tasksDiv = $('*#tasks-div')
+        var lists
+        var updateTaskTimeout
+
+        $(document).ready(e => {
+            sessionStorage.clear()
+            retrieveLists()
+            $('#task-detail').parent().hide()
+        })
+    </script>
+{% endblock %}
