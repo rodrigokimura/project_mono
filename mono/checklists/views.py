@@ -82,8 +82,7 @@ class TaskCheckApiView(APIView):
         """
         task = get_object_or_404(Task, pk=pk)
         task.mark_as_checked(request.user)
-        serializer = TaskSerializer(task)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TaskUncheckApiView(APIView):
@@ -97,5 +96,4 @@ class TaskUncheckApiView(APIView):
         """
         task = get_object_or_404(Task, pk=pk)
         task.mark_as_unchecked()
-        serializer = TaskSerializer(task)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -1,7 +1,7 @@
-function renderList(checklistId, listName) {
+function renderList(checklistId, checklistName) {
     listsDiv.append(`
         <a class="item" data-list-id="${checklistId}" onclick="retrieveTasks(${checklistId})">
-            ${listName}
+            ${checklistName}
             <div class="ui icon label" onclick="window.location.href='/cl/list/${checklistId}/edit/'">
                 <i class="edit icon"></i>
             </div>
@@ -11,21 +11,33 @@ function renderList(checklistId, listName) {
 
 function renderTask(checklistId, taskId, taskDescription, checked) {
     tasksDiv.append(`
-        <a class="task item" data-task-id="${taskId}" data-checked=${checked}>
-            <div class="ui checkbox">
-                <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTask(${checklistId}, ${taskId})">
-                <label>${taskDescription}</label>
+        <a class="task item" data-task-id="${taskId}" data-checked="${checked}" style="display: flex; ">
+            <div class="ui checkbox" data-task-id="${taskId}" style="flex: 0 0 auto;">
+                <input type="checkbox" ${checked ? "checked" : ""}>
             </div>
+            <span>${taskDescription}</span>
         </a>
-    `);
-    $(`.task.item[data-task-id=${taskId}]`).on('click', e => {
+    `)
+    $(`.ui.checkbox[data-task-id=${taskId}]`).checkbox({
+        onChecked() {
+            taskId = $(this).closest('.task.item').attr('data-task-id')
+            checkTask(taskId)
+        },
+        onUnchecked() {
+            taskId = $(this).closest('.task.item').attr('data-task-id')
+            uncheckTask(taskId)
+        },
+    })
+    $(`.task.item[data-task-id=${taskId}]`).click(e => {
         if ($(e.target).hasClass('task')) {
-            showTaskModal(checklistId, taskId);
+            showTaskDetail(checklistId, taskId)
         }
     })
 }
 
-function createTask(checklistId, taskDescription) {
+function createTask(taskDescription) {
+    checklistId = sessionStorage.getItem('selectedChecklist')
+    console.log(checklistId)
     $.api({
         on: 'now',
         method: 'POST',
@@ -41,13 +53,13 @@ function createTask(checklistId, taskDescription) {
     })
 }
 
-function createList(listName) {
+async function createChecklist(checklistName) {
     $.api({
         on: 'now',
         method: 'POST',
         url: `/cl/api/checklists/`,
         data: {
-            "name": listName,
+            "name": checklistName,
         },
         onSuccess: r => {
             renderList(r.id, r.name)
@@ -70,7 +82,7 @@ function retrieveLists() {
 }
 
 function retrieveTasks(checklistId) {
-    // Retrieves tasks from api and inserts to DOM
+    sessionStorage.setItem('selectedChecklist', checklistId)
     $.api({
         url: `/cl/api/checklists/${checklistId}/`,
         on: 'now',
@@ -89,7 +101,9 @@ function retrieveTasks(checklistId) {
             tasksDiv.empty();
             tasksDiv.attr("data-list-id", checklistId)
             r.results.forEach(
-                item => renderTask(checklistId, item.id, item.description, item.checked_at != null)
+                item => {
+                    renderTask(checklistId, item.id, item.description, item.checked_at != null)
+                }
             )
         }
     })
@@ -126,7 +140,7 @@ function toggleTask(checklistId, taskId) {
     }
 }
 
-function showTaskModal(checklistId, taskId) {
+function showTaskDetail(checklistId, taskId) {
     $.api({
         on: 'now',
         url: `/cl/api/tasks/${taskId}/`,
@@ -135,21 +149,30 @@ function showTaskModal(checklistId, taskId) {
             deleteButton.attr("data-list-id", checklistId)
             deleteButton.attr("data-task-id", taskId)
             $("#modal-task-description").val(r.description)
-            $(".ui.task.modal").modal({
-                onApprove: () => {
-                    $.api({
-                        url: `/cl/api/tasks/${taskId}/`,
-                        method: 'PATCH',
-                        on: 'now',
-                        data: {
-                            description: $('#modal-task-description').val(),
-                        },
-                        onSuccess: r => {
-                            retrieveTasks(checklistId);
-                        }
-                    })
-                }
-            }).modal("show");
+            $('#task-detail').parent().show('swing')
+            if (r.checked_at) {
+                ts = new Date(r.checked_at)
+                msg = 'Checked at ' + ts.toString()
+            } else {
+                ts = new Date(r.created_at)
+                msg = 'Created at ' + ts.toString()
+            }
+            $('#task-timestamp').text(msg)
+            // $("#edit-task-modal").modal({
+            //     onApprove: () => {
+            //         $.api({
+            //             url: `/cl/api/tasks/${taskId}/`,
+            //             method: 'PATCH',
+            //             on: 'now',
+            //             data: {
+            //                 description: $('#modal-task-description').val(),
+            //             },
+            //             onSuccess: r => {
+            //                 retrieveTasks(checklistId);
+            //             }
+            //         })
+            //     }
+            // }).modal("show");
         }
     })
 }
@@ -168,25 +191,40 @@ function deleteTask() {
     })
 }
 
-function addEventListeners() {
-    $("#task-input").on('keyup', function (e) {
-        if (e.key === 'Enter' || e.keyCode === 13) {
-            desc = $(this).val();
-            checklistId = tasksDiv.attr("data-list-id");
-            if (checklistId != undefined) {
-                if (desc != "") {
-                    createTask(checklistId, desc);
+function showNewChecklistModal() {
+    modal = $('#new-checklist')
+    input = modal.find('input[name=name]')
+    modal.modal({
+        onShow: () => {
+            input.val('')
+            input.on('keyup', function (e) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    createChecklist(input.val())
+                    modal.modal('hide')
                 }
-            } else {
-                alert("No list selected.")
-            }
-            $(this).val('');
+            })
+        },
+        onApprove: () => {
+            createChecklist(input.val())
         }
-    })
-    $("#list-input").on('keyup', function (e) {
-        if (e.key === 'Enter' || e.keyCode === 13) {
-            createList(e.target.value);
-            e.target.value = '';
+    }).modal('show')
+}
+
+function showNewTaskModal() {
+    modal = $('#new-task')
+    input = modal.find('input[name=name]')
+    modal.modal({
+        onShow: () => {
+            input.val('')
+            input.on('keyup', function (e) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    createTask(input.val())
+                    modal.modal('hide')
+                }
+            })
+        },
+        onApprove: () => {
+            createTask(input.val())
         }
-    })
+    }).modal('show')
 }
