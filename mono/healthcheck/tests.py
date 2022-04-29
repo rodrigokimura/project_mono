@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes
 from finance.models import Icon
 
-from .models import PullRequest, is_there_migrations_to_make
+from .models import PullRequest
 from .tasks import deploy_app
 
 User = get_user_model()

@@ -1,11 +1,11 @@
 """Pixel's context processors"""
 from django.conf import settings
-from django.contrib.auth import get_user_model
 
 from .models import Site
 
 
 def site(request):
+    """Allow Pixel app to track itself"""
     self_site = Site.objects.filter(
         host=settings.SITE.split('://', 1)[-1],
         created_by__is_superuser=True

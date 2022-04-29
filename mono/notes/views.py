@@ -71,7 +71,6 @@ def generate_tree(tree):
     return _index(tree, 0)
 
 
-
 class NoteCreateView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
     """
     Create note
@@ -79,7 +78,7 @@ class NoteCreateView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormV
     form_class = NoteForm
     template_name = 'notes/note_form.html'
     success_url = reverse_lazy('notes:index')
-    success_message = "%(title)s note created successfully"
+    success_message = _("%(title)s note created successfully")
 
 
 class NoteFormView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormViewMixin, UpdateView):
@@ -90,7 +89,7 @@ class NoteFormView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormVie
     form_class = NoteForm
     template_name = 'notes/note_form.html'
     success_url = reverse_lazy('notes:index')
-    success_message = "%(title)s note updated successfully"
+    success_message = _("%(title)s note updated successfully")
 
 
 class NoteDetailApiView(LoginRequiredMixin, APIView):
@@ -156,4 +155,3 @@ class NoteListView(LoginRequiredMixin, ListView):
             attach(obj.full_path, main_dict)
         context['subfiles'] = generate_tree(main_dict)
         return context
-

@@ -13,6 +13,7 @@ class ChecklistSerializer(ModelSerializer):
     created_by = HiddenField(
         default=CurrentUserDefault()
     )
+
     class Meta:
         model = Checklist
         fields = [
@@ -30,6 +31,7 @@ class TaskSerializer(ModelSerializer):
     created_by = HiddenField(
         default=CurrentUserDefault()
     )
+
     class Meta:
         model = Task
         fields = [

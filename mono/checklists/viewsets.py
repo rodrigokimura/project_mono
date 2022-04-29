@@ -1,11 +1,14 @@
-"""Finance's viewsets"""
+"""Checklists viewsets"""
 from __mono.permissions import IsCreator
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from .models import Checklist, Task, User
+from .models import Checklist, Task
 from .serializers import ChecklistSerializer, TaskSerializer
 
-# pylint: disable=R0901
+# pylint: disable=too-many-ancestors
 
 
 class ChecklistViewSet(ModelViewSet):
@@ -33,3 +36,17 @@ class TaskViewSet(ModelViewSet):
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.filter(created_by=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def check(self, request):
+        """Mark task as checked"""
+        task: Task = self.get_object()
+        task.mark_as_checked(request.user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=['post'])
+    def uncheck(self, request):
+        """Mark task as unchecked"""
+        task: Task = self.get_object()
+        task.mark_as_unchecked()
+        return Response(status=status.HTTP_204_NO_CONTENT)
