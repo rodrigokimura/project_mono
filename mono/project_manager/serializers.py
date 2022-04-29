@@ -212,7 +212,7 @@ class CardFileSerializer(ModelSerializer):
             'extension',
         ]
 
-    def validate_file(self, file):  # pylint: disable=R0201
+    def validate_file(self, file):  # pylint: disable=no-self-use
         return validate_file_size(file, 10)
 
     def create(self, validated_data):
@@ -450,25 +450,25 @@ class CardMoveSerializer(Serializer):
     order = serializers.IntegerField()
     card = serializers.IntegerField()
 
-    def validate_source_bucket(self, value):  # pylint: disable=R0201
+    def validate_source_bucket(self, value):  # pylint: disable=no-self-use
         """Bucket needs to exist"""
         if Bucket.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid bucket")
 
-    def validate_target_bucket(self, value):  # pylint: disable=R0201
+    def validate_target_bucket(self, value):  # pylint: disable=no-self-use
         """Bucket needs to exist"""
         if Bucket.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid bucket")
 
-    def validate_card(self, value):  # pylint: disable=R0201
+    def validate_card(self, value):  # pylint: disable=no-self-use
         """Card needs to exist"""
         if Card.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid card")
 
-    def validate_order(self, value):  # pylint: disable=R0201
+    def validate_order(self, value):  # pylint: disable=no-self-use
         """Order has to be positive"""
         if value > 0:
             return value
@@ -555,19 +555,19 @@ class BucketMoveSerializer(Serializer):
     bucket = serializers.IntegerField()
     order = serializers.IntegerField()
 
-    def validate_board(self, value):  # pylint: disable=R0201
+    def validate_board(self, value):  # pylint: disable=no-self-use
         """Board needs to exist"""
         if Board.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid board")
 
-    def validate_bucket(self, value):  # pylint: disable=R0201
+    def validate_bucket(self, value):  # pylint: disable=no-self-use
         """Buckes need to exist"""
         if Bucket.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid bucket")
 
-    def validate_order(self, value):  # pylint: disable=R0201
+    def validate_order(self, value):  # pylint: disable=no-self-use
         """Order needs to be positive"""
         if value > 0:
             return value
@@ -624,19 +624,19 @@ class BoardMoveSerializer(Serializer):
     board = serializers.IntegerField()
     order = serializers.IntegerField()
 
-    def validate_project(self, value):  # pylint: disable=R0201
+    def validate_project(self, value):  # pylint: disable=no-self-use
         """Project needs to exist"""
         if Project.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid project")
 
-    def validate_board(self, value):  # pylint: disable=R0201
+    def validate_board(self, value):  # pylint: disable=no-self-use
         """Board needs to exist"""
         if Board.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid board")
 
-    def validate_order(self, value):  # pylint: disable=R0201
+    def validate_order(self, value):  # pylint: disable=no-self-use
         """Order needs to be positive"""
         if value > 0:
             return value

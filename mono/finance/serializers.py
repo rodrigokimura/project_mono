@@ -257,13 +257,13 @@ class ChartMoveSerializer(serializers.Serializer):
     order = serializers.IntegerField()
     chart = serializers.IntegerField()
 
-    def validate_chart(self, value):  # pylint: disable=R0201
+    def validate_chart(self, value):  # pylint: disable=no-self-use
         """Chart must exist"""
         if Chart.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid chart")
 
-    def validate_order(self, value):  # pylint: disable=R0201
+    def validate_order(self, value):  # pylint: disable=no-self-use
         """Order must be positive"""
         if value > 0:
             return value

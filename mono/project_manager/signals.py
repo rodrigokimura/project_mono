@@ -9,7 +9,7 @@ from .models import Board, Bucket, CardFile, Comment, Invite, TimeEntry
 
 
 @receiver(pre_save, sender=TimeEntry, dispatch_uid="calculate_duration")
-def calculate_duration(sender, instance, **kwargs):  # pylint: disable=W0613
+def calculate_duration(sender, instance, **kwargs):  # pylint: disable=unused-argument
     """
     Calculate duration of time entry
     """
@@ -18,7 +18,7 @@ def calculate_duration(sender, instance, **kwargs):  # pylint: disable=W0613
 
 
 @receiver(post_save, sender=Board, dispatch_uid="create_default_buckets")
-def create_default_buckets(sender, instance, created, **kwargs):  # pylint: disable=W0613
+def create_default_buckets(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
     """
     Create default buckets on board creation
     """
@@ -35,7 +35,7 @@ def create_default_buckets(sender, instance, created, **kwargs):  # pylint: disa
 
 
 @receiver(post_save, sender=Invite, dispatch_uid="send_project_invite")
-def send_invite(sender, instance, created, **kwargs):  # pylint: disable=W0613
+def send_invite(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
     """
     Send email when invite is created
     """
@@ -44,7 +44,7 @@ def send_invite(sender, instance, created, **kwargs):  # pylint: disable=W0613
 
 
 @receiver(post_save, sender=Comment, dispatch_uid="send_email_on_comment")
-def send_email_on_comment(sender, instance, created, **kwargs):  # pylint: disable=W0613
+def send_email_on_comment(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
     """
     Send email when comment is created
     """
@@ -54,7 +54,7 @@ def send_email_on_comment(sender, instance, created, **kwargs):  # pylint: disab
 
 
 @receiver(pre_delete, sender=Board, dispatch_uid="delete_background_image")
-def delete_background_image(sender, instance, using, **kwargs):  # pylint: disable=W0613
+def delete_background_image(sender, instance, using, **kwargs):  # pylint: disable=unused-argument
     """
     Delete background image when board is deleted
     """
@@ -69,7 +69,7 @@ def delete_background_image(sender, instance, using, **kwargs):  # pylint: disab
 
 
 @receiver(pre_delete, sender=CardFile, dispatch_uid="delete_card_file")
-def delete_card_file(sender, instance, using, **kwargs):  # pylint: disable=W0613
+def delete_card_file(sender, instance, using, **kwargs):  # pylint: disable=unused-argument
     """
     Delete card files when card is deleted
     """
