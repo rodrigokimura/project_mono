@@ -38,14 +38,14 @@ class TaskViewSet(ModelViewSet):
         return qs.filter(created_by=self.request.user)
 
     @action(detail=True, methods=['post'])
-    def check(self, request):
+    def check(self, request, *args, **kwargs):
         """Mark task as checked"""
         task: Task = self.get_object()
         task.mark_as_checked(request.user)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post'])
-    def uncheck(self, request):
+    def uncheck(self, request, *args, **kwargs):
         """Mark task as unchecked"""
         task: Task = self.get_object()
         task.mark_as_unchecked()
