@@ -42,7 +42,8 @@ def handle_traceback(traceback: TracebackType, issue):
     """
     Create traceback model instance from python's traceback
     """
-    from watcher.models import Traceback  # pylint: disable=C0415
+    from watcher.models import \
+        Traceback  # pylint: disable=import-outside-toplevel
     order = 1
     while traceback is not None:
         frame = traceback.tb_frame
@@ -71,7 +72,9 @@ def store_log(record: LogRecord):
     """
     Store log record
     """
-    from watcher.models import Event, Issue  # pylint: disable=C0415
+    from watcher.models import (  # pylint: disable=import-outside-toplevel
+        Event, Issue,
+    )
     try:
         request: HttpRequest = record.request
         user = request.user if request.user.is_authenticated else None
@@ -111,5 +114,5 @@ class WatcherHandler(logging.Handler):
     def emit(self, record: LogRecord):
         try:
             store_log(record)
-        except Exception:  # pylint: disable=W0703
+        except Exception:  # pylint: disable=broad-except
             pass

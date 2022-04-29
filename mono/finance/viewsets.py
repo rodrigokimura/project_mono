@@ -12,7 +12,7 @@ from .serializers import (
     TransferenceSerializer, UserSerializer,
 )
 
-# pylint: disable=R0901
+# pylint: disable=too-many-ancestors
 
 
 class UserViewSet(ModelViewSet):

@@ -18,7 +18,6 @@ router.register('skills', SkillViewSet)
 router.register('social_media_profiles', SocialMediaProfileViewSet)
 router.register('work_experiences', WorkExperienceViewSet)
 
-# pylint: disable=C0301
 urlpatterns = [
     path("", views.RootView.as_view(), name='index'),
     path("curriculum/", views.CurriculumListView.as_view(), name='curriculum_list'),

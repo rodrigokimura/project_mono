@@ -11,7 +11,6 @@ router = DefaultRouter()
 router.register('snippets', SnippetViewSet)
 router.register('tags', TagViewSet)
 
-# pylint: disable=C0301
 urlpatterns = [
     path("", views.RootView.as_view(), name='index'),
     path("snippet/", views.SnippetListView.as_view(), name='snippet_list'),

@@ -11,7 +11,7 @@ from .serializers import (
     SkillSerializer, SocialMediaProfileSerializer, WorkExperienceSerializer,
 )
 
-# pylint: disable=R0901
+# pylint: disable=too-many-ancestors
 
 
 class BaseViewSet(ModelViewSet):
