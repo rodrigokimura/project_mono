@@ -18,15 +18,13 @@ from django.utils.encoding import force_bytes
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
 from markdownx.utils import markdownify
-from rest_framework import generics, status
+from rest_framework import status
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
-from .models import (
-    CoverageReport, CoverageResult, PullRequest, PylintReport, PytestReport,
-)
+from .models import CoverageReport, PullRequest, PylintReport, PytestReport
 from .serializers import CommitsByDateSerializer, ReportSerializer
 from .tasks import deploy_app
 from .utils import format_to_heatmap, get_commits_by_date, get_commits_context
@@ -238,23 +236,22 @@ class ChangelogView(UserPassesTestMixin, APIView):
         Read changelog markdown file and convert to html
         """
         changelog_file = settings.CHANGELOG_FILE
-        with open(changelog_file, 'r') as f:
-            md = f.read()
-        changelog_html = markdownify(md)
+        with open(changelog_file, 'r', encoding='utf-8') as file:
+            file_content = file.read()
         return Response({
             'success': True,
-            'html': changelog_html
+            'html': markdownify(file_content)
         })
 
 
 class PytestReportViewSet(ViewSet):
     """
     Upload and parse pytest report file
-    """    
+    """
     serializer_class = ReportSerializer
     permission_classes = (IsAdminUser,)
 
-    def list(self, request):
+    def list(self, request):  # pylint: disable=no-self-use
         """Show results of last uploaded and parsed report file"""
         last_report = PytestReport.objects.last()
         if last_report is None:
@@ -276,7 +273,7 @@ class PytestReportViewSet(ViewSet):
             ]
         })
 
-    def create(self, request):
+    def create(self, request):  # pylint: disable=no-self-use
         """Upload and parse report file"""
         report_file = request.FILES.get('report_file')
         result = PytestReport.process_file(report_file)
@@ -290,7 +287,7 @@ class CoverageReportViewSet(ViewSet):
     serializer_class = ReportSerializer
     permission_classes = (IsAdminUser,)
 
-    def list(self, request):
+    def list(self, request):  # pylint: disable=no-self-use
         """Show results of last uploaded and parsed report file"""
         last_report = CoverageReport.objects.last()
         if last_report is None:
@@ -308,7 +305,7 @@ class CoverageReportViewSet(ViewSet):
             'results': results
         })
 
-    def create(self, request):
+    def create(self, request):  # pylint: disable=no-self-use
         """Upload and parse report file"""
         report_file = request.FILES.get('report_file')
         result = CoverageReport.process_file(report_file)
@@ -322,7 +319,7 @@ class PylintReportViewSet(ViewSet):
     serializer_class = ReportSerializer
     permission_classes = (IsAdminUser,)
 
-    def list(self, request):
+    def list(self, request):  # pylint: disable=no-self-use
         """Show results of last uploaded and parsed report file"""
         last_report = PylintReport.objects.last()
         if last_report is None:
@@ -346,7 +343,7 @@ class PylintReportViewSet(ViewSet):
             'results': results
         })
 
-    def create(self, request):
+    def create(self, request):  # pylint: disable=no-self-use
         """Upload and parse report file"""
         report_file = request.FILES.get('report_file')
         result = PylintReport.process_file(report_file)

@@ -1,3 +1,4 @@
+"""Default icons to generate"""
 DEFAULT_ICONS = [
     "heartbeat",
     "beer",

@@ -75,7 +75,7 @@ def store_log(record: LogRecord):
     try:
         request: HttpRequest = record.request
         user = request.user if request.user.is_authenticated else None
-    except Exception:  # pylint: disable=W0703
+    except Exception:  # pylint: disable=broad-except
         request = None
         user = None
     if record.exc_info is None:

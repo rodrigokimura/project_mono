@@ -382,6 +382,7 @@ class Icon(models.Model):
 
     @classmethod
     def create_defaults(cls):
+        """Create default icons"""
         icons = [cls(markup=markup) for markup in DEFAULT_ICONS]
         cls.objects.bulk_create(icons, ignore_conflicts=True)
 

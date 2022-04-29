@@ -14,9 +14,10 @@ class ProjectAdmin(admin.ModelAdmin):
     actions = ('sort',)
 
     @admin.action(description='Sort boards')
-    def sort(self, request, queryset):
-        for p in queryset:
-            p.sort()
+    def sort(self, request, queryset):  # pylint: disable=no-self-use
+        """Reset board order"""
+        for project in queryset:
+            project.sort()
 
 
 @admin.register(models.Board)
