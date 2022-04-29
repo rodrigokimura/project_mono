@@ -16,3 +16,9 @@ class CommitsByDateSerializer(Serializer):
 class ReportSerializer(Serializer):
     """Serializer to parse report file"""
     report_file = FileField(max_length=50, allow_empty_file=False)
+
+    def create(self, validated_data):
+        raise NotImplementedError
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError
