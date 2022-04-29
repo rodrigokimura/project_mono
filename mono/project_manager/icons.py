@@ -1,3 +1,4 @@
+"""Default icons to create"""
 DEFAULT_ICONS = [
     "address book",
     "address book outline",

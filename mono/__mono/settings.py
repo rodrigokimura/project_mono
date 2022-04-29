@@ -12,7 +12,7 @@ load_dotenv()
 
 APP_ENV = os.getenv('APP_ENV', 'PRD')
 
-APP_VERSION = "5.1.5"
+APP_VERSION = "5.1.7"
 
 if APP_ENV in ['DEV', 'TEST']:
     GITHUB_SECRET = 'GITHUB_SECRET'
@@ -76,7 +76,6 @@ INSTALLED_APPS = [
     'messenger',
     'finance',
     'blog',
-    'todo_lists',
     'checklists',
     'notes',
     'pixel',
@@ -98,7 +97,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.admindocs.middleware.XViewMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'maintenance_mode.middleware.MaintenanceModeMiddleware',
     'watcher.middlewares.StatisticsFinishMiddleware',

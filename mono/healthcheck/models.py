@@ -9,31 +9,12 @@ from pathlib import Path
 import git
 from django.conf import settings
 from django.core.mail import mail_admins
-from django.core.management import execute_from_command_line
 from django.db import models, transaction
 from django.template.loader import get_template
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 logger = logging.getLogger(__name__)
-
-
-def is_there_migrations_to_make(app_label, silent=False):
-    """Check for migrations to make."""
-    # This doesn's work when a third-party app requires migrations
-    try:
-        if silent:
-            execute_from_command_line(
-                ["manage.py", "makemigrations", app_label, "--check", "--dry-run", "--verbosity", "0"]
-            )
-        else:  # pragma: no cover
-            execute_from_command_line(
-                ["manage.py", "makemigrations", app_label, "--check", "--dry-run", "--verbosity", "3"]
-            )
-        system_exit = 0
-    except SystemExit as system_exit_exception:  # pragma: no cover
-        system_exit = system_exit_exception
-    return system_exit != 0
 
 
 class PullRequest(models.Model):
@@ -147,27 +128,27 @@ class PytestReport(models.Model):
     @classmethod
     @transaction.atomic
     def process_file(cls, report_file):
+        """Process report file"""
         lines = report_file.readlines()
         report = cls.objects.create(
             pytest_version=json.loads(lines[0]).get('pytest_version')
         )
         pytest_log_objects = list(filter(lambda d: d.get('$report_type') == 'TestReport', map(json.loads, lines)))
-        g = groupby(pytest_log_objects, lambda d: d.pop('nodeid'))
+        group = groupby(pytest_log_objects, lambda d: d.pop('nodeid'))
         pytest_results = []
-        for nodeid, node_data in g:
-            c = Counter()
+        for nodeid, node_data in group:
+            counter = Counter()
             outcome = 'passed'
-            for row in node_data: 
-                r = {'duration': row.get('duration', 0)}
-                c.update(r)
+            for row in node_data:
+                counter.update({'duration': row.get('duration', 0)})
                 if row.get('outome') == 'failed':
-                    outcome = 'failed' 
+                    outcome = 'failed'
             pytest_results.append(
                 PytestResult(
                     report=report,
                     node_id=nodeid.replace('mono/', '', 1),
                     outcome=outcome,
-                    duration=timedelta(seconds=dict(c).get('duration', 0)),
+                    duration=timedelta(seconds=dict(counter).get('duration', 0)),
                 )
             )
         return PytestResult.objects.bulk_create(pytest_results)
@@ -192,7 +173,12 @@ class PytestResult(models.Model):
         verbose_name = _("Pytest Result")
         verbose_name_plural = _("Pytest Results")
 
+
 class CoverageReport(models.Model):
+    """
+    Stores groups of coverage results :model:`healthcheck.CoverageResult`.
+    """
+
     coverage_version = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -207,12 +193,16 @@ class CoverageReport(models.Model):
     def result_count(self):
         return self.results.count()
 
-    
     @property
     def coverage_percentage(self):
+        """Display the coverage result for this report in percentage format"""
         try:
-            total_covered_lines = self.results.aggregate(total_covered_lines=models.Sum('covered_lines'))['total_covered_lines']
-            total_missing_lines = self.results.aggregate(total_missing_lines=models.Sum('missing_lines'))['total_missing_lines']
+            total_covered_lines = self.results.aggregate(
+                total_covered_lines=models.Sum('covered_lines')
+            )['total_covered_lines']
+            total_missing_lines = self.results.aggregate(
+                total_missing_lines=models.Sum('missing_lines')
+            )['total_missing_lines']
             return f'{total_covered_lines / (total_covered_lines + total_missing_lines):.1%}'
         except ZeroDivisionError:
             return f'{0.0:.1%}'
@@ -223,9 +213,9 @@ class CoverageReport(models.Model):
     @classmethod
     @transaction.atomic
     def process_file(cls, report_file):
+        """Process report file"""
         data = json.loads(report_file.read())
         version = data.get('meta', {}).get('version')
-        timestamp = data.get('meta', {}).get('timestamp')
         report = cls.objects.create(
             coverage_version=version
         )
@@ -245,6 +235,9 @@ class CoverageReport(models.Model):
 
 
 class CoverageResult(models.Model):
+    """
+    Stores individual coverage results, grouped by :model:`healthcheck.CoverageReport`.
+    """
     report = models.ForeignKey(CoverageReport, on_delete=models.CASCADE, related_name="results")
     file = models.CharField(max_length=2000, help_text="File name.")
     covered_lines = models.PositiveIntegerField()
@@ -254,6 +247,7 @@ class CoverageResult(models.Model):
 
     @property
     def coverage_percentage(self):
+        """Display coverage in percentage format"""
         try:
             return f'{self.covered_lines / (self.covered_lines + self.missing_lines):.1%}'
         except ZeroDivisionError:
@@ -265,6 +259,10 @@ class CoverageResult(models.Model):
 
 
 class PylintReport(models.Model):
+    """
+    Stores groups of pylint results :model:`healthcheck.PylintResult`.
+    """
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -281,6 +279,7 @@ class PylintReport(models.Model):
     @classmethod
     @transaction.atomic
     def process_file(cls, report_file):
+        """Process report file"""
         data = json.loads(report_file.read())
         report = cls.objects.create()
         results = [
@@ -304,6 +303,9 @@ class PylintReport(models.Model):
 
 
 class PylintResult(models.Model):
+    """
+    Stores individual pylint results, grouped by :model:`healthcheck.PylintReport`.
+    """
     report = models.ForeignKey(PylintReport, on_delete=models.CASCADE, related_name="results")
     type = models.CharField(max_length=50, help_text="File name.")
     module = models.CharField(max_length=1000, help_text="Module name.")

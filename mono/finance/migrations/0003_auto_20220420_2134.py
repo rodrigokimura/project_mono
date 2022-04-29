@@ -7,6 +7,7 @@ from ..models import Icon
 def create_default_icons(*args, **kwargs):
     Icon.create_defaults()
 
+
 class Migration(migrations.Migration):
 
     dependencies = [

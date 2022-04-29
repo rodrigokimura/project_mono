@@ -6,6 +6,7 @@ from . import models
 
 admin.site.register(models.Tag)
 
+
 @admin.register(models.Note)
 class NoteAdmin(MarkdownxModelAdmin):
     list_display = (
