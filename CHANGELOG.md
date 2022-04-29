@@ -1,3 +1,9 @@
+## 5.1.7 (2022-04-29)
+
+### Fix
+
+- **checklists**: adjust signature in viewset method
+
 ## 5.1.6 (2022-04-29)
 
 ### Fix
