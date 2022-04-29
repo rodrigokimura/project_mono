@@ -1,4 +1,5 @@
 """Coder's views"""
+from __mono.permissions import IsCreator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -58,14 +59,6 @@ class SnippetListView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class SnippetEditView(DetailView):
-    """
-    Snippet edit view.
-    """
-    model = Snippet
-    template_name = 'coder/snippet_edit.html'
-
-
 class SnippetPublicView(TemplateView):
     """
     Snippet public view.
@@ -86,6 +79,7 @@ class ConfigAPIView(RetrieveUpdateAPIView):
     """View to read or update user config"""
 
     serializer_class = ConfigurationSerializer
+    permission_classes = [IsCreator]
 
     def get_object(self):
         return Configuration.objects.get_or_create(created_by=self.request.user)[0]
