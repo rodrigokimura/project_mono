@@ -88,7 +88,7 @@ class PasswordResetView(_PasswordResetView):
     """
     Password reset view.
     """
-    success_url = reverse_lazy('finance:password_reset_done')
+    success_url = reverse_lazy('accounts:password_reset_done')
     title = _('Password reset')
     html_email_template_name = 'registration/password_reset_email.html'
     subject_template_name = 'registration/password_reset_subject.txt'
@@ -102,7 +102,7 @@ class PasswordResetConfirmView(_PasswordResetConfirmView):
     """
     Password reset confirm view.
     """
-    success_url = reverse_lazy('finance:password_reset_complete')
+    success_url = reverse_lazy('accounts:password_reset_complete')
     template_name = 'registration/password_reset_confirm.html'
     title = _('Enter new password')
 
