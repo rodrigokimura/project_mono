@@ -38,6 +38,7 @@ class TaskSerializer(ModelSerializer):
             'id',
             'checklist',
             'description',
+            'note',
             'order',
             'created_by',
             'created_at',
