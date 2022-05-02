@@ -322,7 +322,7 @@ class TransactionDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView
         return super().delete(request, *args, **kwargs)
 
 
-class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):  # pylint: disable=R0901
+class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):  # pylint: disable=too-many-ancestors
     """List transactions monthly"""
     queryset = Transaction.objects.all()
     date_field = "timestamp"
