@@ -179,7 +179,7 @@ function toggleSelectedTask() {
     }
 }
 
-function updateTask() {
+function updateTask(data) {
     taskId = sessionStorage.getItem('selectedTask')
     checklistId = sessionStorage.getItem('selectedChecklist')
     $.api({
@@ -187,9 +187,7 @@ function updateTask() {
         method: 'PATCH',
         url: `/cl/api/tasks/${taskId}/`,
         stateContext: '#task-detail .segment',
-        data: {
-            description: $('#task-description').val(),
-        },
+        data: data,
         onSuccess: r => {
             retrieveTasks(checklistId)
         }
@@ -206,6 +204,7 @@ function selectTask(taskId) {
         onSuccess: r => {
             sessionStorage.setItem('selectedTask', taskId)
             $("#task-description").val(r.description)
+            $("#task-note").val(r.note)
             $('#task-detail').parent().show('swing')
             if (r.checked_at) {
                 $("#task-description").attr('data-checked', true)
@@ -222,7 +221,13 @@ function selectTask(taskId) {
             $("#task-description").off().on('input', e => {
                 clearTimeout(updateTaskTimeout)
                 updateTaskTimeout = setTimeout(function () {
-                    updateTask()
+                    updateTask({ description: $('#task-description').val() })
+                }, 1000)
+            })
+            $("#task-note").off().on('input', e => {
+                clearTimeout(updateTaskTimeout)
+                updateTaskTimeout = setTimeout(function () {
+                    updateTask({ note: $('#task-note').val() })
                 }, 1000)
             })
         }

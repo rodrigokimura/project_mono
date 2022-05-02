@@ -106,8 +106,13 @@
                         <input type="text" placeholder="Task description" id="task-description">
                     </div>
                 </div>
-                <div class="ui attached vertical segment menu" style="width: 100%; flex: 1 0 auto; padding-right: 1em; padding-left: 1em;">
-                    <p></p>
+                <div class="ui attached vertical form segment" style="width: 100%; flex: 1 0 auto; padding-right: 1em; padding-left: 1em;">
+                    <div class="ui fluid field">
+                        <label>Note</label>
+                        <textarea id="task-note"> I have an left icon</textarea>
+
+                        {% comment %} <textarea placeholder="Note" id="task-note"></textarea> {% endcomment %}
+                    </div>
                 </div>
                 <div class="ui bottom attached vertical segment menu" style="width: 100%; flex: 0 0 auto; padding-right: 1em; padding-left: 1em; display: flex; flex-flow: row nowrap; align-items: center;">
                     <div style="flex: 1 0 auto;">

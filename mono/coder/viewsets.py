@@ -9,7 +9,7 @@ from rest_framework.viewsets import ModelViewSet
 from .models import Snippet, Tag
 from .serializers import SnippetSerializer, TagSerializer
 
-# pylint: disable=R0901
+# pylint: disable=too-many-ancestors
 
 
 class BaseViewSet(ModelViewSet):

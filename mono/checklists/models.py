@@ -20,6 +20,7 @@ class Task(models.Model):
     """Checklist item"""
     checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE)
     description = models.CharField(max_length=255)
+    note = models.TextField(default='', max_length=2000)
     order = models.IntegerField(default=0)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_checklist_tasks")
     created_at = models.DateTimeField(auto_now_add=True)
