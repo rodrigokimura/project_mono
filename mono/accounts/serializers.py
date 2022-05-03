@@ -27,6 +27,8 @@ class UserSerializer(ModelSerializer):
 
         fields = [
             'username',
+            'first_name',
+            'last_name',
             'email',
             'profile',
         ]
@@ -45,8 +47,8 @@ class UserSerializer(ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
-        avatar = validated_data.get('avatar')
-        profile = instance.profile
-        profile.avatar = avatar
-        profile.save()
+        if 'avatar' in validated_data:
+            profile = instance.profile
+            profile.avatar = validated_data['avatar']
+            profile.save()
         return super().update(instance, validated_data)
