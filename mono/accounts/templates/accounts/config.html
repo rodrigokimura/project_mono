@@ -3,10 +3,6 @@
 {% load i18n %}
 {% load custom_tags %}
 
-
-{% block head %}
-{% endblock head %}
-
 {% block main %}
     <div class="ui stackable grid container" style="padding-top: 5em;">
 
@@ -38,13 +34,6 @@
                         </div>
                     </div>
                     <input type="file" class="change-picture" style="display: none;">
-                    <script>
-                        $('.ui.card .image').dimmer({ on: 'hover' });
-                        $(".change-picture.button").click(function(e){
-                            e.preventDefault();
-                            $("input[type=file]").trigger('click');
-                        });
-                    </script>
                     
                     <h2 class="ui header">{% translate "General info" %}</h2>
                     <form class="ui profile form">
@@ -78,53 +67,6 @@
                         <button class="ui save profile button" type="submit">Save</button>
                         <div class="ui error message"></div>
                     </form>
-                    <script>
-                        const USER_ID = "{{ request.user.id }}";
-                        var profileForm = $('.ui.profile.form');
-                        profileForm.form({
-                            onSuccess: (event, fields) => {
-                                event.preventDefault();
-                                var fd = new FormData();
-                                var files = $('input[type=file]')[0].files;
-                                if (files.length > 0) {
-                                    fd.append('avatar', files[0]);
-                                }
-                                fd.append('username', $('input[name=username]').val());
-                                fd.append('email', $('input[name=email]').val());
-                                fd.append('first_name', $('input[name=first_name]').val());
-                                fd.append('last_name', $('input[name=last_name]').val());
-                                $.api({
-                                    on: 'now',
-                                    url: `/accounts/users/${USER_ID}/`,
-                                    method: 'PATCH',
-                                    headers: { 'X-CSRFToken': csrftoken },
-                                    stateContext: '.ui.tab[data-tab=profile] .ui.segment',
-                                    loadingDuration: 1000,
-                                    data: fd,
-                                    contentType: false,
-                                    processData: false,
-                                    onFailure: (response, element, xhr) => {
-                                        for (const [key, value] of Object.entries(response)) {
-                                            profileForm.form('add errors', [value]);
-                                            $(`.field input[name=${key}]`).parents('.field').addClass('error');
-                                        }
-                                    },
-                                    onSuccess: (response) => {
-                                        for (const [key, value] of Object.entries(response)) {
-                                            if (key != 'profile') {
-                                                $(`input[name=${key}]`).val(value);
-                                            } else {
-                                                $('.ui.tab[data-tab=profile] img').attr('src', value.avatar)
-                                            }
-                                        }
-                                        profileForm.form('remove errors');
-                                        $('.field').removeClass('error');
-                                    }
-                                })
-                            },
-                            
-                        })
-                    </script>
                 </div>
             </div>
 
@@ -172,7 +114,6 @@
                             </div>
                         {% endfor %}
                     </div>
-                    <script>$('.notifications.accordion').accordion()</script>
                 </div>
             </div>
 
@@ -194,11 +135,9 @@
         </div>
     </div>
     <script>
-        $('.menu .item').tab();
-        {% if request.GET.tab %}
-            $('.menu .item').tab('change tab', '{{ request.GET.tab }}');
-        {% endif %}
-        
+        const USER_ID = "{{ request.user.id }}"
+        var picture_changed = false
+        var profileForm = $('.ui.profile.form')
         function getSelectedNotifications(type='unread') {
             checkboxes =  $(`.notifications.accordion .content[data-type=${type}`).find('.ui.checkbox')
             ids = []
@@ -209,35 +148,99 @@
                     ids.push(id)
                 }
             }
-            return ids;
+            return ids
         }
-        
         function markAsRead() {
-            ids = getSelectedNotifications(type='unread');
+            ids = getSelectedNotifications(type='unread')
             $.api({
                 on: 'now',
                 method: 'POST',
                 headers: { 'X-CSRFToken': csrftoken },
                 url: `/accounts/notifications/mark-as-read/`,
                 data: { ids: JSON.stringify(ids) },
-                onSuccess: r => {
-                    location.reload();
-                },
+                onSuccess: r => { location.reload() },
             })
         }
-        
         function markAsUnread() {
-            ids = getSelectedNotifications(type='read');
+            ids = getSelectedNotifications(type='read')
             $.api({
                 on: 'now',
                 method: 'POST',
                 headers: { 'X-CSRFToken': csrftoken },
                 url: `/accounts/notifications/mark-as-unread/`,
                 data: { ids: JSON.stringify(ids) },
-                onSuccess: r => {
-                    location.reload();
+                onSuccess: r => { location.reload() },
+            })
+        }
+        function initializeNotificationsAccordion() {
+            $('.notifications.accordion').accordion()
+        }
+        function initializeProfilePicture() {
+            $('.ui.card .image').dimmer({ on: 'hover' })
+            $(".change-picture.button").click(function(e){
+                e.preventDefault()
+                picture_changed = true
+                $("input[type=file]").trigger('click')
+            })
+        }
+        function initializeForm() {
+            profileForm.form({
+                onSuccess: (event, fields) => {
+                    event.preventDefault()
+                    var fd = new FormData()
+                    var files = $('input[type=file]')[0].files
+                    if (files.length > 0 && picture_changed) {
+                        fd.append('avatar', files[0])
+                    }
+                    fd.append('username', $('input[name=username]').val())
+                    fd.append('email', $('input[name=email]').val())
+                    fd.append('first_name', $('input[name=first_name]').val())
+                    fd.append('last_name', $('input[name=last_name]').val())
+                    $.api({
+                        on: 'now',
+                        url: `/accounts/users/${USER_ID}/`,
+                        method: 'PATCH',
+                        headers: { 'X-CSRFToken': csrftoken },
+                        stateContext: '.ui.tab[data-tab=profile] .ui.segment',
+                        loadingDuration: 1000,
+                        data: fd,
+                        contentType: false,
+                        processData: false,
+                        onFailure(response, element, xhr) {
+                            for (const [key, value] of Object.entries(response)) {
+                                profileForm.form('add errors', [value])
+                                $(`.field input[name=${key}]`).parents('.field').addClass('error')
+                            }
+                        },
+                        onSuccess(response) {
+                            for (const [key, value] of Object.entries(response)) {
+                                if (key != 'profile') {
+                                    $(`input[name=${key}]`).val(value)
+                                } else {
+                                    $('.ui.tab[data-tab=profile] img').attr('src', value.avatar)
+                                }
+                            }
+                            profileForm.form('remove errors')
+                            $('.field').removeClass('error')
+                        }
+                    })
                 },
             })
         }
+        function initializeTab() {
+            const params = new Proxy(new URLSearchParams(window.location.search), {
+                get: (searchParams, prop) => searchParams.get(prop),
+            })
+            $('.menu .item').tab()
+            if (params.tab) {
+                $('.menu .item').tab('change tab', params.tab)
+            }
+        }
+        $(document).ready(e => {
+            initializeTab()
+            initializeForm()
+            initializeProfilePicture()
+            initializeNotificationsAccordion()
+        })
     </script>
 {% endblock %}
