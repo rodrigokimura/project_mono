@@ -1,3 +1,9 @@
+## 5.3.2 (2022-05-04)
+
+### Fix
+
+- **checklists**: adjust mobile layout
+
 ## 5.3.1 (2022-05-04)
 
 ### Fix
