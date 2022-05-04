@@ -32,14 +32,15 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView
 from rest_framework import authentication, permissions, status
 from rest_framework.authtoken.models import Token
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView, UpdateAPIView
+from rest_framework.permissions import IsAuthenticated   
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from social_django.models import UserSocialAuth
 
 from .forms import UserForm
 from .models import Notification, Plan, Subscription, User, UserProfile
-from .serializers import ProfileSerializer, UserSerializer
+from .serializers import ProfileSerializer, UserSerializer, ChangePasswordSerializer
 from .stripe import (
     get_or_create_customer, get_or_create_subscription, get_payment_methods,
     get_products,
@@ -229,10 +230,40 @@ class ConfigView(LoginRequiredMixin, TemplateView):
         return context
 
 
+class ChangePasswordView(UpdateAPIView):
+    """
+    An endpoint for changing password.
+    """
+    serializer_class = ChangePasswordSerializer
+    model = User
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self, queryset=None):
+        obj = self.request.user
+        return obj
+
+    def update(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            if not self.object.check_password(serializer.data.get("old_password")):
+                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            if serializer.data.get("new_password") != serializer.data.get("new_password_confirmation"):
+                return Response({"new_password_confirmation": ["The two new password fields didn't match."]}, status=status.HTTP_400_BAD_REQUEST)
+            self.object.set_password(serializer.data.get("new_password"))
+            self.object.save()
+            login(request, request.user, backend='__mono.auth_backends.EmailOrUsernameModelBackend')
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class UserDetailAPIView(LoginRequiredMixin, APIView):
     """
     Retrieve or update a user instance.
     """
+    permission_classes = (IsAuthenticated,)
 
     def patch(self, request, pk, **kwargs):
         """

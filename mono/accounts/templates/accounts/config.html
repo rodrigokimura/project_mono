@@ -67,12 +67,15 @@
                         <button class="ui save profile button" type="submit">Save</button>
                         <div class="ui error message"></div>
                     </form>
+                    
                 </div>
             </div>
 
             <div class="ui tab" data-tab="settings">
                 <div class="ui segment">
                     <h1 class="ui dividing header">{% translate "Settings" %}</h1>
+                    <h2 class="ui header">{% translate "Account info" %}</h2>
+                    <a class="ui button" onclick="showChangePasswordModal()">Change password</a>
                 </div>
             </div>
 
@@ -134,6 +137,7 @@
             </div>
         </div>
     </div>
+    {% include 'accounts/_change_password_modal.html' %}
     <script>
         const USER_ID = "{{ request.user.id }}"
         var picture_changed = false
@@ -231,12 +235,50 @@
             const params = new Proxy(new URLSearchParams(window.location.search), {
                 get: (searchParams, prop) => searchParams.get(prop),
             })
-            $('.menu .item').tab()
-            if (params.tab) {
-                $('.menu .item').tab('change tab', params.tab)
-            }
+            $('.menu .item').tab(
+                {
+                    autoTabActivation: params.tab ? params.tab : true
+                }
+            )
         }
-        $(document).ready(e => {
+        function showChangePasswordModal() {
+            modal = $('#change-password-modal')
+            modal.find('input[name=old_password]').val('')
+            modal.find('input[name=new_password]').val('')
+            modal.find('input[name=new_password_confirmation]').val('')
+            modal.modal({
+                onApprove() {
+                    $.api({
+                        on: 'now',
+                        method: 'PUT',
+                        url: '/accounts/api/change-password/',
+                        headers: { 'X-CSRFToken': csrftoken },
+                        data: {
+                            old_password: modal.find('input[name=old_password]').val(),
+                            new_password: modal.find('input[name=new_password]').val(),
+                            new_password_confirmation: modal.find('input[name=new_password_confirmation]').val(),
+                        },
+                        successTest(r) { return true },
+                        onSuccess(r) {
+                            $('body').toast({
+                                title: 'Password updated successfully!'
+                            })
+                            modal.modal('hide')
+                            modal.form('remove errors')
+                            $('.field').removeClass('error')
+                        },
+                        onFailure(response, element, xhr) {
+                            for (const [key, value] of Object.entries(response)) {
+                                modal.form('add errors', [`${key}: ${value}`])
+                                $(`.field input[name=${key}]`).parents('.field').addClass('error')
+                            }
+                        },
+                    })
+                    return false
+                }
+            }).modal('show')
+        }
+        $(document).ready(() => {
             initializeTab()
             initializeForm()
             initializeProfilePicture()

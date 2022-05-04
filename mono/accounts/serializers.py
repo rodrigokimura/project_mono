@@ -1,6 +1,6 @@
 """Accounts' serializers"""
 from __mono.utils import validate_file_size
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import CharField, ModelSerializer, Serializer
 
 from .models import User, UserProfile
 
@@ -16,6 +16,13 @@ class ProfileSerializer(ModelSerializer):
 
     def validate_avatar(self, file):  # pylint: disable=no-self-use
         return validate_file_size(file, 10)
+
+
+class ChangePasswordSerializer(Serializer):
+    """Change password serializer"""
+    old_password = CharField(required=True)
+    new_password = CharField(required=True)
+    new_password_confirmation = CharField(required=True)
 
 
 class UserSerializer(ModelSerializer):
