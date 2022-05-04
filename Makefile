@@ -53,16 +53,16 @@ R_F8=reports/flake8
 R_PL=reports/pylint
 R_PT=reports/pytest
 
-isort:
+isort:  ## Run isort
 	@pipenv run isort mono
 
-flake8:
+flake8:  ## Run flake8
 	@mkdir -p mono/$(R_F8)
 	@cat /dev/null > mono/$(R_F8)/flake8stats.txt
 	@export APP_ENV=TEST && cd mono \
 		&& pipenv run flake8 --statistics --tee --output-file $(R_F8)/flake8stats.txt --exit-zero
 
-pylint:
+pylint:  ## Run pylint
 	@mkdir -p mono/$(R_PL)
 	@touch mono/$(R_PL)/report.json
 	@cat /dev/null > mono/$(R_PL)/report.json
