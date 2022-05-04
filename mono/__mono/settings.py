@@ -121,6 +121,7 @@ TEMPLATES = [
             'context_processors': [
                 '__mono.context_processors.environment',
                 '__mono.context_processors.language_extras',
+                '__mono.context_processors.apps_menu',
                 'accounts.context_processors.unread_notification_count',
                 'pixel.context_processors.site',
                 'django.template.context_processors.debug',
