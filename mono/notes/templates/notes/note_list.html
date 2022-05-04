@@ -84,8 +84,17 @@
 {% endblock menu %}
 
 {% block sidebar %}
-    <div class="ui sidebar inverted menu" style="padding: 1em;">
-        <div class="ui inverted big list" data-notes-list="true" style="width: 100%;"></div>
+    <div class="ui sidebar inverted menu" style="padding: 0 0 .5em 0; display: flex; flex-flow: column nowrap; height: 100vh !important;">
+        <div class="header item" style="flex: 0 0 auto;">
+            <div class="ui inverted header">
+                <em data-emoji=":notepad_spiral:" class="small"></em>
+                <span style="padding-left: .5em;">Notes</span>
+            </div>
+        </div>
+        <div class="explorer" data-notes-list="true"></div>
+        <div class="item" style="flex: 0 0 auto;">
+            <a class="ui fluid green right labeled icon button" href="{% url 'notes:note_create' %}"><i class="add icon"></i>{% translate 'New note' %}</a>
+        </div>
     </div>
 {% endblock sidebar %}
  
@@ -221,8 +230,13 @@
             $(this).children('.icon').toggleClass('open');
         })
         $('.ui.sidebar')
-            .sidebar('setting', 'transition', 'slide along')
-            .sidebar('setting', 'mobileTransition', 'slide along')
+            .sidebar({
+                scrollLock: false,
+                returnScroll: false,
+                exclusive: false,
+                transition: 'slide along',
+                mobileTransition: 'slide along',
+            })
             .sidebar('attach events', '.toc.item');
 
         MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
