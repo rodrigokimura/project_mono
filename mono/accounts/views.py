@@ -33,14 +33,16 @@ from django.views.generic.edit import CreateView
 from rest_framework import authentication, permissions, status
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import RetrieveAPIView, UpdateAPIView
-from rest_framework.permissions import IsAuthenticated   
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from social_django.models import UserSocialAuth
 
 from .forms import UserForm
 from .models import Notification, Plan, Subscription, User, UserProfile
-from .serializers import ProfileSerializer, UserSerializer, ChangePasswordSerializer
+from .serializers import (
+    ChangePasswordSerializer, ProfileSerializer, UserSerializer,
+)
 from .stripe import (
     get_or_create_customer, get_or_create_subscription, get_payment_methods,
     get_products,
