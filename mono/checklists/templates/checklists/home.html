@@ -31,7 +31,10 @@
             gap: 1em;
         }
         .panel {
-            flex: 1 0 auto;
+            flex: 1 1 auto;
+        }
+        .active.panel {
+            display: block;
         }
         .explorer {
             padding: 0 !important;
@@ -54,6 +57,13 @@
                 padding-left: 1em !important;
                 padding-right: 1em !important;
             }
+            .panel {
+                flex: 1 1 auto;
+                display: none;
+            }
+            .active.panel {
+                display: block;
+            }
         }
         .hidden {
             display: none !important;
@@ -69,6 +79,26 @@
     </script>
 {% endblock head %}
 
+{% block menu %}
+    <a class="toc item"><i class="sidebar icon"></i></a>
+    <div class="ui right flowing popup" style="width: 320px; max-height: 300px; overflow-y: auto; margin-right: 1em;"></div>
+{% endblock menu %}
+
+{% block sidebar %}
+    <div class="ui sidebar inverted menu" style="padding: 0 0 .5em 0; display: flex; flex-flow: column nowrap; height: 100vh !important;">
+        <div class="header item" style="flex: 0 0 auto;">
+            <div class="ui inverted header">
+                <em data-emoji=":ballot_box_with_check:" class="small"></em>
+                <span style="padding-left: .5em;">Checklists</span>
+            </div>
+        </div>
+        <div class="explorer" id="lists-div"></div>
+        <div class="item" style="flex: 0 0 auto;">
+            <a class="ui fluid green right labeled icon button" onclick="showNewChecklistModal()"><i class="add icon"></i>{% translate 'New checklist' %}</a>
+        </div>
+    </div>
+{% endblock sidebar %}
+
 {% block main %}
     <div class="ui vertical left fixed computer only inverted menu" style="padding-top: 3em; width: 20em; display: flex; align-items: stretch;">
         <div class="header item" style="flex: 0 0 auto;">
@@ -83,7 +113,7 @@
         </div>
     </div>
     <div class="ui stackable compact main">
-        <div class="panel" style="min-width: 40%;">
+        <div class="active panel" style="min-width: 40%;" id="task-list-panel">
             <div style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;">
                 <div class="ui top attached teal segment" style="width: 100%;">
                     <div class="ui fluid input"><input type="text" placeholder="Search..." id="search"></div>
@@ -96,30 +126,7 @@
                 </div>
             </div>
         </div>
-        <div class="panel">
-            <div style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;" id="task-detail">
-                <div class="ui top attached teal segment" style="width: 100%; display: flex; flex-flow: row nowrap; align-items: center;">
-                    <div class="check" style="flex: 0 0 auto; padding-right: .5em;">
-                        <span class="ui big text"><i id="check-icon" class="icon" onclick="toggleSelectedTask()"></i></span>
-                    </div>
-                    <div class="ui big input" style="flex: 1 0 auto;">
-                        <input type="text" placeholder="Task description" id="task-description">
-                    </div>
-                </div>
-                <div class="ui attached vertical form segment" style="width: 100%; flex: 1 0 auto; padding-right: 1em; padding-left: 1em;">
-                    <div class="ui fluid field">
-                        <label>Note</label>
-                        <textarea id="task-note" placeholder="Note" ></textarea>
-                    </div>
-                </div>
-                <div class="ui bottom attached vertical segment menu" style="width: 100%; flex: 0 0 auto; padding-right: 1em; padding-left: 1em; display: flex; flex-flow: row nowrap; align-items: center;">
-                    <div style="flex: 1 0 auto;">
-                        <span id="task-timestamp"></span>
-                    </div>
-                    <a style="flex: 0 0 auto;" class="ui icon right floated red button" onclick="deleteTask()"><i class="delete icon"></i></a>
-                </div>
-            </div>
-        </div>
+        {% include 'checklists/_task_panel.html' %}
     </div>
 
     {% include 'checklists/_modal.html' with modal_id='new-checklist' input_name='name' header='Checklist' only %}
@@ -136,6 +143,7 @@
             sessionStorage.clear()
             retrieveLists()
             $('#task-detail').parent().hide()
+            initializeSidebar()
         })
     </script>
 {% endblock %}
