@@ -46,7 +46,7 @@ function renderTask(taskId, taskDescription, checked) {
         if ($(e.target).hasClass('checkbox') || $(e.target).parent().hasClass('checkbox')) { return }
         selectedTask = sessionStorage.getItem('selectedTask')
         if ($(e.target).closest('.task.item').hasClass('active')) {
-            $('#task-detail').parent().toggle('swing')
+            toggleTaskPanel()
         } else {
             selectTask(taskId)
         }
@@ -101,7 +101,7 @@ function retrieveLists() {
 function selectChecklist(checklistId) {
     sessionStorage.removeItem('selectedTask')
     retrieveTasks(checklistId)
-    $('#task-detail').parent().hide('swing')
+    hideTaskPanel()
     $('*.checklist.item').removeClass('active')
     $(`.checklist.item[data-checklist-id=${checklistId}]`).addClass('active')
 }
@@ -205,7 +205,7 @@ function selectTask(taskId) {
             sessionStorage.setItem('selectedTask', taskId)
             $("#task-description").val(r.description)
             $("#task-note").val(r.note)
-            $('#task-detail').parent().show('swing')
+            showTaskPanel()
             if (r.checked_at) {
                 $("#task-description").attr('data-checked', true)
                 $('#check-icon').addClass('check circle outline')
@@ -235,6 +235,7 @@ function selectTask(taskId) {
 }
 
 function deleteTask() {
+    $('.ui.sidebar').sidebar('hide')
     $('body').modal({
         title: 'Confirmation',
         class: 'mini',
@@ -260,13 +261,14 @@ function deleteTask() {
                 onSuccess: r => {
                     sessionStorage.removeItem('selectedTask')
                     retrieveTasks(checklistId)
-                    $('#task-detail').parent().hide('swing')
+                    hideTaskPanel()
                 }
             })
         }
     }).modal('show');
 }
 function deleteChecklist(id) {
+    $('.ui.sidebar').sidebar('hide')
     $('body').modal({
         title: 'Confirmation',
         class: 'mini',
@@ -290,7 +292,7 @@ function deleteChecklist(id) {
                 onSuccess: r => {
                     if (id == sessionStorage.getItem('selectedChecklist')) {
                         sessionStorage.removeItem('selectedChecklist')
-                        $('#task-detail').parent().hide('swing')
+                        hideTaskPanel()
                     }
                     retrieveLists()
                 }
@@ -300,6 +302,7 @@ function deleteChecklist(id) {
 }
 
 function showNewChecklistModal() {
+    $('.ui.sidebar').sidebar('hide')
     modal = $('#new-checklist')
     input = modal.find('input[name=name]')
     modal.modal({
@@ -319,6 +322,7 @@ function showNewChecklistModal() {
 }
 
 function editChecklist(checklistId) {
+    $('.ui.sidebar').sidebar('hide')
     modal = $('#new-checklist')
     input = modal.find('input[name=name]')
     selectedChecklist = sessionStorage.getItem('selectedChecklist')
@@ -368,4 +372,29 @@ function showNewTaskModal() {
             createTask(input.val())
         }
     }).modal('show')
+}
+
+function initializeSidebar() {
+    $('.ui.sidebar')
+        .sidebar({
+            scrollLock: false,
+            returnScroll: false,
+            exclusive: false,
+            transition: 'slide along',
+            mobileTransition: 'slide along',
+        })
+        .sidebar('attach events', '.toc.item');
+}
+
+function hideTaskPanel() {
+    $('#task-detail').parent().hide('swing')
+    $('#task-list-panel').addClass('active')
+}
+function showTaskPanel() {
+    $('#task-detail').parent().show('swing')
+    $('#task-list-panel').removeClass('active')
+}
+function toggleTaskPanel() {
+    $('#task-detail').parent().toggle('swing')
+    $('#task-list-panel').toggleClass('active')
 }
