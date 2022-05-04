@@ -3,11 +3,13 @@
         display: inline-block;     
         position: relative;
         background-color: rgba(0,0,0,0);
-        color: red;
         padding: .5em;
         height: 100%;
         width: 100%;
         border-radius: .5em;
+    }
+    .secret.app-button {
+        background-color: rgba(255,0,0,.2);
     }
     .app-button:hover {
         background-color: rgba(0,0,0,.2);
@@ -17,24 +19,7 @@
     }
 </style>
 <div class="ui three column center aligned compact grid" style="align-items: center; align-content: stretch,">
-
-  {% include "homepage/_app_button.html" with name="Finance" url="/fn/" emoji="dollar" %}
-  {% include "homepage/_app_button.html" with name="Project Manager" url="/pm/" emoji="dividers" %}
-  {% include "homepage/_app_button.html" with name="Notes" url="/nt/" emoji="notepad_spiral" %}
-  {% include "homepage/_app_button.html" with name="Checklists" url="/cl/" emoji="ballot_box_with_check" %}
-  {% include "homepage/_app_button.html" with name="Pixel" url="/pixel/" emoji="bar_chart" %}
-  {% include "homepage/_app_button.html" with name="Shipper" url="/shipper/" emoji="couple_with_heart" %}
-  {% include "homepage/_app_button.html" with name="Coder" url="/cd/" emoji="card_box" %}
-  
-  {% if request.user.is_superuser %}
-      {% comment %} 
-          {% include "homepage/_app_button.html" with name="Messenger" url="/ms/" emoji="envelope" %} 
-      {% endcomment %}
-      {% include "homepage/_app_button.html" with name="Curriculum builder" url="/cb/" emoji="bookmark_tabs" %}
-      {% include "homepage/_app_button.html" with name="Admin" url="/admin/" emoji="control_knobs" %}
-      {% include "homepage/_app_button.html" with name="Restricted Area" url="/restricted-area/" emoji="closed_lock_with_key" %}
-      {% include "homepage/_app_button.html" with name="Watcher" url="/watcher/" emoji="pager" %}
-      {% include "homepage/_app_button.html" with name="Healthcheck" url="/hc/home/" emoji="thermometer" %}
-  {% endif %}
-
+    {% for app in apps_menu %}
+        {% include "homepage/_app_button.html" with name=app.name url=app.url emoji=app.emoji secret=app.secret only %}
+    {% endfor %}
 </div>

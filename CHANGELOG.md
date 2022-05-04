@@ -1,3 +1,9 @@
+## 5.3.3 (2022-05-04)
+
+### Refactor
+
+- **mono**: improve apps menu
+
 ## 5.3.2 (2022-05-04)
 
 ### Fix

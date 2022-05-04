@@ -12,7 +12,7 @@ load_dotenv()
 
 APP_ENV = os.getenv('APP_ENV', 'PRD')
 
-APP_VERSION = "5.3.2"
+APP_VERSION = "5.3.3"
 
 if APP_ENV in ['DEV', 'TEST']:
     GITHUB_SECRET = 'GITHUB_SECRET'
@@ -121,6 +121,7 @@ TEMPLATES = [
             'context_processors': [
                 '__mono.context_processors.environment',
                 '__mono.context_processors.language_extras',
+                '__mono.context_processors.apps_menu',
                 'accounts.context_processors.unread_notification_count',
                 'pixel.context_processors.site',
                 'django.template.context_processors.debug',
