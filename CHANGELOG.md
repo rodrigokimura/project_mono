@@ -1,3 +1,9 @@
+## 5.3.1 (2022-05-04)
+
+### Fix
+
+- **notes**: adjust mobile layout
+
 ## 5.3.0 (2022-05-03)
 
 ### Feat
