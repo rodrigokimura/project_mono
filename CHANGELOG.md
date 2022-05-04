@@ -1,3 +1,9 @@
+## 5.3.0 (2022-05-03)
+
+### Feat
+
+- **accounts**: add page to change password
+
 ## 5.2.3 (2022-05-03)
 
 ### Refactor
