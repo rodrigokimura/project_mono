@@ -1,3 +1,9 @@
+## 5.3.4 (2022-05-04)
+
+### Fix
+
+- **finance**: adjust timezone in date
+
 ## 5.3.3 (2022-05-04)
 
 ### Refactor
