@@ -435,6 +435,19 @@
 </div>
 
 <script>
+  function toIsoString(date) {
+    var tzo = -date.getTimezoneOffset(),
+        dif = tzo >= 0 ? '+' : '-',
+        pad = function(num) {
+            return (num < 10 ? '0' : '') + num;
+        };
+    return date.getFullYear() +
+        '-' + pad(date.getMonth() + 1) +
+        '-' + pad(date.getDate()) +
+        'T' + pad(date.getHours()) +
+        ':' + pad(date.getMinutes()) +
+        ':' + pad(date.getSeconds());
+  }
   function getObjectType() {
     if ($('#is-recurrent-or-installment').checkbox('is checked')) {
       if ($('.ui.radio.installment.checkbox').checkbox('is checked')) {
@@ -463,7 +476,7 @@
             to_account: {
               id: $('#to-accounts-dropdown').dropdown('get value'),
             },
-            timestamp: $('#timestamp').calendar('get date'),
+            timestamp: toIsoString($('#timestamp').calendar('get date')),
           });
       } else {
         url = '/fn/api/transactions/';
@@ -476,7 +489,7 @@
           category: {
             id: $('#categories-dropdown').dropdown('get value'),
           },
-          timestamp: $('#timestamp').calendar('get date'),
+          timestamp: toIsoString($('#timestamp').calendar('get date')),
         });
       }
     } else if (type == "recurrent") {
@@ -490,7 +503,7 @@
         category: {
           id: $('#categories-dropdown').dropdown('get value'),
         },
-        timestamp: $('#timestamp').calendar('get date'),
+        timestamp: toIsoString($('#timestamp').calendar('get date')),
         frequency: $('#frequency-dropdown').dropdown('get value'),
       });
     } else if (type == "installment") {
@@ -504,7 +517,7 @@
         category: {
           id: $('#categories-dropdown').dropdown('get value'),
         },
-        timestamp: $('#timestamp').calendar('get date'),
+        timestamp: toIsoString($('#timestamp').calendar('get date')),
         months: $('[name="months"]').val(),
         handle_remainder: $('#remainder-dropdown').dropdown('get value'),
       });
