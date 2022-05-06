@@ -70,8 +70,8 @@
 {% block sidebars %}
     <div class="ui left sidebar inverted vertical menu">
         {% comment %} <a class="item" href="{% url 'project_manager:index' %}">Home</a> {% endcomment %}
-        <a class="item" href="{% url 'project_manager:projects' %}">Projects</a>
-        <a class="item" href="{% url 'project_manager:project_detail' pk=object.project.id %}">Boards</a>
+        <a class="item" href="{% url 'project_manager:projects' %}">{% translate 'Projects' %}</a>
+        <a class="item" href="{% url 'project_manager:project_detail' pk=object.project.id %}">{% translate 'Boards' %}</a>
     </div>
     <div class="ui right sidebar inverted vertical menu">
         <div class="item">
@@ -234,7 +234,7 @@
             <input type="hidden" name="order">
             <div class="field">
                 <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
-                <textarea name="description" placeholder="Description" rows="4"></textarea>
+                <textarea name="description" placeholder="{% translate 'Description' %}" rows="4"></textarea>
             </div>
             <div class="three fields">
                 {% if object.tags_feature %}
@@ -256,19 +256,15 @@
                     </select>
                 </div>
                 <script>
-                    $('.ui.card-color.dropdown').dropdown({
-                        clearable: true,
-                        placeholder: 'Select a color theme',
-                        values: [
-                            {% for color in colors %}
-                            {
-                            "name": "{{ color.name }}",
-                            "value": {{ color.id }},
-                            "icon": "{{ color.name|lower }} circle",
-                            },
-                            {% endfor %}
-                        ],
-                    });
+                    colorsForDropdown = [
+                        {% for color in colors %}
+                        {
+                        "name": "{{ color.name }}",
+                        "value": {{ color.id }},
+                        "icon": "{{ color.name|lower }} circle",
+                        },
+                        {% endfor %}
+                    ];
                 </script>
                 {% endif %}
                 {% if object.due_date_feature %}
@@ -427,7 +423,7 @@
             </div>
             <div class="field">
                 <label>{% translate 'Description' %}</label>
-                <textarea name="description" placeholder="Description"></textarea>
+                <textarea name="description" placeholder="{% translate 'Description' %}"></textarea>
             </div>
             <div class="field">
                 <label><i class="robot icon"></i>{% translate 'Automatic status' %}</label>
@@ -603,6 +599,7 @@
             loadBoard();
             startAutoRefresh();
             initializeSearchCardsDropdown();
+            initializeColorDropdown();
         });
     </script>
 {% endblock main %}
