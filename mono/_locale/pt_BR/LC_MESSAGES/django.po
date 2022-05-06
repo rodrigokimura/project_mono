@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-06 02:23+0000\n"
+"POT-Creation-Date: 2022-05-06 14:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -333,6 +333,14 @@ msgstr "E-mail recuperação de senha enviado"
 msgid "Password reset complete"
 msgstr "Recuperação de senha concluída"
 
+#: mono/accounts/views.py:253
+msgid "Wrong password."
+msgstr "Senha errada."
+
+#: mono/accounts/views.py:255
+msgid "The two new password fields didn't match."
+msgstr "Os dois campos de senha não coincidem."
+
 #: mono/blog/models.py:12 mono/notes/models.py:21
 msgid "title"
 msgstr "título"
@@ -381,7 +389,7 @@ msgid "Delete post "
 msgstr "Excluir postagem"
 
 #: mono/blog/templates/blog/post_confirm_delete.html:19
-#: mono/finance/templates/finance/transaction_confirm_delete.html:20
+#: mono/finance/templates/finance/_confirm_delete.html:17
 #: mono/project_manager/templates/project_manager/board_calendar.html:426
 #: mono/project_manager/templates/project_manager/board_detail.html:513
 #: mono/project_manager/templates/project_manager/board_form.html:54
@@ -391,14 +399,14 @@ msgstr "Sim"
 #: mono/blog/templates/blog/post_confirm_delete.html:23
 #: mono/blog/templates/blog/post_form.html:33
 #: mono/feedback/templates/feedback/feedback_form.html:60
-#: mono/finance/templates/finance/account_form.html:26
+#: mono/finance/templates/finance/_confirm_delete.html:14
+#: mono/finance/templates/finance/account_form.html:16
 #: mono/finance/templates/finance/budget_form.html:66
 #: mono/finance/templates/finance/budgetconfiguration_form.html:67
 #: mono/finance/templates/finance/charts.html:165
 #: mono/finance/templates/finance/installment_form.html:34
 #: mono/finance/templates/finance/recurrenttransaction_form.html:34
-#: mono/finance/templates/finance/transaction_confirm_delete.html:17
-#: mono/finance/templates/finance/transaction_form.html:25
+#: mono/finance/templates/finance/transaction_form.html:24
 #: mono/finance/templates/finance/transaction_list.html:146
 #: mono/finance/templates/finance/transaction_list.html:428
 #: mono/finance/templates/finance/universal_transaction_form.html:248
@@ -417,14 +425,14 @@ msgstr "Cancelar"
 
 #: mono/blog/templates/blog/post_form.html:23
 #: mono/feedback/templates/feedback/feedback_form.html:66
-#: mono/finance/templates/finance/account_form.html:18
+#: mono/finance/templates/finance/account_form.html:19
 #: mono/finance/templates/finance/budget_form.html:56
 #: mono/finance/templates/finance/budgetconfiguration_form.html:57
 #: mono/finance/templates/finance/card_order.html:39
 #: mono/finance/templates/finance/charts.html:166
 #: mono/finance/templates/finance/installment_form.html:23
 #: mono/finance/templates/finance/recurrenttransaction_form.html:23
-#: mono/finance/templates/finance/transaction_form.html:22
+#: mono/finance/templates/finance/transaction_form.html:21
 #: mono/finance/templates/finance/transaction_list.html:432
 #: mono/finance/templates/finance/universal_transaction_form.html:237
 #: mono/pixel/templates/pixel/site_form.html:21
@@ -445,12 +453,12 @@ msgid "Save"
 msgstr "Salvar"
 
 #: mono/blog/templates/blog/post_form.html:28
-#: mono/finance/templates/finance/account_form.html:22
+#: mono/finance/templates/finance/account_form.html:25
 #: mono/finance/templates/finance/budget_form.html:61
 #: mono/finance/templates/finance/budgetconfiguration_form.html:62
 #: mono/finance/templates/finance/installment_form.html:29
 #: mono/finance/templates/finance/recurrenttransaction_form.html:29
-#: mono/finance/templates/finance/transaction_form.html:32
+#: mono/finance/templates/finance/transaction_form.html:31
 #: mono/finance/templates/finance/universal_transaction_form.html:243
 #: mono/notes/templates/notes/note_list.html:129
 #: mono/project_manager/templates/project_manager/board_form.html:23
@@ -539,7 +547,7 @@ msgid "You don't have permission to change the group."
 msgstr "Você não possui permissão para alterar o grupo."
 
 #: mono/finance/forms.py:104 mono/finance/models.py:314
-#: mono/finance/views.py:241
+#: mono/finance/views.py:267
 msgid "Transfer"
 msgstr "Transferência"
 
@@ -576,6 +584,7 @@ msgstr "Quantidade"
 #: mono/finance/templates/finance/charts.html:82
 #: mono/finance/templates/finance/installment_list.html:19
 #: mono/finance/templates/finance/recurrenttransaction_list.html:19
+#: mono/finance/templates/finance/transaction_archive_month.html:11
 #: mono/finance/templates/finance/transaction_list.html:42
 #: mono/finance/templates/finance/transaction_list.html:350
 #: mono/finance/templates/finance/transaction_list.html:640
@@ -1090,56 +1099,68 @@ msgstr "gasto"
 msgid "Closed budgets"
 msgstr "Orçamentos encerrados"
 
-#: mono/finance/templates/finance/account_list.html:16
-#: mono/finance/templates/finance/account_list.html:115
+#: mono/finance/templates/finance/account_list.html:10
+#: mono/finance/templates/finance/account_list.html:109
 msgid "Group"
 msgstr "Grupo"
 
-#: mono/finance/templates/finance/account_list.html:24
+#: mono/finance/templates/finance/account_list.html:18
 msgid "Member"
 msgstr "Membro"
 
-#: mono/finance/templates/finance/account_list.html:32
+#: mono/finance/templates/finance/account_list.html:26
 #: mono/finance/templates/finance/budgetconfiguration_list.html:32
 #: mono/finance/templates/finance/charts.html:91
 #: mono/finance/templates/finance/installment_list.html:35
 #: mono/finance/templates/finance/recurrenttransaction_list.html:35
+#: mono/finance/templates/finance/transaction_archive_month.html:27
 #: mono/finance/templates/finance/transaction_list.html:64
 #: mono/project_manager/templates/project_manager/board_calendar.html:97
 #: mono/project_manager/templates/project_manager/board_detail.html:119
 msgid "Filter"
 msgstr "Filtrar"
 
-#: mono/finance/templates/finance/account_list.html:33
+#: mono/finance/templates/finance/account_list.html:27
 #: mono/finance/templates/finance/budgetconfiguration_list.html:33
 #: mono/finance/templates/finance/installment_list.html:36
 #: mono/finance/templates/finance/recurrenttransaction_list.html:36
+#: mono/finance/templates/finance/transaction_archive_month.html:28
 #: mono/finance/templates/finance/transaction_list.html:65
 msgid "Clear"
 msgstr "Limpar"
 
-#: mono/finance/templates/finance/account_list.html:39
+#: mono/finance/templates/finance/account_list.html:33
 msgid "Individual accounts"
 msgstr "Contas individuais"
 
-#: mono/finance/templates/finance/account_list.html:55
-#: mono/finance/templates/finance/account_list.html:107
+#: mono/finance/templates/finance/account_list.html:49
+#: mono/finance/templates/finance/account_list.html:101
 msgid "Total transactions"
 msgstr "Total de transações"
 
-#: mono/finance/templates/finance/account_list.html:62
+#: mono/finance/templates/finance/account_list.html:56
 msgid "Current invoice"
 msgstr "Fatura atual"
 
-#: mono/finance/templates/finance/account_list.html:73
+#: mono/finance/templates/finance/account_list.html:58
+#: mono/finance/templates/finance/account_list.html:69
+msgid "Paid"
+msgstr "Pago"
+
+#: mono/finance/templates/finance/account_list.html:60
+#: mono/finance/templates/finance/account_list.html:71
+msgid "Pending"
+msgstr "Pendente"
+
+#: mono/finance/templates/finance/account_list.html:67
 msgid "Last closed invoice"
 msgstr "Última fatura fechada"
 
-#: mono/finance/templates/finance/account_list.html:91
+#: mono/finance/templates/finance/account_list.html:85
 msgid "Shared accounts"
 msgstr "Contas compartilhadas"
 
-#: mono/finance/templates/finance/account_list.html:127
+#: mono/finance/templates/finance/account_list.html:121
 msgid "Add account"
 msgstr "Adicionar uma conta"
 
@@ -1185,7 +1206,7 @@ msgstr "Todas as categorias"
 #: mono/finance/templates/finance/budgetconfiguration_list.html:79
 #: mono/finance/templates/finance/installment_list.html:70
 #: mono/finance/templates/finance/recurrenttransaction_list.html:73
-#: mono/finance/templates/finance/transaction_archive_month.html:107
+#: mono/finance/templates/finance/transaction_archive_month.html:105
 #: mono/finance/templates/finance/transaction_list.html:223
 #: mono/project_manager/templates/project_manager/project_detail.html:193
 msgid "Actions"
@@ -1203,7 +1224,7 @@ msgstr "Agendar orçamentos"
 #: mono/finance/templates/finance/budgetconfiguration_list.html:87
 #: mono/finance/templates/finance/installment_list.html:83
 #: mono/finance/templates/finance/recurrenttransaction_list.html:86
-#: mono/finance/templates/finance/transaction_archive_month.html:115
+#: mono/finance/templates/finance/transaction_archive_month.html:113
 #: mono/finance/templates/finance/transaction_list.html:232
 msgid "Views"
 msgstr "Visualizações"
@@ -1424,7 +1445,7 @@ msgstr "ou"
 
 #: mono/finance/templates/finance/installment_list.html:75
 #: mono/finance/templates/finance/recurrenttransaction_list.html:78
-#: mono/finance/templates/finance/transaction_archive_month.html:111
+#: mono/finance/templates/finance/transaction_archive_month.html:109
 #: mono/finance/templates/finance/transaction_list.html:228
 msgid "Add transaction"
 msgstr "Adicionar transação"
@@ -1443,13 +1464,9 @@ msgstr "Ir para as transações"
 msgid "Subscribed"
 msgstr "Inscrito"
 
-#: mono/finance/templates/finance/transaction_archive_month.html:119
+#: mono/finance/templates/finance/transaction_archive_month.html:117
 msgid "Go to List View"
 msgstr "Visualizar como Lista"
-
-#: mono/finance/templates/finance/transaction_confirm_delete.html:15
-msgid "Delete transaction?"
-msgstr "Excluir transação?"
 
 #: mono/finance/templates/finance/transaction_list.html:60
 msgid "Show future transactions"
@@ -1499,13 +1516,15 @@ msgstr "Selecione uma categoria"
 msgid "Select an account"
 msgstr "Selecione uma conta"
 
-#: mono/finance/views.py:315 mono/finance/views.py:421
-msgid "Transaction was deleted successfully"
-msgstr "A transação foi excluída com sucesso"
+#: mono/finance/views.py:56
+#, python-format
+msgid "%(model_name)s deletion successfully executed"
+msgstr "Exclusão de %(model_name)s executada com sucesso"
 
-#: mono/finance/views.py:461
-msgid "Installment group was deleted successfully"
-msgstr "O grupo de parcelamentos foi excluído com sucesso"
+#: mono/finance/views.py:64
+#, python-format
+msgid "Delete %(model_name)s?"
+msgstr "Excluir %(model_name)s?"
 
 #: mono/healthcheck/models.py:114
 msgid "Pytest Report"
@@ -2179,20 +2198,3 @@ msgstr "Resolver"
 #: mono/watcher/templates/watcher/issue_detail.html:163
 msgid "Ignore"
 msgstr "Ignorar"
-
-#~ msgid "Clear all"
-#~ msgstr "Limpar tudo"
-
-#~ msgid "Attention"
-#~ msgstr "Atenção!"
-
-#~ msgid "Please, be aware that this is still a work in progress page!"
-#~ msgstr ""
-#~ "Por favor, tenha consciência de que esta página ainda está em "
-#~ "desenvolvimento!"
-
-#~ msgid "Add transactions in installments"
-#~ msgstr "Adicionar pagamento parcelado"
-
-#~ msgid "current balance"
-#~ msgstr "saldo atual"
