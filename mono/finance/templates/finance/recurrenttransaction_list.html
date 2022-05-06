@@ -33,7 +33,7 @@
       </div>
       <div class="ui fluid buttons">
         <button class="ui button primary" type="submit" form="filter">{% translate "Filter" %}</button>
-        <a class="ui button" href="{% url 'finance:transactions' %}">{% translate "Clear" %}</a>
+        <a class="ui button" href="{% url 'finance:transaction_list' %}">{% translate "Clear" %}</a>
       </div>
     </form>
   </div>
@@ -47,7 +47,7 @@
     <div class="ui segments">
       <div class="ui secondary grey segment" style="padding: .5em 1em;" 
         data-toggle="segments">
-        <a href="{% url 'finance:recurrent_transaction_update' pk=rt.pk  %}">
+        <a href="{% url 'finance:recurrenttransaction_update' pk=rt.pk  %}">
           {{ rt.verbose_interval }}
         </a>
       </div>
@@ -77,7 +77,7 @@
         <i class="plus icon"></i>
         {% translate "Add transaction" %}
       </a>
-      <a class="ui fluid primary labeled icon button" href="{% url "finance:recurrent_transaction_create" %}">
+      <a class="ui fluid primary labeled icon button" href="{% url "finance:recurrenttransaction_create" %}">
         <i class="plus icon"></i>
         {% translate "Add recurrent transaction" %}
       </a>
@@ -86,7 +86,7 @@
     <div class="ui horizontal divider"><i class="eye outline icon"></i> {% translate "Views" %}</div>
     <div class="row">
       <a class="ui fluid basic labeled icon button" 
-        href="{% url "finance:transactions" %}">
+        href="{% url "finance:transaction_list" %}">
           <i class="calendar alternate outline icon"></i>
           {% translate "Go to transactions" %}
       </a>

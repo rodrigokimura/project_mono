@@ -4,7 +4,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
-from django.views.generic.detail import DetailView
 from pygments import highlight
 from pygments.formatters import \
     HtmlFormatter  # pylint: disable=no-name-in-module
