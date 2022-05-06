@@ -2,13 +2,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-22 16:24-0300\n"
+"POT-Creation-Date: 2022-05-06 00:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,1125 +18,83 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: .\_mono\settings.py:187
+#: mono/__mono/settings.py:213
 msgid "American English"
 msgstr "Inglês americano"
 
-#: .\_mono\settings.py:188
+#: mono/__mono/settings.py:214
 msgid "Brasilian Portuguese"
 msgstr "Português brasileiro"
 
-#: .\blog\models.py:11
-msgid "title"
-msgstr "título"
-
-#: .\blog\models.py:12
-msgid "content"
-msgstr "conteúdo"
-
-#: .\blog\models.py:13 .\blog\models.py:25
-msgid "author"
-msgstr "autor"
-
-#: .\blog\models.py:14 .\blog\models.py:26 .\finance\models.py:28
-msgid "created at"
-msgstr "criado em"
-
-#: .\blog\models.py:15 .\blog\models.py:27
-msgid "updated at"
-msgstr "atualizado em"
-
-#: .\blog\models.py:18 .\blog\models.py:23
-msgid "post"
-msgstr "postagem"
-
-#: .\blog\models.py:19
-msgid "posts"
-msgstr "postagens"
-
-#: .\blog\models.py:24 .\finance\models.py:23 .\finance\models.py:74
-#: .\finance\models.py:165
-msgid "description"
-msgstr "descrição"
-
-#: .\blog\models.py:30
-msgid "comment"
-msgstr "comentário"
-
-#: .\blog\models.py:31
-msgid "comments"
-msgstr "comentários"
-
-#: .\feedback\forms.py:57
-msgid "Please, tell us what is on your mind."
-msgstr "Por favor, nos conte o que está pensando."
-
-#: .\feedback\forms.py:76
-msgid "Please, select a valid option."
-msgstr "Por favor, selecione uma opção válida."
-
-#: .\feedback\models.py:18
-msgid "user"
-msgstr "usuário"
-
-#: .\feedback\models.py:19
-msgid "feeling"
-msgstr "sentimento"
-
-#: .\feedback\models.py:20
-msgid "message"
-msgstr "mensagem"
-
-#: .\feedback\models.py:21
-msgid "public"
-msgstr "público"
-
-#: .\feedback\views.py:21
-msgid "Your feedback was sent! Thank you!"
-msgstr "Sua avaliação foi enviada! Muito obrigado!"
-
-#: .\finance\forms.py:151 .\finance\forms.py:170
-msgid "Current balance"
-msgstr "Saldo atual"
-
-#: .\finance\forms.py:156 .\finance\forms.py:207 .\finance\forms.py:267
-#: .\finance\forms.py:287 .\finance\forms.py:339 .\finance\forms.py:393
-msgid "Description"
-msgstr "Descrição"
-
-#: .\finance\forms.py:163
-msgid "Initial balance"
-msgstr "Saldo inicial"
-
-#: .\finance\forms.py:178
-msgid "You don't have permission to change the group."
-msgstr "Você não possui permissão para alterar o grupo."
-
-#: .\finance\forms.py:202
-msgid "Type"
-msgstr "Tipo"
-
-#: .\finance\forms.py:210
-msgid "Timestamp"
-msgstr "Data/hora"
-
-#: .\finance\forms.py:215 .\templates\finance\budgetconfiguration_list.html:24
-#: .\templates\finance\installment_list.html:27
-#: .\templates\finance\recurrenttransaction_list.html:27
-#: .\templates\finance\transaction_list.html:49
-msgid "Account"
-msgstr "Conta"
-
-#: .\finance\forms.py:219 .\finance\forms.py:268 .\finance\forms.py:288
-#: .\finance\forms.py:340
-msgid "Amount"
-msgstr "Quantidade"
-
-#: .\finance\forms.py:222 .\templates\finance\budgetconfiguration_list.html:16
-#: .\templates\finance\installment_list.html:19
-#: .\templates\finance\recurrenttransaction_list.html:19
-#: .\templates\finance\transaction_list.html:41
-msgid "Category"
-msgstr "Categoria"
-
-#: .\finance\forms.py:227
-msgid "Active"
-msgstr "Ativo"
-
-#: .\finance\forms.py:232
-#: .\templates\finance\universal_transaction_form.html:153
-msgid "Frequency"
-msgstr "Frequência"
-
-#: .\finance\forms.py:237
-#: .\templates\finance\universal_transaction_form.html:167
-msgid "Months"
-msgstr "Meses"
-
-#: .\finance\forms.py:241
-msgid "Recurrent or installment?"
-msgstr "Recorrente ou parcelado?"
-
-#: .\finance\forms.py:247
-msgid "Recurrent or installment"
-msgstr "Recorrente ou parcelado"
-
-#: .\finance\forms.py:251
-msgid "Recurrent"
-msgstr "Recorrente"
-
-#: .\finance\forms.py:252 .\templates\finance\transaction_list.html:134
-msgid "Installment"
-msgstr "Parcelamento"
-
-#: .\finance\forms.py:257
-msgid "Handle remainder"
-msgstr "Resto da divisão"
-
-#: .\finance\forms.py:394
-msgid "Total amount"
-msgstr "Quantidade total"
-
-#: .\finance\forms.py:561
-msgid "Your end date must be after your start date."
-msgstr "A data final deve ser maior que a data inicial."
-
-#: .\finance\forms.py:639
-msgid "Email"
-msgstr "E-mail"
-
-#: .\finance\forms.py:647
-msgid "Email already exists. Please use another one."
-msgstr "O e-mail já existe. Por favor, use outro."
-
-#: .\finance\models.py:26 .\finance\models.py:77 .\finance\models.py:167
-msgid "created by"
-msgstr "criado por"
-
-#: .\finance\models.py:29 .\finance\models.py:79 .\finance\models.py:168
-msgid "timestamp"
-msgstr "data/hora"
-
-#: .\finance\models.py:32 .\finance\models.py:81 .\finance\models.py:498
-msgid "amount"
-msgstr "quantidade"
-
-#: .\finance\models.py:34 .\finance\models.py:82 .\finance\models.py:171
-#: .\finance\models.py:267
-msgid "category"
-msgstr "categoria"
-
-#: .\finance\models.py:35 .\finance\models.py:83 .\finance\models.py:172
-#: .\finance\models.py:364
-msgid "account"
-msgstr "conta"
-
-#: .\finance\models.py:36 .\finance\models.py:84
-msgid "active"
-msgstr "ativo"
-
-#: .\finance\models.py:38 .\finance\models.py:203
-msgid "installment"
-msgstr "parcelamento"
-
-#: .\finance\models.py:41
-msgid "transaction"
-msgstr "transação"
-
-#: .\finance\models.py:42
-msgid "transactions"
-msgstr "transações"
-
-#: .\finance\models.py:69
-msgid "Weekly"
-msgstr "Semanalmente"
-
-#: .\finance\models.py:70 .\templates\finance\checkout.html:121
-msgid "Monthly"
-msgstr "Mensal"
-
-#: .\finance\models.py:71 .\templates\finance\checkout.html:123
-msgid "Yearly"
-msgstr "Anual"
-
-#: .\finance\models.py:85
-msgid "frequency"
-msgstr "frequência"
-
-#: .\finance\models.py:109 .\finance\models.py:437
-msgid "Monday"
-msgstr "Segunda-feira"
-
-#: .\finance\models.py:110 .\finance\models.py:438
-msgid "Tuesday"
-msgstr "Terça-feira"
-
-#: .\finance\models.py:111 .\finance\models.py:439
-msgid "Wednesday"
-msgstr "Quarta-feira"
-
-#: .\finance\models.py:112 .\finance\models.py:440
-msgid "Thursday"
-msgstr "Quinta-feira"
-
-#: .\finance\models.py:113 .\finance\models.py:441
-msgid "Friday"
-msgstr "Sexta-feira"
-
-#: .\finance\models.py:114 .\finance\models.py:442
-msgid "Saturday"
-msgstr "Sábado"
-
-#: .\finance\models.py:115 .\finance\models.py:443
-msgid "Sunday"
-msgstr "Domingo"
-
-#: .\finance\models.py:118 .\finance\models.py:446
-msgid "January"
-msgstr "Janeiro"
-
-#: .\finance\models.py:119 .\finance\models.py:447
-msgid "February"
-msgstr "Fevereiro"
-
-#: .\finance\models.py:120 .\finance\models.py:448
-msgid "March"
-msgstr "Março"
-
-#: .\finance\models.py:121 .\finance\models.py:449
-msgid "April"
-msgstr "Abril"
-
-#: .\finance\models.py:122 .\finance\models.py:450
-msgid "May"
-msgstr "Maio"
-
-#: .\finance\models.py:123 .\finance\models.py:451
-msgid "June"
-msgstr "Junho"
-
-#: .\finance\models.py:124 .\finance\models.py:452
-msgid "July"
-msgstr "Julho"
-
-#: .\finance\models.py:125 .\finance\models.py:453
-msgid "August"
-msgstr "Agosto"
-
-#: .\finance\models.py:126 .\finance\models.py:454
-msgid "September"
-msgstr "Setembro"
-
-#: .\finance\models.py:127 .\finance\models.py:455
-msgid "October"
-msgstr "Outubro"
-
-#: .\finance\models.py:128 .\finance\models.py:456
-msgid "November"
-msgstr "Novembro"
-
-#: .\finance\models.py:129 .\finance\models.py:457
-msgid "December"
-msgstr "Dezembro"
-
-#: .\finance\models.py:132 .\finance\models.py:460
-#, python-format
-msgid "Every %(d)s of each week."
-msgstr "A cada %(d)s de cada semana."
-
-#: .\finance\models.py:134 .\finance\models.py:462
-#, python-format
-msgid "Every day %(d)s of each month."
-msgstr "A cada dia %(d)s de cada mês."
-
-#: .\finance\models.py:136 .\finance\models.py:464
-#, python-format
-msgid "Every day %(d)s of %(m)s of each year."
-msgstr "A cada %(d)s de %(m)s de cada ano."
-
-#: .\finance\models.py:153
-msgid "recurrent transaction"
-msgstr "transação recorrente"
-
-#: .\finance\models.py:154
-msgid "recurrent transactions"
-msgstr "transações recorrentes"
-
-#: .\finance\models.py:161
-msgid "Add to first transaction"
-msgstr "Adicionar à primeira transação"
-
-#: .\finance\models.py:162
-msgid "Add to last transaction"
-msgstr "Adicionar à última transação"
-
-#: .\finance\models.py:164
-msgid "months"
-msgstr "meses"
-
-#: .\finance\models.py:170
-msgid "total amount"
-msgstr "quantidade total"
-
-#: .\finance\models.py:173
-msgid "handle remainder"
-msgstr "resto da divisão"
-
-#: .\finance\models.py:204
-msgid "installments"
-msgstr "parcelamentos"
-
-#: .\finance\models.py:214
-msgid "icon"
-msgstr "ícone"
-
-#: .\finance\models.py:215
-msgid "icons"
-msgstr "ícones"
-
-#: .\finance\models.py:222
-msgid "Income"
-msgstr "Entrada"
-
-#: .\finance\models.py:223
-msgid "Expense"
-msgstr "Gasto"
-
-#: .\finance\models.py:268 .\finance\models.py:502
-msgid "categories"
-msgstr "categorias"
-
-#: .\finance\models.py:297
-msgid "group"
-msgstr "grupo"
-
-#: .\finance\models.py:298
-msgid "groups"
-msgstr "grupos"
-
-#: .\finance\models.py:365 .\finance\models.py:501
-msgid "accounts"
-msgstr "contas"
-
-#: .\finance\models.py:397
-msgid "goal"
-msgstr "objetivo"
-
-#: .\finance\models.py:398
-msgid "goals"
-msgstr "objetivos"
-
-#: .\finance\models.py:416 .\finance\models.py:503
-msgid "all accounts"
-msgstr "todas as contas"
-
-#: .\finance\models.py:417 .\finance\models.py:504
-msgid "all categories"
-msgstr "todas as categorias"
-
-#: .\finance\models.py:492
-msgid "budget configuration"
-msgstr "configuração de orçamento"
-
-#: .\finance\models.py:493
-msgid "budget configurations"
-msgstr "configurações de orçamento"
-
-#: .\finance\models.py:499
-msgid "start date"
-msgstr "data inicial"
-
-#: .\finance\models.py:500
-msgid "end date"
-msgstr "data final"
-
-#: .\finance\models.py:505 .\finance\models.py:752
-msgid "configuration"
-msgstr "configuração"
-
-#: .\finance\models.py:508
-msgid "budget"
-msgstr "orçamento"
-
-#: .\finance\models.py:509
-msgid "budgets"
-msgstr "orçamentos"
-
-#: .\finance\models.py:620
-msgid "notification"
-msgstr "notificação"
-
-#: .\finance\models.py:621
-msgid "notifications"
-msgstr "notificações"
-
-#: .\finance\models.py:647
-msgid "invite"
-msgstr "convite"
-
-#: .\finance\models.py:648
-msgid "invites"
-msgstr "convites"
-
-#: .\finance\models.py:693
-msgid "Invite"
-msgstr "Convite"
-
-#: .\finance\models.py:703
-msgid "Group invitation"
-msgstr "Convite para grupo"
-
-#: .\finance\models.py:704
-msgid "You were invited to be part of a group."
-msgstr "Você foi convidade para fazer parte de um grupo."
-
-#: .\finance\models.py:735 .\templates\finance\_card.html:10
-msgid "Overview"
-msgstr "Resumo"
-
-#: .\finance\models.py:736 .\templates\finance\_card.html:30
-msgid "Balance"
-msgstr "Saldo"
-
-#: .\finance\models.py:737 .\templates\finance\_card.html:43
-#: .\templates\finance\base.html:102
-msgid "Budgets"
-msgstr "Orçamentos"
-
-#: .\finance\models.py:753
-msgid "configurations"
-msgstr "configurações"
-
-#: .\finance\models.py:788
-msgid "Free"
-msgstr "Gratuito"
-
-#: .\finance\models.py:789
-msgid "Lifetime"
-msgstr "Vitalício"
-
-#: .\finance\models.py:790
-msgid "Default"
-msgstr "Padrão"
-
-#: .\finance\models.py:791
-msgid "Recommended"
-msgstr "Recomendado"
-
-#: .\finance\models.py:803
-msgid "plan"
-msgstr "plano"
-
-#: .\finance\models.py:804
-msgid "plans"
-msgstr "planos"
-
-#: .\finance\models.py:824
-msgid "feature"
-msgstr "característica"
-
-#: .\finance\models.py:825
-msgid "features"
-msgstr "características"
-
-#: .\finance\models.py:842
-msgid "subscription"
-msgstr "assinatura"
-
-#: .\finance\models.py:843
-msgid "subscriptions"
-msgstr "assinaturas"
-
-#: .\finance\views.py:203
-msgid "Password reset"
-msgstr "Recuperação de senha"
-
-#: .\finance\views.py:215
-msgid "Enter new password"
-msgstr "Digite a nova senha"
-
-#: .\finance\views.py:220
-msgid "Password reset sent"
-msgstr "E-mail recuperação de senha enviado"
-
-#: .\finance\views.py:225
-msgid "Password reset complete"
-msgstr "Recuperação de senha concluída"
-
-#: .\finance\views.py:356 .\finance\views.py:456
-msgid "Transaction was deleted successfully"
-msgstr "A transação foi excluída com sucesso"
-
-#: .\finance\views.py:497
-msgid "Installment group was deleted successfully"
-msgstr "O grupo de parcelamentos foi excluído com sucesso"
-
-#: .\templates\503.html:40
+#: mono/_templates/500.html:36
+msgid "Sorry! Unexpected error."
+msgstr "Desculpe! Erro inesperado."
+
+#: mono/_templates/500.html:39
+msgid ""
+"This error has just being reported and we'll fix it as soon as possible!"
+msgstr "Este erro acabou de ser reportado e nós iremos corrigi-lo o mais rápido o possível"
+
+#: mono/_templates/503.html:36
 msgid "We are under maintenance!"
 msgstr "Estamos em manutenção!"
 
-#: .\templates\feedback\feedback_form.html:16
-msgid "Hi! Can you help us improve?"
-msgstr "Olá! Você poderia nos ajudar a melhorar?"
-
-#: .\templates\feedback\feedback_form.html:23
-msgid "How are you feeling?"
-msgstr "Como está se sentindo?"
-
-#: .\templates\feedback\feedback_form.html:45
-msgid ""
-"By turning this on, you agree that your comment may be visible to other "
-"users."
-msgstr ""
-"Ao ligar esse botão, você concorda que seu comentário poderá ficar visível "
-"para outros usuários."
-
-#: .\templates\feedback\feedback_form.html:60
-#: .\templates\finance\account_form.html:18
-#: .\templates\finance\budget_form.html:56
-#: .\templates\finance\budgetconfiguration_form.html:57
-#: .\templates\finance\card_order.html:36
-#: .\templates\finance\installment_form.html:23
-#: .\templates\finance\recurrenttransaction_form.html:23
-#: .\templates\finance\transaction_form.html:23
-#: .\templates\finance\universal_transaction_form.html:208
-msgid "Save"
-msgstr "Salvar"
-
-#: .\templates\feedback\feedback_form.html:63
-#: .\templates\finance\account_form.html:28
-#: .\templates\finance\budget_form.html:66
-#: .\templates\finance\budgetconfiguration_form.html:67
-#: .\templates\finance\installment_form.html:34
-#: .\templates\finance\recurrenttransaction_form.html:34
-#: .\templates\finance\transaction_form.html:34
-#: .\templates\finance\transaction_list.html:140
-#: .\templates\finance\universal_transaction_form.html:219
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: .\templates\finance\_card.html:12
-msgid "Expenses - this month"
-msgstr "Gastos - esse mês"
-
-#: .\templates\finance\_card.html:16
-msgid "Incomes - this month"
-msgstr "Entradas - esse mês"
-
-#: .\templates\finance\_card.html:20
-msgid "Expenses - last month"
-msgstr "Gastos - mês passado"
-
-#: .\templates\finance\_card.html:24
-msgid "Incomes - last month"
-msgstr "Entradas - mês passado"
-
-#: .\templates\finance\_card.html:40
-msgid "Total balance"
-msgstr "Saldo total"
-
-#: .\templates\finance\_card.html:51
-msgid "of"
-msgstr "de"
-
-#: .\templates\finance\_card.html:51
-msgid "spent"
-msgstr "gasto"
-
-#: .\templates\finance\_card.html:56
-msgid "Closed budgets"
-msgstr "Orçamentos encerrados"
-
-#: .\templates\finance\account_form.html:23
-#: .\templates\finance\budget_form.html:61
-#: .\templates\finance\budgetconfiguration_form.html:62
-#: .\templates\finance\installment_form.html:29
-#: .\templates\finance\recurrenttransaction_form.html:29
-#: .\templates\finance\transaction_form.html:29
-#: .\templates\finance\universal_transaction_form.html:214
-msgid "Delete"
-msgstr "Excluir"
-
-#: .\templates\finance\account_list.html:16
-#: .\templates\finance\account_list.html:91
-msgid "Group"
-msgstr "Grupo"
-
-#: .\templates\finance\account_list.html:24
-msgid "Member"
-msgstr "Membro"
-
-#: .\templates\finance\account_list.html:32
-#: .\templates\finance\budgetconfiguration_list.html:32
-#: .\templates\finance\installment_list.html:35
-#: .\templates\finance\recurrenttransaction_list.html:35
-#: .\templates\finance\transaction_list.html:57
-msgid "Filter"
-msgstr "Filtrar"
-
-#: .\templates\finance\account_list.html:33
-#: .\templates\finance\budgetconfiguration_list.html:33
-#: .\templates\finance\installment_list.html:36
-#: .\templates\finance\recurrenttransaction_list.html:36
-#: .\templates\finance\transaction_list.html:58
-msgid "Clear"
-msgstr "Limpar"
-
-#: .\templates\finance\account_list.html:39
-msgid "Individual accounts"
-msgstr "Contas individuais"
-
-#: .\templates\finance\account_list.html:55
-#: .\templates\finance\account_list.html:83
-msgid "Total transactions"
-msgstr "Total de transações"
-
-#: .\templates\finance\account_list.html:67
-msgid "Shared accounts"
-msgstr "Contas compartilhadas"
-
-#: .\templates\finance\account_list.html:103
-msgid "Add account"
-msgstr "Adicionar uma conta"
-
-#: .\templates\finance\base.html:99
-msgid "Home"
-msgstr "Página Inicial"
-
-#: .\templates\finance\base.html:100
-msgid "Transactions"
-msgstr "Transações"
-
-#: .\templates\finance\base.html:101
-msgid "Accounts"
-msgstr "Contas"
-
-#: .\templates\finance\base.html:103
-msgid "Groups"
-msgstr "Grupos"
-
-#: .\templates\finance\base.html:104
-msgid "Categories"
-msgstr "Categorias"
-
-#: .\templates\finance\base.html:105
-msgid "Charts"
-msgstr "Gráficos"
-
-#: .\templates\finance\base.html:135
-msgid "MAINTENANCE"
-msgstr "MANUTENÇÃO"
-
-#: .\templates\finance\base.html:156
+#: mono/_templates/_auth_menu.html:9
 msgid "Signed in as "
 msgstr "Logado como "
 
-#: .\templates\finance\base.html:161
-msgid "Change language"
-msgstr "Alterar idioma"
-
-#: .\templates\finance\base.html:180
-msgid "Settings"
-msgstr "Configurações"
-
-#: .\templates\finance\base.html:184
-msgid "Sign out"
-msgstr "Sair"
-
-#: .\templates\finance\base.html:218
-msgid "Give feedback"
-msgstr "Avaliar"
-
-#: .\templates\finance\base.html:268
+#: mono/_templates/_auth_menu.html:18
+#: mono/accounts/templates/accounts/config.html:13
+#: mono/accounts/templates/accounts/config.html:84
 msgid "Notifications"
 msgstr "Notificações"
 
-#: .\templates\finance\base.html:268
-msgid "Clear all"
-msgstr "Limpar tudo"
-
-#: .\templates\finance\budget_list.html:50
-#: .\templates\finance\budgetconfiguration_list.html:50
-msgid "All accounts"
-msgstr "Todas as contas"
-
-#: .\templates\finance\budget_list.html:60
-#: .\templates\finance\budgetconfiguration_list.html:60
-msgid "All categories"
-msgstr "Todas as categorias"
-
-#: .\templates\finance\budget_list.html:91
-#: .\templates\finance\budgetconfiguration_list.html:79
-#: .\templates\finance\installment_list.html:70
-#: .\templates\finance\recurrenttransaction_list.html:73
-#: .\templates\finance\transaction_archive_month.html:107
-#: .\templates\finance\transaction_list.html:192
-msgid "Actions"
-msgstr "Ações"
-
-#: .\templates\finance\budget_list.html:95
-msgid "Add budget"
-msgstr "Adicionar orçamento"
-
-#: .\templates\finance\budget_list.html:99
-msgid "Schedule budgets"
-msgstr "Agendar orçamentos"
-
-#: .\templates\finance\budget_list.html:103
-#: .\templates\finance\budgetconfiguration_list.html:87
-#: .\templates\finance\installment_list.html:83
-#: .\templates\finance\recurrenttransaction_list.html:86
-#: .\templates\finance\transaction_archive_month.html:115
-#: .\templates\finance\transaction_list.html:210
-msgid "Views"
-msgstr "Visualizações"
-
-#: .\templates\finance\budget_list.html:107
-msgid "Go to Scheduled Budgets"
-msgstr "Ir para os Orçamentos Agendados"
-
-#: .\templates\finance\budgetconfiguration_list.html:71
-msgid "Next schedule: "
-msgstr "Próximo agendamento: "
-
-#: .\templates\finance\budgetconfiguration_list.html:83
-msgid "Create new budget schedule"
-msgstr "Criar novo agendamento de orçamento."
-
-#: .\templates\finance\budgetconfiguration_list.html:91
-msgid "Go to Budgets View"
-msgstr "Ir para os orçamentos"
-
-#: .\templates\finance\card_order.html:83
-msgid "Success!"
-msgstr "Sucesso!"
-
-#: .\templates\finance\charts.html:21
-msgid "Attention"
-msgstr "Atenção!"
-
-#: .\templates\finance\charts.html:23
-msgid "Please, be aware that this is still a work in progress page!"
-msgstr ""
-"Por favor, tenha consciência de que esta página ainda está em "
-"desenvolvimento!"
-
-#: .\templates\finance\checkout.html:55
-#: .\templates\finance\configuration.html:27
-msgid "Subscription"
-msgstr "Assinatura"
-
-#: .\templates\finance\checkout.html:61
-#: .\templates\finance\configuration.html:37
-msgid "Billing"
-msgstr "Plano"
-
-#: .\templates\finance\checkout.html:67
-msgid "Payment"
-msgstr "Pagamento"
-
-#: .\templates\finance\checkout.html:77
-msgid "Plan: "
-msgstr "Plano: "
-
-#: .\templates\finance\checkout.html:78
-msgid "Description:"
-msgstr "Descrição"
-
-#: .\templates\finance\checkout.html:84 .\templates\finance\plans.html:55
-msgid "What's included:"
-msgstr "O que está incluso:"
-
-#: .\templates\finance\checkout.html:102
-msgid "Billing info:"
-msgstr "Informações do plano:"
-
-#: .\templates\finance\checkout.html:111
-msgid "Select a billing plan"
-msgstr "Selecione um plano de pagamento"
-
-#: .\templates\finance\checkout.html:147 .\templates\finance\plans.html:44
-#: .\templates\finance\plans.html:48
-msgid "Select plan"
-msgstr "Selecionar plano"
-
-#: .\templates\finance\checkout.html:157
-msgid "Almost there!"
-msgstr "Quase lá!"
-
-#: .\templates\finance\checkout.html:157
-msgid "Now we need your payment info."
-msgstr "Agora precisamos das suas informações de pagamento."
-
-#: .\templates\finance\checkout.html:167
-msgid "Subscribe"
-msgstr "Inscrever-se"
-
-#: .\templates\finance\configuration.html:18
-msgid "Your plan"
-msgstr "Seu plano"
-
-#: .\templates\finance\configuration.html:21
-msgid "Attention!"
-msgstr "Atenção!"
-
-#: .\templates\finance\configuration.html:22
-msgid "Your subscription is scheduled to be canceled at "
-msgstr "Sua assunatura está agendada para ser cancelada em "
-
-#: .\templates\finance\configuration.html:23
-msgid "You can undo this by clicking "
-msgstr "Você pode desfazer isso clicando "
-
-#: .\templates\finance\configuration.html:23
-#: .\templates\registration\password_reset_complete.html:15
-msgid "here"
-msgstr "aqui"
-
-#: .\templates\finance\configuration.html:30
-msgid "Created at "
-msgstr "Criado em "
-
-#: .\templates\finance\configuration.html:31
-msgid "Updated at "
-msgstr "Atualizado em "
-
-#: .\templates\finance\configuration.html:33
-msgid "Cancel at "
-msgstr "Cancelar em "
-
-#: .\templates\finance\configuration.html:39
-msgid "Payments"
-msgstr "Pagamentos"
-
-#: .\templates\finance\configuration.html:40
-msgid "Payment method"
-msgstr "Método de agamento"
-
-#: .\templates\finance\configuration.html:42
-msgid "Card brand: "
-msgstr "Bandeira do cartão: "
-
-#: .\templates\finance\configuration.html:43
-msgid "Card number: "
-msgstr "Número do cartão: "
-
-#: .\templates\finance\configuration.html:44
-msgid "Expiration month: "
-msgstr "Mês de vencimento: "
-
-#: .\templates\finance\configuration.html:45
-msgid "Expiration year: "
-msgstr "Ano de vencimento"
-
-#: .\templates\finance\configuration.html:47
-msgid "History"
-msgstr "Histórico"
-
-#: .\templates\finance\configuration.html:51
-msgid "Cancel subscription"
-msgstr "Cancelar assinatura"
-
-#: .\templates\finance\configuration.html:55
-msgid "Connected services"
-msgstr "Serviços conectados"
-
-#: .\templates\finance\configuration.html:59
-#: .\templates\finance\configuration.html:75
-#: .\templates\finance\configuration.html:91
-msgid "Connected as "
-msgstr "Conectado como "
-
-#: .\templates\finance\configuration.html:63
-#: .\templates\finance\configuration.html:66
-msgid "Disconnect from GitHub"
-msgstr "Desconectar do GitHub"
-
-#: .\templates\finance\configuration.html:70
-msgid "Connect to GitHub"
-msgstr "Conectar ao GitHub"
-
-#: .\templates\finance\configuration.html:79
-#: .\templates\finance\configuration.html:82
-msgid "Disconnect from Twitter"
-msgstr "Desconectar do Twitter"
-
-#: .\templates\finance\configuration.html:86
-msgid "Connect to Twitter"
-msgstr "Conectar ao Twitter"
-
-#: .\templates\finance\configuration.html:95
-#: .\templates\finance\configuration.html:98
-msgid "Disconnect from Facebook"
-msgstr "Desconectar do Facebook"
-
-#: .\templates\finance\configuration.html:102
-msgid "Connect to Facebook"
-msgstr "Conectar ao Facebook"
-
-#: .\templates\finance\configuration.html:116
-#: .\templates\finance\configuration.html:130
-msgid "Confirmation"
-msgstr "Confirmação"
-
-#: .\templates\finance\configuration.html:119
-msgid "Are you sure you want to cancel your subscription?"
-msgstr "Tem certeza de que quer cancelar a sua assinatura?"
-
-#: .\templates\finance\configuration.html:122
-#: .\templates\finance\configuration.html:136
-msgid "No"
-msgstr "Não"
-
-#: .\templates\finance\configuration.html:123
-#: .\templates\finance\configuration.html:137
-msgid "Yes, I'm sure"
-msgstr "Sim, tenho certeza"
-
-#: .\templates\finance\configuration.html:133
-msgid "Are you sure you want to undo your scheduled subscription cancellation?"
-msgstr ""
-"Tem certeza de que quer desfazer o seu agendamento de cancelamento da "
-"assinatura?"
-
-#: .\templates\finance\faker.html:24
-msgid "SECURITY ALERT"
-msgstr "ALERTA DE SEGURANÇA"
-
-#: .\templates\finance\faker.html:26
-msgid ""
-"This page has extremely sensitive functionality. Please use with caution."
-msgstr ""
-"Esta página contém funcionalidades extremamente sensíveis. Por favor, tenha "
-"cuidado."
-
-#: .\templates\finance\index.html:16
-msgid "Hi, "
-msgstr "Olá, "
-
-#: .\templates\finance\index.html:28
-msgid "Personalize"
-msgstr "Personalizar"
-
-#: .\templates\finance\installment_form.html:25
-#: .\templates\finance\installment_form.html:31
-#: .\templates\finance\recurrenttransaction_form.html:25
-#: .\templates\finance\recurrenttransaction_form.html:31
-#: .\templates\finance\transaction_form.html:25
-#: .\templates\finance\transaction_form.html:31
-#: .\templates\finance\universal_transaction_form.html:210
-#: .\templates\finance\universal_transaction_form.html:216
-msgid "or"
-msgstr "ou"
-
-#: .\templates\finance\installment_list.html:75
-#: .\templates\finance\recurrenttransaction_list.html:78
-#: .\templates\finance\transaction_archive_month.html:111
-#: .\templates\finance\transaction_list.html:197
-msgid "Add transaction"
-msgstr "Adicionar transação"
-
-#: .\templates\finance\installment_list.html:79
-#: .\templates\finance\recurrenttransaction_list.html:82
-#: .\templates\finance\transaction_list.html:206
-msgid "Add recurrent transaction"
-msgstr "Adicionar transação recorrente"
-
-#: .\templates\finance\installment_list.html:88
-#: .\templates\finance\recurrenttransaction_list.html:91
-msgid "Go to transactions"
-msgstr "Ir para as transações"
-
-#: .\templates\finance\login.html:17
-msgid "Login to your account!"
-msgstr "Entre na sua conta!"
-
-#: .\templates\finance\login.html:25
-msgid "Username or email address"
-msgstr "Nome de usuário ou e-mail"
-
-#: .\templates\finance\login.html:46
+#: mono/_templates/_auth_menu.html:24
+#: mono/accounts/templates/accounts/config.html:12
+#: mono/accounts/templates/accounts/config.html:76
+msgid "Settings"
+msgstr "Configurações"
+
+#: mono/_templates/_auth_menu.html:30
+msgid "Change language"
+msgstr "Alterar idioma"
+
+#: mono/_templates/_auth_menu.html:48
+msgid "Sign out"
+msgstr "Sair"
+
+#: mono/_templates/_auth_menu.html:52
+#: mono/accounts/templates/accounts/login.html:46
 msgid "Login"
 msgstr "Logar"
 
-#: .\templates\finance\login.html:52 .\templates\finance\signup.html:30
-msgid "Forgot your password?"
-msgstr "Equeceu a sua senha?"
-
-#: .\templates\finance\login.html:53
-msgid "New here?"
-msgstr "É novo aqui?"
-
-#: .\templates\finance\login.html:56
-msgid "Or"
-msgstr "Ou"
-
-#: .\templates\finance\login.html:57
-msgid "Login with: "
-msgstr "Login usando: "
-
-#: .\templates\finance\plans.html:40
-msgid "Subscribed"
-msgstr "Inscrito"
-
-#: .\templates\finance\signup.html:17
-msgid "Sign up here!"
-msgstr "Inscreva-se aqui!"
-
-#: .\templates\finance\signup.html:24
-msgid "Signup"
-msgstr "Inscrever-se"
-
-#: .\templates\finance\signup.html:31
-msgid "Already signed up? Login here instead."
-msgstr "Já se inscreveu? Então logue aqui."
-
-#: .\templates\finance\transaction_archive_month.html:119
-msgid "Go to List View"
-msgstr "Visualizar como Lista"
-
-#: .\templates\finance\transaction_list.html:137
-msgid ""
-"You are trying to edit a installment. Do you want to edit the group of "
-"installments, or just this one?"
-msgstr ""
-"Você está tentando editar um pagamento parcelado. Você gostaria de editar o "
-"grupo de parcelas, ou somente essa transação?"
-
-#: .\templates\finance\transaction_list.html:141
-msgid "Just this one"
-msgstr "Somente essa transação"
-
-#: .\templates\finance\transaction_list.html:142
-msgid "Group of installments"
-msgstr "Grupo de parcelas"
-
-#: .\templates\finance\transaction_list.html:202
-msgid "Add transactions in installments"
-msgstr "Adicionar pagamento parcelado"
-
-#: .\templates\finance\transaction_list.html:216
-msgid "Go to Calendar View"
-msgstr "Visualizar como Calendário"
-
-#: .\templates\finance\transaction_list.html:222
-msgid "Go to installments"
-msgstr "Ir para as transações parceladas"
-
-#: .\templates\finance\transaction_list.html:227
-msgid "Go to recurrent transactions"
-msgstr "Ir para as transações recorrentes"
-
-#: .\templates\finance\transaction_list.html:237
-msgid "Select a category"
-msgstr "Selecione uma categoria"
-
-#: .\templates\finance\transaction_list.html:252
-msgid "Select an account"
-msgstr "Selecione uma conta"
-
-#: .\templates\registration\password_reset_complete.html:13
+#: mono/_templates/registration/password_reset_complete.html:13
 msgid "Your password recovery was successful."
 msgstr "Sua senha foi recuperada com sucesso."
 
-#: .\templates\registration\password_reset_complete.html:15
+#: mono/_templates/registration/password_reset_complete.html:15
 msgid "You may now log-in to your account "
 msgstr "Você pode agora logar na sua conta"
 
-#: .\templates\registration\password_reset_confirm.html:16
+#: mono/_templates/registration/password_reset_complete.html:15
+#: mono/finance/templates/finance/configuration.html:23
+msgid "here"
+msgstr "aqui"
+
+#: mono/_templates/registration/password_reset_confirm.html:16
 msgid "Proceed"
 msgstr "Continuar"
 
-#: .\templates\registration\password_reset_confirm.html:22
+#: mono/_templates/registration/password_reset_confirm.html:22
 msgid "Invalid link."
 msgstr "Link inválido"
 
-#: .\templates\registration\password_reset_confirm.html:24
+#: mono/_templates/registration/password_reset_confirm.html:24
 msgid "This password recovery link is invalid. It was probably already used."
 msgstr ""
 "Esse link de recuperação de senha é inválido. Ele provavelmente já foi usado."
 
-#: .\templates\registration\password_reset_done.html:11
+#: mono/_templates/registration/password_reset_done.html:11
 msgid ""
 "We've emailed you instructions for setting your password, if an account "
 "exists with the email you entered. You should receive them shortly."
@@ -1145,7 +103,7 @@ msgstr ""
 "uma conta vinculada ao email digitado. Você receberá esse e-mail em "
 "instantes."
 
-#: .\templates\registration\password_reset_done.html:14
+#: mono/_templates/registration/password_reset_done.html:14
 msgid ""
 "If you don't receive an email, please make sure you've entered the address "
 "you registered with, and check your spam folder."
@@ -1154,24 +112,24 @@ msgstr ""
 "digitado é o mesmo que você usou para se cadastrar e confira a sua caixa de "
 "spam."
 
-#: .\templates\registration\password_reset_email.html:8
-#: .\templates\registration\password_reset_email.html:338
+#: mono/_templates/registration/password_reset_email.html:8
+#: mono/_templates/registration/password_reset_email.html:338
 msgid "Password recovery"
 msgstr "Recuperação de senha"
 
-#: .\templates\registration\password_reset_email.html:354
+#: mono/_templates/registration/password_reset_email.html:354
 msgid "Someone has requested a password reset for user: "
 msgstr "Alguém solicitou uma nova senha para o usuário: "
 
-#: .\templates\registration\password_reset_email.html:355
+#: mono/_templates/registration/password_reset_email.html:355
 msgid "To change your password, use the button below: "
 msgstr "Para alterar a sua senha, use o botão abaixo: "
 
-#: .\templates\registration\password_reset_email.html:363
+#: mono/_templates/registration/password_reset_email.html:363
 msgid "Recover"
 msgstr "Recuperar"
 
-#: .\templates\registration\password_reset_email.html:373
+#: mono/_templates/registration/password_reset_email.html:373
 #, python-format
 msgid ""
 "\n"
@@ -1179,16 +137,1986 @@ msgid ""
 "                          "
 msgstr ""
 "\n"
-"Esse link irá expirar em %(hours)s hours.\n"
+"Esse link irá expirar em %(hours)s horas.\n"
 "                          "
 
-#: .\templates\registration\password_reset_email.html:377
+#: mono/_templates/registration/password_reset_email.html:377
 msgid "Mono Project Team"
 msgstr "Equipe do Projeto Mono"
 
-#: .\templates\registration\password_reset_form.html:16
+#: mono/_templates/registration/password_reset_form.html:16
+#: mono/project_manager/templates/project_manager/project_detail.html:223
 msgid "Send"
 msgstr "Enviar"
+
+#: mono/accounts/forms.py:29
+#: mono/project_manager/templates/project_manager/project_detail.html:192
+msgid "Email"
+msgstr "E-mail"
+
+#: mono/accounts/forms.py:37
+msgid "Email already exists. Please use another one."
+msgstr "O e-mail já existe. Por favor, use outro."
+
+#: mono/accounts/models.py:42
+msgid "notification"
+msgstr "notificação"
+
+#: mono/accounts/models.py:43
+msgid "notifications"
+msgstr "notificações"
+
+#: mono/accounts/models.py:192
+msgid "Free"
+msgstr "Gratuito"
+
+#: mono/accounts/models.py:193
+msgid "Lifetime"
+msgstr "Vitalício"
+
+#: mono/accounts/models.py:194
+msgid "Default"
+msgstr "Padrão"
+
+#: mono/accounts/models.py:195
+msgid "Recommended"
+msgstr "Recomendado"
+
+#: mono/accounts/models.py:211
+msgid "plan"
+msgstr "plano"
+
+#: mono/accounts/models.py:212
+msgid "plans"
+msgstr "planos"
+
+#: mono/accounts/models.py:238
+msgid "feature"
+msgstr "característica"
+
+#: mono/accounts/models.py:239
+msgid "features"
+msgstr "características"
+
+#: mono/accounts/models.py:256
+msgid "subscription"
+msgstr "assinatura"
+
+#: mono/accounts/models.py:257
+msgid "subscriptions"
+msgstr "assinaturas"
+
+#: mono/accounts/templates/accounts/config.html:11
+#: mono/accounts/templates/accounts/config.html:22
+msgid "Profile"
+msgstr "Perfil"
+
+#: mono/accounts/templates/accounts/config.html:14
+#: mono/accounts/templates/accounts/config.html:125
+#: mono/finance/templates/finance/checkout.html:56
+#: mono/finance/templates/finance/configuration.html:27
+msgid "Subscription"
+msgstr "Assinatura"
+
+#: mono/accounts/templates/accounts/config.html:23
+msgid "Avatar"
+msgstr "Avatar"
+
+#: mono/accounts/templates/accounts/config.html:29
+#, fuzzy
+#| msgid "Change language"
+msgid "Change picture"
+msgstr "Alterar idioma"
+
+#: mono/accounts/templates/accounts/config.html:38
+msgid "General info"
+msgstr "Informações gerais"
+
+#: mono/accounts/templates/accounts/config.html:77
+msgid "Account info"
+msgstr "Informações da conta"
+
+#: mono/accounts/templates/accounts/config.html:90
+msgid "Read notifications"
+msgstr "Notificações lidas"
+
+#: mono/accounts/templates/accounts/config.html:95
+msgid "Unread notifications"
+msgstr "Notificações não lidas"
+
+#: mono/accounts/templates/accounts/config.html:114
+msgid "No notifications to display"
+msgstr "Nennuma notificação para mostrar"
+
+#: mono/accounts/templates/accounts/config.html:126
+#: mono/finance/templates/finance/configuration.html:39
+msgid "Payments"
+msgstr "Pagamentos"
+
+#: mono/accounts/templates/accounts/config.html:127
+#: mono/finance/templates/finance/configuration.html:40
+msgid "Payment method"
+msgstr "Método de agamento"
+
+#: mono/accounts/templates/accounts/config.html:129
+#: mono/finance/templates/finance/configuration.html:42
+msgid "Card brand: "
+msgstr "Bandeira do cartão: "
+
+#: mono/accounts/templates/accounts/config.html:130
+#: mono/finance/templates/finance/configuration.html:43
+msgid "Card number: "
+msgstr "Número do cartão: "
+
+#: mono/accounts/templates/accounts/config.html:131
+#: mono/finance/templates/finance/configuration.html:44
+msgid "Expiration month: "
+msgstr "Mês de vencimento: "
+
+#: mono/accounts/templates/accounts/config.html:132
+#: mono/finance/templates/finance/configuration.html:45
+msgid "Expiration year: "
+msgstr "Ano de vencimento: "
+
+#: mono/accounts/templates/accounts/login.html:17
+msgid "Login to your account!"
+msgstr "Entre na sua conta!"
+
+#: mono/accounts/templates/accounts/login.html:25
+msgid "Username or email address"
+msgstr "Nome de usuário ou e-mail"
+
+#: mono/accounts/templates/accounts/login.html:52
+#: mono/accounts/templates/accounts/signup.html:30
+msgid "Forgot your password?"
+msgstr "Equeceu a sua senha?"
+
+#: mono/accounts/templates/accounts/login.html:53
+msgid "New here?"
+msgstr "É novo aqui?"
+
+#: mono/accounts/templates/accounts/login.html:56
+msgid "Or"
+msgstr "Ou"
+
+#: mono/accounts/templates/accounts/login.html:57
+msgid "Login with: "
+msgstr "Login usando: "
+
+#: mono/accounts/templates/accounts/signup.html:17
+msgid "Sign up here!"
+msgstr "Inscreva-se aqui!"
+
+#: mono/accounts/templates/accounts/signup.html:24
+msgid "Signup"
+msgstr "Inscrever-se"
+
+#: mono/accounts/templates/accounts/signup.html:31
+msgid "Already signed up? Login here instead."
+msgstr "Já se inscreveu? Então logue aqui."
+
+#: mono/accounts/views.py:95
+msgid "Password reset"
+msgstr "Recuperação de senha"
+
+#: mono/accounts/views.py:110
+msgid "Enter new password"
+msgstr "Digite a nova senha"
+
+#: mono/accounts/views.py:118
+msgid "Password reset sent"
+msgstr "E-mail recuperação de senha enviado"
+
+#: mono/accounts/views.py:126
+msgid "Password reset complete"
+msgstr "Recuperação de senha concluída"
+
+#: mono/blog/models.py:12 mono/notes/models.py:21
+msgid "title"
+msgstr "título"
+
+#: mono/blog/models.py:13
+msgid "content"
+msgstr "conteúdo"
+
+#: mono/blog/models.py:14 mono/blog/models.py:27
+msgid "author"
+msgstr "autor"
+
+#: mono/blog/models.py:15 mono/blog/models.py:28 mono/finance/models.py:56
+#: mono/notes/models.py:35 mono/notes/models.py:77
+msgid "created at"
+msgstr "criado em"
+
+#: mono/blog/models.py:16 mono/blog/models.py:29 mono/notes/models.py:38
+#: mono/notes/models.py:80
+msgid "updated at"
+msgstr "atualizado em"
+
+#: mono/blog/models.py:19 mono/blog/models.py:25
+msgid "post"
+msgstr "postagem"
+
+#: mono/blog/models.py:20
+msgid "posts"
+msgstr "postagens"
+
+#: mono/blog/models.py:26 mono/finance/models.py:49 mono/finance/models.py:129
+#: mono/finance/models.py:255 mono/finance/models.py:315
+msgid "description"
+msgstr "descrição"
+
+#: mono/blog/models.py:32
+msgid "comment"
+msgstr "comentário"
+
+#: mono/blog/models.py:33
+msgid "comments"
+msgstr "comentários"
+
+#: mono/blog/templates/blog/post_confirm_delete.html:15
+msgid "Delete post "
+msgstr "Excluir postagem"
+
+#: mono/blog/templates/blog/post_confirm_delete.html:19
+#: mono/project_manager/templates/project_manager/board_calendar.html:426
+#: mono/project_manager/templates/project_manager/board_detail.html:513
+msgid "Yes"
+msgstr "Sim"
+
+#: mono/blog/templates/blog/post_confirm_delete.html:23
+#: mono/blog/templates/blog/post_form.html:33
+#: mono/feedback/templates/feedback/feedback_form.html:60
+#: mono/finance/templates/finance/account_form.html:26
+#: mono/finance/templates/finance/budget_form.html:66
+#: mono/finance/templates/finance/budgetconfiguration_form.html:67
+#: mono/finance/templates/finance/charts.html:165
+#: mono/finance/templates/finance/installment_form.html:34
+#: mono/finance/templates/finance/recurrenttransaction_form.html:34
+#: mono/finance/templates/finance/transaction_form.html:34
+#: mono/finance/templates/finance/transaction_list.html:146
+#: mono/finance/templates/finance/transaction_list.html:428
+#: mono/finance/templates/finance/universal_transaction_form.html:248
+#: mono/pixel/templates/pixel/site_form.html:17
+#: mono/project_manager/templates/project_manager/board_calendar.html:377
+#: mono/project_manager/templates/project_manager/board_calendar.html:443
+#: mono/project_manager/templates/project_manager/board_detail.html:376
+#: mono/project_manager/templates/project_manager/board_detail.html:464
+#: mono/project_manager/templates/project_manager/board_detail.html:530
+#: mono/project_manager/templates/project_manager/board_form.html:18
+#: mono/project_manager/templates/project_manager/project_form.html:18
+#: mono/project_manager/templates/project_manager/tag_form.html:18
+#: mono/shipper/templates/shipper/ship_form.html:24
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: mono/blog/templates/blog/post_form.html:23
+#: mono/feedback/templates/feedback/feedback_form.html:66
+#: mono/finance/templates/finance/account_form.html:18
+#: mono/finance/templates/finance/budget_form.html:56
+#: mono/finance/templates/finance/budgetconfiguration_form.html:57
+#: mono/finance/templates/finance/card_order.html:39
+#: mono/finance/templates/finance/charts.html:166
+#: mono/finance/templates/finance/installment_form.html:23
+#: mono/finance/templates/finance/recurrenttransaction_form.html:23
+#: mono/finance/templates/finance/transaction_form.html:23
+#: mono/finance/templates/finance/transaction_list.html:432
+#: mono/finance/templates/finance/universal_transaction_form.html:237
+#: mono/pixel/templates/pixel/site_form.html:21
+#: mono/project_manager/templates/project_manager/board_calendar.html:84
+#: mono/project_manager/templates/project_manager/board_calendar.html:378
+#: mono/project_manager/templates/project_manager/board_calendar.html:447
+#: mono/project_manager/templates/project_manager/board_calendar.html:463
+#: mono/project_manager/templates/project_manager/board_detail.html:106
+#: mono/project_manager/templates/project_manager/board_detail.html:377
+#: mono/project_manager/templates/project_manager/board_detail.html:465
+#: mono/project_manager/templates/project_manager/board_detail.html:534
+#: mono/project_manager/templates/project_manager/board_detail.html:550
+#: mono/project_manager/templates/project_manager/board_form.html:28
+#: mono/project_manager/templates/project_manager/project_form.html:28
+#: mono/project_manager/templates/project_manager/tag_form.html:28
+#: mono/shipper/templates/shipper/ship_form.html:32
+msgid "Save"
+msgstr "Salvar"
+
+#: mono/blog/templates/blog/post_form.html:28
+#: mono/finance/templates/finance/account_form.html:22
+#: mono/finance/templates/finance/budget_form.html:61
+#: mono/finance/templates/finance/budgetconfiguration_form.html:62
+#: mono/finance/templates/finance/installment_form.html:29
+#: mono/finance/templates/finance/recurrenttransaction_form.html:29
+#: mono/finance/templates/finance/transaction_form.html:29
+#: mono/finance/templates/finance/universal_transaction_form.html:243
+#: mono/notes/templates/notes/note_list.html:129
+#: mono/project_manager/templates/project_manager/board_form.html:23
+#: mono/project_manager/templates/project_manager/project_detail.html:81
+#: mono/project_manager/templates/project_manager/project_form.html:23
+#: mono/project_manager/templates/project_manager/project_list.html:83
+#: mono/project_manager/templates/project_manager/tag_form.html:23
+#: mono/shipper/templates/shipper/ship_form.html:28
+msgid "Delete"
+msgstr "Excluir"
+
+#: mono/checklists/templates/checklists/home.html:97
+#: mono/checklists/templates/checklists/home.html:112
+msgid "New checklist"
+msgstr "Nova lista de verificação"
+
+#: mono/feedback/forms.py:18
+msgid "Please, tell us what is on your mind."
+msgstr "Por favor, nos conte o que está pensando."
+
+#: mono/feedback/forms.py:38
+msgid "Please, select a valid option."
+msgstr "Por favor, selecione uma opção válida."
+
+#: mono/feedback/models.py:20
+msgid "user"
+msgstr "usuário"
+
+#: mono/feedback/models.py:21
+msgid "feeling"
+msgstr "sentimento"
+
+#: mono/feedback/models.py:22
+msgid "message"
+msgstr "mensagem"
+
+#: mono/feedback/models.py:23
+msgid "public"
+msgstr "público"
+
+#: mono/feedback/templates/feedback/feedback_form.html:14
+msgid "Hi! Can you help us improve?"
+msgstr "Olá! Você poderia nos ajudar a melhorar?"
+
+#: mono/feedback/templates/feedback/feedback_form.html:21
+msgid "How are you feeling?"
+msgstr "Como está se sentindo?"
+
+#: mono/feedback/templates/feedback/feedback_form.html:43
+msgid ""
+"By turning this on, you agree that your comment may be visible to other "
+"users."
+msgstr ""
+"Ao ligar esse botão, você concorda que seu comentário poderá ficar visível "
+"para outros usuários."
+
+#: mono/feedback/views.py:17
+msgid "Your feedback was sent! Thank you!"
+msgstr "Sua avaliação foi enviada! Muito obrigado!"
+
+#: mono/finance/forms.py:37 mono/finance/forms.py:62
+msgid "Current balance"
+msgstr "Saldo atual"
+
+#: mono/finance/forms.py:40
+msgid "Credit card"
+msgstr "Cartão de crédito"
+
+#: mono/finance/forms.py:47 mono/finance/forms.py:112 mono/finance/forms.py:185
+#: mono/finance/forms.py:246 mono/finance/forms.py:298
+#: mono/finance/forms.py:351
+#: mono/finance/templates/finance/transaction_list.html:280
+#: mono/finance/templates/finance/transaction_list.html:281
+#: mono/project_manager/templates/project_manager/board_calendar.html:238
+#: mono/project_manager/templates/project_manager/board_detail.html:237
+#: mono/project_manager/templates/project_manager/board_detail.html:430
+msgid "Description"
+msgstr "Descrição"
+
+#: mono/finance/forms.py:55
+msgid "Initial balance"
+msgstr "Saldo inicial"
+
+#: mono/finance/forms.py:70
+msgid "You don't have permission to change the group."
+msgstr "Você não possui permissão para alterar o grupo."
+
+#: mono/finance/forms.py:104 mono/finance/models.py:314
+#: mono/finance/views.py:241
+msgid "Transfer"
+msgstr "Transferência"
+
+#: mono/finance/forms.py:107 mono/finance/models.py:1112
+#: mono/finance/templates/finance/charts.html:51
+msgid "Type"
+msgstr "Tipo"
+
+#: mono/finance/forms.py:115
+#: mono/finance/templates/finance/transaction_list.html:355
+#: mono/finance/templates/finance/transaction_list.html:359
+msgid "Timestamp"
+msgstr "Data/hora"
+
+#: mono/finance/forms.py:120
+#: mono/finance/templates/finance/budgetconfiguration_list.html:24
+#: mono/finance/templates/finance/installment_list.html:27
+#: mono/finance/templates/finance/recurrenttransaction_list.html:27
+#: mono/finance/templates/finance/transaction_list.html:50
+#: mono/finance/templates/finance/transaction_list.html:285
+#: mono/finance/templates/finance/transaction_list.html:613
+msgid "Account"
+msgstr "Conta"
+
+#: mono/finance/forms.py:125 mono/finance/forms.py:186
+#: mono/finance/forms.py:247 mono/finance/forms.py:299
+#: mono/finance/templates/finance/transaction_list.html:275
+#: mono/finance/templates/finance/transaction_list.html:276
+msgid "Amount"
+msgstr "Quantidade"
+
+#: mono/finance/forms.py:128 mono/finance/models.py:1111
+#: mono/finance/templates/finance/budgetconfiguration_list.html:16
+#: mono/finance/templates/finance/charts.html:82
+#: mono/finance/templates/finance/installment_list.html:19
+#: mono/finance/templates/finance/recurrenttransaction_list.html:19
+#: mono/finance/templates/finance/transaction_list.html:42
+#: mono/finance/templates/finance/transaction_list.html:350
+#: mono/finance/templates/finance/transaction_list.html:640
+msgid "Category"
+msgstr "Categoria"
+
+#: mono/finance/forms.py:134
+msgid "Active"
+msgstr "Ativo"
+
+#: mono/finance/forms.py:139
+#: mono/finance/templates/finance/transaction_list.html:387
+#: mono/finance/templates/finance/transaction_list.html:396
+#: mono/finance/templates/finance/universal_transaction_form.html:182
+msgid "Frequency"
+msgstr "Frequência"
+
+#: mono/finance/forms.py:144
+#: mono/finance/templates/finance/transaction_list.html:402
+#: mono/finance/templates/finance/transaction_list.html:403
+#: mono/finance/templates/finance/universal_transaction_form.html:196
+msgid "Months"
+msgstr "Meses"
+
+#: mono/finance/forms.py:148
+#: mono/finance/templates/finance/transaction_list.html:365
+msgid "Recurrent or installment?"
+msgstr "Recorrente ou parcelado?"
+
+#: mono/finance/forms.py:154
+msgid "Recurrent or installment"
+msgstr "Recorrente ou parcelado"
+
+#: mono/finance/forms.py:158
+#: mono/finance/templates/finance/transaction_list.html:376
+msgid "Recurrent"
+msgstr "Recorrente"
+
+#: mono/finance/forms.py:159 mono/finance/models.py:1103
+#: mono/finance/templates/finance/transaction_list.html:140
+#: mono/finance/templates/finance/transaction_list.html:382
+msgid "Installment"
+msgstr "Parcelamento"
+
+#: mono/finance/forms.py:164
+#: mono/finance/templates/finance/transaction_list.html:407
+#: mono/finance/templates/finance/transaction_list.html:416
+msgid "Handle remainder"
+msgstr "Resto da divisão"
+
+#: mono/finance/forms.py:170
+#: mono/finance/templates/finance/transaction_list.html:291
+#: mono/finance/templates/finance/transaction_list.html:302
+msgid "From account"
+msgstr "Conta origem"
+
+#: mono/finance/forms.py:175
+#: mono/finance/templates/finance/transaction_list.html:296
+#: mono/finance/templates/finance/transaction_list.html:325
+msgid "To account"
+msgstr "Conta destino"
+
+#: mono/finance/forms.py:210
+msgid "This field is required."
+msgstr "Este campo é obrigatório"
+
+#: mono/finance/forms.py:352
+msgid "Total amount"
+msgstr "Quantidade total"
+
+#: mono/finance/forms.py:539
+msgid "Your end date must be after your start date."
+msgstr "A data final deve ser maior que a data inicial."
+
+#: mono/finance/models.py:53 mono/finance/models.py:135
+#: mono/finance/models.py:261 mono/finance/models.py:332
+#: mono/notes/models.py:32 mono/notes/models.py:73
+msgid "created by"
+msgstr "criado por"
+
+#: mono/finance/models.py:59 mono/finance/models.py:139
+#: mono/finance/models.py:263 mono/finance/models.py:335
+msgid "timestamp"
+msgstr "data/hora"
+
+#: mono/finance/models.py:62 mono/finance/models.py:144
+#: mono/finance/models.py:338 mono/finance/models.py:815
+msgid "amount"
+msgstr "quantidade"
+
+#: mono/finance/models.py:64 mono/finance/models.py:147
+#: mono/finance/models.py:271 mono/finance/models.py:440
+msgid "category"
+msgstr "categoria"
+
+#: mono/finance/models.py:65 mono/finance/models.py:148
+#: mono/finance/models.py:272 mono/finance/models.py:673
+msgid "account"
+msgstr "conta"
+
+#: mono/finance/models.py:66 mono/finance/models.py:149
+msgid "active"
+msgstr "ativo"
+
+#: mono/finance/models.py:76 mono/finance/models.py:84
+#: mono/finance/models.py:304
+msgid "installment"
+msgstr "parcelamento"
+
+#: mono/finance/models.py:92
+msgid "transaction"
+msgstr "transação"
+
+#: mono/finance/models.py:93
+msgid "transactions"
+msgstr "transações"
+
+#: mono/finance/models.py:121
+msgid "Weekly"
+msgstr "Semanalmente"
+
+#: mono/finance/models.py:122 mono/finance/templates/finance/checkout.html:122
+msgid "Monthly"
+msgstr "Mensal"
+
+#: mono/finance/models.py:123 mono/finance/templates/finance/checkout.html:124
+msgid "Yearly"
+msgstr "Anual"
+
+#: mono/finance/models.py:150
+msgid "frequency"
+msgstr "frequência"
+
+#: mono/finance/models.py:172 mono/finance/models.py:746
+msgid "Monday"
+msgstr "Segunda-feira"
+
+#: mono/finance/models.py:173 mono/finance/models.py:747
+msgid "Tuesday"
+msgstr "Terça-feira"
+
+#: mono/finance/models.py:174 mono/finance/models.py:748
+msgid "Wednesday"
+msgstr "Quarta-feira"
+
+#: mono/finance/models.py:175 mono/finance/models.py:749
+msgid "Thursday"
+msgstr "Quinta-feira"
+
+#: mono/finance/models.py:176 mono/finance/models.py:750
+msgid "Friday"
+msgstr "Sexta-feira"
+
+#: mono/finance/models.py:177 mono/finance/models.py:751
+msgid "Saturday"
+msgstr "Sábado"
+
+#: mono/finance/models.py:178 mono/finance/models.py:752
+msgid "Sunday"
+msgstr "Domingo"
+
+#: mono/finance/models.py:181 mono/finance/models.py:755
+msgid "January"
+msgstr "Janeiro"
+
+#: mono/finance/models.py:182 mono/finance/models.py:756
+msgid "February"
+msgstr "Fevereiro"
+
+#: mono/finance/models.py:183 mono/finance/models.py:757
+msgid "March"
+msgstr "Março"
+
+#: mono/finance/models.py:184 mono/finance/models.py:758
+msgid "April"
+msgstr "Abril"
+
+#: mono/finance/models.py:185 mono/finance/models.py:759
+msgid "May"
+msgstr "Maio"
+
+#: mono/finance/models.py:186 mono/finance/models.py:760
+msgid "June"
+msgstr "Junho"
+
+#: mono/finance/models.py:187 mono/finance/models.py:761
+msgid "July"
+msgstr "Julho"
+
+#: mono/finance/models.py:188 mono/finance/models.py:762
+msgid "August"
+msgstr "Agosto"
+
+#: mono/finance/models.py:189 mono/finance/models.py:763
+msgid "September"
+msgstr "Setembro"
+
+#: mono/finance/models.py:190 mono/finance/models.py:764
+msgid "October"
+msgstr "Outubro"
+
+#: mono/finance/models.py:191 mono/finance/models.py:765
+msgid "November"
+msgstr "Novembro"
+
+#: mono/finance/models.py:192 mono/finance/models.py:766
+msgid "December"
+msgstr "Dezembro"
+
+#: mono/finance/models.py:195 mono/finance/models.py:769
+#, python-format
+msgid "Every %(d)s of each week."
+msgstr "A cada %(d)s de cada semana."
+
+#: mono/finance/models.py:197 mono/finance/models.py:771
+#, python-format
+msgid "Every day %(d)s of each month."
+msgstr "A cada dia %(d)s de cada mês."
+
+#: mono/finance/models.py:200 mono/finance/models.py:774
+#, python-format
+msgid "Every day %(d)s of %(m)s of each year."
+msgstr "A cada %(d)s de %(m)s de cada ano."
+
+#: mono/finance/models.py:222
+msgid "Recurrent transaction"
+msgstr "Transação recorrente"
+
+#: mono/finance/models.py:223
+msgid "A transaction was created based on a Recurrent Transaction"
+msgstr "A transação foi criada baseada na Transação Recorrente"
+
+#: mono/finance/models.py:241
+msgid "recurrent transaction"
+msgstr "transação recorrente"
+
+#: mono/finance/models.py:242
+msgid "recurrent transactions"
+msgstr "transações recorrentes"
+
+#: mono/finance/models.py:250
+msgid "Add to first transaction"
+msgstr "Adicionar à primeira transação"
+
+#: mono/finance/models.py:251
+msgid "Add to last transaction"
+msgstr "Adicionar à última transação"
+
+#: mono/finance/models.py:253
+msgid "months"
+msgstr "meses"
+
+#: mono/finance/models.py:268
+msgid "total amount"
+msgstr "quantidade total"
+
+#: mono/finance/models.py:273
+msgid "handle remainder"
+msgstr "resto da divisão"
+
+#: mono/finance/models.py:305
+msgid "installments"
+msgstr "parcelamentos"
+
+#: mono/finance/models.py:319
+msgid "from account"
+msgstr "conta origem"
+
+#: mono/finance/models.py:325
+msgid "to account"
+msgstr "conta destino"
+
+#: mono/finance/models.py:380 mono/project_manager/models.py:682
+msgid "icon"
+msgstr "ícone"
+
+#: mono/finance/models.py:381 mono/project_manager/models.py:683
+msgid "icons"
+msgstr "ícones"
+
+#: mono/finance/models.py:395
+msgid "Expense"
+msgstr "Gasto"
+
+#: mono/finance/models.py:396
+msgid "Income"
+msgstr "Entrada"
+
+#: mono/finance/models.py:441 mono/finance/models.py:819
+msgid "categories"
+msgstr "categorias"
+
+#: mono/finance/models.py:471
+msgid "group"
+msgstr "grupo"
+
+#: mono/finance/models.py:472
+msgid "groups"
+msgstr "grupos"
+
+#: mono/finance/models.py:674 mono/finance/models.py:818
+msgid "accounts"
+msgstr "contas"
+
+#: mono/finance/models.py:707
+msgid "goal"
+msgstr "objetivo"
+
+#: mono/finance/models.py:708
+msgid "goals"
+msgstr "objetivos"
+
+#: mono/finance/models.py:727 mono/finance/models.py:820
+msgid "all accounts"
+msgstr "todas as contas"
+
+#: mono/finance/models.py:728 mono/finance/models.py:821
+msgid "all categories"
+msgstr "todas as categorias"
+
+#: mono/finance/models.py:806
+msgid "budget configuration"
+msgstr "configuração de orçamento"
+
+#: mono/finance/models.py:807
+msgid "budget configurations"
+msgstr "configurações de orçamento"
+
+#: mono/finance/models.py:816
+msgid "start date"
+msgstr "data inicial"
+
+#: mono/finance/models.py:817
+msgid "end date"
+msgstr "data final"
+
+#: mono/finance/models.py:827 mono/finance/models.py:1060
+msgid "configuration"
+msgstr "configuração"
+
+#: mono/finance/models.py:831
+msgid "budget"
+msgstr "orçamento"
+
+#: mono/finance/models.py:832
+msgid "budgets"
+msgstr "orçamentos"
+
+#: mono/finance/models.py:948 mono/project_manager/models.py:710
+msgid "invite"
+msgstr "convite"
+
+#: mono/finance/models.py:949 mono/project_manager/models.py:711
+msgid "invites"
+msgstr "convites"
+
+#: mono/finance/models.py:996 mono/project_manager/models.py:758
+msgid "Invite"
+msgstr "Convite"
+
+#: mono/finance/models.py:1006
+msgid "Group invitation"
+msgstr "Convite para grupo"
+
+#: mono/finance/models.py:1007
+msgid "You were invited to be part of a group."
+msgstr "Você foi convidade para fazer parte de um grupo."
+
+#: mono/finance/models.py:1042 mono/finance/templates/finance/_card.html:10
+msgid "Overview"
+msgstr "Resumo"
+
+#: mono/finance/models.py:1043 mono/finance/templates/finance/_card.html:30
+msgid "Balance"
+msgstr "Saldo"
+
+#: mono/finance/models.py:1044 mono/finance/templates/finance/_card.html:43
+#: mono/finance/templates/finance/base.html:74
+msgid "Budgets"
+msgstr "Orçamentos"
+
+#: mono/finance/models.py:1045 mono/finance/templates/finance/_card.html:77
+msgid "Wallet"
+msgstr "Carteira"
+
+#: mono/finance/models.py:1061
+msgid "configurations"
+msgstr "configurações"
+
+#: mono/finance/models.py:1089
+msgid "Bar"
+msgstr "Barra"
+
+#: mono/finance/models.py:1090
+msgid "Line"
+msgstr "Linha"
+
+#: mono/finance/models.py:1091
+msgid "Column"
+msgstr "Coluna"
+
+#: mono/finance/models.py:1092
+msgid "Donut"
+msgstr "Rosquinha"
+
+#: mono/finance/models.py:1095
+msgid "Count"
+msgstr "Contagem"
+
+#: mono/finance/models.py:1096
+msgid "Sum"
+msgstr "Soma"
+
+#: mono/finance/models.py:1097
+msgid "Average"
+msgstr "Média"
+
+#: mono/finance/models.py:1100
+#: mono/finance/templates/finance/transaction_list.html:259
+msgid "Transaction"
+msgstr "Transação"
+
+#: mono/finance/models.py:1101
+msgid "Transference"
+msgstr "Transferência"
+
+#: mono/finance/models.py:1102
+msgid "Recurrent Transaction"
+msgstr "Transação recorrente"
+
+#: mono/finance/models.py:1106
+msgid "Year"
+msgstr "Ano"
+
+#: mono/finance/models.py:1107
+msgid "Month"
+msgstr "Mês"
+
+#: mono/finance/models.py:1108
+msgid "Week"
+msgstr "Semana"
+
+#: mono/finance/models.py:1115
+msgid "Expenses"
+msgstr "Gastos"
+
+#: mono/finance/models.py:1116
+msgid "Incomes"
+msgstr "Entradas"
+
+#: mono/finance/models.py:1117
+msgid "Balance adjustments"
+msgstr "Ajustes de saldo"
+
+#: mono/finance/models.py:1118
+msgid "Not balance adjustments"
+msgstr "Não ajustes de saldo"
+
+#: mono/finance/models.py:1119
+msgid "Transferences"
+msgstr "Transferências"
+
+#: mono/finance/models.py:1120
+msgid "Not transferences"
+msgstr "Não transferências"
+
+#: mono/finance/models.py:1121
+msgid "Current year"
+msgstr "Ano atual"
+
+#: mono/finance/models.py:1122
+msgid "Past year"
+msgstr "Ano passado"
+
+#: mono/finance/models.py:1123
+msgid "Current month"
+msgstr "Mês atual"
+
+#: mono/finance/models.py:1124
+msgid "Past month"
+msgstr "Mês passado"
+
+#: mono/finance/templates/finance/_card.html:12
+msgid "Expenses - this month"
+msgstr "Gastos - esse mês"
+
+#: mono/finance/templates/finance/_card.html:16
+msgid "Incomes - this month"
+msgstr "Entradas - esse mês"
+
+#: mono/finance/templates/finance/_card.html:20
+msgid "Expenses - last month"
+msgstr "Gastos - mês passado"
+
+#: mono/finance/templates/finance/_card.html:24
+msgid "Incomes - last month"
+msgstr "Entradas - mês passado"
+
+#: mono/finance/templates/finance/_card.html:40
+msgid "Total balance"
+msgstr "Saldo total"
+
+#: mono/finance/templates/finance/_card.html:51
+msgid "of"
+msgstr "de"
+
+#: mono/finance/templates/finance/_card.html:51
+msgid "spent"
+msgstr "gasto"
+
+#: mono/finance/templates/finance/_card.html:56
+msgid "Closed budgets"
+msgstr "Orçamentos encerrados"
+
+#: mono/finance/templates/finance/account_list.html:16
+#: mono/finance/templates/finance/account_list.html:115
+msgid "Group"
+msgstr "Grupo"
+
+#: mono/finance/templates/finance/account_list.html:24
+msgid "Member"
+msgstr "Membro"
+
+#: mono/finance/templates/finance/account_list.html:32
+#: mono/finance/templates/finance/budgetconfiguration_list.html:32
+#: mono/finance/templates/finance/charts.html:91
+#: mono/finance/templates/finance/installment_list.html:35
+#: mono/finance/templates/finance/recurrenttransaction_list.html:35
+#: mono/finance/templates/finance/transaction_list.html:64
+#: mono/project_manager/templates/project_manager/board_calendar.html:97
+#: mono/project_manager/templates/project_manager/board_detail.html:119
+msgid "Filter"
+msgstr "Filtrar"
+
+#: mono/finance/templates/finance/account_list.html:33
+#: mono/finance/templates/finance/budgetconfiguration_list.html:33
+#: mono/finance/templates/finance/installment_list.html:36
+#: mono/finance/templates/finance/recurrenttransaction_list.html:36
+#: mono/finance/templates/finance/transaction_list.html:65
+msgid "Clear"
+msgstr "Limpar"
+
+#: mono/finance/templates/finance/account_list.html:39
+msgid "Individual accounts"
+msgstr "Contas individuais"
+
+#: mono/finance/templates/finance/account_list.html:55
+#: mono/finance/templates/finance/account_list.html:107
+msgid "Total transactions"
+msgstr "Total de transações"
+
+#: mono/finance/templates/finance/account_list.html:62
+msgid "Current invoice"
+msgstr "Fatura atual"
+
+#: mono/finance/templates/finance/account_list.html:73
+msgid "Last closed invoice"
+msgstr "Última fatura fechada"
+
+#: mono/finance/templates/finance/account_list.html:91
+msgid "Shared accounts"
+msgstr "Contas compartilhadas"
+
+#: mono/finance/templates/finance/account_list.html:127
+msgid "Add account"
+msgstr "Adicionar uma conta"
+
+#: mono/finance/templates/finance/base.html:55
+msgid "Give feedback"
+msgstr "Avaliar"
+
+#: mono/finance/templates/finance/base.html:71
+msgid "Home"
+msgstr "Página Inicial"
+
+#: mono/finance/templates/finance/base.html:72
+msgid "Transactions"
+msgstr "Transações"
+
+#: mono/finance/templates/finance/base.html:73
+msgid "Accounts"
+msgstr "Contas"
+
+#: mono/finance/templates/finance/base.html:75
+msgid "Groups"
+msgstr "Grupos"
+
+#: mono/finance/templates/finance/base.html:76
+msgid "Categories"
+msgstr "Categorias"
+
+#: mono/finance/templates/finance/base.html:77
+msgid "Charts"
+msgstr "Gráficos"
+
+#: mono/finance/templates/finance/budget_list.html:50
+#: mono/finance/templates/finance/budgetconfiguration_list.html:50
+msgid "All accounts"
+msgstr "Todas as contas"
+
+#: mono/finance/templates/finance/budget_list.html:60
+#: mono/finance/templates/finance/budgetconfiguration_list.html:60
+msgid "All categories"
+msgstr "Todas as categorias"
+
+#: mono/finance/templates/finance/budget_list.html:91
+#: mono/finance/templates/finance/budgetconfiguration_list.html:79
+#: mono/finance/templates/finance/installment_list.html:70
+#: mono/finance/templates/finance/recurrenttransaction_list.html:73
+#: mono/finance/templates/finance/transaction_archive_month.html:107
+#: mono/finance/templates/finance/transaction_list.html:223
+#: mono/project_manager/templates/project_manager/project_detail.html:193
+msgid "Actions"
+msgstr "Ações"
+
+#: mono/finance/templates/finance/budget_list.html:95
+msgid "Add budget"
+msgstr "Adicionar orçamento"
+
+#: mono/finance/templates/finance/budget_list.html:99
+msgid "Schedule budgets"
+msgstr "Agendar orçamentos"
+
+#: mono/finance/templates/finance/budget_list.html:103
+#: mono/finance/templates/finance/budgetconfiguration_list.html:87
+#: mono/finance/templates/finance/installment_list.html:83
+#: mono/finance/templates/finance/recurrenttransaction_list.html:86
+#: mono/finance/templates/finance/transaction_archive_month.html:115
+#: mono/finance/templates/finance/transaction_list.html:232
+msgid "Views"
+msgstr "Visualizações"
+
+#: mono/finance/templates/finance/budget_list.html:107
+msgid "Go to Scheduled Budgets"
+msgstr "Ir para os Orçamentos Agendados"
+
+#: mono/finance/templates/finance/budgetconfiguration_list.html:71
+msgid "Next schedule: "
+msgstr "Próximo agendamento: "
+
+#: mono/finance/templates/finance/budgetconfiguration_list.html:83
+msgid "Create new budget schedule"
+msgstr "Criar novo agendamento de orçamento"
+
+#: mono/finance/templates/finance/budgetconfiguration_list.html:91
+msgid "Go to Budgets View"
+msgstr "Ir para os orçamentos"
+
+#: mono/finance/templates/finance/card_order.html:87
+msgid "Success!"
+msgstr "Sucesso!"
+
+#: mono/finance/templates/finance/charts.html:45
+msgid "Title"
+msgstr "título"
+
+#: mono/finance/templates/finance/charts.html:58
+msgid "Metric"
+msgstr "Métrica"
+
+#: mono/finance/templates/finance/charts.html:68
+msgid "Field"
+msgstr "Campo"
+
+#: mono/finance/templates/finance/charts.html:75
+msgid "Axis"
+msgstr "Eixo"
+
+#: mono/finance/templates/finance/checkout.html:62
+#: mono/finance/templates/finance/configuration.html:37
+msgid "Billing"
+msgstr "Plano"
+
+#: mono/finance/templates/finance/checkout.html:68
+msgid "Payment"
+msgstr "Pagamento"
+
+#: mono/finance/templates/finance/checkout.html:78
+msgid "Plan: "
+msgstr "Plano: "
+
+#: mono/finance/templates/finance/checkout.html:79
+msgid "Description:"
+msgstr "Descrição:"
+
+#: mono/finance/templates/finance/checkout.html:85
+#: mono/finance/templates/finance/plans.html:55
+msgid "What's included:"
+msgstr "O que está incluso:"
+
+#: mono/finance/templates/finance/checkout.html:103
+msgid "Billing info:"
+msgstr "Informações do plano:"
+
+#: mono/finance/templates/finance/checkout.html:112
+msgid "Select a billing plan"
+msgstr "Selecione um plano de pagamento"
+
+#: mono/finance/templates/finance/checkout.html:148
+#: mono/finance/templates/finance/plans.html:44
+#: mono/finance/templates/finance/plans.html:48
+msgid "Select plan"
+msgstr "Selecionar plano"
+
+#: mono/finance/templates/finance/checkout.html:158
+msgid "Almost there!"
+msgstr "Quase lá!"
+
+#: mono/finance/templates/finance/checkout.html:158
+msgid "Now we need your payment info."
+msgstr "Agora precisamos das suas informações de pagamento."
+
+#: mono/finance/templates/finance/checkout.html:168
+msgid "Subscribe"
+msgstr "Inscrever-se"
+
+#: mono/finance/templates/finance/configuration.html:18
+msgid "Your plan"
+msgstr "Seu plano"
+
+#: mono/finance/templates/finance/configuration.html:21
+msgid "Attention!"
+msgstr "Atenção!"
+
+#: mono/finance/templates/finance/configuration.html:22
+msgid "Your subscription is scheduled to be canceled at "
+msgstr "Sua assunatura está agendada para ser cancelada em "
+
+#: mono/finance/templates/finance/configuration.html:23
+msgid "You can undo this by clicking "
+msgstr "Você pode desfazer isso clicando "
+
+#: mono/finance/templates/finance/configuration.html:30
+#: mono/pixel/templates/pixel/site_list.html:34
+msgid "Created at "
+msgstr "Criado em "
+
+#: mono/finance/templates/finance/configuration.html:31
+msgid "Updated at "
+msgstr "Atualizado em "
+
+#: mono/finance/templates/finance/configuration.html:33
+msgid "Cancel at "
+msgstr "Cancelar em "
+
+#: mono/finance/templates/finance/configuration.html:47
+msgid "History"
+msgstr "Histórico"
+
+#: mono/finance/templates/finance/configuration.html:51
+msgid "Cancel subscription"
+msgstr "Cancelar assinatura"
+
+#: mono/finance/templates/finance/configuration.html:55
+msgid "Connected services"
+msgstr "Serviços conectados"
+
+#: mono/finance/templates/finance/configuration.html:59
+#: mono/finance/templates/finance/configuration.html:75
+#: mono/finance/templates/finance/configuration.html:91
+msgid "Connected as "
+msgstr "Conectado como "
+
+#: mono/finance/templates/finance/configuration.html:63
+#: mono/finance/templates/finance/configuration.html:66
+msgid "Disconnect from GitHub"
+msgstr "Desconectar do GitHub"
+
+#: mono/finance/templates/finance/configuration.html:70
+msgid "Connect to GitHub"
+msgstr "Conectar ao GitHub"
+
+#: mono/finance/templates/finance/configuration.html:79
+#: mono/finance/templates/finance/configuration.html:82
+msgid "Disconnect from Twitter"
+msgstr "Desconectar do Twitter"
+
+#: mono/finance/templates/finance/configuration.html:86
+msgid "Connect to Twitter"
+msgstr "Conectar ao Twitter"
+
+#: mono/finance/templates/finance/configuration.html:95
+#: mono/finance/templates/finance/configuration.html:98
+msgid "Disconnect from Facebook"
+msgstr "Desconectar do Facebook"
+
+#: mono/finance/templates/finance/configuration.html:102
+msgid "Connect to Facebook"
+msgstr "Conectar ao Facebook"
+
+#: mono/finance/templates/finance/configuration.html:116
+#: mono/finance/templates/finance/configuration.html:130
+msgid "Confirmation"
+msgstr "Confirmação"
+
+#: mono/finance/templates/finance/configuration.html:119
+msgid "Are you sure you want to cancel your subscription?"
+msgstr "Tem certeza de que quer cancelar a sua assinatura?"
+
+#: mono/finance/templates/finance/configuration.html:122
+#: mono/finance/templates/finance/configuration.html:136
+#: mono/project_manager/templates/project_manager/board_calendar.html:422
+#: mono/project_manager/templates/project_manager/board_detail.html:509
+msgid "No"
+msgstr "Não"
+
+#: mono/finance/templates/finance/configuration.html:123
+#: mono/finance/templates/finance/configuration.html:137
+msgid "Yes, I'm sure"
+msgstr "Sim, tenho certeza"
+
+#: mono/finance/templates/finance/configuration.html:133
+msgid "Are you sure you want to undo your scheduled subscription cancellation?"
+msgstr ""
+"Tem certeza de que quer desfazer o seu agendamento de cancelamento da "
+"assinatura?"
+
+#: mono/finance/templates/finance/faker.html:24
+msgid "SECURITY ALERT"
+msgstr "ALERTA DE SEGURANÇA"
+
+#: mono/finance/templates/finance/faker.html:26
+msgid ""
+"This page has extremely sensitive functionality. Please use with caution."
+msgstr ""
+"Esta página contém funcionalidades extremamente sensíveis. Por favor, tenha "
+"cuidado."
+
+#: mono/finance/templates/finance/index.html:15
+msgid "Hi, "
+msgstr "Olá, "
+
+#: mono/finance/templates/finance/index.html:27
+msgid "Personalize"
+msgstr "Personalizar"
+
+#: mono/finance/templates/finance/installment_form.html:25
+#: mono/finance/templates/finance/installment_form.html:31
+#: mono/finance/templates/finance/recurrenttransaction_form.html:25
+#: mono/finance/templates/finance/recurrenttransaction_form.html:31
+#: mono/finance/templates/finance/transaction_form.html:25
+#: mono/finance/templates/finance/transaction_form.html:31
+#: mono/finance/templates/finance/universal_transaction_form.html:239
+#: mono/finance/templates/finance/universal_transaction_form.html:245
+msgid "or"
+msgstr "ou"
+
+#: mono/finance/templates/finance/installment_list.html:75
+#: mono/finance/templates/finance/recurrenttransaction_list.html:78
+#: mono/finance/templates/finance/transaction_archive_month.html:111
+#: mono/finance/templates/finance/transaction_list.html:228
+msgid "Add transaction"
+msgstr "Adicionar transação"
+
+#: mono/finance/templates/finance/installment_list.html:79
+#: mono/finance/templates/finance/recurrenttransaction_list.html:82
+msgid "Add recurrent transaction"
+msgstr "Adicionar transação recorrente"
+
+#: mono/finance/templates/finance/installment_list.html:88
+#: mono/finance/templates/finance/recurrenttransaction_list.html:91
+msgid "Go to transactions"
+msgstr "Ir para as transações"
+
+#: mono/finance/templates/finance/plans.html:40
+msgid "Subscribed"
+msgstr "Inscrito"
+
+#: mono/finance/templates/finance/transaction_archive_month.html:119
+msgid "Go to List View"
+msgstr "Visualizar como Lista"
+
+#: mono/finance/templates/finance/transaction_list.html:60
+msgid "Show future transactions"
+msgstr "Ir para as transações futuras"
+
+#: mono/finance/templates/finance/transaction_list.html:143
+msgid ""
+"You are trying to edit a installment. Do you want to edit the group of "
+"installments, or just this one?"
+msgstr ""
+"Você está tentando editar um pagamento parcelado. Você gostaria de editar o "
+"grupo de parcelas, ou somente essa transação?"
+
+#: mono/finance/templates/finance/transaction_list.html:147
+msgid "Just this one"
+msgstr "Somente essa transação"
+
+#: mono/finance/templates/finance/transaction_list.html:148
+msgid "Group of installments"
+msgstr "Grupo de parcelas"
+
+#: mono/finance/templates/finance/transaction_list.html:161
+#: mono/finance/templates/finance/transaction_list.html:183
+#: mono/finance/templates/finance/transaction_list.html:197
+#: mono/notes/templates/notes/note_list.html:126
+#: mono/project_manager/templates/project_manager/project_detail.html:79
+msgid "Edit"
+msgstr "Editar"
+
+#: mono/finance/templates/finance/transaction_list.html:238
+msgid "Go to Calendar View"
+msgstr "Visualizar como Calendário"
+
+#: mono/finance/templates/finance/transaction_list.html:244
+msgid "Go to installments"
+msgstr "Ir para as transações parceladas"
+
+#: mono/finance/templates/finance/transaction_list.html:249
+msgid "Go to recurrent transactions"
+msgstr "Ir para as transações recorrentes"
+
+#: mono/finance/templates/finance/transaction_list.html:752
+msgid "Select a category"
+msgstr "Selecione uma categoria"
+
+#: mono/finance/templates/finance/transaction_list.html:767
+msgid "Select an account"
+msgstr "Selecione uma conta"
+
+#: mono/finance/views.py:315 mono/finance/views.py:421
+msgid "Transaction was deleted successfully"
+msgstr "A transação foi excluída com sucesso"
+
+#: mono/finance/views.py:461
+msgid "Installment group was deleted successfully"
+msgstr "O grupo de parcelamentos foi excluído com sucesso"
+
+#: mono/healthcheck/models.py:114
+msgid "Pytest Report"
+msgstr "Relatório do Pytest"
+
+#: mono/healthcheck/models.py:115
+msgid "Pytest Reports"
+msgstr "Relatórios do Pytest"
+
+#: mono/healthcheck/models.py:173
+msgid "Pytest Result"
+msgstr "Resultado do Pytest"
+
+#: mono/healthcheck/models.py:174
+msgid "Pytest Results"
+msgstr "Resultados do Pytest"
+
+#: mono/healthcheck/models.py:186
+msgid "Coverage Report"
+msgstr "Relatório de cobertura"
+
+#: mono/healthcheck/models.py:187
+msgid "Coverage Reports"
+msgstr "Relatórios de cobertura"
+
+#: mono/healthcheck/models.py:257
+msgid "Coverage Result"
+msgstr "Resultado de cobertura"
+
+#: mono/healthcheck/models.py:258
+msgid "Coverage Results"
+msgstr "Resultados de cobertura"
+
+#: mono/healthcheck/models.py:276
+msgid "Pylint Report"
+msgstr "Relatório do Pylint"
+
+#: mono/healthcheck/models.py:277
+msgid "Pylint Reports"
+msgstr "Relatórios do Pylint"
+
+#: mono/healthcheck/models.py:323
+msgid "Pylint Result"
+msgstr "Resultado do Pylint"
+
+#: mono/healthcheck/models.py:324
+msgid "Pylint Results"
+msgstr "Resultados do Pylint"
+
+#: mono/notes/models.py:27
+msgid "location"
+msgstr "localização"
+
+#: mono/notes/models.py:42
+msgid "note"
+msgstr "anotação"
+
+#: mono/notes/models.py:43
+msgid "notes"
+msgstr "anotações"
+
+#: mono/notes/models.py:69 mono/project_manager/models.py:648
+msgid "name"
+msgstr "nome"
+
+#: mono/notes/templates/notes/note_form.html:64
+msgid "Save and close"
+msgstr "Salvar e fechar"
+
+#: mono/notes/templates/notes/note_form.html:66
+msgid "Create"
+msgstr "Criar"
+
+#: mono/notes/templates/notes/note_list.html:96
+#: mono/notes/templates/notes/note_list.html:112
+msgid "New note"
+msgstr "Nova anotação"
+
+#: mono/notes/views.py:81
+#, python-format
+msgid "%(title)s note created successfully"
+msgstr "Anotação %(title)s criada com sucesso"
+
+#: mono/notes/views.py:92
+#, python-format
+msgid "%(title)s note updated successfully"
+msgstr "Anotação %(title)s atualizada com sucesso"
+
+#: mono/pixel/templates/pixel/dashboard.html:62
+#: mono/project_manager/templates/project_manager/board_calendar.html:93
+#: mono/project_manager/templates/project_manager/board_detail.html:115
+msgid "Manage tags"
+msgstr "Gerenciar etiquetas"
+
+#: mono/pixel/templates/pixel/site_list.html:16
+msgid "Your pixel tags"
+msgstr "Suas tags do pixel"
+
+#: mono/pixel/templates/pixel/site_list.html:20
+msgid "New tag"
+msgstr "Nova tag"
+
+#: mono/pixel/templates/pixel/site_list.html:41
+msgid "View code"
+msgstr "Visualizar código"
+
+#: mono/pixel/templates/pixel/site_list.html:42
+msgid "Delete tag"
+msgstr "Excluir tag"
+
+#: mono/pixel/templates/pixel/site_list.html:55
+msgid "No tags are listed for you."
+msgstr "Nenhuma tag listada para você."
+
+#: mono/pixel/templates/pixel/site_list.html:57
+msgid "Create first tag"
+msgstr "Criar primeira tag"
+
+#: mono/pixel/templates/pixel/site_list.html:67
+msgid "Code snippet"
+msgstr "Snippet de código"
+
+#: mono/pixel/templates/pixel/site_list.html:71
+msgid "Place this on every page you'd like to generate metrics."
+msgstr "Coloque este snippet em todas as páginas para as quais deseja gerar métricas."
+
+#: mono/pixel/templates/pixel/site_list.html:79
+msgid "Copy snippet"
+msgstr "Copiar snippet"
+
+#: mono/pixel/templates/pixel/site_list.html:82
+msgid "Download as Javascript file"
+msgstr "Baixar como arquivo Javascript"
+
+#: mono/pixel/templates/pixel/site_list.html:85
+msgid "Download as HTML file"
+msgstr "Baixar como arquivo HTML"
+
+#: mono/project_manager/models.py:196
+msgid "No automatic status"
+msgstr "Nenhum status automático"
+
+#: mono/project_manager/models.py:197 mono/project_manager/models.py:261
+#: mono/project_manager/templates/project_manager/project_detail.html:123
+#: mono/project_manager/templates/project_manager/project_detail.html:125
+#: mono/project_manager/templates/project_manager/project_detail.html:127
+#: mono/project_manager/templates/project_manager/project_list.html:125
+#: mono/project_manager/templates/project_manager/project_list.html:127
+#: mono/project_manager/templates/project_manager/project_list.html:129
+msgid "Not started"
+msgstr "Não iniciado"
+
+#: mono/project_manager/models.py:198 mono/project_manager/models.py:262
+#: mono/project_manager/templates/project_manager/project_detail.html:113
+#: mono/project_manager/templates/project_manager/project_detail.html:115
+#: mono/project_manager/templates/project_manager/project_detail.html:117
+#: mono/project_manager/templates/project_manager/project_list.html:115
+#: mono/project_manager/templates/project_manager/project_list.html:117
+#: mono/project_manager/templates/project_manager/project_list.html:119
+msgid "In progress"
+msgstr "Em andamento"
+
+#: mono/project_manager/models.py:199 mono/project_manager/models.py:263
+#: mono/project_manager/templates/project_manager/project_detail.html:103
+#: mono/project_manager/templates/project_manager/project_detail.html:105
+#: mono/project_manager/templates/project_manager/project_detail.html:107
+#: mono/project_manager/templates/project_manager/project_list.html:105
+#: mono/project_manager/templates/project_manager/project_list.html:107
+#: mono/project_manager/templates/project_manager/project_list.html:109
+msgid "Completed"
+msgstr "Concluído"
+
+#: mono/project_manager/models.py:202
+msgid "To do"
+msgstr "Para fazer"
+
+#: mono/project_manager/models.py:202
+msgid "Stuff to do"
+msgstr "Coisas para se fazer"
+
+#: mono/project_manager/models.py:203
+msgid "Doing"
+msgstr "Fazendo"
+
+#: mono/project_manager/models.py:203
+msgid "Stuff being done"
+msgstr "Coisas sendo feitas"
+
+#: mono/project_manager/models.py:204
+msgid "Done"
+msgstr "Feito"
+
+#: mono/project_manager/models.py:204
+msgid "Stuff already finished"
+msgstr "Coisas já finalizadas"
+
+#: mono/project_manager/models.py:209 mono/project_manager/models.py:270
+msgid "status"
+msgstr "Status"
+
+#: mono/project_manager/models.py:548 mono/project_manager/models.py:584
+msgid "Comment"
+msgstr "Comentário"
+
+#: mono/project_manager/models.py:559 mono/project_manager/models.py:597
+msgid "Comment on card"
+msgstr "Comentar no card"
+
+#: mono/project_manager/models.py:560
+msgid "Someone commented on a card and mentioned you."
+msgstr "Alguém comentou em um card e mencionou você."
+
+#: mono/project_manager/models.py:598
+msgid "Someone commented on a card assigned to you."
+msgstr "Alguém comentou em um card atribuído a você."
+
+#: mono/project_manager/models.py:613
+msgid "time entry"
+msgstr "entrada de tempo"
+
+#: mono/project_manager/models.py:614
+msgid "time entries"
+msgstr "entradas de tempo"
+
+#: mono/project_manager/models.py:649
+msgid "primary"
+msgstr "primário"
+
+#: mono/project_manager/models.py:650
+msgid "dark"
+msgstr "escuro"
+
+#: mono/project_manager/models.py:651
+msgid "light"
+msgstr "claro"
+
+#: mono/project_manager/models.py:766
+msgid "Project invitation"
+msgstr "Convite para projeto"
+
+#: mono/project_manager/models.py:767
+msgid "You were invited to be part of a project."
+msgstr "Você foi convidade para fazer parte de um projeto."
+
+#: mono/project_manager/serializers.py:68
+msgid "You've already invited this email for this project."
+msgstr "Você já convidou este e-mail para este projeto."
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:77
+#: mono/project_manager/templates/project_manager/board_detail.html:79
+msgid "Appearance"
+msgstr "Aparência"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:80
+#: mono/project_manager/templates/project_manager/board_detail.html:102
+msgid "Background image"
+msgstr "Imagem de fundo"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:86
+#: mono/project_manager/templates/project_manager/board_detail.html:108
+msgid "Remove"
+msgstr "Remomver"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:244
+#: mono/project_manager/templates/project_manager/board_detail.html:243
+msgid "Tags"
+msgstr "Tags"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:256
+#: mono/project_manager/templates/project_manager/board_detail.html:255
+#: mono/project_manager/templates/project_manager/board_detail.html:443
+msgid "Color"
+msgstr "Cor"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:291
+#: mono/project_manager/templates/project_manager/board_detail.html:290
+msgid "Status"
+msgstr "Status"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:313
+#: mono/project_manager/templates/project_manager/board_detail.html:312
+msgid "Assigned to"
+msgstr "Atribuído para"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:326
+#: mono/project_manager/templates/project_manager/board_detail.html:325
+msgid "Checklist"
+msgstr "Lista de verificação"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:340
+#: mono/project_manager/templates/project_manager/board_detail.html:339
+msgid "Files"
+msgstr "Arquivos"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:350
+#: mono/project_manager/templates/project_manager/board_detail.html:349
+msgid "Comments"
+msgstr "Comentários"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:389
+#: mono/project_manager/templates/project_manager/board_detail.html:388
+msgid "Please, enter a name for your card."
+msgstr "Por favor, digite um nome para o seu card."
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:393
+#: mono/project_manager/templates/project_manager/board_detail.html:392
+msgid "Card's name must have less than 50 characters."
+msgstr "Nomes de card devem ter menos que 50 caracteres."
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:402
+#: mono/project_manager/templates/project_manager/board_detail.html:401
+msgid "Card's description must have less than 1000 characters."
+msgstr "Descrições de card devem ter menos que 1000 caracteres."
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:432
+#: mono/project_manager/templates/project_manager/board_detail.html:519
+msgid "Comment edit"
+msgstr "Editar comentário"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:454
+#: mono/project_manager/templates/project_manager/board_detail.html:541
+msgid "Managing tags"
+msgstr "Gerenciando tags"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:459
+#: mono/project_manager/templates/project_manager/board_calendar.html:475
+#: mono/project_manager/templates/project_manager/board_detail.html:546
+#: mono/project_manager/templates/project_manager/board_detail.html:562
+msgid "Close"
+msgstr "Fechar"
+
+#: mono/project_manager/templates/project_manager/board_detail.html:82
+msgid "Compact mode"
+msgstr "Modo compacto"
+
+#: mono/project_manager/templates/project_manager/board_detail.html:89
+msgid "Dark mode"
+msgstr "Modo escuro"
+
+#: mono/project_manager/templates/project_manager/board_detail.html:96
+msgid "Bucket width"
+msgstr "Largura do bucket"
+
+#: mono/project_manager/templates/project_manager/board_detail.html:434
+msgid "Automatic status"
+msgstr "Status automático"
+
+#: mono/project_manager/templates/project_manager/board_detail.html:476
+msgid "Please, enter a name for your bucket."
+msgstr "Por favor, digite um nome para o seu bucket"
+
+#: mono/project_manager/templates/project_manager/board_detail.html:480
+msgid "Bucket's name must have less than 50 characters."
+msgstr "Nomes de bucket devem ter menos que 50 caracteres."
+
+#: mono/project_manager/templates/project_manager/board_detail.html:489
+msgid "Bucket's description must have less than 255 characters."
+msgstr "Descrições de bucket devem ter menos que 255 caracteres."
+
+#: mono/project_manager/templates/project_manager/project_detail.html:17
+msgid "Boards"
+msgstr "Quadros"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:18
+msgid "Boards are where you organize your cards."
+msgstr "Quadros são locais para organizar seus cards."
+
+#: mono/project_manager/templates/project_manager/project_detail.html:23
+#, python-format
+msgid ""
+"\n"
+"                            You have only one board in project <strong>"
+"%(project)s</strong>.\n"
+"                        "
+msgid_plural ""
+"\n"
+"                            You have %(counter)s boards in project <strong>"
+"%(project)s</strong>.\n"
+"                        "
+msgstr[0] ""
+"\n"
+"Você tem apenas um quadro no projeto <strong>%(project)s</strong>.\n"
+"                          "
+msgstr[1] ""
+"\n"
+"Você tem %(counter)s quadros no projeto <strong>%(project)s</strong>.\n"
+"                          "
+
+#: mono/project_manager/templates/project_manager/project_detail.html:31
+#: mono/project_manager/templates/project_manager/project_list.html:32
+msgid "Sort"
+msgstr "Ordenar"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:35
+#: mono/project_manager/templates/project_manager/project_list.html:36
+msgid "Sort boards by"
+msgstr "Ordenar quadros por"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:39
+#: mono/project_manager/templates/project_manager/project_detail.html:190
+#: mono/project_manager/templates/project_manager/project_list.html:40
+msgid "Name"
+msgstr "Nome"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:43
+#: mono/project_manager/templates/project_manager/project_list.html:44
+msgid "Created by"
+msgstr "Criado por"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:49
+#: mono/project_manager/templates/project_manager/project_list.html:50
+msgid "Direction"
+msgstr "Direção"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:53
+#: mono/project_manager/templates/project_manager/project_list.html:54
+msgid "Sort direction"
+msgstr "Direção da ordem"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:57
+#: mono/project_manager/templates/project_manager/project_list.html:58
+msgid "Ascending"
+msgstr "Ascendente"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:61
+#: mono/project_manager/templates/project_manager/project_list.html:62
+msgid "Descending"
+msgstr "Descendente"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:78
+#: mono/project_manager/templates/project_manager/project_list.html:80
+msgid "Open"
+msgstr "Abrir"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:86
+#: mono/project_manager/templates/project_manager/project_list.html:88
+msgid "Created at"
+msgstr "Criado em "
+
+#: mono/project_manager/templates/project_manager/project_detail.html:95
+#: mono/project_manager/templates/project_manager/project_list.html:97
+msgid "No cards yet"
+msgstr "Nenhum card ainda"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:103
+#: mono/project_manager/templates/project_manager/project_detail.html:113
+#: mono/project_manager/templates/project_manager/project_detail.html:123
+#: mono/project_manager/templates/project_manager/project_list.html:105
+#: mono/project_manager/templates/project_manager/project_list.html:115
+#: mono/project_manager/templates/project_manager/project_list.html:125
+msgid "No cards"
+msgstr "Nenhum card"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:105
+#: mono/project_manager/templates/project_manager/project_detail.html:115
+#: mono/project_manager/templates/project_manager/project_detail.html:125
+#: mono/project_manager/templates/project_manager/project_list.html:107
+#: mono/project_manager/templates/project_manager/project_list.html:117
+#: mono/project_manager/templates/project_manager/project_list.html:127
+msgid "1 card"
+msgstr "1 card"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:107
+#: mono/project_manager/templates/project_manager/project_detail.html:117
+#: mono/project_manager/templates/project_manager/project_detail.html:127
+#: mono/project_manager/templates/project_manager/project_list.html:109
+#: mono/project_manager/templates/project_manager/project_list.html:119
+#: mono/project_manager/templates/project_manager/project_list.html:129
+msgid "cards"
+msgstr "cards"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:142
+msgid "No boards are listed for this project yet."
+msgstr "Nenhum quadro está listado para este projeto ainda."
+
+#: mono/project_manager/templates/project_manager/project_detail.html:145
+msgid "Add your first board!"
+msgstr "Crie seu primeiro quadro!"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:157
+msgid "New board"
+msgstr "Novo quadro"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:183
+msgid "Your team: "
+msgstr "Sua equipe: "
+
+#: mono/project_manager/templates/project_manager/project_detail.html:191
+msgid "Username"
+msgstr "Nome de usuário"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:211
+msgid "No members yet"
+msgstr "Nenhum membro ainda"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:215
+msgid "Your invites: "
+msgstr "Seus convites: "
+
+#: mono/project_manager/templates/project_manager/project_detail.html:233
+msgid "Share link: "
+msgstr "Compartilhar link: "
+
+#: mono/project_manager/templates/project_manager/project_list.html:15
+#: mono/project_manager/templates/project_manager/tag_list.html:9
+msgid "Projects"
+msgstr "Projetos"
+
+#: mono/project_manager/templates/project_manager/project_list.html:16
+msgid "Projects are where your boards live."
+msgstr ""
+
+#: mono/project_manager/templates/project_manager/project_list.html:23
+#, python-format
+msgid ""
+"\n"
+"                            You have only one project.\n"
+"                        "
+msgid_plural ""
+"\n"
+"                            You have %(counter)s projects.\n"
+"                        "
+msgstr[0] ""
+"\n"
+"Você possui apenas um projeto.\n"
+"                          "
+msgstr[1] ""
+"\n"
+"Você possui %(counter)s projetos.\n"
+"                          "
+
+#: mono/project_manager/templates/project_manager/project_list.html:81
+msgid "Rename"
+msgstr "Renomear"
+
+#: mono/project_manager/templates/project_manager/project_list.html:145
+msgid "No projects yet."
+msgstr "Nenhum projeto ainda"
+
+#: mono/project_manager/templates/project_manager/project_list.html:148
+msgid "Add a new project!"
+msgstr "Criar um novo projeto!"
+
+#: mono/project_manager/templates/project_manager/project_list.html:161
+#: mono/project_manager/templates/project_manager/tag_list.html:46
+msgid "New project"
+msgstr "Novo projeto"
+
+#: mono/restricted_area/templates/restricted_area/index.html:16
+msgid "Área 51"
+msgstr "Área 51"
+
+#: mono/restricted_area/templates/restricted_area/index.html:42
+msgid "MAINTENANCE"
+msgstr "MANUTENÇÃO"
+
+#: mono/watcher/templates/watcher/index.html:14
+#: mono/watcher/templates/watcher/index.html:22
+msgid "Issues"
+msgstr "Problemas"
+
+#: mono/watcher/templates/watcher/index.html:15
+#: mono/watcher/templates/watcher/index.html:89
+msgid "Performance"
+msgstr "Performance"
+
+#: mono/watcher/templates/watcher/index.html:16
+#: mono/watcher/templates/watcher/index.html:111
+msgid "Stats"
+msgstr "Estatísticas"
+
+#: mono/watcher/templates/watcher/index.html:26
+msgid "Unresolved"
+msgstr "Não resolvidos"
+
+#: mono/watcher/templates/watcher/index.html:58
+msgid "Resolved"
+msgstr "Resolvidos"
+
+#: mono/watcher/templates/watcher/issue_detail.html:23
+msgid "Issue"
+msgstr "Problema"
+
+#: mono/watcher/templates/watcher/issue_detail.html:36
+#: mono/watcher/templates/watcher/issue_detail.html:42
+msgid "Detail"
+msgstr "Detalhe"
+
+#: mono/watcher/templates/watcher/issue_detail.html:37
+#: mono/watcher/templates/watcher/issue_detail.html:50
+msgid "Traceback"
+msgstr "Traceback"
+
+#: mono/watcher/templates/watcher/issue_detail.html:38
+#: mono/watcher/templates/watcher/issue_detail.html:102
+msgid "Events"
+msgstr "Eventos"
+
+#: mono/watcher/templates/watcher/issue_detail.html:144
+msgid "Resolve"
+msgstr "Resolver"
+
+#: mono/watcher/templates/watcher/issue_detail.html:163
+msgid "Ignore"
+msgstr "Ignorar"
+
+#~ msgid "Clear all"
+#~ msgstr "Limpar tudo"
+
+#~ msgid "Attention"
+#~ msgstr "Atenção!"
+
+#~ msgid "Please, be aware that this is still a work in progress page!"
+#~ msgstr ""
+#~ "Por favor, tenha consciência de que esta página ainda está em "
+#~ "desenvolvimento!"
+
+#~ msgid "Add transactions in installments"
+#~ msgstr "Adicionar pagamento parcelado"
 
 #~ msgid "current balance"
 #~ msgstr "saldo atual"
