@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-06 14:50+0000\n"
+"POT-Creation-Date: 2022-05-06 16:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -390,8 +390,8 @@ msgstr "Excluir postagem"
 
 #: mono/blog/templates/blog/post_confirm_delete.html:19
 #: mono/finance/templates/finance/_confirm_delete.html:17
-#: mono/project_manager/templates/project_manager/board_calendar.html:426
-#: mono/project_manager/templates/project_manager/board_detail.html:513
+#: mono/project_manager/templates/project_manager/board_calendar.html:422
+#: mono/project_manager/templates/project_manager/board_detail.html:509
 #: mono/project_manager/templates/project_manager/board_form.html:54
 msgid "Yes"
 msgstr "Sim"
@@ -411,11 +411,11 @@ msgstr "Sim"
 #: mono/finance/templates/finance/transaction_list.html:428
 #: mono/finance/templates/finance/universal_transaction_form.html:248
 #: mono/pixel/templates/pixel/site_form.html:17
-#: mono/project_manager/templates/project_manager/board_calendar.html:377
-#: mono/project_manager/templates/project_manager/board_calendar.html:443
-#: mono/project_manager/templates/project_manager/board_detail.html:376
-#: mono/project_manager/templates/project_manager/board_detail.html:464
-#: mono/project_manager/templates/project_manager/board_detail.html:530
+#: mono/project_manager/templates/project_manager/board_calendar.html:373
+#: mono/project_manager/templates/project_manager/board_calendar.html:439
+#: mono/project_manager/templates/project_manager/board_detail.html:372
+#: mono/project_manager/templates/project_manager/board_detail.html:460
+#: mono/project_manager/templates/project_manager/board_detail.html:526
 #: mono/project_manager/templates/project_manager/board_form.html:18
 #: mono/project_manager/templates/project_manager/project_form.html:18
 #: mono/project_manager/templates/project_manager/tag_form.html:18
@@ -437,14 +437,14 @@ msgstr "Cancelar"
 #: mono/finance/templates/finance/universal_transaction_form.html:237
 #: mono/pixel/templates/pixel/site_form.html:21
 #: mono/project_manager/templates/project_manager/board_calendar.html:84
-#: mono/project_manager/templates/project_manager/board_calendar.html:378
-#: mono/project_manager/templates/project_manager/board_calendar.html:447
-#: mono/project_manager/templates/project_manager/board_calendar.html:463
+#: mono/project_manager/templates/project_manager/board_calendar.html:374
+#: mono/project_manager/templates/project_manager/board_calendar.html:443
+#: mono/project_manager/templates/project_manager/board_calendar.html:459
 #: mono/project_manager/templates/project_manager/board_detail.html:106
-#: mono/project_manager/templates/project_manager/board_detail.html:377
-#: mono/project_manager/templates/project_manager/board_detail.html:465
-#: mono/project_manager/templates/project_manager/board_detail.html:534
-#: mono/project_manager/templates/project_manager/board_detail.html:550
+#: mono/project_manager/templates/project_manager/board_detail.html:373
+#: mono/project_manager/templates/project_manager/board_detail.html:461
+#: mono/project_manager/templates/project_manager/board_detail.html:530
+#: mono/project_manager/templates/project_manager/board_detail.html:546
 #: mono/project_manager/templates/project_manager/board_form.html:28
 #: mono/project_manager/templates/project_manager/project_form.html:28
 #: mono/project_manager/templates/project_manager/tag_form.html:28
@@ -533,8 +533,11 @@ msgstr "Cartão de crédito"
 #: mono/finance/templates/finance/transaction_list.html:280
 #: mono/finance/templates/finance/transaction_list.html:281
 #: mono/project_manager/templates/project_manager/board_calendar.html:238
+#: mono/project_manager/templates/project_manager/board_calendar.html:239
 #: mono/project_manager/templates/project_manager/board_detail.html:237
-#: mono/project_manager/templates/project_manager/board_detail.html:430
+#: mono/project_manager/templates/project_manager/board_detail.html:238
+#: mono/project_manager/templates/project_manager/board_detail.html:426
+#: mono/project_manager/templates/project_manager/board_detail.html:427
 msgid "Description"
 msgstr "Descrição"
 
@@ -1398,8 +1401,8 @@ msgstr "Tem certeza de que quer cancelar a sua assinatura?"
 
 #: mono/finance/templates/finance/configuration.html:122
 #: mono/finance/templates/finance/configuration.html:136
-#: mono/project_manager/templates/project_manager/board_calendar.html:422
-#: mono/project_manager/templates/project_manager/board_detail.html:509
+#: mono/project_manager/templates/project_manager/board_calendar.html:418
+#: mono/project_manager/templates/project_manager/board_detail.html:505
 #: mono/project_manager/templates/project_manager/board_form.html:50
 msgid "No"
 msgstr "Não"
@@ -1775,12 +1778,14 @@ msgid "You've already invited this email for this project."
 msgstr "Você já convidou este e-mail para este projeto."
 
 #: mono/project_manager/templates/project_manager/board_calendar.html:72
+#: mono/project_manager/templates/project_manager/board_detail.html:74
 #: mono/project_manager/templates/project_manager/project_list.html:15
 #: mono/project_manager/templates/project_manager/tag_list.html:9
 msgid "Projects"
 msgstr "Projetos"
 
 #: mono/project_manager/templates/project_manager/board_calendar.html:73
+#: mono/project_manager/templates/project_manager/board_detail.html:75
 #: mono/project_manager/templates/project_manager/project_detail.html:17
 msgid "Boards"
 msgstr "Quadros"
@@ -1798,7 +1803,7 @@ msgstr "Imagem de fundo"
 #: mono/project_manager/templates/project_manager/board_calendar.html:86
 #: mono/project_manager/templates/project_manager/board_detail.html:108
 msgid "Remove"
-msgstr "Remomver"
+msgstr "Remover"
 
 #: mono/project_manager/templates/project_manager/board_calendar.html:100
 #: mono/project_manager/templates/project_manager/board_detail.html:122
@@ -1820,88 +1825,88 @@ msgstr "Tags"
 
 #: mono/project_manager/templates/project_manager/board_calendar.html:256
 #: mono/project_manager/templates/project_manager/board_detail.html:255
-#: mono/project_manager/templates/project_manager/board_detail.html:443
+#: mono/project_manager/templates/project_manager/board_detail.html:439
 msgid "Color"
 msgstr "Cor"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:278
-#: mono/project_manager/templates/project_manager/board_detail.html:277
+#: mono/project_manager/templates/project_manager/board_calendar.html:274
+#: mono/project_manager/templates/project_manager/board_detail.html:273
 msgid "Due date"
 msgstr "Prazo"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:282
-#: mono/project_manager/templates/project_manager/board_detail.html:281
+#: mono/project_manager/templates/project_manager/board_calendar.html:278
+#: mono/project_manager/templates/project_manager/board_detail.html:277
 msgid "Pick a due date"
 msgstr "Selecione um prazo"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:291
-#: mono/project_manager/templates/project_manager/board_detail.html:290
+#: mono/project_manager/templates/project_manager/board_calendar.html:287
+#: mono/project_manager/templates/project_manager/board_detail.html:286
 msgid "Status"
 msgstr "Status"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:313
-#: mono/project_manager/templates/project_manager/board_detail.html:312
+#: mono/project_manager/templates/project_manager/board_calendar.html:309
+#: mono/project_manager/templates/project_manager/board_detail.html:308
 msgid "Assigned to"
 msgstr "Atribuído para"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:326
-#: mono/project_manager/templates/project_manager/board_detail.html:325
+#: mono/project_manager/templates/project_manager/board_calendar.html:322
+#: mono/project_manager/templates/project_manager/board_detail.html:321
 msgid "Checklist"
 msgstr "Lista de verificação"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:331
+#: mono/project_manager/templates/project_manager/board_calendar.html:327
 msgid "Insert a new item to checklist"
 msgstr "Insira um novo item na lista de verificação"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:340
-#: mono/project_manager/templates/project_manager/board_detail.html:339
+#: mono/project_manager/templates/project_manager/board_calendar.html:336
+#: mono/project_manager/templates/project_manager/board_detail.html:335
 msgid "Files"
 msgstr "Arquivos"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:350
-#: mono/project_manager/templates/project_manager/board_detail.html:349
+#: mono/project_manager/templates/project_manager/board_calendar.html:346
+#: mono/project_manager/templates/project_manager/board_detail.html:345
 msgid "Comments"
 msgstr "Comentários"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:370
-#: mono/project_manager/templates/project_manager/board_detail.html:369
+#: mono/project_manager/templates/project_manager/board_calendar.html:366
+#: mono/project_manager/templates/project_manager/board_detail.html:365
 msgid "Add comment"
 msgstr "Adicionar comentário"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:389
-#: mono/project_manager/templates/project_manager/board_detail.html:388
+#: mono/project_manager/templates/project_manager/board_calendar.html:385
+#: mono/project_manager/templates/project_manager/board_detail.html:384
 msgid "Please, enter a name for your card."
 msgstr "Por favor, digite um nome para o seu card."
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:393
-#: mono/project_manager/templates/project_manager/board_detail.html:392
+#: mono/project_manager/templates/project_manager/board_calendar.html:389
+#: mono/project_manager/templates/project_manager/board_detail.html:388
 msgid "Card's name must have less than 50 characters."
 msgstr "Nomes de card devem ter menos que 50 caracteres."
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:402
-#: mono/project_manager/templates/project_manager/board_detail.html:401
+#: mono/project_manager/templates/project_manager/board_calendar.html:398
+#: mono/project_manager/templates/project_manager/board_detail.html:397
 msgid "Card's description must have less than 1000 characters."
 msgstr "Descrições de card devem ter menos que 1000 caracteres."
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:432
-#: mono/project_manager/templates/project_manager/board_detail.html:519
+#: mono/project_manager/templates/project_manager/board_calendar.html:428
+#: mono/project_manager/templates/project_manager/board_detail.html:515
 msgid "Comment edit"
 msgstr "Editar comentário"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:454
-#: mono/project_manager/templates/project_manager/board_detail.html:541
+#: mono/project_manager/templates/project_manager/board_calendar.html:450
+#: mono/project_manager/templates/project_manager/board_detail.html:537
 msgid "Managing tags"
 msgstr "Gerenciando tags"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:459
-#: mono/project_manager/templates/project_manager/board_calendar.html:475
-#: mono/project_manager/templates/project_manager/board_detail.html:546
-#: mono/project_manager/templates/project_manager/board_detail.html:562
+#: mono/project_manager/templates/project_manager/board_calendar.html:455
+#: mono/project_manager/templates/project_manager/board_calendar.html:471
+#: mono/project_manager/templates/project_manager/board_detail.html:542
+#: mono/project_manager/templates/project_manager/board_detail.html:558
 msgid "Close"
 msgstr "Fechar"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:470
-#: mono/project_manager/templates/project_manager/board_detail.html:557
+#: mono/project_manager/templates/project_manager/board_calendar.html:466
+#: mono/project_manager/templates/project_manager/board_detail.html:553
 msgid "Editing time entries"
 msgstr "Editando entradas de tempo"
 
@@ -1921,35 +1926,35 @@ msgstr "Largura do bucket"
 msgid "Please select a file."
 msgstr "Por favor, selecione um arquivo."
 
-#: mono/project_manager/templates/project_manager/board_detail.html:330
+#: mono/project_manager/templates/project_manager/board_detail.html:326
 msgid "Insert new item to checklist"
 msgstr "Insira um novo item na lista de verificação"
 
-#: mono/project_manager/templates/project_manager/board_detail.html:343
+#: mono/project_manager/templates/project_manager/board_detail.html:339
 msgid "Attach files"
 msgstr "Anexar arquivos"
 
-#: mono/project_manager/templates/project_manager/board_detail.html:353
+#: mono/project_manager/templates/project_manager/board_detail.html:349
 msgid "Type a new comment"
 msgstr "Digite um novo comentário"
 
-#: mono/project_manager/templates/project_manager/board_detail.html:434
+#: mono/project_manager/templates/project_manager/board_detail.html:430
 msgid "Automatic status"
 msgstr "Status automático"
 
-#: mono/project_manager/templates/project_manager/board_detail.html:476
+#: mono/project_manager/templates/project_manager/board_detail.html:472
 msgid "Please, enter a name for your bucket."
 msgstr "Por favor, digite um nome para o seu bucket"
 
-#: mono/project_manager/templates/project_manager/board_detail.html:480
+#: mono/project_manager/templates/project_manager/board_detail.html:476
 msgid "Bucket's name must have less than 50 characters."
 msgstr "Nomes de bucket devem ter menos que 50 caracteres."
 
-#: mono/project_manager/templates/project_manager/board_detail.html:489
+#: mono/project_manager/templates/project_manager/board_detail.html:485
 msgid "Bucket's description must have less than 255 characters."
 msgstr "Descrições de bucket devem ter menos que 255 caracteres."
 
-#: mono/project_manager/templates/project_manager/board_detail.html:523
+#: mono/project_manager/templates/project_manager/board_detail.html:519
 msgid "Edit comment"
 msgstr "Editar comentário"
 

@@ -236,7 +236,7 @@
             <input type="hidden" name="order">
             <div class="field">
                 <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
-                <textarea name="description" placeholder="Description" rows="4"></textarea>
+                <textarea name="description" placeholder="{% translate 'Description' %}" rows="4"></textarea>
             </div>
             <div class="three fields">
                 {% if object.tags_feature %}
@@ -258,19 +258,15 @@
                     </select>
                 </div>
                 <script>
-                    $('.ui.card-color.dropdown').dropdown({
-                        clearable: true,
-                        placeholder: 'Select a color theme',
-                        values: [
-                            {% for color in colors %}
-                            {
-                            "name": "{{ color.name }}",
-                            "value": {{ color.id }},
-                            "icon": "{{ color.name|lower }} circle",
-                            },
-                            {% endfor %}
-                        ],
-                    });
+                    colorsForDropdown = [
+                        {% for color in colors %}
+                        {
+                        "name": "{{ color.name }}",
+                        "value": {{ color.id }},
+                        "icon": "{{ color.name|lower }} circle",
+                        },
+                        {% endfor %}
+                    ];
                 </script>
                 {% endif %}
                 {% if object.due_date_feature %}
@@ -481,7 +477,6 @@
 
     <script>
         $(document).ready(e => {
-            Pace.options = { ajax: false }
             $('.ui.left.sidebar')
                 .sidebar('setting', 'transition', 'slide along')
                 .sidebar('setting', 'mobileTransition', 'slide along')
@@ -497,6 +492,7 @@
             });
             loadBoard();
             initializeSearchCardsDropdown();
+            initializeColorDropdown();
         });
     </script>
 {% endblock main %}

@@ -205,10 +205,11 @@ squash: list-apps  ## Squash migrations
 		&& read MIGRATION \
 		&& $(DJANGO) squashmigrations $$APP $$MIGRATION
 
-translation:  ## Squash migrations
+translation:  ## Update .po translation file
 	@$(DJANGO) makemessages -a
+	@$(DJANGO) makemessages -a -d djangojs -i node_modules
 
-translate:  ## Squash migrations
+translate:  ## Compile messages in .po file to .mo file
 	@$(DJANGO) compilemessages
 
 
