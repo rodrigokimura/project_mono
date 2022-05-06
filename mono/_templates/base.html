@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'semantic/dist/semantic.min.css' %}">
     <script src="{% static 'semantic/dist/semantic.min.js' %}"></script>
     <script src="{% static 'js/global.js' %}"></script>
+    <script src="{% url 'javascript-catalog' %}"></script>
     {% if APP_ENV == 'DEV' %}
         <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/dev/apple-touch-icon.png' %}">
         <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/dev/favicon-32x32.png' %}">

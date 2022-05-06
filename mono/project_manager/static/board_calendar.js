@@ -856,7 +856,7 @@ async function initializeTagsDropdown(dropdown, card = undefined) {
         }
     });
     dropdown.dropdown('refresh').dropdown({
-        placeholder: 'Select tags to this card',
+        placeholder: gettext('Select tags to for card'),
         values: tags,
         clearable: true,
         allowAdditions: false,
@@ -874,7 +874,7 @@ async function initializeTagsDropdown(dropdown, card = undefined) {
 
 async function initializeUsersDropdown(dropdown, card = undefined) {
     dropdown.dropdown({
-        placeholder: 'Assign users to this card',
+        placeholder: gettext('Assign users to this card'),
         values: allowedUsers.map(user => (
             {
                 value: user.username,
@@ -1545,4 +1545,12 @@ function previousMonth() {
     var date = $('#month_year_calendar').calendar('get date');
     date.setMonth(date.getMonth() - 1);
     $('#month_year_calendar').calendar('set date', date);
+}
+
+function initializeColorDropdown() {
+    $('.ui.card-color.dropdown').dropdown({
+        clearable: true,
+        placeholder: gettext('Select a color theme'),
+        values: colorsForDropdown,
+    })
 }

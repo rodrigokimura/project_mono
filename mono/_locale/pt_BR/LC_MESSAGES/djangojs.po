@@ -1,0 +1,66 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-06 16:34+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: mono/project_manager/static/board.js:350
+msgid "Add new card"
+msgstr "Adicionar novo card"
+
+#: mono/project_manager/static/board.js:352
+msgid "Edit this bucket"
+msgstr "Editar este bucket"
+
+#: mono/project_manager/static/board.js:353
+msgid "Delete this bucket"
+msgstr "Excluir este bucket"
+
+#: mono/project_manager/static/board.js:398
+msgid "Add new bucket"
+msgstr "Adicionar novo bucket"
+
+#: mono/project_manager/static/board.js:448
+msgid "Edit this card"
+msgstr "Editar este card"
+
+#: mono/project_manager/static/board.js:449
+msgid "Delete this card"
+msgstr "Excluir este card"
+
+#: mono/project_manager/static/board.js:451
+msgid "Start/stop timer"
+msgstr "Iniciar/Parar temporizador"
+
+#: mono/project_manager/static/board.js:452
+msgid "Edit time entries"
+msgstr "Editar entradas de tempo"
+
+#: mono/project_manager/static/board.js:1286
+#: mono/project_manager/static/board_calendar.js:859
+msgid "Select tags to for card"
+msgstr "Selecione tags para o card"
+
+#: mono/project_manager/static/board.js:1304
+#: mono/project_manager/static/board_calendar.js:877
+msgid "Assign users to this card"
+msgstr "Atribuir usuários a este card"
+
+#: mono/project_manager/static/board.js:2001
+#: mono/project_manager/static/board_calendar.js:1553
+msgid "Select a color theme"
+msgstr "Selecione um tema de cores"
