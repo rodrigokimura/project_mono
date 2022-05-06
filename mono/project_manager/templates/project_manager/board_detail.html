@@ -118,7 +118,7 @@
             <div class="header">{% translate 'Filter' %}</div>
             <div class="search-cards item" style="padding-top: 0; padding-bottom: 0;">
                 <div class="ui search-cards mini fluid multiple selection search dropdown">
-                    <div class="default text">Filter cards</div>
+                    <div class="default text">{% translate 'Filter cards' %}</div>
                     <i class="dropdown icon"></i>
                 </div>
             </div>
@@ -143,16 +143,16 @@
                         wallpaper = r.background_image;
                         setWallpaper();
                         $('body').toast({
-                        title: 'Background image',
-                        message: 'Background image successfully updated!',
-                        showProgress: 'bottom',
-                        classProgress: 'green',
-                        displayTime: 5000,
+                            title: 'Background image',
+                            message: 'Background image successfully updated!',
+                            showProgress: 'bottom',
+                            classProgress: 'green',
+                            displayTime: 5000,
                         })
                     },
                 });
             } else {
-                alert("Please select a file.");
+                alert("{% translate 'Please select a file.' %}");
             }
         });
         $("#wallpaper-remove-btn").on('click', e => {
@@ -164,15 +164,15 @@
                 data: {'background_image': null},
                 successTest: r => r != 0,
                 onSuccess: r => {
-                wallpaper = '';
-                setWallpaper();
-                $('body').toast({
-                    title: 'Background image',
-                    message: 'Background image removed!',
-                    showProgress: 'bottom',
-                    classProgress: 'red',
-                    displayTime: 5000,
-                })
+                    wallpaper = '';
+                    setWallpaper();
+                    $('body').toast({
+                        title: 'Background image',
+                        message: 'Background image removed!',
+                        showProgress: 'bottom',
+                        classProgress: 'red',
+                        displayTime: 5000,
+                    })
                 },
             });
         });
@@ -273,11 +273,11 @@
                 {% endif %}
                 {% if object.due_date_feature %}
                 <div class="field">
-                    <label><i class="calendar day icon"></i>Due date</label>
+                    <label><i class="calendar day icon"></i>{% translate 'Due date' %}</label>
                     <div class="ui card-due-date calendar">
                         <div class="ui input left icon">
                             <i class="calendar icon"></i>
-                            <input type="text" placeholder="Pick a due date">
+                            <input type="text" placeholder="{% translate 'Pick a due date' %}">
                         </div>
                     </div>
                 </div>
@@ -326,7 +326,7 @@
                             <div class="checklist-drake"></div>
                             <div class="ui fluid icon add-item input">
                                 <i class="add icon"></i>
-                                <input type="text" placeholder="Insert new item to checklist">
+                                <input type="text" placeholder="{% translate 'Insert new item to checklist' %}">
                             </div>
                         </div>
                     </div>
@@ -339,7 +339,7 @@
                 <div class="files-container ui special cards"></div>
                 <div class="ui left icon fluid input">
                     <i class="file alternate outline icon"></i>
-                    <input class="card-files" type="file" placeholder="Attach files" multiple="">
+                    <input class="card-files" type="file" placeholder="{% translate 'Attach files' %}" multiple="">
                 </div>
             </div>
             {% endif %}
@@ -349,7 +349,7 @@
                 <div class="ui comments" id="card-comments" style="max-width: 100%;"></div>
                 <div class="ui reply form">
                     <div class="field">
-                        <textarea id="suggest-comment" class="add-reply" rows="2" placeholder="Type a new comment"></textarea>
+                        <textarea id="suggest-comment" class="add-reply" rows="2" placeholder="{% translate 'Type a new comment' %}"></textarea>
                     </div>
                     <div id="suggest" style="display:none;"></div>
                     <script>
@@ -365,7 +365,7 @@
                         })
                     </script>
                     <div class="ui blue labeled add-reply submit icon button">
-                        <i class="icon edit"></i> Add comment
+                        <i class="icon edit"></i> {% translate 'Add comment' %}
                     </div>
                 </div>
             </div>
@@ -519,7 +519,7 @@
         <div class="content">
             <div class="ui reply form">
                 <div class="field">
-                <textarea class="comment-edit" rows="2" placeholder="Edit comment"></textarea>
+                <textarea class="comment-edit" rows="2" placeholder="{% translate 'Edit comment' %}"></textarea>
                 </div>
             </div>
         </div>
@@ -553,7 +553,7 @@
 
     <div class="ui top aligned tiny modal" id="time-entries">
         <i class="close icon"></i>
-        <div class="header">Editing time entries</div>
+        <div class="header">{% translate 'Editing time entries' %}</div>
         <div class="content"></div>
         <div class="actions">
             <div class="ui black cancel button">

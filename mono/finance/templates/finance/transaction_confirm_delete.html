@@ -1,27 +1,24 @@
-{% extends "base.html" %}
+{% extends "finance/base.html" %}
+{% load i18n %}
 
 {% block main %}
 <div class="pusher">
   <div class="ui container">
     <div class="ui vertical stripe segment">
-      <div class="ui middle aligned stackable grid container">
+      <div class="ui stackable centered grid container">
         <div class="row">
-          <div class="eight wide column">
-            <div class="ui container">
+          <div class="six wide column">
+            <div class="ui segment">
               <form method="post">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <h1 class="ui header">Delete transaction?</h1>
-                <div class="ui buttons">
-                  
-                <button type="submit" class="ui huge negative button">
-                  Yes
-                </button>
-                <div class="or"></div>
-                <a class="ui huge button" href="{% url 'finance:transaction_update' pk=object.pk %}">
-                  Cancel
+                <h1 class="ui header" style="margin-top: 0;">{% translate "Delete transaction?" %}</h1>
+                <a class="ui button" href="{% url 'finance:transaction_update' pk=object.pk %}">
+                  {% translate "Cancel" %}
                 </a>
-                </div>
+                <button type="submit" class="ui negative right floated button">
+                  {% translate "Yes" %}
+                </button>
               </form>
             </div>
           </div>
