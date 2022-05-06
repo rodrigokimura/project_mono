@@ -24,6 +24,12 @@ class ChangePasswordSerializer(Serializer):
     new_password = CharField(required=True)
     new_password_confirmation = CharField(required=True)
 
+    def create(self, validated_data):
+        raise NotImplementedError
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError
+
 
 class UserSerializer(ModelSerializer):
     """User serializer"""

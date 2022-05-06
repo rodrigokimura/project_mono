@@ -1,9 +1,8 @@
 import pytest
 from django.test import Client
-from django.utils.timezone import now
 from finance.models import Icon
 
-from .models import Configuration, Snippet, Tag
+from .models import Snippet
 
 
 @pytest.mark.django_db

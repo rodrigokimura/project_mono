@@ -223,7 +223,7 @@ class RecurrentTransaction(models.Model):
                 message=_("A transaction was created based on a Recurrent Transaction"),
                 to=self.created_by,
                 icon="exclamation",
-                action_url=reverse("finance:transactions") + f"?transaction={transaction.id}",
+                action_url=reverse("finance:transaction_list") + f"?transaction={transaction.id}",
             )
 
     def create_past_transactions(self):
@@ -959,7 +959,7 @@ class Invite(models.Model):
             message=f"{user} accepted your invite.",
             to=self.created_by,
             icon="exclamation",
-            action_url=reverse("finance:groups"),
+            action_url=reverse("finance:group_list"),
         )
 
     @property

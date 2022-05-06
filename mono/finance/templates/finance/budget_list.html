@@ -30,7 +30,7 @@
       </div>
       <div class="ui fluid buttons">
         <button class="ui button primary" type="submit" form="filter">Filter</button>
-        <a class="ui button" href="{% url 'finance:budgets' %}">Clear</a>
+        <a class="ui button" href="{% url 'finance:budget_list' %}">Clear</a>
       </div>
     </form>
   </div>
@@ -102,7 +102,7 @@
     
     <div class="ui horizontal divider"><i class="eye outline icon"></i> {% translate "Views" %}</div>
     <div class="row">
-      <a class="ui fluid basic labeled icon button" href="{% url "finance:budgetconfigurations" %}">
+      <a class="ui fluid basic labeled icon button" href="{% url "finance:budgetconfiguration_list" %}">
           <i class="calendar alternate outline icon"></i>
           {% translate "Go to Scheduled Budgets" %}
       </a>

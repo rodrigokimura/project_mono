@@ -281,7 +281,7 @@ class TransactionListViewTests(TestCase):
         response = c.get('/fn/recurrent-transactions/')
         self.assertEqual(response.status_code, 200)
 
-    def test_recurrent_transaction_delete_view(self):
+    def test_recurrenttransaction_delete_view(self):
         recurrent_transaction = RecurrentTransaction.objects.create(
             description='test',
             created_by=self.user,

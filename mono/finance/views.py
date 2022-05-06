@@ -1,5 +1,6 @@
 """Finance's views"""
 from datetime import datetime
+from typing import Any, Dict
 
 import jwt
 from __mono.mixins import PassRequestToFormViewMixin
@@ -39,6 +40,31 @@ from .models import (
     Transference, User,
 )
 from .serializers import ChartMoveSerializer, ChartSerializer
+
+
+class BaseDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+    """
+    Base class used for all (non API) delete views.
+    """
+
+    template_name: str = 'finance/_confirm_delete.html'
+
+    def test_func(self):
+        return self.get_object().created_by == self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, _(f"{self.model._meta.verbose_name.title()} deleted successfully"))
+        return super().delete(request, *args, **kwargs)
+
+    def get_success_url(self) -> str:
+        return reverse_lazy(f'finance:{self.model._meta.model_name}_list')
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context['message'] = _(f"Delete this {self.model._meta.verbose_name}?")
+        cancel_url_name = f'finance:{self.model._meta.model_name}_update'
+        context['cancel_url'] = reverse_lazy(cancel_url_name, kwargs={'pk': self.get_object().pk})
+        return context
 
 
 class HomePageView(LoginRequiredMixin, TemplateView):
@@ -251,7 +277,7 @@ class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
     """Create transaction"""
     template_name = "finance/universal_transaction_form.html"
     form_class = UniversalTransactionForm
-    success_url = reverse_lazy('finance:transactions')
+    success_url = reverse_lazy('finance:transaction_list')
     success_message = "%(description)s was created successfully"
 
     def form_valid(self, form):
@@ -304,22 +330,13 @@ class TransactionUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
     """Update transaction"""
     model = Transaction
     form_class = TransactionForm
-    success_url = reverse_lazy('finance:transactions')
+    success_url = reverse_lazy('finance:transaction_list')
     success_message = "%(description)s was updated successfully"
 
 
-class TransactionDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+class TransactionDeleteView(BaseDeleteView):
     """Delete transaction"""
     model = Transaction
-    success_url = reverse_lazy('finance:transactions')
-    success_message = _("Transaction was deleted successfully")
-
-    def test_func(self):
-        return self.get_object().created_by == self.request.user
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):  # pylint: disable=too-many-ancestors
@@ -402,7 +419,7 @@ class RecurrentTransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMi
     """Create recurrent transaction"""
     model = RecurrentTransaction
     form_class = RecurrentTransactionForm
-    success_url = reverse_lazy('finance:recurrent_transactions')
+    success_url = reverse_lazy('finance:recurrenttransaction_list')
     success_message = "%(description)s was created successfully"
 
 
@@ -410,22 +427,13 @@ class RecurrentTransactionUpdateView(LoginRequiredMixin, PassRequestToFormViewMi
     """Edit recurrent transaction"""
     model = RecurrentTransaction
     form_class = RecurrentTransactionForm
-    success_url = reverse_lazy('finance:recurrent_transactions')
+    success_url = reverse_lazy('finance:recurrenttransaction_list')
     success_message = "%(description)s was updated successfully"
 
 
-class RecurrentTransactionDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+class RecurrentTransactionDeleteView(BaseDeleteView):
     """Delete recurrent transaction"""
     model = RecurrentTransaction
-    success_url = reverse_lazy('finance:recurrent_transactions')
-    success_message = _("Transaction was deleted successfully")
-
-    def test_func(self):
-        return self.get_object().created_by == self.request.user
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 class InstallmentListView(LoginRequiredMixin, ListView):
@@ -442,7 +450,7 @@ class InstallmentCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
     """Create installment"""
     model = Installment
     form_class = InstallmentForm
-    success_url = reverse_lazy('finance:installments')
+    success_url = reverse_lazy('finance:installment_list')
     success_message = "%(description)s was created successfully"
 
 
@@ -450,22 +458,13 @@ class InstallmentUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
     """Edit installment"""
     model = Installment
     form_class = InstallmentForm
-    success_url = reverse_lazy('finance:installments')
+    success_url = reverse_lazy('finance:installment_list')
     success_message = "%(description)s was updated successfully"
 
 
-class InstallmentDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+class InstallmentDeleteView(BaseDeleteView):
     """Delete installment"""
     model = Installment
-    success_url = reverse_lazy('finance:installments')
-    success_message = _("Installment group was deleted successfully")
-
-    def test_func(self):
-        return self.get_object().created_by == self.request.user
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 class AccountListView(LoginRequiredMixin, ListView):
@@ -507,7 +506,7 @@ class AccountCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
     """Create account"""
     model = Account
     form_class = AccountForm
-    success_url = reverse_lazy('finance:accounts')
+    success_url = reverse_lazy('finance:account_list')
     success_message = "%(name)s was created successfully"
 
 
@@ -515,25 +514,19 @@ class AccountUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, Success
     """Edit account"""
     model = Account
     form_class = AccountForm
-    success_url = reverse_lazy('finance:accounts')
+    success_url = reverse_lazy('finance:account_list')
     success_message = "%(name)s was updated successfully"
 
     def test_func(self):
         return self.get_object().owned_by == self.request.user
 
 
-class AccountDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+class AccountDeleteView(BaseDeleteView):
     """Delete account"""
     model = Account
-    success_url = reverse_lazy('finance:accounts')
-    success_message = "Account was deleted successfully"
 
     def test_func(self):
         return self.get_object().owned_by == self.request.user
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 class GroupListView(LoginRequiredMixin, ListView):
@@ -563,7 +556,7 @@ class GroupCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     """Create group"""
     model = Group
     form_class = GroupForm
-    success_url = reverse_lazy('finance:groups')
+    success_url = reverse_lazy('finance:group_list')
     success_message = "%(name)s was created successfully"
 
 
@@ -571,22 +564,16 @@ class GroupUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     """Update group"""
     model = Group
     form_class = GroupForm
-    success_url = reverse_lazy('finance:groups')
+    success_url = reverse_lazy('finance:group_list')
     success_message = "%(name)s was updated successfully"
 
 
-class GroupDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+class GroupDeleteView(BaseDeleteView):
     """Delete group"""
     model = Group
-    success_url = reverse_lazy('finance:groups')
-    success_message = "Group was deleted successfully"
 
     def test_func(self):
         return self.get_object().owned_by == self.request.user
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 class CategoryListView(LoginRequiredMixin, ListView):
@@ -658,7 +645,7 @@ class CategoryCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, Success
     """Create category"""
     model = Category
     form_class = CategoryForm
-    success_url = reverse_lazy('finance:categories')
+    success_url = reverse_lazy('finance:category_list')
     success_message = "%(name)s was created successfully"
 
 
@@ -666,22 +653,13 @@ class CategoryUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, Success
     """Update category"""
     model = Category
     form_class = CategoryForm
-    success_url = reverse_lazy('finance:categories')
+    success_url = reverse_lazy('finance:category_list')
     success_message = "%(name)s was updated successfully"
 
 
-class CategoryDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+class CategoryDeleteView(BaseDeleteView):
     """Delete category"""
     model = Category
-    success_url = reverse_lazy('finance:categories')
-    success_message = "Category was deleted successfully"
-
-    def test_func(self):
-        return self.get_object().created_by == self.request.user
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 class IconListView(UserPassesTestMixin, ListView):
@@ -700,7 +678,7 @@ class IconCreateView(UserPassesTestMixin, SuccessMessageMixin, CreateView):
     """Create icon"""
     model = Icon
     form_class = IconForm
-    success_url = reverse_lazy('finance:icons')
+    success_url = reverse_lazy('finance:icon_list')
     success_message = "%(markup)s was created successfully"
 
     def test_func(self):
@@ -711,25 +689,19 @@ class IconUpdateView(UserPassesTestMixin, SuccessMessageMixin, UpdateView):
     """Update icon"""
     model = Icon
     form_class = IconForm
-    success_url = reverse_lazy('finance:icons')
+    success_url = reverse_lazy('finance:icon_list')
     success_message = "%(markup)s was updated successfully"
 
     def test_func(self):
         return self.request.user.is_superuser
 
 
-class IconDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+class IconDeleteView(BaseDeleteView):
     """Delete icon"""
     model = Icon
-    success_url = reverse_lazy('finance:icons')
-    success_message = "Icon was deleted successfully"
 
     def test_func(self):
         return self.request.user.is_superuser
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 class GoalListView(LoginRequiredMixin, ListView):
@@ -745,7 +717,7 @@ class GoalCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMess
     """Create goal"""
     model = Goal
     form_class = GoalForm
-    success_url = reverse_lazy('finance:goals')
+    success_url = reverse_lazy('finance:goal_list')
     success_message = "%(name)s was created successfully"
 
 
@@ -753,19 +725,13 @@ class GoalUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMess
     """Update goal"""
     model = Goal
     form_class = GoalForm
-    success_url = reverse_lazy('finance:goals')
+    success_url = reverse_lazy('finance:goal_list')
     success_message = "%(name)s was updated successfully"
 
 
-class GoalDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class GoalDeleteView(BaseDeleteView):
     """Delete goal"""
     model = Goal
-    success_url = reverse_lazy('finance:goals')
-    success_message = "Goal was deleted successfully"
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 class InviteApi(LoginRequiredMixin, View):
@@ -893,7 +859,7 @@ class BudgetCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMe
     """
     model = Budget
     form_class = BudgetForm
-    success_url = reverse_lazy('finance:budgets')
+    success_url = reverse_lazy('finance:budget_list')
     success_message = "Budget was created successfully"
 
 
@@ -903,27 +869,18 @@ class BudgetUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, SuccessM
     """
     model = Budget
     form_class = BudgetForm
-    success_url = reverse_lazy('finance:budgets')
+    success_url = reverse_lazy('finance:budget_list')
     success_message = "Budget was updated successfully"
 
     def test_func(self):
         return self.get_object().created_by == self.request.user
 
 
-class BudgetDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+class BudgetDeleteView(BaseDeleteView):
     """
     Delete budget
     """
     model = Budget
-    success_url = reverse_lazy('finance:budgets')
-    success_message = "Budget was deleted successfully"
-
-    def test_func(self):
-        return self.get_object().created_by == self.request.user
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 class BudgetConfigurationListView(LoginRequiredMixin, ListView):
@@ -959,7 +916,7 @@ class BudgetConfigurationCreateView(LoginRequiredMixin, PassRequestToFormViewMix
     """
     model = BudgetConfiguration
     form_class = BudgetConfigurationForm
-    success_url = reverse_lazy('finance:budgetconfigurations')
+    success_url = reverse_lazy('finance:budgetconfiguration_list')
     success_message = "BudgetConfiguration was created successfully"
 
 
@@ -969,27 +926,18 @@ class BudgetConfigurationUpdateView(UserPassesTestMixin, PassRequestToFormViewMi
     """
     model = BudgetConfiguration
     form_class = BudgetConfigurationForm
-    success_url = reverse_lazy('finance:budgetconfigurations')
+    success_url = reverse_lazy('finance:budgetconfiguration_list')
     success_message = "BudgetConfiguration was updated successfully"
 
     def test_func(self):
         return self.get_object().created_by == self.request.user
 
 
-class BudgetConfigurationDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
+class BudgetConfigurationDeleteView(BaseDeleteView):
     """
     Delete BudgetConfiguration
     """
     model = BudgetConfiguration
-    success_url = reverse_lazy('finance:budgetconfigurations')
-    success_message = "BudgetConfiguration was deleted successfully"
-
-    def test_func(self):
-        return self.get_object().created_by == self.request.user
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 class FakerView(UserPassesTestMixin, FormView):
