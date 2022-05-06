@@ -1,3 +1,9 @@
+## 5.6.0 (2022-05-06)
+
+### Feat
+
+- **finance**: improve translation
+
 ## 5.5.1 (2022-05-06)
 
 ### Refactor
