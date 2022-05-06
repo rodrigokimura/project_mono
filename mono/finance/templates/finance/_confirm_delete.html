@@ -1,0 +1,24 @@
+{% extends "finance/base.html" %}
+{% load i18n %}
+
+{% block main %}
+    <div class="pusher">
+        <div class="ui stackable centered grid container">
+            <div class="row">
+                <div class="six wide column">
+                    <form method="post" class="ui segment">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <h1 class="ui header" style="margin-top: 0;">{{ message }}</h1>
+                        <a class="ui button" href="{{ cancel_url }}">
+                            {% translate "Cancel" %}
+                        </a>
+                        <button type="submit" class="ui negative right floated button">
+                            {% translate "Yes" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock main %}

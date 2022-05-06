@@ -62,7 +62,7 @@
       </div>
       <div class="ui fluid buttons">
         <button class="ui button primary" type="submit" form="filter">{% translate "Filter" %}</button>
-        <a class="ui button" href="{% url 'finance:transactions' %}">{% translate "Clear" %}</a>
+        <a class="ui button" href="{% url 'finance:transaction_list' %}">{% translate "Clear" %}</a>
       </div>
     </form>
   </div>
@@ -238,13 +238,13 @@
           {% translate "Go to Calendar View" %}
       </a>
       <a class="ui fluid basic labeled icon button" 
-        href="{% url "finance:installments" %}"
+        href="{% url "finance:installment_list" %}"
         style="margin-bottom: 1rem;">
           <i class="calendar alternate outline icon"></i>
           {% translate "Go to installments" %}
       </a>
       <a class="ui fluid basic labeled icon button" 
-        href="{% url "finance:recurrent_transactions" %}">
+        href="{% url "finance:recurrenttransaction_list" %}">
           <i class="calendar alternate outline icon"></i>
           {% translate "Go to recurrent transactions" %}
       </a>

@@ -69,18 +69,18 @@
   </style>
   <div class="ui vertical inverted thin sidebar labeled icon left menu">
     <a class="item" href="{% url 'finance:index' %}"><i class="home icon"></i>{% translate "Home" %}</a>
-    <a class="item" href="{% url 'finance:transactions' %}"><i class="money bill icon"></i>{% translate "Transactions" %}</a>
-    <a class="item" href="{% url 'finance:accounts' %}"><i class="wallet icon"></i>{% translate "Accounts" %}</a>
-    <a class="item" href="{% url 'finance:budgets' %}"><i class="piggy bank icon"></i>{% translate "Budgets" %}</a>
-    <a class="item" href="{% url 'finance:groups' %}"><i class="users icon"></i>{% translate "Groups" %}</a>
-    <a class="item" href="{% url 'finance:categories' %}"><i class="tags icon"></i>{% translate "Categories" %}</a>
+    <a class="item" href="{% url 'finance:transaction_list' %}"><i class="money bill icon"></i>{% translate "Transactions" %}</a>
+    <a class="item" href="{% url 'finance:account_list' %}"><i class="wallet icon"></i>{% translate "Accounts" %}</a>
+    <a class="item" href="{% url 'finance:budget_list' %}"><i class="piggy bank icon"></i>{% translate "Budgets" %}</a>
+    <a class="item" href="{% url 'finance:group_list' %}"><i class="users icon"></i>{% translate "Groups" %}</a>
+    <a class="item" href="{% url 'finance:category_list' %}"><i class="tags icon"></i>{% translate "Categories" %}</a>
     <a class="item" href="{% url 'finance:charts' %}"><i class="chart line icon"></i>{% translate "Charts" %}</a>
     {% if request.user.is_superuser %}
     <div class="item">
       <div class="header">Superuser</div>
       <div class="menu">
         <a class="item" href="{% url 'finance:faker' %}">Faker</a>
-        <a class="item" href="{% url 'finance:icons' %}">Icons</a>
+        <a class="item" href="{% url 'finance:icon_list' %}">Icons</a>
         <a class="item" href="{% url 'finance:restricted_area' %}">Restricted Area</a>
       </div>
     </div>

@@ -24,7 +24,7 @@
                 </button>
                 <div class="{% translate 'or' %}"></div>
                 {% if object %}
-                <a class="ui button red" href="{% url 'finance:recurrent_transaction_delete' pk=object.pk %}">
+                <a class="ui button red" href="{% url 'finance:recurrenttransaction_delete' pk=object.pk %}">
                   <i class="trash icon"></i>
                   {% translate "Delete" %}
                 </a>

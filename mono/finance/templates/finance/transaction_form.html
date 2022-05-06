@@ -3,69 +3,67 @@
 {% load i18n %}
 
 {% block head %}
-<script src="{% static 'js/jquery.datetimepicker.full.min.js' %}"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.datetimepicker.min.css' %}"/>
+    <script src="{% static 'js/jquery.datetimepicker.full.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/jquery.datetimepicker.min.css' %}"/>
 {% endblock head %}
 
 {% block main %}
 
-<div class="pusher">
-  <div class="ui vertical stripe segment">
-    <div class="ui middle aligned stackable equal width grid container">
-      <div class="row">
-        <div class="column">
-          <div class="ui segment container">
-            <form method="post" class="ui {% if form.errors %}error {% endif %}form" id="transaction_form">
-              {% csrf_token %}
-              {% include "_form.html" with form=form %}
-                <button class="ui right floated green button" type="submit" form="transaction_form">
-                  {% translate "Save" %}
-                </button>
-                <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
-                  {% translate "Cancel" %}
-                </a>
-              </form>
+    <div class="pusher">
+        <div class="ui middle aligned stackable equal width grid container">
+            <div class="row">
+                <div class="column">
+                    <div class="ui segment container">
+                        <form method="post" class="ui {% if form.errors %}error {% endif %}form" id="transaction_form">
+                        {% csrf_token %}
+                        {% include "_form.html" with form=form %}
+                            <button class="ui right floated green button" type="submit" form="transaction_form">
+                                {% translate "Save" %}
+                            </button>
+                            <a class="ui button" href="{% url 'finance:transaction_list' %}">
+                                {% translate "Cancel" %}
+                            </a>
+                        </form>
+                    </div>
+                    {% if object %}
+                        <a class="ui button red" href="{% url 'finance:transaction_delete' pk=object.pk %}">
+                            <i class="trash icon"></i>
+                            {% translate "Delete" %}
+                        </a>
+                    {% endif %}
+                    </div>
+                </div>
             </div>
-            {% if object %}
-            <a class="ui button red" href="{% url 'finance:transaction_delete' pk=object.pk %}">
-              <i class="trash icon"></i>
-              {% translate "Delete" %}
-            </a>
-            {% endif %}
         </div>
-      </div>
     </div>
-  </div>
-</div>
-  
-<script>
-  $('select[name=account]').dropdown(
-    {
-      onChange: function(value, text, choice) {
-        if (typeof value !== "undefined") {
-          dropdown_element.dropdown('clear');
-          updateDropdown($("input[name=type]").val(), value);
+    
+    <script>
+        $('select[name=account]').dropdown(
+            {
+            onChange: function(value, text, choice) {
+                    if (typeof value !== "undefined") {
+                        dropdown_element.dropdown('clear');
+                        updateDropdown($("input[name=type]").val(), value);
+                    }
+                }
+            }
+        );
+        
+        $("input[name=type]").change(e => {
+            type = $(e.target).val();
+            dropdown_element.dropdown('clear');
+            updateDropdown(type, $('select[name=account]').dropdown("get value"));
+        })
+        
+        if ($('select[name=account]').dropdown("get value").length > 0) {
+            dropdown_element.dropdown('clear');
+            updateDropdown($("input[name=type]").val(), $('select[name=account]').dropdown("get value"));
         }
-      }
-    }
-  );
-  
-  $("input[name=type]").change(e=>{
-    type = $(e.target).val();
-    dropdown_element.dropdown('clear');
-    updateDropdown(type, $('select[name=account]').dropdown("get value"));
-  })
-  
-  if ($('select[name=account]').dropdown("get value").length > 0) {
-    dropdown_element.dropdown('clear');
-    updateDropdown($("input[name=type]").val(), $('select[name=account]').dropdown("get value"));
-  }
-  
-  {% if object %}
-    dropdown_element.dropdown('set text', "<i class='{{ object.category.icon }} icon'></i>{{ object.category }}");
-    dropdown_element.dropdown("set value", "{{ object.category.pk }}")
-  {% endif %}
-   
-  
-</script>
+
+        {% if object %}
+            dropdown_element.dropdown('set text', "<i class='{{ object.category.icon }} icon'></i>{{ object.category }}");
+            dropdown_element.dropdown("set value", "{{ object.category.pk }}")
+        {% endif %}
+
+    </script>
 {% endblock %}

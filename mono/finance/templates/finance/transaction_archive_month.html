@@ -2,35 +2,33 @@
 {% load i18n %}
 {% load cool_numbers %}
 
-{% block head %}
-{% endblock head %}
 {% block main %}
-  <div class="ui stackable grid container">
+    <div class="ui stackable grid container">
     
-    <div class="four wide column">
-      <form class="ui fluid form" method="GET" id="filter">
-        <div class="field">
-          <label>Category</label>
-          <div class="ui search multiple selection dropdown" data-name="category">
-            <input type="hidden" name="category">
-            <div class="text"></div>
-            <i class="dropdown icon"></i>
-          </div>
+        <div class="four wide column">
+            <form class="ui fluid form" method="GET" id="filter">
+                <div class="field">
+                    <label>{% translate "Category" %}</label>
+                    <div class="ui search multiple selection dropdown" data-name="category">
+                        <input type="hidden" name="category">
+                        <div class="text"></div>
+                        <i class="dropdown icon"></i>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Account</label>
+                    <div class="ui search multiple selection dropdown" data-name="account">
+                        <input type="hidden" name="account">
+                        <div class="text"></div>
+                        <i class="dropdown icon"></i>
+                    </div>
+                </div>
+                <div class="ui fluid buttons">
+                    <button class="ui button primary" type="submit" form="filter">{% translate "Filter" %}</button>
+                    <a class="ui button" href="{% url 'finance:transaction_list' %}">{% translate "Clear" %}</a>
+                </div>
+            </form>
         </div>
-        <div class="field">
-          <label>Account</label>
-          <div class="ui search multiple selection dropdown" data-name="account">
-            <input type="hidden" name="account">
-            <div class="text"></div>
-            <i class="dropdown icon"></i>
-          </div>
-        </div>
-        <div class="ui fluid buttons">
-          <button class="ui button primary" type="submit" form="filter">Filter</button>
-          <a class="ui button" href="{% url 'finance:transactions' %}">Clear</a>
-        </div>
-      </form>
-    </div>
 
     <div class="eight wide column">
      
@@ -114,7 +112,7 @@
       
       <div class="ui horizontal divider"><i class="eye outline icon"></i> {% translate "Views" %}</div>
       <div class="row">
-        <a class="ui fluid basic labeled icon button" href="{% url "finance:transactions" %}">
+        <a class="ui fluid basic labeled icon button" href="{% url "finance:transaction_list" %}">
           <i class="list icon"></i>
           {% translate "Go to List View" %}
         </a>

@@ -240,21 +240,21 @@ class ChangePasswordView(UpdateAPIView):
     model = User
     permission_classes = (IsAuthenticated,)
 
-    def get_object(self, queryset=None):
+    def get_object(self):
         obj = self.request.user
         return obj
 
     def update(self, request, *args, **kwargs):
-        self.object = self.get_object()
+        user = self.get_object()
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
-            if not self.object.check_password(serializer.data.get("old_password")):
-                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            if not user.check_password(serializer.data.get("old_password")):
+                return Response({"old_password": [_("Wrong password.")]}, status=status.HTTP_400_BAD_REQUEST)
             if serializer.data.get("new_password") != serializer.data.get("new_password_confirmation"):
-                return Response({"new_password_confirmation": ["The two new password fields didn't match."]}, status=status.HTTP_400_BAD_REQUEST)
-            self.object.set_password(serializer.data.get("new_password"))
-            self.object.save()
+                return Response({"new_password_confirmation": [_("The two new password fields didn't match.")]}, status=status.HTTP_400_BAD_REQUEST)
+            user.set_password(serializer.data.get("new_password"))
+            user.save()
             login(request, request.user, backend='__mono.auth_backends.EmailOrUsernameModelBackend')
             return Response(status=status.HTTP_204_NO_CONTENT)
 
