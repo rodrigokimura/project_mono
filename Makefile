@@ -207,7 +207,7 @@ squash: list-apps  ## Squash migrations
 
 translation:  ## Update .po translation file
 	@$(DJANGO) makemessages -a
-	@$(DJANGO) makemessages -a -d djangojs -i node_modules
+	@$(DJANGO) makemessages -a -d djangojs -i node_modules --no-wrap
 
 translate:  ## Compile messages in .po file to .mo file
 	@$(DJANGO) compilemessages
@@ -281,6 +281,14 @@ check:  ## Show state and checks of last pull request
 ssh: art  ## Connect to Production server
 	@ssh kimura@ssh.pythonanywhere.com || true
 
+deploy: art  ## Deploy app to Production server
+	@ssh kimura@ssh.pythonanywhere.com "cd project_mono && make build" \
+		&& echo "${GREEN}Deployed!${RESET}" \
+	|| echo "${RED}Failed!${RESET}"
+
+logs: art  ## Check logs for deployment messages
+	@ssh kimura@ssh.pythonanywhere.com "tail /var/log/www.monoproject.info.server.log -n 100 --follow | grep 'www_monoproject_info_wsgi.py has been touched' || true"
+
 mark-as-deployed:
 	$(DJANGO) mark_as_deployed
 
@@ -300,7 +308,6 @@ build:  ## Execute commands to build app in production
 	@pipenv run python mono/manage.py migrate
 	@pipenv run python mono/manage.py mark_as_deployed
 	@touch /var/www/www_monoproject_info_wsgi.py
-	@tail /var/log/www.monoproject.info.server.log -n 100 --follow | grep 'www_monoproject_info_wsgi.py has been touched' || true
 
 copy-termux-shortcuts:
 	@rm -r $(HOME)/.shortcuts/*
