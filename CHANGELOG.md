@@ -1,3 +1,9 @@
+## 5.5.1 (2022-05-06)
+
+### Refactor
+
+- **finance**: reuse templates and views
+
 ## 5.5.0 (2022-05-05)
 
 ### Feat
