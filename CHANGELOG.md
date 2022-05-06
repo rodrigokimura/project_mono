@@ -1,3 +1,9 @@
+## 5.4.0 (2022-05-05)
+
+### Feat
+
+- **mono**: improve translations
+
 ## 5.3.4 (2022-05-04)
 
 ### Fix
