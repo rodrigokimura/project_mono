@@ -347,10 +347,10 @@ async function renderBuckets(containerSelector, buckets, dark = false, compact =
                   <div class="ui basic icon top right pointing dropdown ${dark ? 'inverted ' : ' '}button" data-bucket-id="${bucket.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 2em; padding: .5em; margin: 0;' : ''}">
                     <i class="ellipsis horizontal icon"></i>
                     <div class="menu">
-                      <div class="add card item" data-bucket-id="${bucket.id}"><i class="add icon"></i>Add new card</div>
+                      <div class="add card item" data-bucket-id="${bucket.id}"><i class="add icon"></i>${gettext('Add new card')}</div>
                       <div class="divider"></div>
-                      <div class="edit bucket item" data-bucket-id="${bucket.id}"><i class="edit icon"></i>Edit this bucket</div>
-                      <div class="delete bucket item" data-bucket-id="${bucket.id}"><i class="delete icon"></i>Delete this bucket</div>
+                      <div class="edit bucket item" data-bucket-id="${bucket.id}"><i class="edit icon"></i>${gettext('Edit this bucket')}</div>
+                      <div class="delete bucket item" data-bucket-id="${bucket.id}"><i class="delete icon"></i>${gettext('Delete this bucket')}</div>
                     </div>
                   </div>
                 </div>
@@ -395,7 +395,7 @@ async function renderBuckets(containerSelector, buckets, dark = false, compact =
         $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { deleteBucket(bucket.id); });
         getCards(bucket.id, dark, compact);
     });
-    $(containerSelector).append(`<div class="ui add bucket basic ${dark ? 'inverted ' : ' '}button" style="flex: 0 0 auto">Add new bucket</div>`);
+    $(containerSelector).append(`<div class="ui add bucket basic ${dark ? 'inverted ' : ' '}button" style="flex: 0 0 auto">${gettext('Add new bucket')}</div>`);
     $(`.add.bucket.button`).off().click(e => { showBucketModal(); });
     e = $('.add.bucket.button').siblings().last();
     $('.add.bucket.button').css('marginTop', e.css('marginTop'));
@@ -445,11 +445,11 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
                         <div class="ui basic icon top right pointing ${dark ? 'inverted ' : ' '}dropdown button" data-card-id="${card.id}" style="flex: 0 0 auto; align-self: flex-start;${compact ? ' height: 1.5em; padding: .25em; margin: 0;' : ''}">
                             <i class="ellipsis horizontal icon"></i>
                             <div class="menu">
-                                <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>Edit this card</div>
-                                <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>Delete this card</div>
+                                <div class="edit card item" data-card-id="${card.id}"><i class="edit icon"></i>${gettext('Edit this card')}</div>
+                                <div class="delete card item" data-card-id="${card.id}"><i class="delete icon"></i>${gettext('Delete this card')}</div>
                                 ${FEATURES.time_entries ? `<div class="divider"></div>
-                                <div class="start-stop-timer card item" data-card-id="${card.id}"><i class="stopwatch icon"></i>Start/stop timer</div>
-                                <div class="edit-time-entries card item" data-card-id="${card.id}"><i class="history icon"></i>Edit time entries</div>` : ''}
+                                <div class="start-stop-timer card item" data-card-id="${card.id}"><i class="stopwatch icon"></i>${gettext('Start/stop timer')}</div>
+                                <div class="edit-time-entries card item" data-card-id="${card.id}"><i class="history icon"></i>${gettext('Edit time entries')}</div>` : ''}
                             </div>
                         </div>
                     </div>
@@ -1283,7 +1283,7 @@ async function initializeTagsDropdown(dropdown, card = undefined) {
         }
     });
     dropdown.dropdown('refresh').dropdown({
-        placeholder: 'Select tags to this card',
+        placeholder: gettext('Select tags to for card'),
         values: tags,
         clearable: true,
         allowAdditions: false,
@@ -1301,7 +1301,7 @@ async function initializeTagsDropdown(dropdown, card = undefined) {
 
 async function initializeUsersDropdown(dropdown, card = undefined) {
     dropdown.dropdown({
-        placeholder: 'Assign users to this card',
+        placeholder: gettext('Assign users to this card'),
         values: allowedUsers.map(user => (
             {
                 value: user.username,
@@ -1993,4 +1993,12 @@ function initializeSearchCardsDropdown(selector = '.ui.search-cards.dropdown') {
             onResponse: r => ({ results: getSearchCardsDropdownValues() })
         }
     });
+}
+
+function initializeColorDropdown() {
+    $('.ui.card-color.dropdown').dropdown({
+        clearable: true,
+        placeholder: gettext('Select a color theme'),
+        values: colorsForDropdown,
+    })
 }

@@ -5,6 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from django.views.i18n import JavaScriptCatalog
 from rest_framework.authtoken import views
 
 from .ascii_arts import ASCII_ART
@@ -19,6 +20,7 @@ urlpatterns = [
     path('tinymce/', include('tinymce.urls')),
     path('admin/doc/', include('django.contrib.admindocs.urls')),
     path('admin/', admin.site.urls),
+    path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     path('auth/', include('social_django.urls', namespace='social')),
     path('', include('homepage.urls')),
     path('maintenance-mode/', include('maintenance_mode.urls')),
