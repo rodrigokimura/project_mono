@@ -187,10 +187,10 @@ async function renderFiles(modal, bucketId, cardId, files) {
                     <div class="ui dimmer">
                         <div class="content">
                             <div class="center">
-                                <a href="${f.file}" target="_blank" class="ui inverted button">Open</a>
+                                <a href="${f.file}" target="_blank" class="ui inverted button">${gettext('Open')}</a>
                             </div>
                             <div class="center" style="margin-top: 1em;">
-                                <a class="delete-file" data-file-id=${f.id}><i class="trash icon"></i>Remove</a>
+                                <a class="delete-file" data-file-id=${f.id}><i class="trash icon"></i>${gettext('Remove')}</a>
                             </div>
                         </div>
                     </div>
@@ -203,17 +203,17 @@ async function renderFiles(modal, bucketId, cardId, files) {
 
             id = $(e.target).attr('data-file-id');
             $('body').modal({
-                title: 'Confirmation',
+                title: gettext('Confirmation'),
                 class: 'mini',
                 closeIcon: true,
-                content: 'Delete this file?',
+                content: gettext('Delete this file?'),
                 actions: [
                     {
-                        text: 'Cancel',
+                        text: gettext('Cancel'),
                         class: 'deny black'
                     },
                     {
-                        text: 'Yes, delete it',
+                        text: gettext('Yes, delete it'),
                         class: 'approve red',
                         icon: 'delete',
                     },
@@ -247,7 +247,7 @@ function renderItems(containerSelector, items, bucketId, cardId, dark = false) {
                     <label></label>
                 </div>
                 <div class="ui ${dark ? 'inverted ' : ' '}transparent input" style="flex: 1 0 auto;">
-                    <input class="${item.checked ? 'item-checked' : ''}" data-item-id="${item.id}" type="text" placeholder="Enter text here" data-text="${item.name}" value="${item.name}">
+                    <input class="${item.checked ? 'item-checked' : ''}" data-item-id="${item.id}" type="text" placeholder="${gettext('Enter text here')}" data-text="${item.name}" value="${item.name}">
                 </div>
                 <div data-item-id="${item.id}" class="ui mini icon basic delete-item ${dark ? 'inverted ' : ' '}button"><i data-item-id="${item.id}" class="trash alternate outline icon"></i></div>
             </div>
@@ -330,25 +330,25 @@ function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dar
         $(containerSelector).append(`
             <div data-time-entry-id="${timeEntry.id}" class="ui form segment">
                 <div class="field">
-                    <label>Name</label>
-                    <input type="text" name="name" placeholder="Name" value="${timeEntry.name}" data-time-entry-id="${timeEntry.id}">
+                    <label>${gettext('Name')}</label>
+                    <input type="text" name="name" placeholder="${gettext('Name')}" value="${timeEntry.name}" data-time-entry-id="${timeEntry.id}">
                 </div>
                 <div class="two fields">
                     <div class="field">
-                        <label>Started at</label>
+                        <label>${gettext('Started at')}</label>
                         <div class="ui time-entry start-date calendar" data-time-entry-id="${timeEntry.id}">
                             <div class="ui input left icon">
                                 <i class="calendar icon"></i>
-                                <input type="text" placeholder="Date/Time">
+                                <input type="text" placeholder="${gettext('Date/Time')}">
                             </div>
                         </div>
                     </div>
                     <div class="field">
-                        <label>Stopped at</label>
+                        <label>${gettext('Stopped at')}</label>
                         <div class="ui time-entry stop-date calendar" data-time-entry-id="${timeEntry.id}">
                             <div class="ui input left icon">
                                 <i class="calendar icon"></i>
-                                <input type="text" placeholder="Date/Time">
+                                <input type="text" placeholder="${gettext('Date/Time')}">
                             </div>
                         </div>
                     </div>
@@ -356,11 +356,11 @@ function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dar
                 <div style="height: 2.5em;">
                     <div class="ui left floated red icon labeled delete button" data-time-entry-id="${timeEntry.id}">
                         <i class="delete icon"></i>
-                        Delete
+                        ${gettext('Delete')}
                     </div>
                     <div class="ui right floated icon labeled primary save button" data-time-entry-id="${timeEntry.id}">
                         <i class="save icon"></i>
-                        Save
+                        ${gettext('Save')}
                     </div>
                 </div>
             </div>
@@ -420,7 +420,7 @@ function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dar
                     timeEntrySegment.remove();
                     $('body').toast({
                         class: 'warning',
-                        message: `Time entry deleted!`
+                        message: gettext('Time entry deleted!')
                     })
                 },
                 complete: () => {
@@ -442,7 +442,7 @@ function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dar
                 success: r => {
                     $('body').toast({
                         class: 'success',
-                        message: `Time entry successfully updated!`
+                        message: gettext('Time entry successfully updated!')
                     })
                 },
                 complete: () => {
@@ -478,8 +478,8 @@ function renderComments(containerSelector, comments, bucketId, cardId, dark = fa
                         </div>
                         <div class="text" style="white-space: pre-line;">${text}</div>
                         <div class="actions">
-                            <a class="edit-comment" data-comment-id=${comment.id}>Edit</a>
-                            <a class="delete-comment" data-comment-id=${comment.id}>Delete</a>
+                            <a class="edit-comment" data-comment-id=${comment.id}>${gettext('Edit')}</a>
+                            <a class="delete-comment" data-comment-id=${comment.id}>${gettext('Delete')}</a>
                         </div>
                     </div>
                 </div>
@@ -499,7 +499,7 @@ function renderComments(containerSelector, comments, bucketId, cardId, dark = fa
                             headers: { 'X-CSRFToken': csrftoken },
                             success: r => {
                                 editCommentTextarea.val('');
-                                $('body').toast({ message: "Comment edited." });
+                                $('body').toast({ message: gettext("Comment edited.") });
                             },
                         })
                     },
@@ -507,17 +507,17 @@ function renderComments(containerSelector, comments, bucketId, cardId, dark = fa
             });
             $(`a.delete-comment[data-comment-id=${comment.id}]`).off().click(e => {
                 $(containerSelector).modal({
-                    title: 'Deletion confirmation',
+                    title: gettext('Deletion confirmation'),
                     class: 'mini',
                     closeIcon: true,
-                    content: 'Are you sure you want to delete this comment?',
+                    content: gettext('Are you sure you want to delete this comment?'),
                     actions: [
                         {
-                            text: 'Cancel',
+                            text: gettext('Cancel'),
                             class: 'deny'
                         },
                         {
-                            text: 'Confirm',
+                            text: gettext('Confirm'),
                             class: 'positive'
                         }
                     ],
@@ -527,7 +527,7 @@ function renderComments(containerSelector, comments, bucketId, cardId, dark = fa
                             method: 'DELETE',
                             headers: { 'X-CSRFToken': csrftoken },
                             success: r => {
-                                $('body').toast({ message: "Comment deleted." });
+                                $('body').toast({ message: gettext("Comment deleted.") });
                             },
                         });
                     }
@@ -1083,8 +1083,8 @@ function attachFile(fd, bucketId, cardId) {
         onSuccess: r => {
             console.log(r)
             $('body').toast({
-                title: 'File upload',
-                message: `Successfullly uploaded file ${r.file.split('/').at(-1)}!`,
+                title: gettext('File upload'),
+                message: `${gettext('Successfullly uploaded file')} ${r.file.split('/').at(-1)}!`,
                 showProgress: 'bottom',
                 classProgress: 'green',
                 displayTime: 5000,
@@ -1093,7 +1093,7 @@ function attachFile(fd, bucketId, cardId) {
         onFailure: (response, element, xhr) => {
             if ('file' in response) {
                 $('body').toast({
-                    title: 'Error on file upload',
+                    title: gettext('Error on file upload'),
                     message: response.file.join('\n'),
                     showProgress: 'bottom',
                     classProgress: 'red',
@@ -1108,17 +1108,17 @@ function toggleCardStatus(cardId, bucketId, currentStatus, dark, compact) {
     switch (currentStatus) {
         case 'NS':
             status = 'IP';
-            status_name = 'In Progress';
+            status_name = gettext('In Progress');
             status_icon = 'dot circle outline';
             break;
         case 'IP':
             status = 'C';
-            status_name = 'Completed';
+            status_name = gettext('Completed');
             status_icon = 'check circle outline';
             break;
         case 'C':
             status = 'NS';
-            status_name = 'Not Started';
+            status_name = gettext('Not Started');
             status_icon = 'circle outline';
             break;
     }
@@ -1130,8 +1130,8 @@ function toggleCardStatus(cardId, bucketId, currentStatus, dark, compact) {
     })
         .done(r => {
             $('body').toast({
-                title: 'Card status changed',
-                message: `Card was marked as <strong>${status_name}<i class="${status_icon} icon"></i></strong>`,
+                title: gettext('Card status changed'),
+                message: interpolate(gettext('Card was marked as %s'), [`<strong>${status_name}<i class="${status_icon} icon"></i></strong>`]),
                 showProgress: 'bottom'
             });
             getCards(bucketId, dark, compact)
@@ -1161,8 +1161,8 @@ function deleteCard(cardId, bucketId, dark, compact) {
     modal
         .modal({
             onShow: () => {
-                modal.find('.header').text('Delete card');
-                modal.find('.content').text(`Are you sure you want to delete card ${cardId}?`);
+                modal.find('.header').text(gettext('Delete card'));
+                modal.find('.content').text(interpolate(gettext('Are you sure you want to delete card %s?'), [cardId]));
             },
             onApprove: () => {
                 $.ajax({
@@ -1192,7 +1192,7 @@ function addNewTagInput(containerElement) {
             </select>
           </div>
           <div class="ui mini input" style="flex: 1 1 auto; margin-right: .5em;">
-            <input class="tag-name" type="text" placeholder="Name" data-tag-id="">
+            <input class="tag-name" type="text" placeholder="${gettext('Name')}" data-tag-id="">
           </div>
           <div style="">
             <div class="ui icon red delete new-tag mini button"><i class="delete icon"></i></div>
@@ -1202,13 +1202,13 @@ function addNewTagInput(containerElement) {
     `);
     let iconDropdown = $(`.tag-icon.new-tag.dropdown`);
     iconDropdown.dropdown({
-        placeholder: 'Icon',
+        placeholder: gettext('Icon'),
         values: ICON_VALUES,
         context: '.tags.modal .content',
     });
     let colorDropdown = $(`.tag-color.new-tag.dropdown`);
     colorDropdown.dropdown({
-        placeholder: 'Color',
+        placeholder: gettext('Color'),
         values: COLOR_VALUES,
         context: '.tags.modal .content',
     });
@@ -1232,10 +1232,10 @@ function renderTagForms(containerElement, tag) {
                     </select>
                 </div>
                 <div style="flex: 1 1 auto; margin-right: .5em;" class="ui mini input">
-                    <input class="tag-name" type="text" placeholder="Name" data-tag-id="${tag.id}">
+                    <input class="tag-name" type="text" placeholder="${gettext('Name')}" data-tag-id="${tag.id}">
                 </div>
                 <div style="">
-                    <div class="ui icon red delete mini button" data-content="Delete tag" data-tag-id="${tag.id}"><i class="delete icon"></i></div>
+                    <div class="ui icon red delete mini button" data-content="${gettext('Delete tag')}" data-tag-id="${tag.id}"><i class="delete icon"></i></div>
                 </div>
             </div>
         </form>
@@ -1243,7 +1243,7 @@ function renderTagForms(containerElement, tag) {
     $(`.delete.button[data-tag-id=${tag.id}]`).popup();
     let iconDropdown = $(`.tag-icon.dropdown[data-tag-id=${tag.id}]`);
     iconDropdown.dropdown({
-        placeholder: 'Icon',
+        placeholder: gettext('Icon'),
         values: ICON_VALUES,
         context: '.tags.modal .content'
     });
@@ -1252,7 +1252,7 @@ function renderTagForms(containerElement, tag) {
     };
     let colorDropdown = $(`.tag-color.dropdown[data-tag-id=${tag.id}]`);
     colorDropdown.dropdown({
-        placeholder: 'Color',
+        placeholder: gettext('Color'),
         values: COLOR_VALUES,
         context: '.tags.modal .content',
     });
@@ -1262,18 +1262,18 @@ function renderTagForms(containerElement, tag) {
     $(`input[type=text][data-tag-id=${tag.id}]`).val(tag.name);
     $(`.delete.button[data-tag-id=${tag.id}]`).click(() => {
         $('body').modal({
-            title: 'Deletion confirmation',
+            title: gettext('Deletion confirmation'),
             class: 'mini',
             closeIcon: true,
-            content: `Are you sure yo want to delete tag ${tag.name}?`,
+            content: interpolate(gettext('Are you sure yo want to delete tag %s?'), [tag.name]),
             allowMultiple: true,
             actions: [
                 {
-                    text: 'Yes',
+                    text: gettext('Yes'),
                     class: 'positive'
                 },
                 {
-                    text: 'Cancel',
+                    text: gettext('Cancel'),
                     class: 'deny'
                 },
             ],
@@ -1303,7 +1303,7 @@ async function showManageTagsModal(allowMultiple = false, fromCardModal = false,
             el.append(`
                 <div class="ui new-tag icon labeled green button" style="margin-bottom: 1em;">
                     <i class="add icon"></i>
-                    Add new tag
+                    ${gettext('Add new tag')}
                 </div>
             `)
             el.find('.new-tag').click(() => {
@@ -1418,7 +1418,7 @@ function initializeSearchCardsDropdown(selector = '.ui.search-cards.dropdown') {
         forceSelection: false,
         match: 'value',
         direction: 'downward',
-        placeholder: 'Filter cards',
+        placeholder: gettext('Filter cards'),
         onChange: (value, text, $choice) => {
             filterCards(value);
         },
@@ -1435,11 +1435,6 @@ function initializeSearchCardsDropdown(selector = '.ui.search-cards.dropdown') {
         }
     });
 }
-
-
-
-
-
 
 function renderGrid(year, month) {
     var today = new Date();

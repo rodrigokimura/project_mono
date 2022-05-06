@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-06 16:34+0000\n"
+"POT-Creation-Date: 2022-05-06 21:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,6 +50,166 @@ msgstr "Iniciar/Parar temporizador"
 msgid "Edit time entries"
 msgstr "Editar entradas de tempo"
 
+#: mono/project_manager/static/board.js:475
+msgid "Stop timer"
+msgstr "Parar temporizador"
+
+#: mono/project_manager/static/board.js:475
+msgid "Start timer"
+msgstr "Iniciar temporizador"
+
+#: mono/project_manager/static/board.js:478
+msgid "Total tracked time."
+msgstr "Tempo total registrado."
+
+#: mono/project_manager/static/board.js:486
+msgid "Comments"
+msgstr "Comentários"
+
+#: mono/project_manager/static/board.js:493
+msgid "Attached files"
+msgstr "Arquivos anexados"
+
+#: mono/project_manager/static/board.js:500
+msgid "Checklist items"
+msgstr "Itens de lista de verificação"
+
+#: mono/project_manager/static/board.js:500
+#, javascript-format
+msgid "%s checked, %s in total."
+msgid_plural "%s checked, %s in total."
+msgstr[0] "%s marcado, %s no total."
+msgstr[1] "%s marcados, %s no total."
+
+#: mono/project_manager/static/board.js:508
+msgid " - This card is overdue!"
+msgstr ""
+
+#: mono/project_manager/static/board.js:583
+#: mono/project_manager/static/board_calendar.js:190
+msgid "Open"
+msgstr "Abrir"
+
+#: mono/project_manager/static/board.js:586
+#: mono/project_manager/static/board_calendar.js:193
+msgid "Remove"
+msgstr "Remover"
+
+#: mono/project_manager/static/board.js:599
+#: mono/project_manager/static/board_calendar.js:206
+msgid "Confirmation"
+msgstr "Confirmação"
+
+#: mono/project_manager/static/board.js:602
+#: mono/project_manager/static/board_calendar.js:209
+msgid "Delete this file?"
+msgstr "Excluir este arquivo"
+
+#: mono/project_manager/static/board.js:605
+#: mono/project_manager/static/board.js:909
+#: mono/project_manager/static/board.js:1837
+#: mono/project_manager/static/board_calendar.js:212
+#: mono/project_manager/static/board_calendar.js:516
+#: mono/project_manager/static/board_calendar.js:1276
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: mono/project_manager/static/board.js:609
+#: mono/project_manager/static/board_calendar.js:216
+msgid "Yes, delete it"
+msgstr "Sim, excluir"
+
+#: mono/project_manager/static/board.js:643
+#: mono/project_manager/static/board_calendar.js:250
+msgid "Enter text here"
+msgstr "Digite o texto aqui"
+
+#: mono/project_manager/static/board.js:717
+msgid "No time entries for this card."
+msgstr "Nenhuma entrada de tempo para este card"
+
+#: mono/project_manager/static/board.js:726
+#: mono/project_manager/static/board.js:727
+#: mono/project_manager/static/board.js:1757
+#: mono/project_manager/static/board.js:1796
+#: mono/project_manager/static/board_calendar.js:333
+#: mono/project_manager/static/board_calendar.js:334
+#: mono/project_manager/static/board_calendar.js:1195
+#: mono/project_manager/static/board_calendar.js:1235
+msgid "Name"
+msgstr "Nome"
+
+#: mono/project_manager/static/board.js:731
+#: mono/project_manager/static/board_calendar.js:338
+msgid "Started at"
+msgstr "Iniciado em"
+
+#: mono/project_manager/static/board.js:735
+#: mono/project_manager/static/board.js:744
+#: mono/project_manager/static/board_calendar.js:342
+#: mono/project_manager/static/board_calendar.js:351
+msgid "Date/Time"
+msgstr "Data/Hora"
+
+#: mono/project_manager/static/board.js:740
+#: mono/project_manager/static/board_calendar.js:347
+msgid "Stopped at"
+msgstr "Parado em"
+
+#: mono/project_manager/static/board.js:752
+#: mono/project_manager/static/board.js:875
+#: mono/project_manager/static/board_calendar.js:359
+#: mono/project_manager/static/board_calendar.js:482
+msgid "Delete"
+msgstr "Excluir"
+
+#: mono/project_manager/static/board.js:756
+#: mono/project_manager/static/board_calendar.js:363
+msgid "Save"
+msgstr "Salvar"
+
+#: mono/project_manager/static/board.js:816
+#: mono/project_manager/static/board_calendar.js:423
+msgid "Time entry deleted!"
+msgstr "Entrada de tempo excluída!"
+
+#: mono/project_manager/static/board.js:838
+#: mono/project_manager/static/board_calendar.js:445
+msgid "Time entry successfully updated!"
+msgstr "Entrada de tempo atualizada com sucesso!"
+
+#: mono/project_manager/static/board.js:874
+#: mono/project_manager/static/board_calendar.js:481
+msgid "Edit"
+msgstr "Editr"
+
+#: mono/project_manager/static/board.js:895
+#: mono/project_manager/static/board_calendar.js:502
+msgid "Comment edited."
+msgstr "Comentário editado."
+
+#: mono/project_manager/static/board.js:903
+#: mono/project_manager/static/board.js:1826
+#: mono/project_manager/static/board_calendar.js:510
+#: mono/project_manager/static/board_calendar.js:1265
+msgid "Deletion confirmation"
+msgstr "Confirmação de exclusão"
+
+#: mono/project_manager/static/board.js:906
+#: mono/project_manager/static/board_calendar.js:513
+msgid "Are you sure you want to delete this comment?"
+msgstr "Você tem certeza de que quer excluir este comentário?"
+
+#: mono/project_manager/static/board.js:913
+#: mono/project_manager/static/board_calendar.js:520
+msgid "Confirm"
+msgstr "Confirmar"
+
+#: mono/project_manager/static/board.js:923
+#: mono/project_manager/static/board_calendar.js:530
+msgid "Comment deleted."
+msgstr "Comentário excluído."
+
 #: mono/project_manager/static/board.js:1286
 #: mono/project_manager/static/board_calendar.js:859
 msgid "Select tags to for card"
@@ -60,7 +220,121 @@ msgstr "Selecione tags para o card"
 msgid "Assign users to this card"
 msgstr "Atribuir usuários a este card"
 
-#: mono/project_manager/static/board.js:2001
-#: mono/project_manager/static/board_calendar.js:1553
+#: mono/project_manager/static/board.js:1513
+#: mono/project_manager/static/board_calendar.js:1086
+msgid "File upload"
+msgstr "Upload de arquivo"
+
+#: mono/project_manager/static/board.js:1514
+#, javascript-format
+msgid "Successfullly uploaded file %s!"
+msgstr "Upload do arquivo %s realizado com sucesso!"
+
+#: mono/project_manager/static/board.js:1523
+#: mono/project_manager/static/board_calendar.js:1096
+msgid "Error on file upload"
+msgstr "Erro no upload de arquivo"
+
+#: mono/project_manager/static/board.js:1538
+#: mono/project_manager/static/board_calendar.js:1111
+msgid "In Progress"
+msgstr "Em progresso"
+
+#: mono/project_manager/static/board.js:1543
+#: mono/project_manager/static/board_calendar.js:1116
+msgid "Completed"
+msgstr "Completo"
+
+#: mono/project_manager/static/board.js:1548
+#: mono/project_manager/static/board_calendar.js:1121
+msgid "Not Started"
+msgstr "Não iniciado"
+
+#: mono/project_manager/static/board.js:1560
+#: mono/project_manager/static/board_calendar.js:1133
+msgid "Card status changed"
+msgstr "Alterado status de card"
+
+#: mono/project_manager/static/board.js:1561
+#: mono/project_manager/static/board_calendar.js:1134
+#, javascript-format
+msgid "Card was marked as %s"
+msgstr "Card foi marcado como %s"
+
+#: mono/project_manager/static/board.js:1671
+msgid "Delete bucket"
+msgstr "Excluir bucket"
+
+#: mono/project_manager/static/board.js:1672
+#, javascript-format
+msgid "Are you sure you want to delete bucket %s?"
+msgstr "Você tem certeza de que quer excluir o bucket %s?"
+
+#: mono/project_manager/static/board.js:1694
+#: mono/project_manager/static/board_calendar.js:1165
+#, javascript-format
+msgid "Are you sure you want to delete card %s?"
+msgstr "Você tem certeza de que quer excluir o card %s?"
+
+#: mono/project_manager/static/board.js:1718
+#, javascript-format
+msgid "Timer started for card %s."
+msgstr "Temporizador iniciado para o card %s."
+
+#: mono/project_manager/static/board.js:1730
+#, javascript-format
+msgid "Timer stopped for card %s."
+msgstr "Temporizador parado para o card %s."
+
+#: mono/project_manager/static/board.js:1767
+#: mono/project_manager/static/board.js:1807
+#: mono/project_manager/static/board_calendar.js:1205
+#: mono/project_manager/static/board_calendar.js:1246
+msgid "Icon"
+msgstr "Ícone"
+
+#: mono/project_manager/static/board.js:1773
+#: mono/project_manager/static/board.js:1816
+#: mono/project_manager/static/board_calendar.js:1211
+#: mono/project_manager/static/board_calendar.js:1255
+msgid "Color"
+msgstr "Cor"
+
+#: mono/project_manager/static/board.js:1799
+#: mono/project_manager/static/board_calendar.js:1238
+msgid "Delete tag"
+msgstr "Excluir tag"
+
+#: mono/project_manager/static/board.js:1829
+#: mono/project_manager/static/board_calendar.js:1268
+#, javascript-format
+msgid "Are you sure yo want to delete tag %s?"
+msgstr "Você tem certeza de que quer excluir a tag %s?"
+
+#: mono/project_manager/static/board.js:1833
+#: mono/project_manager/static/board_calendar.js:1272
+msgid "Yes"
+msgstr "Sim"
+
+#: mono/project_manager/static/board.js:1867
+#: mono/project_manager/static/board_calendar.js:1306
+msgid "Add new tag"
+msgstr "Adicionar nova tag"
+
+#: mono/project_manager/static/board.js:1984
+#: mono/project_manager/static/board_calendar.js:1421
+msgid "Filter cards"
+msgstr "Filtrar cards"
+
+#: mono/project_manager/static/board.js:2005
+#: mono/project_manager/static/board_calendar.js:1548
 msgid "Select a color theme"
 msgstr "Selecione um tema de cores"
+
+#: mono/project_manager/static/board_calendar.js:1087
+msgid "Successfullly uploaded file"
+msgstr "Upload de arquivo orealizado com sucesso"
+
+#: mono/project_manager/static/board_calendar.js:1164
+msgid "Delete card"
+msgstr "Excluir card"

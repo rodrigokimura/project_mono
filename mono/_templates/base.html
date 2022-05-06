@@ -73,45 +73,45 @@
 </head>
 
 <body>
-  {% include '_pixel.html' %}
-  {% block body %}
-  {% endblock body %}
-  <script>
-    {% if messages %}
-      {% for message in messages %}
-      let messageClass = 
-      {% if message.tags %}
-        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
-          "error";
-        {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
-          null;
-        {% else %}
-          "{{ message.tags }}";
-        {% endif %}
-      {% endif %}
+    {% include '_pixel.html' %}
+    {% block body %}
+    {% endblock body %}
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                let messageClass = 
+                    {% if message.tags %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                            "error";
+                        {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+                            null;
+                        {% else %}
+                            "{{ message.tags }}";
+                        {% endif %}
+                    {% endif %}
 
-      $('body').toast({
-        message: "{{ message.message }}",
-        class: messageClass,
-        className: { toast: 'ui message' },
-        showProgress: 'bottom',
-        closeIcon: true,
-        closeOnClick: false,
-        {% if 'unread notification' in message.message %}
-        title: 'Notifications',
-        displayTime: 0,
-        minDisplayTime: 3000,
-        actions:	[{
-          text: 'View notifications',
-          click: function() {
-            window.location.href = "{% url 'accounts:config' %}?tab=notifications#notifications";
-          }
-        }]
+                $('body').toast({
+                    message: "{{ message.message }}",
+                    class: messageClass,
+                    className: { toast: 'ui message' },
+                    showProgress: 'bottom',
+                    closeIcon: true,
+                    closeOnClick: false,
+                    {% if 'unread notification' in message.message %}
+                        title: gettext('Notifications'),
+                        displayTime: 0,
+                        minDisplayTime: 3000,
+                        actions:	[{
+                        text: gettext('View notifications'),
+                        click: function() {
+                            window.location.href = "{% url 'accounts:config' %}?tab=notifications#notifications";
+                        }
+                        }]
+                    {% endif %}
+                });
+            {% endfor %}
         {% endif %}
-      });
-      {% endfor %}
-    {% endif %}
-  </script>
+    </script>
 </body>
 
 </html>
