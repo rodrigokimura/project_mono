@@ -53,7 +53,7 @@ class BaseDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
         return self.get_object().created_by == self.request.user
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, _(f"{self.model._meta.verbose_name.title()} deleted successfully"))
+        messages.success(self.request, _("%(model_name)s deletion successfully executed") % {'model_name': self.model._meta.verbose_name.title()})
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
@@ -61,7 +61,7 @@ class BaseDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context['message'] = _(f"Delete this {self.model._meta.verbose_name}?")
+        context['message'] = _("Delete %(model_name)s?") % {'model_name': self.model._meta.verbose_name}
         cancel_url_name = f'finance:{self.model._meta.model_name}_update'
         context['cancel_url'] = reverse_lazy(cancel_url_name, kwargs={'pk': self.get_object().pk})
         return context
