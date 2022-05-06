@@ -69,8 +69,8 @@
 
 {% block sidebars %}
     <div class="ui left sidebar inverted vertical menu">
-        <a class="item" href="{% url 'project_manager:projects' %}">Projects</a>
-        <a class="item" href="{% url 'project_manager:project_detail' pk=object.project.id %}">Boards</a>
+        <a class="item" href="{% url 'project_manager:projects' %}">{% translate 'Projects' %}</a>
+        <a class="item" href="{% url 'project_manager:project_detail' pk=object.project.id %}">{% translate 'Boards' %}</a>
     </div>
     <div class="ui right sidebar inverted vertical menu">
         <div class="item">
@@ -97,7 +97,7 @@
             <div class="header">{% translate 'Filter' %}</div>
             <div class="search-cards item" style="padding-top: 0; padding-bottom: 0;">
                 <div class="ui search-cards mini fluid multiple selection search dropdown">
-                    <div class="default text">Filter cards</div>
+                    <div class="default text">{% translate 'Filter cards' %}</div>
                     <i class="dropdown icon"></i>
                 </div>
             </div>
@@ -143,15 +143,15 @@
                 data: {'background_image': null},
                 successTest: r => r != 0,
                 onSuccess: r => {
-                wallpaper = '';
-                setWallpaper();
-                $('body').toast({
-                    title: 'Background image',
-                    message: 'Background image removed!',
-                    showProgress: 'bottom',
-                    classProgress: 'red',
-                    displayTime: 5000,
-                })
+                    wallpaper = '';
+                    setWallpaper();
+                    $('body').toast({
+                        title: 'Background image',
+                        message: 'Background image removed!',
+                        showProgress: 'bottom',
+                        classProgress: 'red',
+                        displayTime: 5000,
+                    })
                 },
             });
         });
@@ -198,7 +198,7 @@
             <div class="ui no-due-date card" style="margin: .5em; width: 16em;">
                 <div class="content" style="flex: 0 1 auto;">
                     <div class="header">
-                        No due date
+                        {% translate 'No due date' %}
                     </div>
                 </div>
                 <div class="extra content no-due-date cards-drake" id="no-due-date-cards" style="flex: 1 1 auto; display: flex; flex-flow: column nowrap; align-items: stretch; overflow-y: auto;">
@@ -215,7 +215,7 @@
                     </div>
                     <div class="ui right floated icon button" onclick="previousMonth()" style="margin: 0 .5em 0 0; height: 2.5em;"><i class="left arrow icon"></i></div>
                     <div class="header">
-                        Calendar
+                        {% translate 'Calendar' %}
                     </div>
                 </div>
                 <div id="calendar-grid" class="extra content" style="flex: 1 1 auto; display: flex; flex-flow: column nowrap; align-items: stretch; overflow-y: auto; padding: 0;">
@@ -275,11 +275,11 @@
                 {% endif %}
                 {% if object.due_date_feature %}
                 <div class="field">
-                    <label><i class="calendar day icon"></i>Due date</label>
+                    <label><i class="calendar day icon"></i>{% translate 'Due date' %}</label>
                     <div class="ui card-due-date calendar">
                         <div class="ui input left icon">
                             <i class="calendar icon"></i>
-                            <input type="text" placeholder="Pick a due date">
+                            <input type="text" placeholder="{% translate 'Pick a due date' %}">
                         </div>
                     </div>
                 </div>
@@ -328,7 +328,7 @@
                             <div class="checklist-drake"></div>
                             <div class="ui fluid icon add-item input">
                                 <i class="add icon"></i>
-                                <input type="text" placeholder="Insert new item to checklist">
+                                <input type="text" placeholder="{% translate 'Insert a new item to checklist' %}">
                             </div>
                         </div>
                     </div>
@@ -367,7 +367,7 @@
                         })
                     </script>
                     <div class="ui blue labeled add-reply submit icon button">
-                        <i class="icon edit"></i> Add comment
+                        <i class="icon edit"></i> {% translate 'Add comment' %}
                     </div>
                 </div>
             </div>
@@ -467,7 +467,7 @@
 
     <div class="ui top aligned tiny modal" id="time-entries">
         <i class="close icon"></i>
-        <div class="header">Editing time entries</div>
+        <div class="header">{% translate 'Editing time entries' %}</div>
         <div class="content"></div>
         <div class="actions">
             <div class="ui black cancel button">

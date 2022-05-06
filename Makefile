@@ -205,6 +205,12 @@ squash: list-apps  ## Squash migrations
 		&& read MIGRATION \
 		&& $(DJANGO) squashmigrations $$APP $$MIGRATION
 
+translation:  ## Squash migrations
+	@$(DJANGO) makemessages -a
+
+translate:  ## Squash migrations
+	@$(DJANGO) compilemessages
+
 
 ##@ Pipenv
 
