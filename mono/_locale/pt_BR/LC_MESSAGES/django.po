@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-06 00:49+0000\n"
+"POT-Creation-Date: 2022-05-06 02:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,7 +33,9 @@ msgstr "Desculpe! Erro inesperado."
 #: mono/_templates/500.html:39
 msgid ""
 "This error has just being reported and we'll fix it as soon as possible!"
-msgstr "Este erro acabou de ser reportado e nós iremos corrigi-lo o mais rápido o possível"
+msgstr ""
+"Este erro acabou de ser reportado e nós iremos corrigi-lo o mais rápido o "
+"possível"
 
 #: mono/_templates/503.html:36
 msgid "We are under maintenance!"
@@ -379,8 +381,10 @@ msgid "Delete post "
 msgstr "Excluir postagem"
 
 #: mono/blog/templates/blog/post_confirm_delete.html:19
+#: mono/finance/templates/finance/transaction_confirm_delete.html:20
 #: mono/project_manager/templates/project_manager/board_calendar.html:426
 #: mono/project_manager/templates/project_manager/board_detail.html:513
+#: mono/project_manager/templates/project_manager/board_form.html:54
 msgid "Yes"
 msgstr "Sim"
 
@@ -393,7 +397,8 @@ msgstr "Sim"
 #: mono/finance/templates/finance/charts.html:165
 #: mono/finance/templates/finance/installment_form.html:34
 #: mono/finance/templates/finance/recurrenttransaction_form.html:34
-#: mono/finance/templates/finance/transaction_form.html:34
+#: mono/finance/templates/finance/transaction_confirm_delete.html:17
+#: mono/finance/templates/finance/transaction_form.html:25
 #: mono/finance/templates/finance/transaction_list.html:146
 #: mono/finance/templates/finance/transaction_list.html:428
 #: mono/finance/templates/finance/universal_transaction_form.html:248
@@ -419,7 +424,7 @@ msgstr "Cancelar"
 #: mono/finance/templates/finance/charts.html:166
 #: mono/finance/templates/finance/installment_form.html:23
 #: mono/finance/templates/finance/recurrenttransaction_form.html:23
-#: mono/finance/templates/finance/transaction_form.html:23
+#: mono/finance/templates/finance/transaction_form.html:22
 #: mono/finance/templates/finance/transaction_list.html:432
 #: mono/finance/templates/finance/universal_transaction_form.html:237
 #: mono/pixel/templates/pixel/site_form.html:21
@@ -445,7 +450,7 @@ msgstr "Salvar"
 #: mono/finance/templates/finance/budgetconfiguration_form.html:62
 #: mono/finance/templates/finance/installment_form.html:29
 #: mono/finance/templates/finance/recurrenttransaction_form.html:29
-#: mono/finance/templates/finance/transaction_form.html:29
+#: mono/finance/templates/finance/transaction_form.html:32
 #: mono/finance/templates/finance/universal_transaction_form.html:243
 #: mono/notes/templates/notes/note_list.html:129
 #: mono/project_manager/templates/project_manager/board_form.html:23
@@ -1374,6 +1379,7 @@ msgstr "Tem certeza de que quer cancelar a sua assinatura?"
 #: mono/finance/templates/finance/configuration.html:136
 #: mono/project_manager/templates/project_manager/board_calendar.html:422
 #: mono/project_manager/templates/project_manager/board_detail.html:509
+#: mono/project_manager/templates/project_manager/board_form.html:50
 msgid "No"
 msgstr "Não"
 
@@ -1411,8 +1417,6 @@ msgstr "Personalizar"
 #: mono/finance/templates/finance/installment_form.html:31
 #: mono/finance/templates/finance/recurrenttransaction_form.html:25
 #: mono/finance/templates/finance/recurrenttransaction_form.html:31
-#: mono/finance/templates/finance/transaction_form.html:25
-#: mono/finance/templates/finance/transaction_form.html:31
 #: mono/finance/templates/finance/universal_transaction_form.html:239
 #: mono/finance/templates/finance/universal_transaction_form.html:245
 msgid "or"
@@ -1442,6 +1446,10 @@ msgstr "Inscrito"
 #: mono/finance/templates/finance/transaction_archive_month.html:119
 msgid "Go to List View"
 msgstr "Visualizar como Lista"
+
+#: mono/finance/templates/finance/transaction_confirm_delete.html:15
+msgid "Delete transaction?"
+msgstr "Excluir transação?"
 
 #: mono/finance/templates/finance/transaction_list.html:60
 msgid "Show future transactions"
@@ -1622,7 +1630,8 @@ msgstr "Snippet de código"
 
 #: mono/pixel/templates/pixel/site_list.html:71
 msgid "Place this on every page you'd like to generate metrics."
-msgstr "Coloque este snippet em todas as páginas para as quais deseja gerar métricas."
+msgstr ""
+"Coloque este snippet em todas as páginas para as quais deseja gerar métricas."
 
 #: mono/pixel/templates/pixel/site_list.html:79
 msgid "Copy snippet"
@@ -1746,6 +1755,17 @@ msgstr "Você foi convidade para fazer parte de um projeto."
 msgid "You've already invited this email for this project."
 msgstr "Você já convidou este e-mail para este projeto."
 
+#: mono/project_manager/templates/project_manager/board_calendar.html:72
+#: mono/project_manager/templates/project_manager/project_list.html:15
+#: mono/project_manager/templates/project_manager/tag_list.html:9
+msgid "Projects"
+msgstr "Projetos"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:73
+#: mono/project_manager/templates/project_manager/project_detail.html:17
+msgid "Boards"
+msgstr "Quadros"
+
 #: mono/project_manager/templates/project_manager/board_calendar.html:77
 #: mono/project_manager/templates/project_manager/board_detail.html:79
 msgid "Appearance"
@@ -1761,6 +1781,19 @@ msgstr "Imagem de fundo"
 msgid "Remove"
 msgstr "Remomver"
 
+#: mono/project_manager/templates/project_manager/board_calendar.html:100
+#: mono/project_manager/templates/project_manager/board_detail.html:122
+msgid "Filter cards"
+msgstr "Filtrar cards"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:201
+msgid "No due date"
+msgstr "Nenhum prazo"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:218
+msgid "Calendar"
+msgstr "Calendário"
+
 #: mono/project_manager/templates/project_manager/board_calendar.html:244
 #: mono/project_manager/templates/project_manager/board_detail.html:243
 msgid "Tags"
@@ -1771,6 +1804,16 @@ msgstr "Tags"
 #: mono/project_manager/templates/project_manager/board_detail.html:443
 msgid "Color"
 msgstr "Cor"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:278
+#: mono/project_manager/templates/project_manager/board_detail.html:277
+msgid "Due date"
+msgstr "Prazo"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:282
+#: mono/project_manager/templates/project_manager/board_detail.html:281
+msgid "Pick a due date"
+msgstr "Selecione um prazo"
 
 #: mono/project_manager/templates/project_manager/board_calendar.html:291
 #: mono/project_manager/templates/project_manager/board_detail.html:290
@@ -1787,6 +1830,10 @@ msgstr "Atribuído para"
 msgid "Checklist"
 msgstr "Lista de verificação"
 
+#: mono/project_manager/templates/project_manager/board_calendar.html:331
+msgid "Insert a new item to checklist"
+msgstr "Insira um novo item na lista de verificação"
+
 #: mono/project_manager/templates/project_manager/board_calendar.html:340
 #: mono/project_manager/templates/project_manager/board_detail.html:339
 msgid "Files"
@@ -1796,6 +1843,11 @@ msgstr "Arquivos"
 #: mono/project_manager/templates/project_manager/board_detail.html:349
 msgid "Comments"
 msgstr "Comentários"
+
+#: mono/project_manager/templates/project_manager/board_calendar.html:370
+#: mono/project_manager/templates/project_manager/board_detail.html:369
+msgid "Add comment"
+msgstr "Adicionar comentário"
 
 #: mono/project_manager/templates/project_manager/board_calendar.html:389
 #: mono/project_manager/templates/project_manager/board_detail.html:388
@@ -1829,6 +1881,11 @@ msgstr "Gerenciando tags"
 msgid "Close"
 msgstr "Fechar"
 
+#: mono/project_manager/templates/project_manager/board_calendar.html:470
+#: mono/project_manager/templates/project_manager/board_detail.html:557
+msgid "Editing time entries"
+msgstr "Editando entradas de tempo"
+
 #: mono/project_manager/templates/project_manager/board_detail.html:82
 msgid "Compact mode"
 msgstr "Modo compacto"
@@ -1840,6 +1897,22 @@ msgstr "Modo escuro"
 #: mono/project_manager/templates/project_manager/board_detail.html:96
 msgid "Bucket width"
 msgstr "Largura do bucket"
+
+#: mono/project_manager/templates/project_manager/board_detail.html:156
+msgid "Please select a file."
+msgstr "Por favor, selecione um arquivo."
+
+#: mono/project_manager/templates/project_manager/board_detail.html:330
+msgid "Insert new item to checklist"
+msgstr "Insira um novo item na lista de verificação"
+
+#: mono/project_manager/templates/project_manager/board_detail.html:343
+msgid "Attach files"
+msgstr "Anexar arquivos"
+
+#: mono/project_manager/templates/project_manager/board_detail.html:353
+msgid "Type a new comment"
+msgstr "Digite um novo comentário"
 
 #: mono/project_manager/templates/project_manager/board_detail.html:434
 msgid "Automatic status"
@@ -1857,9 +1930,17 @@ msgstr "Nomes de bucket devem ter menos que 50 caracteres."
 msgid "Bucket's description must have less than 255 characters."
 msgstr "Descrições de bucket devem ter menos que 255 caracteres."
 
-#: mono/project_manager/templates/project_manager/project_detail.html:17
-msgid "Boards"
-msgstr "Quadros"
+#: mono/project_manager/templates/project_manager/board_detail.html:523
+msgid "Edit comment"
+msgstr "Editar comentário"
+
+#: mono/project_manager/templates/project_manager/board_form.html:42
+msgid "Delete this board?"
+msgstr "Excluir este quadro?"
+
+#: mono/project_manager/templates/project_manager/board_form.html:45
+msgid "Are you sure you want to delete this board?"
+msgstr "Tem certeza de que quer excluir este quadro?"
 
 #: mono/project_manager/templates/project_manager/project_detail.html:18
 msgid "Boards are where you organize your cards."
@@ -2000,11 +2081,6 @@ msgstr "Seus convites: "
 #: mono/project_manager/templates/project_manager/project_detail.html:233
 msgid "Share link: "
 msgstr "Compartilhar link: "
-
-#: mono/project_manager/templates/project_manager/project_list.html:15
-#: mono/project_manager/templates/project_manager/tag_list.html:9
-msgid "Projects"
-msgstr "Projetos"
 
 #: mono/project_manager/templates/project_manager/project_list.html:16
 msgid "Projects are where your boards live."
