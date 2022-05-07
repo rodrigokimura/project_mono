@@ -24,17 +24,6 @@ class TestUserProfileForm:
 @pytest.mark.django_db
 class TestUserProfileModel:
 
-    @pytest.fixture
-    def default_icons(self):
-        Icon.create_defaults()
-
-    @pytest.fixture
-    def user(self, default_icons):
-        return User.objects.create(
-            username="test",
-            email="test.test@test.com",
-        )
-
     def test_methods(self, user):
         user_profile: UserProfile = UserProfile.objects.get(user=user)
 
