@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+import pytest
 import stripe
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -9,38 +10,34 @@ from ..models import Account, Category, Group, Icon, Transaction
 from ..views import AccountCreateView
 
 
-class TransactionModelTests(TestCase):
+class TestTransactionModel:
 
     def test_signed_amount_with_income(self):
         category = Category(type=Category.INCOME)
         income = Transaction(
             amount=10,
             category=category)
-        self.assertIs(income.signed_amount > 0, True)
+        assert income.signed_amount > 0
 
     def test_signed_amount_with_expense(self):
         category = Category(type=Category.EXPENSE)
         expense = Transaction(
             amount=10,
             category=category)
-        self.assertIs(expense.signed_amount < 0, True)
+        assert expense.signed_amount < 0
 
 
-class UserModelTests(TestCase):
+@pytest.mark.django_db
+class TestUserModel:
 
-    def setUp(self):
-        Icon.create_defaults()
-        self.user = User.objects.create(
-            username="teste")
+    def test_user_created(self, user):
+        assert user is not None
 
-    def test_user_created(self):
-        self.assertIsNotNone(self.user)
+    def test_user_has_accounts(self, user):
+        assert Account.objects.filter(created_by=user).count() > 0
 
-    def test_user_has_accounts(self):
-        self.assertGreater(Account.objects.filter(created_by=self.user).count(), 0)
-
-    def test_user_has_categories(self):
-        self.assertGreater(Category.objects.filter(created_by=self.user).count(), 0)
+    def test_user_has_categories(self, user):
+        assert Category.objects.filter(created_by=user).count() > 0
 
 
 class AccountModelTests(TestCase):
