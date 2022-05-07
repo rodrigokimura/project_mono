@@ -2,6 +2,7 @@ from datetime import timedelta
 from unittest.mock import MagicMock
 
 import jwt
+import pytest
 from django.conf import settings
 from django.test import TestCase
 from django.test.client import Client, RequestFactory
@@ -13,54 +14,55 @@ from .forms import UserProfileForm
 from .models import Notification, User, UserProfile, user_directory_path
 
 
-class UserProfileFormTest(TestCase):
+class TestUserProfileForm:
 
     def test_username_field_label(self):
         form = UserProfileForm()
-        self.assertTrue(form.fields['avatar'].label is None or form.fields['avatar'].label == 'Avatar')
+        assert form.fields['avatar'].label is None or form.fields['avatar'].label == 'Avatar'
 
 
-class UserProfileModelTests(TestCase):
+@pytest.mark.django_db
+class TestUserProfileModel:
 
-    def setUp(self):
+    @pytest.fixture
+    def default_icons(self):
         Icon.create_defaults()
-        self.user = User.objects.create(
+
+    @pytest.fixture
+    def user(self, default_icons):
+        return User.objects.create(
             username="test",
             email="test.test@test.com",
         )
 
-    def test_methods(self):
-        user_profile: UserProfile = UserProfile.objects.get(user=self.user)
+    def test_methods(self, user):
+        user_profile: UserProfile = UserProfile.objects.get(user=user)
 
-        self.assertIsNotNone(user_profile)
+        assert user_profile is not None
 
-        self.assertEqual(
-            user_directory_path(user_profile, "filename"),
-            f'user_{self.user.id}/filename'
-        )
-        self.assertEqual(user_profile.__str__(), user_profile.user.username)
+        assert user_directory_path(user_profile, "filename") == f'user_{user.id}/filename'
+
+        assert user_profile.__str__() == user_profile.user.username
 
         user_profile.send_verification_email()
-        self.assertTrue(
-            Notification.objects.filter(
-                to=self.user,
-                message="We've sent you an email to verify your account."
-            ).exists()
-        )
-        user_profile.verify()
-        self.assertTrue(
-            Notification.objects.filter(
-                to=self.user,
-                message="Your account was successfully verified."
-            ).exists()
-        )
 
-    def test_generate_initials_avatar_exception(self):
+        assert Notification.objects.filter(
+            to=user,
+            message="We've sent you an email to verify your account."
+        ).exists()
+
+        user_profile.verify()
+        assert Notification.objects.filter(
+            to=user,
+            message="Your account was successfully verified."
+        ).exists()
+
+    def test_generate_initials_avatar_exception(self, user):
 
         def _save(*args, **kwargs):
             raise OSError('test')
 
-        user_profile: UserProfile = UserProfile.objects.get(user=self.user)
+        user_profile: UserProfile = UserProfile.objects.get(user=user)
         user_profile.avatar.save = MagicMock(side_effect=_save)
         user_profile.generate_initials_avatar()
         user_profile.avatar.save.assert_called()
@@ -104,22 +106,24 @@ class UserProfileViewTests(TestCase):
         self.assertContains(r, f"Successfully logged in as {superuser.username}")
 
 
-class ContextProcessorTests(TestCase):
+@pytest.mark.django_db
+class TestContextProcessor:
 
-    def setUp(self):
+    @pytest.fixture
+    def default_icons(self):
         Icon.create_defaults()
 
-    def test_user_context_processor(self):
+    def test_user_context_processor(self, default_icons):
         request = RequestFactory().get('/')
         user = User.objects.create(username="test")
         request.user = user
         context = unread_notification_count(request)
-        self.assertEqual(context['unread_notification_count'], 1)
+        assert context['unread_notification_count'] == 1
 
-    def test_user_context_processor_no_notifications(self):
+    def test_user_context_processor_no_notifications(self, default_icons):
         request = RequestFactory().get('/')
         user = User.objects.create(username="test")
         user.notifications.all().delete()
         request.user = user
         context = unread_notification_count(request)
-        self.assertEqual(context['unread_notification_count'], 0)
+        assert context['unread_notification_count'] == 0
