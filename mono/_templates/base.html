@@ -56,7 +56,7 @@
                     show: 0,
                     hide: 10000
                 },  
-                position:	"bottom right",
+                position: "bottom right",
                 forcePosition: true,
                 offset: w,
                 onShow: () => {
@@ -70,10 +70,10 @@
         }
     </script>
     {% block head %}{% endblock head %}
+    {% include '_pixel.html' %}
 </head>
 
 <body>
-    {% include '_pixel.html' %}
     {% block body %}
     {% endblock body %}
     <script>
