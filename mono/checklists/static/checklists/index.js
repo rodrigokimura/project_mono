@@ -380,8 +380,8 @@ function initializeSidebar() {
             scrollLock: false,
             returnScroll: false,
             exclusive: false,
-            transition: 'slide along',
-            mobileTransition: 'slide along',
+            transition: 'overlay',
+            mobileTransition: 'overlay',
         })
         .sidebar('attach events', '.toc.item');
 }
