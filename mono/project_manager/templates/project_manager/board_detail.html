@@ -564,13 +564,13 @@
     <script>
         $(document).ready(e => {
             $('.ui.left.sidebar')
-                .sidebar('setting', 'transition', 'slide along')
-                .sidebar('setting', 'mobileTransition', 'slide along')
+                .sidebar('setting', 'transition', 'overlay')
+                .sidebar('setting', 'mobileTransition', 'overlay')
                 .sidebar('attach events', '.left-sidebar.item')
                 .find('#manage-tags').click(showManageTagsModal);
             $('.ui.right.sidebar')
-                .sidebar('setting', 'transition', 'slide along')
-                .sidebar('setting', 'mobileTransition', 'slide along')
+                .sidebar('setting', 'transition', 'overlay')
+                .sidebar('setting', 'mobileTransition', 'overlay')
                 .sidebar('attach events', '.right-sidebar.item')
                 .find('#manage-tags').click(showManageTagsModal);
             $('.board-compact.checkbox').checkbox({
