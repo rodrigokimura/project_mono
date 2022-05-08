@@ -1,3 +1,9 @@
+## 5.8.1 (2022-05-08)
+
+### Fix
+
+- **mono**: adjust sidebar animation
+
 ## 5.8.0 (2022-05-06)
 
 ### Feat
