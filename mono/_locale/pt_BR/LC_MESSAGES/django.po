@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-06 21:03+0000\n"
+"POT-Creation-Date: 2022-05-09 15:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,6 +40,10 @@ msgstr ""
 #: mono/_templates/503.html:36
 msgid "We are under maintenance!"
 msgstr "Estamos em manutenção!"
+
+#: mono/_templates/_app_description.html:24
+msgid "Next"
+msgstr ""
 
 #: mono/_templates/_auth_menu.html:9
 msgid "Signed in as "
@@ -410,6 +414,7 @@ msgstr "Sim"
 #: mono/finance/templates/finance/transaction_list.html:146
 #: mono/finance/templates/finance/transaction_list.html:428
 #: mono/finance/templates/finance/universal_transaction_form.html:248
+#: mono/notes/templates/notes/note_form.html:63
 #: mono/pixel/templates/pixel/site_form.html:17
 #: mono/project_manager/templates/project_manager/board_calendar.html:373
 #: mono/project_manager/templates/project_manager/board_calendar.html:439
@@ -419,7 +424,7 @@ msgstr "Sim"
 #: mono/project_manager/templates/project_manager/board_form.html:18
 #: mono/project_manager/templates/project_manager/project_form.html:18
 #: mono/project_manager/templates/project_manager/tag_form.html:18
-#: mono/shipper/templates/shipper/ship_form.html:24
+#: mono/shipper/templates/shipper/ship_form.html:21
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -448,7 +453,7 @@ msgstr "Cancelar"
 #: mono/project_manager/templates/project_manager/board_form.html:28
 #: mono/project_manager/templates/project_manager/project_form.html:28
 #: mono/project_manager/templates/project_manager/tag_form.html:28
-#: mono/shipper/templates/shipper/ship_form.html:32
+#: mono/shipper/templates/shipper/ship_form.html:25
 msgid "Save"
 msgstr "Salvar"
 
@@ -466,7 +471,6 @@ msgstr "Salvar"
 #: mono/project_manager/templates/project_manager/project_form.html:23
 #: mono/project_manager/templates/project_manager/project_list.html:83
 #: mono/project_manager/templates/project_manager/tag_form.html:23
-#: mono/shipper/templates/shipper/ship_form.html:28
 msgid "Delete"
 msgstr "Excluir"
 
@@ -965,7 +969,7 @@ msgid "Balance"
 msgstr "Saldo"
 
 #: mono/finance/models.py:1044 mono/finance/templates/finance/_card.html:43
-#: mono/finance/templates/finance/base.html:74
+#: mono/finance/templates/finance/base.html:54
 msgid "Budgets"
 msgstr "Orçamentos"
 
@@ -1167,33 +1171,33 @@ msgstr "Contas compartilhadas"
 msgid "Add account"
 msgstr "Adicionar uma conta"
 
-#: mono/finance/templates/finance/base.html:55
-msgid "Give feedback"
-msgstr "Avaliar"
-
-#: mono/finance/templates/finance/base.html:71
+#: mono/finance/templates/finance/base.html:51
 msgid "Home"
 msgstr "Página Inicial"
 
-#: mono/finance/templates/finance/base.html:72
+#: mono/finance/templates/finance/base.html:52
 msgid "Transactions"
 msgstr "Transações"
 
-#: mono/finance/templates/finance/base.html:73
+#: mono/finance/templates/finance/base.html:53
 msgid "Accounts"
 msgstr "Contas"
 
-#: mono/finance/templates/finance/base.html:75
+#: mono/finance/templates/finance/base.html:55
 msgid "Groups"
 msgstr "Grupos"
 
-#: mono/finance/templates/finance/base.html:76
+#: mono/finance/templates/finance/base.html:56
 msgid "Categories"
 msgstr "Categorias"
 
-#: mono/finance/templates/finance/base.html:77
+#: mono/finance/templates/finance/base.html:57
 msgid "Charts"
 msgstr "Gráficos"
+
+#: mono/finance/templates/finance/base.html:74
+msgid "Give feedback"
+msgstr "Avaliar"
 
 #: mono/finance/templates/finance/budget_list.html:50
 #: mono/finance/templates/finance/budgetconfiguration_list.html:50
@@ -1593,11 +1597,11 @@ msgstr "anotações"
 msgid "name"
 msgstr "nome"
 
-#: mono/notes/templates/notes/note_form.html:64
+#: mono/notes/templates/notes/note_form.html:68
 msgid "Save and close"
 msgstr "Salvar e fechar"
 
-#: mono/notes/templates/notes/note_form.html:66
+#: mono/notes/templates/notes/note_form.html:70
 msgid "Create"
 msgstr "Criar"
 
@@ -1926,6 +1930,14 @@ msgstr "Largura do bucket"
 msgid "Please select a file."
 msgstr "Por favor, selecione um arquivo."
 
+#: mono/project_manager/templates/project_manager/board_detail.html:230
+#: mono/project_manager/templates/project_manager/board_detail.html:415
+#: mono/project_manager/templates/project_manager/project_detail.html:39
+#: mono/project_manager/templates/project_manager/project_detail.html:190
+#: mono/project_manager/templates/project_manager/project_list.html:40
+msgid "Name"
+msgstr "Nome"
+
 #: mono/project_manager/templates/project_manager/board_detail.html:326
 msgid "Insert new item to checklist"
 msgstr "Insira um novo item na lista de verificação"
@@ -2000,12 +2012,6 @@ msgstr "Ordenar"
 #: mono/project_manager/templates/project_manager/project_list.html:36
 msgid "Sort boards by"
 msgstr "Ordenar quadros por"
-
-#: mono/project_manager/templates/project_manager/project_detail.html:39
-#: mono/project_manager/templates/project_manager/project_detail.html:190
-#: mono/project_manager/templates/project_manager/project_list.html:40
-msgid "Name"
-msgstr "Nome"
 
 #: mono/project_manager/templates/project_manager/project_detail.html:43
 #: mono/project_manager/templates/project_manager/project_list.html:44
@@ -2108,7 +2114,7 @@ msgstr "Compartilhar link: "
 
 #: mono/project_manager/templates/project_manager/project_list.html:16
 msgid "Projects are where your boards live."
-msgstr ""
+msgstr "Projetos são onde seus quadros ficam."
 
 #: mono/project_manager/templates/project_manager/project_list.html:23
 #, python-format
@@ -2147,8 +2153,8 @@ msgid "New project"
 msgstr "Novo projeto"
 
 #: mono/restricted_area/templates/restricted_area/index.html:16
-msgid "Área 51"
-msgstr "Área 51"
+msgid "Restricted Area"
+msgstr "Área Restrita"
 
 #: mono/restricted_area/templates/restricted_area/index.html:42
 msgid "MAINTENANCE"
