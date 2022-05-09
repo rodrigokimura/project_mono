@@ -282,7 +282,7 @@ ssh: art  ## Connect to Production server
 	@ssh kimura@ssh.pythonanywhere.com || true
 
 deploy: art  ## Deploy app to Production server
-	@ssh kimura@ssh.pythonanywhere.com "cd project_mono && make build" \
+	@ssh -t kimura@ssh.pythonanywhere.com "cd project_mono && make build" \
 		&& echo "${GREEN}Deployed!${RESET}" \
 	|| echo "${RED}Failed!${RESET}"
 
