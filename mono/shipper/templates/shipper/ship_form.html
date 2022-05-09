@@ -3,40 +3,29 @@
 {% load i18n %}
 
 {% block main %}
-    <div class="ui stackable grid container" style="padding-top: 5em;">
-
+    <div class="ui stackable centered grid container" style="padding-top: 5em;">
         <div class="row">
-            <div class="column">
-                <form method="post" class="ui {% if form.errors %}error{% endif %} form">
-              {% csrf_token %}
-              {% include "_form.html" with form=form %}
-              {% if form.field_errors %}
-                <div class="ui error message">
-                  {% for error in form.field_errors %}
-                    {{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
-              <div class="ui error message"></div>
-
-              <div class="ui fluid buttons">
-                <a class="ui button" href="{{ request.META.HTTP_REFERER }}">
-                  {% translate "Cancel" %}
-                </a>
-                {% if object and object.created_by == request.user %}
-                <a class="ui button red" href="{% url 'finance:budget_delete' pk=object.pk %}">
-                  {% translate "Delete" %}
-                </a>
-                {% endif %}
-                <button class="ui button primary" type="submit">
-                  {% translate "Save" %}
-                </button>
-              </div>
-            </form>
+            <div class="eight wide column">
+                <form method="post" class="ui {% if form.errors %}error{% endif %} form segment">
+                    {% csrf_token %}
+                    {% include "_form.html" with form=form %}
+                    {% if form.field_errors %}
+                        <div class="ui error message">
+                            {% for error in form.field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="ui error message"></div>
+                    <a class="ui button" href="{% url 'shipper:root' %}">
+                        {% translate "Cancel" %}
+                    </a>
+                    <button class="ui right floated icon labeled green button" type="submit">
+                        <i class="save icon"></i>
+                        {% translate "Save" %}
+                    </button>
+                </form>
             </div>
         </div>
     </div>
-    <script>
-        $(document).ready(() => { })
-    </script>
 {% endblock %}

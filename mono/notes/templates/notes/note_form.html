@@ -58,7 +58,11 @@
                         {% endfor %}
                         </div>
                     {% endif %}
-                    <button type="submit" class="ui icon labeled submit green button">
+                    <a class="ui icon labeled black button" href="{% url 'notes:index' %}">
+                        <i class="delete icon"></i>
+                        {% translate "Cancel" %}
+                    </a>
+                    <button type="submit" class="ui icon labeled right floated submit green button">
                         <i class="save icon"></i>
                         {% if object %}
                         {% translate "Save and close" %}
