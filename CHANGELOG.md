@@ -1,3 +1,9 @@
+## 5.8.2 (2022-05-08)
+
+### Refactor
+
+- **mono**: improve templates
+
 ## 5.8.1 (2022-05-08)
 
 ### Fix
