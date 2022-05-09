@@ -1,3 +1,9 @@
+## 5.8.3 (2022-05-09)
+
+### Fix
+
+- **mono**: improve translation
+
 ## 5.8.2 (2022-05-08)
 
 ### Refactor
