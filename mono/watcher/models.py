@@ -143,3 +143,16 @@ class Request(models.Model):
     url_name = models.CharField(max_length=200, null=True, blank=True)
     app_name = models.CharField(max_length=200, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=None)
+
+
+class Comment(models.Model):
+    """
+    Comments made by users about an issue
+    """
+    issue = models.ForeignKey(Issue, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='issue_comments')
+    created_at = models.DateTimeField(auto_now_add=True)
+    text = models.TextField()
+
+    class Meta:
+        ordering = ['created_at']
