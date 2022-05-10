@@ -254,7 +254,7 @@
             $.api({
                 on: 'now',
                 method: 'GET',
-                url: `/watcher/api/comments/?issues__id=${ISSUE_ID}`,
+                url: `/watcher/api/comments/?issue__id=${ISSUE_ID}`,
                 stateContext: '#comment-segment',
                 onSuccess(response) {
                     if (response.count > 0) {
@@ -270,7 +270,7 @@
                 on: 'now',
                 method: 'POST',
                 headers: { 'X-CSRFToken': csrftoken },
-                url: `/watcher/api/comments/?issue__id=${ISSUE_ID}`,
+                url: `/watcher/api/comments/`,
                 data: {
                     issue: ISSUE_ID,
                     text: COMMENT_TEXT.val(),
