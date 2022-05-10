@@ -16,10 +16,6 @@ class TestChecklists:
     def user(self, django_user_model, default_icons):
         return django_user_model.objects.create(username='test', email='test.test@test.com')
 
-    @pytest.fixture
-    def another_user(self, django_user_model, default_icons):
-        return django_user_model.objects.create(username='anothertest', email='another.test@test.com')
-
     def test_root(self, client: Client, user):
         Snippet.objects.create(title='test', code='print("hello world")', created_by=user)
         client.force_login(user)
