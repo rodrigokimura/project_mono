@@ -1,3 +1,9 @@
+## 5.9.1 (2022-05-10)
+
+### Fix
+
+- **watcher**: adjust request query param
+
 ## 5.9.0 (2022-05-10)
 
 ### Feat
