@@ -1,3 +1,9 @@
+## 5.9.0 (2022-05-10)
+
+### Feat
+
+- **watcher**: add comments feature
+
 ## 5.8.3 (2022-05-09)
 
 ### Fix
