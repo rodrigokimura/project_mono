@@ -80,3 +80,22 @@ class RequestAdmin(admin.ModelAdmin):
     list_filter = [
         'started_at',
     ]
+
+
+@admin.register(models.Comment)
+class CommentAdmin(admin.ModelAdmin):
+    """
+    Config for comments
+    """
+
+    list_display = [
+        'id',
+        'text',
+        'created_by',
+        'created_at',
+    ]
+    list_filter = [
+        'text',
+        'created_by',
+        'created_at',
+    ]

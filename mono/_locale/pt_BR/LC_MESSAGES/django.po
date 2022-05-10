@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-09 15:06+0000\n"
+"POT-Creation-Date: 2022-05-10 14:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -542,6 +542,7 @@ msgstr "Cartão de crédito"
 #: mono/project_manager/templates/project_manager/board_detail.html:238
 #: mono/project_manager/templates/project_manager/board_detail.html:426
 #: mono/project_manager/templates/project_manager/board_detail.html:427
+#: mono/watcher/templates/watcher/issue_detail.html:46
 msgid "Description"
 msgstr "Descrição"
 
@@ -566,6 +567,7 @@ msgstr "Tipo"
 #: mono/finance/forms.py:115
 #: mono/finance/templates/finance/transaction_list.html:355
 #: mono/finance/templates/finance/transaction_list.html:359
+#: mono/watcher/templates/watcher/issue_detail.html:119
 msgid "Timestamp"
 msgstr "Data/hora"
 
@@ -1869,11 +1871,13 @@ msgstr "Arquivos"
 
 #: mono/project_manager/templates/project_manager/board_calendar.html:346
 #: mono/project_manager/templates/project_manager/board_detail.html:345
+#: mono/watcher/templates/watcher/issue_detail.html:49
 msgid "Comments"
 msgstr "Comentários"
 
 #: mono/project_manager/templates/project_manager/board_calendar.html:366
 #: mono/project_manager/templates/project_manager/board_detail.html:365
+#: mono/watcher/templates/watcher/issue_detail.html:56
 msgid "Add comment"
 msgstr "Adicionar comentário"
 
@@ -1935,6 +1939,7 @@ msgstr "Por favor, selecione um arquivo."
 #: mono/project_manager/templates/project_manager/project_detail.html:39
 #: mono/project_manager/templates/project_manager/project_detail.html:190
 #: mono/project_manager/templates/project_manager/project_list.html:40
+#: mono/watcher/templates/watcher/issue_detail.html:45
 msgid "Name"
 msgstr "Nome"
 
@@ -1947,6 +1952,7 @@ msgid "Attach files"
 msgstr "Anexar arquivos"
 
 #: mono/project_manager/templates/project_manager/board_detail.html:349
+#: mono/watcher/templates/watcher/issue_detail.html:53
 msgid "Type a new comment"
 msgstr "Digite um novo comentário"
 
@@ -2045,6 +2051,7 @@ msgstr "Abrir"
 
 #: mono/project_manager/templates/project_manager/project_detail.html:86
 #: mono/project_manager/templates/project_manager/project_list.html:88
+#: mono/watcher/templates/watcher/issue_detail.html:47
 msgid "Created at"
 msgstr "Criado em "
 
@@ -2183,29 +2190,44 @@ msgstr "Não resolvidos"
 msgid "Resolved"
 msgstr "Resolvidos"
 
-#: mono/watcher/templates/watcher/issue_detail.html:23
+#: mono/watcher/templates/watcher/issue_detail.html:24
 msgid "Issue"
 msgstr "Problema"
 
-#: mono/watcher/templates/watcher/issue_detail.html:36
-#: mono/watcher/templates/watcher/issue_detail.html:42
+#: mono/watcher/templates/watcher/issue_detail.html:37
+#: mono/watcher/templates/watcher/issue_detail.html:43
 msgid "Detail"
 msgstr "Detalhe"
 
-#: mono/watcher/templates/watcher/issue_detail.html:37
-#: mono/watcher/templates/watcher/issue_detail.html:50
+#: mono/watcher/templates/watcher/issue_detail.html:38
+#: mono/watcher/templates/watcher/issue_detail.html:63
 msgid "Traceback"
 msgstr "Traceback"
 
-#: mono/watcher/templates/watcher/issue_detail.html:38
-#: mono/watcher/templates/watcher/issue_detail.html:102
+#: mono/watcher/templates/watcher/issue_detail.html:39
+#: mono/watcher/templates/watcher/issue_detail.html:115
 msgid "Events"
 msgstr "Eventos"
 
-#: mono/watcher/templates/watcher/issue_detail.html:144
+#: mono/watcher/templates/watcher/issue_detail.html:44
+msgid "Hash"
+msgstr ""
+
+#: mono/watcher/templates/watcher/issue_detail.html:120
+#, fuzzy
+#| msgid "Username"
+msgid "User"
+msgstr "Nome de usuário"
+
+#: mono/watcher/templates/watcher/issue_detail.html:158
 msgid "Resolve"
 msgstr "Resolver"
 
-#: mono/watcher/templates/watcher/issue_detail.html:163
+#: mono/watcher/templates/watcher/issue_detail.html:178
 msgid "Ignore"
 msgstr "Ignorar"
+
+#, fuzzy
+#~| msgid "Type a new comment"
+#~ msgid "Type your comment here"
+#~ msgstr "Digite um novo comentário"
