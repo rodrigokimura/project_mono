@@ -1,10 +1,12 @@
 """Watcher's views"""
+from __mono.permissions import IsCreator
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from rest_framework import status
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -50,8 +52,11 @@ class RootView(UserPassesTestMixin, TemplateView):
         return response
 
 
-class IssueDetailView(DetailView):
+class IssueDetailView(UserPassesTestMixin, DetailView):
     model = Issue
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
 
 class IssueResolveAPIView(LoginRequiredMixin, APIView):
@@ -59,13 +64,13 @@ class IssueResolveAPIView(LoginRequiredMixin, APIView):
     Mark issue as resolved
     """
 
+    permission_classes = [IsCreator, IsAdminUser]
+
     def post(self, request, pk, **kwargs):
         """
         Mark issue as resolved
         """
         issue = get_object_or_404(Issue, pk=pk)
-        if not request.user.is_superuser:
-            return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
         serializer = IssueResolverSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -80,13 +85,14 @@ class IssueIgnoreAPIView(LoginRequiredMixin, APIView):
     """
     Mark issue as ignored
     """
+
+    permission_classes = [IsCreator, IsAdminUser]
+
     def post(self, request, pk, **kwargs):
         """
         Mark issue as ignored
         """
         issue = get_object_or_404(Issue, pk=pk)
-        if not request.user.is_superuser:
-            return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
         serializer = IssueIgnorerSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,4 +1,4 @@
-"""Finance's viewsets"""
+"""Watcher's viewsets"""
 from __mono.permissions import IsCreator
 from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import ModelViewSet

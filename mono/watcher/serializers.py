@@ -12,7 +12,7 @@ class IssueResolverSerializer(Serializer):
     Simple serializer to mark as resolver
     """
 
-    resolved = BooleanField()
+    resolved = BooleanField(required=True)
 
     def create(self, validated_data):
         raise NotImplementedError
