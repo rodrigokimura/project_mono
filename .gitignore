@@ -3,6 +3,7 @@
 **/_media/*
 *.pyc
 *.pem
+*.log
 /semantic
 /node_modules
 *.exe

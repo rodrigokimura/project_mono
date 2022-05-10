@@ -4,16 +4,17 @@
 
 
 {% block head %}
-<style>
-    pre {
-        padding: 0;
-        margin: 0;
-    }
-    .tab.segment {
-        overflow-x: auto;
-        overflow-y: auto;
-    }
-</style>
+    <style>
+        pre {
+            padding: 0;
+            margin: 0;
+        }
+        .tab.segment {
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+    </style>
+    <script></script>
 {% endblock head %}
 
 {% block main %}
@@ -40,10 +41,22 @@
 
                 <div class="ui bottom attached active tab segment" data-tab="tab-1">
                     <h1 class="ui dividing header">{% translate "Detail" %}</h1>
-                    <p><strong>Hash: </strong>{{ object.hash }}</p>
-                    <p><strong>Name: </strong>{{ object.name }}</p>
-                    <p><strong>Description: </strong>{{ object.description }}</p>
-                    <p><strong>Created at: </strong>{{ object.created_at }}</p>
+                    <p><strong>{% translate "Hash" %}: </strong>{{ object.hash }}</p>
+                    <p><strong>{% translate "Name" %}: </strong>{{ object.name }}</p>
+                    <p><strong>{% translate "Description" %}: </strong>{{ object.description }}</p>
+                    <p><strong>{% translate "Created at" %}: </strong>{{ object.created_at }}</p>
+                    <div id="comment-segment" class="ui fluid basic segment comments" style="max-width: 100%; padding: 0;">
+                        <h3 class="ui dividing header">{% translate "Comments" %}</h3>
+                        <div id="comments"></div>
+                        <div class="ui reply form">
+                            <div class="field">
+                                <textarea rows="2" id="comment-text" placeholder="{% translate "Type a new comment" %}"></textarea>
+                            </div>
+                            <button class="ui blue labeled submit icon button" onclick="insertComment()">
+                                <i class="icon edit"></i> {% translate "Add comment" %}
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="ui bottom attached tab segment" data-tab="tab-2">
@@ -103,8 +116,8 @@
                     <table class="ui celled unstackable table">
                         <thead>
                             <tr><th>ID</th>
-                            <th>Timestamp</th>
-                            <th>User</th>
+                            <th>{% translate "Timestamp" %}</th>
+                            <th>{% translate "User" %}</th>
                         </tr></thead>
                         <tbody>
                             {% for event in object.event_set.all %}
@@ -122,11 +135,12 @@
         </div>
     </div>
     <script>
-        const ISSUE_ID = '{{ object.id }}';
-        const RESOLVE_BUTTON = $('.resolve-issue');
-        const IGNORE_BUTTON = $('.ignore-issue');
-        $('.menu .item').tab();
-        $('.file-name').popup();
+
+        const ISSUE_ID = '{{ object.id }}'
+        const RESOLVE_BUTTON = $('.resolve-issue')
+        const IGNORE_BUTTON = $('.ignore-issue')
+        const COMMENTS = $('#comments')
+        const COMMENT_TEXT = $('#comment-text')
         
         function renderResolveButton() {
             if (RESOLVE_BUTTON.attr('data-resolved') == 'true') {
@@ -147,6 +161,7 @@
                 });
             }
         }
+
         function renderIgnoreButton() {
             if (IGNORE_BUTTON.attr('data-ignored') == 'true') {
                 IGNORE_BUTTON
@@ -167,86 +182,126 @@
             }
         }
         
-        renderResolveButton();
-        renderIgnoreButton();
+        function initializeResolveButton() {
+            RESOLVE_BUTTON.on('click', e => {
+                let resolved = RESOLVE_BUTTON.attr('data-resolved') == 'false'
+                $.api({
+                    on: 'now',
+                    method: 'POST',
+                    url: '/watcher/issue/{{ object.id }}/resolve/',
+                    data: { resolved: resolved },
+                    headers: { 'X-CSRFToken': csrftoken },
+                    stateContext: '.resolve-issue',
+                    loadingDuration: 1000,
+                    onSuccess: () => {
+                        $('body').toast({
+                            title: 'Issue update',
+                            message: `Issue ${ISSUE_ID} marked as ${resolved ? 'resolved' : 'unresolved'}.`,
+                        });
+                        RESOLVE_BUTTON.attr('data-resolved', resolved);
+                        renderResolveButton();
+                    }
+                });
+            })
+        }
+
+        function initializeIgnoreButton() {
+            IGNORE_BUTTON.on('click', e => {
+                let ignored = IGNORE_BUTTON.attr('data-ignored') == 'false'
+                $.api({
+                    on: 'now',
+                    method: 'POST',
+                    url: '/watcher/issue/{{ object.id }}/ignore/',
+                    data: { ignored: ignored },
+                    headers: { 'X-CSRFToken': csrftoken },
+                    stateContext: '.ignore-issue',
+                    loadingDuration: 1000,
+                    onSuccess: () => {
+                        $('body').toast({
+                            title: 'Issue update',
+                            message: `Issue ${ISSUE_ID} marked as ${ignored ? 'ignored' : 'not ignored'}.`,
+                        });
+                        IGNORE_BUTTON.attr('data-ignored', ignored);
+                        renderIgnoreButton();
+                    }
+                });
+            })
+        }
+
+        function renderComment(comment) {
+            COMMENTS.append(
+                `
+                <div class="comment">
+                    <a class="avatar">
+                        <img src="${comment.created_by.profile.avatar}">
+                    </a>
+                    <div class="content">
+                        <a class="author">${comment.created_by.username}</a>
+                        <div class="metadata">
+                            <span class="date">${comment.created_at}</span>
+                        </div>
+                        <div class="text">${comment.text}</div>
+                    </div>
+                    <div class="actions">
+                        <a class="reply" onclick="deleteComment(${comment.id})">${gettext('Delete')}</a>
+                    </div>
+                </div>
+                `
+            )
+        }
+
+        async function loadComments() {
+            $.api({
+                on: 'now',
+                method: 'GET',
+                url: `/watcher/api/comments/?issues__id=${ISSUE_ID}`,
+                stateContext: '#comment-segment',
+                onSuccess(response) {
+                    if (response.count > 0) {
+                        COMMENTS.empty()
+                        response.results.forEach(renderComment)
+                    }
+                }
+            })
+        }
         
-        RESOLVE_BUTTON.on('click', e => {
-            if (RESOLVE_BUTTON.attr('data-resolved') == 'true') {
-                $.api({
-                    on: 'now',
-                    method: 'POST',
-                    url: '/watcher/issue/{{ object.id }}/resolve/',
-                    data: { resolved: false },
-                    headers: { 'X-CSRFToken': csrftoken },
-                    stateContext: '.resolve-issue',
-                    loadingDuration: 1000,
-                    onSuccess: () => {
-                        $('body').toast({
-                            title: 'Issue update',
-                            message: `Issue ${ISSUE_ID} marked as unresolved.`,
-                        });
-                        RESOLVE_BUTTON.attr('data-resolved', 'false');
-                        renderResolveButton();
-                    }
-                });
-            } else {
-                $.api({
-                    on: 'now',
-                    method: 'POST',
-                    url: '/watcher/issue/{{ object.id }}/resolve/',
-                    data: { resolved: true },
-                    headers: { 'X-CSRFToken': csrftoken },
-                    stateContext: '.resolve-issue',
-                    loadingDuration: 1000,
-                    onSuccess: () => {
-                        $('body').toast({
-                            title: 'Issue update',
-                            message: `Issue ${ISSUE_ID} marked as resolved.`,
-                        });
-                        RESOLVE_BUTTON.attr('data-resolved', 'true');
-                        renderResolveButton();
-                    }
-                });
-            }
+        function insertComment() {
+            $.api({
+                on: 'now',
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                url: `/watcher/api/comments/?issues__id=${ISSUE_ID}`,
+                data: {
+                    issue: ISSUE_ID,
+                    text: COMMENT_TEXT.val(),
+                },
+                onSuccess(r) {
+                    COMMENT_TEXT.val('')
+                    loadComments()
+                }
+            })
+        }
+        function deleteComment(id) {
+            $.api({
+                on: 'now',
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': csrftoken },
+                url: `/watcher/api/comments/${id}/`,
+                onSuccess(r) {
+                    loadComments()
+                }
+            })
+        }
+
+        $(document).ready(e => {
+            $('.menu .item').tab()
+            $('.file-name').popup()
+            renderResolveButton()
+            renderIgnoreButton()
+            initializeIgnoreButton()
+            initializeResolveButton()
+            loadComments()
         })
-        IGNORE_BUTTON.on('click', e => {
-            if (IGNORE_BUTTON.attr('data-ignored') == 'true') {
-                $.api({
-                    on: 'now',
-                    method: 'POST',
-                    url: '/watcher/issue/{{ object.id }}/ignore/',
-                    data: { ignored: false },
-                    headers: { 'X-CSRFToken': csrftoken },
-                    stateContext: '.ignore-issue',
-                    loadingDuration: 1000,
-                    onSuccess: () => {
-                        $('body').toast({
-                            title: 'Issue update',
-                            message: `Issue ${ISSUE_ID} marked as not ignored.`,
-                        });
-                        IGNORE_BUTTON.attr('data-ignored', 'false');
-                        renderIgnoreButton();
-                    }
-                });
-            } else {
-                $.api({
-                    on: 'now',
-                    method: 'POST',
-                    url: '/watcher/issue/{{ object.id }}/ignore/',
-                    data: { ignored: true },
-                    headers: { 'X-CSRFToken': csrftoken },
-                    stateContext: '.ignore-issue',
-                    loadingDuration: 1000,
-                    onSuccess: () => {
-                        $('body').toast({
-                            title: 'Issue update',
-                            message: `Issue ${ISSUE_ID} marked as ignored.`,
-                        });
-                        IGNORE_BUTTON.attr('data-ignored', 'true');
-                        renderIgnoreButton();
-                    }
-                });
-            }
-        })
+
     </script>
 {% endblock %}
