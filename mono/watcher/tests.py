@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 from django.urls import reverse
+from pytest_django.asserts import assertContains, assertRedirects
 from rest_framework import status
 
 from .models import Issue
@@ -17,6 +18,29 @@ class TestWatcherViews:
             name='fake issue',
             description='Just a fake issue'
         )
+
+    def test_root_with_superuser_should_succeed(self, admin_client):
+        response = admin_client.get(
+            reverse('watcher:index'),
+        )
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_root_with_non_superuser_should_fail(self, issue, client):
+        response = client.get(reverse('watcher:index'))
+        assertRedirects(response, f"{reverse('accounts:login')}?next={reverse('watcher:index')}")
+
+    def test_issue_detail_with_superuser_should_succeed(self, issue, admin_client):
+        response = admin_client.get(
+            reverse('watcher:issue_detail', args=[issue.id]),
+        )
+        assertContains(response, issue)
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_issue_detail_with_non_superuser_should_fail(self, issue, client):
+        response = client.get(
+            reverse('watcher:issue_detail', args=[issue.id]),
+        )
+        assertRedirects(response, f"{reverse('accounts:login')}?next={reverse('watcher:issue_detail', args=[issue.id])}")
 
     def test_mark_issue_as_resolved_should_succeed(self, issue, admin_client):
         response = admin_client.post(
