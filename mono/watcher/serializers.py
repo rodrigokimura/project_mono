@@ -1,7 +1,7 @@
 """Watcher's serializers"""
 from accounts.serializers import UserSerializer
 from rest_framework.serializers import (
-    BooleanField, CurrentUserDefault, HiddenField, ModelSerializer, Serializer,
+    BooleanField, CurrentUserDefault, ModelSerializer, Serializer,
 )
 
 from .models import Comment
@@ -12,7 +12,7 @@ class IssueResolverSerializer(Serializer):
     Simple serializer to mark as resolver
     """
 
-    resolved = BooleanField()
+    resolved = BooleanField(required=True)
 
     def create(self, validated_data):
         raise NotImplementedError
@@ -38,9 +38,6 @@ class IssueIgnorerSerializer(Serializer):
 class CommentSerializer(ModelSerializer):
     """Serializer for comment"""
 
-    # created_by = HiddenField(
-    #     default=CurrentUserDefault()
-    # )
     created_by = UserSerializer(many=False, default=CurrentUserDefault())
 
     class Meta:

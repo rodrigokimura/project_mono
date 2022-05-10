@@ -46,7 +46,7 @@ class MigrationsCheck(TestCase):
         ]
         for app in third_party_apps:
             if app in changes:
-                del changes[app]
+                del changes[app]  # pragma: no cover
         self.assertEqual({}, changes)
 
 
