@@ -1,3 +1,9 @@
+## 5.11.0 (2022-05-11)
+
+### Feat
+
+- **project_manager**: improve translation
+
 ## 5.10.0 (2022-05-10)
 
 ### Feat
