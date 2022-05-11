@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-11 21:27+0000\n"
+"POT-Creation-Date: 2022-05-11 21:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,7 +43,7 @@ msgstr "Estamos em manutenção!"
 
 #: mono/_templates/_app_description.html:24
 msgid "Next"
-msgstr ""
+msgstr "Próximo"
 
 #: mono/_templates/_auth_menu.html:9
 msgid "Signed in as "
@@ -2287,13 +2287,11 @@ msgstr "Eventos"
 
 #: mono/watcher/templates/watcher/issue_detail.html:44
 msgid "Hash"
-msgstr ""
+msgstr "Hash"
 
 #: mono/watcher/templates/watcher/issue_detail.html:120
-#, fuzzy
-#| msgid "Username"
 msgid "User"
-msgstr "Nome de usuário"
+msgstr "Usuário"
 
 #: mono/watcher/templates/watcher/issue_detail.html:158
 msgid "Resolve"
@@ -2302,8 +2300,3 @@ msgstr "Resolver"
 #: mono/watcher/templates/watcher/issue_detail.html:178
 msgid "Ignore"
 msgstr "Ignorar"
-
-#, fuzzy
-#~| msgid "Type a new comment"
-#~ msgid "Type your comment here"
-#~ msgstr "Digite um novo comentário"
