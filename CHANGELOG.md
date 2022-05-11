@@ -1,3 +1,9 @@
+## 5.11.2 (2022-05-11)
+
+### Refactor
+
+- **project_manager**: improve translation
+
 ## 5.11.1 (2022-05-11)
 
 ### Fix
