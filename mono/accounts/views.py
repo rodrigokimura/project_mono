@@ -371,7 +371,7 @@ class MarkNotificationsAsReadView(LoginRequiredMixin, View):
         )
         return JsonResponse({
             'success': True,
-            'data': notifications.values_list('id', flat=True)
+            'data': list(notifications.values_list('id', flat=True))
         })
 
 
@@ -396,7 +396,7 @@ class MarkNotificationsAsUnreadView(LoginRequiredMixin, View):
         )
         return JsonResponse({
             'success': True,
-            'data': notifications.values_list('id', flat=True)
+            'data': list(notifications.values_list('id', flat=True))
         })
 
 
