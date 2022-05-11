@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-11 21:36+0000\n"
+"POT-Creation-Date: 2022-05-11 22:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -111,6 +111,9 @@ msgstr "Excluir este arquivo"
 #: mono/project_manager/static/board_calendar.js:212
 #: mono/project_manager/static/board_calendar.js:516
 #: mono/project_manager/static/board_calendar.js:1276
+#: mono/project_manager/static/project_manager/project_detail.js:105
+#: mono/project_manager/static/project_manager/project_detail.js:157
+#: mono/project_manager/static/project_manager/project_detail.js:204
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -160,6 +163,7 @@ msgstr "Parado em"
 #: mono/project_manager/static/board.js:875
 #: mono/project_manager/static/board_calendar.js:359
 #: mono/project_manager/static/board_calendar.js:482
+#: mono/project_manager/static/project_manager/project_detail.js:278
 msgid "Delete"
 msgstr "Excluir"
 
@@ -338,3 +342,72 @@ msgstr "Upload de arquivo orealizado com sucesso"
 #: mono/project_manager/static/board_calendar.js:1164
 msgid "Delete card"
 msgstr "Excluir card"
+
+#: mono/project_manager/static/project_manager/project_detail.js:50
+msgid "Please enter an email"
+msgstr "Por favor, digite um e-mail"
+
+#: mono/project_manager/static/project_manager/project_detail.js:54
+msgid "Please enter a valid email"
+msgstr "Por favor, digite um e-mail válido"
+
+#: mono/project_manager/static/project_manager/project_detail.js:61
+#, javascript-format
+msgid "Your invitation was sent to %s."
+msgstr "Seu convite foi enviado para %s."
+
+#: mono/project_manager/static/project_manager/project_detail.js:102
+msgid "Are you sure you want to remove user from this project?"
+msgstr "Você tem certeza de que quer remover o usuário deste projeto?"
+
+#: mono/project_manager/static/project_manager/project_detail.js:109
+msgid "Yes, remove user."
+msgstr "Sim, remover o usuário."
+
+#: mono/project_manager/static/project_manager/project_detail.js:125
+msgid "User successfully removed from this project's team."
+msgstr "Usuário removido da equipe deste projeto com sucesso."
+
+#: mono/project_manager/static/project_manager/project_detail.js:154
+msgid "Are you sure you want to resend the email invitation?"
+msgstr "Você tem certeza de que quer reenviar o e-mail de convite?"
+
+#: mono/project_manager/static/project_manager/project_detail.js:161
+msgid "Yes, resend it."
+msgstr "Sim, reenviar."
+
+#: mono/project_manager/static/project_manager/project_detail.js:201
+msgid "Are you sure you want to delete this invite?"
+msgstr "Você tem certeza de que quer excluir este convite?"
+
+#: mono/project_manager/static/project_manager/project_detail.js:208
+msgid "Yes, delete it."
+msgstr "Sim, excluir."
+
+#: mono/project_manager/static/project_manager/project_detail.js:221
+msgid "Invite deleted successfully."
+msgstr "Convite excluído com sucesso."
+
+#: mono/project_manager/static/project_manager/project_detail.js:250
+msgid "No invites yet"
+msgstr "Nenhum convite ainda"
+
+#: mono/project_manager/static/project_manager/project_detail.js:257
+msgid "Email"
+msgstr "E-mail"
+
+#: mono/project_manager/static/project_manager/project_detail.js:258
+msgid "Created"
+msgstr "Criado"
+
+#: mono/project_manager/static/project_manager/project_detail.js:259
+msgid "Accepted"
+msgstr "Aceito"
+
+#: mono/project_manager/static/project_manager/project_detail.js:260
+msgid "Actions"
+msgstr "Ações"
+
+#: mono/project_manager/static/project_manager/project_detail.js:277
+msgid "Resend email"
+msgstr "Reenviar e-mail"
