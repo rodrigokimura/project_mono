@@ -13,6 +13,7 @@ from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls.base import reverse, reverse_lazy
 from django.utils import dateparse
+from django.utils.translation import gettext as _
 from django.views.generic import ListView
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
@@ -66,7 +67,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
         """
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = [
-            ('Home', reverse('home')),
+            (_('Home'), reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
         ]
         return context
@@ -101,7 +102,7 @@ class ProjectDetailView(UserPassesTestMixin, DetailView):
         context['boards'] = qs
 
         context['breadcrumb'] = [
-            ('Home', reverse('home')),
+            (_('Home'), reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
             (self.object.name, None),
         ]
@@ -123,7 +124,7 @@ class ProjectCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
         """
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = [
-            ('Home', reverse('home')),
+            (_('Home'), reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
             ('Create project', None),
         ]
@@ -151,7 +152,7 @@ class ProjectUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessM
         """
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = [
-            ('Home', reverse('home')),
+            (_('Home'), reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
             ('Edit project', None),
         ]
@@ -214,7 +215,7 @@ class BoardCalendarView(LoginRequiredMixin, DetailView):
         board = self.get_object()
         if request.user in board.allowed_users:
             return super().get(request, *args, **kwargs)
-        messages.error(request, 'You are not assigned to this board!')
+        messages.error(request, _('You are not assigned to this board!'))
         return redirect(to=reverse('project_manager:project_detail', args=[board.project.id]))
 
     def get_context_data(self, **kwargs):
@@ -250,7 +251,7 @@ class BoardCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     model = Board
     form_class = BoardForm
     success_url = reverse_lazy('project_manager:boards')
-    success_message = "Board %(name)s was created successfully"
+    success_message = _("Board %(name)s was created successfully")
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         """
@@ -259,7 +260,7 @@ class BoardCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
         project = Project.objects.get(id=self.kwargs['project_pk'])
         if request.user == project.created_by:
             return super().get(request, *args, **kwargs)
-        messages.error(request, "You don't have permission to create boards in this project.")
+        messages.error(request, _("You don't have permission to create boards in this project."))
         return redirect(to=reverse('project_manager:project_detail', args=[project.id]))
 
     def get_success_url(self) -> str:
@@ -290,10 +291,10 @@ class BoardCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
         context = super().get_context_data(**kwargs)
         context['project'] = project
         context['breadcrumb'] = [
-            ('Home', reverse('home')),
+            (_('Home'), reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
             (project.name, reverse('project_manager:project_detail', args=[project.id])),
-            ('Create board', None),
+            (_('Create board'), None),
         ]
         return context
 
@@ -305,7 +306,7 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     model = Board
     form_class = BoardForm
     success_url = reverse_lazy('project_manager:boards')
-    success_message = "Board %(name)s was updated successfully"
+    success_message = _("Board %(name)s was updated successfully")
 
     def get_success_url(self) -> str:
         """
@@ -321,9 +322,9 @@ class BoardUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMes
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = [
-            ('Home', reverse('home')),
+            (_('Home'), reverse('home')),
             ('Project Manager', reverse('project_manager:projects')),
-            ('Board: edit', None),
+            (_('Board: edit'), None),
         ]
         return context
 
@@ -341,7 +342,7 @@ class InviteAcceptanceView(LoginRequiredMixin, RedirectView):
         super().get_redirect_url(*args, **kwargs)
         token = self.request.GET.get('t', None)
         if token is None:
-            messages.add_message(self.request, messages.ERROR, 'No token provided.')
+            messages.add_message(self.request, messages.ERROR, _('No token provided.'))
             return reverse('home')
         signer = TimestampSigner(salt="project_invite")
         invite_id = signer.unsign_object(
@@ -350,16 +351,16 @@ class InviteAcceptanceView(LoginRequiredMixin, RedirectView):
         )['id']
         invite = get_object_or_404(Invite, pk=invite_id)
         if invite.accepted:
-            messages.add_message(self.request, messages.SUCCESS, "You've already accepted this invitation.")
+            messages.add_message(self.request, messages.SUCCESS, _("You've already accepted this invitation."))
             return reverse('home')
         user_already_member = self.request.user in invite.project.assigned_to.all()
         if user_already_member:
-            messages.add_message(self.request, messages.ERROR, 'You are already a member of this project.')
+            messages.add_message(self.request, messages.ERROR, _('You are already a member of this project.'))
             return reverse('home')
 
         invite.accept(self.request.user)
         invite.save()
-        messages.add_message(self.request, messages.SUCCESS, 'Invite accepted.')
+        messages.add_message(self.request, messages.SUCCESS, _('Invite accepted.'))
         return reverse('project_manager:project_detail', args=[invite.project.id])
 
 
@@ -401,7 +402,7 @@ class ProjectDetailAPIView(LoginRequiredMixin, APIView):
         """
         project: Project = get_object_or_404(Project, pk=pk)
         if request.user not in project.allowed_users:
-            return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+            return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
         serializer = ProjectSerializer(project)
         return Response(serializer.data)
 
@@ -411,7 +412,7 @@ class ProjectDetailAPIView(LoginRequiredMixin, APIView):
         """
         project: Project = get_object_or_404(Project, pk=pk)
         if request.user not in project.allowed_users:
-            return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+            return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
         serializer = ProjectSerializer(project, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -424,7 +425,7 @@ class ProjectDetailAPIView(LoginRequiredMixin, APIView):
         """
         project: Project = get_object_or_404(Project, pk=pk)
         if request.user not in project.allowed_users:
-            return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+            return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
         project.delete()
         return Response({
             'success': True,
@@ -443,7 +444,7 @@ class ProjectRemoveUserAPIView(LoginRequiredMixin, APIView):
         """
         project: Project = get_object_or_404(Project, pk=project_pk)
         if request.user not in project.allowed_users:
-            return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+            return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
         user: User = get_object_or_404(User, pk=int(request.data.get('user')))
         if user not in project.assigned_to.all():
             return Response('User not a member of this project', status=status.HTTP_400_BAD_REQUEST)
@@ -467,7 +468,7 @@ class BoardListAPIView(LoginRequiredMixin, APIView):
         boards = Board.objects.filter(created_by=request.user)
         project = Project.objects.get(id=kwargs.get('project_pk'))
         if request.user not in project.allowed_users:
-            return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+            return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
         serializer = BoardSerializer(boards, many=True)
         return Response(serializer.data)
 
@@ -477,7 +478,7 @@ class BoardListAPIView(LoginRequiredMixin, APIView):
         """
         project = Project.objects.get(id=kwargs.get('project_pk'))
         if request.user not in project.allowed_users:
-            return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+            return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
         serializer = BoardSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(created_by=request.user)
@@ -496,7 +497,7 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
         """
         board: Board = get_object_or_404(Board, pk=pk)
         if request.user not in board.allowed_users:
-            return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+            return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
         serializer = BoardSerializer(board)
         return Response(serializer.data)
 
@@ -511,7 +512,7 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def patch(self, request, pk, **kwargs):
         """
@@ -524,7 +525,7 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk, **kwargs):
         """
@@ -538,7 +539,7 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
                 'success': True,
                 'url': reverse_lazy('project_manager:project_detail', args=[project.id])
             })
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class BoardLastUpdatedAPIView(LoginRequiredMixin, APIView):
@@ -558,7 +559,7 @@ class BoardLastUpdatedAPIView(LoginRequiredMixin, APIView):
                 'board': board_timestamp,
                 'buckets': buckets_timestamp
             })
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class BoardCalendarAPIView(LoginRequiredMixin, APIView):
@@ -575,7 +576,7 @@ class BoardCalendarAPIView(LoginRequiredMixin, APIView):
         project = Project.objects.get(id=project_pk)
         board = Board.objects.get(project=project, id=board_pk)
         if request.user not in board.allowed_users:
-            return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+            return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
         year = self.request.query_params.get('year')
         month = self.request.query_params.get('month')
         cards = Card.objects.filter(bucket__board=board)
@@ -606,7 +607,7 @@ class BucketListAPIView(LoginRequiredMixin, APIView):
         if request.user in board.allowed_users:
             serializer = BucketSerializer(buckets, many=True, context={'request': request})
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def post(self, request, **kwargs):
         """
@@ -616,7 +617,7 @@ class BucketListAPIView(LoginRequiredMixin, APIView):
         board = Board.objects.get(project=project, id=kwargs.get('board_pk'))
         serializer = BucketSerializer(data=request.data)
         if request.user not in board.allowed_users:
-            return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+            return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         theme_id = request.data.get('color')
@@ -644,7 +645,7 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in board.allowed_users:
             serializer = BucketSerializer(bucket)
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def put(self, request, pk, **kwargs):
         """
@@ -666,7 +667,7 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
                 bucket.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk, **kwargs):
         """
@@ -678,7 +679,7 @@ class BucketDetailAPIView(LoginRequiredMixin, APIView):
             bucket: Bucket = get_object_or_404(Bucket, pk=pk)
             bucket.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class TagListAPIView(LoginRequiredMixin, APIView):
@@ -695,7 +696,7 @@ class TagListAPIView(LoginRequiredMixin, APIView):
         if request.user in board.allowed_users:
             serializer = TagSerializer(tags, many=True, context={'request': request})
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def post(self, request, **kwargs):
         """
@@ -723,7 +724,7 @@ class TagListAPIView(LoginRequiredMixin, APIView):
                 )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class TagDetailAPIView(LoginRequiredMixin, APIView):
@@ -741,7 +742,7 @@ class TagDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in board.allowed_users:
             serializer = TagSerializer(tag)
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def put(self, request, pk, **kwargs):
         """
@@ -761,7 +762,7 @@ class TagDetailAPIView(LoginRequiredMixin, APIView):
                     serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk, **kwargs):
         """
@@ -773,7 +774,7 @@ class TagDetailAPIView(LoginRequiredMixin, APIView):
             tag: Tag = get_object_or_404(Tag, pk=pk)
             tag.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class CardListAPIView(LoginRequiredMixin, APIView):
@@ -795,7 +796,7 @@ class CardListAPIView(LoginRequiredMixin, APIView):
         if request.user in board.allowed_users:
             serializer = CardSerializer(cards, many=True)
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def post(self, request, **kwargs):
         """
@@ -822,7 +823,7 @@ class CardListAPIView(LoginRequiredMixin, APIView):
                     )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class CardDetailAPIView(LoginRequiredMixin, APIView):
@@ -838,7 +839,7 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in card.allowed_users:
             serializer = CardSerializer(card)
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def put(self, request, pk, **kwargs):
         """
@@ -861,7 +862,7 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
                 card.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def patch(self, request, pk, **kwargs):
         """
@@ -878,7 +879,7 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
                 card.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk, **kwargs):
         """
@@ -891,7 +892,7 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in card.allowed_users:
             card.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class ItemListAPIView(LoginRequiredMixin, APIView):
@@ -915,7 +916,7 @@ class ItemListAPIView(LoginRequiredMixin, APIView):
         if request.user in board.allowed_users:
             serializer = ItemSerializer(items, many=True)
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def post(self, request, **kwargs):
         """
@@ -934,7 +935,7 @@ class ItemListAPIView(LoginRequiredMixin, APIView):
                 )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class ItemDetailAPIView(LoginRequiredMixin, APIView):
@@ -954,7 +955,7 @@ class ItemDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in item.allowed_users:
             serializer = ItemSerializer(item)
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def put(self, request, pk, **kwargs):
         """
@@ -971,7 +972,7 @@ class ItemDetailAPIView(LoginRequiredMixin, APIView):
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def patch(self, request, pk, **kwargs):
         """
@@ -988,7 +989,7 @@ class ItemDetailAPIView(LoginRequiredMixin, APIView):
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk, **kwargs):
         """
@@ -1002,7 +1003,7 @@ class ItemDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in item.allowed_users:
             item.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class CardFileListAPIView(LoginRequiredMixin, APIView):
@@ -1026,7 +1027,7 @@ class CardFileListAPIView(LoginRequiredMixin, APIView):
         if request.user in board.allowed_users:
             serializer = CardFileSerializer(files, many=True)
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def post(self, request, **kwargs):
         """
@@ -1042,7 +1043,7 @@ class CardFileListAPIView(LoginRequiredMixin, APIView):
                 serializer.save(card=card)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class CardFileDetailAPIView(LoginRequiredMixin, APIView):
@@ -1062,7 +1063,7 @@ class CardFileDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in file.card.allowed_users:
             file.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class TimeEntryListAPIView(LoginRequiredMixin, APIView):
@@ -1086,7 +1087,7 @@ class TimeEntryListAPIView(LoginRequiredMixin, APIView):
         if request.user in board.allowed_users:
             serializer = TimeEntrySerializer(time_entries, many=True)
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def post(self, request, **kwargs):
         """
@@ -1104,7 +1105,7 @@ class TimeEntryListAPIView(LoginRequiredMixin, APIView):
                 )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class TimeEntryDetailAPIView(LoginRequiredMixin, APIView):
@@ -1124,7 +1125,7 @@ class TimeEntryDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in time_entry.allowed_users:
             serializer = TimeEntrySerializer(time_entry)
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def put(self, request, pk, **kwargs):
         """
@@ -1141,7 +1142,7 @@ class TimeEntryDetailAPIView(LoginRequiredMixin, APIView):
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def patch(self, request, pk, **kwargs):
         """
@@ -1158,7 +1159,7 @@ class TimeEntryDetailAPIView(LoginRequiredMixin, APIView):
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk, **kwargs):
         """
@@ -1172,7 +1173,7 @@ class TimeEntryDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in time_entry.allowed_users:
             time_entry.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class CommentListAPIView(LoginRequiredMixin, APIView):
@@ -1200,7 +1201,7 @@ class CommentListAPIView(LoginRequiredMixin, APIView):
                     dateparse.parse_datetime(comment['created_at'])
                 )
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def post(self, request, **kwargs):
         """
@@ -1218,7 +1219,7 @@ class CommentListAPIView(LoginRequiredMixin, APIView):
                 )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class CommentDetailAPIView(LoginRequiredMixin, APIView):
@@ -1238,7 +1239,7 @@ class CommentDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in comment.allowed_users:
             serializer = CommentSerializer(comment)
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def patch(self, request, pk, **kwargs):
         """
@@ -1255,7 +1256,7 @@ class CommentDetailAPIView(LoginRequiredMixin, APIView):
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk, **kwargs):
         """
@@ -1269,7 +1270,7 @@ class CommentDetailAPIView(LoginRequiredMixin, APIView):
         if request.user == comment.created_by:
             comment.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class ItemCheckAPIView(LoginRequiredMixin, APIView):
@@ -1287,7 +1288,7 @@ class ItemCheckAPIView(LoginRequiredMixin, APIView):
         Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
         item: Item = get_object_or_404(Item, pk=pk)
         if request.user not in item.allowed_users:
-            return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+            return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
         if request.data.get('checked') == 'true':
             item.mark_as_checked(request.user)
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -1364,7 +1365,7 @@ class StartStopTimerAPIView(LoginRequiredMixin, APIView):
                 'success': True,
                 'action': result['action']
             })
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class InviteListAPIView(LoginRequiredMixin, APIView):
@@ -1385,7 +1386,7 @@ class InviteListAPIView(LoginRequiredMixin, APIView):
             ).exclude(email__exact='')
             serializer = InviteSerializer(invites, many=True)
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def post(self, request, **kwargs):
         """
@@ -1398,7 +1399,7 @@ class InviteListAPIView(LoginRequiredMixin, APIView):
                 serializer.save(created_by=request.user)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class InviteDetailAPIView(LoginRequiredMixin, APIView):
@@ -1415,7 +1416,7 @@ class InviteDetailAPIView(LoginRequiredMixin, APIView):
             invite: Invite = get_object_or_404(Invite, pk=pk)
             serializer = InviteSerializer(invite)
             return Response(serializer.data)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def put(self, request, pk, **kwargs):
         """
@@ -1429,7 +1430,7 @@ class InviteDetailAPIView(LoginRequiredMixin, APIView):
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk, **kwargs):
         """
@@ -1442,7 +1443,7 @@ class InviteDetailAPIView(LoginRequiredMixin, APIView):
                 return Response('Cannot delete an accepted invite', status=status.HTTP_400_BAD_REQUEST)
             invite.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
 class InviteResendAPIView(LoginRequiredMixin, APIView):
@@ -1462,4 +1463,4 @@ class InviteResendAPIView(LoginRequiredMixin, APIView):
                 'success': True,
                 'message': f'Your invitation was sent to {invite.email}.'
             }, status=status.HTTP_200_OK)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
