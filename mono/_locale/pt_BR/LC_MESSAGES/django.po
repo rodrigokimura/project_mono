@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-10 14:53+0000\n"
+"POT-Creation-Date: 2022-05-11 21:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -487,19 +487,19 @@ msgstr "Por favor, nos conte o que está pensando."
 msgid "Please, select a valid option."
 msgstr "Por favor, selecione uma opção válida."
 
-#: mono/feedback/models.py:20
+#: mono/feedback/models.py:24
 msgid "user"
 msgstr "usuário"
 
-#: mono/feedback/models.py:21
+#: mono/feedback/models.py:25
 msgid "feeling"
 msgstr "sentimento"
 
-#: mono/feedback/models.py:22
+#: mono/feedback/models.py:26
 msgid "message"
 msgstr "mensagem"
 
-#: mono/feedback/models.py:23
+#: mono/feedback/models.py:27
 msgid "public"
 msgstr "público"
 
@@ -1173,7 +1173,10 @@ msgstr "Contas compartilhadas"
 msgid "Add account"
 msgstr "Adicionar uma conta"
 
-#: mono/finance/templates/finance/base.html:51
+#: mono/finance/templates/finance/base.html:51 mono/project_manager/views.py:70
+#: mono/project_manager/views.py:105 mono/project_manager/views.py:127
+#: mono/project_manager/views.py:155 mono/project_manager/views.py:294
+#: mono/project_manager/views.py:325
 msgid "Home"
 msgstr "Página Inicial"
 
@@ -2158,6 +2161,79 @@ msgstr "Criar um novo projeto!"
 #: mono/project_manager/templates/project_manager/tag_list.html:46
 msgid "New project"
 msgstr "Novo projeto"
+
+#: mono/project_manager/views.py:218
+msgid "You are not assigned to this board!"
+msgstr "Você não está atribuído a este quadro!"
+
+#: mono/project_manager/views.py:254
+#, python-format
+msgid "Board %(name)s was created successfully"
+msgstr "Quadr %(name)s criado com sucesso"
+
+#: mono/project_manager/views.py:263
+msgid "You don't have permission to create boards in this project."
+msgstr "Você não possui permissão para criar quadros neste projeto."
+
+#: mono/project_manager/views.py:297
+msgid "Create board"
+msgstr "Criar quadro"
+
+#: mono/project_manager/views.py:309
+#, python-format
+msgid "Board %(name)s was updated successfully"
+msgstr "Quadro %(name)s atualizado com sucesso"
+
+#: mono/project_manager/views.py:327
+msgid "Board: edit"
+msgstr "Quadro: editar"
+
+#: mono/project_manager/views.py:345
+msgid "No token provided."
+msgstr "Nenhum token fornecido."
+
+#: mono/project_manager/views.py:354
+msgid "You've already accepted this invitation."
+msgstr "Você já aceitou este convite."
+
+#: mono/project_manager/views.py:358
+msgid "You are already a member of this project."
+msgstr "Você já é membro deste projeto."
+
+#: mono/project_manager/views.py:363
+msgid "Invite accepted."
+msgstr "Convite aceito."
+
+#: mono/project_manager/views.py:405 mono/project_manager/views.py:415
+#: mono/project_manager/views.py:428 mono/project_manager/views.py:447
+#: mono/project_manager/views.py:471 mono/project_manager/views.py:481
+#: mono/project_manager/views.py:500 mono/project_manager/views.py:515
+#: mono/project_manager/views.py:528 mono/project_manager/views.py:542
+#: mono/project_manager/views.py:562 mono/project_manager/views.py:579
+#: mono/project_manager/views.py:610 mono/project_manager/views.py:620
+#: mono/project_manager/views.py:648 mono/project_manager/views.py:670
+#: mono/project_manager/views.py:682 mono/project_manager/views.py:699
+#: mono/project_manager/views.py:727 mono/project_manager/views.py:745
+#: mono/project_manager/views.py:765 mono/project_manager/views.py:777
+#: mono/project_manager/views.py:799 mono/project_manager/views.py:826
+#: mono/project_manager/views.py:842 mono/project_manager/views.py:865
+#: mono/project_manager/views.py:882 mono/project_manager/views.py:895
+#: mono/project_manager/views.py:919 mono/project_manager/views.py:938
+#: mono/project_manager/views.py:958 mono/project_manager/views.py:975
+#: mono/project_manager/views.py:992 mono/project_manager/views.py:1006
+#: mono/project_manager/views.py:1030 mono/project_manager/views.py:1046
+#: mono/project_manager/views.py:1066 mono/project_manager/views.py:1090
+#: mono/project_manager/views.py:1108 mono/project_manager/views.py:1128
+#: mono/project_manager/views.py:1145 mono/project_manager/views.py:1162
+#: mono/project_manager/views.py:1176 mono/project_manager/views.py:1204
+#: mono/project_manager/views.py:1222 mono/project_manager/views.py:1242
+#: mono/project_manager/views.py:1259 mono/project_manager/views.py:1273
+#: mono/project_manager/views.py:1291 mono/project_manager/views.py:1368
+#: mono/project_manager/views.py:1389 mono/project_manager/views.py:1402
+#: mono/project_manager/views.py:1419 mono/project_manager/views.py:1433
+#: mono/project_manager/views.py:1446 mono/project_manager/views.py:1466
+msgid "User not allowed"
+msgstr "Usuário não permitido"
 
 #: mono/restricted_area/templates/restricted_area/index.html:16
 msgid "Restricted Area"
