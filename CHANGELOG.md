@@ -1,3 +1,9 @@
+## 5.10.0 (2022-05-10)
+
+### Feat
+
+- **feedback**: send email when feedback is received
+
 ## 5.9.2 (2022-05-10)
 
 ### Fix
