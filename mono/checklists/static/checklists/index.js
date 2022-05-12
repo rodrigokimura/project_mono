@@ -210,12 +210,12 @@ function selectTask(taskId) {
                 $("#task-description").attr('data-checked', true)
                 $('#check-icon').addClass('check circle outline')
                 ts = new Date(r.checked_at)
-                msg = interpolate(gettext('Checked at %s'), ts.toString())
+                msg = interpolate(gettext('Checked at %s'), [ts.toString()])
             } else {
                 $("#task-description").attr('data-checked', false)
                 $('#check-icon').removeClass('check circle outline').addClass('circle outline')
                 ts = new Date(r.created_at)
-                msg = interpolate(gettext('Created at %s'), ts.toString())
+                msg = interpolate(gettext('Created at %s'), [ts.toString()])
             }
             $('#task-timestamp').text(msg)
             $("#task-description").off().on('input', e => {
@@ -397,4 +397,47 @@ function showTaskPanel() {
 function toggleTaskPanel() {
     $('#task-detail').parent().toggle('swing')
     $('#task-list-panel').toggleClass('active')
+}
+
+function initializeDragAndDrop() {
+    dragula({
+        isContainer: el => $(el).attr('id') === 'tasks-div',
+        moves: (el, source, handle, sibling) => $(el).hasClass('task item'),
+        direction: 'vertical',
+    }).on('drop', (el, target, source, sibling) => {
+        order = $(target).children().toArray().findIndex(e => e == el) + 1
+        taskId = $(el).attr('data-task-id')
+        $.api({
+            on: 'now',
+            method: 'POST',
+            url: '/cl/api/task-move/',
+            headers: { 'X-CSRFToken': csrftoken },
+            stateContext: '#tasks-div',
+            data: {
+                task: taskId,
+                order: order,
+            },
+            onSuccess: result => { },
+        })
+    })
+    dragula({
+        isContainer: el => $(el).attr('id') === 'lists-div',
+        moves: (el, source, handle, sibling) => $(el).hasClass('checklist item'),
+        direction: 'vertical',
+    }).on('drop', (el, target, source, sibling) => {
+        order = $(target).children().toArray().findIndex(e => e == el) + 1
+        checlistId = $(el).attr('data-checklist-id')
+        $.api({
+            on: 'now',
+            method: 'POST',
+            url: '/cl/api/checklist-move/',
+            headers: { 'X-CSRFToken': csrftoken },
+            stateContext: '#lists-div',
+            data: {
+                checklist: checlistId,
+                order: order,
+            },
+            onSuccess: result => { },
+        })
+    })
 }

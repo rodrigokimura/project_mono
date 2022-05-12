@@ -1,3 +1,9 @@
+## 5.12.0 (2022-05-12)
+
+### Feat
+
+- **checklists**: add feature to change checklists and tasks order
+
 ## 5.11.3 (2022-05-12)
 
 ### Refactor

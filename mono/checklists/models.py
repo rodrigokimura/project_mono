@@ -11,9 +11,19 @@ class Checklist(models.Model):
     name = models.CharField(max_length=50)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="checklists")
     created_at = models.DateTimeField(auto_now_add=True)
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['created_by', 'order']
 
     def __str__(self) -> str:
         return self.name
+
+    def sort(self):
+        """Fix task order"""
+        for index, task in enumerate(self.task_set.all()):
+            task.order = index + 1
+            task.save()
 
 
 class Task(models.Model):
@@ -31,6 +41,9 @@ class Task(models.Model):
         blank=True
     )
     checked_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['checklist', 'order']
 
     def __str__(self) -> str:
         return self.description
