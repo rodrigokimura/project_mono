@@ -58,7 +58,7 @@ INVITE_FORM.form({
     },
     onSuccess: () => {
         $('body').toast({
-            message: interpolate(gettext('Your invitation was sent to %s.'), $('input.invite[type=email]').val()),
+            message: interpolate(gettext('Your invitation was sent to %s.'), [$('input.invite[type=email]').val()]),
             class: 'success',
         });
         $.api({

@@ -100,6 +100,8 @@
 {% endblock sidebar %}
 
 {% block main %}
+    <script src="{% static 'js/dragula.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
     <div class="ui vertical left fixed computer only inverted menu" style="padding-top: 3em; width: 20em; display: flex; align-items: stretch;">
         <div class="header item" style="flex: 0 0 auto;">
             <div class="ui inverted header">
@@ -144,6 +146,7 @@
             retrieveLists()
             $('#task-detail').parent().hide()
             initializeSidebar()
+            initializeDragAndDrop()
         })
     </script>
 {% endblock %}
