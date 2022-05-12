@@ -17,6 +17,6 @@ urlpatterns = [
 
     # API urls
     path('api/', include(router.urls)),
-    # path('api/tasks/<int:pk>/check/', views.TaskCheckApiView.as_view(), name='api_tasks_check'),
-    # path('api/tasks/<int:pk>/uncheck/', views.TaskUncheckApiView.as_view(), name='api_tasks_uncheck'),
+    path('api/task-move/', views.TaskMoveApiView.as_view()),
+    path('api/checklist-move/', views.ChecklistMoveApiView.as_view()),
 ]
