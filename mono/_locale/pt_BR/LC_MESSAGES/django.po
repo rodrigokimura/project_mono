@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-11 22:54+0000\n"
+"POT-Creation-Date: 2022-05-12 13:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,59 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: mono/__mono/context_processors.py:31
+msgid "Finance"
+msgstr "Finanças"
+
+#: mono/__mono/context_processors.py:32
+msgid "Project Manager"
+msgstr "Gerenciador de Projetos"
+
+#: mono/__mono/context_processors.py:33
+#: mono/notes/templates/notes/note_list.html:93
+#: mono/notes/templates/notes/note_list.html:109
+msgid "Notes"
+msgstr "Anotações"
+
+#: mono/__mono/context_processors.py:34
+#: mono/checklists/templates/checklists/home.html:92
+#: mono/checklists/templates/checklists/home.html:107
+msgid "Checklists"
+msgstr "Listas de verificação"
+
+#: mono/__mono/context_processors.py:35
+msgid "Pixel"
+msgstr "Pixel"
+
+#: mono/__mono/context_processors.py:36
+msgid "Shipper"
+msgstr "Shipper"
+
+#: mono/__mono/context_processors.py:37
+msgid "Coder"
+msgstr "Coder"
+
+#: mono/__mono/context_processors.py:41
+msgid "Curriculum builder"
+msgstr "Construtor de Currículos"
+
+#: mono/__mono/context_processors.py:42
+msgid "Admin"
+msgstr "Administrativo"
+
+#: mono/__mono/context_processors.py:43
+#: mono/restricted_area/templates/restricted_area/index.html:16
+msgid "Restricted Area"
+msgstr "Área Restrita"
+
+#: mono/__mono/context_processors.py:44
+msgid "Watcher"
+msgstr "Watcher"
+
+#: mono/__mono/context_processors.py:45
+msgid "Healthcheck"
+msgstr "Healthcheck"
 
 #: mono/__mono/settings.py:213
 msgid "American English"
@@ -73,6 +126,63 @@ msgstr "Sair"
 #: mono/accounts/templates/accounts/login.html:46
 msgid "Login"
 msgstr "Logar"
+
+#: mono/_templates/markdownx/widget.html:8
+#: mono/_templates/markdownx/widget.html:9
+#: mono/_templates/markdownx/widget.html:10
+#: mono/_templates/markdownx/widget.html:11
+#: mono/_templates/markdownx/widget.html:12
+#: mono/_templates/markdownx/widget.html:13
+msgid "Heading"
+msgstr "Título"
+
+#: mono/_templates/markdownx/widget.html:16
+msgid "Bold"
+msgstr "Negrito"
+
+#: mono/_templates/markdownx/widget.html:17
+msgid "Italic"
+msgstr "Itálico"
+
+#: mono/_templates/markdownx/widget.html:18
+msgid "Strikethrough"
+msgstr "Riscado"
+
+#: mono/_templates/markdownx/widget.html:21
+msgid "Bulleted list"
+msgstr "Lista com marcadores"
+
+#: mono/_templates/markdownx/widget.html:22
+msgid "Numbered list"
+msgstr "Lista numerada"
+
+#: mono/_templates/markdownx/widget.html:25
+msgid "Quote"
+msgstr "Citação"
+
+#: mono/_templates/markdownx/widget.html:26
+msgid "Code"
+msgstr "Código"
+
+#: mono/_templates/markdownx/widget.html:27
+msgid "Indent"
+msgstr "Aumentar recuo"
+
+#: mono/_templates/markdownx/widget.html:28
+msgid "Outdent"
+msgstr "Diminuir recuo"
+
+#: mono/_templates/markdownx/widget.html:29
+msgid "Horizontal line"
+msgstr "Linha horizontal"
+
+#: mono/_templates/markdownx/widget.html:30
+msgid "Table"
+msgstr "Tabela"
+
+#: mono/_templates/markdownx/widget.html:31
+msgid "Link"
+msgstr "Link"
 
 #: mono/_templates/registration/password_reset_complete.html:13
 msgid "Your password recovery was successful."
@@ -151,12 +261,12 @@ msgid "Mono Project Team"
 msgstr "Equipe do Projeto Mono"
 
 #: mono/_templates/registration/password_reset_form.html:16
-#: mono/project_manager/templates/project_manager/project_detail.html:227
+#: mono/project_manager/templates/project_manager/project_detail.html:224
 msgid "Send"
 msgstr "Enviar"
 
 #: mono/accounts/forms.py:29
-#: mono/project_manager/templates/project_manager/project_detail.html:196
+#: mono/project_manager/templates/project_manager/project_detail.html:193
 msgid "Email"
 msgstr "E-mail"
 
@@ -414,7 +524,7 @@ msgstr "Sim"
 #: mono/finance/templates/finance/transaction_list.html:146
 #: mono/finance/templates/finance/transaction_list.html:428
 #: mono/finance/templates/finance/universal_transaction_form.html:248
-#: mono/notes/templates/notes/note_form.html:63
+#: mono/notes/templates/notes/note_form.html:65
 #: mono/pixel/templates/pixel/site_form.html:17
 #: mono/project_manager/templates/project_manager/board_calendar.html:373
 #: mono/project_manager/templates/project_manager/board_calendar.html:439
@@ -429,6 +539,7 @@ msgid "Cancel"
 msgstr "Cancelar"
 
 #: mono/blog/templates/blog/post_form.html:23
+#: mono/checklists/templates/checklists/_modal.html:15
 #: mono/feedback/templates/feedback/feedback_form.html:66
 #: mono/finance/templates/finance/account_form.html:19
 #: mono/finance/templates/finance/budget_form.html:56
@@ -465,7 +576,7 @@ msgstr "Salvar"
 #: mono/finance/templates/finance/recurrenttransaction_form.html:29
 #: mono/finance/templates/finance/transaction_form.html:31
 #: mono/finance/templates/finance/universal_transaction_form.html:243
-#: mono/notes/templates/notes/note_list.html:129
+#: mono/notes/templates/notes/note_list.html:131
 #: mono/project_manager/templates/project_manager/board_form.html:23
 #: mono/project_manager/templates/project_manager/project_detail.html:85
 #: mono/project_manager/templates/project_manager/project_form.html:23
@@ -474,10 +585,32 @@ msgstr "Salvar"
 msgid "Delete"
 msgstr "Excluir"
 
+#: mono/checklists/templates/checklists/_modal.html:12
+#: mono/project_manager/templates/project_manager/board_calendar.html:455
+#: mono/project_manager/templates/project_manager/board_calendar.html:471
+#: mono/project_manager/templates/project_manager/board_detail.html:542
+#: mono/project_manager/templates/project_manager/board_detail.html:558
+#: mono/project_manager/templates/project_manager/project_detail.html:249
+msgid "Close"
+msgstr "Fechar"
+
+#: mono/checklists/templates/checklists/_task_panel.html:18
+#: mono/checklists/templates/checklists/_task_panel.html:19
+msgid "Note"
+msgstr "Anotação"
+
 #: mono/checklists/templates/checklists/home.html:97
 #: mono/checklists/templates/checklists/home.html:112
 msgid "New checklist"
 msgstr "Nova lista de verificação"
+
+#: mono/checklists/templates/checklists/home.html:119
+msgid "Search"
+msgstr "Pesquisar"
+
+#: mono/checklists/templates/checklists/home.html:124
+msgid "New task"
+msgstr "Nova tarefa"
 
 #: mono/feedback/forms.py:18
 msgid "Please, tell us what is on your mind."
@@ -1220,7 +1353,7 @@ msgstr "Todas as categorias"
 #: mono/finance/templates/finance/recurrenttransaction_list.html:73
 #: mono/finance/templates/finance/transaction_archive_month.html:105
 #: mono/finance/templates/finance/transaction_list.html:223
-#: mono/project_manager/templates/project_manager/project_detail.html:197
+#: mono/project_manager/templates/project_manager/project_detail.html:194
 msgid "Actions"
 msgstr "Ações"
 
@@ -1503,7 +1636,7 @@ msgstr "Grupo de parcelas"
 #: mono/finance/templates/finance/transaction_list.html:161
 #: mono/finance/templates/finance/transaction_list.html:183
 #: mono/finance/templates/finance/transaction_list.html:197
-#: mono/notes/templates/notes/note_list.html:126
+#: mono/notes/templates/notes/note_list.html:128
 #: mono/project_manager/templates/project_manager/project_detail.html:83
 msgid "Edit"
 msgstr "Editar"
@@ -1602,18 +1735,23 @@ msgstr "anotações"
 msgid "name"
 msgstr "nome"
 
-#: mono/notes/templates/notes/note_form.html:68
+#: mono/notes/templates/notes/note_form.html:70
 msgid "Save and close"
 msgstr "Salvar e fechar"
 
-#: mono/notes/templates/notes/note_form.html:70
+#: mono/notes/templates/notes/note_form.html:72
 msgid "Create"
 msgstr "Criar"
 
-#: mono/notes/templates/notes/note_list.html:96
-#: mono/notes/templates/notes/note_list.html:112
+#: mono/notes/templates/notes/note_list.html:98
+#: mono/notes/templates/notes/note_list.html:114
 msgid "New note"
 msgstr "Nova anotação"
+
+#: mono/notes/templates/notes/note_list.html:126
+#: mono/project_manager/templates/project_manager/board_detail.html:89
+msgid "Dark mode"
+msgstr "Modo escuro"
 
 #: mono/notes/views.py:81
 #, python-format
@@ -1909,14 +2047,6 @@ msgstr "Editar comentário"
 msgid "Managing tags"
 msgstr "Gerenciando tags"
 
-#: mono/project_manager/templates/project_manager/board_calendar.html:455
-#: mono/project_manager/templates/project_manager/board_calendar.html:471
-#: mono/project_manager/templates/project_manager/board_detail.html:542
-#: mono/project_manager/templates/project_manager/board_detail.html:558
-#: mono/project_manager/templates/project_manager/project_detail.html:252
-msgid "Close"
-msgstr "Fechar"
-
 #: mono/project_manager/templates/project_manager/board_calendar.html:466
 #: mono/project_manager/templates/project_manager/board_detail.html:553
 msgid "Editing time entries"
@@ -1925,10 +2055,6 @@ msgstr "Editando entradas de tempo"
 #: mono/project_manager/templates/project_manager/board_detail.html:82
 msgid "Compact mode"
 msgstr "Modo compacto"
-
-#: mono/project_manager/templates/project_manager/board_detail.html:89
-msgid "Dark mode"
-msgstr "Modo escuro"
 
 #: mono/project_manager/templates/project_manager/board_detail.html:96
 msgid "Bucket width"
@@ -1941,7 +2067,7 @@ msgstr "Por favor, selecione um arquivo."
 #: mono/project_manager/templates/project_manager/board_detail.html:230
 #: mono/project_manager/templates/project_manager/board_detail.html:415
 #: mono/project_manager/templates/project_manager/project_detail.html:43
-#: mono/project_manager/templates/project_manager/project_detail.html:194
+#: mono/project_manager/templates/project_manager/project_detail.html:191
 #: mono/project_manager/templates/project_manager/project_list.html:40
 #: mono/watcher/templates/watcher/issue_detail.html:45
 msgid "Name"
@@ -2104,27 +2230,27 @@ msgid "New board"
 msgstr "Novo quadro"
 
 #: mono/project_manager/templates/project_manager/project_detail.html:169
-#: mono/project_manager/templates/project_manager/project_detail.html:181
+#: mono/project_manager/templates/project_manager/project_detail.html:178
 msgid "Sharing options"
 msgstr "Opções de compartilhamento"
 
-#: mono/project_manager/templates/project_manager/project_detail.html:187
+#: mono/project_manager/templates/project_manager/project_detail.html:184
 msgid "Your team: "
 msgstr "Sua equipe: "
 
-#: mono/project_manager/templates/project_manager/project_detail.html:195
+#: mono/project_manager/templates/project_manager/project_detail.html:192
 msgid "Username"
 msgstr "Nome de usuário"
 
-#: mono/project_manager/templates/project_manager/project_detail.html:215
+#: mono/project_manager/templates/project_manager/project_detail.html:212
 msgid "No members yet"
 msgstr "Nenhum membro ainda"
 
-#: mono/project_manager/templates/project_manager/project_detail.html:219
+#: mono/project_manager/templates/project_manager/project_detail.html:216
 msgid "Your invites: "
 msgstr "Seus convites: "
 
-#: mono/project_manager/templates/project_manager/project_detail.html:237
+#: mono/project_manager/templates/project_manager/project_detail.html:234
 msgid "Share link: "
 msgstr "Compartilhar link: "
 
@@ -2241,10 +2367,6 @@ msgstr "Convite aceito."
 msgid "User not allowed"
 msgstr "Usuário não permitido"
 
-#: mono/restricted_area/templates/restricted_area/index.html:16
-msgid "Restricted Area"
-msgstr "Área Restrita"
-
 #: mono/restricted_area/templates/restricted_area/index.html:42
 msgid "MAINTENANCE"
 msgstr "MANUTENÇÃO"
@@ -2306,3 +2428,28 @@ msgstr "Resolver"
 #: mono/watcher/templates/watcher/issue_detail.html:178
 msgid "Ignore"
 msgstr "Ignorar"
+
+#, fuzzy
+#~| msgid "Pending"
+#~ msgid "Heading 2"
+#~ msgstr "Pendente"
+
+#, fuzzy
+#~| msgid "Pending"
+#~ msgid "Heading 3"
+#~ msgstr "Pendente"
+
+#, fuzzy
+#~| msgid "Pending"
+#~ msgid "Heading 4"
+#~ msgstr "Pendente"
+
+#, fuzzy
+#~| msgid "Pending"
+#~ msgid "Heading 5"
+#~ msgstr "Pendente"
+
+#, fuzzy
+#~| msgid "Pending"
+#~ msgid "Heading 6"
+#~ msgstr "Pendente"

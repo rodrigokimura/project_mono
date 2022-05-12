@@ -1,81 +1,83 @@
 {% extends "notes/base.html" %}
+{% load static %}
 {% load i18n %}
 
 {% block head %}
-  <style>
-    .main.grid {
-        padding-top: 0 !important;
-        padding-left: 21em !important;
-        padding-right: 1em !important;
-    }
-    @media screen and (max-width: 767px) {
-        .computer.only {
-            display: none !important;
-            width: 0 !important;
-        }
-        .pusher {
-            padding-top: 3.2em !important;
-            padding-bottom: 0 !important;
-        }
+    <style>
         .main.grid {
-            padding-top: -1em !important;
-            padding-bottom: 0 !important;
-            padding-left: 1em !important;
+            padding-top: 0 !important;
+            padding-left: 21em !important;
             padding-right: 1em !important;
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
         }
-    }
-    .hidden {
-        display: none;
-    }
-    @media only screen and (min-width: 768px) {
-        a.toc {
+        @media screen and (max-width: 767px) {
+            .computer.only {
+                display: none !important;
+                width: 0 !important;
+            }
+            .pusher {
+                padding-top: 3.2em !important;
+                padding-bottom: 0 !important;
+            }
+            .main.grid {
+                padding-top: -1em !important;
+                padding-bottom: 0 !important;
+                padding-left: 1em !important;
+                padding-right: 1em !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+            }
+        }
+        .hidden {
+            display: none;
+        }
+        @media only screen and (min-width: 768px) {
+            a.toc {
+                display: none !important;
+            }
+        }
+        .explorer {
+            padding: 0 !important;
+            color: white;
+            font-size: 120%;
+            width: 100%;
+            overflow-x: none;
+            overflow-y: scroll;
+            flex: 1 1 auto; 
+            height: 50vh;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        a.content {
+            color: inherit;
+            text-decoration: underline 0.1em rgba(0, 0, 0, 0);
+            transition: text-decoration-color 300ms;
+        }
+        .file-item:hover a.file.content,
+        .folder-item:hover a.folder.content {
+            text-decoration-color: rgba(255, 255, 255, 1);
+            cursor: pointer;
+        }
+        .file-item:hover,
+        .folder-item:hover {
+            background-color: rgba(255, 255, 255, .1);
+        }
+        .selected.file-item {
+            background-color: rgba(255, 255, 255, .2);
+        }
+        .file-item,
+        .folder-item {
+            overflow: hidden;
+            cursor: pointer;
+            padding: .3em 1em;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        ::-webkit-scrollbar {
             display: none !important;
         }
-    }
-    .explorer {
-        padding: 0 !important;
-        color: white;
-        font-size: 120%;
-        width: 100%;
-        overflow-x: none;
-        overflow-y: scroll;
-        flex: 1 1 auto; 
-        height: 50vh;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-    a.content {
-        color: inherit;
-        text-decoration: underline 0.1em rgba(0, 0, 0, 0);
-        transition: text-decoration-color 300ms;
-    }
-    .file-item:hover a.file.content,
-    .folder-item:hover a.folder.content {
-        text-decoration-color: rgba(255, 255, 255, 1);
-        cursor: pointer;
-    }
-    .file-item:hover,
-    .folder-item:hover {
-        background-color: rgba(255, 255, 255, .1);
-    }
-    .selected.file-item {
-        background-color: rgba(255, 255, 255, .2);
-    }
-    .file-item,
-    .folder-item {
-        overflow: hidden;
-        cursor: pointer;
-        padding: .3em 1em;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
-    ::-webkit-scrollbar {
-        display: none !important;
-    }
-    {% include "notes/_markdown.css" %}
-  </style>
+        {% include "notes/_markdown.css" %}
+    </style>
+    <script src="{% static 'notes/note_list.js' %}"></script>
 {% endblock head %}
 
 {% block menu %}
@@ -88,7 +90,7 @@
         <div class="header item" style="flex: 0 0 auto;">
             <div class="ui inverted header">
                 <em data-emoji=":notepad_spiral:" class="small"></em>
-                <span style="padding-left: .5em;">Notes</span>
+                <span style="padding-left: .5em;">{% translate 'Notes' %}</span>
             </div>
         </div>
         <div class="explorer" data-notes-list="true"></div>
@@ -104,7 +106,7 @@
         <div class="header item" style="flex: 0 0 auto;">
             <div class="ui inverted header">
                 <em data-emoji=":notepad_spiral:" class="small"></em>
-                <span style="padding-left: .5em;">Notes</span>
+                <span style="padding-left: .5em;">{% translate 'Notes' %}</span>
             </div>
         </div>
         <div class="explorer" data-notes-list="true"></div>
@@ -121,7 +123,7 @@
                     </div>
                     <div class="ui toggle checkbox">
                         <input type="checkbox" name="public">
-                        <label>Dark mode</label>
+                        <label>{% translate 'Dark mode' %}</label>
                     </div>
                     <a class="ui yellow icon edit button" style="flex: 0 1 auto;" data-content="{% translate 'Edit' %}">
                         <i class="edit icon"></i>
@@ -137,116 +139,32 @@
         </div>
     </div>
     <script>
-        $('*[data-notes-list=true]').html(
-            `
-            {% for f in subfiles %}
-                {{ f }}
-            {% endfor %}
-            `
-        );
+        {% if 'note' in request.session %}
+            var note_id = {{ request.session.note }};
+        {% else %}
+            {% if request.user.note_set.exists %}
+                var note_id = {{ request.user.note_set.first.id }};
+            {% endif %}
+        {% endif %}
+
         $(document).ready(e => {
+            $('*[data-notes-list=true]').html(
+                `
+                {% for f in subfiles %}
+                    {{ f }}
+                {% endfor %}
+                `
+            )
+            initializeFiles()
+            initializeFolders()
+            initializeSidebar()
             $('*.button').popup({
                 variation: 'inverted',
                 position: 'bottom right'
             })
             $('.ui.checkbox').checkbox()
+            getNote(note_id)
         })
-        
-        function deleteNote(id) {
-            $('body').modal({
-                title: 'Confirmation',
-                class: 'mini',
-                closeIcon: true,
-                content: 'Are you sure you want to delete this note?',
-                actions: [
-                    {
-                        text: 'Cancel',
-                        class: 'black deny'
-                    },
-                    {
-                        text: 'Yes, delete it.',
-                        class: 'red approve'
-                    },
-                ],
-                onApprove: () => {
-                    let url = `/nt/api/notes/${id}`;
-                    $.api({
-                        on: 'now',
-                        url: url,
-                        method: 'DELETE',
-                        headers: { 'X-CSRFToken': csrftoken },
-                        stateContext: '.delete.button',
-                        onSuccess: r => {
-                            $('body').toast({
-                                title: 'Deletion',
-                                message: 'Note deleted successfully.',
-                                onHidden: () => {
-                                    location.reload();
-                                }
-                            })
-                        }
-                    });
-                }
-            }).modal('show');
-        }
-
-        function getNote(id) {
-            noteSegment = $('.ui.note.segment')
-            noteSegment.removeClass('hidden')
-            $.api({
-                on: 'now',
-                method: 'GET',
-                url: `/nt/api/notes/${id}/`,
-                stateContext: noteSegment,
-                successTest: r => r.id,
-                onSuccess: r => {
-                    $("#note-html").html(r.html);
-                    $("#note-title").text(r.title);
-                    $('.ui.edit.button')
-                        .attr('href', r.url);
-                    $('.ui.delete.button')
-                        .off('click')
-                        .on('click', () => { deleteNote(id) });
-                    $('.file-item').removeClass('selected')
-                    $(`.file-item[data-id=${id}]`).addClass('selected')
-                }
-            })
-        }
-        
-        {% if 'note' in request.session %}
-            getNote({{ request.session.note }});
-        {% else %}
-            {% if request.user.note_set.all %}
-                getNote({{ request.user.note_set.first.id }});
-            {% endif %}
-        {% endif %}
-        
-        $('.file-item').click(function(e) {
-            fileItemElement = $(e.target).closest('.file-item')
-            getNote(fileItemElement.attr('data-id'))
-        });
-        $('.folder-item').click(function() {
-            $(this).siblings('.list').toggle({ duration: 200, easing: 'swing' });
-            $(this).children('.icon').toggleClass('open');
-        })
-        $('.ui.sidebar')
-            .sidebar({
-                scrollLock: false,
-                returnScroll: false,
-                exclusive: false,
-                transition: 'overlay',
-                mobileTransition: 'overlay',
-            })
-            .sidebar('attach events', '.toc.item');
-
-        MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
-        var observer = new MutationObserver(function(mutations, observer) {
-            $('table').addClass('ui table');
-        });
-        observer.observe(document, {
-            subtree: true,
-            attributes: true
-        });
 
     </script>
 

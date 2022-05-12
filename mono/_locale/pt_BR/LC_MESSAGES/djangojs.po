@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-11 22:54+0000\n"
+"POT-Creation-Date: 2022-05-12 13:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,74 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: mono/checklists/static/checklists/index.js:213
+#, javascript-format
+msgid "Checked at %s"
+msgstr "Verificado em %s"
+
+#: mono/checklists/static/checklists/index.js:218
+#, javascript-format
+msgid "Created at %s"
+msgstr "Criado em %s"
+
+#: mono/checklists/static/checklists/index.js:240
+#: mono/checklists/static/checklists/index.js:273
+#: mono/notes/static/notes/note_list.js:3
+#: mono/project_manager/static/board.js:599
+#: mono/project_manager/static/board_calendar.js:206
+msgid "Confirmation"
+msgstr "Confirmação"
+
+#: mono/checklists/static/checklists/index.js:243
+msgid "Are you sure you want to delete this task?"
+msgstr "Você tem certeza de que quer excluir esta tarefa?"
+
+#: mono/checklists/static/checklists/index.js:246
+#: mono/checklists/static/checklists/index.js:279
+#: mono/notes/static/notes/note_list.js:9
+#: mono/project_manager/static/board.js:605
+#: mono/project_manager/static/board.js:909
+#: mono/project_manager/static/board.js:1837
+#: mono/project_manager/static/board_calendar.js:212
+#: mono/project_manager/static/board_calendar.js:516
+#: mono/project_manager/static/board_calendar.js:1276
+#: mono/project_manager/static/project_manager/project_detail.js:105
+#: mono/project_manager/static/project_manager/project_detail.js:157
+#: mono/project_manager/static/project_manager/project_detail.js:204
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: mono/checklists/static/checklists/index.js:250
+#: mono/checklists/static/checklists/index.js:283
+#: mono/notes/static/notes/note_list.js:13
+#: mono/project_manager/static/project_manager/project_detail.js:208
+msgid "Yes, delete it."
+msgstr "Sim, excluir."
+
+#: mono/checklists/static/checklists/index.js:276
+msgid "Are you sure you want to delete this checklist?"
+msgstr "Você tem certeza de que quer excluir esta lista de verificação?"
+
+#: mono/checklists/static/checklists/index.js:352
+msgid "Successfully renamed!"
+msgstr "Renomeado com sucesso!"
+
+#: mono/notes/static/notes/note_form.js:14
+msgid "Note saved!"
+msgstr "Anotação salva!"
+
+#: mono/notes/static/notes/note_list.js:6
+msgid "Are you sure you want to delete this note?"
+msgstr "Você tem certeza de que quer excluir esta anotação?"
+
+#: mono/notes/static/notes/note_list.js:27
+msgid "Deletion"
+msgstr "Exclusão"
+
+#: mono/notes/static/notes/note_list.js:28
+msgid "Note deleted successfully."
+msgstr "Anotação excluída com sucesso."
 
 #: mono/project_manager/static/board.js:350
 msgid "Add new card"
@@ -95,27 +163,10 @@ msgstr "Abrir"
 msgid "Remove"
 msgstr "Remover"
 
-#: mono/project_manager/static/board.js:599
-#: mono/project_manager/static/board_calendar.js:206
-msgid "Confirmation"
-msgstr "Confirmação"
-
 #: mono/project_manager/static/board.js:602
 #: mono/project_manager/static/board_calendar.js:209
 msgid "Delete this file?"
 msgstr "Excluir este arquivo"
-
-#: mono/project_manager/static/board.js:605
-#: mono/project_manager/static/board.js:909
-#: mono/project_manager/static/board.js:1837
-#: mono/project_manager/static/board_calendar.js:212
-#: mono/project_manager/static/board_calendar.js:516
-#: mono/project_manager/static/board_calendar.js:1276
-#: mono/project_manager/static/project_manager/project_detail.js:105
-#: mono/project_manager/static/project_manager/project_detail.js:157
-#: mono/project_manager/static/project_manager/project_detail.js:204
-msgid "Cancel"
-msgstr "Cancelar"
 
 #: mono/project_manager/static/board.js:609
 #: mono/project_manager/static/board_calendar.js:216
@@ -379,10 +430,6 @@ msgstr "Sim, reenviar."
 #: mono/project_manager/static/project_manager/project_detail.js:201
 msgid "Are you sure you want to delete this invite?"
 msgstr "Você tem certeza de que quer excluir este convite?"
-
-#: mono/project_manager/static/project_manager/project_detail.js:208
-msgid "Yes, delete it."
-msgstr "Sim, excluir."
 
 #: mono/project_manager/static/project_manager/project_detail.js:221
 msgid "Invite deleted successfully."

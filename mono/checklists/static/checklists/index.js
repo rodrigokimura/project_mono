@@ -210,12 +210,12 @@ function selectTask(taskId) {
                 $("#task-description").attr('data-checked', true)
                 $('#check-icon').addClass('check circle outline')
                 ts = new Date(r.checked_at)
-                msg = 'Checked at ' + ts.toString()
+                msg = interpolate(gettext('Checked at %s'), ts.toString())
             } else {
                 $("#task-description").attr('data-checked', false)
                 $('#check-icon').removeClass('check circle outline').addClass('circle outline')
                 ts = new Date(r.created_at)
-                msg = 'Created at ' + ts.toString()
+                msg = interpolate(gettext('Created at %s'), ts.toString())
             }
             $('#task-timestamp').text(msg)
             $("#task-description").off().on('input', e => {
@@ -237,17 +237,17 @@ function selectTask(taskId) {
 function deleteTask() {
     $('.ui.sidebar').sidebar('hide')
     $('body').modal({
-        title: 'Confirmation',
+        title: gettext('Confirmation'),
         class: 'mini',
         closeIcon: true,
-        content: 'Are you sure you want to delete this task?',
+        content: gettext('Are you sure you want to delete this task?'),
         actions: [
             {
-                text: 'Cancel',
+                text: gettext('Cancel'),
                 class: 'black deny'
             },
             {
-                text: 'Yes, delete it.',
+                text: gettext('Yes, delete it.'),
                 class: 'red approve'
             },
         ],
@@ -270,17 +270,17 @@ function deleteTask() {
 function deleteChecklist(id) {
     $('.ui.sidebar').sidebar('hide')
     $('body').modal({
-        title: 'Confirmation',
+        title: gettext('Confirmation'),
         class: 'mini',
         closeIcon: true,
-        content: 'Are you sure you want to delete this checklist?',
+        content: gettext('Are you sure you want to delete this checklist?'),
         actions: [
             {
-                text: 'Cancel',
+                text: gettext('Cancel'),
                 class: 'black deny'
             },
             {
-                text: 'Yes, delete it.',
+                text: gettext('Yes, delete it.'),
                 class: 'red approve'
             },
         ],
@@ -349,7 +349,7 @@ function renameChecklist(id, name) {
         url: `/cl/api/checklists/${id}/`,
         data: { name: name },
         onSuccess() {
-            toast('Checklist', 'Successfully renamed!')
+            toast('Checklist', gettext('Successfully renamed!'))
             retrieveLists()
         }
     })
