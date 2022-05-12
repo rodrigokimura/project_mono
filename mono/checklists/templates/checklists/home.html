@@ -89,7 +89,7 @@
         <div class="header item" style="flex: 0 0 auto;">
             <div class="ui inverted header">
                 <em data-emoji=":ballot_box_with_check:" class="small"></em>
-                <span style="padding-left: .5em;">Checklists</span>
+                <span style="padding-left: .5em;">{% translate 'Checklists' %}</span>
             </div>
         </div>
         <div class="explorer" id="lists-div"></div>
@@ -104,7 +104,7 @@
         <div class="header item" style="flex: 0 0 auto;">
             <div class="ui inverted header">
                 <em data-emoji=":ballot_box_with_check:" class="small"></em>
-                <span style="padding-left: .5em;">Checklists</span>
+                <span style="padding-left: .5em;">{% translate 'Checklists' %}</span>
             </div>
         </div>
         <div class="explorer" id="lists-div"></div>
@@ -116,12 +116,12 @@
         <div class="active panel" style="min-width: 40%;" id="task-list-panel">
             <div style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;">
                 <div class="ui top attached teal segment" style="width: 100%;">
-                    <div class="ui fluid input"><input type="text" placeholder="Search..." id="search"></div>
+                    <div class="ui fluid input"><input type="text" placeholder="{% translate 'Search' %}" id="search"></div>
                 </div>
                 <div id="tasks-div" class="ui bottom attached vertical segment menu" style="padding: 0; width: 100%; flex: 1 0 auto;">
                 </div>
                 <div class="ui fluid green right labeled icon button" style="width: 100%; flex: 0 0 auto;" onclick="showNewTaskModal()">
-                    New task
+                    {% translate 'New task' %}
                     <i class="add icon"></i>
                 </div>
             </div>

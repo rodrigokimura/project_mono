@@ -1,3 +1,5 @@
+{% load i18n %}
+
 <div class="ui task mini modal form" id="{{ modal_id }}">
     <div class="header">{{ header }}</div>
     <div class="content">
@@ -7,10 +9,10 @@
     </div>
     <div class="actions">
         <div class="ui black cancel button">
-            <i class="remove icon"></i>Close
+            <i class="remove icon"></i>{% translate 'Close' %}
         </div>
         <div class="ui green ok button">
-            <i class="checkmark icon"></i>Save
+            <i class="checkmark icon"></i>{% translate 'Save' %}
         </div>
     </div>
 </div>
