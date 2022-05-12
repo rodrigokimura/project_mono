@@ -3,6 +3,7 @@ from collections import namedtuple
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.utils.translation import gettext as _
 
 User = get_user_model()
 
@@ -27,21 +28,21 @@ def apps_menu(request):
     """Apps menu for the template context"""
     AppInfo = namedtuple('AppInfo', ['name', 'url', 'emoji', 'secret'])
     apps = [
-        AppInfo('Finance', '/fn/', 'dollar', False),
-        AppInfo('Project Manager', '/pm/', 'dividers', False),
-        AppInfo('Notes', '/nt/', 'notepad_spiral', False),
-        AppInfo('Checklists', '/cl/', 'ballot_box_with_check', False),
-        AppInfo('Pixel', '/pixel/', 'bar_chart', False),
-        AppInfo('Shipper', '/shipper/', 'couple_with_heart', False),
-        AppInfo('Coder', '/cd/', 'card_box', False),
+        AppInfo(_('Finance'), '/fn/', 'dollar', False),
+        AppInfo(_('Project Manager'), '/pm/', 'dividers', False),
+        AppInfo(_('Notes'), '/nt/', 'notepad_spiral', False),
+        AppInfo(_('Checklists'), '/cl/', 'ballot_box_with_check', False),
+        AppInfo(_('Pixel'), '/pixel/', 'bar_chart', False),
+        AppInfo(_('Shipper'), '/shipper/', 'couple_with_heart', False),
+        AppInfo(_('Coder'), '/cd/', 'card_box', False),
     ]
     if request.user.is_superuser:
         apps += [
-            AppInfo('Curriculum builder', '/cb/', 'bookmark_tabs', True),
-            AppInfo('Admin', '/admin/', 'control_knobs', True),
-            AppInfo('Restricted Area', '/restricted-area/', 'closed_lock_with_key', True),
-            AppInfo('Watcher', '/watcher/', 'pager', True),
-            AppInfo('Healthcheck', '/hc/home/', 'thermometer', True),
+            AppInfo(_('Curriculum builder'), '/cb/', 'bookmark_tabs', True),
+            AppInfo(_('Admin'), '/admin/', 'control_knobs', True),
+            AppInfo(_('Restricted Area'), '/restricted-area/', 'closed_lock_with_key', True),
+            AppInfo(_('Watcher'), '/watcher/', 'pager', True),
+            AppInfo(_('Healthcheck'), '/hc/home/', 'thermometer', True),
         ]
     return {
         'apps_menu': apps
