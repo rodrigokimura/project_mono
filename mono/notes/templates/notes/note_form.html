@@ -1,4 +1,5 @@
 {% extends "notes/base.html" %}
+{% load static %}
 {% load i18n %}
 
 {% block head %}
@@ -27,6 +28,7 @@
         }
         {% include "notes/_markdown.css" %}
     </style>
+    <script src="{% static 'notes/note_form.js' %}"></script>
 {% endblock head %}
 
 {% block main %}
@@ -75,45 +77,15 @@
         </div>
     </div>
     <script>
-        NOTE_ID = '{{ object.id }}';
-        $('textarea[name=text]').change(() => {
-            $('table').addClass('ui table');
-        });
-        {% if object %}
-        function updateText() {
-            $.api({
-                on: 'now',
-                url: `/nt/api/notes/${NOTE_ID}/`,
-                headers: { 'X-CSRFToken': csrftoken },
-                method: 'PATCH',
-                data: {
-                    text: $('textarea[name=text]').val(),
-                },
-                stateContext: '.green.button',
-                successTest: r => true,
-                onSuccess: r => {
-                    $('body').toast({
-                        title: 'Note saved!',
-                        position: 'bottom right',
-                        class: 'black',
-                        displayTime: 750,
-                    })
-                }
-            })
-        }
-        var updateTextTimeout;
-        $('textarea[name=text]').on('input', e => {
-            clearTimeout(updateTextTimeout);
-            updateTextTimeout = setTimeout(function () {
-                updateText();
-            }, 1000);
-        });
-        {% endif %}
-        function formatTable() {
-            $('table').addClass('ui table');
-            setTimeout(formatTable, 200);
-        }
-        setTimeout(formatTable, 200);
+        NOTE_ID = '{{ object.id }}'
+        var updateTextTimeout
+
+        $(document).ready(e => {
+            if (NOTE_ID != '') {
+                initializeTextarea()
+            }
+            autoFormatTable()
+        })
     </script>
     {{ form.media }}
 {% endblock main %}

@@ -1,3 +1,5 @@
+{% load i18n %}
+
 <div class="panel">
     <div style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;" id="task-detail">
         <div class="ui top attached teal segment" style="width: 100%; display: flex; flex-flow: row nowrap; align-items: center;">
@@ -13,8 +15,8 @@
         </div>
         <div class="ui attached vertical form segment" style="width: 100%; flex: 1 0 auto; padding-right: 1em; padding-left: 1em;">
             <div class="ui fluid field">
-                <label>Note</label>
-                <textarea id="task-note" placeholder="Note" ></textarea>
+                <label>{% translate 'Note' %}</label>
+                <textarea id="task-note" placeholder="{% translate 'Note' %}" ></textarea>
             </div>
         </div>
         <div class="ui bottom attached vertical segment menu" style="width: 100%; flex: 0 0 auto; padding-right: 1em; padding-left: 1em; display: flex; flex-flow: row nowrap; align-items: center;">

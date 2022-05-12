@@ -1,32 +1,34 @@
+{% load i18n %}
+
 <div class="markdownx ui stackable compact grid">
     <div class="row">
         <div class="sixteen wide column">
             <div class="toolbar" style="padding-bottom: 1em; display: flex; flex-flow: row no wrap; gap: .5em; overflow-x: auto;">
                 <div class="ui icon buttons" style="flex: 0 0 auto;">
-                    <a class="ui button" onclick="buttonCommand(toggleHeading1)" data-content="Heading 1"><i class="heading icon"></i>1</a>
-                    <a class="ui button" onclick="buttonCommand(toggleHeading2)" data-content="Heading 2"><i class="heading icon"></i>2</a>
-                    <a class="ui button" onclick="buttonCommand(toggleHeading3)" data-content="Heading 3"><i class="heading icon"></i>3</a>
-                    <a class="ui button" onclick="buttonCommand(toggleHeading4)" data-content="Heading 4"><i class="heading icon"></i>4</a>
-                    <a class="ui button" onclick="buttonCommand(toggleHeading5)" data-content="Heading 5"><i class="heading icon"></i>5</a>
-                    <a class="ui button" onclick="buttonCommand(toggleHeading6)" data-content="Heading 6"><i class="heading icon"></i>6</a>
+                    <a class="ui button" onclick="buttonCommand(toggleHeading1)" data-content="{% translate 'Heading' %} 1"><i class="heading icon"></i>1</a>
+                    <a class="ui button" onclick="buttonCommand(toggleHeading2)" data-content="{% translate 'Heading' %} 2"><i class="heading icon"></i>2</a>
+                    <a class="ui button" onclick="buttonCommand(toggleHeading3)" data-content="{% translate 'Heading' %} 3"><i class="heading icon"></i>3</a>
+                    <a class="ui button" onclick="buttonCommand(toggleHeading4)" data-content="{% translate 'Heading' %} 4"><i class="heading icon"></i>4</a>
+                    <a class="ui button" onclick="buttonCommand(toggleHeading5)" data-content="{% translate 'Heading' %} 5"><i class="heading icon"></i>5</a>
+                    <a class="ui button" onclick="buttonCommand(toggleHeading6)" data-content="{% translate 'Heading' %} 6"><i class="heading icon"></i>6</a>
                 </div>
                 <div class="ui icon buttons" style="flex: 0 0 auto;">
-                    <a class="ui button" onclick="buttonCommand(toggleBold)" data-content="Bold"><i class="bold icon"></i></a>
-                    <a class="ui button" onclick="buttonCommand(toggleItalic)" data-content="Italic"><i class="italic icon"></i></a>
-                    <a class="ui button" onclick="buttonCommand(toggleStrikethrough)" data-content="Strikethrough"><i class="strikethrough icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleBold)" data-content="{% translate 'Bold' %}"><i class="bold icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleItalic)" data-content="{% translate 'Italic' %}"><i class="italic icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleStrikethrough)" data-content="{% translate 'Strikethrough' %}"><i class="strikethrough icon"></i></a>
                 </div>
                 <div class="ui icon buttons" style="flex: 0 0 auto;">
-                    <a class="ui button" onclick="buttonCommand(toggleUnorderedList)" data-content="Unordered list"><i class="list ul icon"></i></a>
-                    <a class="ui button" onclick="buttonCommand(toggleOrderedList)" data-content="Ordered list"><i class="list ol icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleUnorderedList)" data-content="{% translate 'Bulleted list' %}"><i class="list ul icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleOrderedList)" data-content="{% translate 'Numbered list' %}"><i class="list ol icon"></i></a>
                 </div>
                 <div class="ui icon buttons" style="flex: 0 0 auto;">
-                    <a class="ui button" onclick="buttonCommand(toggleQuote)" data-content="Quote"><i class="quote left icon"></i></a>
-                    <a class="ui button" onclick="buttonCommand(toggleCode)" data-content="Code"><i class="code icon"></i></a>
-                    <a class="ui button" onclick="buttonCommand(indent)" data-content="Indent"><i class="indent icon"></i></a>
-                    <a class="ui button" onclick="buttonCommand(outdent)" data-content="Outdent"><i class="outdent icon"></i></a>
-                    <a class="ui button" onclick="buttonCommand(addHorizontalLine)" data-content="Horizontal line"><i class="window minimize outline icon" data-content="Horizontal line"></i></a>
-                    <a class="ui button" onclick="buttonCommand(addTable)"><i class="table icon" data-content="Table"></i></a>
-                    <a class="ui button" onclick="buttonCommand(addLink)" data-content="Link"><i class="paperclip icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleQuote)" data-content="{% translate 'Quote' %}"><i class="quote left icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(toggleCode)" data-content="{% translate 'Code' %}"><i class="code icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(indent)" data-content="{% translate 'Indent' %}"><i class="indent icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(outdent)" data-content="{% translate 'Outdent' %}"><i class="outdent icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(addHorizontalLine)" data-content="{% translate 'Horizontal line' %}"><i class="window minimize outline icon" data-content="Horizontal line"></i></a>
+                    <a class="ui button" onclick="buttonCommand(addTable)" data-content="{% translate 'Table' %}"><i class="table icon"></i></a>
+                    <a class="ui button" onclick="buttonCommand(addLink)" data-content="{% translate 'Link' %}"><i class="paperclip icon"></i></a>
                 </div>
             </div>
         </div>
