@@ -14,7 +14,7 @@ from .serializers import ChecklistSerializer, TaskSerializer
 class ChecklistViewSet(ModelViewSet):
     """Checklist viewset"""
 
-    queryset = Checklist.objects.order_by('id').all()
+    queryset = Checklist.objects.all()
     serializer_class = ChecklistSerializer
     permission_classes = [IsCreator]
 
@@ -26,7 +26,7 @@ class ChecklistViewSet(ModelViewSet):
 class TaskViewSet(ModelViewSet):
     """Task viewset"""
 
-    queryset = Task.objects.order_by('id').all()
+    queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_classes = [IsCreator]
     filterset_fields = {
