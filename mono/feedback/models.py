@@ -1,12 +1,13 @@
 """Feedback's models"""
-from django.contrib.auth import get_user_model
-from django.db import models
-from django.utils.translation import gettext_lazy as _
-from django.core.mail import mail_admins
-from django.template.loader import get_template
-from django.conf import settings
 from accounts.models import Notification, User
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.mail import mail_admins
+from django.db import models
+from django.template.loader import get_template
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+
 
 class Feedback(models.Model):
     """Feedback given from any user."""

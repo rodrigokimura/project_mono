@@ -10,6 +10,7 @@ class TaskAdmin(admin.ModelAdmin):
         'checklist',
         'order',
         'description',
+        'reminded',
     ]
     list_filter = [
         'checklist',
@@ -18,6 +19,13 @@ class TaskAdmin(admin.ModelAdmin):
 
     ]
     search_fields = ['description']
+    actions = ('remind',)
+
+    @admin.action(description='Notify users of task reminders')
+    def remind(self, request, queryset):  # pylint: disable=no-self-use
+        """Notify users of task reminders"""
+        for task in queryset:
+            task.remind()
 
 
 @admin.register(models.Checklist)

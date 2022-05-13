@@ -66,7 +66,6 @@ class Dashboard {
             headers: { 'X-CSRFToken': csrftoken },
             on: 'now',
             stateContext: '.card-statistic',
-            // loadingDuration: 1000,
             onSuccess: r => {
                 var types = ['visitors', 'users', 'views', 'duration', 'bounce'];
                 for (const t of types) {

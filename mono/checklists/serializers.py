@@ -45,6 +45,8 @@ class TaskSerializer(ModelSerializer):
             'created_at',
             'checked_by',
             'checked_at',
+            'reminder',
+            'due_date',
         ]
         read_only_fields = ['created_by', 'checked_by', 'checked_at']
 

@@ -1,3 +1,9 @@
+## 5.13.0 (2022-05-13)
+
+### Feat
+
+- **checklists**: add reminder and due date features
+
 ## 5.12.0 (2022-05-12)
 
 ### Feat
