@@ -4,79 +4,13 @@
 
 {% block head %}
     <script src="{% static 'checklists/index.js' %}"></script>
-    <style>
-        #check-icon {
-            cursor: pointer;
-            font-size: 120%;
-        }
-        #task-description[data-checked=true]{
-            text-decoration: line-through;
-        }
-        .task.item[data-checked=true]{
-            text-decoration: line-through;
-        }
-        .checklist.button {
-            display: none;
-        }
-        .checklist.item:hover .checklist.button {
-            display: inline;
-        }
-        .main {
-            width: 100%;
-            padding-top: 4em !important;
-            padding-left: 21em !important;
-            padding-right: 1em !important;
-            display: flex;
-            flex-flow: row nowrap;
-            gap: 1em;
-        }
-        .panel {
-            flex: 1 1 auto;
-        }
-        .active.panel {
-            display: block;
-        }
-        .explorer {
-            padding: 0 !important;
-            margin: 0 !important;
-            width: 100%;
-            overflow-x: none;
-            overflow-y: scroll;
-            flex: 1 1 auto; 
-            height: 50vh;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        @media screen and (max-width: 767px) {
-            .computer.only {
-                display: none !important;
-                width: 0 !important;
-            }
-            .main {
-                padding-top: 4em !important;
-                padding-left: 1em !important;
-                padding-right: 1em !important;
-            }
-            .panel {
-                flex: 1 1 auto;
-                display: none;
-            }
-            .active.panel {
-                display: block;
-            }
-        }
-        .hidden {
-            display: none !important;
-        }
-        ::-webkit-scrollbar {
-            display: none !important;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="{% static 'checklists/index.css' %}">
     <script>
         $.ajaxSetup({
             headers: { 'X-CSRFToken': csrftoken }
         });
     </script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
 {% endblock head %}
 
 {% block menu %}
@@ -118,9 +52,9 @@
         <div class="active panel" style="min-width: 40%;" id="task-list-panel">
             <div style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;">
                 <div class="ui top attached teal segment" style="width: 100%;">
-                    <div class="ui fluid input"><input type="text" placeholder="{% translate 'Search' %}" id="search"></div>
+                    <div class="ui fluid input"><input type="text" placeholder="{% translate 'Search' %}" id="search" class="search"></div>
                 </div>
-                <div id="tasks-div" class="ui bottom attached vertical segment menu" style="padding: 0; width: 100%; flex: 1 0 auto;">
+                <div id="tasks-div" class="ui bottom attached vertical segment menu filter-list" style="padding: 0; width: 100%; flex: 1 0 auto;">
                 </div>
                 <div class="ui fluid green right labeled icon button" style="width: 100%; flex: 0 0 auto;" onclick="showNewTaskModal()">
                     {% translate 'New task' %}
@@ -140,13 +74,16 @@
         var tasksDiv = $('*#tasks-div')
         var lists
         var updateTaskTimeout
+        var taskList
 
         $(document).ready(e => {
+            $('#task-detail').parent().hide()
             sessionStorage.clear()
             retrieveLists()
-            $('#task-detail').parent().hide()
             initializeSidebar()
             initializeDragAndDrop()
+            initializeDueDate()
+            initializeReminder()
         })
     </script>
 {% endblock %}

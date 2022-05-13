@@ -1,7 +1,10 @@
 """Checklists' models"""
+from accounts.models import Notification
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.urls import reverse
 from django.utils.timezone import now
+from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 
@@ -41,6 +44,9 @@ class Task(models.Model):
         blank=True
     )
     checked_at = models.DateTimeField(null=True, blank=True)
+    reminder = models.DateTimeField(null=True, blank=True, default=None)
+    reminded = models.BooleanField(default=False)
+    due_date = models.DateField(null=True, blank=True, default=None)
 
     class Meta:
         ordering = ['checklist', 'order']
@@ -59,3 +65,15 @@ class Task(models.Model):
         self.checked_by = None
         self.checked_at = None
         self.save()
+
+    def remind(self):
+        """Remind task"""
+        if self.reminder and not self.reminded:
+            Notification.objects.create(
+                title=_('Reminder for task'),
+                message=_('You have a task to do: %(description)s') % {'description': self.description},
+                to=self.created_by,
+                action_url=reverse('checklists:index'),
+            )
+            self.reminded = True
+            self.save()
