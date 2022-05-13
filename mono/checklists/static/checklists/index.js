@@ -29,7 +29,7 @@ function renderTask(taskId, taskDescription, checked) {
             <div class="ui checkbox" data-task-id="${taskId}" style="flex: 0 0 auto;">
                 <input type="checkbox" ${checked ? "checked" : ""}>
             </div>
-            <span>${taskDescription}</span>
+            <span class="task-description">${taskDescription}</span>
         </a>
     `)
     $(`.ui.checkbox[data-task-id=${taskId}]`).checkbox({
@@ -42,7 +42,7 @@ function renderTask(taskId, taskDescription, checked) {
             uncheckTask(taskId)
         },
     })
-    $(`.task.item[data-task-id=${taskId}]`).click(e => {
+    $(`.task.item[data-task-id=${taskId}]`).off().click(e => {
         if ($(e.target).hasClass('checkbox') || $(e.target).parent().hasClass('checkbox')) { return }
         selectedTask = sessionStorage.getItem('selectedTask')
         if ($(e.target).closest('.task.item').hasClass('active')) {
@@ -113,8 +113,8 @@ async function retrieveTasks(checklistId) {
         on: 'now',
         method: 'GET',
         stateContext: '#tasks-div',
-        onSuccess: task => {
-            $('#list-name').text(task.name);
+        onSuccess: checklist => {
+            $('#list-name').text(checklist.name);
         }
     })
     $.api({
@@ -131,6 +131,7 @@ async function retrieveTasks(checklistId) {
                     if (item.id == selectedTask) { $(`.task.item[data-task-id=${selectedTask}]`).addClass('active') }
                 }
             )
+            initializeTaskList()
         }
     })
 }
@@ -188,8 +189,11 @@ function updateTask(data) {
         url: `/cl/api/tasks/${taskId}/`,
         stateContext: '#task-detail .segment',
         data: data,
-        onSuccess: r => {
+        onSuccess(response, element, xhr) {
             retrieveTasks(checklistId)
+        },
+        onFailure(response, element, xhr) {
+            toast(response)
         }
     })
 }
@@ -203,34 +207,62 @@ function selectTask(taskId) {
         stateContext: '#task-detail .segment',
         onSuccess: r => {
             sessionStorage.setItem('selectedTask', taskId)
-            $("#task-description").val(r.description)
-            $("#task-note").val(r.note)
+            renderTaskDetails(r)
             showTaskPanel()
-            if (r.checked_at) {
-                $("#task-description").attr('data-checked', true)
-                $('#check-icon').addClass('check circle outline')
-                ts = new Date(r.checked_at)
-                msg = interpolate(gettext('Checked at %s'), [ts.toString()])
-            } else {
-                $("#task-description").attr('data-checked', false)
-                $('#check-icon').removeClass('check circle outline').addClass('circle outline')
-                ts = new Date(r.created_at)
-                msg = interpolate(gettext('Created at %s'), [ts.toString()])
-            }
-            $('#task-timestamp').text(msg)
-            $("#task-description").off().on('input', e => {
-                clearTimeout(updateTaskTimeout)
-                updateTaskTimeout = setTimeout(function () {
-                    updateTask({ description: $('#task-description').val() })
-                }, 1000)
-            })
-            $("#task-note").off().on('input', e => {
-                clearTimeout(updateTaskTimeout)
-                updateTaskTimeout = setTimeout(function () {
-                    updateTask({ note: $('#task-note').val() })
-                }, 1000)
-            })
+            attachTaskUpdateEvents()
         }
+    })
+}
+
+function renderTaskDetails(task) {
+    $("#task-description").val(task.description)
+    $("#task-note").val(task.note)
+    if (task.checked_at) {
+        $("#task-description").attr('data-checked', true)
+        $('#check-icon').addClass('check circle outline')
+        ts = new Date(task.checked_at)
+        msg = interpolate(gettext('Checked at %s'), [ts.toString()])
+    } else {
+        $("#task-description").attr('data-checked', false)
+        $('#check-icon').removeClass('check circle outline').addClass('circle outline')
+        ts = new Date(task.created_at)
+        msg = interpolate(gettext('Created at %s'), [ts.toString()])
+    }
+    $('#task-timestamp').text(msg)
+    if (task.reminder === null) {
+        $('#task-reminder').calendar('set date', null, true, false)
+    } else {
+        localReminder = new Date(task.reminder);
+        utcReminder = new Date(localReminder.toUTCString().slice(0, -4));
+        $('#task-reminder').calendar('set date', new Date(task.reminder), true, false)
+    }
+    if (task.due_date === null) {
+        $('#task-due-date').calendar('set date', null, true, false)
+    } else {
+        localDueDate = new Date(task.due_date);
+        utcDueDate = new Date(localDueDate.toUTCString().slice(0, -4));
+        $('#task-due-date').calendar('set date', utcDueDate, true, false)
+    }
+}
+
+function attachTaskUpdateEvents() {
+    $("#task-description").off().on('input', e => {
+        clearTimeout(updateTaskTimeout)
+        updateTaskTimeout = setTimeout(function () {
+            updateTask({
+                note: $('#task-note').val(),
+                description: $('#task-description').val()
+            })
+        }, 1000)
+    })
+    $("#task-note").off().on('input', e => {
+        clearTimeout(updateTaskTimeout)
+        updateTaskTimeout = setTimeout(function () {
+            updateTask({
+                note: $('#task-note').val(),
+                description: $('#task-description').val(),
+            })
+        }, 1000)
     })
 }
 
@@ -328,7 +360,7 @@ function editChecklist(checklistId) {
     selectedChecklist = sessionStorage.getItem('selectedChecklist')
     modal.modal({
         onShow: () => {
-            input.val($(`.checklist.item[data-checklist-id=${checklistId}] .checklist-name`).text())
+            input.val($(`.checklist.item[data-checklist-id=${checklistId}] .checklist-name`).first().text())
             input.off().on('keyup', function (e) {
                 if (e.key === 'Enter' || e.keyCode === 13) {
                     renameChecklist(checklistId, input.val())
@@ -439,5 +471,71 @@ function initializeDragAndDrop() {
             },
             onSuccess: result => { },
         })
+    })
+}
+
+function initializeTaskList() {
+    clearSearch()
+    var options = {
+        listClass: 'filter-list',
+        valueNames: [
+            'task-description',
+        ]
+    };
+    taskList = new List('task-list-panel', options);
+}
+
+function clearSearch() {
+    $('#search').val('')
+}
+
+function initializeDueDate() {
+    $('#task-due-date').calendar({
+        type: 'date',
+    })
+    $('#task-due-date').calendar({
+        type: 'date',
+        onChange() {
+            dueDate = $('#task-due-date').calendar('get date')
+            if (dueDate != null) {
+                dueDate = $('#task-due-date').calendar('get date').toISOString().split('T')[0]
+            }
+            updateTask({
+                due_date: dueDate
+            })
+        }
+    })
+}
+
+
+
+function initializeReminder() {
+    $('#task-reminder').calendar({
+        type: 'datetime',
+        disableMinute: true,
+        ampm: false,
+        onChange() {
+            reminder = $('#task-reminder').calendar('get date')
+            if (reminder != null) {
+                reminder = $('#task-reminder').calendar('get date').toISOString()
+            }
+            updateTask({
+                reminder: reminder
+            })
+        }
+    })
+}
+
+function clearDueDate() {
+    $('#task-due-date').calendar('set date', null, true, false)
+    updateTask({
+        due_date: null
+    })
+}
+
+function clearReminder() {
+    $('#task-reminder').calendar('set date', null, true, false)
+    updateTask({
+        reminder: null
     })
 }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-12 13:20+0000\n"
+"POT-Creation-Date: 2022-05-13 21:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,30 +18,30 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: mono/checklists/static/checklists/index.js:213
+#: mono/checklists/static/checklists/index.js:224
 #, javascript-format
 msgid "Checked at %s"
 msgstr "Verificado em %s"
 
-#: mono/checklists/static/checklists/index.js:218
+#: mono/checklists/static/checklists/index.js:229
 #, javascript-format
 msgid "Created at %s"
 msgstr "Criado em %s"
 
-#: mono/checklists/static/checklists/index.js:240
-#: mono/checklists/static/checklists/index.js:273
+#: mono/checklists/static/checklists/index.js:272
+#: mono/checklists/static/checklists/index.js:305
 #: mono/notes/static/notes/note_list.js:3
 #: mono/project_manager/static/board.js:599
 #: mono/project_manager/static/board_calendar.js:206
 msgid "Confirmation"
 msgstr "Confirmação"
 
-#: mono/checklists/static/checklists/index.js:243
+#: mono/checklists/static/checklists/index.js:275
 msgid "Are you sure you want to delete this task?"
 msgstr "Você tem certeza de que quer excluir esta tarefa?"
 
-#: mono/checklists/static/checklists/index.js:246
-#: mono/checklists/static/checklists/index.js:279
+#: mono/checklists/static/checklists/index.js:278
+#: mono/checklists/static/checklists/index.js:311
 #: mono/notes/static/notes/note_list.js:9
 #: mono/project_manager/static/board.js:605
 #: mono/project_manager/static/board.js:909
@@ -55,18 +55,18 @@ msgstr "Você tem certeza de que quer excluir esta tarefa?"
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: mono/checklists/static/checklists/index.js:250
-#: mono/checklists/static/checklists/index.js:283
+#: mono/checklists/static/checklists/index.js:282
+#: mono/checklists/static/checklists/index.js:315
 #: mono/notes/static/notes/note_list.js:13
 #: mono/project_manager/static/project_manager/project_detail.js:208
 msgid "Yes, delete it."
 msgstr "Sim, excluir."
 
-#: mono/checklists/static/checklists/index.js:276
+#: mono/checklists/static/checklists/index.js:308
 msgid "Are you sure you want to delete this checklist?"
 msgstr "Você tem certeza de que quer excluir esta lista de verificação?"
 
-#: mono/checklists/static/checklists/index.js:352
+#: mono/checklists/static/checklists/index.js:384
 msgid "Successfully renamed!"
 msgstr "Renomeado com sucesso!"
 
