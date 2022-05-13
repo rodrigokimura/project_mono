@@ -1,0 +1,66 @@
+#check-icon {
+    cursor: pointer;
+    font-size: 120%;
+}
+#task-description[data-checked=true]{
+    text-decoration: line-through;
+}
+.task.item[data-checked=true]{
+    text-decoration: line-through;
+}
+.checklist.button {
+    display: none;
+}
+.checklist.item:hover .checklist.button {
+    display: inline;
+}
+.main {
+    width: 100%;
+    padding-top: 4em !important;
+    padding-left: 21em !important;
+    padding-right: 1em !important;
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 1em;
+}
+.panel {
+    flex: 1 1 auto;
+}
+.active.panel {
+    display: block;
+}
+.explorer {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100%;
+    overflow-x: none;
+    overflow-y: scroll;
+    flex: 1 1 auto; 
+    height: 50vh;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+@media screen and (max-width: 767px) {
+    .computer.only {
+        display: none !important;
+        width: 0 !important;
+    }
+    .main {
+        padding-top: 4em !important;
+        padding-left: 1em !important;
+        padding-right: 1em !important;
+    }
+    .panel {
+        flex: 1 1 auto;
+        display: none;
+    }
+    .active.panel {
+        display: block;
+    }
+}
+.hidden {
+    display: none !important;
+}
+::-webkit-scrollbar {
+    display: none !important;
+}
