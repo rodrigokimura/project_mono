@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-13 21:26+0000\n"
+"POT-Creation-Date: 2022-05-16 19:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,30 +18,30 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: mono/checklists/static/checklists/index.js:224
+#: mono/checklists/static/checklists/index.js:259
 #, javascript-format
 msgid "Checked at %s"
-msgstr "Verificado em %s"
+msgstr "Concluído em %s"
 
-#: mono/checklists/static/checklists/index.js:229
+#: mono/checklists/static/checklists/index.js:264
 #, javascript-format
 msgid "Created at %s"
 msgstr "Criado em %s"
 
-#: mono/checklists/static/checklists/index.js:272
-#: mono/checklists/static/checklists/index.js:305
+#: mono/checklists/static/checklists/index.js:307
+#: mono/checklists/static/checklists/index.js:340
 #: mono/notes/static/notes/note_list.js:3
 #: mono/project_manager/static/board.js:599
 #: mono/project_manager/static/board_calendar.js:206
 msgid "Confirmation"
 msgstr "Confirmação"
 
-#: mono/checklists/static/checklists/index.js:275
+#: mono/checklists/static/checklists/index.js:310
 msgid "Are you sure you want to delete this task?"
 msgstr "Você tem certeza de que quer excluir esta tarefa?"
 
-#: mono/checklists/static/checklists/index.js:278
-#: mono/checklists/static/checklists/index.js:311
+#: mono/checklists/static/checklists/index.js:313
+#: mono/checklists/static/checklists/index.js:346
 #: mono/notes/static/notes/note_list.js:9
 #: mono/project_manager/static/board.js:605
 #: mono/project_manager/static/board.js:909
@@ -55,18 +55,18 @@ msgstr "Você tem certeza de que quer excluir esta tarefa?"
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: mono/checklists/static/checklists/index.js:282
-#: mono/checklists/static/checklists/index.js:315
+#: mono/checklists/static/checklists/index.js:317
+#: mono/checklists/static/checklists/index.js:350
 #: mono/notes/static/notes/note_list.js:13
 #: mono/project_manager/static/project_manager/project_detail.js:208
 msgid "Yes, delete it."
 msgstr "Sim, excluir."
 
-#: mono/checklists/static/checklists/index.js:308
+#: mono/checklists/static/checklists/index.js:343
 msgid "Are you sure you want to delete this checklist?"
 msgstr "Você tem certeza de que quer excluir esta lista de verificação?"
 
-#: mono/checklists/static/checklists/index.js:384
+#: mono/checklists/static/checklists/index.js:419
 msgid "Successfully renamed!"
 msgstr "Renomeado com sucesso!"
 
@@ -458,3 +458,176 @@ msgstr "Ações"
 #: mono/project_manager/static/project_manager/project_detail.js:277
 msgid "Resend email"
 msgstr "Reenviar e-mail"
+
+#: mono/shared/static/js/global.js:3
+msgctxt "weekday sunday"
+msgid "S"
+msgstr "D"
+
+#: mono/shared/static/js/global.js:4
+msgctxt "weekday monday"
+msgid "M"
+msgstr "S"
+
+#: mono/shared/static/js/global.js:5
+msgctxt "weekday tuesday"
+msgid "T"
+msgstr "T"
+
+#: mono/shared/static/js/global.js:6
+msgctxt "weekday wednesday"
+msgid "W"
+msgstr "Q"
+
+#: mono/shared/static/js/global.js:7
+msgctxt "weekday thursday"
+msgid "T"
+msgstr "Q"
+
+#: mono/shared/static/js/global.js:8
+msgctxt "weekday friday"
+msgid "F"
+msgstr "S"
+
+#: mono/shared/static/js/global.js:9
+msgctxt "weekday saturday"
+msgid "S"
+msgstr "S"
+
+#: mono/shared/static/js/global.js:12
+msgctxt "month"
+msgid "January"
+msgstr "Janeiro"
+
+#: mono/shared/static/js/global.js:13
+msgctxt "month"
+msgid "February"
+msgstr "Fevereiro"
+
+#: mono/shared/static/js/global.js:14
+msgctxt "month"
+msgid "March"
+msgstr "Março"
+
+#: mono/shared/static/js/global.js:15
+msgctxt "month"
+msgid "April"
+msgstr "Abril"
+
+#: mono/shared/static/js/global.js:16
+msgctxt "month"
+msgid "May"
+msgstr "Maio"
+
+#: mono/shared/static/js/global.js:17
+msgctxt "month"
+msgid "June"
+msgstr "Junho"
+
+#: mono/shared/static/js/global.js:18
+msgctxt "month"
+msgid "July"
+msgstr "Julho"
+
+#: mono/shared/static/js/global.js:19
+msgctxt "month"
+msgid "August"
+msgstr "Agosto"
+
+#: mono/shared/static/js/global.js:20
+msgctxt "month"
+msgid "September"
+msgstr "Setembro"
+
+#: mono/shared/static/js/global.js:21
+msgctxt "month"
+msgid "October"
+msgstr "Outubro"
+
+#: mono/shared/static/js/global.js:22
+msgctxt "month"
+msgid "November"
+msgstr "Novembro"
+
+#: mono/shared/static/js/global.js:23
+msgctxt "month"
+msgid "December"
+msgstr "Dezembro"
+
+#: mono/shared/static/js/global.js:26
+msgctxt "short month"
+msgid "Jan"
+msgstr "Jan"
+
+#: mono/shared/static/js/global.js:27
+msgctxt "short month"
+msgid "Feb"
+msgstr "Fev"
+
+#: mono/shared/static/js/global.js:28
+msgctxt "short month"
+msgid "Mar"
+msgstr "Mar"
+
+#: mono/shared/static/js/global.js:29
+msgctxt "short month"
+msgid "Apr"
+msgstr "Abr"
+
+#: mono/shared/static/js/global.js:30
+msgctxt "short month"
+msgid "May"
+msgstr "Mai"
+
+#: mono/shared/static/js/global.js:31
+msgctxt "short month"
+msgid "Jun"
+msgstr "Jun"
+
+#: mono/shared/static/js/global.js:32
+msgctxt "short month"
+msgid "Jul"
+msgstr "Jul"
+
+#: mono/shared/static/js/global.js:33
+msgctxt "short month"
+msgid "Aug"
+msgstr "Ago"
+
+#: mono/shared/static/js/global.js:34
+msgctxt "short month"
+msgid "Sep"
+msgstr "Set"
+
+#: mono/shared/static/js/global.js:35
+msgctxt "short month"
+msgid "Oct"
+msgstr "Out"
+
+#: mono/shared/static/js/global.js:36
+msgctxt "short month"
+msgid "Nov"
+msgstr "Nov"
+
+#: mono/shared/static/js/global.js:37
+msgctxt "short month"
+msgid "Dec"
+msgstr "Dez"
+
+#: mono/shared/static/js/global.js:39
+msgid "Today"
+msgstr "Hoje"
+
+#: mono/shared/static/js/global.js:40
+msgid "Now"
+msgstr "Agora"
+
+#: mono/shared/static/js/global.js:41
+msgctxt "hour"
+msgid "AM"
+msgstr ""
+
+#: mono/shared/static/js/global.js:42
+msgctxt "hour"
+msgid "PM"
+msgstr ""

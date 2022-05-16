@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-13 21:26+0000\n"
+"POT-Creation-Date: 2022-05-16 19:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -585,14 +585,14 @@ msgstr "Salvar"
 msgid "Delete"
 msgstr "Excluir"
 
-#: mono/checklists/models.py:73
+#: mono/checklists/models.py:81
 msgid "Reminder for task"
 msgstr "Lembrate de tarefa"
 
-#: mono/checklists/models.py:74
+#: mono/checklists/models.py:82
 #, python-format
 msgid "You have a task to do: %(description)s"
-msgstr "Você possui uma tarefa a fazer: %(description)s"
+msgstr "Você possui uma tarefa para fazer: %(description)s"
 
 #: mono/checklists/templates/checklists/_modal.html:12
 #: mono/project_manager/templates/project_manager/board_calendar.html:455
@@ -603,10 +603,25 @@ msgstr "Você possui uma tarefa a fazer: %(description)s"
 msgid "Close"
 msgstr "Fechar"
 
+#: mono/checklists/templates/checklists/_task_panel.html:13
+msgid "Close panel"
+msgstr "Fechar painel"
+
 #: mono/checklists/templates/checklists/_task_panel.html:19
 #: mono/checklists/templates/checklists/_task_panel.html:23
 msgid "Reminder"
 msgstr "Lembrete"
+
+#: mono/checklists/templates/checklists/_task_panel.html:24
+#: mono/checklists/templates/checklists/_task_panel.html:34
+#: mono/finance/templates/finance/account_list.html:27
+#: mono/finance/templates/finance/budgetconfiguration_list.html:33
+#: mono/finance/templates/finance/installment_list.html:36
+#: mono/finance/templates/finance/recurrenttransaction_list.html:36
+#: mono/finance/templates/finance/transaction_archive_month.html:28
+#: mono/finance/templates/finance/transaction_list.html:65
+msgid "Clear"
+msgstr "Limpar"
 
 #: mono/checklists/templates/checklists/_task_panel.html:29
 #: mono/checklists/templates/checklists/_task_panel.html:33
@@ -620,6 +635,14 @@ msgstr "Prazo"
 msgid "Note"
 msgstr "Anotação"
 
+#: mono/checklists/templates/checklists/_task_panel.html:48
+msgid "Delete task"
+msgstr "Excluir tarefa"
+
+#: mono/checklists/templates/checklists/home.html:31
+msgid "Create a new checklist"
+msgstr "Criar uma nova lista de verificação"
+
 #: mono/checklists/templates/checklists/home.html:31
 #: mono/checklists/templates/checklists/home.html:48
 msgid "New checklist"
@@ -628,6 +651,10 @@ msgstr "Nova lista de verificação"
 #: mono/checklists/templates/checklists/home.html:55
 msgid "Search"
 msgstr "Pesquisar"
+
+#: mono/checklists/templates/checklists/home.html:59
+msgid "Create a new task"
+msgstr "Criar uma nova tarefa"
 
 #: mono/checklists/templates/checklists/home.html:60
 msgid "New task"
@@ -1282,15 +1309,6 @@ msgstr "Membro"
 #: mono/project_manager/templates/project_manager/board_detail.html:119
 msgid "Filter"
 msgstr "Filtrar"
-
-#: mono/finance/templates/finance/account_list.html:27
-#: mono/finance/templates/finance/budgetconfiguration_list.html:33
-#: mono/finance/templates/finance/installment_list.html:36
-#: mono/finance/templates/finance/recurrenttransaction_list.html:36
-#: mono/finance/templates/finance/transaction_archive_month.html:28
-#: mono/finance/templates/finance/transaction_list.html:65
-msgid "Clear"
-msgstr "Limpar"
 
 #: mono/finance/templates/finance/account_list.html:33
 msgid "Individual accounts"
