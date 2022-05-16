@@ -512,7 +512,6 @@ function initializeDueDate() {
 function initializeReminder() {
     $('#task-reminder').calendar({
         type: 'datetime',
-        disableMinute: true,
         ampm: false,
         onChange() {
             reminder = $('#task-reminder').calendar('get date')
@@ -520,7 +519,8 @@ function initializeReminder() {
                 reminder = $('#task-reminder').calendar('get date').toISOString()
             }
             updateTask({
-                reminder: reminder
+                reminder: reminder,
+                reminded: false,
             })
         }
     })
@@ -536,6 +536,7 @@ function clearDueDate() {
 function clearReminder() {
     $('#task-reminder').calendar('set date', null, true, false)
     updateTask({
-        reminder: null
+        reminder: null,
+        reminded: false,
     })
 }
