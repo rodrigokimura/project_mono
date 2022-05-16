@@ -1,3 +1,9 @@
+## 5.13.1 (2022-05-16)
+
+### Refactor
+
+- **checklists**: add logs to command
+
 ## 5.13.0 (2022-05-13)
 
 ### Feat
