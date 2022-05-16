@@ -1,3 +1,9 @@
+## 5.15.1 (2022-05-16)
+
+### Fix
+
+- **project_manager**: adjust javascript initialization functions
+
 ## 5.15.0 (2022-05-16)
 
 ### Feat
