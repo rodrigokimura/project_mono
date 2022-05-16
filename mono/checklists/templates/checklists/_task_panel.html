@@ -10,7 +10,7 @@
                 <input type="text" placeholder="Task description" id="task-description">
             </div>
             <div style="flex: 0 0 auto; padding-left: 1em;">
-                <a class="ui basic big icon button" onclick="hideTaskPanel()"><i class="close icon"></i></a>
+                <a class="ui basic big icon button" onclick="hideTaskPanel()" title="{% translate 'Close panel' %}"><i class="close icon"></i></a>
             </div>
         </div>
         <div class="ui attached vertical form segment" style="width: 100%; flex: 1 0 auto; padding-right: 1em; padding-left: 1em;">
@@ -21,7 +21,7 @@
                         <div class="ui input left icon right action">
                             <i class="bell icon"></i>
                             <input type="text" placeholder="{% translate 'Reminder' %}">
-                            <button class="ui icon button" onclick="clearReminder()"><i class="times icon"></i></button>
+                            <button class="ui icon button" onclick="clearReminder()" title="{% translate 'Clear' %}"><i class="times icon"></i></button>
                         </div>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
                         <div class="ui input left icon right action">
                             <i class="calendar icon"></i>
                             <input type="text" placeholder="{% translate 'Due date' %}">
-                            <button class="ui icon button" onclick="clearDueDate()"><i class="times icon"></i></button>
+                            <button class="ui icon button" onclick="clearDueDate()" title="{% translate 'Clear' %}"><i class="times icon"></i></button>
                         </div>
                     </div>
                 </div>
@@ -45,7 +45,7 @@
             <div style="flex: 1 0 auto;">
                 <span id="task-timestamp"></span>
             </div>
-            <a style="flex: 0 0 auto;" class="ui icon right floated red button" onclick="deleteTask()"><i class="trash alternate icon"></i></a>
+            <a style="flex: 0 0 auto;" class="ui icon right floated red button" onclick="deleteTask()" title="{% translate 'Delete task' %}"><i class="trash alternate icon"></i></a>
         </div>
     </div>
 </div>
