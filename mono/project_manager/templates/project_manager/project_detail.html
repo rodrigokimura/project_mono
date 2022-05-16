@@ -253,14 +253,17 @@
   
 <script>
     const PROJECT_ID = "{{ object.id }}";
+    const INVITE_FORM = $('.ui.invite.form');
     $(document).ready(() => {
-        $('.ui.card-menu.dropdown').dropdown();
-        initializeFilterDropdowns();
-        $('.ui.progress').progress();
-        $('.ui.progress').popup();
-        $('.bar').popup();
-        $('.ui.avatar.image').popup();
-        loadInvites();
+        $('.ui.card-menu.dropdown').dropdown()
+        initializeFilterDropdowns()
+        $('.ui.progress').progress()
+        $('.ui.progress').popup()
+        $('.bar').popup()
+        $('.ui.avatar.image').popup()
+        loadInvites()
+        initializeDeleteBoardButtons()
+        initializeInviteForm()
     })
 </script>
 {% endblock %}
