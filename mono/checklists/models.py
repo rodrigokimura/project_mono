@@ -1,10 +1,13 @@
 """Checklists' models"""
 from accounts.models import Notification
+from background_task.models import Task as BackgroundTask
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
+
+from .tasks import remind
 
 User = get_user_model()
 
@@ -53,6 +56,11 @@ class Task(models.Model):
 
     def __str__(self) -> str:
         return self.description
+
+    def schedule_reminder(self):
+        BackgroundTask.objects.drop_task(task_name='checklists.tasks.remind', args=[self.id])
+        if self.reminder is not None and not self.reminded:
+            remind(self.id, schedule=self.reminder)
 
     def mark_as_checked(self, user):
         """Mark task as checked"""
