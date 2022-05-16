@@ -5,7 +5,19 @@ function toast(title, message) {
     })
 }
 
-function renderList(checklistId, checklistName) {
+function stringToLocalDatetime(dateString, location) {
+    d = new Date(dateString)
+    return d.toLocaleString(location)
+}
+function stringToLocalDate(dateString, location) {
+    year = dateString.split('-')[0]
+    month = dateString.split('-')[1] - 1
+    day = dateString.split('-')[2]
+    d = new Date(year, month, day)
+    return d.toLocaleDateString(location)
+}
+
+function renderChecklist(checklistId, checklistName) {
     listsDiv.append(`
         <a class="teal checklist item" data-checklist-id="${checklistId}" onclick="selectChecklist(${checklistId})" style="display: flex; flex-flow: row nowrap; align-items: center;">
             <div style="flex: 1 0 0;">
@@ -23,33 +35,56 @@ function renderList(checklistId, checklistName) {
     `)
 }
 
-function renderTask(taskId, taskDescription, checked) {
+function renderTask(task) {
+    if (task.checked_at) {
+        due = new Date(task.due_date) <= new Date(task.checked_at)
+    } else {
+        due = new Date(task.due_date) <= new Date()
+    }
     tasksDiv.append(`
-        <a class="teal task item" data-task-id="${taskId}" data-checked="${checked}" style="display: flex; ">
-            <div class="ui checkbox" data-task-id="${taskId}" style="flex: 0 0 auto;">
-                <input type="checkbox" ${checked ? "checked" : ""}>
+        <a class="teal task item" data-task-id="${task.id}" data-checked="${task.checked_at != null}" style="display: flex; flex-flow: row nowrap; align-items: center;">
+            <div class="ui checkbox" data-task-id="${task.id}" style="flex: 0 0 auto;">
+                <input type="checkbox" ${task.checked_at != null ? "checked" : ""}>
             </div>
-            <span class="task-description">${taskDescription}</span>
+            <div style="flex: 1 0 auto;">
+                <span class="task-description">${task.description}</span>
+            </div>
+            ${task.reminder ? `
+                <div class="ui circular icon label task-label" style="margin-left: .5em;" title="${stringToLocalDatetime(task.reminder, languageCode)}">
+                    <i class="bell icon"></i>
+                </div>
+            `: ''}
+            ${task.due_date ? `
+                <div class="ui circular icon ${due ? 'red': ''} label task-label" style="margin-left: .5em;" title="${stringToLocalDate(task.due_date, languageCode)}">
+                    <i class="calendar icon"></i>
+                </div>
+            `: ''}
         </a>
     `)
-    $(`.ui.checkbox[data-task-id=${taskId}]`).checkbox({
+    $(`.ui.checkbox[data-task-id=${task.id}]`).checkbox({
         onChecked() {
             taskId = $(this).closest('.task.item').attr('data-task-id')
-            checkTask(taskId)
+            checkTask(task.id)
         },
         onUnchecked() {
             taskId = $(this).closest('.task.item').attr('data-task-id')
-            uncheckTask(taskId)
+            uncheckTask(task.id)
         },
     })
-    $(`.task.item[data-task-id=${taskId}]`).off().click(e => {
+    $(`.task.item[data-task-id=${task.id}]`).off().click(e => {
         if ($(e.target).hasClass('checkbox') || $(e.target).parent().hasClass('checkbox')) { return }
         selectedTask = sessionStorage.getItem('selectedTask')
         if ($(e.target).closest('.task.item').hasClass('active')) {
             toggleTaskPanel()
         } else {
-            selectTask(taskId)
+            selectTask(task.id)
         }
+    })
+    tasksDiv.ready(function(){
+        $(`.task-label`).popup({
+            position: 'bottom right',
+            variation: 'inverted',
+        })
     })
 }
 
@@ -65,7 +100,7 @@ function createTask(taskDescription) {
             order: 5
         },
         onSuccess: r => {
-            renderTask(r.id, r.description, r.checked_at != null)
+            renderTask(r)
         }
     })
 }
@@ -79,7 +114,7 @@ async function createChecklist(checklistName) {
             name: checklistName,
         },
         onSuccess: r => {
-            renderList(r.id, r.name)
+            renderChecklist(r.id, r.name)
         }
     })
 }
@@ -92,7 +127,7 @@ function retrieveLists() {
         onSuccess: r => {
             listsDiv.empty()
             r.results.forEach(
-                item => renderList(item.id, item.name)
+                item => renderChecklist(item.id, item.name)
             )
         }
     })
@@ -126,7 +161,7 @@ async function retrieveTasks(checklistId) {
             tasksDiv.empty();
             r.results.forEach(
                 item => {
-                    renderTask(item.id, item.description, item.checked_at != null)
+                    renderTask(item)
                     selectedTask = sessionStorage.getItem('selectedTask')
                     if (item.id == selectedTask) { $(`.task.item[data-task-id=${selectedTask}]`).addClass('active') }
                 }
@@ -221,12 +256,12 @@ function renderTaskDetails(task) {
         $("#task-description").attr('data-checked', true)
         $('#check-icon').addClass('check circle outline')
         ts = new Date(task.checked_at)
-        msg = interpolate(gettext('Checked at %s'), [ts.toString()])
+        msg = interpolate(gettext('Checked at %s'), [stringToLocalDatetime(ts, languageCode)])
     } else {
         $("#task-description").attr('data-checked', false)
         $('#check-icon').removeClass('check circle outline').addClass('circle outline')
         ts = new Date(task.created_at)
-        msg = interpolate(gettext('Created at %s'), [ts.toString()])
+        msg = interpolate(gettext('Created at %s'), [stringToLocalDatetime(ts, languageCode)])
     }
     $('#task-timestamp').text(msg)
     if (task.reminder === null) {
@@ -492,9 +527,7 @@ function clearSearch() {
 function initializeDueDate() {
     $('#task-due-date').calendar({
         type: 'date',
-    })
-    $('#task-due-date').calendar({
-        type: 'date',
+        today: true,
         onChange() {
             dueDate = $('#task-due-date').calendar('get date')
             if (dueDate != null) {
@@ -513,6 +546,7 @@ function initializeReminder() {
     $('#task-reminder').calendar({
         type: 'datetime',
         ampm: false,
+        today: true,
         onChange() {
             reminder = $('#task-reminder').calendar('get date')
             if (reminder != null) {

@@ -28,7 +28,7 @@
         </div>
         <div class="explorer" id="lists-div"></div>
         <div class="item" style="flex: 0 0 auto;">
-            <a class="ui fluid green right labeled icon button" onclick="showNewChecklistModal()"><i class="add icon"></i>{% translate 'New checklist' %}</a>
+            <a class="ui fluid green right labeled icon button" onclick="showNewChecklistModal()" title="{% translate 'Create a new checklist' %}"><i class="add icon"></i>{% translate 'New checklist' %}</a>
         </div>
     </div>
 {% endblock sidebar %}
@@ -56,7 +56,7 @@
                 </div>
                 <div id="tasks-div" class="ui bottom attached vertical segment menu filter-list" style="padding: 0; width: 100%; flex: 1 0 auto;">
                 </div>
-                <div class="ui fluid green right labeled icon button" style="width: 100%; flex: 0 0 auto;" onclick="showNewTaskModal()">
+                <div class="ui fluid green right labeled icon button" style="width: 100%; flex: 0 0 auto;" onclick="showNewTaskModal()" title="{% translate 'Create a new task' %}">
                     {% translate 'New task' %}
                     <i class="add icon"></i>
                 </div>
@@ -84,6 +84,7 @@
             initializeDragAndDrop()
             initializeDueDate()
             initializeReminder()
+            $('.ui.button').popup({ variation: 'inverted' })
         })
     </script>
 {% endblock %}
