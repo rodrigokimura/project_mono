@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from ...models import Task
+from ...tasks import remind
 
 
 class Command(BaseCommand):
@@ -13,7 +14,7 @@ class Command(BaseCommand):
         try:
             self.stdout.write(f"Current timestamp: {timezone.now()}")
             tasks = Task.objects.filter(
-                reminder__in=[
+                reminder__range=[
                     timezone.now(),
                     timezone.now() + timezone.timedelta(hours=1),
                 ],
@@ -21,6 +22,6 @@ class Command(BaseCommand):
             )
             self.stdout.write(f"Tasks found: {tasks.count()}")
             for task in tasks:
-                task.remind()
+                remind(task.id, schedule=task.reminder)
         except Exception as any_exception:  # pylint: disable=broad-except
             raise CommandError(repr(any_exception)) from any_exception
