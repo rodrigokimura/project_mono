@@ -10,88 +10,91 @@ function showSharingModal() {
     }).modal('show');
 }
 
-$('.delete-board').click(e => {
-    let boardId = $(e.target).attr('data-board-id');
-    $('body').modal({
-        title: 'Confirm deletion', 
-        class: 'mini', 
-        closeIcon: true, 
-        content: 'Delete this board?', 
-        actions: [
-            { text: 'Cancel', class: 'secondary' },
-            { text: 'Delete', class: 'red approve' },
-        ],
-        onApprove: () => {
+function initializeDeleteBoardButtons() {
+    $('.delete-board').click(e => {
+        let boardId = $(e.target).attr('data-board-id');
+        $('body').modal({
+            title: 'Confirm deletion', 
+            class: 'mini', 
+            closeIcon: true, 
+            content: 'Delete this board?', 
+            actions: [
+                { text: 'Cancel', class: 'secondary' },
+                { text: 'Delete', class: 'red approve' },
+            ],
+            onApprove: () => {
+                $.api({
+                    url: `/pm/api/projects/${PROJECT_ID}/boards/${boardId}/`,
+                    method: 'DELETE',
+                    mode: 'same-origin',
+                    headers: {'X-CSRFToken': csrftoken},
+                    cache: false,
+                    on: 'now',
+                    onSuccess: response => {
+                        window.location.replace(response.url);
+                    },
+                    onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
+                    onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+                });
+            }
+        }).modal('show');
+    })
+}
+
+function initializeInviteForm() {
+    INVITE_FORM.form({
+        fields: {
+            email: {
+                identifier  : 'email',
+                rules: [
+                    {
+                        type   : 'empty',
+                        prompt : gettext('Please enter an email')
+                    },
+                    {
+                        type   : 'email',
+                        prompt : gettext('Please enter a valid email')
+                    },
+                ]
+            },
+        },
+        onSuccess: () => {
+            $('body').toast({
+                message: interpolate(gettext('Your invitation was sent to %s.'), [$('input.invite[type=email]').val()]),
+                class: 'success',
+            });
             $.api({
-                url: `/pm/api/projects/${PROJECT_ID}/boards/${boardId}/`,
-                method: 'DELETE',
+                url: `/pm/api/projects/${PROJECT_ID}/invites/`,
+                on: 'now',
+                method: "POST",
                 mode: 'same-origin',
                 headers: {'X-CSRFToken': csrftoken},
-                cache: false,
-                on: 'now',
-                onSuccess: response => {
-                    window.location.replace(response.url);
+                data: {
+                    email: $('input.invite[type=email]').val(),
+                    project: PROJECT_ID,
                 },
-                onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
-                onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+                onSuccess: r => {
+                    loadInvites();
+                    $('input.invite[type=email]').val('');
+                },
+                onFailure: (response, element, xhr) => {
+                    for (let error of response.non_field_errors) {
+                        $('body').toast({
+                            message: error,
+                            class: 'error',
+                        })
+                    }
+                },
+                onError: (errorMessage, element, xhr) => {
+                    console.log(`Request error: ${errorMessage}`);
+                },
             });
         }
-    }).modal('show');
-})
-
-const INVITE_FORM = $('.ui.invite.form');
-INVITE_FORM.form({
-    fields: {
-        email: {
-            identifier  : 'email',
-            rules: [
-                {
-                    type   : 'empty',
-                    prompt : gettext('Please enter an email')
-                },
-                {
-                    type   : 'email',
-                    prompt : gettext('Please enter a valid email')
-                },
-            ]
-        },
-    },
-    onSuccess: () => {
-        $('body').toast({
-            message: interpolate(gettext('Your invitation was sent to %s.'), [$('input.invite[type=email]').val()]),
-            class: 'success',
-        });
-        $.api({
-            url: `/pm/api/projects/${PROJECT_ID}/invites/`,
-            on: 'now',
-            method: "POST",
-            mode: 'same-origin',
-            headers: {'X-CSRFToken': csrftoken},
-            data: {
-                email: $('input.invite[type=email]').val(),
-                project: PROJECT_ID,
-            },
-            onSuccess: r => {
-                loadInvites();
-                $('input.invite[type=email]').val('');
-            },
-            onFailure: (response, element, xhr) => {
-                for (let error of response.non_field_errors) {
-                    $('body').toast({
-                        message: error,
-                        class: 'error',
-                    })
-                }
-            },
-            onError: (errorMessage, element, xhr) => {
-                console.log(`Request error: ${errorMessage}`);
-            },
-        });
-    }
-});
-INVITE_FORM.submit(e => {
-    e.preventDefault();
-});
+    });
+    INVITE_FORM.submit(e => {
+        e.preventDefault();
+    });
+}
 
 function removeMember(userId) {
     console.log(`Removing member ${userId}`);
