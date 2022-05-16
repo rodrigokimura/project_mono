@@ -11,6 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Command to create notification for task reminders"""
         try:
+            self.stdout.write(f"Current timestamp: {timezone.now()}")
             tasks = Task.objects.filter(
                 reminder__in=[
                     timezone.now(),
@@ -18,6 +19,7 @@ class Command(BaseCommand):
                 ],
                 reminded=False,
             )
+            self.stdout.write(f"Tasks found: {tasks.count()}")
             for task in tasks:
                 task.remind()
         except Exception as any_exception:  # pylint: disable=broad-except
