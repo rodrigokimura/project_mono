@@ -1,3 +1,9 @@
+## 5.15.0 (2022-05-16)
+
+### Feat
+
+- **checklists**: render due date and reminder labels
+
 ## 5.14.1 (2022-05-16)
 
 ### Refactor
