@@ -1,3 +1,9 @@
+## 5.14.1 (2022-05-16)
+
+### Refactor
+
+- **checklists**: allow minutes in reminders
+
 ## 5.14.0 (2022-05-16)
 
 ### Feat
