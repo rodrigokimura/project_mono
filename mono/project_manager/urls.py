@@ -53,5 +53,6 @@ urlpatterns = [
     path('api/projects/<int:project_pk>/invites/', views.InviteListAPIView.as_view()),
     path('api/projects/<int:project_pk>/invites/<int:pk>/', views.InviteDetailAPIView.as_view()),
     path('api/projects/<int:project_pk>/invites/<int:pk>/resend/', views.InviteResendAPIView.as_view()),
-
+    path('api/projects/<int:project_pk>/spaces/', views.SpaceListAPIView.as_view()),
+    path('api/projects/<int:project_pk>/spaces/<int:pk>/', views.SpaceDetailAPIView.as_view()),
 ]

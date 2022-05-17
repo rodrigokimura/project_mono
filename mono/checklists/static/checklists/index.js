@@ -5,18 +5,6 @@ function toast(title, message) {
     })
 }
 
-function stringToLocalDatetime(dateString, location) {
-    d = new Date(dateString)
-    return d.toLocaleString(location)
-}
-function stringToLocalDate(dateString, location) {
-    year = dateString.split('-')[0]
-    month = dateString.split('-')[1] - 1
-    day = dateString.split('-')[2]
-    d = new Date(year, month, day)
-    return d.toLocaleDateString(location)
-}
-
 function renderChecklist(checklistId, checklistName) {
     listsDiv.append(`
         <a class="teal checklist item" data-checklist-id="${checklistId}" onclick="selectChecklist(${checklistId})" style="display: flex; flex-flow: row nowrap; align-items: center;">

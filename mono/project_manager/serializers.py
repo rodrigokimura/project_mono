@@ -6,11 +6,13 @@ from __mono.utils import validate_file_size
 from accounts.serializers import UserSerializer
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer, Serializer
+from rest_framework.serializers import (
+    CurrentUserDefault, HiddenField, ModelSerializer, Serializer,
+)
 
 from .models import (
-    Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Tag,
-    Theme, TimeEntry, User,
+    Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Space,
+    Tag, Theme, TimeEntry, User,
 )
 
 
@@ -90,6 +92,7 @@ class BoardSerializer(ModelSerializer):
     class Meta:
         model = Board
         fields = [
+            'id',
             'name',
             'created_at',
             'project',
@@ -100,8 +103,14 @@ class BoardSerializer(ModelSerializer):
             'bucket_width',
             'allowed_users',
             'background_image',
+            'card_count',
+            'progress',
         ]
-        extra_kwargs = {'created_by': {'read_only': True}}
+        extra_kwargs = {
+            'created_by': {'read_only': True},
+            'card_count': {'read_only': True},
+            'progress': {'read_only': True},
+        }
 
     def update(self, instance, validated_data):
         """Handle background image deletion upon update"""
@@ -685,3 +694,34 @@ class BoardMoveSerializer(Serializer):
         board.order = order
         board.save()
         board.project.touch()
+
+
+class SpaceSerializer(ModelSerializer):
+    """
+    Task serializer
+    """
+    created_by = HiddenField(
+        default=CurrentUserDefault()
+    )
+
+    class Meta:
+        model = Space
+        fields = [
+            'id',
+            'name',
+            'project',
+            'order',
+            'created_by',
+            'created_at',
+        ]
+        read_only_fields = ['created_by', 'created_at', 'project']
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        instance.project = validated_data['project']
+        return instance
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        instance.project = validated_data['project']
+        return instance

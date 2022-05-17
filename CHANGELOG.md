@@ -1,3 +1,15 @@
+## 5.16.1 (2022-05-17)
+
+### Refactor
+
+- **project_manager**: use api views to render board listing page
+
+## 5.16.0 (2022-05-16)
+
+### Feat
+
+- **project_manager**: add spaces
+
 ## 5.15.1 (2022-05-16)
 
 ### Fix
