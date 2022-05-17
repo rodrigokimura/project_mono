@@ -92,6 +92,7 @@ class BoardSerializer(ModelSerializer):
     class Meta:
         model = Board
         fields = [
+            'id',
             'name',
             'created_at',
             'project',
@@ -102,8 +103,14 @@ class BoardSerializer(ModelSerializer):
             'bucket_width',
             'allowed_users',
             'background_image',
+            'card_count',
+            'progress',
         ]
-        extra_kwargs = {'created_by': {'read_only': True}}
+        extra_kwargs = {
+            'created_by': {'read_only': True},
+            'card_count': {'read_only': True},
+            'progress': {'read_only': True},
+        }
 
     def update(self, instance, validated_data):
         """Handle background image deletion upon update"""

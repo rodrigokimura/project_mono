@@ -465,8 +465,8 @@ class BoardListAPIView(LoginRequiredMixin, APIView):
         """
         List all boards in a project.
         """
-        boards = Board.objects.filter(created_by=request.user)
         project = Project.objects.get(id=kwargs.get('project_pk'))
+        boards = Board.objects.filter(created_by=request.user, project=project)
         if request.user not in project.allowed_users:
             return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
         serializer = BoardSerializer(boards, many=True)

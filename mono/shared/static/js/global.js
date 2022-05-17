@@ -51,3 +51,16 @@ $.fn.calendar.settings.formatter.time = function (time, settings) {
     if (!time) return '';
     return time.toLocaleTimeString(languageCode, {hour: '2-digit', minute:'2-digit'})
 }
+
+function stringToLocalDatetime(dateString, location) {
+    d = new Date(dateString)
+    return d.toLocaleString(location)
+}
+
+function stringToLocalDate(dateString, location) {
+    year = dateString.split('-')[0]
+    month = dateString.split('-')[1] - 1
+    day = dateString.split('-')[2]
+    d = new Date(year, month, day)
+    return d.toLocaleDateString(location)
+}
