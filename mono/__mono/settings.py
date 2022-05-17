@@ -12,7 +12,7 @@ load_dotenv()
 
 APP_ENV = os.getenv('APP_ENV', 'PRD')
 
-APP_VERSION = "5.16.0"
+APP_VERSION = "5.16.1"
 
 if APP_ENV in ['DEV', 'TEST']:
     GITHUB_SECRET = 'GITHUB_SECRET'
