@@ -66,18 +66,20 @@ img.img-card-file {
 }
 
 .overdue.card {
-    border: red solid .2em;
+    outline: rgba(255, 50, 50, .7) solid .2em;
+    box-shadow: 0 0 1em rgba(255, 0, 0, .2) !important;
+    border: none !important;
 }
 
 .card.card-el {
-    transition: box-shadow .3s;
     border: 1px solid #ccc;
-    background: #fff;
+    transition: box-shadow .3s;
     float: left;
+    box-shadow: 0 0 1em rgba(0, 0, 0, .2) !important;
 }
 
 .card.card-el:hover {
-    box-shadow: 0 0 10px rgba(0, 0, 0, .2) !important;
+    box-shadow: 0 0 1em rgba(0, 0, 0, .8) !important;
 }
 
 .completed.card .card-name:hover {

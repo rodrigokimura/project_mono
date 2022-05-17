@@ -10,14 +10,103 @@ function showSharingModal() {
     }).modal('show');
 }
 
+function renderPage() {
+    $.api({
+        on: 'now',
+        method: 'GET',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/`,
+        onSuccess(response) {
+            if (response.length == 0) {
+                renderPlaceholder()
+                return
+            }
+            renderBoards(response)
+        },
+    })
+}
+
+function renderPlaceholder() {
+    const pageContent = $('#page-content')
+    pageContent.append(`
+        <div class="ui placeholder segment">
+            <div class="ui icon header">
+                <i class="exclamation triangle icon"></i>
+                ${gettext("No boards are listed for this project yet.")}
+            </div>
+            <a href="/pm/project/${PROJECT_ID}/board/" class="ui icon labeled animated large green button">
+                <div class="visible content">${gettext("Add your first board!")}</div>
+                <div class="hidden content"><i class="plus icon"></i></div>
+            </a>
+        </div>
+    `)
+}
+
+function renderBoards(boards) {
+    const pageContent = $('#page-content')
+    pageContent.append(`
+        <div class="ui message">
+            ${interpolate(ngettext('You have only %s board in project <strong>%s</strong>.', 'You have %s boards in project <strong>%s</strong>.', boards.length), [boards.length, PROJECT_NAME ])}
+        </div>
+        <div class="ui four stackable cards" style="margin-top: .5em; padding-top: 0;" id="boards"></div>
+    `)
+    pageContent.ready(e => {
+        boardsEl = $('#boards')
+        boardsEl.empty()
+        boards.forEach(renderBoard)
+        boardsEl.ready(e => {
+            initializeCardMenuDropdown()
+            initializeDeleteBoardButtons()
+            $('.ui.progress').progress()
+            $('.ui.progress').popup()
+            $('.bar').popup()
+            $('.ui.avatar.image').popup()
+        })
+    })
+}
+
+function renderBoard(board) {
+    boardsEl = $('#boards')
+    boardsEl.append(`
+        <div class="ui card">
+            <div class="content" style="padding-bottom: 0;">
+                <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
+                    <div class="" style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
+                        <a href="/pm/project/${PROJECT_ID}/board/${board.id}/">
+                            ${board.name}
+                        </a>
+                    </div>
+                    <div class="ui basic icon top right pointing card-menu dropdown button" style="flex: 0 0 auto; align-self: flex-start;">
+                        <i class="ellipsis horizontal icon"></i>
+                        <div class="menu">
+                            <a class="item" href="/pm/project/${PROJECT_ID}/board/${board.id}/"><i class="eye icon"></i>${gettext("Open")}</a>
+                            <a class="item" href="/pm/project/${PROJECT_ID}/board/${board.id}/edit/"><i class="edit icon"></i>${gettext("Edit")}</a>
+                            <div class="divider"></div>
+                            <a class="delete-board item" data-board-id="${board.id}"><i class="delete icon"></i>${gettext("Delete")}</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="meta">
+                    <p>${interpolate(gettext("Created at %s"), [stringToLocalDatetime(board.created_at, languageCode)])}</p>
+                </div>
+                <div class="description">
+                    <div style="padding-bottom: 1em;">
+                        ${getUsersHtml(board.allowed_users)}
+                    </div>
+                    ${getProgressBarHtml(board)}
+                </div>
+            </div>
+        </div>
+    `)
+}
+
 function initializeDeleteBoardButtons() {
     $('.delete-board').click(e => {
         let boardId = $(e.target).attr('data-board-id');
         $('body').modal({
-            title: 'Confirm deletion', 
+            title: gettext('Confirm deletion'), 
             class: 'mini', 
             closeIcon: true, 
-            content: 'Delete this board?', 
+            content: gettext('Delete this board?'), 
             actions: [
                 { text: 'Cancel', class: 'secondary' },
                 { text: 'Delete', class: 'red approve' },
@@ -39,6 +128,38 @@ function initializeDeleteBoardButtons() {
             }
         }).modal('show');
     })
+}
+
+function getUsersHtml(users) {
+    html = ''
+    users.forEach(u => {
+        html += `<img class="ui avatar image" src="${u.profile.avatar}" alt="" data-content="${u.username}">`
+    })
+    return html
+}
+
+function getProgressBarHtml(board) {
+    function getPopupMessage(count, percent) {
+        if (count == 0) return gettext('No cards')
+        return interpolate(ngettext('%s card (%s%)', '%s cards (%s%)', count), [count, percent])
+    }
+    html = ''
+    if (board.card_count == 0) {
+        html = `
+            <div class="ui tiny multiple progress" data-percent="0" style="padding-bottom: 0;" data-content="{% translate "No cards yet" %}">
+                <div class="bar"></div>
+            </div>
+        `
+    } else {
+        html = `
+            <div class="ui tiny multiple progress" data-percent="${Object.values(board.progress).map(v => v[1])}" style="padding-bottom: 0;">
+                <div class="green bar" data-title="${gettext("Completed")}" data-content="${getPopupMessage(...board.progress.completed)}"></div>
+                <div class="yellow bar" data-title="${gettext("In progress")}" data-content="${getPopupMessage(...board.progress.in_progress)}"></div>
+                <div class="grey bar" data-title="${gettext("Not started")}" data-content="${getPopupMessage(...board.progress.not_started)}"></div>
+            </div>
+        `
+    }
+    return html
 }
 
 function initializeInviteForm() {
@@ -97,9 +218,8 @@ function initializeInviteForm() {
 }
 
 function removeMember(userId) {
-    console.log(`Removing member ${userId}`);
     $('body').modal({
-        title: 'Confirmation',
+        title: gettext('Confirmation'),
         class: 'mini',
         closeIcon: true,
         content: gettext('Are you sure you want to remove user from this project?'),
@@ -151,7 +271,7 @@ function removeMember(userId) {
 function resendInvite(inviteId) {
     console.log(`Resending invite ${inviteId}`);
     $('body').modal({
-        title: 'Confirmation',
+        title: gettext('Confirmation'),
         class: 'mini',
         closeIcon: true,
         content: gettext('Are you sure you want to resend the email invitation?'),
@@ -198,7 +318,7 @@ function resendInvite(inviteId) {
 
 function deleteInvite(inviteId) {
     $('body').modal({
-        title: 'Confirmation',
+        title: gettext('Confirmation'),
         class: 'mini',
         closeIcon: true,
         content: gettext('Are you sure you want to delete this invite?'),
@@ -304,4 +424,10 @@ function initializeFilterDropdowns() {
         action: 'select',
         onChange: sort,
     }).dropdown('set value', 'asc', null, null, preventChangeTrigger=true);
+}
+
+function initializeCardMenuDropdown() {
+    $('.ui.card-menu.dropdown').dropdown({
+        action: 'hide'
+    })
 }

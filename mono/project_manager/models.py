@@ -47,7 +47,6 @@ class Project(BaseModel):
     deadline = models.DateTimeField(null=True, blank=True)
     assigned_to = models.ManyToManyField(User, related_name="assigned_projects", blank=True)
     order = models.IntegerField(default=1)
-    
 
     class Meta:
         ordering = [
