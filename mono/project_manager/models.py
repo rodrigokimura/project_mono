@@ -47,6 +47,7 @@ class Project(BaseModel):
     deadline = models.DateTimeField(null=True, blank=True)
     assigned_to = models.ManyToManyField(User, related_name="assigned_projects", blank=True)
     order = models.IntegerField(default=1)
+    
 
     class Meta:
         ordering = [
@@ -125,6 +126,7 @@ class Board(BaseModel):
     bucket_width = models.IntegerField(default=300)
     updated_at = models.DateTimeField(auto_now=True)
     background_image = models.ImageField(upload_to=_background_image_path, blank=True, null=True)
+    space = models.ForeignKey('Space', on_delete=models.CASCADE, null=True, blank=True, default=None)
 
     tags_feature = models.BooleanField(default=True, help_text='Enables tags on cards')
     color_feature = models.BooleanField(default=True, help_text='Enables color on cards')
@@ -772,3 +774,8 @@ class Invite(models.Model):
 
     def __str__(self) -> str:
         return f'{str(self.project)} -> {self.email}'
+
+
+class Space(BaseModel):
+    order = models.PositiveIntegerField()
+    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name="spaces")

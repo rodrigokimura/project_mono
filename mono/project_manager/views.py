@@ -24,14 +24,14 @@ from rest_framework.views import APIView
 
 from .forms import BoardForm, ProjectForm
 from .models import (
-    Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Tag,
-    Theme, TimeEntry, User,
+    Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Space,
+    Tag, Theme, TimeEntry, User,
 )
 from .serializers import (
     BoardMoveSerializer, BoardSerializer, BucketMoveSerializer,
     BucketSerializer, CardFileSerializer, CardMoveSerializer, CardSerializer,
     CommentSerializer, InviteSerializer, ItemSerializer, ProjectSerializer,
-    TagSerializer, TimeEntrySerializer,
+    SpaceSerializer, TagSerializer, TimeEntrySerializer,
 )
 
 
@@ -1463,4 +1463,78 @@ class InviteResendAPIView(LoginRequiredMixin, APIView):
                 'success': True,
                 'message': f'Your invitation was sent to {invite.email}.'
             }, status=status.HTTP_200_OK)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
+
+
+class SpaceListAPIView(LoginRequiredMixin, APIView):
+    """
+    List all spaces, or create a new space.
+    """
+
+    def get(self, request, **kwargs):
+        """
+        List all spaces in a project.
+        """
+        project = Project.objects.get(id=kwargs['project_pk'])
+        spaces = project.spaces.all()
+        if request.user in project.allowed_users:
+            serializer = SpaceSerializer(spaces, many=True, context={'request': request})
+            return Response(serializer.data)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request, **kwargs):
+        """
+        Create a new space.
+        """
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        serializer = SpaceSerializer(data=request.data, context={'request': request})
+        if request.user in project.allowed_users:
+            if serializer.is_valid():
+                serializer.save(
+                    project=project,
+                )
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
+
+
+class SpaceDetailAPIView(LoginRequiredMixin, APIView):
+    """
+    Retrieve, update or delete a space instance.
+    """
+
+    def get(self, request, pk, **kwargs):
+        """
+        Retrieve a space instance.
+        """
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        space: Space = get_object_or_404(Space, pk=pk)
+        if request.user in project.allowed_users:
+            serializer = SpaceSerializer(space)
+            return Response(serializer.data)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
+
+    def put(self, request, pk, **kwargs):
+        """
+        Edit tag
+        """
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        space: Space = get_object_or_404(Space, pk=pk)
+        if request.user in project.allowed_users:
+            serializer = SpaceSerializer(space, data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save(project=project)
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, pk, **kwargs):
+        """
+        Delete tag
+        """
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        if request.user in project.allowed_users:
+            space: Space = get_object_or_404(Space, pk=pk)
+            space.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)

@@ -6,11 +6,13 @@ from __mono.utils import validate_file_size
 from accounts.serializers import UserSerializer
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer, Serializer
+from rest_framework.serializers import (
+    CurrentUserDefault, HiddenField, ModelSerializer, Serializer,
+)
 
 from .models import (
-    Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Tag,
-    Theme, TimeEntry, User,
+    Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Space,
+    Tag, Theme, TimeEntry, User,
 )
 
 
@@ -685,3 +687,34 @@ class BoardMoveSerializer(Serializer):
         board.order = order
         board.save()
         board.project.touch()
+
+
+class SpaceSerializer(ModelSerializer):
+    """
+    Task serializer
+    """
+    created_by = HiddenField(
+        default=CurrentUserDefault()
+    )
+
+    class Meta:
+        model = Space
+        fields = [
+            'id',
+            'name',
+            'project',
+            'order',
+            'created_by',
+            'created_at',
+        ]
+        read_only_fields = ['created_by', 'created_at', 'project']
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        instance.project = validated_data['project']
+        return instance
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        instance.project = validated_data['project']
+        return instance
