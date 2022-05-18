@@ -5,12 +5,23 @@
 
 {% block head %}
     <script src="{% static 'project_manager/project_detail.js' %}"></script>
+    <style>
+        .ui.card {
+            border: 1px solid #ccc !important;
+            transition: box-shadow .3s;
+            box-shadow: 0 0 .5em rgba(0, 0, 0, .2) !important;
+        }
+        .ui.card:hover {
+            box-shadow: 0 0 1em rgba(0, 0, 0, .4) !important;
+            transform: translate(0, -.5em);
+        }
+    </style>
 {% endblock  %}
 
 {% block main %}
 <div class="pusher" style="padding-top: 3em;">
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
-    <div class="ui stackable grid container">
+    <div class="ui stackable grid container basic segment" style="padding: 0; min-height: 5em;" id="grid">
         <div class="row">
             <div class="column" id="page-content">
                 <h2 class="ui header">
