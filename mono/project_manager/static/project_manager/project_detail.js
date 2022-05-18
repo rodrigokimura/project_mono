@@ -15,6 +15,7 @@ function renderPage() {
         on: 'now',
         method: 'GET',
         url: `/pm/api/projects/${PROJECT_ID}/boards/`,
+        stateContext: '#grid',
         onSuccess(response) {
             if (response.length == 0) {
                 renderPlaceholder()
@@ -113,12 +114,10 @@ function initializeDeleteBoardButtons() {
             ],
             onApprove: () => {
                 $.api({
-                    url: `/pm/api/projects/${PROJECT_ID}/boards/${boardId}/`,
-                    method: 'DELETE',
-                    mode: 'same-origin',
-                    headers: {'X-CSRFToken': csrftoken},
-                    cache: false,
                     on: 'now',
+                    method: 'DELETE',
+                    url: `/pm/api/projects/${PROJECT_ID}/boards/${boardId}/`,
+                    headers: {'X-CSRFToken': csrftoken},
                     onSuccess: response => {
                         window.location.replace(response.url);
                     },
@@ -287,10 +286,9 @@ function resendInvite(inviteId) {
         ],
         onApprove: () => {
             $.api({
-                url: `/pm/api/projects/${PROJECT_ID}/invites/${inviteId}/resend/`,
                 on: 'now',
                 method: "POST",
-                mode: 'same-origin',
+                url: `/pm/api/projects/${PROJECT_ID}/invites/${inviteId}/resend/`,
                 headers: {'X-CSRFToken': csrftoken},
                 onSuccess: r => {
                     $('body').toast({
@@ -334,10 +332,9 @@ function deleteInvite(inviteId) {
         ],
         onApprove: () => {
             $.api({
-                url: `/pm/api/projects/${PROJECT_ID}/invites/${inviteId}/`,
                 on: 'now',
                 method: "DELETE",
-                mode: 'same-origin',
+                url: `/pm/api/projects/${PROJECT_ID}/invites/${inviteId}/`,
                 headers: {'X-CSRFToken': csrftoken},
                 onSuccess: r => {
                     $('body').toast({
