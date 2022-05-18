@@ -72,14 +72,13 @@ img.img-card-file {
 }
 
 .card.card-el {
-    border: 1px solid #ccc;
+    border: 1px solid #ccc !important;
     transition: box-shadow .3s;
-    float: left;
-    box-shadow: 0 0 1em rgba(0, 0, 0, .2) !important;
+    box-shadow: 0 0 .5em rgba(0, 0, 0, .2) !important;
 }
 
 .card.card-el:hover {
-    box-shadow: 0 0 1em rgba(0, 0, 0, .8) !important;
+    box-shadow: 0 0 1em rgba(0, 0, 0, .4) !important;
 }
 
 .completed.card .card-name:hover {
