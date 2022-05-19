@@ -44,6 +44,7 @@ function renderPlaceholder() {
 
 function renderBoards(boards) {
     const pageContent = $('#page-content')
+    pageContent.empty()
     pageContent.append(`
         <div class="ui message">
             ${interpolate(ngettext('You have only %s board in project <strong>%s</strong>.', 'You have %s boards in project <strong>%s</strong>.', boards.length), [boards.length, PROJECT_NAME ])}
@@ -61,6 +62,7 @@ function renderBoards(boards) {
             $('.ui.progress').popup()
             $('.bar').popup()
             $('.ui.avatar.image').popup()
+            initializeDragAndDrop()
         })
     })
 }
@@ -68,7 +70,10 @@ function renderBoards(boards) {
 function renderBoard(board) {
     boardsEl = $('#boards')
     boardsEl.append(`
-        <div class="ui card">
+        <div class="ui card" data-board-id="${board.id}">
+            <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;">
+                <i class="grip lines icon"></i>
+            </div>
             <div class="content" style="padding-bottom: 0;">
                 <div class="header" style="display: flex; flex-flow: row nowrap; justify-content: space-between;">
                     <div class="" style="flex: 0 1 auto; overflow-wrap: anywhere; padding-right: .5em;">
@@ -426,5 +431,47 @@ function initializeFilterDropdowns() {
 function initializeCardMenuDropdown() {
     $('.ui.card-menu.dropdown').dropdown({
         action: 'hide'
+    })
+}
+
+function initializeDragAndDrop() {
+    dragula(
+        [$('#boards')[0]],
+        {
+            direction: 'horizontal',
+        }
+    )
+    .on('drop', (el, target, source, sibling) => {
+        board = $(el).attr('data-board-id')
+        order = $(target).children().toArray().findIndex(e => e == el) + 1
+        console.log(board)
+        $.api({
+            on: 'now',
+            url: `/pm/api/board-move/`,
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            stateContext: '#boards',
+            data: {
+                project: PROJECT_ID,
+                board: board,
+                order: order,
+            },
+            onSuccess: r => {
+                $('body').toast({
+                    title: 'Success',
+                    message: 'Board order updated successfully',
+                    class: 'success',
+                })
+            },
+            onFailure(response) {
+                console.log(response)
+                $('body').toast({
+                    title: 'Failure',
+                    message: 'A problem occurred while updating chart order',
+                    class: 'error',
+                })
+                renderBoards()
+            },
+        });
     })
 }
