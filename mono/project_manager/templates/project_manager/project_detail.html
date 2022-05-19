@@ -19,6 +19,8 @@
 {% endblock  %}
 
 {% block main %}
+<script src="{% static 'js/dragula.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
 <div class="pusher" style="padding-top: 3em;">
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
     <div class="ui stackable grid container basic segment" style="padding: 0; min-height: 5em;" id="grid">
