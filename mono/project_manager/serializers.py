@@ -680,7 +680,7 @@ class BoardMoveSerializer(Serializer):
             id=self.validated_data['board']
         )
         project = Project.objects.get(
-            id=self.validated_data['bucket']
+            id=self.validated_data['project']
         )
         order = self.validated_data['order']
 
