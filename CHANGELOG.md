@@ -1,3 +1,9 @@
+## 5.17.0 (2022-05-18)
+
+### Feat
+
+- **project_manager**: add board ordering
+
 ## 5.16.2 (2022-05-17)
 
 ### Refactor
