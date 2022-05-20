@@ -70,6 +70,14 @@ pylint:  ## Run pylint
 		--rcfile=.pylintrc \
 		--output-format=json:mono/$(R_PL)/report.json,colorized
 
+pylint-no-color:
+	@mkdir -p mono/$(R_PL)
+	@touch mono/$(R_PL)/report.json
+	@cat /dev/null > mono/$(R_PL)/report.json
+	@pipenv run pylint mono \
+		--rcfile=.pylintrc \
+		--output-format=json:mono/$(R_PL)/report.json
+
 pylint-app: list-apps  ## Run pylint on given app
 	@echo 'Choose app from above:' \
 		&& read APP \
@@ -143,8 +151,8 @@ diagrams:
 # 		&& echo "Pylint score was $$score" \
 # 		&& pipenv run anybadge --value=$$score --file=mono/$(R_PL)pylint-badge.svg --label pylint -o
 
-# qa: art _isort flake8 pylint coverage _tests-badge  ## Run all quality checks, generating reports and badges
 qa: art isort flake8 pylint coverage  ## Run all quality checks, generating reports and badges
+qa-no-color: art isort flake8 pylint-no-color coverage  ## Run all quality checks, generating reports and badges
 
 upload-reports: _upload-pylint-report _upload-coverage-report _upload-pytest-report
 
