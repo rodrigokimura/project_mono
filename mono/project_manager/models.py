@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
 from django.core.signing import TimestampSigner
-from django.db import models
+from django.db import models, transaction
 from django.db.models import DurationField, QuerySet, Sum, Value as V
 from django.db.models.aggregates import Count, Max
 from django.db.models.fields import IntegerField
@@ -184,6 +184,20 @@ class Board(BaseModel):
             'not_started': [not_started, not_started_perc],
         }
 
+    @transaction.atomic
+    def set_order(self, order):
+        boards = Board.objects.filter(project=self.project).exclude(id=self.id)
+        for i, board in enumerate(boards):
+            if i + 1 < order:
+                board.order = i + 1
+                board.save()
+            else:
+                board.order = i + 2
+                board.save()
+        self.order = order
+        self.save()
+        self.project.touch()
+
 
 class Bucket(BaseModel):
     """
@@ -218,6 +232,20 @@ class Bucket(BaseModel):
             "order",
         ]
 
+    @transaction.atomic
+    def set_order(self, order):
+        buckets = Bucket.objects.filter(board=self.board).exclude(id=self.id)
+        for i, bucket in enumerate(buckets):
+            if i + 1 < order:
+                bucket.order = i + 1
+                bucket.save()
+            else:
+                bucket.order = i + 2
+                bucket.save()
+        self.order = order
+        self.save()
+        self.board.touch()
+
     @property
     def max_order(self):
         return self.card_set.all().aggregate(
@@ -227,6 +255,7 @@ class Bucket(BaseModel):
     def touch(self):
         self.save()
 
+    @transaction.atomic
     def sort(self):
         """Fix card order"""
         for index, card in enumerate(self.card_set.all()):
@@ -282,6 +311,27 @@ class Card(BaseModel):
     )
     color = models.ForeignKey('Theme', on_delete=models.CASCADE, blank=True, null=True, default=None)
     tag = models.ManyToManyField(Tag, blank=True, default=None)
+
+    @transaction.atomic
+    def set_order(self, bucket, order):
+        same_bucket = self.bucket == bucket
+        if not same_bucket:
+            _bucket = self.bucket
+            self.bucket = bucket
+        self.order = order
+        self.save()
+        cards = Card.objects.filter(bucket=bucket).exclude(id=self.id)
+        for i, card in enumerate(cards):
+            if i + 1 < order:
+                card.order = i + 1
+                card.save()
+            else:
+                card.order = i + 2
+                card.save()
+        self.bucket.touch()
+        if not same_bucket:
+            _bucket.sort()
+            _bucket.touch()
 
     def mark_as_completed(self, user):
         """Mark card as completed"""

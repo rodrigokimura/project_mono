@@ -1,3 +1,9 @@
+## 5.17.1 (2022-05-19)
+
+### Refactor
+
+- **project_manager**: improve ordered models
+
 ## 5.17.0 (2022-05-18)
 
 ### Feat

@@ -27,7 +27,7 @@ jobs:
           APP_ENV: TEST
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         run: |
-          make qa
+          make qa-no-color
       - name: Upload report files
         env:
           MONO_URL: "https://www.monoproject.info"
