@@ -510,29 +510,9 @@ class CardMoveSerializer(Serializer):
             id=self.validated_data['card']
         )
         order = self.validated_data['order']
+        card.set_order(target_bucket, order)
 
-        if source_bucket == target_bucket:
-            for i, other_card in enumerate(target_bucket.card_set.exclude(id=self.validated_data['card'])):
-                if i + 1 < order:
-                    other_card.order = i + 1
-                    other_card.save()
-                else:
-                    other_card.order = i + 2
-                    other_card.save()
-            card.order = order
-            card.save()
-        else:
-            for i, other_card in enumerate(target_bucket.card_set.all()):
-                if i + 1 >= order:
-                    other_card.order = i + 2
-                    other_card.save()
-            card.bucket = target_bucket
-            card.order = order
-            card.save()
-            for i, other_card in enumerate(source_bucket.card_set.all()):
-                other_card.order = i + 1
-                other_card.save()
-
+        if source_bucket != target_bucket:
             # Apply auto_status
             auto_status = target_bucket.auto_status
             if auto_status != Bucket.NONE:
@@ -543,8 +523,6 @@ class CardMoveSerializer(Serializer):
                 card.status = auto_status
                 card.save()
                 status_changed = True
-        source_bucket.touch()
-        target_bucket.touch()
         return {
             'success': True,
             'status_changed': status_changed,
@@ -610,21 +588,8 @@ class BucketMoveSerializer(Serializer):
         bucket = Bucket.objects.get(
             id=self.validated_data['bucket']
         )
-        board = Board.objects.get(
-            id=self.validated_data['board']
-        )
         order = self.validated_data['order']
-
-        for i, other_board in enumerate(board.bucket_set.exclude(id=self.validated_data['bucket'])):
-            if i + 1 < order:
-                other_board.order = i + 1
-                other_board.save()
-            else:
-                other_board.order = i + 2
-                other_board.save()
-        bucket.order = order
-        bucket.save()
-        bucket.board.touch()
+        bucket.set_order(order)
 
 
 class BoardMoveSerializer(Serializer):
@@ -676,24 +641,11 @@ class BoardMoveSerializer(Serializer):
         """
         Apply board movement
         """
-        board = Board.objects.get(
+        board: Board = Board.objects.get(
             id=self.validated_data['board']
         )
-        project = Project.objects.get(
-            id=self.validated_data['project']
-        )
         order = self.validated_data['order']
-
-        for i, other_board in enumerate(project.board_set.exclude(id=self.validated_data['board'])):
-            if i + 1 < order:
-                other_board.order = i + 1
-                other_board.save()
-            else:
-                other_board.order = i + 2
-                other_board.save()
-        board.order = order
-        board.save()
-        board.project.touch()
+        board.set_order(order)
 
 
 class SpaceSerializer(ModelSerializer):
