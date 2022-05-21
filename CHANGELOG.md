@@ -1,3 +1,9 @@
+## 5.17.2 (2022-05-20)
+
+### Refactor
+
+- **checklists**: move change order logic to models
+
 ## 5.17.1 (2022-05-19)
 
 ### Refactor
