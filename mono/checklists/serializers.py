@@ -1,4 +1,5 @@
 """Todo lists's serializers"""
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework.serializers import (
     CurrentUserDefault, HiddenField, ModelSerializer, Serializer,
@@ -23,6 +24,13 @@ class ChecklistSerializer(ModelSerializer):
             'created_by',
         ]
         read_only_fields = ['created_by']
+
+    @transaction.atomic
+    def create(self, validated_data):
+        checklist = super().create(validated_data)
+        checklist.order = Checklist.objects.filter(created_by=validated_data['created_by']).count()
+        checklist.save()
+        return checklist
 
 
 class TaskSerializer(ModelSerializer):
@@ -50,6 +58,13 @@ class TaskSerializer(ModelSerializer):
             'due_date',
         ]
         read_only_fields = ['created_by', 'checked_by', 'checked_at']
+
+    @transaction.atomic
+    def create(self, validated_data):
+        task = super().create(validated_data)
+        task.order = Task.objects.filter(checklist=task.checklist).count()
+        task.save()
+        return task
 
 
 class ChecklistMoveSerializer(Serializer):
@@ -93,16 +108,7 @@ class ChecklistMoveSerializer(Serializer):
             id=self.validated_data['checklist']
         )
         order = self.validated_data['order']
-
-        for i, other_checklist in enumerate(Checklist.objects.filter(created_by=self.context['request'].user).exclude(id=self.validated_data['checklist'])):
-            if i + 1 < order:
-                other_checklist.order = i + 1
-                other_checklist.save()
-            else:
-                other_checklist.order = i + 2
-                other_checklist.save()
-        checklist.order = order
-        checklist.save()
+        checklist.set_order(order)
 
 
 class TaskMoveSerializer(Serializer):
@@ -146,13 +152,4 @@ class TaskMoveSerializer(Serializer):
             id=self.validated_data['task']
         )
         order = self.validated_data['order']
-
-        for i, other_task in enumerate(Task.objects.filter(checklist=task.checklist).exclude(id=self.validated_data['task'])):
-            if i + 1 < order:
-                other_task.order = i + 1
-                other_task.save()
-            else:
-                other_task.order = i + 2
-                other_task.save()
-        task.order = order
-        task.save()
+        task.set_order(order)

@@ -85,3 +85,63 @@ class TestChecklists:
         assert response.status_code == 204
         assert task.checked_at is None
         assert task.checked_by is None
+
+    def test_create_checklist_should_succeed(self, client: Client, user):
+        client.force_login(user)
+        response = client.post(
+            '/cl/api/checklists/',
+            {
+                'name': 'test',
+            }
+        )
+        checklist = Checklist.objects.get(name='test')
+        assert response.status_code == 201
+        assert checklist.order == 1
+
+    def test_create_task_should_succeed(self, client: Client, user):
+        checklist = Checklist.objects.create(name='test', created_by=user)
+        client.force_login(user)
+        response = client.post(
+            '/cl/api/tasks/',
+            {
+                'checklist': checklist.id,
+                'description': 'test',
+            }
+        )
+        task = Task.objects.get(description='test')
+        assert response.status_code == 201
+        assert task.order == 1
+
+    def test_change_checklist_order_should_succeed(self, client: Client, user):
+        for i in range(1, 5):
+            Checklist.objects.create(id=i, name='test', created_by=user, order=i)
+        client.force_login(user)
+        response = client.post(
+            '/cl/api/checklist-move/',
+            {
+                'checklist': 4,
+                'order': 2,
+            }
+        )
+        assert Checklist.objects.get(id=4).order == 2
+
+    def test_change_task_order_should_succeed(self, client: Client, user):
+        cl = Checklist.objects.create(id=1, name='test', created_by=user, order=1)
+        for i in range(1, 5):
+            Task.objects.create(
+                checklist=cl,
+                description='test',
+                created_by=user,
+                order=i
+            )
+        client.force_login(user)
+        task = Task.objects.get(order=4)
+        response = client.post(
+            '/cl/api/task-move/',
+            {
+                'task': task.id,
+                'order': 2,
+            }
+        )
+        task.refresh_from_db()
+        assert task.order == 2
