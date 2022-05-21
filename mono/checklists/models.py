@@ -2,7 +2,7 @@
 from accounts.models import Notification
 from background_task.models import Task as BackgroundTask
 from django.contrib.auth import get_user_model
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
@@ -31,6 +31,19 @@ class Checklist(models.Model):
             task.order = index + 1
             task.save()
 
+    @transaction.atomic
+    def set_order(self, order):
+        checklists = Checklist.objects.filter(created_by=self.created_by).exclude(id=self.id)
+        for i, checklist in enumerate(checklists):
+            if i + 1 < order:
+                checklist.order = i + 1
+                checklist.save()
+            else:
+                checklist.order = i + 2
+                checklist.save()
+        self.order = order
+        self.save()
+
 
 class Task(models.Model):
     """Checklist item"""
@@ -56,6 +69,19 @@ class Task(models.Model):
 
     def __str__(self) -> str:
         return self.description
+
+    @transaction.atomic
+    def set_order(self, order):
+        tasks = Task.objects.filter(checklist=self.checklist).exclude(id=self.id)
+        for i, task in enumerate(tasks):
+            if i + 1 < order:
+                task.order = i + 1
+                task.save()
+            else:
+                task.order = i + 2
+                task.save()
+        self.order = order
+        self.save()
 
     def schedule_reminder(self):
         BackgroundTask.objects.drop_task(task_name='checklists.tasks.remind', args=[self.id])
