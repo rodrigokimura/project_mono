@@ -94,6 +94,7 @@ class BoardSerializer(ModelSerializer):
         fields = [
             'id',
             'name',
+            'space',
             'created_at',
             'project',
             'assigned_to',

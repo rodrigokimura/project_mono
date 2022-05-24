@@ -14,6 +14,22 @@ function renderPage() {
     $.api({
         on: 'now',
         method: 'GET',
+        url: `/pm/api/projects/${PROJECT_ID}/spaces/`,
+        stateContext: '#grid',
+        onSuccess(response) {
+            if (response.length == 0) {
+                renderPlaceholder()
+                return
+            }
+            retrieveBoards(response)
+        },
+    })
+}
+
+function retrieveBoards(spaces) {
+    $.api({
+        on: 'now',
+        method: 'GET',
         url: `/pm/api/projects/${PROJECT_ID}/boards/`,
         stateContext: '#grid',
         onSuccess(response) {
@@ -21,7 +37,10 @@ function renderPage() {
                 renderPlaceholder()
                 return
             }
-            renderBoards(response)
+            console.log(response)
+
+            // renderBoards(response)
+            renderSpaces(spaces, response)
         },
     })
 }
@@ -67,8 +86,161 @@ function renderBoards(boards) {
     })
 }
 
-function renderBoard(board) {
-    boardsEl = $('#boards')
+
+function renderSpaces(spaces, boards) {
+    const pageContent = $('#page-content')
+    pageContent.empty()
+    pageContent.append(`
+        <div class="" style="margin-top: .5em; padding-top: 0;" id="spaces">
+        </div>
+        <div class="ui segment" style="margin-top: .5em; padding-top: 0;" id="spaceless-boards">
+        </div>
+    `)
+    pageContent.ready(e => {
+        spacesEl = $('#spaces')
+        spacesEl.empty()
+        spaces.forEach(
+            space => {
+                filteredBoards = boards.filter(i => i.space == space.id)
+                renderSpace(space, filteredBoards)
+            }
+        )
+        spacelessBoards = boards.filter(i => i.space == null)
+        spacelessBoards.forEach(b => {
+            renderBoard(b, $('#spaceless-boards'))
+        })
+        spacesEl.ready(e => {
+            // initializeCardMenuDropdown()
+            // initializeDeleteBoardButtons()
+            // $('.ui.progress').progress()
+            // $('.ui.progress').popup()
+            // $('.bar').popup()
+            // $('.ui.avatar.image').popup()
+            // initializeDragAndDrop()
+        })
+    })
+}
+
+function renderSpace(space, boards) {
+    spacesEl = $('#spaces')
+    spacesEl.append(`
+        <div class="ui fluid segment" data-space-id="${space.id}">
+            <span class="space-name">${space.name}</span>
+            <div class="ui icon button" onclick="editSpace(${space.id})">
+                <i class="edit icon"></i>
+            </div>
+            <div class="ui red icon button"  onclick="deleteSpace(${space.id})">
+                <i class="delete icon"></i>
+            </div>
+            <div class="boards-container" data-space-id="${space.id}">
+            </div>
+        </div>
+    `)
+    spacesEl.ready(() => {
+        boards.forEach(b => {
+            el = $(`.boards-container[data-space-id=${space.id}]`)
+            console.log(el)
+            renderBoard(b, el)
+        })
+    })
+}
+
+function createSpace() {
+    $('#space-modal').modal({
+        onApprove() {
+            $.api({
+                on: 'now',
+                method: 'POST',
+                headers: {'X-CSRFToken': csrftoken},
+                url: `/pm/api/projects/${PROJECT_ID}/spaces/`,
+                data: {
+                    name: $('#space-name').val(),
+                    order: 0,
+                },
+                onSuccess(r) {
+                    $('#space-modal').modal('hide')
+                    $('body').toast({
+                        message: 'Space successfully created!',
+                    })
+                    renderPage()
+                },
+                onComplete(response, element, xhr) {
+                    $('#space-name').val('')
+                }
+            })
+            return false
+        }
+    }).modal('show')
+}
+
+function editSpace(id) {
+    name = $(`.ui.segment[data-space-id=${id}] span.space-name`).text()
+    $('#space-name').val(name)
+    $('#space-modal').modal({
+        onApprove() {
+            $.api({
+                on: 'now',
+                method: 'PATCH',
+                headers: {'X-CSRFToken': csrftoken},
+                url: `/pm/api/projects/${PROJECT_ID}/spaces/${id}/`,
+                data: {
+                    name: $('#space-name').val(),
+                    order: 0,
+                },
+                onSuccess(r) {
+                    $('#space-modal').modal('hide')
+                    $('body').toast({
+                        message: 'Space successfully updated!',
+                    })
+                    renderPage()
+                },
+                onComplete(response, element, xhr) {
+                    $('#space-name').val('')
+                }
+            })
+            return false
+        }
+    }).modal('show')
+}
+function deleteSpace(id) {
+    $('body').modal({
+        title: gettext('Confirmation'),
+        class: 'mini',
+        closeIcon: true,
+        content: gettext('Delete this space?'),
+        actions: [
+            {
+                text: gettext('Cancel'),
+                class: 'deny black'
+            },
+            {
+                text: gettext('Yes, delete it'),
+                class: 'approve red',
+                icon: 'delete',
+            },
+        ],
+        onApprove: () => {
+            $.api({
+                on: 'now',
+                method: 'DELETE',
+                url: `/pm/api/projects/${PROJECT_ID}/spaces/${id}/`,
+                headers: { 'X-CSRFToken': csrftoken },
+                stateContext: $(`.ui.segment[data-space-id=${id}]`),
+                successTest: r => r != 0,
+                onSuccess: r => {
+                    $('body').toast({
+                        message: 'Space successfully deleted!',
+                    })
+                    renderPage()
+                },
+            })
+        }
+    }).modal('show');
+    
+}
+
+function renderBoard(board, boardsEl) {
+    console.log(board)
     boardsEl.append(`
         <div class="ui card" data-board-id="${board.id}">
             <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;">
@@ -473,5 +645,16 @@ function initializeDragAndDrop() {
                 renderBoards()
             },
         });
+    })
+}
+
+function retrieveSpaces() {
+    $.api({
+        on: 'now',
+        method: 'GET',
+        url: `/pm/api/projects/${PROJECT_ID}/spaces/`,
+        onSuccess(response, element, xhr) {
+            console.log(response)
+        }
     })
 }
