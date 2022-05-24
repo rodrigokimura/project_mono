@@ -1,3 +1,9 @@
+## 5.18.0 (2022-05-24)
+
+### Feat
+
+- **project_manager**: add spaces api
+
 ## 5.17.2 (2022-05-20)
 
 ### Refactor
