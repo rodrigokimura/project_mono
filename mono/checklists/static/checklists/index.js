@@ -89,6 +89,7 @@ function createTask(taskDescription) {
         },
         onSuccess: r => {
             renderTask(r)
+            updateCounter('total', true)
         }
     })
 }
