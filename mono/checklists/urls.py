@@ -19,4 +19,5 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/task-move/', views.TaskMoveApiView.as_view()),
     path('api/checklist-move/', views.ChecklistMoveApiView.as_view()),
+    path("api/config/", views.ConfigAPIView.as_view(), name='config'),
 ]

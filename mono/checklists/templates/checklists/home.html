@@ -51,10 +51,22 @@
     <div class="ui stackable compact main">
         <div class="active panel" style="min-width: 40%;" id="task-list-panel">
             <div style="padding: 1px; height: calc(100vh - 5em); display: flex; flex-flow: column nowrap; overflow-y: auto; overflow-x: hidden;">
-                <div class="ui top attached teal segment" style="width: 100%;">
-                    <div class="ui fluid input"><input type="text" placeholder="{% translate 'Search' %}" id="search" class="search"></div>
+                <div class="ui top attached teal segment" style="width: 100%; display: flex; flex-flow: row nowrap;">
+                    <div class="ui input" style="flex: 1 0 auto;">
+                        <input type="text" placeholder="{% translate 'Search' %}" id="search" class="search">
+                    </div>
+                    <div class="ui icon top right pointing dropdown button" style="flex: 0 0 auto; margin-left: 1em;" id="config-menu">
+                        <i class="wrench icon"></i>
+                    </div>
                 </div>
-                <div id="tasks-div" class="ui bottom attached vertical segment menu filter-list" style="padding: 0; width: 100%; flex: 1 0 auto;">
+                <div id="tasks-div" class="ui attached vertical segment menu filter-list" style="padding: 0; width: 100%; flex: 1 0 auto;"></div>
+                <div id="counter" class="ui bottom attached message" style="width: 100%; flex: 0 0 auto;">
+                    <div class="ui basic hidden label">
+                        <strong>{% translate 'Completed: ' %}</strong><span id="completed-tasks"></span>
+                    </div>
+                    <div class="ui basic hidden label">
+                        <strong>{% translate 'Total: ' %}</strong><span id="total-tasks"></span>
+                    </div>
                 </div>
                 <div class="ui fluid green right labeled icon button" style="width: 100%; flex: 0 0 auto;" onclick="showNewTaskModal()" title="{% translate 'Create a new task' %}">
                     {% translate 'New task' %}
@@ -84,6 +96,7 @@
             initializeDragAndDrop()
             initializeDueDate()
             initializeReminder()
+            initializeConfigMenu()
             $('.ui.button').popup({ variation: 'inverted' })
         })
     </script>

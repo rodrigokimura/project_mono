@@ -111,3 +111,11 @@ class Task(models.Model):
             )
             self.reminded = True
             self.save()
+
+
+class Configuration(models.Model):
+    """Store user configuration"""
+    show_completed_tasks = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.OneToOneField(User, on_delete=models.CASCADE, related_name="checklists_config")
+    updated_at = models.DateTimeField(auto_now=True)
