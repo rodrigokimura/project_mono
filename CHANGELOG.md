@@ -1,3 +1,13 @@
+## 5.19.0 (2022-05-24)
+
+### Fix
+
+- **checklists**: app missing function call
+
+### Feat
+
+- **checklists**: add more sorting features
+
 ## 5.18.0 (2022-05-24)
 
 ### Feat
