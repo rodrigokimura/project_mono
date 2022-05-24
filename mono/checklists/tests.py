@@ -21,6 +21,28 @@ class TestChecklists:
     def another_user(self, django_user_model, default_icons):
         return django_user_model.objects.create(username='anothertest', email='another.test@test.com')
 
+    @pytest.fixture
+    def tasks_abc(self, user):
+        cl = Checklist.objects.create(id=1, name='test', created_by=user, order=1)
+        Task.objects.create(
+            checklist=cl,
+            description='a',
+            created_by=user,
+            order=3
+        )
+        Task.objects.create(
+            checklist=cl,
+            description='b',
+            created_by=user,
+            order=1
+        )
+        Task.objects.create(
+            checklist=cl,
+            description='c',
+            created_by=user,
+            order=2
+        )
+
     def test_str_checklist(self):
         checklist1 = Checklist(name='checklist1')
         assert str(checklist1) == 'checklist1'
@@ -123,6 +145,7 @@ class TestChecklists:
                 'order': 2,
             }
         )
+        assert response.status_code == 204
         assert Checklist.objects.get(id=4).order == 2
 
     def test_change_task_order_should_succeed(self, client: Client, user):
@@ -144,4 +167,101 @@ class TestChecklists:
             }
         )
         task.refresh_from_db()
+        assert response.status_code == 204
         assert task.order == 2
+
+    def test_checklist_sort_by_description_asc_should_succeed(self, client: Client, user, tasks_abc):
+        checklist = Checklist.objects.filter(created_by=user).first()
+        client.force_login(user)
+        response = client.post(
+            f'/cl/api/checklists/{checklist.id}/sort/',
+            {
+                'field': 'description',
+                'direction': 'asc',
+            }
+        )
+        assert response.status_code == 204
+        assert (
+            ['a', 'b', 'c'] == list(
+                checklist
+                .task_set
+                .all()
+                .order_by('order')
+                .values_list('description', flat=True)
+            )
+        )
+
+    def test_checklist_sort_by_description_desc_should_succeed(self, client: Client, user, tasks_abc):
+        checklist = Checklist.objects.filter(created_by=user).first()
+        client.force_login(user)
+        response = client.post(
+            f'/cl/api/checklists/{checklist.id}/sort/',
+            {
+                'field': 'description',
+                'direction': 'desc',
+            }
+        )
+        assert response.status_code == 204
+        assert (
+            ['c', 'b', 'a'] == list(
+                checklist
+                .task_set
+                .all()
+                .order_by('order')
+                .values_list('description', flat=True)
+            )
+        )
+
+    def test_checklist_sort_by_created_at_asc_should_succeed(self, client: Client, user, tasks_abc):
+        checklist = Checklist.objects.filter(created_by=user).first()
+        client.force_login(user)
+        response = client.post(
+            f'/cl/api/checklists/{checklist.id}/sort/',
+            {
+                'field': 'created_at',
+                'direction': 'asc',
+            }
+        )
+        assert response.status_code == 204
+        assert (
+            ['a', 'b', 'c'] == list(
+                checklist
+                .task_set
+                .all()
+                .order_by('order')
+                .values_list('description', flat=True)
+            )
+        )
+
+    def test_checklist_sort_by_created_at_desc_should_succeed(self, client: Client, user, tasks_abc):
+        checklist = Checklist.objects.filter(created_by=user).first()
+        client.force_login(user)
+        response = client.post(
+            f'/cl/api/checklists/{checklist.id}/sort/',
+            {
+                'field': 'created_at',
+                'direction': 'desc',
+            }
+        )
+        assert response.status_code == 204
+        assert (
+            ['c', 'b', 'a'] == list(
+                checklist
+                .task_set
+                .all()
+                .order_by('order')
+                .values_list('description', flat=True)
+            )
+        )
+
+    def test_checklist_sort_by_invalid_field_should_dail(self, client: Client, user, tasks_abc):
+        checklist = Checklist.objects.filter(created_by=user).first()
+        client.force_login(user)
+        response = client.post(
+            f'/cl/api/checklists/{checklist.id}/sort/',
+            {
+                'field': 'created_by',
+                'direction': 'desc',
+            }
+        )
+        assert response.status_code == 400

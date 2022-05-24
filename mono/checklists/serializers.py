@@ -5,7 +5,7 @@ from rest_framework.serializers import (
     CurrentUserDefault, HiddenField, ModelSerializer, Serializer,
 )
 
-from .models import Checklist, Task
+from .models import Checklist, Configuration, Task
 
 
 class ChecklistSerializer(ModelSerializer):
@@ -153,3 +153,20 @@ class TaskMoveSerializer(Serializer):
         )
         order = self.validated_data['order']
         task.set_order(order)
+
+
+class ConfigurationSerializer(serializers.ModelSerializer):
+    """Configuration serializer"""
+    created_by = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
+    class Meta:
+        model = Configuration
+        fields = [
+            'id',
+            'show_completed_tasks',
+            'created_at',
+            'updated_at',
+            'created_by',
+        ]

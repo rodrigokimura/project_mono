@@ -85,7 +85,7 @@ function createTask(taskDescription) {
         data: {
             checklist: checklistId,
             description: taskDescription,
-            order: 5
+            order: 0
         },
         onSuccess: r => {
             renderTask(r)
@@ -127,27 +127,47 @@ function selectChecklist(checklistId) {
     hideTaskPanel()
     $('*.checklist.item').removeClass('active')
     $(`.checklist.item[data-checklist-id=${checklistId}]`).addClass('active')
+    initializeConfigMenu(false)
+}
+
+function reselectChecklist() {
+    selectedChecklist = sessionStorage.getItem('selectedChecklist')
+    if (selectedChecklist !== null) {
+        selectChecklist(selectedChecklist)
+    }
+}
+
+async function updateCounter(type, add) {
+    if (type == 'total') {
+        el = $('#total-tasks')
+    } else {
+        el = $('#completed-tasks')
+    }
+    if (add) {
+        el.text(parseInt(el.text()) + 1)
+    } else {
+        el.text(parseInt(el.text()) - 1)
+    }
 }
 
 async function retrieveTasks(checklistId) {
     sessionStorage.setItem('selectedChecklist', checklistId)
-    $.api({
-        url: `/cl/api/checklists/${checklistId}/`,
-        on: 'now',
-        method: 'GET',
-        stateContext: '#tasks-div',
-        onSuccess: checklist => {
-            $('#list-name').text(checklist.name);
-        }
-    })
     $.api({
         url: `/cl/api/tasks/?checklist__id=${checklistId}`,
         on: 'now',
         method: 'GET',
         stateContext: '#tasks-div',
         onSuccess: r => {
-            tasksDiv.empty();
-            r.results.forEach(
+            tasksDiv.empty()
+            $('#counter .label').removeClass('hidden')
+            $('#completed-tasks').text(r.results.filter(r => r.checked_at != null).length)
+            $('#total-tasks').text(r.results.length)
+            if (JSON.parse(sessionStorage.getItem('showCompletedTasks')) === true) {
+                tasks = r.results
+            } else {
+                tasks = r.results.filter(t => t.checked_at === null)
+            }
+            tasks.forEach(
                 item => {
                     renderTask(item)
                     selectedTask = sessionStorage.getItem('selectedTask')
@@ -157,6 +177,13 @@ async function retrieveTasks(checklistId) {
             initializeTaskList()
         }
     })
+}
+
+function reselectTask() {
+    selectedTask = sessionStorage.getItem('selectedTask')
+    if (selectedTask !== null) {
+        selectTask(selectedTask)
+    }
 }
 
 function checkTask(taskId) {
@@ -171,6 +198,13 @@ function checkTask(taskId) {
             if (taskId === selectedTask) {
                 $('#check-icon').addClass('check circle outline')
                 $('#task-description').attr('data-checked', true)
+            }
+            updateCounter('completed', true)
+            if (JSON.parse(sessionStorage.getItem('showCompletedTasks')) === true) {
+                reselectTask()
+            } else {
+                sessionStorage.removeItem('selectedTask')
+                reselectChecklist()
             }
         }
     })
@@ -189,6 +223,8 @@ function uncheckTask(taskId) {
                 $('#check-icon').removeClass('check circle outline').addClass('circle outline')
                 $('#task-description').attr('data-checked', false)
             }
+            reselectTask()
+            updateCounter('completed', false)
         }
     })
 }
@@ -499,13 +535,17 @@ function initializeDragAndDrop() {
 
 function initializeTaskList() {
     clearSearch()
-    var options = {
-        listClass: 'filter-list',
-        valueNames: [
-            'task-description',
-        ]
-    };
-    taskList = new List('task-list-panel', options);
+    if ($('.task.item').length > 0) {
+        taskList = new List(
+            'task-list-panel',
+            {
+                listClass: 'filter-list',
+                valueNames: [
+                    'task-description',
+                ]
+            },
+        )
+    }
 }
 
 function clearSearch() {
@@ -560,5 +600,129 @@ function clearReminder() {
     updateTask({
         reminder: null,
         reminded: false,
+    })
+}
+
+function initializeConfigMenu(triggerReselect = true) {
+    selectedChecklist = sessionStorage.getItem('selectedChecklist')
+    if (selectedChecklist !== null) {
+        values = [
+            {
+                name: gettext('Sort by'),
+                type: 'left menu',
+                values: [
+                    {
+                        name: gettext('Description'),
+                        type: 'left menu',
+                        values: [
+                            {
+                                name: gettext('A ⭢ Z'),
+                                icon: 'sort alphabet down',
+                                value: 'sort-by-description-asc',
+                            },
+                            {
+                                name: gettext('Z ⭢ A'),
+                                icon: 'sort alphabet up',
+                                value: 'sort-by-description-desc',
+                            },
+                        ],
+                    },
+                    {
+                        name: gettext('Creation date'),
+                        type: 'left menu',
+                        values: [
+                            {
+                                name: gettext('Oldest first'),
+                                icon: 'sort amount down',
+                                value: 'sort-by-created_at-asc',
+                            },
+                            {
+                                name: gettext('Newest first'),
+                                icon: 'sort amount up',
+                                value: 'sort-by-created_at-desc',
+                            },
+                        ],
+                    },
+                ]
+            },
+            
+        ]
+    } else {
+        values = []
+    }
+
+    $.api({
+        on: 'now',
+        method: 'GET',
+        url: '/cl/api/config/',
+        onSuccess(r) {
+            sessionStorage.setItem('showCompletedTasks', r.show_completed_tasks)
+            if (triggerReselect) reselectChecklist()
+            if (r.show_completed_tasks == true) {
+                values.unshift(
+                    {
+                        name: gettext('Hide completed tasks'),
+                        icon: 'eye slash',
+                        value: 'hide-completed-tasks',
+                    }
+                )
+            } else {
+                values.unshift(
+                    {
+                        name: gettext('Show completed tasks'),
+                        icon: 'eye',
+                        value: 'show-completed-tasks',
+                    }
+                )
+            }
+            $('#config-menu').dropdown({
+                values: values,
+                action: 'hide',
+                onChange(value, text, $choice) {
+                    switch (true) {
+                        case value == 'show-completed-tasks':
+                            $.api({
+                                on: 'now',
+                                method: 'PUT',
+                                url: '/cl/api/config/',
+                                data: { show_completed_tasks: true },
+                                onSuccess(r) {
+                                    initializeConfigMenu()
+                                }
+                            })
+                            break
+                        case value =='hide-completed-tasks':
+                            $.api({
+                                on: 'now',
+                                method: 'PUT',
+                                url: '/cl/api/config/',
+                                data: { show_completed_tasks: false },
+                                onSuccess(r) {
+                                    initializeConfigMenu()
+                                }
+                            })
+                            break
+                        case value.startsWith('sort-by-'):
+                            selectedChecklist = sessionStorage.getItem('selectedChecklist')
+                            if (selectedChecklist === null) return
+                            field = value.replace('sort-by-', '').split('-')[0]
+                            direction = value.replace('sort-by-', '').split('-')[1]
+                            $.api({
+                                on: 'now',
+                                method: 'POST',
+                                url: `/cl/api/checklists/${selectedChecklist}/sort/`,
+                                data: {
+                                    field: field,
+                                    direction: direction,
+                                },
+                                onSuccess(r) {
+                                    reselectChecklist()
+                                }
+                            })
+                            break
+                    }
+                }
+            })
+        }
     })
 }
