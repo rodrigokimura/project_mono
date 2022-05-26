@@ -20,7 +20,6 @@ function deleteNote(id) {
                 on: 'now',
                 url: url,
                 method: 'DELETE',
-                headers: { 'X-CSRFToken': csrftoken },
                 stateContext: '.delete.button',
                 onSuccess: r => {
                     $('body').toast({

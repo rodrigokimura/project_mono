@@ -134,7 +134,6 @@ function selectSnippet(snippetId) {
                 url: `/cd/api/snippets/${snippetId}/`,
                 method: 'PATCH',
                 data: { public: true },
-                headers: { 'X-CSRFToken': csrftoken },
                 stateContext: '.ui.bottom.attached.segment',
                 onSuccess: r => {
                     $('#public-id').removeClass('hidden');
@@ -151,7 +150,6 @@ function selectSnippet(snippetId) {
                 url: `/cd/api/snippets/${snippetId}/`,
                 method: 'PATCH',
                 data: { public: false },
-                headers: { 'X-CSRFToken': csrftoken },
                 stateContext: '.ui.bottom.attached.segment',
                 onSuccess: r => {
                     $('#public-id').addClass('hidden');
@@ -234,7 +232,7 @@ function deleteSnippet(id) {
                 on: 'now',
                 url: url,
                 method: 'DELETE',
-                headers: { 'X-CSRFToken': csrftoken },
+                headers: { '': csrftoken },
                 stateContext: '.delete.button',
                 onSuccess: r => {
                     $('body').toast({
@@ -366,7 +364,6 @@ function showModal(id = null) {
                     on: 'now',
                     url: url,
                     method: method,
-                    headers: { 'X-CSRFToken': csrftoken },
                     data: getFormInputData(),
                     onSuccess: r => {
                         $('body').toast({
@@ -414,7 +411,6 @@ function tagSnippet(tagId, snippetId) {
         on: 'now',
         method: 'POST',
         url: `/cd/api/snippets/${snippetId}/tag/`,
-        headers: { 'X-CSRFToken': csrftoken },
         data: { tag: tagId },
         successTest: r => true,
         onSuccess: r => {
@@ -432,7 +428,6 @@ function untagSnippet(tagId, snippetId) {
         on: 'now',
         method: 'POST',
         url: `/cd/api/snippets/${snippetId}/untag/`,
-        headers: { 'X-CSRFToken': csrftoken },
         data: { tag: tagId },
         successTest: r => true,
         onSuccess: r => {
@@ -516,7 +511,6 @@ function updateTag(tagId, data) {
         on: 'now',
         method: 'PATCH',
         url: `/cd/api/tags/${tagId}/`,
-        headers: { 'X-CSRFToken': csrftoken },
         data: data,
         onSuccess: r => {
             getTags(render = false);
@@ -534,7 +528,6 @@ function addTag() {
         on: 'now',
         method: 'POST',
         url: `/cd/api/tags/`,
-        headers: { 'X-CSRFToken': csrftoken },
         onSuccess: r => {
             getTags(render = true);
             getSnippetTags();
@@ -551,7 +544,6 @@ function deleteTag(tagId) {
         on: 'now',
         method: 'DELETE',
         url: `/cd/api/tags/${tagId}/`,
-        headers: { 'X-CSRFToken': csrftoken },
         onSuccess: r => {
             getTags(render = true);
             getSnippetTags();
@@ -597,7 +589,6 @@ function showConfigModal() {
                     on: 'now',
                     method: 'PATCH',
                     url: '/cd/api/config/',
-                    headers: { 'X-CSRFToken': csrftoken },
                     data: { lineno: lineno, style: style },
                     onSuccess: r => {
                         setSnippetStyle();

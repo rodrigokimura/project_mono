@@ -1,4 +1,6 @@
 """Checklists' views"""
+from typing import Any, Dict
+
 from __mono.permissions import IsCreator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
@@ -7,7 +9,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Configuration
+from .models import Configuration, Task
 from .serializers import (
     ChecklistMoveSerializer, ConfigurationSerializer, TaskMoveSerializer,
 )
@@ -19,6 +21,11 @@ class HomePageView(LoginRequiredMixin, TemplateView):
     """
 
     template_name = "checklists/home.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context['task_recurrence_choices'] = Task.Recurrence
+        return context
 
 
 class ChecklistMoveApiView(LoginRequiredMixin, APIView):
