@@ -47,6 +47,11 @@ function renderTask(task) {
                     <i class="calendar icon"></i>
                 </div>
             `: ''}
+            ${task.recurrence ? `
+                <div class="ui circular icon ${task.next_task_created ? '': 'blue'} label task-label" style="margin-left: .5em;" title="${task.get_recurrence_display}">
+                    <i class="retweet icon"></i>
+                </div>
+            `: ''}
         </a>
     `)
     $(`.ui.checkbox[data-task-id=${task.id}]`).checkbox({
@@ -303,6 +308,11 @@ function renderTaskDetails(task) {
         utcDueDate = new Date(localDueDate.toUTCString().slice(0, -4));
         $('#task-due-date').calendar('set date', utcDueDate, true, false)
     }
+    if (task.recurrence === null) {
+        $('#task-recurrence').dropdown('clear', true)
+    } else {
+        $('#task-recurrence').dropdown('clear', true)
+    }
 }
 
 function attachTaskUpdateEvents() {
@@ -503,7 +513,6 @@ function initializeDragAndDrop() {
             on: 'now',
             method: 'POST',
             url: '/cl/api/task-move/',
-            headers: { 'X-CSRFToken': csrftoken },
             stateContext: '#tasks-div',
             data: {
                 task: taskId,
@@ -523,7 +532,6 @@ function initializeDragAndDrop() {
             on: 'now',
             method: 'POST',
             url: '/cl/api/checklist-move/',
-            headers: { 'X-CSRFToken': csrftoken },
             stateContext: '#lists-div',
             data: {
                 checklist: checlistId,
@@ -560,7 +568,9 @@ function initializeDueDate() {
         onChange() {
             dueDate = $('#task-due-date').calendar('get date')
             if (dueDate != null) {
-                dueDate = $('#task-due-date').calendar('get date').toISOString().split('T')[0]
+                dueDate = $('#task-due-date').calendar('get date')
+                dueDate.setHours(0,0,0,0)
+                dueDate = dueDate.toISOString()
             }
             updateTask({
                 due_date: dueDate
@@ -724,6 +734,16 @@ function initializeConfigMenu(triggerReselect = true) {
                     }
                 }
             })
+        }
+    })
+}
+
+function initializeRecurrence() {
+    el = $('#task-recurrence')
+    el.dropdown({
+        values: taskRecurrenceValues,
+        onChange(value, text, $choice) {
+            updateTask({ recurrence: value })
         }
     })
 }

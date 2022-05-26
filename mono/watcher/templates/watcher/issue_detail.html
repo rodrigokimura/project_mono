@@ -190,7 +190,6 @@
                     method: 'POST',
                     url: '/watcher/issue/{{ object.id }}/resolve/',
                     data: { resolved: resolved },
-                    headers: { 'X-CSRFToken': csrftoken },
                     stateContext: '.resolve-issue',
                     loadingDuration: 1000,
                     onSuccess: () => {
@@ -213,7 +212,6 @@
                     method: 'POST',
                     url: '/watcher/issue/{{ object.id }}/ignore/',
                     data: { ignored: ignored },
-                    headers: { 'X-CSRFToken': csrftoken },
                     stateContext: '.ignore-issue',
                     loadingDuration: 1000,
                     onSuccess: () => {
@@ -269,7 +267,6 @@
             $.api({
                 on: 'now',
                 method: 'POST',
-                headers: { 'X-CSRFToken': csrftoken },
                 url: `/watcher/api/comments/`,
                 data: {
                     issue: ISSUE_ID,
@@ -285,7 +282,6 @@
             $.api({
                 on: 'now',
                 method: 'DELETE',
-                headers: { 'X-CSRFToken': csrftoken },
                 url: `/watcher/api/comments/${id}/`,
                 onSuccess(r) {
                     loadComments()

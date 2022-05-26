@@ -63,7 +63,6 @@ class Dashboard {
         $.api({
             method: 'GET',
             url: `/pixel/dashboard/${this.id}/general-info/?${params}`,
-            headers: { 'X-CSRFToken': csrftoken },
             on: 'now',
             stateContext: '.card-statistic',
             onSuccess: r => {
@@ -82,7 +81,6 @@ class Dashboard {
         $.api({
             method: 'GET',
             url: `/pixel/dashboard/${this.id}/by-date/?${params}`,
-            headers: { 'X-CSRFToken': csrftoken },
             on: 'now',
             stateContext: '.card-chart[data-type=by-date]',
             onSuccess: r => {
@@ -151,7 +149,6 @@ class Dashboard {
         $.api({
             method: 'GET',
             url: `/pixel/dashboard/${this.id}/by-doc-loc/?${params}`,
-            headers: { 'X-CSRFToken': csrftoken },
             on: 'now',
             stateContext: '#by-doc-loc .segments',
             onSuccess: r => {

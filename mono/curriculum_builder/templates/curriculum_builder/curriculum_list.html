@@ -61,7 +61,6 @@
                 on: 'now',
                 method: 'POST',
                 url: `/cb/api/curricula/`,
-                headers: { 'X-CSRFToken': csrftoken },
                 data: {
                     first_name: $('input[name=first_name]').val(),
                     last_name: $('input[name=last_name]').val(),

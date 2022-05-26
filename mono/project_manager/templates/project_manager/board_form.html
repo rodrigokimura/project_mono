@@ -73,7 +73,6 @@
             url: `/pm/api/projects/{{ object.project.id }}/boards/{{ object.id }}/`,
             method: 'DELETE',
             mode: 'same-origin',
-            headers: {'X-CSRFToken': csrftoken},
             cache: false,
             on: 'now',
             onSuccess: response => {

@@ -66,7 +66,6 @@ function checkUpdates() {
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/last-updated/`,
         method: 'GET',
-        headers: { 'X-CSRFToken': csrftoken },
         onSuccess: r => {
             // handle board
             currentBoardTimestamp = new Date(r.board);
@@ -115,7 +114,6 @@ function changeBucketWidth(width) {
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
         method: 'PATCH',
-        headers: { 'X-CSRFToken': csrftoken },
         data: { bucket_width: width },
         onSuccess: r => {
             loadBoard();
@@ -129,7 +127,6 @@ function setCompact(bool) {
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
         method: 'PATCH',
-        headers: { 'X-CSRFToken': csrftoken },
         data: { compact: bool },
         onSuccess: r => {
             loadBoard();
@@ -143,7 +140,6 @@ function setDarkMode(bool) {
         on: 'now',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
         method: 'PATCH',
-        headers: { 'X-CSRFToken': csrftoken },
         data: { dark: bool },
         onSuccess: r => {
             loadBoard(r.dark);
@@ -186,7 +182,6 @@ var bucketsDrake = dragula({
         $.ajax({
             url: `/pm/api/bucket-move/`,
             type: 'POST',
-            headers: { 'X-CSRFToken': csrftoken },
             data: {
                 bucket: bucket,
                 board: BOARD_ID,
@@ -231,7 +226,6 @@ var cardsDrake = dragula({
             on: 'now',
             url: `/pm/api/card-move/`,
             method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken },
             stateContext: `.card-el[data-card-id=${card}]`,
             data: {
                 source_bucket: source_bucket,
@@ -617,7 +611,6 @@ async function renderFiles(modal, bucketId, cardId, files) {
                         on: 'now',
                         stateContext: $(`.ui.special.card.img-card-file[data-file-id=${id}]`),
                         method: 'DELETE',
-                        headers: { 'X-CSRFToken': csrftoken },
                         successTest: r => r != 0,
                         onSuccess: r => {
                             $(`.ui.special.card.img-card-file[data-file-id=${id}]`).remove();
@@ -662,7 +655,6 @@ function renderItems(containerSelector, items, bucketId, cardId, dark = false) {
             $.api({
                 url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/`,
                 method: 'PATCH',
-                headers: { 'X-CSRFToken': csrftoken },
                 data: {
                     name: e.target.value,
                 },
@@ -679,7 +671,6 @@ function renderItems(containerSelector, items, bucketId, cardId, dark = false) {
         $.api({
             url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/`,
             method: 'DELETE',
-            headers: { 'X-CSRFToken': csrftoken },
             on: 'now',
             onSuccess: r => {
                 getItems(bucketId, cardId, dark);
@@ -697,7 +688,6 @@ function renderItems(containerSelector, items, bucketId, cardId, dark = false) {
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/check/`,
                     method: 'POST',
                     data: { checked: checked },
-                    headers: { 'X-CSRFToken': csrftoken },
                     on: 'now',
                     onSuccess: r => {
                         getItems(bucketId, cardId, dark);
@@ -807,7 +797,6 @@ function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dar
             timeEntrySegment.addClass('loading');
             $.ajax({
                 url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/time-entries/${timeEntry.id}/`,
-                headers: { 'X-CSRFToken': csrftoken },
                 method: 'DELETE',
                 success: r => {
                     timeEntrySegment.remove();
@@ -825,7 +814,6 @@ function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dar
             timeEntrySegment.addClass('loading');
             $.ajax({
                 url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/time-entries/${timeEntry.id}/`,
-                headers: { 'X-CSRFToken': csrftoken },
                 method: 'PATCH',
                 data: {
                     name: $(`input[name=name][data-time-entry-id=${timeEntry.id}]`).val(),
@@ -889,7 +877,6 @@ function renderComments(containerSelector, comments, bucketId, cardId, dark = fa
                             url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/${comment.id}/`,
                             method: 'PATCH',
                             data: { text: editCommentTextarea.val() },
-                            headers: { 'X-CSRFToken': csrftoken },
                             success: r => {
                                 editCommentTextarea.val('');
                                 $('body').toast({ message: gettext("Comment edited.") });
@@ -918,7 +905,6 @@ function renderComments(containerSelector, comments, bucketId, cardId, dark = fa
                         $.ajax({
                             url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/${comment.id}/`,
                             method: 'DELETE',
-                            headers: { 'X-CSRFToken': csrftoken },
                             success: r => {
                                 $('body').toast({ message: gettext("Comment deleted.") });
                             },
@@ -987,7 +973,6 @@ async function loadComments(card, bucketId, dark) {
         $.api({
             url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/comments/`,
             method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken },
             data: {
                 card: card.id,
                 text: $('textarea.add-reply').val(),
@@ -1011,7 +996,6 @@ async function loadChecklistItems(card, bucketId, dark) {
             $.api({
                 url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
                 method: 'POST',
-                headers: { 'X-CSRFToken': csrftoken },
                 data: {
                     name: e.target.value,
                     card: card.id,
@@ -1215,7 +1199,6 @@ function getBoardAllowedUsers() {
     $.ajax({
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
         method: 'GET',
-        headers: { 'X-CSRFToken': csrftoken },
         async: false,
     })
         .done(r => { allowed_users = r.allowed_users; })
@@ -1442,7 +1425,6 @@ function showCardModal(card = null, bucketId, compact) {
             $.ajax({
                 url: url,
                 type: method,
-                headers: { 'X-CSRFToken': csrftoken },
                 data: data,
                 success: r => {
                     if (FEATURES.files) {
@@ -1502,7 +1484,6 @@ function attachFile(fd, bucketId, cardId) {
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
         on: 'now',
         method: 'POST',
-        headers: { 'X-CSRFToken': csrftoken },
         data: fd,
         contentType: false,
         processData: false,
@@ -1552,7 +1533,6 @@ function toggleCardStatus(cardId, bucketId, currentStatus, dark, compact) {
     $.ajax({
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/`,
         type: 'PATCH',
-        headers: { 'X-CSRFToken': csrftoken },
         data: { status: status },
     })
         .done(r => {
@@ -1603,7 +1583,6 @@ function showBucketModal(bucket = null) {
                 $.ajax({
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`,
                     type: 'POST',
-                    headers: { 'X-CSRFToken': csrftoken },
                     data: {
                         name: name,
                         board: BOARD_ID,
@@ -1622,7 +1601,6 @@ function showBucketModal(bucket = null) {
                 $.ajax({
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${id}/`,
                     type: 'PUT',
-                    headers: { 'X-CSRFToken': csrftoken },
                     data: {
                         name: name,
                         board: BOARD_ID,
@@ -1675,7 +1653,6 @@ function deleteBucket(bucketId) {
                 $.ajax({
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/`,
                     type: 'DELETE',
-                    headers: { 'X-CSRFToken': csrftoken },
                     success: function (result) {
                         loadBoard();
                     }
@@ -1697,7 +1674,6 @@ function deleteCard(cardId, bucketId, dark, compact) {
                 $.ajax({
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}`,
                     type: 'DELETE',
-                    headers: { 'X-CSRFToken': csrftoken },
                     success: function (result) {
                         getCards(bucketId, dark, compact);
                     }
@@ -1711,7 +1687,6 @@ function startStopTimer(cardId, bucketId, dark, compact) {
     $.ajax({
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/timer/`,
         type: 'POST',
-        headers: { 'X-CSRFToken': csrftoken },
         success: function (result) {
             if (result.action == 'start') {
                 $('body').toast({
@@ -1842,7 +1817,6 @@ function renderTagForms(containerElement, tag) {
                 $.ajax({
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${tag.id}`,
                     method: 'DELETE',
-                    headers: { 'X-CSRFToken': csrftoken },
                 }).done(r => {
                     $(`form[data-tag-id=${tag.id}]`).remove();
                     loadBoard();
@@ -1891,7 +1865,6 @@ async function showManageTagsModal(allowMultiple = false, fromCardModal = false,
                     $.ajax({
                         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
                         method: 'POST',
-                        headers: { 'X-CSRFToken': csrftoken },
                         data: {
                             icon: icon,
                             color: color,
@@ -1902,7 +1875,6 @@ async function showManageTagsModal(allowMultiple = false, fromCardModal = false,
                     $.ajax({
                         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${id}/`,
                         method: 'PUT',
-                        headers: { 'X-CSRFToken': csrftoken },
                         data: {
                             icon: icon,
                             color: color,

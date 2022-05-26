@@ -1,3 +1,20 @@
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+$.ajaxSetup({
+    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+})
 $.fn.calendar.settings.text = {
     days: [
         pgettext('weekday sunday', 'S'),
@@ -60,7 +77,7 @@ function stringToLocalDatetime(dateString, location) {
 function stringToLocalDate(dateString, location) {
     year = dateString.split('-')[0]
     month = dateString.split('-')[1] - 1
-    day = dateString.split('-')[2]
+    day = dateString.split('-')[2].split('T')[0]
     d = new Date(year, month, day)
     return d.toLocaleDateString(location)
 }
