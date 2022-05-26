@@ -1,3 +1,9 @@
+## 5.20.0 (2022-05-26)
+
+### Feat
+
+- **checklists**: add task recurrence
+
 ## 5.19.0 (2022-05-24)
 
 ### Fix
