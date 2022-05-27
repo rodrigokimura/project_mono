@@ -148,7 +148,6 @@ function saveCurriculum() {
         on: 'now',
         method: 'PATCH',
         url: `/cb/api/curricula/${CURRICULUM_ID}/`,
-        headers: { 'X-CSRFToken': csrftoken },
         data: {
             first_name: $('input[name=first-name]').val(),
             last_name: $('input[name=last-name]').val(),
@@ -234,7 +233,6 @@ async function showResourceModal(resourceId, url, modalSelector, resourceType, f
                     on: 'now',
                     method: method,
                     url: url,
-                    headers: { 'X-CSRFToken': csrftoken },
                     data: data,
                     onSuccess: r => {
                         getCurriculum();
@@ -271,7 +269,6 @@ async function deleteResource(resourceId, url, resourceType) {
                 on: 'now',
                 method: 'DELETE',
                 url: `${url}/${resourceId}/`,
-                headers: { 'X-CSRFToken': csrftoken },
                 onSuccess: r => {
                     $('body').toast({
                         message: `${resourceType} deleted`

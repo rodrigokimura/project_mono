@@ -5,11 +5,6 @@
 {% block head %}
     <script src="{% static 'checklists/index.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'checklists/index.css' %}">
-    <script>
-        $.ajaxSetup({
-            headers: { 'X-CSRFToken': csrftoken }
-        });
-    </script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
 {% endblock head %}
 
@@ -87,6 +82,14 @@
         var lists
         var updateTaskTimeout
         var taskList
+        const taskRecurrenceValues = [
+            {% for c in task_recurrence_choices %}
+            {
+                name: "{{ c.label }}",
+                value: "{{ c.value }}",
+            },
+            {% endfor %}
+        ]
 
         $(document).ready(e => {
             $('#task-detail').parent().hide()
@@ -96,6 +99,7 @@
             initializeDragAndDrop()
             initializeDueDate()
             initializeReminder()
+            initializeRecurrence()
             initializeConfigMenu()
             $('.ui.button').popup({ variation: 'inverted' })
         })

@@ -56,8 +56,16 @@ class TaskSerializer(ModelSerializer):
             'reminder',
             'reminded',
             'due_date',
+            'recurrence',
+            'get_recurrence_display',
+            'next_task_created',
         ]
-        read_only_fields = ['created_by', 'checked_by', 'checked_at']
+        read_only_fields = [
+            'created_by',
+            'checked_by',
+            'checked_at',
+            'get_recurrence_display',
+        ]
 
     @transaction.atomic
     def create(self, validated_data):
@@ -170,3 +178,7 @@ class ConfigurationSerializer(serializers.ModelSerializer):
             'updated_at',
             'created_by',
         ]
+
+
+class TaskRecurrenceSerializer(serializers.Serializer):
+    recurrence = 1
