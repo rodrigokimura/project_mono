@@ -1,3 +1,9 @@
+## 5.22.0 (2022-05-27)
+
+### Feat
+
+- **checklists**: improve translation
+
 ## 5.21.0 (2022-05-26)
 
 ### Feat
