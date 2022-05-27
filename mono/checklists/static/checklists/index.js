@@ -256,6 +256,7 @@ function updateTask(data) {
         data: data,
         onSuccess(response, element, xhr) {
             retrieveTasks(checklistId)
+            reselectTask()
         },
         onFailure(response, element, xhr) {
             toast(response)
@@ -310,8 +311,10 @@ function renderTaskDetails(task) {
     }
     if (task.recurrence === null) {
         $('#task-recurrence').dropdown('clear', true)
+        $('#task-recurrence').removeClass('blue button').addClass('button')
     } else {
-        $('#task-recurrence').dropdown('clear', true)
+        $('#task-recurrence').dropdown('set selected', task.recurrence, undefined, true)
+        $('#task-recurrence').removeClass('button').addClass('blue button')
     }
 }
 
@@ -369,6 +372,7 @@ function deleteTask() {
         }
     }).modal('show');
 }
+
 function deleteChecklist(id) {
     $('.ui.sidebar').sidebar('hide')
     $('body').modal({
@@ -602,7 +606,9 @@ function initializeReminder() {
 function clearDueDate() {
     $('#task-due-date').calendar('set date', null, true, false)
     updateTask({
-        due_date: null
+        due_date: null,
+        recurrence: null,
+        next_task_created: false,
     })
 }
 
@@ -743,7 +749,15 @@ function initializeRecurrence() {
     el.dropdown({
         values: taskRecurrenceValues,
         onChange(value, text, $choice) {
-            updateTask({ recurrence: value })
+            data = { recurrence: value }
+            dueDate = $('#task-due-date').calendar('get date')
+            if (dueDate == null) {
+                dueDate = new Date()
+                dueDate.setHours(0,0,0,0)
+                dueDate = dueDate.toISOString()
+                data['due_date'] = dueDate
+            }
+            updateTask(data)
         }
     })
 }

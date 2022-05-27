@@ -22,5 +22,8 @@ def schedule_recurrent_task(sender, instance: Task, **kwargs):
             instance.schedule_recurrent_task()
     elif instance.id is not None:
         previous: Task = Task.objects.get(id=instance.id)
-        if previous.recurrence != instance.recurrence or previous.due_date != instance.due_date:
+        if (
+            previous.recurrence != instance.recurrence
+            or previous.due_date != instance.due_date
+        ):
             instance.schedule_recurrent_task()
