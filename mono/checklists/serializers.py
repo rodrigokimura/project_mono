@@ -65,7 +65,6 @@ class TaskSerializer(ModelSerializer):
             'checked_by',
             'checked_at',
             'get_recurrence_display',
-            'next_task_created',
         ]
 
     @transaction.atomic

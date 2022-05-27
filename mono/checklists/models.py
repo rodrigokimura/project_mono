@@ -132,6 +132,8 @@ class Task(models.Model):
     def schedule_recurrent_task(self):
         """Schedule creation of next task"""
         BackgroundTask.objects.drop_task(task_name='checklists.tasks.create_next_task', args=[self.id])
+        if self.recurrence is None:
+            return
         run_at = self.get_next_due_date()
         if self.recurrence and not self.next_task_created:
             create_next_task(self.pk, schedule=run_at, creator=self)
@@ -145,9 +147,13 @@ class Task(models.Model):
             increment = relativedelta(months=1)
         elif self.recurrence == self.Recurrence.YEARLY:
             increment = relativedelta(years=1)
+        elif not self.recurrence:
+            return None
         else:
             raise NotImplementedError('Invalid task recurrence')
         d = self.due_date
+        if d is None:
+            return None
         while True:
             d += increment
             if d > now():
