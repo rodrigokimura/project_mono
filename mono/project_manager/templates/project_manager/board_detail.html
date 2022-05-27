@@ -134,7 +134,6 @@
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
                     on: 'now',
                     method: 'PATCH',
-                    headers: { 'X-CSRFToken': csrftoken },
                     data: fd,
                     contentType: false,
                     processData: false,
@@ -160,7 +159,6 @@
                 url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
                 on: 'now',
                 method: 'PATCH',
-                headers: { 'X-CSRFToken': csrftoken },
                 data: {'background_image': null},
                 successTest: r => r != 0,
                 onSuccess: r => {

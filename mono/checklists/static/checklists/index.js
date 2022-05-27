@@ -47,6 +47,11 @@ function renderTask(task) {
                     <i class="calendar icon"></i>
                 </div>
             `: ''}
+            ${task.recurrence ? `
+                <div class="ui circular icon ${task.next_task_created ? '': 'blue'} label task-label" style="margin-left: .5em;" title="${task.get_recurrence_display}">
+                    <i class="retweet icon"></i>
+                </div>
+            `: ''}
         </a>
     `)
     $(`.ui.checkbox[data-task-id=${task.id}]`).checkbox({
@@ -251,6 +256,7 @@ function updateTask(data) {
         data: data,
         onSuccess(response, element, xhr) {
             retrieveTasks(checklistId)
+            reselectTask()
         },
         onFailure(response, element, xhr) {
             toast(response)
@@ -302,6 +308,13 @@ function renderTaskDetails(task) {
         localDueDate = new Date(task.due_date);
         utcDueDate = new Date(localDueDate.toUTCString().slice(0, -4));
         $('#task-due-date').calendar('set date', utcDueDate, true, false)
+    }
+    if (task.recurrence === null) {
+        $('#task-recurrence').dropdown('clear', true)
+        $('#task-recurrence').removeClass('blue button').addClass('button')
+    } else {
+        $('#task-recurrence').dropdown('set selected', task.recurrence, undefined, true)
+        $('#task-recurrence').removeClass('button').addClass('blue button')
     }
 }
 
@@ -359,6 +372,7 @@ function deleteTask() {
         }
     }).modal('show');
 }
+
 function deleteChecklist(id) {
     $('.ui.sidebar').sidebar('hide')
     $('body').modal({
@@ -503,7 +517,6 @@ function initializeDragAndDrop() {
             on: 'now',
             method: 'POST',
             url: '/cl/api/task-move/',
-            headers: { 'X-CSRFToken': csrftoken },
             stateContext: '#tasks-div',
             data: {
                 task: taskId,
@@ -523,7 +536,6 @@ function initializeDragAndDrop() {
             on: 'now',
             method: 'POST',
             url: '/cl/api/checklist-move/',
-            headers: { 'X-CSRFToken': csrftoken },
             stateContext: '#lists-div',
             data: {
                 checklist: checlistId,
@@ -560,7 +572,9 @@ function initializeDueDate() {
         onChange() {
             dueDate = $('#task-due-date').calendar('get date')
             if (dueDate != null) {
-                dueDate = $('#task-due-date').calendar('get date').toISOString().split('T')[0]
+                dueDate = $('#task-due-date').calendar('get date')
+                dueDate.setHours(0,0,0,0)
+                dueDate = dueDate.toISOString()
             }
             updateTask({
                 due_date: dueDate
@@ -592,7 +606,9 @@ function initializeReminder() {
 function clearDueDate() {
     $('#task-due-date').calendar('set date', null, true, false)
     updateTask({
-        due_date: null
+        due_date: null,
+        recurrence: null,
+        next_task_created: false,
     })
 }
 
@@ -724,6 +740,24 @@ function initializeConfigMenu(triggerReselect = true) {
                     }
                 }
             })
+        }
+    })
+}
+
+function initializeRecurrence() {
+    el = $('#task-recurrence')
+    el.dropdown({
+        values: taskRecurrenceValues,
+        onChange(value, text, $choice) {
+            data = { recurrence: value }
+            dueDate = $('#task-due-date').calendar('get date')
+            if (dueDate == null) {
+                dueDate = new Date()
+                dueDate.setHours(0,0,0,0)
+                dueDate = dueDate.toISOString()
+                data['due_date'] = dueDate
+            }
+            updateTask(data)
         }
     })
 }

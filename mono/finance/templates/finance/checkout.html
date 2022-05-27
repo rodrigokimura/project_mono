@@ -252,7 +252,6 @@
           url: "{% url 'accounts:checkout' %}",
           serializeForm: true,
           mode: 'same-origin',
-          headers: {'X-CSRFToken': csrftoken},
           data:{
             payment_method_id: result.paymentMethod.id,
             price_id: $('input[name=plan]').val(),

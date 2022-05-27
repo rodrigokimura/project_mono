@@ -2,7 +2,6 @@ function updateText() {
     $.api({
         on: 'now',
         url: `/nt/api/notes/${NOTE_ID}/`,
-        headers: { 'X-CSRFToken': csrftoken },
         method: 'PATCH',
         data: {
             text: $('textarea[name=text]').val(),

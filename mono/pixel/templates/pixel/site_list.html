@@ -158,7 +158,6 @@
                         on: 'now',
                         method: 'DELETE',
                         url: `/pixel/tags/${siteId}`,
-                        headers: { 'X-CSRFToken': csrftoken },
                         onSuccess: () => {
                             $('body').toast({ message: `Successfully deleted tag ${siteId}`})
                             location.reload();

@@ -33,7 +33,6 @@ function initializeDeleteButtons() {
                     url: `/pm/api/projects/${projectId}/`,
                     method: 'DELETE',
                     mode: 'same-origin',
-                    headers: {'X-CSRFToken': csrftoken},
                     cache: false,
                     on: 'now',
                     onSuccess: response => {

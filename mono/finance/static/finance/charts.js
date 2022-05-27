@@ -17,7 +17,6 @@ function initializeDragula() {
                 on: 'now',
                 url: `/fn/api/chart-move/`,
                 method: 'POST',
-                headers: { 'X-CSRFToken': csrftoken },
                 stateContext: `.chart-card[data-chart-id=${chart}]`,
                 data: {
                     chart: chart,
@@ -48,7 +47,6 @@ function getCharts() {
     $.api({
         on: "now",
         url: `/fn/api/charts/`,
-        headers: { 'X-CSRFToken': csrftoken },
         onSuccess: r => {
             chartIds = r.data;
             chartsEl.empty();
@@ -94,7 +92,6 @@ function renderChart(chartId) {
     $.api({
         on: "now",
         url: `/fn/api/charts/${chartId}/`,
-        headers: { 'X-CSRFToken': csrftoken },
         stateContext: `.ui.card[data-chart-id=${chartId}]`,
         onSuccess: r => {
             charts.push(
@@ -237,7 +234,6 @@ function deleteChart(chartId) {
                 on: "now",
                 url: `/fn/api/charts/${chartId}/`,
                 method: "DELETE",
-                headers: { 'X-CSRFToken': csrftoken },
                 onSuccess: r => {
                     $('body').toast({
                         title: 'Success',
@@ -287,7 +283,6 @@ function showChartModal(chartId = null) {
                     on: "now",
                     url: url,
                     method: create ? 'POST' : 'PATCH',
-                    headers: { 'X-CSRFToken': csrftoken },
                     contentType: 'application/json',
                     data: JSON.stringify({
                         title: modal.find('input[name=title]').val(),
