@@ -1,3 +1,9 @@
+## 5.21.0 (2022-05-26)
+
+### Feat
+
+- **checklists**: allow task recurrence removal
+
 ## 5.20.0 (2022-05-26)
 
 ### Feat
