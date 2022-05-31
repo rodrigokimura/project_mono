@@ -1,3 +1,9 @@
+## 5.19.0 (2022-05-30)
+
+### Feat
+
+- **project_manager**: change space via model method
+
 ## 5.18.0 (2022-05-24)
 
 ### Feat
