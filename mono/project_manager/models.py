@@ -185,15 +185,20 @@ class Board(BaseModel):
         }
 
     @transaction.atomic
-    def set_order(self, order):
-        boards = Board.objects.filter(project=self.project).exclude(id=self.id)
-        for i, board in enumerate(boards):
-            if i + 1 < order:
-                board.order = i + 1
-                board.save()
-            else:
-                board.order = i + 2
-                board.save()
+    def set_order_and_space(self, order, space):
+        original_space = self.space
+        target_space = space
+        spaces = [original_space, target_space]
+
+        for s in spaces:
+            boards = Board.objects.filter(project=self.project, space=s).exclude(id=self.id)
+            for i, board in enumerate(boards):
+                if i + 1 < order:
+                    board.order = i + 1
+                    board.save()
+                else:
+                    board.order = i + 2
+                    board.save()
         self.order = order
         self.save()
         self.project.touch()
