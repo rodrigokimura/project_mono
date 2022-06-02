@@ -103,9 +103,9 @@ function selectSnippet(snippetId) {
         <div class="ui attached segment" style="padding: 0; flex: 1 1 auto; overflow: auto; display: flex; flex-flow: column nowrap;">
             <div id="snippet-code" class="${sessionStorage.getItem('style')} snippet highlight">${snippet.html}</div>
         </div>
-        <div class="ui bottom attached segment" style="display: flex; flex-flow: row nowrap; justify-content: space-between; align-items: baseline; wpadding: .5em; flex: 0 1 auto; margin-bottom: 0;">
+        <div class="ui bottom attached segment" style="display: flex; flex-flow: row nowrap; justify-content: space-between; align-items: baseline; padding: .5em; flex: 0 1 auto; margin-bottom: 0;">
             <div class="ui slider checkbox" id="public-checkbox" style="padding: 1em;">
-                <input type="checkbox" name="newsletter">
+                <input type="checkbox">
                 <label>Public</label>
             </div>
             <div class="ui action hidden input" style="flex: 1 0 auto; padding-left: .5em !important; padding-right: .75em !important;" id="public-id">
