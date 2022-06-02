@@ -1,14 +1,15 @@
-function toast(title, message) {
+function toast(title, message, type) {
     $('body').toast({
         title: title,
-        message: message
+        message: message,
+        class: type ? type: '',
     })
 }
 
 function renderChecklist(checklistId, checklistName) {
     listsDiv.append(`
         <a class="teal checklist item" data-checklist-id="${checklistId}" onclick="selectChecklist(${checklistId})" style="display: flex; flex-flow: row nowrap; align-items: center;">
-            <div style="flex: 1 0 0;">
+            <div style="flex: 1 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 <span class="checklist-name">${checklistName}</span>
             </div>
             <div style="flex: 0 0 auto;">
@@ -34,7 +35,7 @@ function renderTask(task) {
             <div class="ui checkbox" data-task-id="${task.id}" style="flex: 0 0 auto;">
                 <input type="checkbox" ${task.checked_at != null ? "checked" : ""}>
             </div>
-            <div style="flex: 1 0 auto;">
+            <div style="flex: 1 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 <span class="task-description">${task.description}</span>
             </div>
             ${task.reminder ? `
@@ -92,10 +93,17 @@ function createTask(taskDescription) {
             description: taskDescription,
             order: 0
         },
-        onSuccess: r => {
+        onSuccess(r) {
             renderTask(r)
             updateCounter('total', true)
-        }
+        },
+        onFailure(response, element, xhr) {
+            Object.entries(response).forEach(
+                entry => {
+                    toast(gettext('Error'), entry[1].join('\n'), 'error')
+                }
+            )
+        },
     })
 }
 
@@ -107,9 +115,16 @@ async function createChecklist(checklistName) {
         data: {
             name: checklistName,
         },
-        onSuccess: r => {
+        onSuccess(r) {
             renderChecklist(r.id, r.name)
-        }
+        },
+        onFailure(response, element, xhr) {
+            Object.entries(response).forEach(
+                entry => {
+                    toast(gettext('Error'), entry[1].join('\n'), 'error')
+                }
+            )
+        },
     })
 }
 
@@ -118,7 +133,7 @@ function retrieveLists() {
         on: 'now',
         url: '/cl/api/checklists/',
         successTest: r => true,
-        onSuccess: r => {
+        onSuccess(r) {
             listsDiv.empty()
             r.results.forEach(
                 item => renderChecklist(item.id, item.name)
@@ -163,7 +178,7 @@ async function retrieveTasks(checklistId) {
         on: 'now',
         method: 'GET',
         stateContext: '#tasks-div',
-        onSuccess: r => {
+        onSuccess(r) {
             tasksDiv.empty()
             $('#counter .label').removeClass('hidden')
             $('#completed-tasks').text(r.results.filter(r => r.checked_at != null).length)
@@ -259,8 +274,12 @@ function updateTask(data) {
             reselectTask()
         },
         onFailure(response, element, xhr) {
-            toast(response)
-        }
+            Object.entries(response).forEach(
+                entry => {
+                    toast(gettext('Error'), entry[1].join('\n'), 'error')
+                }
+            )
+        },
     })
 }
 
@@ -271,7 +290,7 @@ function selectTask(taskId) {
         on: 'now',
         url: `/cl/api/tasks/${taskId}/`,
         stateContext: '#task-detail .segment',
-        onSuccess: r => {
+        onSuccess(r) {
             sessionStorage.setItem('selectedTask', taskId)
             renderTaskDetails(r)
             showTaskPanel()
@@ -356,14 +375,14 @@ function deleteTask() {
                 class: 'red approve'
             },
         ],
-        onApprove: () => {
+        onApprove() {
             taskId = sessionStorage.getItem('selectedTask')
             checklistId = sessionStorage.getItem('selectedChecklist')
             $.api({
                 on: 'now',
                 method: 'DELETE',
                 url: `/cl/api/tasks/${taskId}`,
-                onSuccess: r => {
+                onSuccess(r) {
                     sessionStorage.removeItem('selectedTask')
                     retrieveTasks(checklistId)
                     hideTaskPanel()
@@ -395,7 +414,7 @@ function deleteChecklist(id) {
                 on: 'now',
                 method: 'DELETE',
                 url: `/cl/api/checklists/${id}`,
-                onSuccess: r => {
+                onSuccess(r) {
                     if (id == sessionStorage.getItem('selectedChecklist')) {
                         sessionStorage.removeItem('selectedChecklist')
                         hideTaskPanel()
@@ -412,16 +431,16 @@ function showNewChecklistModal() {
     modal = $('#new-checklist')
     input = modal.find('input[name=name]')
     modal.modal({
-        onShow: () => {
+        onShow() {
             input.val('')
-            input.off().on('keyup', function (e) {
-                if (e.key === 'Enter' || e.keyCode === 13) {
+            input.off().on('keypress', function (e) {
+                if (e.keycode === 13 || e.which === 13) {
                     createChecklist(input.val())
                     modal.modal('hide')
                 }
             })
         },
-        onApprove: () => {
+        onApprove() {
             createChecklist(input.val())
         }
     }).modal('show')
@@ -433,16 +452,16 @@ function editChecklist(checklistId) {
     input = modal.find('input[name=name]')
     selectedChecklist = sessionStorage.getItem('selectedChecklist')
     modal.modal({
-        onShow: () => {
+        onShow() {
             input.val($(`.checklist.item[data-checklist-id=${checklistId}] .checklist-name`).first().text())
-            input.off().on('keyup', function (e) {
-                if (e.key === 'Enter' || e.keyCode === 13) {
+            input.off().on('keypress', function (e) {
+                if (e.keycode === 13 || e.which === 13) {
                     renameChecklist(checklistId, input.val())
                     modal.modal('hide')
                 }
             })
         },
-        onApprove: () => {
+        onApprove() {
             renameChecklist(checklistId, input.val())
         }
     }).modal('show')
@@ -465,16 +484,16 @@ function showNewTaskModal() {
     modal = $('#new-task')
     input = modal.find('input[name=name]')
     modal.modal({
-        onShow: () => {
+        onShow() {
             input.val('')
-            input.off().on('keyup', function (e) {
-                if (e.key === 'Enter' || e.keyCode === 13) {
+            input.off().on('keypress', function (e) {
+                if (e.keycode === 13 || e.which === 13) {
                     createTask(input.val())
                     modal.modal('hide')
                 }
             })
         },
-        onApprove: () => {
+        onApprove() {
             createTask(input.val())
         }
     }).modal('show')
@@ -582,8 +601,6 @@ function initializeDueDate() {
         }
     })
 }
-
-
 
 function initializeReminder() {
     $('#task-reminder').calendar({
