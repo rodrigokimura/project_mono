@@ -3,6 +3,7 @@ import imghdr
 import os
 import re
 from datetime import timedelta
+from typing import Optional
 
 from accounts.models import Notification
 from django.conf import settings
@@ -108,6 +109,11 @@ class Project(BaseModel):
             board.save()
 
 
+class Space(BaseModel):
+    order = models.PositiveIntegerField()
+    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name="spaces")
+
+
 class Board(BaseModel):
     """
     Board that holds buckets
@@ -185,16 +191,22 @@ class Board(BaseModel):
         }
 
     @transaction.atomic
-    def set_order(self, order):
-        boards = Board.objects.filter(project=self.project).exclude(id=self.id)
-        for i, board in enumerate(boards):
-            if i + 1 < order:
-                board.order = i + 1
-                board.save()
-            else:
-                board.order = i + 2
-                board.save()
+    def set_order_and_space(self, order: int, space: Optional[Space] = None) -> None:
+        original_space = self.space
+        target_space = space
+        spaces = [original_space, target_space]
+
+        for s in spaces:
+            boards = Board.objects.filter(project=self.project, space=s).exclude(id=self.id)
+            for i, board in enumerate(boards):
+                if i + 1 < order:
+                    board.order = i + 1
+                    board.save()
+                else:
+                    board.order = i + 2
+                    board.save()
         self.order = order
+        self.space = space
         self.save()
         self.project.touch()
 
@@ -825,6 +837,4 @@ class Invite(models.Model):
         return f'{str(self.project)} -> {self.email}'
 
 
-class Space(BaseModel):
-    order = models.PositiveIntegerField()
-    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name="spaces")
+
