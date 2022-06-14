@@ -17,10 +17,6 @@ function renderPage() {
         url: `/pm/api/projects/${PROJECT_ID}/spaces/`,
         stateContext: '#grid',
         onSuccess(response) {
-            if (response.length == 0) {
-                renderPlaceholder()
-                return
-            }
             retrieveBoards(response)
         },
     })
@@ -33,10 +29,6 @@ function retrieveBoards(spaces) {
         url: `/pm/api/projects/${PROJECT_ID}/boards/`,
         stateContext: '#grid',
         onSuccess(response) {
-            if (response.length == 0) {
-                renderPlaceholder()
-                return
-            }
             renderSpaces(spaces, response)
         },
     })
@@ -94,6 +86,10 @@ function renderSpaces(spaces, boards) {
         </div>
     `)
     pageContent.ready(e => {
+        if (boards.length == 0) {
+            renderPlaceholder()
+            return
+        }
         spacesEl = $('#spaces')
         spacesEl.empty()
         spaces.forEach(
@@ -206,6 +202,7 @@ function editSpace(id) {
         }
     }).modal('show')
 }
+
 function deleteSpace(id) {
     $('body').modal({
         title: gettext('Confirmation'),
@@ -635,13 +632,22 @@ function initializeDragAndDrop() {
             onFailure(response) {
                 $('body').toast({
                     title: 'Failure',
-                    message: 'A problem occurred while updating chart order',
+                    message: 'A problem occurred while updating board order',
                     class: 'error',
                 })
                 renderBoards()
             },
         });
     })
+    disableDragOnTouchScreen()
+}
+
+function disableDragOnTouchScreen() {
+    $('.handle').off().on(
+        'touchmove', e => {
+            e.preventDefault();
+        }
+    )
 }
 
 function retrieveSpaces() {

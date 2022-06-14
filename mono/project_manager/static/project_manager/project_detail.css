@@ -12,6 +12,10 @@
 .ui.card:hover {
     box-shadow: 0 0 1em rgba(0, 0, 0, .4) !important;
     transform: translate(0, -.5em);
+    z-index: 0;
+}
+#spaceless-boards {
+    padding: .3em !important;
 }
 .stripes {
     background: repeating-linear-gradient(
@@ -21,7 +25,4 @@
         #fff 10px,
         #fff 20px
     ) !important;
-}
-#spaceless-boards .card {
-    margin: 0 !important;
 }
