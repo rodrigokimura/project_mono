@@ -297,7 +297,6 @@ function initializeDeleteBoardButtons() {
                     on: 'now',
                     method: 'DELETE',
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${boardId}/`,
-                    headers: {'X-CSRFToken': csrftoken},
                     onSuccess: response => {
                         window.location.replace(response.url);
                     },
@@ -368,7 +367,6 @@ function initializeInviteForm() {
                 on: 'now',
                 method: "POST",
                 mode: 'same-origin',
-                headers: {'X-CSRFToken': csrftoken},
                 data: {
                     email: $('input.invite[type=email]').val(),
                     project: PROJECT_ID,
@@ -418,7 +416,6 @@ function removeMember(userId) {
                 on: 'now',
                 method: "POST",
                 mode: 'same-origin',
-                headers: {'X-CSRFToken': csrftoken},
                 data: {
                     user: userId,
                 },
@@ -468,7 +465,6 @@ function resendInvite(inviteId) {
                 on: 'now',
                 method: "POST",
                 url: `/pm/api/projects/${PROJECT_ID}/invites/${inviteId}/resend/`,
-                headers: {'X-CSRFToken': csrftoken},
                 onSuccess: r => {
                     $('body').toast({
                         message: r.message,
@@ -514,7 +510,6 @@ function deleteInvite(inviteId) {
                 on: 'now',
                 method: "DELETE",
                 url: `/pm/api/projects/${PROJECT_ID}/invites/${inviteId}/`,
-                headers: {'X-CSRFToken': csrftoken},
                 onSuccess: r => {
                     $('body').toast({
                         message: gettext('Invite deleted successfully.'),
@@ -623,7 +618,6 @@ function initializeDragAndDrop() {
             on: 'now',
             url: `/pm/api/board-move/`,
             method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken },
             stateContext: '#boards',
             data: {
                 project: PROJECT_ID,

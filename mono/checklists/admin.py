@@ -7,10 +7,12 @@ from . import models
 @admin.register(models.Task)
 class TaskAdmin(admin.ModelAdmin):
     list_display = [
-        'checklist',
-        'order',
+        'id',
         'description',
         'reminded',
+        'next_task_created',
+        'order',
+        'checklist',
     ]
     list_filter = [
         'checklist',

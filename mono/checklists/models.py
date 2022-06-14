@@ -1,13 +1,16 @@
 """Checklists' models"""
+from datetime import timedelta
+
 from accounts.models import Notification
 from background_task.models import Task as BackgroundTask
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
-from .tasks import remind
+from .tasks import create_next_task, remind
 
 User = get_user_model()
 
@@ -31,6 +34,10 @@ class Checklist(models.Model):
             task.order = index + 1
             task.save()
 
+    @property
+    def max_count(self):
+        return self.task_set.all().count()
+
     @transaction.atomic
     def set_order(self, order):
         checklists = Checklist.objects.filter(created_by=self.created_by).exclude(id=self.id)
@@ -47,6 +54,14 @@ class Checklist(models.Model):
 
 class Task(models.Model):
     """Checklist item"""
+
+    class Recurrence(models.TextChoices):
+        """Frequency choices"""
+        DAILY = 'daily', _('Daily')
+        WEEKLY = 'weekly', _('Weekly')
+        MONTHLY = 'monthly', _('Monthly')
+        YEARLY = 'yearly', _('Yearly')
+
     checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE)
     description = models.CharField(max_length=255)
     note = models.TextField(default='', max_length=2000)
@@ -62,7 +77,9 @@ class Task(models.Model):
     checked_at = models.DateTimeField(null=True, blank=True)
     reminder = models.DateTimeField(null=True, blank=True, default=None)
     reminded = models.BooleanField(default=False)
-    due_date = models.DateField(null=True, blank=True, default=None)
+    due_date = models.DateTimeField(null=True, blank=True, default=None)
+    recurrence = models.CharField(max_length=7, null=True, blank=True, choices=Recurrence.choices)
+    next_task_created = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['checklist', 'order']
@@ -111,3 +128,59 @@ class Task(models.Model):
             )
             self.reminded = True
             self.save()
+
+    def schedule_recurrent_task(self):
+        """Schedule creation of next task"""
+        BackgroundTask.objects.drop_task(task_name='checklists.tasks.create_next_task', args=[self.id])
+        if self.recurrence is None:
+            return
+        run_at = self.get_next_due_date()
+        if self.recurrence and not self.next_task_created:
+            create_next_task(self.pk, schedule=run_at, creator=self)
+
+    def get_next_due_date(self):
+        if self.recurrence == self.Recurrence.DAILY:
+            increment = timedelta(days=1)
+        elif self.recurrence == self.Recurrence.WEEKLY:
+            increment = timedelta(days=7)
+        elif self.recurrence == self.Recurrence.MONTHLY:
+            increment = relativedelta(months=1)
+        elif self.recurrence == self.Recurrence.YEARLY:
+            increment = relativedelta(years=1)
+        elif not self.recurrence:
+            return None
+        else:
+            raise NotImplementedError('Invalid task recurrence')
+        d = self.due_date
+        if d is None:
+            return None
+        while True:
+            d += increment
+            if d > now():
+                return d
+
+    @transaction.atomic()
+    def create_next_task(self):
+        if self.recurrence is None:
+            return
+        checklist: Checklist = self.checklist
+        task = Task(
+            checklist=checklist,
+            description=self.description,
+            note=self.note,
+            order=checklist.max_count + 1,
+            created_by=self.created_by,
+            due_date=self.get_next_due_date(),
+            recurrence=self.recurrence,
+        )
+        task.save()
+        self.next_task_created = True
+        self.save()
+
+
+class Configuration(models.Model):
+    """Store user configuration"""
+    show_completed_tasks = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.OneToOneField(User, on_delete=models.CASCADE, related_name="checklists_config")
+    updated_at = models.DateTimeField(auto_now=True)

@@ -159,7 +159,6 @@
             $.api({
                 on: 'now',
                 method: 'POST',
-                headers: { 'X-CSRFToken': csrftoken },
                 url: `/accounts/notifications/mark-as-read/`,
                 data: { ids: JSON.stringify(ids) },
                 onSuccess: r => { location.reload() },
@@ -170,7 +169,6 @@
             $.api({
                 on: 'now',
                 method: 'POST',
-                headers: { 'X-CSRFToken': csrftoken },
                 url: `/accounts/notifications/mark-as-unread/`,
                 data: { ids: JSON.stringify(ids) },
                 onSuccess: r => { location.reload() },
@@ -204,7 +202,6 @@
                         on: 'now',
                         url: `/accounts/users/${USER_ID}/`,
                         method: 'PATCH',
-                        headers: { 'X-CSRFToken': csrftoken },
                         stateContext: '.ui.tab[data-tab=profile] .ui.segment',
                         loadingDuration: 1000,
                         data: fd,
@@ -252,7 +249,6 @@
                         on: 'now',
                         method: 'PUT',
                         url: '/accounts/api/change-password/',
-                        headers: { 'X-CSRFToken': csrftoken },
                         data: {
                             old_password: modal.find('input[name=old_password]').val(),
                             new_password: modal.find('input[name=new_password]').val(),

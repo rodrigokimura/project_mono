@@ -76,7 +76,6 @@
         url: "{% url 'finance:card_order' %}",
         method: 'POST',
         mode: 'same-origin',
-        headers: {'X-CSRFToken': csrftoken},
         
         beforeSend: settings => {
           settings.data = {cards: getCardsArray().toString()};

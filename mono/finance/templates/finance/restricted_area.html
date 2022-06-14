@@ -49,7 +49,6 @@
           method: 'POST',
           stateContext: $('.ui.user.search'),
           mode: 'same-origin',
-          headers: {'X-CSRFToken': csrftoken},
           data: {user: result.id},
           on: 'now',
           cache: false,
