@@ -1,4 +1,5 @@
 """Project manager's views."""
+from functools import partial
 from typing import Any, Optional
 
 from __mono.mixins import PassRequestToFormViewMixin
@@ -1522,6 +1523,20 @@ class SpaceDetailAPIView(LoginRequiredMixin, APIView):
         space: Space = get_object_or_404(Space, pk=pk)
         if request.user in project.allowed_users:
             serializer = SpaceSerializer(space, data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save(project=project)
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
+
+    def patch(self, request, pk, **kwargs):
+        """
+        Edit tag
+        """
+        project = Project.objects.get(id=kwargs.get('project_pk'))
+        space: Space = get_object_or_404(Space, pk=pk)
+        if request.user in project.allowed_users:
+            serializer = SpaceSerializer(space, data=request.data, context={'request': request}, partial=True)
             if serializer.is_valid():
                 serializer.save(project=project)
                 return Response(serializer.data)

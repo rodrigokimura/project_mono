@@ -105,12 +105,15 @@ class BoardSerializer(ModelSerializer):
             'background_image',
             'card_count',
             'progress',
+            'space',
         ]
         extra_kwargs = {
             'created_by': {'read_only': True},
             'card_count': {'read_only': True},
             'progress': {'read_only': True},
         }
+
+    # def create()
 
     def update(self, instance, validated_data):
         """Handle background image deletion upon update"""
@@ -597,6 +600,13 @@ class BoardMoveSerializer(Serializer):
     project = serializers.IntegerField()
     board = serializers.IntegerField()
     order = serializers.IntegerField()
+    space = serializers.IntegerField(required=False)
+
+    def validate_space(self, value):  # pylint: disable=no-self-use
+        """Space needs to exist"""
+        if Space.objects.filter(id=value).exists():
+            return value
+        raise serializers.ValidationError("Invalid space")
 
     def validate_project(self, value):  # pylint: disable=no-self-use
         """Project needs to exist"""
@@ -645,7 +655,10 @@ class BoardMoveSerializer(Serializer):
             id=self.validated_data['board']
         )
         order = self.validated_data['order']
-        board.set_order(order)
+        space = Space.objects.filter(
+            id=self.validated_data.get('space')
+        ).first()
+        board.set_order_and_space(order, space)
 
 
 class SpaceSerializer(ModelSerializer):
