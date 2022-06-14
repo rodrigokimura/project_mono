@@ -1,3 +1,20 @@
+## 5.24.0 (2022-06-13)
+
+### Fix
+
+- **mono**: adjust translation
+
+### Feat
+
+- **project_manager**: finish spaces feature
+- **project_manager**: change space via model method
+
+## 5.18.0 (2022-05-24)
+
+### Feat
+
+- **project_manager**: add spaces api
+
 ## 5.23.0 (2022-06-01)
 
 ### Feat
