@@ -105,6 +105,7 @@ class BoardSerializer(ModelSerializer):
             'background_image',
             'card_count',
             'progress',
+            'space',
         ]
         extra_kwargs = {
             'created_by': {'read_only': True},
@@ -654,7 +655,9 @@ class BoardMoveSerializer(Serializer):
             id=self.validated_data['board']
         )
         order = self.validated_data['order']
-        space = self.validated_data.get('space')
+        space = Space.objects.filter(
+            id=self.validated_data.get('space')
+        ).first()
         board.set_order_and_space(order, space)
 
 

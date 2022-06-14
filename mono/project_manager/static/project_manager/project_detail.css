@@ -1,0 +1,27 @@
+.space-name {
+    font-size: large;
+    font-style: italic;
+    color:rgba(0, 0, 0, .6);
+}
+
+.ui.card, .space.segments {
+    border: 1px solid #ccc !important;
+    transition: box-shadow .3s;
+    box-shadow: 0 0 .5em rgba(0, 0, 0, .2) !important;
+}
+.ui.card:hover {
+    box-shadow: 0 0 1em rgba(0, 0, 0, .4) !important;
+    transform: translate(0, -.5em);
+}
+.stripes {
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(0, 0, 0, .05),
+        rgba(0, 0, 0, .05),
+        #fff 10px,
+        #fff 20px
+    ) !important;
+}
+#spaceless-boards .card {
+    margin: 0 !important;
+}
