@@ -5,17 +5,7 @@
 
 {% block head %}
     <script src="{% static 'project_manager/project_detail.js' %}"></script>
-    <style>
-        .ui.card {
-            border: 1px solid #ccc !important;
-            transition: box-shadow .3s;
-            box-shadow: 0 0 .5em rgba(0, 0, 0, .2) !important;
-        }
-        .ui.card:hover {
-            box-shadow: 0 0 1em rgba(0, 0, 0, .4) !important;
-            transform: translate(0, -.5em);
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'project_manager/project_detail.css' %}">
 {% endblock  %}
 
 {% block main %}
@@ -25,15 +15,7 @@
     {% include 'project_manager/_breadcrumb.html' with breadcrumb=breadcrumb only %}
     <div class="ui stackable grid container basic segment" style="padding: 0; min-height: 5em;" id="grid">
         <div class="row">
-            <div class="column" id="page-content">
-                <h2 class="ui header">
-                    <i class="columns icon"></i>
-                    <div class="content">
-                        {% translate "Boards" %}
-                        <div class="sub header">{% translate "Boards are where you organize your cards." %}</div>
-                    </div>
-                </h2>
-            </div>
+            <div class="column" id="page-content"></div>
         </div>
 
         {% if boards %}
@@ -41,6 +23,13 @@
                 <div class="column">
                     <a href="{% url 'project_manager:board_create' project_pk=object.id %}" class="ui left floated icon labeled green button">
                         <i class="add icon"></i>{% translate "New board" %}
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <a class="ui left floated icon labeled green button" onclick="createSpace()">
+                        <i class="add icon"></i>{% translate "New space" %}
                     </a>
                 </div>
             </div>
@@ -128,6 +117,27 @@
     <div class="actions">
         <div class="ui black deny button">
             {% translate "Close" %}
+        </div>
+    </div>
+</div>
+
+<div class="ui modal" id="space-modal">
+    <i class="close icon"></i>
+    <div class="header">
+        {% translate "Create new space" %}
+    </div>
+    <div class="content">
+        <div class="ui input">
+            <input type="text" placeholder="Type a name for you space" id="space-name">
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui black deny button">
+            {% translate "Close" %}
+        </div>
+        <div class="ui green approve icon labeled button">
+            <i class="save icon"></i>
+            {% translate "Save" %}
         </div>
     </div>
 </div>
