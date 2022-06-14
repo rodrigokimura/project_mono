@@ -131,7 +131,7 @@ class Board(BaseModel):
     bucket_width = models.IntegerField(default=300)
     updated_at = models.DateTimeField(auto_now=True)
     background_image = models.ImageField(upload_to=_background_image_path, blank=True, null=True)
-    space = models.ForeignKey('Space', on_delete=models.CASCADE, null=True, blank=True, default=None)
+    space = models.ForeignKey('Space', on_delete=models.SET_NULL, null=True, blank=True, default=None)
 
     tags_feature = models.BooleanField(default=True, help_text='Enables tags on cards')
     color_feature = models.BooleanField(default=True, help_text='Enables color on cards')

@@ -1,3 +1,15 @@
+## 5.24.2 (2022-06-13)
+
+### Fix
+
+- **project_manager**: create migration
+
+## 5.24.1 (2022-06-13)
+
+### Fix
+
+- **project_manager**: adjust layout
+
 ## 5.24.0 (2022-06-13)
 
 ### Fix
