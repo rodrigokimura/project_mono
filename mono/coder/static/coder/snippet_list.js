@@ -103,9 +103,9 @@ function selectSnippet(snippetId) {
         <div class="ui attached segment" style="padding: 0; flex: 1 1 auto; overflow: auto; display: flex; flex-flow: column nowrap;">
             <div id="snippet-code" class="${sessionStorage.getItem('style')} snippet highlight">${snippet.html}</div>
         </div>
-        <div class="ui bottom attached segment" style="display: flex; flex-flow: row nowrap; justify-content: space-between; align-items: baseline; wpadding: .5em; flex: 0 1 auto; margin-bottom: 0;">
+        <div class="ui bottom attached segment" style="display: flex; flex-flow: row nowrap; justify-content: space-between; align-items: baseline; padding: .5em; flex: 0 1 auto; margin-bottom: 0;">
             <div class="ui slider checkbox" id="public-checkbox" style="padding: 1em;">
-                <input type="checkbox" name="newsletter">
+                <input type="checkbox">
                 <label>Public</label>
             </div>
             <div class="ui action hidden input" style="flex: 1 0 auto; padding-left: .5em !important; padding-right: .75em !important;" id="public-id">
@@ -134,7 +134,6 @@ function selectSnippet(snippetId) {
                 url: `/cd/api/snippets/${snippetId}/`,
                 method: 'PATCH',
                 data: { public: true },
-                headers: { 'X-CSRFToken': csrftoken },
                 stateContext: '.ui.bottom.attached.segment',
                 onSuccess: r => {
                     $('#public-id').removeClass('hidden');
@@ -151,7 +150,6 @@ function selectSnippet(snippetId) {
                 url: `/cd/api/snippets/${snippetId}/`,
                 method: 'PATCH',
                 data: { public: false },
-                headers: { 'X-CSRFToken': csrftoken },
                 stateContext: '.ui.bottom.attached.segment',
                 onSuccess: r => {
                     $('#public-id').addClass('hidden');
@@ -234,7 +232,7 @@ function deleteSnippet(id) {
                 on: 'now',
                 url: url,
                 method: 'DELETE',
-                headers: { 'X-CSRFToken': csrftoken },
+                headers: { '': csrftoken },
                 stateContext: '.delete.button',
                 onSuccess: r => {
                     $('body').toast({
@@ -366,7 +364,6 @@ function showModal(id = null) {
                     on: 'now',
                     url: url,
                     method: method,
-                    headers: { 'X-CSRFToken': csrftoken },
                     data: getFormInputData(),
                     onSuccess: r => {
                         $('body').toast({
@@ -414,7 +411,6 @@ function tagSnippet(tagId, snippetId) {
         on: 'now',
         method: 'POST',
         url: `/cd/api/snippets/${snippetId}/tag/`,
-        headers: { 'X-CSRFToken': csrftoken },
         data: { tag: tagId },
         successTest: r => true,
         onSuccess: r => {
@@ -432,7 +428,6 @@ function untagSnippet(tagId, snippetId) {
         on: 'now',
         method: 'POST',
         url: `/cd/api/snippets/${snippetId}/untag/`,
-        headers: { 'X-CSRFToken': csrftoken },
         data: { tag: tagId },
         successTest: r => true,
         onSuccess: r => {
@@ -516,7 +511,6 @@ function updateTag(tagId, data) {
         on: 'now',
         method: 'PATCH',
         url: `/cd/api/tags/${tagId}/`,
-        headers: { 'X-CSRFToken': csrftoken },
         data: data,
         onSuccess: r => {
             getTags(render = false);
@@ -534,7 +528,6 @@ function addTag() {
         on: 'now',
         method: 'POST',
         url: `/cd/api/tags/`,
-        headers: { 'X-CSRFToken': csrftoken },
         onSuccess: r => {
             getTags(render = true);
             getSnippetTags();
@@ -551,7 +544,6 @@ function deleteTag(tagId) {
         on: 'now',
         method: 'DELETE',
         url: `/cd/api/tags/${tagId}/`,
-        headers: { 'X-CSRFToken': csrftoken },
         onSuccess: r => {
             getTags(render = true);
             getSnippetTags();
@@ -597,7 +589,6 @@ function showConfigModal() {
                     on: 'now',
                     method: 'PATCH',
                     url: '/cd/api/config/',
-                    headers: { 'X-CSRFToken': csrftoken },
                     data: { lineno: lineno, style: style },
                     onSuccess: r => {
                         setSnippetStyle();

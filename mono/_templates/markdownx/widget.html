@@ -265,7 +265,6 @@
         $.api({
             on: 'now',
             method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken },
             url: '/markdownx/markdownify/',
             data: { content: TEXTAREA.val() },
             dataType: 'html',

@@ -1,14 +1,42 @@
-## 5.19.0 (2022-05-30)
+## 5.23.0 (2022-06-01)
 
 ### Feat
 
-- **project_manager**: change space via model method
+- **checklists**: improve ui
+
+## 5.22.0 (2022-05-27)
+
+### Feat
+
+- **checklists**: improve translation
+
+## 5.21.0 (2022-05-26)
+
+### Feat
+
+- **checklists**: allow task recurrence removal
+
+## 5.20.0 (2022-05-26)
+
+### Feat
+
+- **checklists**: add task recurrence
+
+## 5.19.0 (2022-05-24)
+
+### Fix
+
+- **checklists**: app missing function call
+
+### Feat
+
+- **checklists**: add more sorting features
 
 ## 5.18.0 (2022-05-24)
 
 ### Feat
 
-- **project_manager**: add spaces api
+- **checklists**: add more sorting features
 
 ## 5.17.2 (2022-05-20)
 
