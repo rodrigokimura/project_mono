@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-17 18:36+0000\n"
+"POT-Creation-Date: 2022-06-13 23:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgid "Checked at %s"
 msgstr "Concluído em %s"
 
 #: mono/checklists/static/checklists/index.js:252
-#: mono/project_manager/static/project_manager/project_detail.js:89
+#: mono/project_manager/static/project_manager/project_detail.js:272
 #, javascript-format
 msgid "Created at %s"
 msgstr "Criado em %s"
@@ -34,9 +34,10 @@ msgstr "Criado em %s"
 #: mono/notes/static/notes/note_list.js:3
 #: mono/project_manager/static/board.js:599
 #: mono/project_manager/static/board_calendar.js:206
-#: mono/project_manager/static/project_manager/project_detail.js:222
-#: mono/project_manager/static/project_manager/project_detail.js:274
-#: mono/project_manager/static/project_manager/project_detail.js:321
+#: mono/project_manager/static/project_manager/project_detail.js:213
+#: mono/project_manager/static/project_manager/project_detail.js:403
+#: mono/project_manager/static/project_manager/project_detail.js:454
+#: mono/project_manager/static/project_manager/project_detail.js:500
 msgid "Confirmation"
 msgstr "Confirmação"
 
@@ -53,16 +54,17 @@ msgstr "Você tem certeza de que quer excluir esta tarefa?"
 #: mono/project_manager/static/board_calendar.js:212
 #: mono/project_manager/static/board_calendar.js:516
 #: mono/project_manager/static/board_calendar.js:1276
-#: mono/project_manager/static/project_manager/project_detail.js:228
-#: mono/project_manager/static/project_manager/project_detail.js:280
-#: mono/project_manager/static/project_manager/project_detail.js:327
+#: mono/project_manager/static/project_manager/project_detail.js:219
+#: mono/project_manager/static/project_manager/project_detail.js:409
+#: mono/project_manager/static/project_manager/project_detail.js:460
+#: mono/project_manager/static/project_manager/project_detail.js:506
 msgid "Cancel"
 msgstr "Cancelar"
 
 #: mono/checklists/static/checklists/index.js:305
 #: mono/checklists/static/checklists/index.js:338
 #: mono/notes/static/notes/note_list.js:13
-#: mono/project_manager/static/project_manager/project_detail.js:331
+#: mono/project_manager/static/project_manager/project_detail.js:510
 msgid "Yes, delete it."
 msgstr "Sim, excluir."
 
@@ -159,7 +161,7 @@ msgstr ""
 
 #: mono/project_manager/static/board.js:583
 #: mono/project_manager/static/board_calendar.js:190
-#: mono/project_manager/static/project_manager/project_detail.js:81
+#: mono/project_manager/static/project_manager/project_detail.js:264
 msgid "Open"
 msgstr "Abrir"
 
@@ -175,6 +177,7 @@ msgstr "Excluir este arquivo"
 
 #: mono/project_manager/static/board.js:609
 #: mono/project_manager/static/board_calendar.js:216
+#: mono/project_manager/static/project_manager/project_detail.js:223
 msgid "Yes, delete it"
 msgstr "Sim, excluir"
 
@@ -219,8 +222,8 @@ msgstr "Parado em"
 #: mono/project_manager/static/board.js:875
 #: mono/project_manager/static/board_calendar.js:359
 #: mono/project_manager/static/board_calendar.js:482
-#: mono/project_manager/static/project_manager/project_detail.js:84
-#: mono/project_manager/static/project_manager/project_detail.js:401
+#: mono/project_manager/static/project_manager/project_detail.js:267
+#: mono/project_manager/static/project_manager/project_detail.js:579
 msgid "Delete"
 msgstr "Excluir"
 
@@ -241,7 +244,7 @@ msgstr "Entrada de tempo atualizada com sucesso!"
 
 #: mono/project_manager/static/board.js:874
 #: mono/project_manager/static/board_calendar.js:481
-#: mono/project_manager/static/project_manager/project_detail.js:82
+#: mono/project_manager/static/project_manager/project_detail.js:265
 msgid "Edit"
 msgstr "Editar"
 
@@ -304,7 +307,7 @@ msgstr "Em progresso"
 
 #: mono/project_manager/static/board.js:1543
 #: mono/project_manager/static/board_calendar.js:1116
-#: mono/project_manager/static/project_manager/project_detail.js:156
+#: mono/project_manager/static/project_manager/project_detail.js:337
 msgid "Completed"
 msgstr "Completo"
 
@@ -402,109 +405,113 @@ msgstr "Upload de arquivo orealizado com sucesso"
 msgid "Delete card"
 msgstr "Excluir card"
 
-#: mono/project_manager/static/project_manager/project_detail.js:34
+#: mono/project_manager/static/project_manager/project_detail.js:53
 msgid "No boards are listed for this project yet."
 msgstr "Nenhum quadro está listado para este projeto ainda."
 
-#: mono/project_manager/static/project_manager/project_detail.js:37
+#: mono/project_manager/static/project_manager/project_detail.js:56
 msgid "Add your first board!"
 msgstr "Adicione seu primeiro quadro!"
 
-#: mono/project_manager/static/project_manager/project_detail.js:48
+#: mono/project_manager/static/project_manager/project_detail.js:68
 #, javascript-format
 msgid "You have only %s board in project <strong>%s</strong>."
 msgid_plural "You have %s boards in project <strong>%s</strong>."
 msgstr[0] "Você possui apenas %s quadro no projeto <strong>%s</strong>."
 msgstr[1] "Você possui %s quadros no projeto <strong>%s</strong>."
 
-#: mono/project_manager/static/project_manager/project_detail.js:106
+#: mono/project_manager/static/project_manager/project_detail.js:216
+msgid "Delete this space?"
+msgstr "Excluir este espaço?"
+
+#: mono/project_manager/static/project_manager/project_detail.js:289
 msgid "Confirm deletion"
 msgstr "Confirmar exclusão"
 
-#: mono/project_manager/static/project_manager/project_detail.js:109
+#: mono/project_manager/static/project_manager/project_detail.js:292
 msgid "Delete this board?"
 msgstr "Excluir este quadro?"
 
-#: mono/project_manager/static/project_manager/project_detail.js:143
+#: mono/project_manager/static/project_manager/project_detail.js:324
 msgid "No cards"
 msgstr "Nenhum card"
 
-#: mono/project_manager/static/project_manager/project_detail.js:144
+#: mono/project_manager/static/project_manager/project_detail.js:325
 msgid "%s card (%s%)"
 msgid_plural "%s cards (%s%)"
 msgstr[0] "%s card (%s%)"
 msgstr[1] "%s cards (%s%)"
 
-#: mono/project_manager/static/project_manager/project_detail.js:157
+#: mono/project_manager/static/project_manager/project_detail.js:338
 msgid "In progress"
 msgstr "Em progresso"
 
-#: mono/project_manager/static/project_manager/project_detail.js:158
+#: mono/project_manager/static/project_manager/project_detail.js:339
 msgid "Not started"
 msgstr "Não iniciado"
 
-#: mono/project_manager/static/project_manager/project_detail.js:173
+#: mono/project_manager/static/project_manager/project_detail.js:354
 msgid "Please enter an email"
 msgstr "Por favor, digite um e-mail"
 
-#: mono/project_manager/static/project_manager/project_detail.js:177
+#: mono/project_manager/static/project_manager/project_detail.js:358
 msgid "Please enter a valid email"
 msgstr "Por favor, digite um e-mail válido"
 
-#: mono/project_manager/static/project_manager/project_detail.js:184
+#: mono/project_manager/static/project_manager/project_detail.js:365
 #, javascript-format
 msgid "Your invitation was sent to %s."
 msgstr "Seu convite foi enviado para %s."
 
-#: mono/project_manager/static/project_manager/project_detail.js:225
+#: mono/project_manager/static/project_manager/project_detail.js:406
 msgid "Are you sure you want to remove user from this project?"
 msgstr "Você tem certeza de que quer remover o usuário deste projeto?"
 
-#: mono/project_manager/static/project_manager/project_detail.js:232
+#: mono/project_manager/static/project_manager/project_detail.js:413
 msgid "Yes, remove user."
 msgstr "Sim, remover o usuário."
 
-#: mono/project_manager/static/project_manager/project_detail.js:248
+#: mono/project_manager/static/project_manager/project_detail.js:429
 msgid "User successfully removed from this project's team."
 msgstr "Usuário removido da equipe deste projeto com sucesso."
 
-#: mono/project_manager/static/project_manager/project_detail.js:277
+#: mono/project_manager/static/project_manager/project_detail.js:457
 msgid "Are you sure you want to resend the email invitation?"
 msgstr "Você tem certeza de que quer reenviar o e-mail de convite?"
 
-#: mono/project_manager/static/project_manager/project_detail.js:284
+#: mono/project_manager/static/project_manager/project_detail.js:464
 msgid "Yes, resend it."
 msgstr "Sim, reenviar."
 
-#: mono/project_manager/static/project_manager/project_detail.js:324
+#: mono/project_manager/static/project_manager/project_detail.js:503
 msgid "Are you sure you want to delete this invite?"
 msgstr "Você tem certeza de que quer excluir este convite?"
 
-#: mono/project_manager/static/project_manager/project_detail.js:344
+#: mono/project_manager/static/project_manager/project_detail.js:522
 msgid "Invite deleted successfully."
 msgstr "Convite excluído com sucesso."
 
-#: mono/project_manager/static/project_manager/project_detail.js:373
+#: mono/project_manager/static/project_manager/project_detail.js:551
 msgid "No invites yet"
 msgstr "Nenhum convite ainda"
 
-#: mono/project_manager/static/project_manager/project_detail.js:380
+#: mono/project_manager/static/project_manager/project_detail.js:558
 msgid "Email"
 msgstr "E-mail"
 
-#: mono/project_manager/static/project_manager/project_detail.js:381
+#: mono/project_manager/static/project_manager/project_detail.js:559
 msgid "Created"
 msgstr "Criado"
 
-#: mono/project_manager/static/project_manager/project_detail.js:382
+#: mono/project_manager/static/project_manager/project_detail.js:560
 msgid "Accepted"
 msgstr "Aceito"
 
-#: mono/project_manager/static/project_manager/project_detail.js:383
+#: mono/project_manager/static/project_manager/project_detail.js:561
 msgid "Actions"
 msgstr "Ações"
 
-#: mono/project_manager/static/project_manager/project_detail.js:400
+#: mono/project_manager/static/project_manager/project_detail.js:578
 msgid "Resend email"
 msgstr "Reenviar e-mail"
 

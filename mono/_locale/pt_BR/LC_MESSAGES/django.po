@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-17 18:36+0000\n"
+"POT-Creation-Date: 2022-06-13 23:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -261,12 +261,12 @@ msgid "Mono Project Team"
 msgstr "Equipe do Projeto Mono"
 
 #: mono/_templates/registration/password_reset_form.html:16
-#: mono/project_manager/templates/project_manager/project_detail.html:93
+#: mono/project_manager/templates/project_manager/project_detail.html:95
 msgid "Send"
 msgstr "Enviar"
 
 #: mono/accounts/forms.py:29
-#: mono/project_manager/templates/project_manager/project_detail.html:62
+#: mono/project_manager/templates/project_manager/project_detail.html:64
 msgid "Email"
 msgstr "E-mail"
 
@@ -562,6 +562,7 @@ msgstr "Cancelar"
 #: mono/project_manager/templates/project_manager/board_detail.html:530
 #: mono/project_manager/templates/project_manager/board_detail.html:546
 #: mono/project_manager/templates/project_manager/board_form.html:28
+#: mono/project_manager/templates/project_manager/project_detail.html:140
 #: mono/project_manager/templates/project_manager/project_form.html:28
 #: mono/project_manager/templates/project_manager/tag_form.html:28
 #: mono/shipper/templates/shipper/ship_form.html:25
@@ -579,16 +580,16 @@ msgstr "Salvar"
 #: mono/notes/templates/notes/note_list.html:131
 #: mono/project_manager/templates/project_manager/board_form.html:23
 #: mono/project_manager/templates/project_manager/project_form.html:23
-#: mono/project_manager/templates/project_manager/project_list.html:87
+#: mono/project_manager/templates/project_manager/project_list.html:98
 #: mono/project_manager/templates/project_manager/tag_form.html:23
 msgid "Delete"
 msgstr "Excluir"
 
-#: mono/checklists/models.py:81
+#: mono/checklists/models.py:107
 msgid "Reminder for task"
 msgstr "Lembrate de tarefa"
 
-#: mono/checklists/models.py:82
+#: mono/checklists/models.py:108
 #, python-format
 msgid "You have a task to do: %(description)s"
 msgstr "Você possui uma tarefa para fazer: %(description)s"
@@ -598,7 +599,8 @@ msgstr "Você possui uma tarefa para fazer: %(description)s"
 #: mono/project_manager/templates/project_manager/board_calendar.html:471
 #: mono/project_manager/templates/project_manager/board_detail.html:542
 #: mono/project_manager/templates/project_manager/board_detail.html:558
-#: mono/project_manager/templates/project_manager/project_detail.html:117
+#: mono/project_manager/templates/project_manager/project_detail.html:119
+#: mono/project_manager/templates/project_manager/project_detail.html:136
 msgid "Close"
 msgstr "Fechar"
 
@@ -1046,11 +1048,11 @@ msgstr "conta origem"
 msgid "to account"
 msgstr "conta destino"
 
-#: mono/finance/models.py:380 mono/project_manager/models.py:683
+#: mono/finance/models.py:380 mono/project_manager/models.py:745
 msgid "icon"
 msgstr "ícone"
 
-#: mono/finance/models.py:381 mono/project_manager/models.py:684
+#: mono/finance/models.py:381 mono/project_manager/models.py:746
 msgid "icons"
 msgstr "ícones"
 
@@ -1122,15 +1124,15 @@ msgstr "orçamento"
 msgid "budgets"
 msgstr "orçamentos"
 
-#: mono/finance/models.py:948 mono/project_manager/models.py:711
+#: mono/finance/models.py:948 mono/project_manager/models.py:773
 msgid "invite"
 msgstr "convite"
 
-#: mono/finance/models.py:949 mono/project_manager/models.py:712
+#: mono/finance/models.py:949 mono/project_manager/models.py:774
 msgid "invites"
 msgstr "convites"
 
-#: mono/finance/models.py:996 mono/project_manager/models.py:759
+#: mono/finance/models.py:996 mono/project_manager/models.py:821
 msgid "Invite"
 msgstr "Convite"
 
@@ -1344,10 +1346,10 @@ msgstr "Contas compartilhadas"
 msgid "Add account"
 msgstr "Adicionar uma conta"
 
-#: mono/finance/templates/finance/base.html:51 mono/project_manager/views.py:70
-#: mono/project_manager/views.py:105 mono/project_manager/views.py:127
-#: mono/project_manager/views.py:155 mono/project_manager/views.py:294
-#: mono/project_manager/views.py:325
+#: mono/finance/templates/finance/base.html:51 mono/project_manager/views.py:71
+#: mono/project_manager/views.py:106 mono/project_manager/views.py:128
+#: mono/project_manager/views.py:156 mono/project_manager/views.py:295
+#: mono/project_manager/views.py:326
 msgid "Home"
 msgstr "Página Inicial"
 
@@ -1391,7 +1393,7 @@ msgstr "Todas as categorias"
 #: mono/finance/templates/finance/recurrenttransaction_list.html:73
 #: mono/finance/templates/finance/transaction_archive_month.html:105
 #: mono/finance/templates/finance/transaction_list.html:223
-#: mono/project_manager/templates/project_manager/project_detail.html:63
+#: mono/project_manager/templates/project_manager/project_detail.html:65
 msgid "Actions"
 msgstr "Ações"
 
@@ -1768,7 +1770,7 @@ msgstr "anotação"
 msgid "notes"
 msgstr "anotações"
 
-#: mono/notes/models.py:69 mono/project_manager/models.py:649
+#: mono/notes/models.py:69 mono/project_manager/models.py:711
 msgid "name"
 msgstr "nome"
 
@@ -1851,100 +1853,100 @@ msgstr "Baixar como arquivo Javascript"
 msgid "Download as HTML file"
 msgstr "Baixar como arquivo HTML"
 
-#: mono/project_manager/models.py:197
+#: mono/project_manager/models.py:223
 msgid "No automatic status"
 msgstr "Nenhum status automático"
 
-#: mono/project_manager/models.py:198 mono/project_manager/models.py:262
-#: mono/project_manager/templates/project_manager/project_list.html:129
-#: mono/project_manager/templates/project_manager/project_list.html:131
-#: mono/project_manager/templates/project_manager/project_list.html:133
+#: mono/project_manager/models.py:224 mono/project_manager/models.py:303
+#: mono/project_manager/templates/project_manager/project_list.html:140
+#: mono/project_manager/templates/project_manager/project_list.html:142
+#: mono/project_manager/templates/project_manager/project_list.html:144
 msgid "Not started"
 msgstr "Não iniciado"
 
-#: mono/project_manager/models.py:199 mono/project_manager/models.py:263
-#: mono/project_manager/templates/project_manager/project_list.html:119
-#: mono/project_manager/templates/project_manager/project_list.html:121
-#: mono/project_manager/templates/project_manager/project_list.html:123
+#: mono/project_manager/models.py:225 mono/project_manager/models.py:304
+#: mono/project_manager/templates/project_manager/project_list.html:130
+#: mono/project_manager/templates/project_manager/project_list.html:132
+#: mono/project_manager/templates/project_manager/project_list.html:134
 msgid "In progress"
 msgstr "Em andamento"
 
-#: mono/project_manager/models.py:200 mono/project_manager/models.py:264
-#: mono/project_manager/templates/project_manager/project_list.html:109
-#: mono/project_manager/templates/project_manager/project_list.html:111
-#: mono/project_manager/templates/project_manager/project_list.html:113
+#: mono/project_manager/models.py:226 mono/project_manager/models.py:305
+#: mono/project_manager/templates/project_manager/project_list.html:120
+#: mono/project_manager/templates/project_manager/project_list.html:122
+#: mono/project_manager/templates/project_manager/project_list.html:124
 msgid "Completed"
 msgstr "Concluído"
 
-#: mono/project_manager/models.py:203
+#: mono/project_manager/models.py:229
 msgid "To do"
 msgstr "Para fazer"
 
-#: mono/project_manager/models.py:203
+#: mono/project_manager/models.py:229
 msgid "Stuff to do"
 msgstr "Coisas para se fazer"
 
-#: mono/project_manager/models.py:204
+#: mono/project_manager/models.py:230
 msgid "Doing"
 msgstr "Fazendo"
 
-#: mono/project_manager/models.py:204
+#: mono/project_manager/models.py:230
 msgid "Stuff being done"
 msgstr "Coisas sendo feitas"
 
-#: mono/project_manager/models.py:205
+#: mono/project_manager/models.py:231
 msgid "Done"
 msgstr "Feito"
 
-#: mono/project_manager/models.py:205
+#: mono/project_manager/models.py:231
 msgid "Stuff already finished"
 msgstr "Coisas já finalizadas"
 
-#: mono/project_manager/models.py:210 mono/project_manager/models.py:271
+#: mono/project_manager/models.py:236 mono/project_manager/models.py:312
 msgid "status"
 msgstr "Status"
 
-#: mono/project_manager/models.py:549 mono/project_manager/models.py:585
+#: mono/project_manager/models.py:611 mono/project_manager/models.py:647
 msgid "Comment"
 msgstr "Comentário"
 
-#: mono/project_manager/models.py:560 mono/project_manager/models.py:598
+#: mono/project_manager/models.py:622 mono/project_manager/models.py:660
 msgid "Comment on card"
 msgstr "Comentar no card"
 
-#: mono/project_manager/models.py:561
+#: mono/project_manager/models.py:623
 msgid "Someone commented on a card and mentioned you."
 msgstr "Alguém comentou em um card e mencionou você."
 
-#: mono/project_manager/models.py:599
+#: mono/project_manager/models.py:661
 msgid "Someone commented on a card assigned to you."
 msgstr "Alguém comentou em um card atribuído a você."
 
-#: mono/project_manager/models.py:614
+#: mono/project_manager/models.py:676
 msgid "time entry"
 msgstr "entrada de tempo"
 
-#: mono/project_manager/models.py:615
+#: mono/project_manager/models.py:677
 msgid "time entries"
 msgstr "entradas de tempo"
 
-#: mono/project_manager/models.py:650
+#: mono/project_manager/models.py:712
 msgid "primary"
 msgstr "primário"
 
-#: mono/project_manager/models.py:651
+#: mono/project_manager/models.py:713
 msgid "dark"
 msgstr "escuro"
 
-#: mono/project_manager/models.py:652
+#: mono/project_manager/models.py:714
 msgid "light"
 msgstr "claro"
 
-#: mono/project_manager/models.py:767
+#: mono/project_manager/models.py:829
 msgid "Project invitation"
 msgstr "Convite para projeto"
 
-#: mono/project_manager/models.py:768
+#: mono/project_manager/models.py:830
 msgid "You were invited to be part of a project."
 msgstr "Você foi convidade para fazer parte de um projeto."
 
@@ -1954,14 +1956,13 @@ msgstr "Você já convidou este e-mail para este projeto."
 
 #: mono/project_manager/templates/project_manager/board_calendar.html:72
 #: mono/project_manager/templates/project_manager/board_detail.html:74
-#: mono/project_manager/templates/project_manager/project_list.html:19
+#: mono/project_manager/templates/project_manager/project_list.html:30
 #: mono/project_manager/templates/project_manager/tag_list.html:9
 msgid "Projects"
 msgstr "Projetos"
 
 #: mono/project_manager/templates/project_manager/board_calendar.html:73
 #: mono/project_manager/templates/project_manager/board_detail.html:75
-#: mono/project_manager/templates/project_manager/project_detail.html:19
 msgid "Boards"
 msgstr "Quadros"
 
@@ -2089,8 +2090,8 @@ msgstr "Por favor, selecione um arquivo."
 
 #: mono/project_manager/templates/project_manager/board_detail.html:230
 #: mono/project_manager/templates/project_manager/board_detail.html:415
-#: mono/project_manager/templates/project_manager/project_detail.html:60
-#: mono/project_manager/templates/project_manager/project_list.html:44
+#: mono/project_manager/templates/project_manager/project_detail.html:62
+#: mono/project_manager/templates/project_manager/project_list.html:55
 #: mono/watcher/templates/watcher/issue_detail.html:45
 msgid "Name"
 msgstr "Nome"
@@ -2136,44 +2137,48 @@ msgstr "Excluir este quadro?"
 msgid "Are you sure you want to delete this board?"
 msgstr "Tem certeza de que quer excluir este quadro?"
 
-#: mono/project_manager/templates/project_manager/project_detail.html:20
-msgid "Boards are where you organize your cards."
-msgstr "Quadros são locais para organizar seus cards."
-
-#: mono/project_manager/templates/project_manager/project_detail.html:30
+#: mono/project_manager/templates/project_manager/project_detail.html:25
 msgid "New board"
 msgstr "Novo quadro"
 
-#: mono/project_manager/templates/project_manager/project_detail.html:38
-#: mono/project_manager/templates/project_manager/project_detail.html:47
+#: mono/project_manager/templates/project_manager/project_detail.html:32
+msgid "New space"
+msgstr "Novo espaço"
+
+#: mono/project_manager/templates/project_manager/project_detail.html:40
+#: mono/project_manager/templates/project_manager/project_detail.html:49
 msgid "Sharing options"
 msgstr "Opções de compartilhamento"
 
-#: mono/project_manager/templates/project_manager/project_detail.html:53
+#: mono/project_manager/templates/project_manager/project_detail.html:55
 msgid "Your team: "
 msgstr "Sua equipe: "
 
-#: mono/project_manager/templates/project_manager/project_detail.html:61
+#: mono/project_manager/templates/project_manager/project_detail.html:63
 msgid "Username"
 msgstr "Nome de usuário"
 
-#: mono/project_manager/templates/project_manager/project_detail.html:81
+#: mono/project_manager/templates/project_manager/project_detail.html:83
 msgid "No members yet"
 msgstr "Nenhum membro ainda"
 
-#: mono/project_manager/templates/project_manager/project_detail.html:85
+#: mono/project_manager/templates/project_manager/project_detail.html:87
 msgid "Your invites: "
 msgstr "Seus convites: "
 
-#: mono/project_manager/templates/project_manager/project_detail.html:102
+#: mono/project_manager/templates/project_manager/project_detail.html:104
 msgid "Share link: "
 msgstr "Compartilhar link: "
 
-#: mono/project_manager/templates/project_manager/project_list.html:20
+#: mono/project_manager/templates/project_manager/project_detail.html:127
+msgid "Create new space"
+msgstr "Criar novo espaço"
+
+#: mono/project_manager/templates/project_manager/project_list.html:31
 msgid "Projects are where your boards live."
 msgstr "Projetos são onde seus quadros ficam."
 
-#: mono/project_manager/templates/project_manager/project_list.html:27
+#: mono/project_manager/templates/project_manager/project_list.html:38
 #, python-format
 msgid ""
 "\n"
@@ -2192,155 +2197,155 @@ msgstr[1] ""
 "Você possui %(counter)s projetos.\n"
 "                          "
 
-#: mono/project_manager/templates/project_manager/project_list.html:36
+#: mono/project_manager/templates/project_manager/project_list.html:47
 msgid "Sort"
 msgstr "Ordenar"
 
-#: mono/project_manager/templates/project_manager/project_list.html:40
+#: mono/project_manager/templates/project_manager/project_list.html:51
 msgid "Sort boards by"
 msgstr "Ordenar quadros por"
 
-#: mono/project_manager/templates/project_manager/project_list.html:48
+#: mono/project_manager/templates/project_manager/project_list.html:59
 msgid "Created by"
 msgstr "Criado por"
 
-#: mono/project_manager/templates/project_manager/project_list.html:54
+#: mono/project_manager/templates/project_manager/project_list.html:65
 msgid "Direction"
 msgstr "Direção"
 
-#: mono/project_manager/templates/project_manager/project_list.html:58
+#: mono/project_manager/templates/project_manager/project_list.html:69
 msgid "Sort direction"
 msgstr "Direção da ordem"
 
-#: mono/project_manager/templates/project_manager/project_list.html:62
+#: mono/project_manager/templates/project_manager/project_list.html:73
 msgid "Ascending"
 msgstr "Ascendente"
 
-#: mono/project_manager/templates/project_manager/project_list.html:66
+#: mono/project_manager/templates/project_manager/project_list.html:77
 msgid "Descending"
 msgstr "Descendente"
 
-#: mono/project_manager/templates/project_manager/project_list.html:84
+#: mono/project_manager/templates/project_manager/project_list.html:95
 msgid "Open"
 msgstr "Abrir"
 
-#: mono/project_manager/templates/project_manager/project_list.html:85
+#: mono/project_manager/templates/project_manager/project_list.html:96
 msgid "Rename"
 msgstr "Renomear"
 
-#: mono/project_manager/templates/project_manager/project_list.html:92
+#: mono/project_manager/templates/project_manager/project_list.html:103
 #: mono/watcher/templates/watcher/issue_detail.html:47
 msgid "Created at"
 msgstr "Criado em "
 
-#: mono/project_manager/templates/project_manager/project_list.html:101
+#: mono/project_manager/templates/project_manager/project_list.html:112
 msgid "No cards yet"
 msgstr "Nenhum card ainda"
 
-#: mono/project_manager/templates/project_manager/project_list.html:109
-#: mono/project_manager/templates/project_manager/project_list.html:119
-#: mono/project_manager/templates/project_manager/project_list.html:129
+#: mono/project_manager/templates/project_manager/project_list.html:120
+#: mono/project_manager/templates/project_manager/project_list.html:130
+#: mono/project_manager/templates/project_manager/project_list.html:140
 msgid "No cards"
 msgstr "Nenhum card"
 
-#: mono/project_manager/templates/project_manager/project_list.html:111
-#: mono/project_manager/templates/project_manager/project_list.html:121
-#: mono/project_manager/templates/project_manager/project_list.html:131
+#: mono/project_manager/templates/project_manager/project_list.html:122
+#: mono/project_manager/templates/project_manager/project_list.html:132
+#: mono/project_manager/templates/project_manager/project_list.html:142
 msgid "1 card"
 msgstr "1 card"
 
-#: mono/project_manager/templates/project_manager/project_list.html:113
-#: mono/project_manager/templates/project_manager/project_list.html:123
-#: mono/project_manager/templates/project_manager/project_list.html:133
+#: mono/project_manager/templates/project_manager/project_list.html:124
+#: mono/project_manager/templates/project_manager/project_list.html:134
+#: mono/project_manager/templates/project_manager/project_list.html:144
 msgid "cards"
 msgstr "cards"
 
-#: mono/project_manager/templates/project_manager/project_list.html:149
+#: mono/project_manager/templates/project_manager/project_list.html:160
 msgid "No projects yet."
 msgstr "Nenhum projeto ainda"
 
-#: mono/project_manager/templates/project_manager/project_list.html:152
+#: mono/project_manager/templates/project_manager/project_list.html:163
 msgid "Add a new project!"
 msgstr "Criar um novo projeto!"
 
-#: mono/project_manager/templates/project_manager/project_list.html:165
+#: mono/project_manager/templates/project_manager/project_list.html:176
 #: mono/project_manager/templates/project_manager/tag_list.html:46
 msgid "New project"
 msgstr "Novo projeto"
 
-#: mono/project_manager/views.py:218
+#: mono/project_manager/views.py:219
 msgid "You are not assigned to this board!"
 msgstr "Você não está atribuído a este quadro!"
 
-#: mono/project_manager/views.py:254
+#: mono/project_manager/views.py:255
 #, python-format
 msgid "Board %(name)s was created successfully"
 msgstr "Quadr %(name)s criado com sucesso"
 
-#: mono/project_manager/views.py:263
+#: mono/project_manager/views.py:264
 msgid "You don't have permission to create boards in this project."
 msgstr "Você não possui permissão para criar quadros neste projeto."
 
-#: mono/project_manager/views.py:297
+#: mono/project_manager/views.py:298
 msgid "Create board"
 msgstr "Criar quadro"
 
-#: mono/project_manager/views.py:309
+#: mono/project_manager/views.py:310
 #, python-format
 msgid "Board %(name)s was updated successfully"
 msgstr "Quadro %(name)s atualizado com sucesso"
 
-#: mono/project_manager/views.py:327
+#: mono/project_manager/views.py:328
 msgid "Board: edit"
 msgstr "Quadro: editar"
 
-#: mono/project_manager/views.py:345
+#: mono/project_manager/views.py:346
 msgid "No token provided."
 msgstr "Nenhum token fornecido."
 
-#: mono/project_manager/views.py:354
+#: mono/project_manager/views.py:355
 msgid "You've already accepted this invitation."
 msgstr "Você já aceitou este convite."
 
-#: mono/project_manager/views.py:358
+#: mono/project_manager/views.py:359
 msgid "You are already a member of this project."
 msgstr "Você já é membro deste projeto."
 
-#: mono/project_manager/views.py:363
+#: mono/project_manager/views.py:364
 msgid "Invite accepted."
 msgstr "Convite aceito."
 
-#: mono/project_manager/views.py:405 mono/project_manager/views.py:415
-#: mono/project_manager/views.py:428 mono/project_manager/views.py:447
-#: mono/project_manager/views.py:471 mono/project_manager/views.py:481
-#: mono/project_manager/views.py:500 mono/project_manager/views.py:515
-#: mono/project_manager/views.py:528 mono/project_manager/views.py:542
-#: mono/project_manager/views.py:562 mono/project_manager/views.py:579
-#: mono/project_manager/views.py:610 mono/project_manager/views.py:620
-#: mono/project_manager/views.py:648 mono/project_manager/views.py:670
-#: mono/project_manager/views.py:682 mono/project_manager/views.py:699
-#: mono/project_manager/views.py:727 mono/project_manager/views.py:745
-#: mono/project_manager/views.py:765 mono/project_manager/views.py:777
-#: mono/project_manager/views.py:799 mono/project_manager/views.py:826
-#: mono/project_manager/views.py:842 mono/project_manager/views.py:865
-#: mono/project_manager/views.py:882 mono/project_manager/views.py:895
-#: mono/project_manager/views.py:919 mono/project_manager/views.py:938
-#: mono/project_manager/views.py:958 mono/project_manager/views.py:975
-#: mono/project_manager/views.py:992 mono/project_manager/views.py:1006
-#: mono/project_manager/views.py:1030 mono/project_manager/views.py:1046
-#: mono/project_manager/views.py:1066 mono/project_manager/views.py:1090
-#: mono/project_manager/views.py:1108 mono/project_manager/views.py:1128
-#: mono/project_manager/views.py:1145 mono/project_manager/views.py:1162
-#: mono/project_manager/views.py:1176 mono/project_manager/views.py:1204
-#: mono/project_manager/views.py:1222 mono/project_manager/views.py:1242
-#: mono/project_manager/views.py:1259 mono/project_manager/views.py:1273
-#: mono/project_manager/views.py:1291 mono/project_manager/views.py:1368
-#: mono/project_manager/views.py:1389 mono/project_manager/views.py:1402
-#: mono/project_manager/views.py:1419 mono/project_manager/views.py:1433
-#: mono/project_manager/views.py:1446 mono/project_manager/views.py:1466
-#: mono/project_manager/views.py:1483 mono/project_manager/views.py:1498
-#: mono/project_manager/views.py:1515 mono/project_manager/views.py:1529
-#: mono/project_manager/views.py:1540
+#: mono/project_manager/views.py:406 mono/project_manager/views.py:416
+#: mono/project_manager/views.py:429 mono/project_manager/views.py:448
+#: mono/project_manager/views.py:472 mono/project_manager/views.py:482
+#: mono/project_manager/views.py:501 mono/project_manager/views.py:516
+#: mono/project_manager/views.py:529 mono/project_manager/views.py:543
+#: mono/project_manager/views.py:563 mono/project_manager/views.py:580
+#: mono/project_manager/views.py:611 mono/project_manager/views.py:621
+#: mono/project_manager/views.py:649 mono/project_manager/views.py:671
+#: mono/project_manager/views.py:683 mono/project_manager/views.py:700
+#: mono/project_manager/views.py:728 mono/project_manager/views.py:746
+#: mono/project_manager/views.py:766 mono/project_manager/views.py:778
+#: mono/project_manager/views.py:800 mono/project_manager/views.py:827
+#: mono/project_manager/views.py:843 mono/project_manager/views.py:866
+#: mono/project_manager/views.py:883 mono/project_manager/views.py:896
+#: mono/project_manager/views.py:920 mono/project_manager/views.py:939
+#: mono/project_manager/views.py:959 mono/project_manager/views.py:976
+#: mono/project_manager/views.py:993 mono/project_manager/views.py:1007
+#: mono/project_manager/views.py:1031 mono/project_manager/views.py:1047
+#: mono/project_manager/views.py:1067 mono/project_manager/views.py:1091
+#: mono/project_manager/views.py:1109 mono/project_manager/views.py:1129
+#: mono/project_manager/views.py:1146 mono/project_manager/views.py:1163
+#: mono/project_manager/views.py:1177 mono/project_manager/views.py:1205
+#: mono/project_manager/views.py:1223 mono/project_manager/views.py:1243
+#: mono/project_manager/views.py:1260 mono/project_manager/views.py:1274
+#: mono/project_manager/views.py:1292 mono/project_manager/views.py:1369
+#: mono/project_manager/views.py:1390 mono/project_manager/views.py:1403
+#: mono/project_manager/views.py:1420 mono/project_manager/views.py:1434
+#: mono/project_manager/views.py:1447 mono/project_manager/views.py:1467
+#: mono/project_manager/views.py:1484 mono/project_manager/views.py:1499
+#: mono/project_manager/views.py:1516 mono/project_manager/views.py:1530
+#: mono/project_manager/views.py:1544 mono/project_manager/views.py:1555
 msgid "User not allowed"
 msgstr "Usuário não permitido"
 
@@ -2405,6 +2410,9 @@ msgstr "Resolver"
 #: mono/watcher/templates/watcher/issue_detail.html:178
 msgid "Ignore"
 msgstr "Ignorar"
+
+#~ msgid "Boards are where you organize your cards."
+#~ msgstr "Quadros são locais para organizar seus cards."
 
 #, python-format
 #~ msgid ""

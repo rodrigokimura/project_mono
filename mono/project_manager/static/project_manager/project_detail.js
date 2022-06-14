@@ -37,9 +37,6 @@ function retrieveBoards(spaces) {
                 renderPlaceholder()
                 return
             }
-            console.log(response)
-
-            // renderBoards(response)
             renderSpaces(spaces, response)
         },
     })
@@ -93,7 +90,7 @@ function renderSpaces(spaces, boards) {
     pageContent.append(`
         <div class="" style="margin-top: .5em; padding-top: 0;" id="spaces">
         </div>
-        <div class="ui segment" style="margin-top: .5em; padding-top: 0;" id="spaceless-boards">
+        <div class="ui four cards segment stripes" style="margin: 1em 0 0 0;" id="spaceless-boards" data-space-id="">
         </div>
     `)
     pageContent.ready(e => {
@@ -101,7 +98,9 @@ function renderSpaces(spaces, boards) {
         spacesEl.empty()
         spaces.forEach(
             space => {
-                filteredBoards = boards.filter(i => i.space == space.id)
+                filteredBoards = boards.filter(
+                    i => { return space.id == i.space }
+                )
                 renderSpace(space, filteredBoards)
             }
         )
@@ -110,13 +109,13 @@ function renderSpaces(spaces, boards) {
             renderBoard(b, $('#spaceless-boards'))
         })
         spacesEl.ready(e => {
-            // initializeCardMenuDropdown()
-            // initializeDeleteBoardButtons()
-            // $('.ui.progress').progress()
-            // $('.ui.progress').popup()
-            // $('.bar').popup()
-            // $('.ui.avatar.image').popup()
-            // initializeDragAndDrop()
+            initializeCardMenuDropdown()
+            initializeDeleteBoardButtons()
+            $('.ui.progress').progress()
+            $('.ui.progress').popup()
+            $('.bar').popup()
+            $('.ui.avatar.image').popup()
+            initializeDragAndDrop()
         })
     })
 }
@@ -124,22 +123,27 @@ function renderSpaces(spaces, boards) {
 function renderSpace(space, boards) {
     spacesEl = $('#spaces')
     spacesEl.append(`
-        <div class="ui fluid segment" data-space-id="${space.id}">
-            <span class="space-name">${space.name}</span>
-            <div class="ui icon button" onclick="editSpace(${space.id})">
-                <i class="edit icon"></i>
+        <div class="ui fluid space segments" data-space-id="${space.id}">
+            <div class="ui segment" style="display: flex; flex-flow: row nowrap; align-items: center;">
+                <div style="flex: 1 0 auto; padding-left: .5em;">
+                    <span class="space-name">${space.name.toUpperCase()}</span>
+                </div>
+                <div style="flex: 0 1 auto;" class="ui icon button" onclick="editSpace(${space.id})">
+                    <i class="edit icon"></i>
+                </div>
+                <div style="flex: 0 1 auto;" class="ui red icon button"  onclick="deleteSpace(${space.id})">
+                    <i class="delete icon"></i>
+                </div>
             </div>
-            <div class="ui red icon button"  onclick="deleteSpace(${space.id})">
-                <i class="delete icon"></i>
-            </div>
-            <div class="boards-container" data-space-id="${space.id}">
+            <div class="ui segment">
+                <div class="boards-container ui four cards" style="min-height: 100px;" data-space-id="${space.id}">
+                </div>
             </div>
         </div>
     `)
     spacesEl.ready(() => {
         boards.forEach(b => {
             el = $(`.boards-container[data-space-id=${space.id}]`)
-            console.log(el)
             renderBoard(b, el)
         })
     })
@@ -240,7 +244,6 @@ function deleteSpace(id) {
 }
 
 function renderBoard(board, boardsEl) {
-    console.log(board)
     boardsEl.append(`
         <div class="ui card" data-board-id="${board.id}">
             <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;">
@@ -445,7 +448,6 @@ function removeMember(userId) {
 }
 
 function resendInvite(inviteId) {
-    console.log(`Resending invite ${inviteId}`);
     $('body').modal({
         title: gettext('Confirmation'),
         class: 'mini',
@@ -608,7 +610,7 @@ function initializeCardMenuDropdown() {
 
 function initializeDragAndDrop() {
     dragula(
-        [$('#boards')[0]],
+        [...document.querySelectorAll('.boards-container'), document.querySelector('#spaceless-boards')],
         {
             direction: 'horizontal',
         }
@@ -616,7 +618,7 @@ function initializeDragAndDrop() {
     .on('drop', (el, target, source, sibling) => {
         board = $(el).attr('data-board-id')
         order = $(target).children().toArray().findIndex(e => e == el) + 1
-        console.log(board)
+        space = $(target).attr('data-space-id')
         $.api({
             on: 'now',
             url: `/pm/api/board-move/`,
@@ -627,6 +629,7 @@ function initializeDragAndDrop() {
                 project: PROJECT_ID,
                 board: board,
                 order: order,
+                space: space == '' ? null : space,
             },
             onSuccess: r => {
                 $('body').toast({
@@ -636,7 +639,6 @@ function initializeDragAndDrop() {
                 })
             },
             onFailure(response) {
-                console.log(response)
                 $('body').toast({
                     title: 'Failure',
                     message: 'A problem occurred while updating chart order',
