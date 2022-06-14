@@ -14,6 +14,22 @@ function renderPage() {
     $.api({
         on: 'now',
         method: 'GET',
+        url: `/pm/api/projects/${PROJECT_ID}/spaces/`,
+        stateContext: '#grid',
+        onSuccess(response) {
+            if (response.length == 0) {
+                renderPlaceholder()
+                return
+            }
+            retrieveBoards(response)
+        },
+    })
+}
+
+function retrieveBoards(spaces) {
+    $.api({
+        on: 'now',
+        method: 'GET',
         url: `/pm/api/projects/${PROJECT_ID}/boards/`,
         stateContext: '#grid',
         onSuccess(response) {
@@ -21,7 +37,7 @@ function renderPage() {
                 renderPlaceholder()
                 return
             }
-            renderBoards(response)
+            renderSpaces(spaces, response)
         },
     })
 }
@@ -67,8 +83,167 @@ function renderBoards(boards) {
     })
 }
 
-function renderBoard(board) {
-    boardsEl = $('#boards')
+
+function renderSpaces(spaces, boards) {
+    const pageContent = $('#page-content')
+    pageContent.empty()
+    pageContent.append(`
+        <div class="" style="margin-top: .5em; padding-top: 0;" id="spaces">
+        </div>
+        <div class="ui four cards segment stripes" style="margin: 1em 0 0 0;" id="spaceless-boards" data-space-id="">
+        </div>
+    `)
+    pageContent.ready(e => {
+        spacesEl = $('#spaces')
+        spacesEl.empty()
+        spaces.forEach(
+            space => {
+                filteredBoards = boards.filter(
+                    i => { return space.id == i.space }
+                )
+                renderSpace(space, filteredBoards)
+            }
+        )
+        spacelessBoards = boards.filter(i => i.space == null)
+        spacelessBoards.forEach(b => {
+            renderBoard(b, $('#spaceless-boards'))
+        })
+        spacesEl.ready(e => {
+            initializeCardMenuDropdown()
+            initializeDeleteBoardButtons()
+            $('.ui.progress').progress()
+            $('.ui.progress').popup()
+            $('.bar').popup()
+            $('.ui.avatar.image').popup()
+            initializeDragAndDrop()
+        })
+    })
+}
+
+function renderSpace(space, boards) {
+    spacesEl = $('#spaces')
+    spacesEl.append(`
+        <div class="ui fluid space segments" data-space-id="${space.id}">
+            <div class="ui segment" style="display: flex; flex-flow: row nowrap; align-items: center;">
+                <div style="flex: 1 0 auto; padding-left: .5em;">
+                    <span class="space-name">${space.name.toUpperCase()}</span>
+                </div>
+                <div style="flex: 0 1 auto;" class="ui icon button" onclick="editSpace(${space.id})">
+                    <i class="edit icon"></i>
+                </div>
+                <div style="flex: 0 1 auto;" class="ui red icon button"  onclick="deleteSpace(${space.id})">
+                    <i class="delete icon"></i>
+                </div>
+            </div>
+            <div class="ui segment">
+                <div class="boards-container ui four cards" style="min-height: 100px;" data-space-id="${space.id}">
+                </div>
+            </div>
+        </div>
+    `)
+    spacesEl.ready(() => {
+        boards.forEach(b => {
+            el = $(`.boards-container[data-space-id=${space.id}]`)
+            renderBoard(b, el)
+        })
+    })
+}
+
+function createSpace() {
+    $('#space-modal').modal({
+        onApprove() {
+            $.api({
+                on: 'now',
+                method: 'POST',
+                headers: {'X-CSRFToken': csrftoken},
+                url: `/pm/api/projects/${PROJECT_ID}/spaces/`,
+                data: {
+                    name: $('#space-name').val(),
+                    order: 0,
+                },
+                onSuccess(r) {
+                    $('#space-modal').modal('hide')
+                    $('body').toast({
+                        message: 'Space successfully created!',
+                    })
+                    renderPage()
+                },
+                onComplete(response, element, xhr) {
+                    $('#space-name').val('')
+                }
+            })
+            return false
+        }
+    }).modal('show')
+}
+
+function editSpace(id) {
+    name = $(`.ui.segment[data-space-id=${id}] span.space-name`).text()
+    $('#space-name').val(name)
+    $('#space-modal').modal({
+        onApprove() {
+            $.api({
+                on: 'now',
+                method: 'PATCH',
+                headers: {'X-CSRFToken': csrftoken},
+                url: `/pm/api/projects/${PROJECT_ID}/spaces/${id}/`,
+                data: {
+                    name: $('#space-name').val(),
+                    order: 0,
+                },
+                onSuccess(r) {
+                    $('#space-modal').modal('hide')
+                    $('body').toast({
+                        message: 'Space successfully updated!',
+                    })
+                    renderPage()
+                },
+                onComplete(response, element, xhr) {
+                    $('#space-name').val('')
+                }
+            })
+            return false
+        }
+    }).modal('show')
+}
+function deleteSpace(id) {
+    $('body').modal({
+        title: gettext('Confirmation'),
+        class: 'mini',
+        closeIcon: true,
+        content: gettext('Delete this space?'),
+        actions: [
+            {
+                text: gettext('Cancel'),
+                class: 'deny black'
+            },
+            {
+                text: gettext('Yes, delete it'),
+                class: 'approve red',
+                icon: 'delete',
+            },
+        ],
+        onApprove: () => {
+            $.api({
+                on: 'now',
+                method: 'DELETE',
+                url: `/pm/api/projects/${PROJECT_ID}/spaces/${id}/`,
+                headers: { 'X-CSRFToken': csrftoken },
+                stateContext: $(`.ui.segment[data-space-id=${id}]`),
+                successTest: r => r != 0,
+                onSuccess: r => {
+                    $('body').toast({
+                        message: 'Space successfully deleted!',
+                    })
+                    renderPage()
+                },
+            })
+        }
+    }).modal('show');
+    
+}
+
+function renderBoard(board, boardsEl) {
     boardsEl.append(`
         <div class="ui card" data-board-id="${board.id}">
             <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;">
@@ -270,7 +445,6 @@ function removeMember(userId) {
 }
 
 function resendInvite(inviteId) {
-    console.log(`Resending invite ${inviteId}`);
     $('body').modal({
         title: gettext('Confirmation'),
         class: 'mini',
@@ -431,7 +605,7 @@ function initializeCardMenuDropdown() {
 
 function initializeDragAndDrop() {
     dragula(
-        [$('#boards')[0]],
+        [...document.querySelectorAll('.boards-container'), document.querySelector('#spaceless-boards')],
         {
             direction: 'horizontal',
         }
@@ -439,7 +613,7 @@ function initializeDragAndDrop() {
     .on('drop', (el, target, source, sibling) => {
         board = $(el).attr('data-board-id')
         order = $(target).children().toArray().findIndex(e => e == el) + 1
-        console.log(board)
+        space = $(target).attr('data-space-id')
         $.api({
             on: 'now',
             url: `/pm/api/board-move/`,
@@ -449,6 +623,7 @@ function initializeDragAndDrop() {
                 project: PROJECT_ID,
                 board: board,
                 order: order,
+                space: space == '' ? null : space,
             },
             onSuccess: r => {
                 $('body').toast({
@@ -458,7 +633,6 @@ function initializeDragAndDrop() {
                 })
             },
             onFailure(response) {
-                console.log(response)
                 $('body').toast({
                     title: 'Failure',
                     message: 'A problem occurred while updating chart order',
@@ -467,5 +641,16 @@ function initializeDragAndDrop() {
                 renderBoards()
             },
         });
+    })
+}
+
+function retrieveSpaces() {
+    $.api({
+        on: 'now',
+        method: 'GET',
+        url: `/pm/api/projects/${PROJECT_ID}/spaces/`,
+        onSuccess(response, element, xhr) {
+            console.log(response)
+        }
     })
 }
