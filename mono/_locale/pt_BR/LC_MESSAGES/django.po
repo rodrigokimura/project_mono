@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-13 23:59+0000\n"
+"POT-Creation-Date: 2022-06-14 00:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -585,20 +585,38 @@ msgstr "Salvar"
 msgid "Delete"
 msgstr "Excluir"
 
-#: mono/checklists/models.py:107
+#: mono/checklists/models.py:60
+msgid "Daily"
+msgstr "Diariamente"
+
+#: mono/checklists/models.py:61 mono/finance/models.py:121
+msgid "Weekly"
+msgstr "Semanalmente"
+
+#: mono/checklists/models.py:62 mono/finance/models.py:122
+#: mono/finance/templates/finance/checkout.html:122
+msgid "Monthly"
+msgstr "Mensalmente"
+
+#: mono/checklists/models.py:63 mono/finance/models.py:123
+#: mono/finance/templates/finance/checkout.html:124
+msgid "Yearly"
+msgstr "Anualmente"
+
+#: mono/checklists/models.py:124
 msgid "Reminder for task"
 msgstr "Lembrate de tarefa"
 
-#: mono/checklists/models.py:108
+#: mono/checklists/models.py:125
 #, python-format
 msgid "You have a task to do: %(description)s"
 msgstr "Você possui uma tarefa para fazer: %(description)s"
 
 #: mono/checklists/templates/checklists/_modal.html:12
-#: mono/project_manager/templates/project_manager/board_calendar.html:455
-#: mono/project_manager/templates/project_manager/board_calendar.html:471
-#: mono/project_manager/templates/project_manager/board_detail.html:542
-#: mono/project_manager/templates/project_manager/board_detail.html:558
+#: mono/project_manager/templates/project_manager/board_calendar.html:453
+#: mono/project_manager/templates/project_manager/board_calendar.html:469
+#: mono/project_manager/templates/project_manager/board_detail.html:540
+#: mono/project_manager/templates/project_manager/board_detail.html:556
 #: mono/project_manager/templates/project_manager/project_detail.html:119
 #: mono/project_manager/templates/project_manager/project_detail.html:136
 msgid "Close"
@@ -1346,7 +1364,7 @@ msgstr "Contas compartilhadas"
 msgid "Add account"
 msgstr "Adicionar uma conta"
 
-#: mono/finance/templates/finance/base.html:51 mono/project_manager/views.py:71
+#: mono/finance/templates/finance/base.html:37 mono/project_manager/views.py:71
 #: mono/project_manager/views.py:106 mono/project_manager/views.py:128
 #: mono/project_manager/views.py:156 mono/project_manager/views.py:295
 #: mono/project_manager/views.py:326
@@ -2088,8 +2106,8 @@ msgstr "Largura do bucket"
 msgid "Please select a file."
 msgstr "Por favor, selecione um arquivo."
 
-#: mono/project_manager/templates/project_manager/board_detail.html:230
-#: mono/project_manager/templates/project_manager/board_detail.html:415
+#: mono/project_manager/templates/project_manager/board_detail.html:228
+#: mono/project_manager/templates/project_manager/board_detail.html:413
 #: mono/project_manager/templates/project_manager/project_detail.html:62
 #: mono/project_manager/templates/project_manager/project_list.html:55
 #: mono/watcher/templates/watcher/issue_detail.html:45
