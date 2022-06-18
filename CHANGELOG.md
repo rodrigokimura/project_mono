@@ -1,3 +1,9 @@
+## 5.24.3 (2022-06-18)
+
+### Fix
+
+- **project_mamagem**: adjust drag and drop
+
 ## 5.24.2 (2022-06-13)
 
 ### Fix
