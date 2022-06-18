@@ -82,7 +82,7 @@ function renderSpaces(spaces, boards) {
     pageContent.append(`
         <div class="" style="margin-top: .5em; padding-top: 0;" id="spaces">
         </div>
-        <div class="ui four cards segment stripes" style="margin: 1em 0 0 0;" id="spaceless-boards" data-space-id="">
+        <div class="ui four stackable cards segment stripes" style="margin: 1em 0 0 0;" id="spaceless-boards" data-space-id="">
         </div>
     `)
     pageContent.ready(e => {
@@ -321,7 +321,7 @@ function getProgressBarHtml(board) {
     html = ''
     if (board.card_count == 0) {
         html = `
-            <div class="ui tiny multiple progress" data-percent="0" style="padding-bottom: 0;" data-content="{% translate "No cards yet" %}">
+            <div class="ui tiny multiple progress" data-percent="0" style="padding-bottom: 0;" data-content="${gettext('No cards yet')}">
                 <div class="bar"></div>
             </div>
         `
@@ -605,6 +605,12 @@ function initializeDragAndDrop() {
         [...document.querySelectorAll('.boards-container'), document.querySelector('#spaceless-boards')],
         {
             direction: 'horizontal',
+            moves: (el, source, handle, sibling) =>
+                $(el).hasClass('card')
+                && (
+                    $(handle).hasClass('handle') // use button as handle
+                    || $(handle).parent().hasClass('handle') // also accept i tag (icon) as handle
+                ),
         }
     )
     .on('drop', (el, target, source, sibling) => {
