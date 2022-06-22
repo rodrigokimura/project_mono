@@ -81,19 +81,6 @@ class UserProfileViewTests(TestCase):
         r = c.get('/accounts/verify/?t=')
         self.assertContains(r, "error")
 
-    def test_login_as_view(self):
-        superuser = User.objects.create(
-            username="super",
-            email="super@test.com",
-        )
-        superuser.is_superuser = True
-        superuser.set_password('supersecret')
-        superuser.save()
-        c = Client()
-        c.login(username=superuser.username, password='supersecret')
-        r = c.post('/accounts/login-as/', {'user': superuser.id})
-        self.assertContains(r, f"Successfully logged in as {superuser.username}")
-
 
 @pytest.mark.django_db
 class TestContextProcessor:

@@ -1,3 +1,27 @@
+## 5.24.6 (2022-06-22)
+
+### Refactor
+
+- **restricted_area**: move login_as view to restricted_area app
+
+## 5.24.5 (2022-06-22)
+
+### Refactor
+
+- **project_manager**: change style for not assigned boards
+
+## 5.24.4 (2022-06-22)
+
+### Fix
+
+- **project_manager**: adjust boards filtered in api view
+
+## 5.24.3 (2022-06-18)
+
+### Fix
+
+- **project_mamagem**: adjust drag and drop
+
 ## 5.24.2 (2022-06-13)
 
 ### Fix

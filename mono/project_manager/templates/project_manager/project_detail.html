@@ -146,6 +146,7 @@
     const PROJECT_ID = "{{ object.id }}"
     const PROJECT_NAME = "{{ object.name }}"
     const INVITE_FORM = $('.ui.invite.form')
+    const USER = "{{ request.user.username }}"
     $(document).ready(() => {
         renderPage()
         loadInvites()
