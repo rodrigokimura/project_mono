@@ -241,9 +241,8 @@ function deleteSpace(id) {
 }
 
 function renderBoard(board, boardsEl) {
-    console.log(board.allowed_users)
     boardsEl.append(`
-        <div class="ui ${USER in board.allowed_users.map(u => u.username) ? "" : "disabled"} card" data-board-id="${board.id}">
+        <div class="ui ${board.allowed_users.map(u => u.username).includes(USER) ? "" : "disabled"} card" data-board-id="${board.id}">
             <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;">
                 <i class="grip lines icon"></i>
             </div>
