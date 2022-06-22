@@ -1,5 +1,4 @@
 """Project manager's views."""
-from functools import partial
 from typing import Any, Optional
 
 from __mono.mixins import PassRequestToFormViewMixin
@@ -467,7 +466,7 @@ class BoardListAPIView(LoginRequiredMixin, APIView):
         List all boards in a project.
         """
         project = Project.objects.get(id=kwargs.get('project_pk'))
-        boards = Board.objects.filter(created_by=request.user, project=project)
+        boards = Board.objects.filter(project=project)
         if request.user not in project.allowed_users:
             return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
         serializer = BoardSerializer(boards, many=True)

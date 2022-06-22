@@ -835,6 +835,3 @@ class Invite(models.Model):
 
     def __str__(self) -> str:
         return f'{str(self.project)} -> {self.email}'
-
-
-

@@ -9,6 +9,9 @@
     transition: box-shadow .3s;
     box-shadow: 0 0 .5em rgba(0, 0, 0, .2) !important;
 }
+.ui.disabled.card {
+    pointer-events: all !important;
+}
 .ui.card:hover {
     box-shadow: 0 0 1em rgba(0, 0, 0, .4) !important;
     transform: translate(0, -.5em);
@@ -16,6 +19,7 @@
 }
 #spaceless-boards {
     padding: .3em !important;
+    min-height: 10em;
 }
 .stripes {
     background: repeating-linear-gradient(
