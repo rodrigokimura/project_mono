@@ -1,3 +1,9 @@
+## 5.24.4 (2022-06-22)
+
+### Fix
+
+- **project_manager**: adjust boards filtered in api view
+
 ## 5.24.3 (2022-06-18)
 
 ### Fix
