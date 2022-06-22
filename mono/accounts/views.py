@@ -155,28 +155,6 @@ class AccountVerificationView(TemplateView):
         })
 
 
-class LoginAsView(UserPassesTestMixin, View):
-    """
-    Sign in as another user.
-    """
-
-    def test_func(self):
-        return self.request.user.is_superuser
-
-    def post(self, request):
-        """
-        Sign in as another user.
-        """
-        user = get_object_or_404(User, id=request.POST.get('user'))
-        login(request, user, backend='__mono.auth_backends.EmailOrUsernameModelBackend')
-        return JsonResponse(
-            {
-                "success": True,
-                "message": f"Successfully logged in as {user.username}",
-            }
-        )
-
-
 class ConfigView(LoginRequiredMixin, TemplateView):
     """
     Show configuration page
