@@ -1,3 +1,9 @@
+## 5.24.7 (2022-06-22)
+
+### Fix
+
+- **project_manager**: adjust logic to disable board
+
 ## 5.24.6 (2022-06-22)
 
 ### Refactor
