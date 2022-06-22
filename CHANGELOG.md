@@ -1,3 +1,9 @@
+## 5.24.5 (2022-06-22)
+
+### Refactor
+
+- **project_manager**: change style for not assigned boards
+
 ## 5.24.4 (2022-06-22)
 
 ### Fix
