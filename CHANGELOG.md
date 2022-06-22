@@ -1,3 +1,9 @@
+## 5.24.6 (2022-06-22)
+
+### Refactor
+
+- **restricted_area**: move login_as view to restricted_area app
+
 ## 5.24.5 (2022-06-22)
 
 ### Refactor
