@@ -835,3 +835,24 @@ class Invite(models.Model):
 
     def __str__(self) -> str:
         return f'{str(self.project)} -> {self.email}'
+
+
+class Activity(models.Model):    
+    class Action(models.TextChoices):
+        CREATE = ('create', _('Create'))
+        UPDATE = ('update', _('Update'))
+        DELETE = ('delete', _('Delete'))
+
+    class Type(models.TextChoices):
+        TITLE = ('title', _('Title'))
+        DESCRIPTION = ('description', _('Description'))
+
+    action = models.CharField(max_length=6, null=False, blank=False, choices=Action.choices)
+    type = models.CharField(max_length=20, null=False, blank=False, choices=Type.choices)
+    context = models.JSONField(null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("activity")
+        verbose_name_plural = _("activities")

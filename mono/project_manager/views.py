@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.humanize.templatetags.humanize import NaturalTimeFormatter
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.signing import TimestampSigner
+from django.db import transaction
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
@@ -24,8 +25,8 @@ from rest_framework.views import APIView
 
 from .forms import BoardForm, ProjectForm
 from .models import (
-    Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Space,
-    Tag, Theme, TimeEntry, User,
+    Activity, Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item,
+    Project, Space, Tag, Theme, TimeEntry, User,
 )
 from .serializers import (
     BoardMoveSerializer, BoardSerializer, BucketMoveSerializer,
@@ -798,6 +799,7 @@ class CardListAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
+    @transaction.atomic()
     def post(self, request, **kwargs):
         """
         Create new card
@@ -821,6 +823,16 @@ class CardListAPIView(LoginRequiredMixin, APIView):
                         created_by=request.user,
                         order=bucket.max_order + 1,
                     )
+                Activity.objects.create(
+                    action=Activity.Action.CREATE,
+                    type=Activity.Type.TITLE,
+                    created_by=request.user,
+                )
+                Activity.objects.create(
+                    action=Activity.Action.CREATE,
+                    type=Activity.Type.DESCRIPTION,
+                    created_by=request.user,
+                )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
