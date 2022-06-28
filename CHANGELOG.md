@@ -1,3 +1,9 @@
+## 5.25.0 (2022-06-27)
+
+### Feat
+
+- **project_manager**: add activity model
+
 ## 5.24.7 (2022-06-22)
 
 ### Fix
