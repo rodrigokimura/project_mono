@@ -1,33 +1,33 @@
-var intervals = [];
-var cardBeingDragged;
-var containerCardIsOver;
-var bucketBeingDragged;
-var containerBucketIsOver;
-var scrollIntervalID;
-var isScrolling = false;
-var cardEdited = false;
-var boardTimestamp = new Date();
-var autoRefresh = null;
-const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg';
-const allowedUsers = getBoardAllowedUsers();
+var intervals = []
+var cardBeingDragged
+var containerCardIsOver
+var bucketBeingDragged
+var containerBucketIsOver
+var scrollIntervalID
+var isScrolling = false
+var cardEdited = false
+var boardTimestamp = new Date()
+var autoRefresh = null
+const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg'
+const allowedUsers = getBoardAllowedUsers()
 
 async function setWallpaper() {
     if (wallpaper) {
-        $('#board').css('background-image', `url('${wallpaper}')`);
+        $('#board').css('background-image', `url('${wallpaper}')`)
     } else {
-        $('#board').css('background-image', '');
+        $('#board').css('background-image', '')
     }
 }
 
 async function setCardGlassEffect(blur = false, blurness = 5, opacity = 50) {
     if (wallpaper) {
         for (el of $('.card-el')) {
-            color = $(el).css('background-color');
+            color = $(el).css('background-color')
             if (color.split('(')[0] === 'rgb') {
-                newColor = `${color.replace('rgb(', '').replace(')', '')}, ${opacity / 100}`;
-                $(el).css('background-color', `rgba(${newColor})`);
+                newColor = `${color.replace('rgb(', '').replace(')', '')}, ${opacity / 100}`
+                $(el).css('background-color', `rgba(${newColor})`)
                 if (blur) {
-                    $(el).css('backdrop-filter', `blur(${blurness}px)`);
+                    $(el).css('backdrop-filter', `blur(${blurness}px)`)
                 }
             }
         }
@@ -37,12 +37,12 @@ async function setCardGlassEffect(blur = false, blurness = 5, opacity = 50) {
 async function setBucketGlassEffect(blur = false, blurness = 5, opacity = 50) {
     if (wallpaper) {
         for (el of $('.bucket-el')) {
-            color = $(el).css('background-color');
+            color = $(el).css('background-color')
             if (color.split('(')[0] === 'rgb') {
-                newColor = `${color.replace('rgb(', '').replace(')', '')}, ${opacity / 100}`;
-                $(el).css('background-color', `rgba(${newColor})`);
+                newColor = `${color.replace('rgb(', '').replace(')', '')}, ${opacity / 100}`
+                $(el).css('background-color', `rgba(${newColor})`)
                 if (blur) {
-                    $(el).css('backdrop-filter', `blur(${blurness}px)`);
+                    $(el).css('backdrop-filter', `blur(${blurness}px)`)
                 }
             }
         }
@@ -50,15 +50,15 @@ async function setBucketGlassEffect(blur = false, blurness = 5, opacity = 50) {
 }
 
 function startAutoRefresh(period = 5000) {
-    if (autoRefresh !== null) { clearInterval(autoRefresh); }
-    autoRefresh = setInterval(checkUpdates, period);
+    if (autoRefresh !== null) { clearInterval(autoRefresh) }
+    autoRefresh = setInterval(checkUpdates, period)
 }
 
 async function updateBucketTimetamp(bucketId) {
-    bucketEl = $(`.bucket-el[data-bucket-id=${bucketId}]`);
-    now = new Date();
-    now = new Date(now.getTime() + 1000);
-    bucketEl.attr('data-bucket-updated-at', now);
+    bucketEl = $(`.bucket-el[data-bucket-id=${bucketId}]`)
+    now = new Date()
+    now = new Date(now.getTime() + 1000)
+    bucketEl.attr('data-bucket-updated-at', now)
 }
 
 function checkUpdates() {
@@ -68,99 +68,93 @@ function checkUpdates() {
         method: 'GET',
         onSuccess: r => {
             // handle board
-            currentBoardTimestamp = new Date(r.board);
+            currentBoardTimestamp = new Date(r.board)
             if (currentBoardTimestamp > boardTimestamp) {
-                loadBoard();
-                return;
+                loadBoard()
+                return
             }
             // handle buckets
-            bucketIds = r.buckets.map(b => b.id);
+            bucketIds = r.buckets.map(b => b.id)
             // Is there any bucket in DOM not in response?
             for (b of $('.bucket-el')) {
-                bucketIdDOM = parseInt($(b).attr('data-bucket-id'));
+                bucketIdDOM = parseInt($(b).attr('data-bucket-id'))
                 if (!bucketIds.includes(bucketIdDOM)) {
-                    loadBoard();
-                    return;
+                    loadBoard()
+                    return
                 }
             }
             for (b of r.buckets) {
-                bucketTimestamp = new Date(b.ts);
+                bucketTimestamp = new Date(b.ts)
                 // Check if bucket exists in DOM
-                bucketEl = $(`.bucket-el[data-bucket-id=${b.id}]`);
+                bucketEl = $(`.bucket-el[data-bucket-id=${b.id}]`)
                 if (bucketEl.length) {
-                    bucketIdDOM = parseInt(bucketEl.attr('data-bucket-id'));
+                    bucketIdDOM = parseInt(bucketEl.attr('data-bucket-id'))
                     if (b.id === bucketIdDOM) {
                         // Compare timestamps
-                        darkMode = $('.ui.slider.board-dark').checkbox('is checked');
-                        compactMode = $('.ui.slider.board-compact').checkbox('is checked');
-                        bucketTimestampDOM = new Date(bucketEl.attr('data-bucket-updated-at'));
+                        darkMode = $('.ui.slider.board-dark').checkbox('is checked')
+                        compactMode = $('.ui.slider.board-compact').checkbox('is checked')
+                        bucketTimestampDOM = new Date(bucketEl.attr('data-bucket-updated-at'))
                         if (bucketTimestamp > bucketTimestampDOM) {
-                            bucketEl.attr('data-bucket-updated-at', b.ts);
-                            getCards(b.id, darkMode, compactMode);
+                            bucketEl.attr('data-bucket-updated-at', b.ts)
+                            getCards(b.id, darkMode, compactMode)
                         }
                     }
                 } else {
                     // If bucket not in DOM
-                    loadBoard();
+                    loadBoard()
                 }
             }
         },
         onError: r => { console.error(JSON.stringify(r)) },
-    });
+    })
 }
 
 function changeBucketWidth(width) {
     $.api({
         on: 'now',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
         method: 'PATCH',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
         data: { bucket_width: width },
-        onSuccess: r => {
-            loadBoard();
-        },
-        onError: r => { console.error(JSON.stringify(r)) },
-    });
+        onSuccess(r) { loadBoard() },
+        onError(r) { console.error(JSON.stringify(r)) },
+    })
 }
 
 function setCompact(bool) {
     $.api({
         on: 'now',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
         method: 'PATCH',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
         data: { compact: bool },
-        onSuccess: r => {
-            loadBoard();
-        },
-        onError: r => { console.error(JSON.stringify(r)) },
-    });
+        onSuccess(r) { loadBoard() },
+        onError(r) { console.error(JSON.stringify(r)) },
+    })
 }
 
 function setDarkMode(bool) {
     $.api({
         on: 'now',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
         method: 'PATCH',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
         data: { dark: bool },
-        onSuccess: r => {
-            loadBoard(r.dark);
-        },
-        onError: r => { console.error(JSON.stringify(r)) },
-    });
+        onSuccess(r) { loadBoard(r.dark) },
+        onError(r) { console.error(JSON.stringify(r)) },
+    })
 }
 
 function startElementScroll(directionX, directionY, elementToScroll, increment, delay) {
     let scroll = () => {
-        elementToScroll.scrollBy(directionX * increment, directionY * increment);
-    };
+        elementToScroll.scrollBy(directionX * increment, directionY * increment)
+    }
     if (!isScrolling) {
-        scrollIntervalID = setInterval(scroll, delay);
-        isScrolling = true;
-    };
+        scrollIntervalID = setInterval(scroll, delay)
+        isScrolling = true
+    }
 }
 
 function stopElementScroll(intID) {
-    clearInterval(intID);
-    isScrolling = false;
+    clearInterval(intID)
+    isScrolling = false
 }
 
 var bucketsDrake = dragula({
@@ -176,9 +170,9 @@ var bucketsDrake = dragula({
     direction: 'horizontal'
 })
     .on('drop', (el, target, source, sibling) => {
-        $(el).removeClass('card').addClass('loading card');
-        bucket = $(el).attr('data-bucket-id');
-        order = $(target).children().toArray().findIndex(e => e == el) + 1;
+        $(el).removeClass('card').addClass('loading card')
+        bucket = $(el).attr('data-bucket-id')
+        order = $(target).children().toArray().findIndex(e => e == el) + 1
         $.ajax({
             url: `/pm/api/bucket-move/`,
             type: 'POST',
@@ -188,22 +182,22 @@ var bucketsDrake = dragula({
                 order: order,
             },
             success: result => { },
-            complete: () => { $(el).removeClass('loading'); }
-        });
+            complete: () => { $(el).removeClass('loading') }
+        })
     })
     .on('drag', (el, source) => {
-        bucketBeingDragged = el;
+        bucketBeingDragged = el
     })
     .on('dragend', (el) => {
-        bucketBeingDragged = null;
-        stopElementScroll(scrollIntervalID);
+        bucketBeingDragged = null
+        stopElementScroll(scrollIntervalID)
     })
     .on('over', (el, container, source) => {
-        containerBucketIsOver = container;
+        containerBucketIsOver = container
     })
     .on('out', (el, container, source) => {
-        containerBucketIsOver = null;
-    });
+        containerBucketIsOver = null
+    })
 
 var cardsDrake = dragula({
     isContainer: el => $(el).hasClass('cards-drake'),
@@ -218,14 +212,14 @@ var cardsDrake = dragula({
     slideFactorY: '50px',
 })
     .on('drop', (el, target, source, sibling) => {
-        source_bucket = $(source).attr('id').replace('bucket-', '');
-        target_bucket = $(target).attr('id').replace('bucket-', '');
-        card = $(el).attr('data-card-id');
-        order = $(target).children().toArray().findIndex(e => e == el) + 1;
+        source_bucket = $(source).attr('id').replace('bucket-', '')
+        target_bucket = $(target).attr('id').replace('bucket-', '')
+        card = $(el).attr('data-card-id')
+        order = $(target).children().toArray().findIndex(e => e == el) + 1
         $.api({
             on: 'now',
-            url: `/pm/api/card-move/`,
             method: 'POST',
+            url: `/pm/api/card-move/`,
             stateContext: `.card-el[data-card-id=${card}]`,
             data: {
                 source_bucket: source_bucket,
@@ -234,52 +228,52 @@ var cardsDrake = dragula({
                 order: order,
             },
             onSuccess: r => {
-                status_changed = r.status_changed;
-                timer_action = r.timer_action;
+                status_changed = r.status_changed
+                timer_action = r.timer_action
                 if (status_changed || timer_action != 'none') {
-                    loadBoard();
-                };
-                updateBucketTimetamp(target_bucket);
+                    loadBoard()
+                }
+                updateBucketTimetamp(target_bucket)
             },
             onFailure: () => {
-                loadBoard();
+                loadBoard()
             },
             onComplete: () => {
-                $('.cardlet').popup();
+                $('.cardlet').popup()
             }
-        });
+        })
     })
     .on('drag', (el, source) => {
-        cardBeingDragged = el;
+        cardBeingDragged = el
     })
     .on('dragend', (el) => {
-        cardBeingDragged = null;
-        stopElementScroll(scrollIntervalID);
+        cardBeingDragged = null
+        stopElementScroll(scrollIntervalID)
     })
     .on('over', (el, container, source) => {
-        containerCardIsOver = container;
+        containerCardIsOver = container
     })
     .on('out', (el, container, source) => {
-        containerCardIsOver = null;
-    });
+        containerCardIsOver = null
+    })
 
 function str(seconds) {
     function pad(num, size = 2) {
-        num = num.toString();
-        while (num.length < size) num = "0" + num;
-        return num;
+        num = num.toString()
+        while (num.length < size) num = "0" + num
+        return num
     }
-    var h = Math.floor((seconds % 31536000) / 3600);
-    var m = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
-    var s = Math.floor((((seconds % 31536000) % 86400) % 3600) % 60);
-    return `${pad(h)}:${pad(m)}:${pad(s)}`;
+    var h = Math.floor((seconds % 31536000) / 3600)
+    var m = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60)
+    var s = Math.floor((((seconds % 31536000) % 86400) % 3600) % 60)
+    return `${pad(h)}:${pad(m)}:${pad(s)}`
 }
 
 function incrementSecond(cardId) {
-    element = $(`.total-time[data-card-id=${cardId}]`);
-    time = element.attr('data-time');
-    start = new Date(element.data('start'));
-    now = new Date();
+    element = $(`.total-time[data-card-id=${cardId}]`)
+    time = element.attr('data-time')
+    start = new Date(element.data('start'))
+    now = new Date()
     element.text(
         str(
             (now - start) / 1000 + parseFloat(time)
@@ -288,42 +282,42 @@ function incrementSecond(cardId) {
 }
 
 async function clearIntervals() {
-    intervals.forEach(i => { clearInterval(i.interval) });
-    intervals = [];
+    intervals.forEach(i => { clearInterval(i.interval) })
+    intervals = []
 }
 
 function loadBoard() {
-    let compact = $('.board-compact.checkbox').checkbox('is checked');
-    let dark = $('.board-dark.checkbox').checkbox('is checked');
-    let width = $('.ui.width.slider').slider('get value');
-    boardTimestamp = new Date();
-    clearIntervals();
-    getBuckets(dark, compact, width);
-    enableProximityScroll();
-    setWallpaper();
+    let compact = $('.board-compact.checkbox').checkbox('is checked')
+    let dark = $('.board-dark.checkbox').checkbox('is checked')
+    let width = $('.ui.width.slider').slider('get value')
+    boardTimestamp = new Date()
+    clearIntervals()
+    getBuckets(dark, compact, width)
+    enableProximityScroll()
+    setWallpaper()
 }
 
 async function renderBuckets(containerSelector, buckets, dark = false, compact = false, width) {
     if (dark) {
-        $('.bucket-form.modal.form').addClass('inverted');
+        $('.bucket-form.modal.form').addClass('inverted')
     } else {
-        $('.bucket-form.modal.form').removeClass('inverted');
-    };
-    $(containerSelector).empty();
+        $('.bucket-form.modal.form').removeClass('inverted')
+    }
+    $(containerSelector).empty()
     if (compact) {
-        $(containerSelector).css('padding-left', '.25em');
-        $(containerSelector).css('padding-right', '.5em');
+        $(containerSelector).css('padding-left', '.25em')
+        $(containerSelector).css('padding-right', '.5em')
     } else {
-        $(containerSelector).css('padding-left', '.25em');
-        $(containerSelector).css('padding-right', '.75em');
-    };
+        $(containerSelector).css('padding-left', '.25em')
+        $(containerSelector).css('padding-right', '.75em')
+    }
     if (dark) {
-        $(containerSelector).parents().addClass('inverted');
-        $(containerSelector).parents().css('background-color', 'black');
+        $(containerSelector).parents().addClass('inverted')
+        $(containerSelector).parents().css('background-color', 'black')
     } else {
-        $(containerSelector).parents().removeClass('inverted');
-        $(containerSelector).parents().css('background-color', 'white');
-    };
+        $(containerSelector).parents().removeClass('inverted')
+        $(containerSelector).parents().css('background-color', 'white')
+    }
     buckets.forEach(bucket => {
         $(containerSelector).append(`
             <div class="ui loading ${dark ? 'inverted ' : ' '}card bucket-el" data-bucket-id="${bucket.id}" data-bucket-updated-at="${bucket.updated_at}" style="width: ${width}px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em; margin-top: .5em; margin-bottom: .5em;' : ''}">
@@ -355,75 +349,75 @@ async function renderBuckets(containerSelector, buckets, dark = false, compact =
               <div class="extra content cards-drake" id="bucket-${bucket.id}" style="flex: 1 1 auto; display: flex; flex-flow: column nowrap; align-items: stretch; overflow-y: auto;${compact ? ' padding: .5em;' : ''}">
               </div>
             </div>
-        `);
+        `)
         document.querySelectorAll(`.handle[data-bucket-id='${bucket.id}']`)[0].addEventListener(
             'touchmove', e => {
-                e.preventDefault();
-                const board = document.getElementById('board');
+                e.preventDefault()
+                const board = document.getElementById('board')
                 if (bucketsDrake.dragging && containerBucketIsOver !== null && bucketBeingDragged !== null) {
                     var threshold = 50
                     if ((e.touches[0].pageY - threshold) < containerBucketIsOver.getBoundingClientRect().top) {
-                        startElementScroll(0, -1, containerBucketIsOver, 50, 100);
+                        startElementScroll(0, -1, containerBucketIsOver, 50, 100)
                     } else if ((e.touches[0].pageY + threshold) > containerBucketIsOver.getBoundingClientRect().bottom) {
-                        startElementScroll(0, 1, containerBucketIsOver, 50, 100);
+                        startElementScroll(0, 1, containerBucketIsOver, 50, 100)
                     } else if ((e.touches[0].pageX + threshold) > board.getBoundingClientRect().right) {
-                        startElementScroll(1, 0, board, 50, 100);
+                        startElementScroll(1, 0, board, 50, 100)
                     } else if ((e.touches[0].pageX - threshold) < board.getBoundingClientRect().left) {
-                        startElementScroll(-1, 0, board, 50, 100);
+                        startElementScroll(-1, 0, board, 50, 100)
                     } else {
-                        stopElementScroll(scrollIntervalID);
+                        stopElementScroll(scrollIntervalID)
                     }
                 } else {
-                    stopElementScroll(scrollIntervalID);
-                };
+                    stopElementScroll(scrollIntervalID)
+                }
             },
             { passive: false }
-        );
-        $(`.ui.dropdown[data-bucket-id=${bucket.id}]`).dropdown({ action: 'hide' });
-        $(`.add.card.item[data-bucket-id=${bucket.id}]`).on('click', e => { showCardModal(card = null, bucket.id, compact); });
+        )
+        $(`.ui.dropdown[data-bucket-id=${bucket.id}]`).dropdown({ action: 'hide' })
+        $(`.add.card.item[data-bucket-id=${bucket.id}]`).on('click', e => { showCardModal(card = null, bucket.id, compact) })
         $(`#bucket-${bucket.id}`).on('dblclick', e => {
-            const isCard = $(e.target).parents('.card-el').length > 0;
-            if (!isCard) { showCardModal(card = null, bucket.id, compact); }
+            const isCard = $(e.target).parents('.card-el').length > 0
+            if (!isCard) { showCardModal(card = null, bucket.id, compact) }
         })
-        $(`.edit.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { showBucketModal(bucket); });
-        $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { deleteBucket(bucket.id); });
-        getCards(bucket.id, dark, compact);
-    });
-    $(containerSelector).append(`<div class="ui add bucket basic ${dark ? 'inverted ' : ' '}button" style="flex: 0 0 auto">${gettext('Add new bucket')}</div>`);
-    $(`.add.bucket.button`).off().click(e => { showBucketModal(); });
-    e = $('.add.bucket.button').siblings().last();
-    $('.add.bucket.button').css('marginTop', e.css('marginTop'));
-    $('.add.bucket.button').css('marginBottom', e.css('marginBottom'));
-    $('.bucket-el').removeClass('loading');
-    setBucketGlassEffect();
+        $(`.edit.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { showBucketModal(bucket) })
+        $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { deleteBucket(bucket.id) })
+        $(containerSelector).ready(e => { getCards(bucket.id, dark, compact) })
+    })
+    $(containerSelector).append(`<div class="ui add bucket basic ${dark ? 'inverted ' : ' '}button" style="flex: 0 0 auto">${gettext('Add new bucket')}</div>`)
+    $(`.add.bucket.button`).off().click(e => { showBucketModal() })
+    e = $('.add.bucket.button').siblings().last()
+    $('.add.bucket.button').css('marginTop', e.css('marginTop'))
+    $('.add.bucket.button').css('marginBottom', e.css('marginBottom'))
+    $('.bucket-el').removeClass('loading')
+    setBucketGlassEffect()
 }
 
 async function renderCards(containerSelector, cards, bucketId, dark = false, compact = false) {
     if (dark) {
-        $('.card-form.modal.form').addClass('inverted');
+        $('.card-form.modal.form').addClass('inverted')
     } else {
-        $('.card-form.modal.form').removeClass('inverted');
-    };
-    $(containerSelector).empty();
+        $('.card-form.modal.form').removeClass('inverted')
+    }
+    $(containerSelector).empty()
     cards.forEach(card => {
         switch (card.status) {
             case 'NS':
                 status_icon = 'circle outline'
-                break;
+                break
             case 'IP':
                 status_icon = 'dot circle outline'
-                break;
+                break
             case 'C':
                 status_icon = 'check circle outline'
-                break;
+                break
         }
-        var overdue = false;
-        var dueDate = null;
+        var overdue = false
+        var dueDate = null
         if (card.due_date !== null) {
-            var now = new Date();
-            dueDate = card.due_date.split('-');
-            dueDate = new Date(dueDate[0], dueDate[1] - 1, dueDate[2]);
-            overdue = now > dueDate;
+            var now = new Date()
+            dueDate = card.due_date.split('-')
+            dueDate = new Date(dueDate[0], dueDate[1] - 1, dueDate[2])
+            overdue = now > dueDate
         }
         $(containerSelector).append(`
             <div class="ui loading ${dark ? 'inverted ' : ' '}${card.is_running ? 'red ' : ''}${card.status === 'C' ? 'completed ' : ''}${overdue ? 'overdue ' : ''}card card-el" data-card-id="${card.id}" style="width: 100%; flex: 0 0 auto;${compact ? ' margin-bottom: -.25em;' : 'margin-bottom: .25em;'}">
@@ -459,13 +453,13 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
                     <div class="bar"></div>
                 </div>
             </div>
-        `);
-        $(`.ui.progress[data-card-id=${card.id}]`).progress();
-        let extraContent = $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`);
-        let tagsContainer = $(containerSelector).find(`.meta .tags[data-card-id=${card.id}]`);
+        `)
+        $(`.ui.progress[data-card-id=${card.id}]`).progress()
+        let extraContent = $(containerSelector).find(`.extra.content[data-card-id=${card.id}]`)
+        let tagsContainer = $(containerSelector).find(`.meta .tags[data-card-id=${card.id}]`)
         if (card.total_time > 0 && FEATURES.time_entries) {
             extraContent.append(`
-                <span class="ui right floated ${card.is_running ? 'red ' : ''} text" style="font-size: 85%; ">
+                <span class="ui right floated ${card.is_running ? 'red ' : ''} text" style="font-size: 85%;">
                     <a class="start-stop-timer cardlet" data-card-id="${card.id}" data-content="${card.is_running ? gettext('Stop timer') : gettext('Start timer')}" data-variation="tiny basic">
                         ${card.is_running ? '<i class="stop circle icon"></i>' : '<i class="play circle icon"></i>'}
                     </a>
@@ -474,100 +468,111 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
                     </span>
                 </span>
             `)
-        };
+        }
         if (card.comments > 0) {
             extraContent.prepend(`
               <span class="ui left floated text noselect cardlet" style="font-size: 85%; margin-right: .5em;" data-title="${gettext('Comments')}" data-content="${card.comments}" data-variation="tiny basic">
                 <i class="comment icon"></i>${card.comments}
               </span>
-            `);
-        };
+            `)
+        }
         if (card.total_files > 0) {
             extraContent.prepend(`
                 <span class="ui left floated text noselect cardlet" style="font-size: 85%; margin-right: .5em;" data-title="${gettext('Attached files')}" data-content="${card.total_files}" data-variation="tiny basic">
                 <i class="paperclip icon"></i>${card.total_files}
                 </span>
-            `);
-        };
+            `)
+        }
         if (card.total_items > 0) {
             extraContent.prepend(`
                 <span class="ui left floated text noselect cardlet" style="font-size: 85%; margin-right: .5em;" data-title="${gettext('Checklist items')}" data-content="${interpolate(ngettext('%s checked, %s in total.', '%s checked, %s in total.', card.checked_items), [card.checked_items, card.total_items])}" data-variation="tiny basic">
                     <i class="tasks icon"></i>${card.checked_items}/${card.total_items}
                 </span>
-            `);
-        };
+            `)
+        }
 
         if (card.due_date !== null) {
             extraContent.prepend(`
               <span class="ui left floated${overdue ? ' red' : ''} text noselect cardlet" style="font-size: 85%; margin-right: .5em;" data-title="Due date" data-content="${dueDate.toLocaleDateString(LANGUAGE_CODE)}${overdue ? gettext(' - This card is overdue!') : ''}" data-variation="tiny red basic"><i class="calendar day icon"></i></span>
-            `);
-        };
-        $('.cardlet').popup();
+            `)
+        }
+        $('.cardlet').popup()
         if (card.tag.length > 0) {
-            renderTags(tagsContainer, card.tag, dark);
-        };
-        let assigneesContainer = $(containerSelector).find(`.meta .assignees[data-card-id=${card.id}]`);
+            renderTags(tagsContainer, card.tag, dark)
+        }
+        let assigneesContainer = $(containerSelector).find(`.meta .assignees[data-card-id=${card.id}]`)
         if (card.assigned_to.length > 0) {
             renderAssignees(
                 assigneesContainer,
                 card.assigned_to,
                 card.color !== null ? dark ? card.color.dark : card.color.light : null,
                 dark
-            );
-        };
+            )
+        }
         if (extraContent.html().trim() === '') {
             // If no extra content is found, remove the element
-            extraContent.remove();
-        };
+            extraContent.remove()
+        }
         document.querySelectorAll(`.handle[data-card-id='${card.id}']`)[0].addEventListener(
             'touchmove', e => {
-                e.preventDefault();
-                const board = document.getElementById('board');
+                e.preventDefault()
+                const board = document.getElementById('board')
                 if (cardsDrake.dragging && containerCardIsOver !== null && cardBeingDragged !== null) {
                     var threshold = 50
                     if ((e.touches[0].pageY - threshold) < containerCardIsOver.getBoundingClientRect().top) {
-                        startElementScroll(0, -1, containerCardIsOver, 50, 100);
+                        startElementScroll(0, -1, containerCardIsOver, 50, 100)
                     } else if ((e.touches[0].pageY + threshold) > containerCardIsOver.getBoundingClientRect().bottom) {
-                        startElementScroll(0, 1, containerCardIsOver, 50, 100);
+                        startElementScroll(0, 1, containerCardIsOver, 50, 100)
                     } else if ((e.touches[0].pageX + threshold) > board.getBoundingClientRect().right) {
-                        startElementScroll(1, 0, board, 50, 100);
+                        startElementScroll(1, 0, board, 50, 100)
                     } else if ((e.touches[0].pageX - threshold) < board.getBoundingClientRect().left) {
-                        startElementScroll(-1, 0, board, 50, 100);
+                        startElementScroll(-1, 0, board, 50, 100)
                     } else {
-                        stopElementScroll(scrollIntervalID);
+                        stopElementScroll(scrollIntervalID)
                     }
                 } else {
-                    stopElementScroll(scrollIntervalID);
-                };
+                    stopElementScroll(scrollIntervalID)
+                }
             },
             { passive: false }
-        );
-        $(`.ui.dropdown[data-card-id=${card.id}]`).dropdown({ action: 'hide' });
-        $(`.card-name[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact); });
-        $(`.edit.card.item[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact); });
-        $(`.card-el[data-card-id=${card.id}]`).on('dblclick', e => { showCardModal(card, bucketId, compact); })
-        $(`.delete.card.item[data-card-id=${card.id}]`).on('click', e => { deleteCard(card.id, bucketId, dark, compact); });
-        $(`.start-stop-timer[data-card-id=${card.id}]`).on('click', e => { startStopTimer(card.id, bucketId, dark, compact); });
-        $(`.edit-time-entries[data-card-id=${card.id}]`).on('click', e => { showTimeEntriesModal(card.id, bucketId, dark, compact); });
+        )
+        $(`.ui.dropdown[data-card-id=${card.id}]`).dropdown({ action: 'hide' })
+        $(`.card-name[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact) })
+        $(`.edit.card.item[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact) })
+        $(`.card-el[data-card-id=${card.id}]`).on('dblclick', e => { showCardModal(card, bucketId, compact) })
+        $(`.delete.card.item[data-card-id=${card.id}]`).on('click', e => { deleteCard(card.id, bucketId, dark, compact) })
+        $(`.start-stop-timer[data-card-id=${card.id}]`).on('click', e => { startStopTimer(card.id, bucketId, dark, compact) })
+        $(`.edit-time-entries[data-card-id=${card.id}]`).on('click', e => { showTimeEntriesModal(card.id, bucketId, dark, compact) })
         $(`.card-status.icon[data-card-id=${card.id}]`).on('click', e => {
-            toggleCardStatus(card.id, bucketId, $(e.target).attr('data-status'), dark, compact);
-        });
-        if (card.is_running) {
-            intervals.push(
-                {
-                    card: card.id,
-                    interval: setInterval(() => { incrementSecond(card.id) }, 1000)
-                }
-            );
-        };
-    });
-    $('.card-el').removeClass('loading');
-    setCardGlassEffect();
+            toggleCardStatus(card.id, bucketId, $(e.target).attr('data-status'), dark, compact)
+        })
+        if (card.is_running) { startTimerAnimation(card.id) }
+    })
+    $('.card-el').removeClass('loading')
+    setCardGlassEffect()
+}
+
+async function startTimerAnimation(cardId) {
+    if (intervals.map(e => e.card).includes(cardId)) { return }
+    intervals.push(
+        {
+            card: cardId,
+            interval: setInterval(() => { incrementSecond(cardId) }, 1000)
+        }
+    )
+}
+
+async function stopTimerAnimation(cardId) {
+    intervalIndex = intervals.findIndex(i => i.card == cardId)
+    if (intervalIndex > -1) {
+        clearInterval(intervals[intervalIndex].interval)
+        intervals.splice(intervalIndex, 1)
+    }
 }
 
 async function renderFiles(modal, bucketId, cardId, files) {
     for (f of files) {
-        extension = f.extension;
+        extension = f.extension
         modal.find('.files-container').append(`
             <div class="ui special card img-card-file" data-file-id=${f.id}>
                 <div class="blurring dimmable image" data-file-id=${f.id}>
@@ -584,11 +589,10 @@ async function renderFiles(modal, bucketId, cardId, files) {
                     <img src="${f.image ? f.file : generateAvatar(extension)}" class="img-card-file">
                 </div>
             </div>
-        `);
-        $(`.image[data-file-id=${f.id}]`).dimmer({ on: 'hover' });
+        `)
+        $(`.image[data-file-id=${f.id}]`).dimmer({ on: 'hover' })
         $(`.delete-file[data-file-id=${f.id}]`).off().on('click', e => {
-
-            id = $(e.target).attr('data-file-id');
+            id = $(e.target).attr('data-file-id')
             $('body').modal({
                 title: gettext('Confirmation'),
                 class: 'mini',
@@ -607,24 +611,24 @@ async function renderFiles(modal, bucketId, cardId, files) {
                 ],
                 onApprove: () => {
                     $.api({
-                        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/${id}/`,
                         on: 'now',
-                        stateContext: $(`.ui.special.card.img-card-file[data-file-id=${id}]`),
                         method: 'DELETE',
+                        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/${id}/`,
+                        stateContext: $(`.ui.special.card.img-card-file[data-file-id=${id}]`),
                         successTest: r => r != 0,
                         onSuccess: r => {
-                            $(`.ui.special.card.img-card-file[data-file-id=${id}]`).remove();
-                            cardEdited = true;
+                            $(`.ui.special.card.img-card-file[data-file-id=${id}]`).remove()
+                            cardEdited = true
                         },
                     })
                 }
-            }).modal('show');
-        });
+            }).modal('show')
+        })
     }
 }
 
 function renderItems(containerSelector, items, bucketId, cardId, dark = false) {
-    $(containerSelector).empty();
+    $(containerSelector).empty()
     items.forEach(item => {
         $(containerSelector).append(`
             <div class="checklist-item" data-item-id="${item.id}" style="display: flex; flex-flow: row nowrap; align-items: center;">
@@ -637,77 +641,77 @@ function renderItems(containerSelector, items, bucketId, cardId, dark = false) {
                 </div>
                 <div data-item-id="${item.id}" class="ui mini icon basic delete-item ${dark ? 'inverted ' : ' '}button"><i data-item-id="${item.id}" class="trash alternate outline icon"></i></div>
             </div>
-        `);
-    });
+        `)
+    })
     $('.checklist-item input').on('keypress', e => {
         if (e.which == 13) {
-            let index = $(e.target).parent().parent().index() + 1;
+            let index = $(e.target).parent().parent().index() + 1
             let nextElement = $(e.target).parent().parent().parent().children().toArray()[index]
             if (nextElement !== undefined) {
-                $(nextElement).find('input[type=text]').focus();
+                $(nextElement).find('input[type=text]').focus()
             }
         }
-    });
+    })
     $('.checklist-item input').blur(e => {
         if (e.target.value != $(e.target).attr('data-text')) {
-            let itemId = $(e.target).attr('data-item-id');
-            $(this).attr("disabled", "disabled");
+            let itemId = $(e.target).attr('data-item-id')
+            $(this).attr("disabled", "disabled")
             $.api({
-                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/`,
+                on: 'now',
                 method: 'PATCH',
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/`,
                 data: {
                     name: e.target.value,
                 },
-                on: 'now',
-                onSuccess: r => {
-                    getItems(bucketId, cardId, dark);
+                onSuccess(r) {
+                    getItems(bucketId, cardId, dark)
                 },
-                onComplete: () => { $(this).removeAttr("disabled"); },
-            });
-        };
-    });
+                onComplete() { $(this).removeAttr("disabled") },
+            })
+        }
+    })
     $('.delete-item.button').click(e => {
-        let itemId = $(e.target).attr('data-item-id');
+        let itemId = $(e.target).attr('data-item-id')
         $.api({
-            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/`,
-            method: 'DELETE',
             on: 'now',
-            onSuccess: r => {
-                getItems(bucketId, cardId, dark);
-                cardEdited = true;
+            method: 'DELETE',
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/`,
+            onSuccess(r) {
+                getItems(bucketId, cardId, dark)
+                cardEdited = true
             },
-        });
-    });
+        })
+    })
 
     $('.checklist-item .checkbox').toArray().forEach(el => {
         $(el).checkbox({
-            onChange: () => {
-                let itemId = $(el).attr('data-item-id');
-                let checked = $(el).checkbox('is checked');
+            onChange() {
+                let itemId = $(el).attr('data-item-id')
+                let checked = $(el).checkbox('is checked')
                 $.api({
-                    url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/check/`,
-                    method: 'POST',
-                    data: { checked: checked },
                     on: 'now',
-                    onSuccess: r => {
-                        getItems(bucketId, cardId, dark);
-                        cardEdited = true;
+                    method: 'POST',
+                    url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/check/`,
+                    data: { checked: checked },
+                    onSuccess(r) {
+                        getItems(bucketId, cardId, dark)
+                        cardEdited = true
                     },
-                });
+                })
             }
         })
-    });
+    })
 }
 
 function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dark = false) {
-    $(containerSelector).empty();
+    $(containerSelector).empty()
     if (timeEntries.length == 0) {
         $(containerSelector).append(`
             <div class="ui header">
                 ${gettext('No time entries for this card.')}
             </div>
-        `);
-        return;
+        `)
+        return
     }
     timeEntries.forEach(timeEntry => {
         $(containerSelector).append(`
@@ -747,8 +751,8 @@ function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dar
                     </div>
                 </div>
             </div>
-        `);
-        let startDate = $(`.time-entry.start-date[data-time-entry-id=${timeEntry.id}]`);
+        `)
+        let startDate = $(`.time-entry.start-date[data-time-entry-id=${timeEntry.id}]`)
         startDate.calendar({
             popupOptions: {
                 boundary: containerSelector,
@@ -760,12 +764,12 @@ function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dar
             formatInput: true,
             formatter: {
                 date: (date, settings) => {
-                    if (!date) return '';
-                    return date.toLocaleDateString(LANGUAGE_CODE);
+                    if (!date) return ''
+                    return date.toLocaleDateString(LANGUAGE_CODE)
                 }
             }
-        });
-        let stopDate = $(`.time-entry.stop-date[data-time-entry-id=${timeEntry.id}]`);
+        })
+        let stopDate = $(`.time-entry.stop-date[data-time-entry-id=${timeEntry.id}]`)
         stopDate.calendar({
             popupOptions: {
                 boundary: containerSelector,
@@ -777,65 +781,67 @@ function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dar
             formatInput: true,
             formatter: {
                 date: (date, settings) => {
-                    if (!date) return '';
-                    return date.toLocaleDateString(LANGUAGE_CODE);
+                    if (!date) return ''
+                    return date.toLocaleDateString(LANGUAGE_CODE)
                 }
             }
-        });
+        })
 
         if (timeEntry.started_at !== null) {
-            let startedAt = new Date(timeEntry.started_at);
-            startDate.calendar('set date', startedAt);
+            let startedAt = new Date(timeEntry.started_at)
+            startDate.calendar('set date', startedAt)
         }
 
         if (timeEntry.stopped_at !== null) {
-            let stoppedAt = new Date(timeEntry.stopped_at);
-            stopDate.calendar('set date', stoppedAt);
+            let stoppedAt = new Date(timeEntry.stopped_at)
+            stopDate.calendar('set date', stoppedAt)
         }
-        let timeEntrySegment = $(`.ui.form.segment[data-time-entry-id=${timeEntry.id}]`);
+        let timeEntrySegment = $(`.ui.form.segment[data-time-entry-id=${timeEntry.id}]`)
         $(`.delete.button[data-time-entry-id=${timeEntry.id}]`).click(e => {
-            timeEntrySegment.addClass('loading');
-            $.ajax({
-                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/time-entries/${timeEntry.id}/`,
+            timeEntrySegment.addClass('loading')
+            $.api({
+                on: 'now',
                 method: 'DELETE',
-                success: r => {
-                    timeEntrySegment.remove();
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/time-entries/${timeEntry.id}/`,
+                onSuccess(r) {
+                    timeEntrySegment.remove()
                     $('body').toast({
                         class: 'warning',
                         message: gettext('Time entry deleted!'),
                     })
                 },
-                complete: () => {
-                    timeEntrySegment.removeClass('loading');
+                onComplete() {
+                    timeEntrySegment.removeClass('loading')
                 }
             })
-        });
+        })
         $(`.save.button[data-time-entry-id=${timeEntry.id}]`).click(e => {
-            timeEntrySegment.addClass('loading');
-            $.ajax({
-                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/time-entries/${timeEntry.id}/`,
+            timeEntrySegment.addClass('loading')
+            $.api({
+                on: 'now',
                 method: 'PATCH',
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/time-entries/${timeEntry.id}/`,
                 data: {
                     name: $(`input[name=name][data-time-entry-id=${timeEntry.id}]`).val(),
                     started_at: startDate.calendar('get date').toISOString(),
                     stopped_at: stopDate.calendar('get date').toISOString(),
                 },
-                success: r => {
+                onSuccess(r) {
                     $('body').toast({
                         class: 'success',
                         message: gettext('Time entry successfully updated!'),
                     })
                 },
-                complete: () => {
-                    timeEntrySegment.removeClass('loading');
+                onComplete() {
+                    timeEntrySegment.removeClass('loading')
                 }
             })
-        });
-    });
+        })
+    })
 }
 
 function renderComments(containerSelector, comments, bucketId, cardId, dark = false) {
-    $(containerSelector).empty();
+    $(containerSelector).empty()
     if (dark) {
         $(containerSelector).addClass('inverted')
         $(containerSelector).parent().addClass('inverted')
@@ -844,10 +850,9 @@ function renderComments(containerSelector, comments, bucketId, cardId, dark = fa
         $(containerSelector).parent().removeClass('inverted')
     }
     comments.forEach(comment => {
-        text = insertLinksAndMentions(comment.text);
+        text = insertLinksAndMentions(comment.text)
         if (comment.created_by.username === USERNAME) {
-            $(containerSelector).append(
-                `
+            $(containerSelector).append(`
                 <div class="comment">
                     <div class="avatar">
                         <img class="ui small image" src="${comment.created_by.profile.avatar != null ? comment.created_by.profile.avatar : PLACEHOLDER_AVATAR}">
@@ -864,27 +869,27 @@ function renderComments(containerSelector, comments, bucketId, cardId, dark = fa
                         </div>
                     </div>
                 </div>
-                `
-            );
+            `)
             $(`a.edit-comment[data-comment-id=${comment.id}]`).off().click(e => {
                 editCommentTextarea = $('textarea.comment-edit')
                 $('.comment-edit.modal').modal({
-                    onShow: () => {
-                        editCommentTextarea.val(comment.text);
+                    onShow() {
+                        editCommentTextarea.val(comment.text)
                     },
-                    onApprove: () => {
-                        $.ajax({
-                            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/${comment.id}/`,
+                    onApprove() {
+                        $.api({
+                            on: 'now',
                             method: 'PATCH',
+                            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/${comment.id}/`,
                             data: { text: editCommentTextarea.val() },
-                            success: r => {
-                                editCommentTextarea.val('');
-                                $('body').toast({ message: gettext("Comment edited.") });
+                            onSuccess(r) {
+                                editCommentTextarea.val('')
+                                $('body').toast({ message: gettext("Comment edited.") })
                             },
                         })
                     },
-                }).modal('show');
-            });
+                }).modal('show')
+            })
             $(`a.delete-comment[data-comment-id=${comment.id}]`).off().click(e => {
                 $(containerSelector).modal({
                     title: gettext('Deletion confirmation'),
@@ -906,15 +911,14 @@ function renderComments(containerSelector, comments, bucketId, cardId, dark = fa
                             url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/${comment.id}/`,
                             method: 'DELETE',
                             success: r => {
-                                $('body').toast({ message: gettext("Comment deleted.") });
+                                $('body').toast({ message: gettext("Comment deleted.") })
                             },
-                        });
+                        })
                     }
-                }).modal('show');
-            });
+                }).modal('show')
+            })
         } else {
-            $(containerSelector).append(
-                `
+            $(containerSelector).append(`
                 <div class="right aligned comment" style="display: flex; flex-flow: row nowrap; align-items: start;">
                     <div class="content" style="flex: 1 1 auto; margin-right: 1em;">
                         <div class="metadata">
@@ -927,11 +931,10 @@ function renderComments(containerSelector, comments, bucketId, cardId, dark = fa
                         <img class="ui small image" src="${comment.created_by.profile.avatar != null ? comment.created_by.profile.avatar : PLACEHOLDER_AVATAR}">
                     </div>
                 </div>
-                `
-            );
-        };
-        $(`.mention`).popup();
-    });
+            `)
+        }
+        $(`.mention`).popup()
+    })
 }
 
 async function renderTags(container, tags, dark = false) {
@@ -939,11 +942,11 @@ async function renderTags(container, tags, dark = false) {
         if (tag.icon !== null) {
             container.append(`
                 <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label"><i class="${tag.icon.markup} icon"></i> ${tag.name}</span>
-            `);
+            `)
         } else {
             container.append(`
                 <span class="ui mini ${tag.color ? tag.color.name.toLowerCase() : ''} label">${tag.name}</span>
-            `);
+            `)
         }
     }
 }
@@ -953,113 +956,113 @@ async function renderAssignees(container, assignees, borderColor = null, dark = 
         for (user of assignees) {
             container.append(`
                 <img data-username="${user.username}" data-content="${user.username}" data-variation="basic" class="ui avatar mini image assignee${dark ? ' dark' : ''}" src="${user.profile.avatar === null ? PLACEHOLDER_AVATAR : user.profile.avatar}"">
-            `);
-            $(`img[data-username='${user.username}']`).popup();
+            `)
+            $(`img[data-username='${user.username}']`).popup()
         }
     } else {
         for (user of assignees) {
             container.append(`
-                <img data-username="${user.username}" data-content="${user.username}" data-variation="basic" class="ui avatar mini image assignee${dark ? ' dark' : ''}" src="${user.profile.avatar === null ? PLACEHOLDER_AVATAR : user.profile.avatar}" style="border-color: ${borderColor};">
-            `);
-            $(`img[data-username='${user.username}']`).popup();
+                <img data-username="${user.username}" data-content="${user.username}" data-variation="basic" class="ui avatar mini image assignee${dark ? ' dark' : ''}" src="${user.profile.avatar === null ? PLACEHOLDER_AVATAR : user.profile.avatar}" style="border-color: ${borderColor}">
+            `)
+            $(`img[data-username='${user.username}']`).popup()
         }
     }
 }
 
 async function loadComments(card, bucketId, dark) {
-    getComments(bucketId, card.id, dark);
+    getComments(bucketId, card.id, dark)
     $('.add-reply.button').off().click(e => {
-        $(this).attr("disabled", "disabled");
+        $(this).attr("disabled", "disabled")
         $.api({
-            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/comments/`,
+            on: 'now',
             method: 'POST',
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/comments/`,
             data: {
                 card: card.id,
                 text: $('textarea.add-reply').val(),
             },
-            on: 'now',
-            onSuccess: r => {
-                $('textarea.add-reply').val('');
-                getComments(bucketId, card.id, dark);
-                cardEdited = true;
+            onSuccess(r) {
+                $('textarea.add-reply').val('')
+                getComments(bucketId, card.id, dark)
+                cardEdited = true
             },
-            onComplete: () => { $(this).removeAttr("disabled"); },
-        });
-    });
+            onComplete() { $(this).removeAttr("disabled") },
+        })
+    })
 }
 
 async function loadChecklistItems(card, bucketId, dark) {
-    getItems(bucketId, card.id, dark);
+    getItems(bucketId, card.id, dark)
     $('.add-item.input input').off().on('keypress', e => {
         if (e.which == 13) {
-            $(this).attr("disabled", "disabled");
+            $(this).attr("disabled", "disabled")
             $.api({
-                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
+                on: 'now',
                 method: 'POST',
+                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${card.id}/items/`,
                 data: {
                     name: e.target.value,
                     card: card.id,
                     order: 1
                 },
-                on: 'now',
-                onSuccess: r => {
-                    e.target.value = '';
-                    getItems(bucketId, card.id, dark);
-                    cardEdited = true;
+                onSuccess(r) {
+                    e.target.value = ''
+                    getItems(bucketId, card.id, dark)
+                    cardEdited = true
                 },
-                onComplete: () => { $(this).removeAttr("disabled"); },
-            });
-        };
-    });
+                onComplete() { $(this).removeAttr("disabled") },
+            })
+        }
+    })
 }
 
 function insertLinksAndMentions(text) {
     function getIndicesOf(searchStr, str, caseSensitive) {
-        var searchStrLen = searchStr.length;
+        var searchStrLen = searchStr.length
         if (searchStrLen == 0) {
-            return [];
+            return []
         }
-        var startIndex = 0, index, indices = [];
+        var startIndex = 0, index, indices = []
         if (!caseSensitive) {
-            str = str.toLowerCase();
-            searchStr = searchStr.toLowerCase();
+            str = str.toLowerCase()
+            searchStr = searchStr.toLowerCase()
         }
         while ((index = str.indexOf(searchStr, startIndex)) > -1) {
-            indices.push(index);
-            startIndex = index + searchStrLen;
+            indices.push(index)
+            startIndex = index + searchStrLen
         }
-        return indices;
+        return indices
     }
     text = text.replace(
         /(https?:\/\/)([^ ]+)/g,
         '<a target="_blank" href="$&">$2</a>'
-    );
-    var newText = text;
+    )
+    var newText = text
     for (user of allowedUsers) {
-        username = `@${user.username}`;
-        usernameIndices = getIndicesOf(username, text);
-        validIndices = [];
-        offset = 0;
+        username = `@${user.username}`
+        usernameIndices = getIndicesOf(username, text)
+        validIndices = []
+        offset = 0
         for (index of usernameIndices) {
-            nextChar = text.substr(index + username.length, 1);
+            nextChar = text.substr(index + username.length, 1)
             if (",.!? ".includes(nextChar)) {
-                validIndices.push(index - offset);
-                newText = newText.substr(0, index - offset) + newText.substr(index - offset + username.length);
-                offset += username.length;
+                validIndices.push(index - offset)
+                newText = newText.substr(0, index - offset) + newText.substr(index - offset + username.length)
+                offset += username.length
             }
         }
-        offset = 0;
+        offset = 0
         for (index of validIndices) {
-            avatar = user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR;
+            avatar = user.profile.avatar !== null ? user.profile.avatar : PLACEHOLDER_AVATAR
             span = `<span class="mention" data-html="<img class='ui avatar image' src='${avatar}'><span><b>${user.username}</b></span><p>${user.email}</p>" data-variation="tiny">@${user.username}</span>`
             newText = newText.substr(0, index + offset)
                 + span
-                + newText.substr(index + offset);
-            offset += span.length;
+                + newText.substr(index + offset)
+            offset += span.length
         }
-        text = newText;
+        text = newText
     }
-    return newText;
+    return newText
 }
 
 async function enableProximityScroll() {
@@ -1068,30 +1071,30 @@ async function enableProximityScroll() {
             var boardBody = document.getElementById("board")
             var threshold = 50
             if ((e.pageY - threshold) < containerCardIsOver.getBoundingClientRect().top) {
-                startElementScroll(0, -1, containerCardIsOver, 50, 100);
+                startElementScroll(0, -1, containerCardIsOver, 50, 100)
             } else if ((e.pageY + threshold) > containerCardIsOver.getBoundingClientRect().bottom) {
-                startElementScroll(0, 1, containerCardIsOver, 50, 100);
+                startElementScroll(0, 1, containerCardIsOver, 50, 100)
             } else if ((e.pageX + threshold) > boardBody.getBoundingClientRect().right) {
-                startElementScroll(1, 0, boardBody, 50, 100);
+                startElementScroll(1, 0, boardBody, 50, 100)
             } else if ((e.pageX - threshold) < boardBody.getBoundingClientRect().left) {
-                startElementScroll(-1, 0, boardBody, 50, 100);
+                startElementScroll(-1, 0, boardBody, 50, 100)
             } else {
-                stopElementScroll(scrollIntervalID);
+                stopElementScroll(scrollIntervalID)
             }
         } else if (bucketsDrake.dragging && containerBucketIsOver !== null && bucketBeingDragged !== null) {
             var threshold = 50
             if ((e.pageX - threshold) < containerBucketIsOver.getBoundingClientRect().left) {
-                startElementScroll(-1, 0, containerBucketIsOver, 50, 100);
+                startElementScroll(-1, 0, containerBucketIsOver, 50, 100)
             } else if ((e.pageX + threshold) > containerBucketIsOver.getBoundingClientRect().right) {
-                startElementScroll(1, 0, containerBucketIsOver, 50, 100);
+                startElementScroll(1, 0, containerBucketIsOver, 50, 100)
             } else {
-                stopElementScroll(scrollIntervalID);
+                stopElementScroll(scrollIntervalID)
             }
         } else {
-            stopElementScroll(scrollIntervalID);
-        };
+            stopElementScroll(scrollIntervalID)
+        }
     }
-    document.addEventListener("mousemove", proximityScroll);
+    document.addEventListener("mousemove", proximityScroll)
 }
 
 async function getBuckets(dark = false, compact = false, width) {
@@ -1103,7 +1106,7 @@ async function getBuckets(dark = false, compact = false, width) {
                 dark = dark,
                 compact = compact,
                 width = width
-            );
+            )
         })
         .fail(e => { console.error(e) })
         .always()
@@ -1112,19 +1115,19 @@ async function getBuckets(dark = false, compact = false, width) {
 async function getCards(bucketId, dark = false, compact = false) {
     $.api({
         on: 'now',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
         method: 'GET',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
         stateContext: `.bucket-el[data-bucket-id=${bucketId}]`,
         onSuccess: r => {
-            updateBucketTimetamp(bucketId);
+            updateBucketTimetamp(bucketId)
             renderCards(
                 containerSelector = `#bucket-${bucketId}`,
                 cards = r,
                 bucketId = bucketId,
                 dark = dark,
                 compact = compact
-            );
-            filterCards();
+            )
+            filterCards()
         }
     })
 }
@@ -1132,8 +1135,8 @@ async function getCards(bucketId, dark = false, compact = false) {
 async function getItems(bucketId, cardId, dark = false) {
     $.api({
         on: 'now',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/`,
         method: 'GET',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/`,
         stateContext: '.checklist.segment',
         onSuccess: r => {
             renderItems(
@@ -1142,7 +1145,7 @@ async function getItems(bucketId, cardId, dark = false) {
                 bucketId = bucketId,
                 cardId = cardId,
                 dark = dark,
-            );
+            )
         }
     })
 }
@@ -1150,8 +1153,8 @@ async function getItems(bucketId, cardId, dark = false) {
 async function getComments(bucketId, cardId, dark = false) {
     $.api({
         on: 'now',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/`,
         method: 'GET',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/comments/`,
         stateContext: '.comments-segment.segment',
         onSuccess: r => {
             renderComments(
@@ -1160,7 +1163,7 @@ async function getComments(bucketId, cardId, dark = false) {
                 bucketId = bucketId,
                 cardId = cardId,
                 dark = dark,
-            );
+            )
         },
     })
 }
@@ -1174,14 +1177,14 @@ function getTimeEntries(bucketId, cardId, dark = false) {
                 bucketId = bucketId,
                 cardId = cardId,
                 dark = dark,
-            );
+            )
         })
         .fail(e => { console.error(e) })
         .always()
 }
 
 function getTags() {
-    var tags = [];
+    var tags = []
     $.ajax({
         on: 'now',
         async: false,
@@ -1190,19 +1193,19 @@ function getTags() {
         method: 'GET',
         cache: false,
     })
-        .done(r => { tags = r; })
-    return tags;
+        .done(r => { tags = r })
+    return tags
 }
 
 function getBoardAllowedUsers() {
-    var allowed_users = [];
+    var allowed_users = []
     $.ajax({
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
         method: 'GET',
         async: false,
     })
-        .done(r => { allowed_users = r.allowed_users; })
-    return allowed_users;
+        .done(r => { allowed_users = r.allowed_users })
+    return allowed_users
 }
 
 async function getFiles(modal, bucketId, cardId) {
@@ -1217,30 +1220,30 @@ async function getFiles(modal, bucketId, cardId) {
 }
 
 function generateAvatar(text, foregroundColor = "white", backgroundColor = "black") {
-    const w = 200;
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+    const w = 200
+    const canvas = document.createElement("canvas")
+    const ctx = canvas.getContext("2d")
 
-    canvas.width = w;
-    canvas.height = w;
+    canvas.width = w
+    canvas.height = w
 
     // Draw background
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = backgroundColor
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     // Draw text
-    var fontsize = w * 2 / text.length;
+    var fontsize = w * 2 / text.length
     do {
-        fontsize -= w / 100;
-        ctx.font = `bold ${fontsize}px Inter`;
+        fontsize -= w / 100
+        ctx.font = `bold ${fontsize}px Inter`
     } while (ctx.measureText(text).width > w * .8)
-    ctx.fillStyle = foregroundColor;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    ctx.fillStyle = foregroundColor
+    ctx.textAlign = "center"
+    ctx.textBaseline = "middle"
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2)
 
 
-    return canvas.toDataURL("image/png");
+    return canvas.toDataURL("image/png")
 }
 
 async function initializeTagsDropdown(dropdown, card = undefined) {
@@ -1264,7 +1267,7 @@ async function initializeTagsDropdown(dropdown, card = undefined) {
                 `,
             }
         }
-    });
+    })
     dropdown.dropdown('refresh').dropdown({
         placeholder: gettext('Select tags to for card'),
         values: tags,
@@ -1272,13 +1275,13 @@ async function initializeTagsDropdown(dropdown, card = undefined) {
         allowAdditions: false,
         forceSelection: false,
         onLabelCreate: (value, text) => {
-            var el = $(text);
+            var el = $(text)
             el.append('<i class="delete icon"></i>')
-            return el;
+            return el
         },
-    });
+    })
     if (card) {
-        dropdown.dropdown('set exactly', card.tag.map(tag => tag.name));
+        dropdown.dropdown('set exactly', card.tag.map(tag => tag.name))
     }
 }
 
@@ -1293,9 +1296,9 @@ async function initializeUsersDropdown(dropdown, card = undefined) {
                 imageClass: 'ui allowed_users avatar image',
             }
         ))
-    });
+    })
     if (card) {
-        dropdown.dropdown('set exactly', card.assigned_to.map(user => user.username));
+        dropdown.dropdown('set exactly', card.assigned_to.map(user => user.username))
     }
 }
 
@@ -1309,52 +1312,52 @@ async function initializeSuggest() {
             prefix: true,
             highlight: true,
         }
-    );
+    )
 }
 
 async function clearModal(modal) {
-    modal.find('input[name=id]').val('');
-    modal.find('input[name=name]').val('');
-    modal.find('textarea[name=description]').val('');
-    modal.find('.ui.status.dropdown').dropdown('set selected', 'NS');
-    modal.find('.ui.card-color.dropdown').dropdown('set selected', '');
-    modal.find('.extra.content .item').hide();
-    modal.find('.comments-segment.segment').hide();
+    modal.find('input[name=id]').val('')
+    modal.find('input[name=name]').val('')
+    modal.find('textarea[name=description]').val('')
+    modal.find('.ui.status.dropdown').dropdown('set selected', 'NS')
+    modal.find('.ui.card-color.dropdown').dropdown('set selected', '')
+    modal.find('.extra.content .item').hide()
+    modal.find('.comments-segment.segment').hide()
 }
 
 async function populateModal(modal, card) {
-    modal.find('input[name=id]').val(card.id);
-    modal.find('input[name=name]').val(card.name);
-    modal.find('textarea[name=description]').val(card.description);
-    modal.find('.ui.status.dropdown').dropdown('set selected', card.status);
-    modal.find('.ui.card-color.dropdown').dropdown('set selected', card.color !== null ? card.color.id : '');
-    modal.find('.extra.content .item').show();
-    modal.find('.comments-segment.segment').show();
-    modal.find('.ui.card-due-date.calendar').calendar('set date', card.due_date);
+    modal.find('input[name=id]').val(card.id)
+    modal.find('input[name=name]').val(card.name)
+    modal.find('textarea[name=description]').val(card.description)
+    modal.find('.ui.status.dropdown').dropdown('set selected', card.status)
+    modal.find('.ui.card-color.dropdown').dropdown('set selected', card.color !== null ? card.color.id : '')
+    modal.find('.extra.content .item').show()
+    modal.find('.comments-segment.segment').show()
+    modal.find('.ui.card-due-date.calendar').calendar('set date', card.due_date)
 }
 
 function showCardModal(card = null, bucketId, compact) {
-    let create = card === null;
-    const modal = $('.ui.card-form.modal');
-    modal.off().form('reset');
-    let dark = modal.hasClass('inverted');
-    modal.find('.card-files').val('');
-    modal.find('.files-container').empty();
+    let create = card === null
+    const modal = $('.ui.card-form.modal')
+    modal.off().form('reset')
+    let dark = modal.hasClass('inverted')
+    modal.find('.card-files').val('')
+    modal.find('.files-container').empty()
 
     if (dark) {
-        modal.find('.checklist.segment').addClass('inverted');
-        modal.find('.files.segment').addClass('inverted');
-        modal.find('.add-item.input').addClass('inverted');
-        modal.find('.add-item.input').addClass('inverted');
-        modal.find('.ui.dividing.header').addClass('inverted');
+        modal.find('.checklist.segment').addClass('inverted')
+        modal.find('.files.segment').addClass('inverted')
+        modal.find('.add-item.input').addClass('inverted')
+        modal.find('.add-item.input').addClass('inverted')
+        modal.find('.ui.dividing.header').addClass('inverted')
     } else {
-        modal.find('.checklist.segment').removeClass('inverted');
-        modal.find('.files.segment').removeClass('inverted');
-        modal.find('.add-item.input').removeClass('inverted');
-        modal.find('.ui.dividing.header').removeClass('inverted');
-    };
+        modal.find('.checklist.segment').removeClass('inverted')
+        modal.find('.files.segment').removeClass('inverted')
+        modal.find('.add-item.input').removeClass('inverted')
+        modal.find('.ui.dividing.header').removeClass('inverted')
+    }
 
-    if (card) { populateModal(modal, card); }
+    if (card) { populateModal(modal, card) }
 
     modal.modal({
         restoreFocus: false,
@@ -1362,128 +1365,129 @@ function showCardModal(card = null, bucketId, compact) {
         transition: 'scale',
         duration: 400,
         onShow: () => {
-            cardEdited = false;
-            modal.find('.scrolling.content').animate({ scrollTop: 0 });
+            cardEdited = false
+            modal.find('.scrolling.content').animate({ scrollTop: 0 })
             modal.find('.ui.card-due-date.calendar').calendar({
                 type: 'date',
                 today: true,
                 formatInput: true,
                 formatter: {
                     date: (date, settings) => {
-                        if (!date) return '';
-                        return date.toLocaleDateString(LANGUAGE_CODE);
+                        if (!date) return ''
+                        return date.toLocaleDateString(LANGUAGE_CODE)
                     }
                 }
-            });
+            })
         },
         onHidden: () => {
-            if (cardEdited) { getCards(bucketId, dark, compact); };
-            $('.checklist-drake').empty();
-            clearModal(modal);
+            if (cardEdited) { getCards(bucketId, dark, compact) }
+            $('.checklist-drake').empty()
+            clearModal(modal)
         },
         onApprove: el => {
-            modal.form('validate form');
+            modal.form('validate form')
             if (!modal.form('is valid')) {
-                return false;
-            };
+                return false
+            }
             var data = {
                 name: modal.find('input[name=name]').val(),
                 description: modal.find('textarea[name=description]').val(),
                 bucket: bucketId,
             }
             if (FEATURES.status) {
-                data['status'] = modal.find('.ui.status.dropdown')?.dropdown('get value');
+                data['status'] = modal.find('.ui.status.dropdown')?.dropdown('get value')
             }
             if (FEATURES.color) {
-                data['color'] = modal.find('.ui.card-color.dropdown')?.dropdown('get value');
+                data['color'] = modal.find('.ui.card-color.dropdown')?.dropdown('get value')
             }
             if (FEATURES.tags) {
-                tagsString = modal.find('.ui.tags.dropdown')?.dropdown('get value');
-                tags = tagsString.split(",").map(tag => ({ name: tag }));
-                data['tag'] = JSON.stringify(tags);
+                tagsString = modal.find('.ui.tags.dropdown')?.dropdown('get value')
+                tags = tagsString.split(",").map(tag => ({ name: tag }))
+                data['tag'] = JSON.stringify(tags)
             }
             if (FEATURES.assignees) {
-                assigneesString = modal.find('.ui.assigned_to.dropdown')?.dropdown('get value');
-                assignees = assigneesString?.split(",").map(username => ({ username: username }));
-                data['assigned_to'] = JSON.stringify(assignees);
+                assigneesString = modal.find('.ui.assigned_to.dropdown')?.dropdown('get value')
+                assignees = assigneesString?.split(",").map(username => ({ username: username }))
+                data['assigned_to'] = JSON.stringify(assignees)
             }
             if (FEATURES.dueDate) {
-                dueDate = modal.find('.ui.card-due-date.calendar')?.calendar('get date'); // If not null, dueDate is a Date object
+                dueDate = modal.find('.ui.card-due-date.calendar')?.calendar('get date') // If not null, dueDate is a Date object
                 if (dueDate !== null) { data['due_date'] = dueDate.toISOString().split("T")[0] } // Convert to string in correct format
             }
             if (create) {
-                method = 'POST';
-                url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`;
-                data['order'] = 0;
+                method = 'POST'
+                url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`
+                data['order'] = 0
             } else {
-                method = 'PUT';
-                id = modal.find('input[name=id]').val();
-                data['order'] = $(`.card-el[data-card-id=${card.id}]`).index() + 1;
-                url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`;
+                method = 'PUT'
+                id = modal.find('input[name=id]').val()
+                data['order'] = $(`.card-el[data-card-id=${card.id}]`).index() + 1
+                url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${id}/`
             }
 
-            $.ajax({
+            $.api({
+                on: 'now',
                 url: url,
-                type: method,
+                method: method,
                 data: data,
-                success: r => {
+                onSuccess: r => {
                     if (FEATURES.files) {
-                        var files = modal.find('.card-files')[0]?.files;
+                        var files = modal.find('.card-files')[0]?.files
                         if (files.length > 0) {
-                            var cardId = create ? r.id : card.id;
+                            var cardId = create ? r.id : card.id
                             for (f of files) {
-                                var fd = new FormData();
-                                fd.append('file', f);
-                                attachFile(fd, bucketId, cardId);
+                                var fd = new FormData()
+                                fd.append('file', f)
+                                attachFile(fd, bucketId, cardId)
                             }
                         }
                     }
-                    getCards(bucketId, dark, compact);
+                    getCards(bucketId, dark, compact)
                 }
-            });
+            })
         }
-    }).modal('show');
+    }).modal('show')
 
-    initializeTagsDropdown(modal.find('.ui.tags.dropdown'), card);
-    initializeUsersDropdown(modal.find('.ui.assigned_to.dropdown'), card);
+    initializeTagsDropdown(modal.find('.ui.tags.dropdown'), card)
+    initializeUsersDropdown(modal.find('.ui.assigned_to.dropdown'), card)
 
     modal.submit(e => {
-        e.preventDefault();
-        modal.find('.positive.button').click();
-    });
+        e.preventDefault()
+        modal.find('.positive.button').click()
+    })
 
     modal.find('.manage-tags').off().on('click', e => {
-        selectedTags = modal.find('.ui.tags.dropdown').dropdown('get value').split(',');
+        selectedTags = modal.find('.ui.tags.dropdown').dropdown('get value').split(',')
         showManageTagsModal(
             true,
             true,
             () => {
-                initializeTagsDropdown(modal.find('.ui.tags.dropdown'));
-                modal.find('.ui.tags.dropdown').dropdown('set exactly', selectedTags);
+                initializeTagsDropdown(modal.find('.ui.tags.dropdown'))
+                modal.find('.ui.tags.dropdown').dropdown('set exactly', selectedTags)
             },
-        );
-    });
+        )
+    })
 
     if (!create) {
         if (FEATURES.files) {
-            getFiles(modal, bucketId, card.id);
+            getFiles(modal, bucketId, card.id)
         }
         if (FEATURES.comments) {
-            modal.find('#suggest-comment').val('');
-            initializeSuggest();
-            loadComments(card, bucketId, dark);
+            modal.find('#suggest-comment').val('')
+            initializeSuggest()
+            loadComments(card, bucketId, dark)
         }
         if (FEATURES.checklist) {
             loadChecklistItems(card, bucketId, dark)
         }
-    };
+    }
 }
 
 function attachFile(fd, bucketId, cardId) {
     $.api({
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
         on: 'now',
         method: 'POST',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/files/`,
         data: fd,
         contentType: false,
         processData: false,
@@ -1509,26 +1513,26 @@ function attachFile(fd, bucketId, cardId) {
                 })
             }
         }
-    });
+    })
 }
 
 function toggleCardStatus(cardId, bucketId, currentStatus, dark, compact) {
     switch (currentStatus) {
         case 'NS':
-            status = 'IP';
-            status_name = gettext('In Progress');
-            status_icon = 'dot circle outline';
-            break;
+            status = 'IP'
+            status_name = gettext('In Progress')
+            status_icon = 'dot circle outline'
+            break
         case 'IP':
-            status = 'C';
-            status_name = gettext('Completed');
-            status_icon = 'check circle outline';
-            break;
+            status = 'C'
+            status_name = gettext('Completed')
+            status_icon = 'check circle outline'
+            break
         case 'C':
-            status = 'NS';
-            status_name = gettext('Not Started');
-            status_icon = 'circle outline';
-            break;
+            status = 'NS'
+            status_name = gettext('Not Started')
+            status_icon = 'circle outline'
+            break
     }
     $.ajax({
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/`,
@@ -1540,45 +1544,45 @@ function toggleCardStatus(cardId, bucketId, currentStatus, dark, compact) {
                 title: gettext('Card status changed'),
                 message: interpolate(gettext('Card was marked as %s'), [`<strong>${status_name}<i class="${status_icon} icon"></i></strong>`]),
                 showProgress: 'bottom'
-            });
+            })
             getCards(bucketId, dark, compact)
         })
 }
 
 function showBucketModal(bucket = null) {
-    var create;
-    const modal = $('.ui.bucket-form.modal');
-    modal.form('reset');
-    modal.off();
+    var create
+    const modal = $('.ui.bucket-form.modal')
+    modal.form('reset')
+    modal.off()
     if (bucket != null) {
-        create = false;
-        modal.find('input[name=id]').val(bucket.id);
-        modal.find('input[name=name]').val(bucket.name);
-        modal.find('textarea[name=description]').val(bucket.description);
-        modal.find('.ui.auto-status.dropdown').dropdown('set selected', bucket.auto_status);
-        modal.find('.ui.color.dropdown').dropdown('set selected', bucket.color !== null ? bucket.color.id : '');
+        create = false
+        modal.find('input[name=id]').val(bucket.id)
+        modal.find('input[name=name]').val(bucket.name)
+        modal.find('textarea[name=description]').val(bucket.description)
+        modal.find('.ui.auto-status.dropdown').dropdown('set selected', bucket.auto_status)
+        modal.find('.ui.color.dropdown').dropdown('set selected', bucket.color !== null ? bucket.color.id : '')
     } else {
-        create = true;
-        modal.find('input[name=id]').val('');
-        modal.find('input[name=name]').val('');
-        modal.find('textarea[name=description]').val('');
-        modal.find('.ui.auto-status.dropdown').dropdown('set selected', 'N');
-        modal.find('.ui.color.dropdown').dropdown('clear');
-    };
+        create = true
+        modal.find('input[name=id]').val('')
+        modal.find('input[name=name]').val('')
+        modal.find('textarea[name=description]').val('')
+        modal.find('.ui.auto-status.dropdown').dropdown('set selected', 'N')
+        modal.find('.ui.color.dropdown').dropdown('clear')
+    }
     modal.modal({
         restoreFocus: false,
         autofocus: false,
         transition: 'scale',
         duration: 400,
         onApprove: el => {
-            modal.form('validate form');
+            modal.form('validate form')
             if (!modal.form('is valid')) {
-                return false;
-            };
-            name = modal.find('input[name=name]').val();
-            description = modal.find('textarea[name=description]').val();
-            autoStatus = modal.find('.ui.auto-status.dropdown').dropdown('get value');
-            color = modal.find('.ui.color.dropdown').dropdown('get value');
+                return false
+            }
+            name = modal.find('input[name=name]').val()
+            description = modal.find('textarea[name=description]').val()
+            autoStatus = modal.find('.ui.auto-status.dropdown').dropdown('get value')
+            color = modal.find('.ui.color.dropdown').dropdown('get value')
             if (create === true) {
                 $.ajax({
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/`,
@@ -1592,12 +1596,12 @@ function showBucketModal(bucket = null) {
                         order: 0,
                     },
                     success: function (result) {
-                        loadBoard();
+                        loadBoard()
                     }
-                });
+                })
             } else {
-                id = modal.find('input[name=id]').val();
-                order = $(`.bucket-el[data-bucket-id=${bucket.id}]`).index() + 1;
+                id = modal.find('input[name=id]').val()
+                order = $(`.bucket-el[data-bucket-id=${bucket.id}]`).index() + 1
                 $.ajax({
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${id}/`,
                     type: 'PUT',
@@ -1610,147 +1614,139 @@ function showBucketModal(bucket = null) {
                         order: order
                     },
                     success: function (result) {
-                        loadBoard();
+                        loadBoard()
                     }
-                });
+                })
             }
         }
-    });
+    })
     modal.submit(e => {
-        e.preventDefault();
-        modal.find('.positive.button').click();
-    });
-    modal.modal('show');
+        e.preventDefault()
+        modal.find('.positive.button').click()
+    })
+    modal.modal('show')
 }
 
 function showTimeEntriesModal(cardId, bucketId, dark, compact) {
-    const modal = $('#time-entries.modal');
+    const modal = $('#time-entries.modal')
     modal.modal({
         autofocus: false,
         onShow: () => {
-            modal.addClass('loading');
-            getTimeEntries(bucketId, cardId, dark);
+            modal.addClass('loading')
+            getTimeEntries(bucketId, cardId, dark)
         },
         onVisible: () => {
-            modal.removeClass('loading');
+            modal.removeClass('loading')
         },
         onHidden: () => {
-            getCards(bucketId, dark, compact);
-            modal.find('.content').empty();
+            getCards(bucketId, dark, compact)
+            modal.find('.content').empty()
         },
-    }).modal('show');
+    }).modal('show')
 }
 
 function deleteBucket(bucketId) {
     modal = $('.ui.delete.confirmation.modal')
     modal
         .modal({
-            onShow: () => {
-                modal.find('.header').text(gettext('Delete bucket'));
-                modal.find('.content').text(interpolate(gettext('Are you sure you want to delete bucket %s?'), [bucketId]));
+            onShow() {
+                modal.find('.header').text(gettext('Delete bucket'))
+                modal.find('.content').text(interpolate(gettext('Are you sure you want to delete bucket %s?'), [bucketId]))
             },
-            onApprove: () => {
-                $.ajax({
+            onApprove() {
+                $.api({
+                    on: 'now',
+                    method: 'DELETE',
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/`,
-                    type: 'DELETE',
-                    success: function (result) {
-                        loadBoard();
-                    }
-                });
+                    onSuccess(result) { loadBoard() },
+                })
             }
         })
-        .modal('show');
+        .modal('show')
 }
 
 function deleteCard(cardId, bucketId, dark, compact) {
     modal = $('.ui.delete.confirmation.modal')
     modal
         .modal({
-            onShow: () => {
-                modal.find('.header').text('Delete card');
-                modal.find('.content').text(interpolate(gettext('Are you sure you want to delete card %s?'), [cardId]));
+            onShow() {
+                modal.find('.header').text('Delete card')
+                modal.find('.content').text(interpolate(gettext('Are you sure you want to delete card %s?'), [cardId]))
             },
-            onApprove: () => {
-                $.ajax({
+            onApprove() {
+                $.api({
+                    on: 'now',
+                    method: 'DELETE',
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}`,
-                    type: 'DELETE',
-                    success: function (result) {
-                        getCards(bucketId, dark, compact);
+                    onSuccess(result) {
+                        getCards(bucketId, dark, compact)
                     }
-                });
+                })
             }
         })
-        .modal('show');
+        .modal('show')
 }
 
 function startStopTimer(cardId, bucketId, dark, compact) {
-    $.ajax({
+    $.api({
+        on: 'now',
+        method: 'POST',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/timer/`,
-        type: 'POST',
-        success: function (result) {
+        onSuccess(result) {
             if (result.action == 'start') {
                 $('body').toast({
                     message: interpolate(gettext('Timer started for card %s.'), [cardId])
-                });
-                el = $(`.total-time[data-card-id=${cardId}]`);
-                el.data('start', new Date());
-                intervals.push(
-                    {
-                        card: cardId,
-                        interval: setInterval(() => { incrementSecond(cardId) }, 1000)
-                    }
-                );
+                })
+                el = $(`.total-time[data-card-id=${cardId}]`)
+                el.data('start', new Date())
+                startTimerAnimation(cardId)
             } else if (result.action == 'stop') {
                 $('body').toast({
                     message: interpolate(gettext('Timer stopped for card %s.'), [cardId])
-                });
-                intervalIndex = intervals.findIndex(i => i.card == cardId);
-                if (intervalIndex > -1) {
-                    clearInterval(intervals[intervalIndex].interval);
-                    intervals.splice(intervalIndex, 1);
-                }
-            };
-            getCards(bucketId, dark, compact);
+                })
+                stopTimerAnimation(cardId)
+            }
+            getCards(bucketId, dark, compact)
         }
-    });
+    })
 }
 
 function addNewTagInput(containerElement) {
     el = containerElement.append(`
-      <form class="ui unstackable form" data-tag-id="" style="width: 100%; margin-bottom: .5em;">
-        <div class="" style="display: flex; flex-flow: row nowrap;">
-          <input type="hidden" name="id" value="">
-          <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
-            <select class="ui tag-icon new-tag clearable compact two column mini dropdown" data-tag-id="">
-            </select>
-          </div>
-          <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
-            <select class="ui tag-color new-tag clearable compact two column mini dropdown" data-tag-id="">
-            </select>
-          </div>
-          <div class="ui mini input" style="flex: 1 1 auto; margin-right: .5em;">
-            <input class="tag-name" type="text" placeholder="${gettext('Name')}" data-tag-id="">
-          </div>
-          <div style="">
-            <div class="ui icon red delete new-tag mini button"><i class="delete icon"></i></div>
-          </div>
-        </div>
-      </form>
-    `);
-    let iconDropdown = $(`.tag-icon.new-tag.dropdown`);
+        <form class="ui unstackable form" data-tag-id="" style="width: 100%; margin-bottom: .5em;">
+            <div class="" style="display: flex; flex-flow: row nowrap;">
+                <input type="hidden" name="id" value="">
+                <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
+                    <select class="ui tag-icon new-tag clearable compact two column mini dropdown" data-tag-id="">
+                    </select>
+                </div>
+                <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
+                    <select class="ui tag-color new-tag clearable compact two column mini dropdown" data-tag-id="">
+                    </select>
+                </div>
+                <div class="ui mini input" style="flex: 1 1 auto; margin-right: .5em;">
+                    <input class="tag-name" type="text" placeholder="${gettext('Name')}" data-tag-id="">
+                </div>
+                <div style="">
+                    <div class="ui icon red delete new-tag mini button"><i class="delete icon"></i></div>
+                </div>
+            </div>
+        </form>
+    `)
+    let iconDropdown = $(`.tag-icon.new-tag.dropdown`)
     iconDropdown.dropdown({
         placeholder: gettext('Icon'),
         values: ICON_VALUES,
         context: '.tags.modal .content',
-    });
-    let colorDropdown = $(`.tag-color.new-tag.dropdown`);
+    })
+    let colorDropdown = $(`.tag-color.new-tag.dropdown`)
     colorDropdown.dropdown({
         placeholder: gettext('Color'),
         values: COLOR_VALUES,
         context: '.tags.modal .content',
-    });
+    })
     el.find('.delete.button.new-tag').off().click(e => {
-        $(e.target).closest('form').remove();
+        $(e.target).closest('form').remove()
     })
 }
 
@@ -1775,27 +1771,27 @@ function renderTagForms(containerElement, tag) {
                 </div>
             </div>
         </form>
-    `);
-    $(`.delete.button[data-tag-id=${tag.id}]`).popup();
-    let iconDropdown = $(`.tag-icon.dropdown[data-tag-id=${tag.id}]`);
+    `)
+    $(`.delete.button[data-tag-id=${tag.id}]`).popup()
+    let iconDropdown = $(`.tag-icon.dropdown[data-tag-id=${tag.id}]`)
     iconDropdown.dropdown({
         placeholder: gettext('Icon'),
         values: ICON_VALUES,
         context: '.tags.modal .content'
-    });
+    })
     if (tag.icon !== null) {
-        iconDropdown.dropdown('set selected', tag.icon.id);
-    };
-    let colorDropdown = $(`.tag-color.dropdown[data-tag-id=${tag.id}]`);
+        iconDropdown.dropdown('set selected', tag.icon.id)
+    }
+    let colorDropdown = $(`.tag-color.dropdown[data-tag-id=${tag.id}]`)
     colorDropdown.dropdown({
         placeholder: gettext('Color'),
         values: COLOR_VALUES,
         context: '.tags.modal .content',
-    });
+    })
     if (tag.color !== null) {
-        colorDropdown.dropdown('set selected', tag.color.id);
-    };
-    $(`input[type=text][data-tag-id=${tag.id}]`).val(tag.name);
+        colorDropdown.dropdown('set selected', tag.color.id)
+    }
+    $(`input[type=text][data-tag-id=${tag.id}]`).val(tag.name)
     $(`.delete.button[data-tag-id=${tag.id}]`).click(() => {
         $('body').modal({
             title: gettext('Deletion confirmation'),
@@ -1818,23 +1814,23 @@ function renderTagForms(containerElement, tag) {
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${tag.id}`,
                     method: 'DELETE',
                 }).done(r => {
-                    $(`form[data-tag-id=${tag.id}]`).remove();
-                    loadBoard();
+                    $(`form[data-tag-id=${tag.id}]`).remove()
+                    loadBoard()
                 })
             }
-        }).modal('show');
+        }).modal('show')
     })
 }
 
 async function showManageTagsModal(allowMultiple = false, fromCardModal = false, callback = undefined) {
-    $('.ui.sidebar').sidebar('hide');
-    let tagsModal = $('.ui.tags.modal');
+    $('.ui.sidebar').sidebar('hide')
+    let tagsModal = $('.ui.tags.modal')
     tagsModal.modal({
         autofocus: false,
         allowMultiple: false,
-        onShow: () => {
-            var el = tagsModal.find('.content');
-            el.empty();
+        onShow() {
+            var el = tagsModal.find('.content')
+            el.empty()
             el.append(`
                 <div class="ui new-tag icon labeled green button" style="margin-bottom: 1em;">
                     <i class="add icon"></i>
@@ -1843,90 +1839,79 @@ async function showManageTagsModal(allowMultiple = false, fromCardModal = false,
             `)
             el.find('.new-tag').off().click(() => {
                 console.log(el)
-                addNewTagInput(el);
+                addNewTagInput(el)
             })
             $.get(`/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`)
                 .done(r => {
                     for (tag of r) {
-                        renderTagForms(el, tag);
-                    };
+                        renderTagForms(el, tag)
+                    }
                 })
                 .fail(e => { console.error(e) })
                 .always(() => { })
         },
-        onApprove: () => {
-            var el = tagsModal.find('.content');
+        onApprove() {
+            var el = tagsModal.find('.content')
             el.find('.ui.form').each((index, form) => {
-                var id = $(form).find('input[name=id]').val();
-                var icon = $(form).find('.tag-icon').dropdown('get value');
-                var color = $(form).find('.tag-color').dropdown('get value');
-                var name = $(form).find('.tag-name').val();
+                id = $(form).find('input[name=id]').val()
                 if (id == '') {
-                    $.ajax({
-                        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
-                        method: 'POST',
-                        data: {
-                            icon: icon,
-                            color: color,
-                            name: name,
-                        }
-                    })
+                    method = 'POST'
+                    url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`
                 } else {
-                    $.ajax({
-                        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${id}/`,
-                        method: 'PUT',
-                        data: {
-                            icon: icon,
-                            color: color,
-                            name: name,
-                        }
-                    })
+                    method = 'PUT'
+                    url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${id}/`
                 }
-            });
+                $.api({
+                    on: 'now',
+                    url: url,
+                    method: method,
+                    data: {
+                        icon: $(form).find('.tag-icon').dropdown('get value'),
+                        color: $(form).find('.tag-color').dropdown('get value'),
+                        name: $(form).find('.tag-name').val(),
+                    }
+                })
+            })
             if (fromCardModal) {
-                callback();
+                callback()
             }
-            loadBoard();
+            loadBoard()
         },
-    });
-    tagsModal.modal('show');
+    })
+    tagsModal.modal('show')
 }
 
 function getSearchCardsDropdownValues() {
-    var tags = $('.tags .label')
-        .toArray()
-        .map(tag => $(tag).text().trim());
-    tags = [...new Set(tags)];
+    var tags = $('.tags .label').toArray().map(tag => $(tag).text().trim())
+    tags = [...new Set(tags)]
     tags = tags.map(tag => ({
         icon: 'hashtag',
         value: '#' + tag,
         name: tag,
-    }));
-    var users = $('.assignees .image')
-        .toArray()
-        .map(user => $(user).attr('data-username'));
-    users = [...new Set(users)];
+    }))
+    var users = $('.assignees .image').toArray().map(user => $(user).attr('data-username'))
+    users = [...new Set(users)]
     users = users.map(user => ({
         icon: 'at',
         value: '@' + user,
         name: user,
     }))
     var values = [...new Set([...tags, ...users])]
-    return values;
+    return values
 }
 
 async function filterCards() {
     for (card of $('.card-el')) {
         if (!isCardOnFilter($(card))) {
-            $(card).hide();
+            $(card).hide()
         } else {
-            $(card).show();
+            $(card).show()
         }
     }
 }
 
 function isCardOnFilter(cardEl, selector = '.ui.search-cards.dropdown', filterMode = 'or') {
-    var name = cardEl.find('.card-name').text().trim();
+    var name = cardEl.find('.card-name').text().trim()
     var tags = cardEl.find('.tags .label')
         .toArray()
         .map(tag => '#' + $(tag).text().trim())
@@ -1934,16 +1919,16 @@ function isCardOnFilter(cardEl, selector = '.ui.search-cards.dropdown', filterMo
         .toArray()
         .map(user => '@' + $(user).attr('data-username'))
     var cardItems = [...new Set([name, ...tags, ...users])]
-    var queryItems = $(selector).dropdown('get value').split(',');
+    var queryItems = $(selector).dropdown('get value').split(',')
 
     if (queryItems.length == 1 && queryItems[0] == '') { return true }
 
     if (filterMode.toLowerCase() === 'and') {
-        result = queryItems.every(i => cardItems.includes(i));
+        result = queryItems.every(i => cardItems.includes(i))
     } else if (filterMode.toLowerCase() === 'or') {
-        result = queryItems.some(i => cardItems.includes(i));
+        result = queryItems.some(i => cardItems.includes(i))
     }
-    return result;
+    return result
 }
 
 function initializeSearchCardsDropdown(selector = '.ui.search-cards.dropdown') {
@@ -1954,8 +1939,8 @@ function initializeSearchCardsDropdown(selector = '.ui.search-cards.dropdown') {
         match: 'value',
         direction: 'downward',
         placeholder: gettext('Filter cards'),
-        onChange: (value, text, $choice) => {
-            filterCards(value);
+        onChange(value, text, $choice) {
+            filterCards(value)
         },
         filterRemoteData: true,
         saveRemoteData: false,
@@ -1968,7 +1953,7 @@ function initializeSearchCardsDropdown(selector = '.ui.search-cards.dropdown') {
             successTest: r => true,
             onResponse: r => ({ results: getSearchCardsDropdownValues() })
         }
-    });
+    })
 }
 
 function initializeColorDropdown() {
