@@ -1,3 +1,9 @@
+## 5.26.1 (2022-07-01)
+
+### Refactor
+
+- **project_manager**: improve js functions
+
 ## 5.26.0 (2022-07-01)
 
 ### Feat
