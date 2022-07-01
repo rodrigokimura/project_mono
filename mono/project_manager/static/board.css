@@ -1,3 +1,21 @@
+.basic.segment {
+    background-color: white;
+}
+.basic.segment.dark {
+    background-color: #121213;
+    color: white;
+}
+
+.ui.inverted.form input,
+.ui.inverted.form textarea,
+.ui.inverted.form .ui.action.input>.dropdown:first-child,
+.ui.inverted.form .ui.action.input>.dropdown:first-child ,
+.ui.inverted.form .field>.selection.dropdown {
+    color: white !important;
+    background: rgb(26, 26, 26) !important;
+    border-color: rgba(255,255,255,.1)
+}
+
 .search-cards.item {
     padding: 0 !important;
 }
