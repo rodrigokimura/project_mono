@@ -1,3 +1,5 @@
+const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg'
+const allowedUsers = getBoardAllowedUsers()
 var intervals = []
 var cardBeingDragged
 var containerCardIsOver
@@ -8,8 +10,6 @@ var isScrolling = false
 var cardEdited = false
 var boardTimestamp = new Date()
 var autoRefresh = null
-const PLACEHOLDER_AVATAR = '/static/image/avatar-1577909.svg'
-const allowedUsers = getBoardAllowedUsers()
 var bucketsDrake
 var cardsDrake
 
@@ -93,12 +93,11 @@ function checkUpdates() {
                     bucketIdDOM = parseInt(bucketEl.attr('data-bucket-id'))
                     if (b.id === bucketIdDOM) {
                         // Compare timestamps
-                        darkMode = $('.ui.slider.board-dark').checkbox('is checked')
                         compactMode = $('.ui.slider.board-compact').checkbox('is checked')
                         bucketTimestampDOM = new Date(bucketEl.attr('data-bucket-updated-at'))
                         if (bucketTimestamp > bucketTimestampDOM) {
                             bucketEl.attr('data-bucket-updated-at', b.ts)
-                            getCards(b.id, darkMode, compactMode)
+                            getCards(b.id, compactMode)
                         }
                     }
                 } else {
@@ -139,9 +138,31 @@ function setDarkMode(bool) {
         method: 'PATCH',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
         data: { dark: bool },
-        onSuccess(r) { loadBoard(r.dark) },
+        onSuccess(r) {
+            sessionStorage.setItem('darkMode', r.dark)
+            loadBoard()
+        },
         onError(r) { console.error(JSON.stringify(r)) },
     })
+}
+
+function getDarkMode(bool) {
+    darkMode = sessionStorage.getItem('darkMode')
+    if (darkMode === null) {
+        $.ajax({
+            async: false,
+            method: 'GET',
+            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
+            data: { dark: bool },
+            success(r) {
+                sessionStorage.setItem('darkMode', r.dark)
+                darkMode = r.dark
+            },
+        })
+        return JSON.parse(darkMode)
+    } else {
+        return JSON.parse(darkMode)
+    }
 }
 
 function startElementScroll(directionX, directionY, elementToScroll, increment, delay) {
@@ -295,21 +316,16 @@ async function clearIntervals() {
 
 function loadBoard() {
     let compact = $('.board-compact.checkbox').checkbox('is checked')
-    let dark = $('.board-dark.checkbox').checkbox('is checked')
     let width = $('.ui.width.slider').slider('get value')
     boardTimestamp = new Date()
     clearIntervals()
-    getBuckets(dark, compact, width)
+    getBuckets(compact, width)
     enableProximityScroll()
     setWallpaper()
 }
 
-async function renderBuckets(containerSelector, buckets, dark = false, compact = false, width) {
-    if (dark) {
-        $('.bucket-form.modal.form').addClass('inverted')
-    } else {
-        $('.bucket-form.modal.form').removeClass('inverted')
-    }
+async function renderBuckets(containerSelector, buckets, compact = false, width) {
+    let dark = getDarkMode()
     $(containerSelector).empty()
     if (compact) {
         $(containerSelector).css('padding-left', '.25em')
@@ -318,13 +334,7 @@ async function renderBuckets(containerSelector, buckets, dark = false, compact =
         $(containerSelector).css('padding-left', '.25em')
         $(containerSelector).css('padding-right', '.75em')
     }
-    if (dark) {
-        $(containerSelector).parents().addClass('inverted')
-        $(containerSelector).parents().css('background-color', 'black')
-    } else {
-        $(containerSelector).parents().removeClass('inverted')
-        $(containerSelector).parents().css('background-color', 'white')
-    }
+    setBoardDarkMode(containerSelector, dark)
     buckets.forEach(bucket => {
         $(containerSelector).append(`
             <div class="ui ${dark ? 'inverted ' : ' '}card bucket-el" data-bucket-id="${bucket.id}" data-bucket-updated-at="${bucket.updated_at}" style="width: ${width}px; flex: 0 0 auto; display: flex; flex-flow: column nowrap; overflow-y: visible; scroll-snap-align: start;${compact ? ' margin-right: .25em; margin-top: .5em; margin-bottom: .5em;' : ''}">
@@ -358,8 +368,8 @@ async function renderBuckets(containerSelector, buckets, dark = false, compact =
             </div>
         `)
         attachBucketTouchEvent(bucket)
-        initializeBucketButtons(bucket, dark, compact)
-        $(containerSelector).ready(e => { getCards(bucket.id, dark, compact) })
+        initializeBucketButtons(bucket, compact)
+        $(containerSelector).ready(e => { getCards(bucket.id, compact) })
     })
     $(containerSelector).append(`<div class="ui add bucket basic ${dark ? 'inverted ' : ' '}button" style="flex: 0 0 auto">${gettext('Add new bucket')}</div>`)
     $(`.add.bucket.button`).off().click(e => { showBucketModal() })
@@ -367,6 +377,21 @@ async function renderBuckets(containerSelector, buckets, dark = false, compact =
     $('.add.bucket.button').css('marginTop', e.css('marginTop'))
     $('.add.bucket.button').css('marginBottom', e.css('marginBottom'))
     setBucketGlassEffect()
+}
+
+function setBoardDarkMode(containerSelector, bool) {
+    if (bool) {
+        $('.form').addClass('inverted')
+        $('.modal').addClass('inverted')
+        $('.dropdown').addClass('inverted')
+        $(containerSelector).parents().first().addClass('dark')
+        
+    } else {
+        $('.form').removeClass('inverted')
+        $('.modal').removeClass('inverted')
+        $('.dropdown').removeClass('inverted')
+        $(containerSelector).parents().first().removeClass('dark')
+    }
 }
 
 async function attachBucketTouchEvent(bucket) {
@@ -395,7 +420,7 @@ async function attachBucketTouchEvent(bucket) {
     )
 }
 
-async function initializeBucketButtons(bucket, dark, compact) {
+async function initializeBucketButtons(bucket, compact) {
     $(`.ui.dropdown[data-bucket-id=${bucket.id}]`).dropdown({ action: 'hide' })
     $(`.add.card.item[data-bucket-id=${bucket.id}]`).on('click', e => { showCardModal(card = null, bucket.id, compact) })
     $(`#bucket-${bucket.id}`).on('dblclick', e => {
@@ -406,12 +431,8 @@ async function initializeBucketButtons(bucket, dark, compact) {
     $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { deleteBucket(bucket.id) })
 }
 
-async function renderCards(containerSelector, cards, bucketId, dark = false, compact = false) {
-    if (dark) {
-        $('.card-form.modal.form').addClass('inverted')
-    } else {
-        $('.card-form.modal.form').removeClass('inverted')
-    }
+async function renderCards(containerSelector, cards, bucketId, compact = false) {
+    let dark = getDarkMode()
     $(containerSelector).empty()
     cards.forEach(card => {
         switch (card.status) {
@@ -509,7 +530,7 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
             `)
         }
         if (card.tag.length > 0) {
-            renderTags(tagsContainer, card.tag, dark)
+            renderTags(tagsContainer, card.tag)
         }
         let assigneesContainer = $(containerSelector).find(`.meta .assignees[data-card-id=${card.id}]`)
         if (card.assigned_to.length > 0) {
@@ -517,7 +538,6 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
                 assigneesContainer,
                 card.assigned_to,
                 card.color !== null ? dark ? card.color.dark : card.color.light : null,
-                dark
             )
         }
         if (extraContent.html().trim() === '') {
@@ -525,7 +545,7 @@ async function renderCards(containerSelector, cards, bucketId, dark = false, com
             extraContent.remove()
         }
         attachCardTouchEvent(card)
-        initializeCardButtons(bucketId, card, dark, compact)
+        initializeCardButtons(bucketId, card, compact)
         if (card.is_running) { startTimerAnimation(card.id) }
     })
     $('.card-el').removeClass('loading')
@@ -558,18 +578,18 @@ async function attachCardTouchEvent(card) {
     )
 }
 
-async function initializeCardButtons(bucketId, card, dark, compact) {
+async function initializeCardButtons(bucketId, card, compact) {
     $(`.ui.progress[data-card-id=${card.id}]`).progress()
     $('.cardlet').popup()
     $(`.ui.dropdown[data-card-id=${card.id}]`).dropdown({ action: 'hide' })
     $(`.card-name[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact) })
     $(`.edit.card.item[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact) })
     $(`.card-el[data-card-id=${card.id}]`).on('dblclick', e => { showCardModal(card, bucketId, compact) })
-    $(`.delete.card.item[data-card-id=${card.id}]`).on('click', e => { deleteCard(card.id, bucketId, dark, compact) })
-    $(`.start-stop-timer[data-card-id=${card.id}]`).on('click', e => { startStopTimer(card.id, bucketId, dark, compact) })
-    $(`.edit-time-entries[data-card-id=${card.id}]`).on('click', e => { showTimeEntriesModal(card.id, bucketId, dark, compact) })
+    $(`.delete.card.item[data-card-id=${card.id}]`).on('click', e => { deleteCard(card.id, bucketId, compact) })
+    $(`.start-stop-timer[data-card-id=${card.id}]`).on('click', e => { startStopTimer(card.id, bucketId, compact) })
+    $(`.edit-time-entries[data-card-id=${card.id}]`).on('click', e => { showTimeEntriesModal(card.id, bucketId, compact) })
     $(`.card-status.icon[data-card-id=${card.id}]`).on('click', e => {
-        toggleCardStatus(card.id, bucketId, $(e.target).attr('data-status'), dark, compact)
+        toggleCardStatus(card.id, bucketId, $(e.target).attr('data-status'), compact)
     })
 }
 
@@ -648,7 +668,8 @@ async function renderFiles(modal, bucketId, cardId, files) {
     }
 }
 
-function renderItems(containerSelector, items, bucketId, cardId, dark = false) {
+function renderItems(containerSelector, items, bucketId, cardId) {
+    let dark = getDarkMode()
     $(containerSelector).empty()
     items.forEach(item => {
         $(containerSelector).append(`
@@ -685,7 +706,7 @@ function renderItems(containerSelector, items, bucketId, cardId, dark = false) {
                     name: e.target.value,
                 },
                 onSuccess(r) {
-                    getItems(bucketId, cardId, dark)
+                    getItems(bucketId, cardId)
                 },
                 onComplete() { $(this).removeAttr("disabled") },
             })
@@ -698,7 +719,7 @@ function renderItems(containerSelector, items, bucketId, cardId, dark = false) {
             method: 'DELETE',
             url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/`,
             onSuccess(r) {
-                getItems(bucketId, cardId, dark)
+                getItems(bucketId, cardId)
                 cardEdited = true
             },
         })
@@ -715,7 +736,7 @@ function renderItems(containerSelector, items, bucketId, cardId, dark = false) {
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/items/${itemId}/check/`,
                     data: { checked: checked },
                     onSuccess(r) {
-                        getItems(bucketId, cardId, dark)
+                        getItems(bucketId, cardId)
                         cardEdited = true
                     },
                 })
@@ -724,7 +745,8 @@ function renderItems(containerSelector, items, bucketId, cardId, dark = false) {
     })
 }
 
-function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dark = false) {
+function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId) {
+    let dark = getDarkMode()
     $(containerSelector).empty()
     if (timeEntries.length == 0) {
         $(containerSelector).append(`
@@ -736,7 +758,7 @@ function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dar
     }
     timeEntries.forEach(timeEntry => {
         $(containerSelector).append(`
-            <div data-time-entry-id="${timeEntry.id}" class="ui form segment">
+            <div data-time-entry-id="${timeEntry.id}" class="ui form ${dark ? 'inverted' : ''} segment">
                 <div class="field">
                     <label>${gettext('Name')}</label>
                     <input type="text" name="name" placeholder="${gettext('Name')}" value="${timeEntry.name}" data-time-entry-id="${timeEntry.id}">
@@ -858,20 +880,14 @@ function renderTimeEntries(containerSelector, timeEntries, bucketId, cardId, dar
     })
 }
 
-function renderComments(containerSelector, comments, bucketId, cardId, dark = false) {
+function renderComments(containerSelector, comments, bucketId, cardId) {
+    let dark = getDarkMode()
     $(containerSelector).empty()
-    if (dark) {
-        $(containerSelector).addClass('inverted')
-        $(containerSelector).parent().addClass('inverted')
-    } else {
-        $(containerSelector).removeClass('inverted')
-        $(containerSelector).parent().removeClass('inverted')
-    }
     comments.forEach(comment => {
         text = insertLinksAndMentions(comment.text)
         if (comment.created_by.username === USERNAME) {
             $(containerSelector).append(`
-                <div class="comment">
+                <div class="${dark ? 'inverted' : ''} comment">
                     <div class="avatar">
                         <img class="ui small image" src="${comment.created_by.profile.avatar != null ? comment.created_by.profile.avatar : PLACEHOLDER_AVATAR}">
                     </div>
@@ -956,7 +972,7 @@ function renderComments(containerSelector, comments, bucketId, cardId, dark = fa
     })
 }
 
-async function renderTags(container, tags, dark = false) {
+async function renderTags(container, tags) {
     for (tag of tags) {
         if (tag.icon !== null) {
             container.append(`
@@ -970,7 +986,8 @@ async function renderTags(container, tags, dark = false) {
     }
 }
 
-async function renderAssignees(container, assignees, borderColor = null, dark = false) {
+async function renderAssignees(container, assignees, borderColor = null) {
+    let dark = getDarkMode()
     if (borderColor === null) {
         for (user of assignees) {
             container.append(`
@@ -988,8 +1005,8 @@ async function renderAssignees(container, assignees, borderColor = null, dark = 
     }
 }
 
-async function loadComments(card, bucketId, dark) {
-    getComments(bucketId, card.id, dark)
+async function loadComments(card, bucketId) {
+    getComments(bucketId, card.id)
     $('.add-reply.button').off().click(e => {
         $(this).attr("disabled", "disabled")
         $.api({
@@ -1002,7 +1019,7 @@ async function loadComments(card, bucketId, dark) {
             },
             onSuccess(r) {
                 $('textarea.add-reply').val('')
-                getComments(bucketId, card.id, dark)
+                getComments(bucketId, card.id)
                 cardEdited = true
             },
             onComplete() { $(this).removeAttr("disabled") },
@@ -1010,8 +1027,8 @@ async function loadComments(card, bucketId, dark) {
     })
 }
 
-async function loadChecklistItems(card, bucketId, dark) {
-    getItems(bucketId, card.id, dark)
+async function loadChecklistItems(card, bucketId) {
+    getItems(bucketId, card.id)
     $('.add-item.input input').off().on('keypress', e => {
         if (e.keycode === 13 || e.which === 13) {
             $(this).attr("disabled", "disabled")
@@ -1026,7 +1043,7 @@ async function loadChecklistItems(card, bucketId, dark) {
                 },
                 onSuccess(r) {
                     e.target.value = ''
-                    getItems(bucketId, card.id, dark)
+                    getItems(bucketId, card.id)
                     cardEdited = true
                 },
                 onComplete() { $(this).removeAttr("disabled") },
@@ -1116,7 +1133,7 @@ async function enableProximityScroll() {
     document.addEventListener("mousemove", proximityScroll)
 }
 
-async function getBuckets(dark = false, compact = false, width) {
+async function getBuckets(compact = false, width) {
     $.api({
         on: 'now',
         method: 'GET',
@@ -1125,7 +1142,6 @@ async function getBuckets(dark = false, compact = false, width) {
             renderBuckets(
                 containerSelector = '#board',
                 buckets = r,
-                dark = dark,
                 compact = compact,
                 width = width
             )
@@ -1133,7 +1149,7 @@ async function getBuckets(dark = false, compact = false, width) {
     })
 }
 
-async function getCards(bucketId, dark = false, compact = false) {
+async function getCards(bucketId, compact = false) {
     $.api({
         on: 'now',
         method: 'GET',
@@ -1145,7 +1161,6 @@ async function getCards(bucketId, dark = false, compact = false) {
                 containerSelector = `#bucket-${bucketId}`,
                 cards = r,
                 bucketId = bucketId,
-                dark = dark,
                 compact = compact
             )
             filterCards()
@@ -1153,7 +1168,7 @@ async function getCards(bucketId, dark = false, compact = false) {
     })
 }
 
-async function getItems(bucketId, cardId, dark = false) {
+async function getItems(bucketId, cardId) {
     $.api({
         on: 'now',
         method: 'GET',
@@ -1165,13 +1180,12 @@ async function getItems(bucketId, cardId, dark = false) {
                 items = r,
                 bucketId = bucketId,
                 cardId = cardId,
-                dark = dark,
             )
         }
     })
 }
 
-async function getComments(bucketId, cardId, dark = false) {
+async function getComments(bucketId, cardId) {
     $.api({
         on: 'now',
         method: 'GET',
@@ -1183,13 +1197,12 @@ async function getComments(bucketId, cardId, dark = false) {
                 items = r,
                 bucketId = bucketId,
                 cardId = cardId,
-                dark = dark,
             )
         },
     })
 }
 
-function getTimeEntries(bucketId, cardId, dark = false) {
+function getTimeEntries(bucketId, cardId) {
     $.api({
         on: 'now',
         method: 'GET',
@@ -1200,7 +1213,6 @@ function getTimeEntries(bucketId, cardId, dark = false) {
                 timeEntryes = r,
                 bucketId = bucketId,
                 cardId = cardId,
-                dark = dark,
             )
         }
     })
@@ -1258,7 +1270,7 @@ function generateAvatar(text, foregroundColor = "white", backgroundColor = "blac
     var fontsize = w * 2 / text.length
     do {
         fontsize -= w / 100
-        ctx.font = `bold ${fontsize}px Inter`
+        ctx.font = `bold ${fontsize}px Lato,'Helvetica Neue',Arial,Helvetica,sans-serif`
     } while (ctx.measureText(text).width > w * .8)
     ctx.fillStyle = foregroundColor
     ctx.textAlign = "center"
@@ -1296,6 +1308,7 @@ async function initializeTagsDropdown(dropdown, card = undefined) {
         clearable: true,
         allowAdditions: false,
         forceSelection: false,
+        inverted: true, 
         onLabelCreate: (value, text) => {
             var el = $(text)
             el.append('<i class="delete icon"></i>')
@@ -1360,19 +1373,23 @@ async function populateModal(modal, card) {
 
 function showCardModal(card = null, bucketId, compact) {
     let create = card === null
+    let dark = getDarkMode()
     const modal = $('.ui.card-form.modal')
     modal.off().form('reset')
-    let dark = modal.hasClass('inverted')
     modal.find('.card-files').val('')
     modal.find('.files-container').empty()
 
     if (dark) {
+        modal.find('.comments-segment.segment').addClass('inverted')
+        modal.find('#card-comments').addClass('inverted')
         modal.find('.checklist.segment').addClass('inverted')
         modal.find('.files.segment').addClass('inverted')
         modal.find('.add-item.input').addClass('inverted')
         modal.find('.add-item.input').addClass('inverted')
         modal.find('.ui.dividing.header').addClass('inverted')
     } else {
+        modal.find('.comments-segment.segment').removeClass('inverted')
+        modal.find('#card-comments').removeClass('inverted')
         modal.find('.checklist.segment').removeClass('inverted')
         modal.find('.files.segment').removeClass('inverted')
         modal.find('.add-item.input').removeClass('inverted')
@@ -1402,7 +1419,7 @@ function showCardModal(card = null, bucketId, compact) {
             })
         },
         onHidden: () => {
-            if (cardEdited) { getCards(bucketId, dark, compact) }
+            if (cardEdited) { getCards(bucketId, compact) }
             $('.checklist-drake').empty()
             clearModal(modal)
         },
@@ -1464,7 +1481,7 @@ function showCardModal(card = null, bucketId, compact) {
                             }
                         }
                     }
-                    getCards(bucketId, dark, compact)
+                    getCards(bucketId, compact)
                 }
             })
         }
@@ -1497,10 +1514,10 @@ function showCardModal(card = null, bucketId, compact) {
         if (FEATURES.comments) {
             modal.find('#suggest-comment').val('')
             initializeSuggest()
-            loadComments(card, bucketId, dark)
+            loadComments(card, bucketId)
         }
         if (FEATURES.checklist) {
-            loadChecklistItems(card, bucketId, dark)
+            loadChecklistItems(card, bucketId)
         }
     }
 }
@@ -1537,7 +1554,7 @@ function attachFile(fd, bucketId, cardId) {
     })
 }
 
-function toggleCardStatus(cardId, bucketId, currentStatus, dark, compact) {
+function toggleCardStatus(cardId, bucketId, currentStatus, compact) {
     switch (currentStatus) {
         case 'NS':
             code = 'IP'
@@ -1566,7 +1583,7 @@ function toggleCardStatus(cardId, bucketId, currentStatus, dark, compact) {
                 message: interpolate(gettext('Card was marked as %s'), [`<strong>${text}<i class="${icon} icon"></i></strong>`]),
                 showProgress: 'bottom'
             })
-            getCards(bucketId, dark, compact)
+            getCards(bucketId, compact)
         },
     })
 }
@@ -1640,19 +1657,19 @@ function showBucketModal(bucket = null) {
     modal.modal('show')
 }
 
-function showTimeEntriesModal(cardId, bucketId, dark, compact) {
+function showTimeEntriesModal(cardId, bucketId, compact) {
     const modal = $('#time-entries.modal')
     modal.modal({
         autofocus: false,
         onShow() {
             modal.addClass('loading')
-            getTimeEntries(bucketId, cardId, dark)
+            getTimeEntries(bucketId, cardId)
         },
         onVisible() {
             modal.removeClass('loading')
         },
         onHidden() {
-            getCards(bucketId, dark, compact)
+            getCards(bucketId, compact)
             modal.find('.content').empty()
         },
     }).modal('show')
@@ -1678,7 +1695,7 @@ function deleteBucket(bucketId) {
         .modal('show')
 }
 
-function deleteCard(cardId, bucketId, dark, compact) {
+function deleteCard(cardId, bucketId, compact) {
     modal = $('.ui.delete.confirmation.modal')
     modal
         .modal({
@@ -1692,7 +1709,7 @@ function deleteCard(cardId, bucketId, dark, compact) {
                     method: 'DELETE',
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}`,
                     onSuccess(result) {
-                        getCards(bucketId, dark, compact)
+                        getCards(bucketId, compact)
                     }
                 })
             }
@@ -1700,7 +1717,7 @@ function deleteCard(cardId, bucketId, dark, compact) {
         .modal('show')
 }
 
-function startStopTimer(cardId, bucketId, dark, compact) {
+function startStopTimer(cardId, bucketId, compact) {
     $.api({
         on: 'now',
         method: 'POST',
@@ -1719,7 +1736,7 @@ function startStopTimer(cardId, bucketId, dark, compact) {
                 })
                 stopTimerAnimation(cardId)
             }
-            getCards(bucketId, dark, compact)
+            getCards(bucketId, compact)
         }
     })
 }
