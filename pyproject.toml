@@ -1,7 +1,7 @@
 [tool]
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "5.25.1"
+version = "5.25.2"
 tag_format = "$version"
 version_files = [
     "mono/__mono/settings.py",
