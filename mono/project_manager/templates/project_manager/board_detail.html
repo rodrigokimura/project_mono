@@ -561,6 +561,8 @@
 
     <script>
         $(document).ready(e => {
+            initializeBucketDragAndDrop()
+            initializeCardDragAndDrop()
             $('.ui.left.sidebar')
                 .sidebar('setting', 'transition', 'overlay')
                 .sidebar('setting', 'mobileTransition', 'overlay')
@@ -583,7 +585,7 @@
                 min: 100, 
                 max: 500, 
                 step: 100,
-                onChange: value => {
+                onChange(value) {
                     changeBucketWidth(value);
                 },
             });
