@@ -1,3 +1,9 @@
+## 5.26.0 (2022-07-01)
+
+### Feat
+
+- **project_manager**: improve dark mode
+
 ## 5.25.2 (2022-07-01)
 
 ### Refactor
