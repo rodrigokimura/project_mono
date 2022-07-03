@@ -1,0 +1,13 @@
+.top.fixed.menu {
+    height: 3em !important;
+}
+.top.fixed.menu .icon {
+    /* height: 5em !important; */
+    font-size: 130% !important;
+}
+/* .notification-count.label {
+    transform: translate(.3em,1em);
+} */
+/* .pusher {
+    padding-top: 5em !important;
+} */
