@@ -1,3 +1,9 @@
+## 5.27.0 (2022-07-03)
+
+### Feat
+
+- **project_manager**: increase top menu size
+
 ## 5.26.1 (2022-07-01)
 
 ### Refactor
