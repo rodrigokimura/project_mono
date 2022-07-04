@@ -875,21 +875,31 @@ class Activity(models.Model):
         """
         Actions to be logged
         """
-        CREATED = ('created', _('Created'))
-        UPDATED = ('updated', _('Updated'))
-        DELETED = ('deleted', _('Deleted'))
+        CREATE = ('create', _('Create'))
+        UPDATE = ('update', _('Update'))
+        DELETE = ('delete', _('Delete'))
+        START = ('start', _('Start'))
+        STOP = ('stop', _('Stop'))
 
-    class Type(models.TextChoices):
+    class Target(models.TextChoices):
         """
         Fields or related models
         """
-        CARD = ('card', _('Card'))
-        TITLE = ('title', _('Title'))
-        DESCRIPTION = ('description', _('Description'))
+        CARD = 'card', _('Card')
+        NAME = 'name', _('Name')
+        DESCRIPTION = 'description', _('Description')
+        TAGS = 'tags', _('Tags')
+        CHECKLIST_ITEM = 'checklist_item', _('Checklist item')
+        DUE_DATE = 'due_date', _('Due date')
+        STATUS = 'status', _('Status')
+        ASSIGNEES = 'assignees', _('Assignees')
+        FILE = 'file', _('File')
+        COMMENT = 'comment', _('Comment')
+        TIMER = 'timer', _('Timer')
 
     card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='activities')
     action = models.CharField(max_length=7, null=False, blank=False, choices=Action.choices)
-    type = models.CharField(max_length=20, null=False, blank=False, choices=Type.choices)
+    target = models.CharField(max_length=20, null=False, blank=False, choices=Target.choices)
     context = models.JSONField(null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)

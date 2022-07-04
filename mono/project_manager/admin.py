@@ -184,5 +184,5 @@ class SpaceAdmin(admin.ModelAdmin):
 
 @admin.register(models.Activity)
 class ActivityAdmin(admin.ModelAdmin):
-    list_display = ['type', 'action', 'context', 'created_by', 'created_at']
-    list_filter = ['type', 'action', 'created_by', 'created_at']
+    list_display = ['target', 'action', 'context', 'created_by', 'created_at']
+    list_filter = ['target', 'action', 'created_by', 'created_at']
