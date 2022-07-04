@@ -825,8 +825,8 @@ class CardListAPIView(LoginRequiredMixin, APIView):
                         order=bucket.max_order + 1,
                     )
                 Activity.objects.create(
-                    action=Activity.Action.CREATED,
-                    type=Activity.Type.CARD,
+                    action=Activity.Action.CREATE,
+                    type=Activity.Target.CARD,
                     created_by=request.user,
                     card=card,
                 )
@@ -861,6 +861,7 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in card.allowed_users:
             serializer = CardSerializer(card, data=request.data, context={'request': request})
             if serializer.is_valid():
+                card.create_activities(data=request.data, user=request.user)
                 serializer.save()
                 theme_id = request.data.get('color')
                 if theme_id in ['', None]:
