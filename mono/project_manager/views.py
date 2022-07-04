@@ -25,14 +25,15 @@ from rest_framework.views import APIView
 
 from .forms import BoardForm, ProjectForm
 from .models import (
-    Activity, Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item,
-    Project, Space, Tag, Theme, TimeEntry, User,
+    Activity, Board, Bucket, Card, CardFile, Comment, Configuration, Icon,
+    Invite, Item, Project, Space, Tag, Theme, TimeEntry, User,
 )
 from .serializers import (
     BoardMoveSerializer, BoardSerializer, BucketMoveSerializer,
     BucketSerializer, CardFileSerializer, CardMoveSerializer, CardSerializer,
-    CommentSerializer, InviteSerializer, ItemSerializer, ProjectSerializer,
-    SpaceSerializer, TagSerializer, TimeEntrySerializer,
+    CommentSerializer, ConfigurationSerializer, InviteSerializer,
+    ItemSerializer, ProjectSerializer, SpaceSerializer, TagSerializer,
+    TimeEntrySerializer,
 )
 
 
@@ -182,7 +183,7 @@ class BoardDetailView(LoginRequiredMixin, DetailView):
         """
         context = super().get_context_data(**kwargs)
         card_statuses = []
-        for value, name in Card.STATUSES:
+        for value, name in Card.Status.choices:
             if value == Bucket.NOT_STARTED:
                 card_statuses.append(
                     ('circle outline', value, name)
@@ -225,7 +226,7 @@ class BoardCalendarView(LoginRequiredMixin, DetailView):
         """
         context = super().get_context_data(**kwargs)
         card_statuses = []
-        for value, name in Card.STATUSES:
+        for value, name in Card.Status.choices:
             if value == Bucket.NOT_STARTED:
                 card_statuses.append(
                     ('circle outline', value, name)
@@ -813,25 +814,21 @@ class CardListAPIView(LoginRequiredMixin, APIView):
                 theme_id = request.data.get('color')
                 if theme_id not in ['', None]:
                     color = Theme.objects.get(id=theme_id)
-                    serializer.save(
+                    card = serializer.save(
                         created_by=request.user,
                         order=bucket.max_order + 1,
                         color=color
                     )
                 else:
-                    serializer.save(
+                    card = serializer.save(
                         created_by=request.user,
                         order=bucket.max_order + 1,
                     )
                 Activity.objects.create(
-                    action=Activity.Action.CREATE,
-                    type=Activity.Type.TITLE,
+                    action=Activity.Action.CREATED,
+                    type=Activity.Type.CARD,
                     created_by=request.user,
-                )
-                Activity.objects.create(
-                    action=Activity.Action.CREATE,
-                    type=Activity.Type.DESCRIPTION,
-                    created_by=request.user,
+                    card=card,
                 )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1564,3 +1561,27 @@ class SpaceDetailAPIView(LoginRequiredMixin, APIView):
             space.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
+
+
+class ConfigurationAPIView(LoginRequiredMixin, APIView):
+    """
+    API View for user configurations
+    """
+    def get(self, request, **kwargs):
+        """
+        Retrieve a config instance.
+        """
+        config: Configuration = Configuration.objects.get_or_create(user=request.user)[0]
+        serializer = ConfigurationSerializer(config, context={'request': request})
+        return Response(serializer.data)
+
+    def patch(self, request, **kwargs):
+        """
+        Update a config instance.
+        """
+        config: Configuration = Configuration.objects.get_or_create(user=request.user)[0]
+        serializer = ConfigurationSerializer(config, data=request.data, context={'request': request}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

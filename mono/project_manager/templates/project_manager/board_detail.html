@@ -257,7 +257,7 @@
                     colorsForDropdown = [
                         {% for color in colors %}
                         {
-                        "name": "{{ color.name }}",
+                        "name": "{% translate color.name %}",
                         "value": {{ color.id }},
                         "icon": "{{ color.name|lower }} circle",
                         },
@@ -567,20 +567,20 @@
                 .sidebar('setting', 'transition', 'overlay')
                 .sidebar('setting', 'mobileTransition', 'overlay')
                 .sidebar('attach events', '.left-sidebar.item')
-                .find('#manage-tags').click(showManageTagsModal);
+                .find('#manage-tags').click(showManageTagsModal)
             $('.ui.right.sidebar')
                 .sidebar('setting', 'transition', 'overlay')
                 .sidebar('setting', 'mobileTransition', 'overlay')
                 .sidebar('attach events', '.right-sidebar.item')
-                .find('#manage-tags').click(showManageTagsModal);
+                .find('#manage-tags').click(showManageTagsModal)
             $('.board-compact.checkbox').checkbox({
-                onChecked: () => { setCompact(true); },
-                onUnchecked: () => { setCompact(false); },
-            });
+                onChecked: () => { setCompact(true) },
+                onUnchecked: () => { setCompact(false) },
+            })
             $('.board-dark.checkbox').checkbox({
-                onChecked: () => { setDarkMode(true); },
-                onUnchecked: () => { setDarkMode(false); },
-            });
+                onChecked: () => { setDarkMode(true) },
+                onUnchecked: () => { setDarkMode(false) },
+            })
             $('.ui.width.slider').slider({ 
                 min: 100, 
                 max: 500, 
@@ -588,18 +588,22 @@
                 onChange(value) {
                     changeBucketWidth(value);
                 },
-            });
-            $('.ui.width.slider').slider('set value', {{ object.bucket_width }}, false);
+            })
+            $('.ui.width.slider').slider(
+                'set value',
+                getBucketWidth(),
+                false,
+            )
             
             $('.refresh.item').click(() => { 
-                loadBoard();
-            });
+                loadBoard()
+            })
             {% if object.compact %}$('.board-compact.checkbox').checkbox('set checked');{% endif %}
             {% if object.dark %}$('.board-dark.checkbox').checkbox('set checked');{% endif %}
-            loadBoard();
-            startAutoRefresh();
-            initializeSearchCardsDropdown();
-            initializeColorDropdown();
+            loadBoard()
+            startAutoRefresh()
+            initializeSearchCardsDropdown()
+            initializeColorDropdown()
         });
     </script>
 {% endblock main %}

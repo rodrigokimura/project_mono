@@ -111,58 +111,57 @@ function checkUpdates() {
 }
 
 function changeBucketWidth(width) {
-    $.api({
-        on: 'now',
-        method: 'PATCH',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-        data: { bucket_width: width },
-        onSuccess(r) { loadBoard() },
-        onError(r) { console.error(JSON.stringify(r)) },
-    })
+    updateConfig({bucket_width: width})
 }
 
 function setCompact(bool) {
-    $.api({
-        on: 'now',
-        method: 'PATCH',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-        data: { compact: bool },
-        onSuccess(r) { loadBoard() },
-        onError(r) { console.error(JSON.stringify(r)) },
-    })
+    updateConfig({compact: bool})
 }
 
 function setDarkMode(bool) {
-    $.api({
-        on: 'now',
-        method: 'PATCH',
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-        data: { dark: bool },
-        onSuccess(r) {
-            sessionStorage.setItem('darkMode', r.dark)
-            loadBoard()
-        },
-        onError(r) { console.error(JSON.stringify(r)) },
-    })
+    updateConfig({dark: bool})
 }
 
-function getDarkMode(bool) {
-    darkMode = sessionStorage.getItem('darkMode')
-    if (darkMode === null) {
+function getConfig() {
+    config = sessionStorage.getItem('config')
+    if (config === null) {
         $.ajax({
             async: false,
             method: 'GET',
-            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/`,
-            data: { dark: bool },
+            url: `/pm/api/config/`,
             success(r) {
-                sessionStorage.setItem('darkMode', r.dark)
-                darkMode = r.dark
+                sessionStorage.setItem('config', JSON.stringify(r))
+                config = r
             },
         })
-        return JSON.parse(darkMode)
+        return JSON.parse(config)
     } else {
-        return JSON.parse(darkMode)
+        return JSON.parse(config)
     }
+}
+
+function updateConfig(data) {
+    $.api({
+        on: 'now',
+        method: 'PATCH',
+        url: `/pm/api/config/`,
+        data: data,
+        onSuccess(r) {
+            sessionStorage.setItem('config', JSON.stringify(r))
+            config = r
+            loadBoard()
+        },
+    })
+}
+
+function getDarkMode() {
+    config = getConfig()
+    return config.dark
+}
+
+function getBucketWidth() {
+    config = getConfig()
+    return config.bucket_width
 }
 
 function startElementScroll(directionX, directionY, elementToScroll, increment, delay) {
@@ -384,12 +383,14 @@ function setBoardDarkMode(containerSelector, bool) {
         $('.form').addClass('inverted')
         $('.modal').addClass('inverted')
         $('.dropdown').addClass('inverted')
+        $('.calendar').addClass('inverted')
         $(containerSelector).parents().first().addClass('dark')
         
     } else {
         $('.form').removeClass('inverted')
         $('.modal').removeClass('inverted')
         $('.dropdown').removeClass('inverted')
+        $('.calendar').removeClass('inverted')
         $(containerSelector).parents().first().removeClass('dark')
     }
 }

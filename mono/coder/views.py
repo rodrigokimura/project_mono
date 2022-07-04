@@ -1,5 +1,6 @@
 """Coder's views"""
 from __mono.permissions import IsCreator
+from __mono.utils import Color
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -10,9 +11,7 @@ from pygments.formatters import \
 from pygments.lexers import get_lexer_by_name
 from rest_framework.generics import RetrieveUpdateAPIView
 
-from .models import (
-    LANGUAGE_CHOICES, STYLE_CHOICES, Configuration, Snippet, Tag,
-)
+from .models import LANGUAGE_CHOICES, STYLE_CHOICES, Configuration, Snippet
 from .serializers import ConfigurationSerializer
 
 
@@ -45,7 +44,7 @@ class SnippetListView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(*args, **kwargs)
         context['languages'] = LANGUAGE_CHOICES
         context['styles'] = STYLE_CHOICES
-        context['colors'] = Tag.Color.choices
+        context['colors'] = Color.choices
         context['all_styles_css'] = ''.join(
             HtmlFormatter(style=style[0]).get_style_defs(f'.{style[0]}')
             for style in STYLE_CHOICES

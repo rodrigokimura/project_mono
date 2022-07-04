@@ -53,7 +53,10 @@ class BaseDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
         return self.get_object().created_by == self.request.user
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, _("%(model_name)s deletion successfully executed") % {'model_name': self.model._meta.verbose_name.title()})
+        messages.success(
+            self.request,
+            _("%(model_name)s deletion successfully executed") % {'model_name': self.model._meta.verbose_name.title()},
+        )
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self) -> str:

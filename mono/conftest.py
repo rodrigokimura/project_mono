@@ -1,3 +1,4 @@
+"""Global config for pytest"""
 import pytest
 
 
@@ -11,6 +12,7 @@ def default_icons():
 @pytest.fixture
 @pytest.mark.usefixtures('default_icons')
 def user(django_user_model):
+    """A sample user"""
     return django_user_model.objects.create(
         username="test",
         email="test.test@test.com",
