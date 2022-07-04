@@ -24,6 +24,7 @@ urlpatterns = [
     path('invites/accept/', views.InviteAcceptanceView.as_view(), name='invite_acceptance'),
 
     # API Routes
+    path('api/config/', views.ConfigurationAPIView.as_view()),
     path('api/projects/', views.ProjectListAPIView.as_view()),
     path('api/projects/<int:pk>/', views.ProjectDetailAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/', views.BoardListAPIView.as_view()),

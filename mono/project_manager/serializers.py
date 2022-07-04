@@ -11,8 +11,8 @@ from rest_framework.serializers import (
 )
 
 from .models import (
-    Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Space,
-    Tag, Theme, TimeEntry, User,
+    Board, Bucket, Card, CardFile, Comment, Configuration, Icon, Invite, Item,
+    Project, Space, Tag, Theme, TimeEntry, User,
 )
 
 
@@ -97,10 +97,6 @@ class BoardSerializer(ModelSerializer):
             'created_at',
             'project',
             'assigned_to',
-            'fullscreen',
-            'compact',
-            'dark',
-            'bucket_width',
             'allowed_users',
             'background_image',
             'card_count',
@@ -112,8 +108,6 @@ class BoardSerializer(ModelSerializer):
             'card_count': {'read_only': True},
             'progress': {'read_only': True},
         }
-
-    # def create()
 
     def update(self, instance, validated_data):
         """Handle background image deletion upon update"""
@@ -690,3 +684,28 @@ class SpaceSerializer(ModelSerializer):
         instance = super().update(instance, validated_data)
         instance.project = validated_data['project']
         return instance
+
+
+class ConfigurationSerializer(ModelSerializer):
+    """
+    Configuration serializer
+    """
+    user = HiddenField(
+        default=CurrentUserDefault()
+    )
+
+    class Meta:
+        model = Configuration
+        fields = [
+            'user',
+            'created_at',
+            'updated_at',
+            'compact',
+            'dark',
+            'bucket_width',
+        ]
+        read_only_fields = [
+            'user',
+            'created_at',
+            'updated_at',
+        ]

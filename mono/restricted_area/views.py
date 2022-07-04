@@ -64,6 +64,9 @@ class LoginAsView(UserPassesTestMixin, View):
         return self.request.user.is_superuser
 
     def get(self, request):
+        """
+        Search users
+        """
         query = request.GET.get('query')
         fields_to_search = ['username', 'email', 'first_name', 'last_name']
         users = get_user_model().objects.filter(

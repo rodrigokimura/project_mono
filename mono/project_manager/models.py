@@ -125,10 +125,6 @@ class Board(BaseModel):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     assigned_to = models.ManyToManyField(User, related_name="assigned_boards", blank=True)
     order = models.IntegerField(default=1)
-    fullscreen = models.BooleanField(default=False)
-    compact = models.BooleanField(default=False)
-    dark = models.BooleanField(default=False)
-    bucket_width = models.IntegerField(default=300)
     updated_at = models.DateTimeField(auto_now=True)
     background_image = models.ImageField(upload_to=_background_image_path, blank=True, null=True)
     space = models.ForeignKey('Space', on_delete=models.SET_NULL, null=True, blank=True, default=None)
@@ -192,12 +188,15 @@ class Board(BaseModel):
 
     @transaction.atomic
     def set_order_and_space(self, order: int, space: Optional[Space] = None) -> None:
+        """
+        Set board order and/or move it to a space
+        """
         original_space = self.space
         target_space = space
         spaces = [original_space, target_space]
 
-        for s in spaces:
-            boards = Board.objects.filter(project=self.project, space=s).exclude(id=self.id)
+        for _space in spaces:
+            boards = Board.objects.filter(project=self.project, space=_space).exclude(id=self.id)
             for i, board in enumerate(boards):
                 if i + 1 < order:
                     board.order = i + 1
@@ -209,6 +208,29 @@ class Board(BaseModel):
         self.space = space
         self.save()
         self.project.touch()
+
+
+class Configuration(models.Model):
+    """
+    User configurtion
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='project_manager_config')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    compact = models.BooleanField(default=False)
+    dark = models.BooleanField(default=False)
+    bucket_width = models.IntegerField(default=300)
+
+    class Meta:
+        verbose_name = _('configuration')
+        verbose_name_plural = _('configurations')
+
+    def as_dict(self):
+        return {
+            'compact': self.compact,
+            'dark': self.dark,
+            'bucket_width': self.bucket_width,
+        }
 
 
 class Bucket(BaseModel):
@@ -246,6 +268,9 @@ class Bucket(BaseModel):
 
     @transaction.atomic
     def set_order(self, order):
+        """
+        Set bucket order
+        """
         buckets = Bucket.objects.filter(board=self.board).exclude(id=self.id)
         for i, bucket in enumerate(buckets):
             if i + 1 < order:
@@ -299,17 +324,19 @@ class Card(BaseModel):
         p_id = self.bucket.board.project.id
         return f'project_{p_id}/{filename}'
 
-    STATUSES = [
-        (Bucket.NOT_STARTED, _('Not started')),
-        (Bucket.IN_PROGRESS, _('In progress')),
-        (Bucket.COMPLETED, _('Completed')),
-    ]
+    class Status(models.TextChoices):
+        """
+        Status choices for card
+        """
+        NOT_STARTED = Bucket.NOT_STARTED, _('Not started')
+        IN_PROGRESS = Bucket.IN_PROGRESS, _('In progress')
+        COMPLETED = Bucket.COMPLETED, _('Completed')
 
     bucket = models.ForeignKey(Bucket, on_delete=models.CASCADE)
     order = models.IntegerField()
     assigned_to = models.ManyToManyField(User, related_name="assigned_cards", blank=True)
     description = models.TextField(max_length=1000, blank=True, null=True)
-    status = models.CharField(_("status"), max_length=2, choices=STATUSES, default=Bucket.NOT_STARTED)
+    status = models.CharField(_("status"), max_length=2, choices=Status.choices, default=Bucket.NOT_STARTED)
     due_date = models.DateField(blank=True, null=True, default=None)
     started_at = models.DateTimeField(blank=True, null=True)
     started_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="started_cards", blank=True, null=True)
@@ -326,6 +353,9 @@ class Card(BaseModel):
 
     @transaction.atomic
     def set_order(self, bucket, order):
+        """
+        Set card order
+        """
         same_bucket = self.bucket == bucket
         if not same_bucket:
             _bucket = self.bucket
@@ -837,17 +867,28 @@ class Invite(models.Model):
         return f'{str(self.project)} -> {self.email}'
 
 
-class Activity(models.Model):    
+class Activity(models.Model):
+    """
+    Store actions executed for a card to be displayed as history timeline.
+    """
     class Action(models.TextChoices):
-        CREATE = ('create', _('Create'))
-        UPDATE = ('update', _('Update'))
-        DELETE = ('delete', _('Delete'))
+        """
+        Actions to be logged
+        """
+        CREATED = ('created', _('Created'))
+        UPDATED = ('updated', _('Updated'))
+        DELETED = ('deleted', _('Deleted'))
 
     class Type(models.TextChoices):
+        """
+        Fields or related models
+        """
+        CARD = ('card', _('Card'))
         TITLE = ('title', _('Title'))
         DESCRIPTION = ('description', _('Description'))
 
-    action = models.CharField(max_length=6, null=False, blank=False, choices=Action.choices)
+    card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='activities')
+    action = models.CharField(max_length=7, null=False, blank=False, choices=Action.choices)
     type = models.CharField(max_length=20, null=False, blank=False, choices=Type.choices)
     context = models.JSONField(null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -856,3 +897,7 @@ class Activity(models.Model):
     class Meta:
         verbose_name = _("activity")
         verbose_name_plural = _("activities")
+        ordering = ['-created_by']
+
+    def __str__(self) -> str:
+        return f'User {self.created_by.username} {self.action} {self.type}'
