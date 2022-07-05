@@ -1,3 +1,9 @@
+## 6.0.2 (2022-07-05)
+
+### Fix
+
+- **project_manager**: adjust class
+
 ## 6.0.1 (2022-07-04)
 
 ### Refactor
