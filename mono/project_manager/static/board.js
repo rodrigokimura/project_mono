@@ -124,7 +124,7 @@ function setDarkMode(bool) {
 
 function getConfig() {
     config = sessionStorage.getItem('config')
-    if (config === null) {
+    if (config == null) {
         $.ajax({
             async: false,
             method: 'GET',
@@ -134,7 +134,7 @@ function getConfig() {
                 config = r
             },
         })
-        return JSON.parse(config)
+        return config
     } else {
         return JSON.parse(config)
     }
