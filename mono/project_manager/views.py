@@ -814,22 +814,17 @@ class CardListAPIView(LoginRequiredMixin, APIView):
                 theme_id = request.data.get('color')
                 if theme_id not in ['', None]:
                     color = Theme.objects.get(id=theme_id)
-                    card = serializer.save(
+                    card: Card = serializer.save(
                         created_by=request.user,
                         order=bucket.max_order + 1,
                         color=color
                     )
                 else:
-                    card = serializer.save(
+                    card: Card = serializer.save(
                         created_by=request.user,
                         order=bucket.max_order + 1,
                     )
-                Activity.objects.create(
-                    action=Activity.Action.CREATE,
-                    type=Activity.Target.CARD,
-                    created_by=request.user,
-                    card=card,
-                )
+                Activity.create_activities_for_fields(card, request.user)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
@@ -861,7 +856,7 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in card.allowed_users:
             serializer = CardSerializer(card, data=request.data, context={'request': request})
             if serializer.is_valid():
-                card.create_activities(data=request.data, user=request.user)
+                Activity.create_activities_for_fields(card, data=request.data, user=request.user)
                 serializer.save()
                 theme_id = request.data.get('color')
                 if theme_id in ['', None]:
@@ -885,8 +880,8 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in card.allowed_users:
             serializer = CardSerializer(card, data=request.data, context={'request': request}, partial=True)
             if serializer.is_valid():
+                Activity.create_activities_for_fields(card, data=request.data, user=request.user)
                 serializer.save()
-                card.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
@@ -935,10 +930,11 @@ class ItemListAPIView(LoginRequiredMixin, APIView):
         project = Project.objects.get(id=kwargs['project_pk'])
         board = Board.objects.get(id=kwargs['board_pk'], project=project)
         bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
-        card = Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        card: Card = Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
         if request.user in card.allowed_users:
             serializer = ItemSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
+                Activity.create_activities_for_fields(card, request.user, {'checklist_item': ''})
                 serializer.save(
                     created_by=request.user,
                     order=card.max_order + 1,

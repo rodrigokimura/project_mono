@@ -503,7 +503,7 @@ class CardMoveSerializer(Serializer):
         target_bucket = Bucket.objects.get(
             id=self.validated_data['target_bucket']
         )
-        card = Card.objects.get(
+        card: Card = Card.objects.get(
             id=self.validated_data['card']
         )
         order = self.validated_data['order']
@@ -514,9 +514,9 @@ class CardMoveSerializer(Serializer):
             auto_status = target_bucket.auto_status
             if auto_status != Bucket.NONE:
                 if auto_status in [Bucket.COMPLETED, Bucket.NOT_STARTED]:
-                    timer_action = card.stop_timer().get('action', 'none')
+                    timer_action = card.stop_timer(self.context['request'].user).get('action', Card.TimerActions.NONE)
                 elif auto_status == Bucket.IN_PROGRESS:
-                    timer_action = card.start_timer(self.context['request'].user).get('action', 'none')
+                    timer_action = card.start_timer(self.context['request'].user).get('action', Card.TimerActions.NONE)
                 card.status = auto_status
                 card.save()
                 status_changed = True

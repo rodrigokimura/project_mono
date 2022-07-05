@@ -2,8 +2,8 @@
 import imghdr
 import os
 import re
-from datetime import timedelta
-from typing import Optional
+from datetime import date, timedelta
+from typing import Any, Dict, Optional
 
 from __mono.mixins import PublicIDMixin
 from accounts.models import Notification
@@ -315,6 +315,97 @@ class Tag(PublicIDMixin, BaseModel):
         ]
 
 
+class Activity(models.Model):
+    """
+    Store actions executed for a card to be displayed as history timeline.
+    """
+    class Action(models.TextChoices):
+        """
+        Actions to be logged
+        """
+        CREATE_CARD = 'create_card'
+        UPDATE_NAME = 'update_name'
+        UPDATE_DESCRIPTION = 'update_description'
+        UPDATE_DUE_DATE = 'update_due_date'
+        UPDATE_STATUS = 'update_status'
+        UPDATE_COLOR = 'update_color'
+        UPDATE_TAGS = 'update_tags'
+        UPDATE_ASSIGNEES = 'update_assignees'
+        ADD_CHECKLIST_ITEM = 'add_checklist_item'
+        UPDATE_CHECKLIST_ITEM = 'update_checklist_item'
+        REMOVE_CHECKLIST_ITEM = 'remove_checklist_item'
+        ADD_COMMENT = 'add_comment'
+        UPDATE_COMMENT = 'update_comment'
+        REMOVE_COMMENT = 'remove_comment'
+        ADD_FILE = 'add_file'
+        REMOVE_FILE = 'remove_file'
+        START_TIMER = 'start_timer'
+        STOP_TIMER = 'stop_timer'
+
+    card = models.ForeignKey('Card', on_delete=models.CASCADE, related_name='activities')
+    action = models.CharField(max_length=100, null=False, blank=False, choices=Action.choices)
+    context = models.JSONField(null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("activity")
+        verbose_name_plural = _("activities")
+        ordering = ['-created_by']
+
+    def __str__(self) -> str:
+        return f'User {self.created_by.username} {self.action} {self.target}'
+
+    @classmethod
+    @transaction.atomic()
+    def create_activities_for_fields(cls, card, user, data: Optional[Dict[str, Any]] = None):
+        if data is None:
+            cls.objects.create(
+                action=cls.Action.CREATE_CARD,
+                created_by=user,
+                card=card,
+            )
+            return
+        field_action_mapping = {
+            'name': cls.Action.UPDATE_NAME.value,
+            'description': cls.Action.UPDATE_DESCRIPTION.value,
+            'due_date': cls.Action.UPDATE_DUE_DATE.value,
+            'status': cls.Action.UPDATE_STATUS.value,
+        }
+        for field, action in field_action_mapping.items():
+            if field in data:
+                old_value = getattr(card, field)
+                new_value = data[field]
+                if new_value != old_value:
+                    cls.create_activity_for_update(card, action, user, old_value, new_value)
+
+    @classmethod
+    def create_activity_for_update(cls, card, action, user, old_value, new_value):
+        if isinstance(old_value, date):
+            old_value = str(old_value)
+        Activity.objects.create(
+            action=action,
+            created_by=user,
+            card=card,
+            context={
+                'old': old_value,
+                'new': new_value,
+            },
+        )
+
+    @classmethod
+    def create_activity_for_timer(cls, card, user, time_entry, start=True):
+        action = Activity.Action.START_TIMER if start else Activity.Action.STOP_TIMER
+        Activity.objects.create(
+            action=action,
+            created_by=user,
+            card=card,
+            context={
+                'time_entry_id': time_entry.id
+            },
+        )
+
+
 class Card(PublicIDMixin, BaseModel):
     """
     Card, main entity, holds information about tasks
@@ -332,6 +423,12 @@ class Card(PublicIDMixin, BaseModel):
         NOT_STARTED = Bucket.NOT_STARTED, _('Not started')
         IN_PROGRESS = Bucket.IN_PROGRESS, _('In progress')
         COMPLETED = Bucket.COMPLETED, _('Completed')
+
+    class TimerActions(models.TextChoices):
+        """Timer actions"""
+        START = 'start'
+        STOP = 'stop'
+        NONE = 'none'
 
     bucket = models.ForeignKey(Bucket, on_delete=models.CASCADE)
     order = models.IntegerField()
@@ -424,13 +521,14 @@ class Card(PublicIDMixin, BaseModel):
         running_entries_duration = sum([timezone.now() - entry.started_at for entry in running_entries], timedelta())
         return stopped_entries_duration + running_entries_duration
 
+    @transaction.atomic()
     def start_timer(self, user):
         """
         Create new time entry if no running entry is found.
         """
         running_time_entries = self.timeentry_set.filter(stopped_at__isnull=True)
         if running_time_entries.exists():
-            return {'action': 'none'}
+            return {'action': self.TimerActions.NONE}
         time_entry = TimeEntry.objects.create(
             name="Time entry",
             card=self,
@@ -438,9 +536,11 @@ class Card(PublicIDMixin, BaseModel):
             created_by=user
         )
         time_entry.card.bucket.touch()
-        return {'action': 'start'}
+        Activity.create_activity_for_timer(self, user, time_entry)
+        return {'action': self.TimerActions.START}
 
-    def stop_timer(self):
+    @transaction.atomic()
+    def stop_timer(self, user):
         """
         Stop any running time entry.
         """
@@ -450,28 +550,18 @@ class Card(PublicIDMixin, BaseModel):
                 time_entry.stopped_at = timezone.now()
                 time_entry.save()
                 time_entry.card.bucket.touch()
-            return {'action': 'stop'}
-        return {'action': 'none'}
+                Activity.create_activity_for_timer(self, user, time_entry, start=False)
+            return {'action': self.TimerActions.STOP}
+        return {'action': self.TimerActions.NONE}
 
     def start_stop_timer(self, user):
         """
         Toggle timer
         """
-        running_time_entries = self.timeentry_set.filter(stopped_at__isnull=True)
-        if running_time_entries.exists():
-            for time_entry in running_time_entries:
-                time_entry.stopped_at = timezone.now()
-                time_entry.save()
-                time_entry.card.bucket.touch()
-            return {'action': 'stop'}
-        time_entry = TimeEntry.objects.create(
-            name="Time entry",
-            card=self,
-            started_at=timezone.now(),
-            created_by=user
-        )
-        time_entry.card.bucket.touch()
-        return {'action': 'start'}
+        result = self.stop_timer(user)
+        if result['action'] != self.TimerActions.NONE:
+            return result
+        return self.start_timer(user)
 
     @property
     def max_order(self):
@@ -866,49 +956,3 @@ class Invite(PublicIDMixin, models.Model):
 
     def __str__(self) -> str:
         return f'{str(self.project)} -> {self.email}'
-
-
-class Activity(models.Model):
-    """
-    Store actions executed for a card to be displayed as history timeline.
-    """
-    class Action(models.TextChoices):
-        """
-        Actions to be logged
-        """
-        CREATE = ('create', _('Create'))
-        UPDATE = ('update', _('Update'))
-        DELETE = ('delete', _('Delete'))
-        START = ('start', _('Start'))
-        STOP = ('stop', _('Stop'))
-
-    class Target(models.TextChoices):
-        """
-        Fields or related models
-        """
-        CARD = 'card', _('Card')
-        NAME = 'name', _('Name')
-        DESCRIPTION = 'description', _('Description')
-        TAGS = 'tags', _('Tags')
-        CHECKLIST_ITEM = 'checklist_item', _('Checklist item')
-        DUE_DATE = 'due_date', _('Due date')
-        STATUS = 'status', _('Status')
-        ASSIGNEES = 'assignees', _('Assignees')
-        FILE = 'file', _('File')
-        COMMENT = 'comment', _('Comment')
-        TIMER = 'timer', _('Timer')
-
-    card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='activities')
-    action = models.CharField(max_length=7, null=False, blank=False, choices=Action.choices)
-    target = models.CharField(max_length=20, null=False, blank=False, choices=Target.choices)
-    context = models.JSONField(null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = _("activity")
-        verbose_name_plural = _("activities")
-        ordering = ['-created_by']
-
-    def __str__(self) -> str:
-        return f'User {self.created_by.username} {self.action} {self.target}'
