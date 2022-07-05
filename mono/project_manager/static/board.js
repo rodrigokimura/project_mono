@@ -1575,7 +1575,7 @@ function toggleCardStatus(cardId, bucketId, currentStatus, compact) {
     }
     $.api({
         on: 'now',
-        type: 'PATCH',
+        method: 'PATCH',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/`,
         data: { status: code },
         onSuccess(r) {
