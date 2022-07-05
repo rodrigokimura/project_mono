@@ -5,6 +5,7 @@ import re
 from datetime import timedelta
 from typing import Optional
 
+from __mono.mixins import PublicIDMixin
 from accounts.models import Notification
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -41,7 +42,7 @@ class BaseModel(models.Model):
         abstract = True
 
 
-class Project(BaseModel):
+class Project(PublicIDMixin, BaseModel):
     """
     Project that holds boards
     """
@@ -109,12 +110,12 @@ class Project(BaseModel):
             board.save()
 
 
-class Space(BaseModel):
+class Space(PublicIDMixin, BaseModel):
     order = models.PositiveIntegerField()
     project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name="spaces")
 
 
-class Board(BaseModel):
+class Board(PublicIDMixin, BaseModel):
     """
     Board that holds buckets
     """
@@ -212,7 +213,7 @@ class Board(BaseModel):
 
 class Configuration(models.Model):
     """
-    User configurtion
+    User configuration
     """
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='project_manager_config')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -233,7 +234,7 @@ class Configuration(models.Model):
         }
 
 
-class Bucket(BaseModel):
+class Bucket(PublicIDMixin, BaseModel):
     """
     Bucket that holds cards
     """
@@ -300,7 +301,7 @@ class Bucket(BaseModel):
             card.save()
 
 
-class Tag(BaseModel):
+class Tag(PublicIDMixin, BaseModel):
     """
     Tag for generic information and filtering
     """
@@ -314,7 +315,7 @@ class Tag(BaseModel):
         ]
 
 
-class Card(BaseModel):
+class Card(PublicIDMixin, BaseModel):
     """
     Card, main entity, holds information about tasks
     """
@@ -503,7 +504,7 @@ class Card(BaseModel):
         ]
 
 
-class CardFile(models.Model):
+class CardFile(PublicIDMixin, models.Model):
     """File stored in card"""
 
     def _card_directory_path(self, filename):
@@ -541,7 +542,7 @@ class CardFile(models.Model):
         return extension
 
 
-class Item(BaseModel):
+class Item(PublicIDMixin, BaseModel):
     """
     Checklist item in a card
     """
@@ -583,7 +584,7 @@ class Item(BaseModel):
         self.save()
 
 
-class Comment(models.Model):
+class Comment(PublicIDMixin, models.Model):
     """Comment in a card"""
     text = models.TextField(max_length=1000, null=False, blank=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="card_comments")
@@ -695,7 +696,7 @@ class Comment(models.Model):
             )
 
 
-class TimeEntry(BaseModel):
+class TimeEntry(PublicIDMixin, BaseModel):
     """Time entry in a card"""
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
     started_at = models.DateTimeField(default=timezone.now)
@@ -719,7 +720,7 @@ class TimeEntry(BaseModel):
         return self.card.bucket.board.allowed_users
 
 
-class Theme(models.Model):
+class Theme(PublicIDMixin, models.Model):
     """
     Color theme of cards or boards
     """
@@ -756,7 +757,7 @@ class Theme(models.Model):
         cls.objects.bulk_create(themes, ignore_conflicts=True)
 
 
-class Icon(models.Model):
+class Icon(PublicIDMixin, models.Model):
     """
     Icon used for tags
     """
@@ -776,7 +777,7 @@ class Icon(models.Model):
         verbose_name_plural = _("icons")
 
 
-class Invite(models.Model):
+class Invite(PublicIDMixin, models.Model):
     """Invite to assign user to project"""
     email = models.EmailField(max_length=1000, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
@@ -910,4 +911,4 @@ class Activity(models.Model):
         ordering = ['-created_by']
 
     def __str__(self) -> str:
-        return f'User {self.created_by.username} {self.action} {self.type}'
+        return f'User {self.created_by.username} {self.action} {self.target}'
