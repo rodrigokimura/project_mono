@@ -1526,7 +1526,7 @@ class SpaceDetailAPIView(LoginRequiredMixin, APIView):
 
     def put(self, request, pk, **kwargs):
         """
-        Edit tag
+        Edit space
         """
         project = Project.objects.get(id=kwargs.get('project_pk'))
         space: Space = get_object_or_404(Space, pk=pk)
@@ -1540,7 +1540,7 @@ class SpaceDetailAPIView(LoginRequiredMixin, APIView):
 
     def patch(self, request, pk, **kwargs):
         """
-        Edit tag
+        Edit space
         """
         project = Project.objects.get(id=kwargs.get('project_pk'))
         space: Space = get_object_or_404(Space, pk=pk)
@@ -1554,7 +1554,7 @@ class SpaceDetailAPIView(LoginRequiredMixin, APIView):
 
     def delete(self, request, pk, **kwargs):
         """
-        Delete tag
+        Delete space
         """
         project = Project.objects.get(id=kwargs.get('project_pk'))
         if request.user in project.allowed_users:
