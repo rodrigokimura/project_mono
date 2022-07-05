@@ -132,7 +132,7 @@ function renderSpace(space, boards) {
                 </div>
             </div>
             <div class="ui segment">
-                <div class="boards-container ui four cards" style="min-height: 100px;" data-space-id="${space.id}">
+                <div class="boards-container ui four stackable cards" style="min-height: 100px;" data-space-id="${space.id}">
                 </div>
             </div>
         </div>
