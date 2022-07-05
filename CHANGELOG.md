@@ -1,3 +1,9 @@
+## 6.0.3 (2022-07-05)
+
+### Fix
+
+- **project_manager**: adjust storage parsing
+
 ## 6.0.2 (2022-07-05)
 
 ### Fix
