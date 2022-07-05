@@ -1,3 +1,9 @@
+## 6.0.1 (2022-07-04)
+
+### Refactor
+
+- **project_manager**: add public id fields
+
 ## 6.0.0 (2022-07-04)
 
 ### Refactor
