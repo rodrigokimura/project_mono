@@ -2,13 +2,14 @@
 import imghdr
 import os
 import re
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any, Dict, Optional
 
 from __mono.mixins import PublicIDMixin
 from accounts.models import Notification
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.humanize.templatetags.humanize import NaturalTimeFormatter
 from django.core.mail import EmailMultiAlternatives
 from django.core.signing import TimestampSigner
 from django.db import models, transaction
@@ -19,6 +20,7 @@ from django.db.models.functions import Coalesce
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 
 from .icons import DEFAULT_ICONS
@@ -324,13 +326,15 @@ class Activity(models.Model):
         Actions to be logged
         """
         CREATE_CARD = 'create_card', _('%(user)s created card')
-        UPDATE_NAME = 'update_name', _('%(user)s updated card name')
+        UPDATE_NAME = 'update_name', _('%(user)s updated card name from %(old)s to %(new)s')
         UPDATE_DESCRIPTION = 'update_description', _('%(user)s updated card description')
         UPDATE_DUE_DATE = 'update_due_date', _('%(user)s updated card due date from %(old)s to %(new)s')
         UPDATE_STATUS = 'update_status', _('%(user)s updated card status from %(old)s to %(new)s')
         UPDATE_COLOR = 'update_color', _('%(user)s updated card color from %(old)s to %(new)s')
-        UPDATE_TAGS = 'update_tags', _('%(user)s updated card tags from %(old)s to %(new)s')
-        UPDATE_ASSIGNEES = 'update_assignees', _('%(user)s updated card assignees from %(old)s to %(new)s')
+        ADD_TAG = 'add_tags', _('%(user)s added tag %(tag)s')
+        REMOVE_TAG = 'remove_tags', _('%(user)s removed tag %(tag)s')
+        ADD_ASSIGNED_USER = 'add_assigned_user', _('%(user)s assigned %(assignee)s to card')
+        REMOVE_ASSIGNED_USER = 'remove_assigned_user', _("%(user)s removed %(assignee)s from card's assigned users")
         ADD_CHECKLIST_ITEM = 'add_checklist_item', _('%(user)s added checklist item %(item)s')
         UPDATE_CHECKLIST_ITEM = 'update_checklist_item', _('%(user)s updated checklist item from %(old)s to %(new)s')
         REMOVE_CHECKLIST_ITEM = 'remove_checklist_item', _('%(user)s removed checklist item %(item)s')
@@ -340,7 +344,9 @@ class Activity(models.Model):
         ADD_FILE = 'add_file', _('%(user)s added a file')
         REMOVE_FILE = 'remove_file', _('%(user)s removed a file')
         START_TIMER = 'start_timer', _('%(user)s started timer')
-        STOP_TIMER = 'stop_timer', _('%(user)s stopped timer')
+        STOP_TIMER = 'stop_timer', _('%(user)s stopped timer (logged duration: %(duration)s)')
+        UPDATE_TIME_ENTRY = 'update_time_entry', _('%(user)s updated a time entry (duration changed from %(old)s to %(new)s)')
+        DELETE_TIME_ENTRY = 'delete_time_entry', _('%(user)s deleted a time entry')
 
     card = models.ForeignKey('Card', on_delete=models.CASCADE, related_name='activities')
     action = models.CharField(max_length=100, null=False, blank=False, choices=Action.choices)
@@ -351,7 +357,6 @@ class Activity(models.Model):
     class Meta:
         verbose_name = _("activity")
         verbose_name_plural = _("activities")
-        ordering = ['-created_by']
 
     def __str__(self) -> str:
         return self.action
@@ -376,45 +381,202 @@ class Activity(models.Model):
             if field in data:
                 old_value = getattr(card, field)
                 new_value = data[field]
-                if new_value != old_value:
+                if str(new_value) != str(old_value):
                     cls.create_activity_for_update(card, action, user, old_value, new_value)
 
     @classmethod
     def create_activity_for_update(cls, card, action, user, old_value, new_value):
         if isinstance(old_value, date):
             old_value = str(old_value)
+        context = None
+        if action != cls.Action.UPDATE_DESCRIPTION:
+            context = {
+                'old': old_value,
+                'new': new_value,
+            }
         Activity.objects.create(
             action=action,
+            created_by=user,
+            card=card,
+            context=context,
+        )
+
+    @classmethod
+    def create_activity_for_assigned_tags(cls, card, user, old_tags, new_tags):
+        added_tags = new_tags.difference(old_tags)
+        removed_tags = old_tags.difference(new_tags)
+        for action, tags in {
+            cls.Action.ADD_TAG: added_tags,
+            cls.Action.REMOVE_TAG: removed_tags,
+        }.items():
+            for tag in tags:
+                Activity.objects.create(
+                    action=action,
+                    created_by=user,
+                    card=card,
+                    context={
+                        'tag': tag.name
+                    }
+                )
+
+    @classmethod
+    def create_activity_for_assigned_users(cls, card, user, old_users, new_users):
+        added_users = new_users.difference(old_users)
+        removed_users = old_users.difference(new_users)
+        for action, users in {
+            cls.Action.ADD_ASSIGNED_USER: added_users,
+            cls.Action.REMOVE_ASSIGNED_USER: removed_users,
+        }.items():
+            for user in users:
+                Activity.objects.create(
+                    action=action,
+                    created_by=user,
+                    card=card,
+                    context={
+                        'assignee': user.username
+                    }
+                )
+
+    @classmethod
+    def create_activity_for_timer(cls, card, user, start=True, duration=None):
+        action = Activity.Action.START_TIMER if start else Activity.Action.STOP_TIMER
+        activity = Activity(
+            action=action,
+            created_by=user,
+            card=card,
+        )
+        if start is False:
+            activity.context = {'duration': str(duration)}
+        activity.save()
+
+    @classmethod
+    def create_activity_for_time_entry(cls, card, user, update=True, old=None, new=None):
+        action = cls.Action.UPDATE_TIME_ENTRY if update else cls.Action.DELETE_TIME_ENTRY
+        activity = Activity(
+            action=action,
+            created_by=user,
+            card=card,
+        )
+        if update:
+            if str(old) == str(new):
+                return
+            activity.context = {
+                'old': str(old),
+                'new': str(new),
+            }
+        activity.save()
+
+    @classmethod
+    def create_activity_for_comment(cls, card, user, action):
+        if action not in ('add', 'update', 'remove'):
+            raise ValueError('Invalid action')
+        if action == 'add':
+            action = cls.Action.ADD_COMMENT
+        if action == 'update':
+            action = cls.Action.UPDATE_COMMENT
+        if action == 'remove':
+            action = cls.Action.REMOVE_COMMENT
+        Activity.objects.create(
+            action=action,
+            created_by=user,
+            card=card,
+        )
+
+    @classmethod
+    def create_activity_for_file(cls, card, user, add=True):
+        Activity.objects.create(
+            action=cls.Action.ADD_FILE if add else cls.Action.REMOVE_FILE,
+            created_by=user,
+            card=card,
+        )
+
+    @classmethod
+    def create_activity_for_checklist(cls, card, user, action, value=None, new_value=None):
+        if action not in ('add', 'update', 'remove'):
+            raise ValueError('Invalid action')
+        if action == 'add':
+            action = cls.Action.ADD_CHECKLIST_ITEM
+            context = {
+                'item': value,
+            }
+        if action == 'update':
+            if value == new_value:
+                return
+            action = cls.Action.UPDATE_CHECKLIST_ITEM
+            context = {
+                'old': value,
+                'new': new_value,
+            }
+        if action == 'remove':
+            action = cls.Action.REMOVE_CHECKLIST_ITEM
+            context = {
+                'item': value,
+            }
+        Activity.objects.create(
+            action=action,
+            created_by=user,
+            card=card,
+            context=context
+        )
+
+    @classmethod
+    def create_activity_for_color(cls, card, user, old_value, new_value):
+        if old_value == new_value:
+            return
+        Activity.objects.create(
+            action=cls.Action.UPDATE_COLOR,
             created_by=user,
             card=card,
             context={
                 'old': old_value,
                 'new': new_value,
-            },
+            }
         )
 
-    @classmethod
-    def create_activity_for_timer(cls, card, user, time_entry, start=True):
-        action = Activity.Action.START_TIMER if start else Activity.Action.STOP_TIMER
-        Activity.objects.create(
-            action=action,
-            created_by=user,
-            card=card,
-            context={
-                'time_entry_id': time_entry.id
-            },
-        )
+    @staticmethod
+    def process_color(value: str) -> str:
+        return _(value).lower() if value is not None else _('no color')
+
+    @staticmethod
+    def process_date(value: str) -> str:  # pylint: disable=inconsistent-return-statements
+        if value is not None:
+            date_obj = datetime.strptime(value, '%Y-%m-%d')
+            date_str = date_format(date_obj, format='SHORT_DATE_FORMAT', use_l10n=True)
+        else:
+            date_str = _('no date')
+        return date_str
+
+    @staticmethod
+    def process_status(value: str) -> str:
+        for _value, text in Card.Status.choices:
+            if value == _value:
+                return _(text)
+        return None
+
+    @staticmethod
+    def noop(value: str) -> str:
+        return value
 
     @property
     def verbose_text(self):
-        from django.contrib.humanize.templatetags.humanize import (
-            NaturalTimeFormatter,
-        )
+        """Human readable text describing the executed action"""
         context = self.context
         if context is None:
             context = {}
-        context['user'] = self.created_by.username
         text = ''
+        if self.action == Activity.Action.UPDATE_COLOR:
+            func = Activity.process_color
+        elif self.action == Activity.Action.UPDATE_DUE_DATE:
+            func = Activity.process_date
+        elif self.action == Activity.Action.UPDATE_STATUS:
+            func = Activity.process_status
+        else:
+            func = Activity.noop
+        context = {
+            k: func(v)
+            for k, v in context.items()
+        }
+        context['user'] = self.created_by.username
         try:
             text = self.get_action_display() % context
         except TypeError:
@@ -556,7 +718,7 @@ class Card(PublicIDMixin, BaseModel):
             created_by=user
         )
         time_entry.card.bucket.touch()
-        Activity.create_activity_for_timer(self, user, time_entry)
+        Activity.create_activity_for_timer(self, user)
         return {'action': self.TimerActions.START}
 
     @transaction.atomic()
@@ -570,7 +732,7 @@ class Card(PublicIDMixin, BaseModel):
                 time_entry.stopped_at = timezone.now()
                 time_entry.save()
                 time_entry.card.bucket.touch()
-                Activity.create_activity_for_timer(self, user, time_entry, start=False)
+                Activity.create_activity_for_timer(self, user, False, time_entry.duration)
             return {'action': self.TimerActions.STOP}
         return {'action': self.TimerActions.NONE}
 

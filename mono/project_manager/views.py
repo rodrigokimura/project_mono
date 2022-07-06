@@ -2,9 +2,9 @@
 from typing import Any, Optional
 
 from __mono.mixins import PassRequestToFormViewMixin
+from __mono.utils import NaturalTimeFormatter
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.humanize.templatetags.humanize import NaturalTimeFormatter
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.signing import TimestampSigner
 from django.db import transaction
@@ -29,11 +29,11 @@ from .models import (
     Invite, Item, Project, Space, Tag, Theme, TimeEntry, User,
 )
 from .serializers import (
-    BoardMoveSerializer, BoardSerializer, BucketMoveSerializer,
-    BucketSerializer, CardFileSerializer, CardMoveSerializer, CardSerializer,
-    CommentSerializer, ConfigurationSerializer, InviteSerializer,
-    ItemSerializer, ProjectSerializer, SpaceSerializer, TagSerializer,
-    TimeEntrySerializer,
+    ActivitySerializer, BoardMoveSerializer, BoardSerializer,
+    BucketMoveSerializer, BucketSerializer, CardFileSerializer,
+    CardMoveSerializer, CardSerializer, CommentSerializer,
+    ConfigurationSerializer, InviteSerializer, ItemSerializer,
+    ProjectSerializer, SpaceSerializer, TagSerializer, TimeEntrySerializer,
 )
 
 
@@ -503,12 +503,13 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
         serializer = BoardSerializer(board)
         return Response(serializer.data)
 
-    def put(self, request, pk, **kwargs):
+    @staticmethod
+    def edit(request, pk, partial, **kwargs):
         """
         Edit board
         """
         board: Board = get_object_or_404(Board, pk=pk)
-        serializer = BoardSerializer(board, data=request.data)
+        serializer = BoardSerializer(board, data=request.data, partial=partial)
         if request.user in board.allowed_users:
             if serializer.is_valid():
                 serializer.save()
@@ -516,18 +517,11 @@ class BoardDetailAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
+    def put(self, request, pk, **kwargs):
+        return self.edit(request, pk, False, **kwargs)
+
     def patch(self, request, pk, **kwargs):
-        """
-        Edit board
-        """
-        board: Board = get_object_or_404(Board, pk=pk)
-        serializer = BoardSerializer(board, data=request.data, partial=True)
-        if request.user in board.allowed_users:
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
+        return self.edit(request, pk, True, **kwargs)
 
     def delete(self, request, pk, **kwargs):
         """
@@ -845,7 +839,8 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
-    def put(self, request, pk, **kwargs):
+    @staticmethod
+    def edit(request, pk, partial, **kwargs):
         """
         Edit card
         """
@@ -854,37 +849,33 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
         Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
         card: Card = get_object_or_404(Card, pk=pk)
         if request.user in card.allowed_users:
-            serializer = CardSerializer(card, data=request.data, context={'request': request})
+            serializer = CardSerializer(card, data=request.data, partial=partial, context={'request': request})
             if serializer.is_valid():
                 Activity.create_activities_for_fields(card, data=request.data, user=request.user)
                 serializer.save()
                 theme_id = request.data.get('color')
+                old_color = card.color.name if card.color else None
                 if theme_id in ['', None]:
                     card.color = None
                 else:
                     color = Theme.objects.get(id=theme_id)
                     card.color = color
+                Activity.create_activity_for_color(
+                    card,
+                    request.user,
+                    old_color,
+                    card.color.name if card.color else None
+                )
                 card.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
+    def put(self, request, pk, **kwargs):
+        return self.edit(request, pk, False, **kwargs)
+
     def patch(self, request, pk, **kwargs):
-        """
-        Edit card
-        """
-        project = Project.objects.get(id=kwargs['project_pk'])
-        board = Board.objects.get(id=kwargs['board_pk'], project=project)
-        Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
-        card: Card = get_object_or_404(Card, pk=pk)
-        if request.user in card.allowed_users:
-            serializer = CardSerializer(card, data=request.data, context={'request': request}, partial=True)
-            if serializer.is_valid():
-                Activity.create_activities_for_fields(card, data=request.data, user=request.user)
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
+        return self.edit(request, pk, True, **kwargs)
 
     def delete(self, request, pk, **kwargs):
         """
@@ -897,6 +888,19 @@ class CardDetailAPIView(LoginRequiredMixin, APIView):
         if request.user in card.allowed_users:
             card.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
+
+
+class ActivityAPIView(LoginRequiredMixin, APIView):
+    """List card activities"""
+
+    def get(self, request, card_pk, **kwargs):
+        """List card activities"""
+        card: Card = get_object_or_404(Card, pk=card_pk)
+        activities = Activity.objects.filter(card=card).order_by('-id')
+        if request.user in card.allowed_users:
+            serializer = ActivitySerializer(activities, many=True)
+            return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
 
@@ -923,6 +927,7 @@ class ItemListAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
+    @transaction.atomic()
     def post(self, request, **kwargs):
         """
         Create new card item
@@ -934,7 +939,7 @@ class ItemListAPIView(LoginRequiredMixin, APIView):
         if request.user in card.allowed_users:
             serializer = ItemSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
-                Activity.create_activities_for_fields(card, request.user, {'checklist_item': ''})
+                Activity.create_activity_for_checklist(card, request.user, 'add', request.data['name'])
                 serializer.save(
                     created_by=request.user,
                     order=card.max_order + 1,
@@ -963,39 +968,31 @@ class ItemDetailAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
-    def put(self, request, pk, **kwargs):
+    @staticmethod
+    @transaction.atomic()
+    def edit(request, pk, partial, **kwargs):
         """
         Edit card item
         """
         project = Project.objects.get(id=kwargs['project_pk'])
         board = Board.objects.get(id=kwargs['board_pk'], project=project)
         bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
-        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        card = Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
         item: Item = get_object_or_404(Item, pk=pk)
         if request.user in item.allowed_users:
-            serializer = ItemSerializer(item, data=request.data, context={'request': request})
+            serializer = ItemSerializer(item, data=request.data, partial=partial, context={'request': request})
             if serializer.is_valid():
+                Activity.create_activity_for_checklist(card, request.user, 'update', item.name, request.data['name'])
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
+    def put(self, request, pk, **kwargs):
+        return self.edit(request, pk, False, **kwargs)
+
     def patch(self, request, pk, **kwargs):
-        """
-        Edit card item
-        """
-        project = Project.objects.get(id=kwargs['project_pk'])
-        board = Board.objects.get(id=kwargs['board_pk'], project=project)
-        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
-        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
-        item: Item = get_object_or_404(Item, pk=pk)
-        if request.user in item.allowed_users:
-            serializer = ItemSerializer(item, data=request.data, partial=True, context={'request': request})
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
+        return self.edit(request, pk, True, **kwargs)
 
     def delete(self, request, pk, **kwargs):
         """
@@ -1035,6 +1032,7 @@ class CardFileListAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
+    @transaction.atomic()
     def post(self, request, **kwargs):
         """
         Create new card file
@@ -1046,6 +1044,7 @@ class CardFileListAPIView(LoginRequiredMixin, APIView):
         if request.user in card.allowed_users:
             serializer = CardFileSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
+                Activity.create_activity_for_file(card, request.user, True)
                 serializer.save(card=card)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1057,6 +1056,7 @@ class CardFileDetailAPIView(LoginRequiredMixin, APIView):
     Retrieve, update or delete an card file instance.
     """
 
+    @transaction.atomic()
     def delete(self, request, pk, **kwargs):
         """
         Delete card file
@@ -1064,9 +1064,10 @@ class CardFileDetailAPIView(LoginRequiredMixin, APIView):
         project = Project.objects.get(id=kwargs['project_pk'])
         board = Board.objects.get(id=kwargs['board_pk'], project=project)
         bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
-        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        card = Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
         file: CardFile = get_object_or_404(CardFile, pk=pk)
         if request.user in file.card.allowed_users:
+            Activity.create_activity_for_file(card, request.user, False)
             file.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
@@ -1133,39 +1134,45 @@ class TimeEntryDetailAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
-    def put(self, request, pk, **kwargs):
+    @staticmethod
+    def edit(request, pk, partial, **kwargs):
         """
         Edit time entry.
         """
         project = Project.objects.get(id=kwargs['project_pk'])
         board = Board.objects.get(id=kwargs['board_pk'], project=project)
         bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
-        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        card = Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
         time_entry: TimeEntry = get_object_or_404(TimeEntry, pk=pk)
         if request.user in time_entry.allowed_users:
-            serializer = TimeEntrySerializer(time_entry, data=request.data, context={'request': request})
+            serializer = TimeEntrySerializer(
+                time_entry,
+                data=request.data,
+                partial=partial,
+                context={'request': request},
+            )
             if serializer.is_valid():
-                serializer.save()
+                old_duration = time_entry.duration
+                time_entry = serializer.save()
+                new_duration = time_entry.duration
+                Activity.create_activity_for_time_entry(card, request.user, True, old_duration, new_duration)
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
+    @transaction.atomic()
+    def put(self, request, pk, **kwargs):
+        """
+        Edit time entry.
+        """
+        return self.edit(request, pk, False, **kwargs)
+
+    @transaction.atomic()
     def patch(self, request, pk, **kwargs):
         """
         Edit time entry partially.
         """
-        project = Project.objects.get(id=kwargs['project_pk'])
-        board = Board.objects.get(id=kwargs['board_pk'], project=project)
-        bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
-        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
-        time_entry: TimeEntry = get_object_or_404(TimeEntry, pk=pk)
-        if request.user in time_entry.allowed_users:
-            serializer = TimeEntrySerializer(time_entry, data=request.data, partial=True, context={'request': request})
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
+        return self.edit(request, pk, True, **kwargs)
 
     def delete(self, request, pk, **kwargs):
         """
@@ -1174,9 +1181,10 @@ class TimeEntryDetailAPIView(LoginRequiredMixin, APIView):
         project = Project.objects.get(id=kwargs['project_pk'])
         board = Board.objects.get(id=kwargs['board_pk'], project=project)
         bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
-        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        card = Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
         time_entry: TimeEntry = get_object_or_404(TimeEntry, pk=pk)
         if request.user in time_entry.allowed_users:
+            Activity.create_activity_for_time_entry(card, request.user, False)
             time_entry.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
@@ -1209,6 +1217,7 @@ class CommentListAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
+    @transaction.atomic()
     def post(self, request, **kwargs):
         """
         Create new comment.
@@ -1220,6 +1229,7 @@ class CommentListAPIView(LoginRequiredMixin, APIView):
         if request.user in card.allowed_users:
             serializer = CommentSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
+                Activity.create_activity_for_comment(card, request.user, 'add')
                 serializer.save(
                     created_by=request.user,
                 )
@@ -1247,6 +1257,7 @@ class CommentDetailAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
+    @transaction.atomic()
     def patch(self, request, pk, **kwargs):
         """
         Edit comment
@@ -1254,16 +1265,18 @@ class CommentDetailAPIView(LoginRequiredMixin, APIView):
         project = Project.objects.get(id=kwargs['project_pk'])
         board = Board.objects.get(id=kwargs['board_pk'], project=project)
         bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
-        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        card = Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
         comment: Comment = get_object_or_404(Comment, pk=pk)
         if request.user == comment.created_by:
             serializer = CommentSerializer(comment, data=request.data, partial=True, context={'request': request})
             if serializer.is_valid():
+                Activity.create_activity_for_comment(card, request.user, 'update')
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
+    @transaction.atomic()
     def delete(self, request, pk, **kwargs):
         """
         Delete comment.
@@ -1271,9 +1284,10 @@ class CommentDetailAPIView(LoginRequiredMixin, APIView):
         project = Project.objects.get(id=kwargs['project_pk'])
         board = Board.objects.get(id=kwargs['board_pk'], project=project)
         bucket = Bucket.objects.get(id=kwargs['bucket_pk'], board=board)
-        Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
+        card = Card.objects.get(id=kwargs['card_pk'], bucket=bucket)
         comment: Comment = get_object_or_404(Comment, pk=pk)
         if request.user == comment.created_by:
+            Activity.create_activity_for_comment(card, request.user, 'remove')
             comment.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)

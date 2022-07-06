@@ -26,6 +26,7 @@ def gen_uuid(apps, schema_editor):
             row.public_id = uuid.uuid4()
             row.save(update_fields=['public_id'])
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -35,4 +36,3 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(gen_uuid, reverse_code=migrations.RunPython.noop),
     ]
-
