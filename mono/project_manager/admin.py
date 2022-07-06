@@ -184,5 +184,12 @@ class SpaceAdmin(admin.ModelAdmin):
 
 @admin.register(models.Activity)
 class ActivityAdmin(admin.ModelAdmin):
-    list_display = ['action', 'context', 'created_by', 'created_at']
+    list_display = [
+        'verbose_text',
+        'card',
+        'action',
+        'context',
+        'created_by',
+        'created_at',
+    ]
     list_filter = ['action', 'created_by', 'created_at']

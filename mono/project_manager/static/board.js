@@ -93,11 +93,10 @@ function checkUpdates() {
                     bucketIdDOM = parseInt(bucketEl.attr('data-bucket-id'))
                     if (b.id === bucketIdDOM) {
                         // Compare timestamps
-                        compactMode = $('.ui.slider.board-compact').checkbox('is checked')
                         bucketTimestampDOM = new Date(bucketEl.attr('data-bucket-updated-at'))
                         if (bucketTimestamp > bucketTimestampDOM) {
                             bucketEl.attr('data-bucket-updated-at', b.ts)
-                            getCards(b.id, compactMode)
+                            getCards(b.id)
                         }
                     }
                 } else {
@@ -114,7 +113,7 @@ function changeBucketWidth(width) {
     updateConfig({bucket_width: width})
 }
 
-function setCompact(bool) {
+function setCompactMode(bool) {
     updateConfig({compact: bool})
 }
 
@@ -157,6 +156,11 @@ function updateConfig(data) {
 function getDarkMode() {
     config = getConfig()
     return config.dark
+}
+
+function getCompactMode() {
+    config = getConfig()
+    return config.compact
 }
 
 function getBucketWidth() {
@@ -314,17 +318,17 @@ async function clearIntervals() {
 }
 
 function loadBoard() {
-    let compact = $('.board-compact.checkbox').checkbox('is checked')
-    let width = $('.ui.width.slider').slider('get value')
     boardTimestamp = new Date()
     clearIntervals()
-    getBuckets(compact, width)
+    getBuckets()
     enableProximityScroll()
     setWallpaper()
 }
 
-async function renderBuckets(containerSelector, buckets, compact = false, width) {
+async function renderBuckets(containerSelector, buckets) {
     let dark = getDarkMode()
+    let compact = getCompactMode()
+    let width = getBucketWidth()
     $(containerSelector).empty()
     if (compact) {
         $(containerSelector).css('padding-left', '.25em')
@@ -367,8 +371,8 @@ async function renderBuckets(containerSelector, buckets, compact = false, width)
             </div>
         `)
         attachBucketTouchEvent(bucket)
-        initializeBucketButtons(bucket, compact)
-        $(containerSelector).ready(e => { getCards(bucket.id, compact) })
+        initializeBucketButtons(bucket)
+        $(containerSelector).ready(e => { getCards(bucket.id) })
     })
     $(containerSelector).append(`<div class="ui add bucket basic ${dark ? 'inverted ' : ' '}button" style="flex: 0 0 auto">${gettext('Add new bucket')}</div>`)
     $(`.add.bucket.button`).off().click(e => { showBucketModal() })
@@ -421,19 +425,20 @@ async function attachBucketTouchEvent(bucket) {
     )
 }
 
-async function initializeBucketButtons(bucket, compact) {
+async function initializeBucketButtons(bucket) {
     $(`.ui.dropdown[data-bucket-id=${bucket.id}]`).dropdown({ action: 'hide' })
-    $(`.add.card.item[data-bucket-id=${bucket.id}]`).on('click', e => { showCardModal(card = null, bucket.id, compact) })
+    $(`.add.card.item[data-bucket-id=${bucket.id}]`).on('click', e => { showCardModal(card = null, bucket.id) })
     $(`#bucket-${bucket.id}`).on('dblclick', e => {
         const isCard = $(e.target).parents('.card-el').length > 0
-        if (!isCard) { showCardModal(card = null, bucket.id, compact) }
+        if (!isCard) { showCardModal(card = null, bucket.id) }
     })
     $(`.edit.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { showBucketModal(bucket) })
     $(`.delete.bucket.item[data-bucket-id=${bucket.id}]`).on('click', e => { deleteBucket(bucket.id) })
 }
 
-async function renderCards(containerSelector, cards, bucketId, compact = false) {
+async function renderCards(containerSelector, cards, bucketId) {
     let dark = getDarkMode()
+    let compact = getCompactMode()
     $(containerSelector).empty()
     cards.forEach(card => {
         switch (card.status) {
@@ -546,7 +551,7 @@ async function renderCards(containerSelector, cards, bucketId, compact = false) 
             extraContent.remove()
         }
         attachCardTouchEvent(card)
-        initializeCardButtons(bucketId, card, compact)
+        initializeCardButtons(bucketId, card)
         if (card.is_running) { startTimerAnimation(card.id) }
     })
     $('.card-el').removeClass('loading')
@@ -579,18 +584,18 @@ async function attachCardTouchEvent(card) {
     )
 }
 
-async function initializeCardButtons(bucketId, card, compact) {
+async function initializeCardButtons(bucketId, card) {
     $(`.ui.progress[data-card-id=${card.id}]`).progress()
     $('.cardlet').popup()
     $(`.ui.dropdown[data-card-id=${card.id}]`).dropdown({ action: 'hide' })
-    $(`.card-name[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact) })
-    $(`.edit.card.item[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId, compact) })
-    $(`.card-el[data-card-id=${card.id}]`).on('dblclick', e => { showCardModal(card, bucketId, compact) })
-    $(`.delete.card.item[data-card-id=${card.id}]`).on('click', e => { deleteCard(card.id, bucketId, compact) })
-    $(`.start-stop-timer[data-card-id=${card.id}]`).on('click', e => { startStopTimer(card.id, bucketId, compact) })
-    $(`.edit-time-entries[data-card-id=${card.id}]`).on('click', e => { showTimeEntriesModal(card.id, bucketId, compact) })
+    $(`.card-name[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId) })
+    $(`.edit.card.item[data-card-id=${card.id}]`).on('click', e => { showCardModal(card, bucketId) })
+    $(`.card-el[data-card-id=${card.id}]`).on('dblclick', e => { showCardModal(card, bucketId) })
+    $(`.delete.card.item[data-card-id=${card.id}]`).on('click', e => { deleteCard(card.id, bucketId) })
+    $(`.start-stop-timer[data-card-id=${card.id}]`).on('click', e => { startStopTimer(card.id, bucketId) })
+    $(`.edit-time-entries[data-card-id=${card.id}]`).on('click', e => { showTimeEntriesModal(card.id, bucketId) })
     $(`.card-status.icon[data-card-id=${card.id}]`).on('click', e => {
-        toggleCardStatus(card.id, bucketId, $(e.target).attr('data-status'), compact)
+        toggleCardStatus(card.id, bucketId, $(e.target).attr('data-status'))
     })
 }
 
@@ -679,7 +684,7 @@ function renderItems(containerSelector, items, bucketId, cardId) {
                     <input type="checkbox" ${item.checked ? 'checked' : ''}>
                     <label></label>
                 </div>
-                <div class="ui ${dark ? 'inverted ' : ' '}transparent input" style="flex: 1 0 auto;">
+                <div class="ui ${dark ? 'inverted ' : ' '} input" style="flex: 1 0 auto;">
                     <input class="${item.checked ? 'item-checked' : ''}" data-item-id="${item.id}" type="text" placeholder="${gettext('Enter text here')}" data-text="${item.name}" value="${item.name}">
                 </div>
                 <div data-item-id="${item.id}" class="ui mini icon basic delete-item ${dark ? 'inverted ' : ' '}button"><i data-item-id="${item.id}" class="trash alternate outline icon"></i></div>
@@ -1134,7 +1139,7 @@ async function enableProximityScroll() {
     document.addEventListener("mousemove", proximityScroll)
 }
 
-async function getBuckets(compact = false, width) {
+async function getBuckets() {
     $.api({
         on: 'now',
         method: 'GET',
@@ -1143,14 +1148,12 @@ async function getBuckets(compact = false, width) {
             renderBuckets(
                 containerSelector = '#board',
                 buckets = r,
-                compact = compact,
-                width = width
             )
         }
     })
 }
 
-async function getCards(bucketId, compact = false) {
+async function getCards(bucketId) {
     $.api({
         on: 'now',
         method: 'GET',
@@ -1162,7 +1165,6 @@ async function getCards(bucketId, compact = false) {
                 containerSelector = `#bucket-${bucketId}`,
                 cards = r,
                 bucketId = bucketId,
-                compact = compact
             )
             filterCards()
         }
@@ -1372,7 +1374,7 @@ async function populateModal(modal, card) {
     modal.find('.ui.card-due-date.calendar').calendar('set date', card.due_date)
 }
 
-function showCardModal(card = null, bucketId, compact) {
+function showCardModal(card = null, bucketId) {
     let create = card === null
     let dark = getDarkMode()
     const modal = $('.ui.card-form.modal')
@@ -1420,7 +1422,7 @@ function showCardModal(card = null, bucketId, compact) {
             })
         },
         onHidden: () => {
-            if (cardEdited) { getCards(bucketId, compact) }
+            if (cardEdited) { getCards(bucketId) }
             $('.checklist-drake').empty()
             clearModal(modal)
         },
@@ -1482,7 +1484,7 @@ function showCardModal(card = null, bucketId, compact) {
                             }
                         }
                     }
-                    getCards(bucketId, compact)
+                    getCards(bucketId)
                 }
             })
         }
@@ -1555,7 +1557,7 @@ function attachFile(fd, bucketId, cardId) {
     })
 }
 
-function toggleCardStatus(cardId, bucketId, currentStatus, compact) {
+function toggleCardStatus(cardId, bucketId, currentStatus) {
     switch (currentStatus) {
         case 'NS':
             code = 'IP'
@@ -1584,7 +1586,7 @@ function toggleCardStatus(cardId, bucketId, currentStatus, compact) {
                 message: interpolate(gettext('Card was marked as %s'), [`<strong>${text}<i class="${icon} icon"></i></strong>`]),
                 showProgress: 'bottom'
             })
-            getCards(bucketId, compact)
+            getCards(bucketId)
         },
     })
 }
@@ -1658,7 +1660,7 @@ function showBucketModal(bucket = null) {
     modal.modal('show')
 }
 
-function showTimeEntriesModal(cardId, bucketId, compact) {
+function showTimeEntriesModal(cardId, bucketId) {
     const modal = $('#time-entries.modal')
     modal.modal({
         autofocus: false,
@@ -1670,7 +1672,7 @@ function showTimeEntriesModal(cardId, bucketId, compact) {
             modal.removeClass('loading')
         },
         onHidden() {
-            getCards(bucketId, compact)
+            getCards(bucketId)
             modal.find('.content').empty()
         },
     }).modal('show')
@@ -1696,7 +1698,7 @@ function deleteBucket(bucketId) {
         .modal('show')
 }
 
-function deleteCard(cardId, bucketId, compact) {
+function deleteCard(cardId, bucketId) {
     modal = $('.ui.delete.confirmation.modal')
     modal
         .modal({
@@ -1710,7 +1712,7 @@ function deleteCard(cardId, bucketId, compact) {
                     method: 'DELETE',
                     url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}`,
                     onSuccess(result) {
-                        getCards(bucketId, compact)
+                        getCards(bucketId)
                     }
                 })
             }
@@ -1718,7 +1720,7 @@ function deleteCard(cardId, bucketId, compact) {
         .modal('show')
 }
 
-function startStopTimer(cardId, bucketId, compact) {
+function startStopTimer(cardId, bucketId) {
     $.api({
         on: 'now',
         method: 'POST',
@@ -1737,7 +1739,7 @@ function startStopTimer(cardId, bucketId, compact) {
                 })
                 stopTimerAnimation(cardId)
             }
-            getCards(bucketId, compact)
+            getCards(bucketId)
         }
     })
 }
@@ -1996,4 +1998,38 @@ function initializeColorDropdown() {
         placeholder: gettext('Select a color theme'),
         values: colorsForDropdown,
     })
+}
+
+function initializeDarkModeCheckbox() {
+    $('.board-dark.checkbox').checkbox({
+        onChecked: () => { setDarkMode(true) },
+        onUnchecked: () => { setDarkMode(false) },
+    })
+    if (getDarkMode()) {
+        $('.board-dark.checkbox').checkbox('set checked')
+    }
+}
+
+function initializeCompactModeCheckbox() {
+    $('.board-compact.checkbox').checkbox({
+        onChecked: () => { setCompactMode(true) },
+        onUnchecked: () => { setCompactMode(false) },
+    })
+    if (getCompactMode()) {
+        $('.board-compact.checkbox').checkbox('set checked')
+    }
+}
+
+function initializeBucketWidthSlider() {
+    $('.ui.width.slider').slider({ 
+        min: 100, 
+        max: 500, 
+        step: 100,
+        onChange: changeBucketWidth,
+    })
+    $('.ui.width.slider').slider(
+        'set value',
+        getBucketWidth(),
+        false,
+    )
 }

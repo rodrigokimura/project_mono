@@ -573,28 +573,9 @@
                 .sidebar('setting', 'mobileTransition', 'overlay')
                 .sidebar('attach events', '.right-sidebar.item')
                 .find('#manage-tags').click(showManageTagsModal)
-            $('.board-compact.checkbox').checkbox({
-                onChecked: () => { setCompact(true) },
-                onUnchecked: () => { setCompact(false) },
-            })
-            $('.board-dark.checkbox').checkbox({
-                onChecked: () => { setDarkMode(true) },
-                onUnchecked: () => { setDarkMode(false) },
-            })
-            $('.ui.width.slider').slider({ 
-                min: 100, 
-                max: 500, 
-                step: 100,
-                onChange(value) {
-                    changeBucketWidth(value);
-                },
-            })
-            $('.ui.width.slider').slider(
-                'set value',
-                getBucketWidth(),
-                false,
-            )
-            
+            initializeCompactModeCheckbox()
+            initializeDarkModeCheckbox()
+            initializeBucketWidthSlider()
             $('.refresh.item').click(() => { 
                 loadBoard()
             })
