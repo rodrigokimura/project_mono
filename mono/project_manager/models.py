@@ -323,24 +323,24 @@ class Activity(models.Model):
         """
         Actions to be logged
         """
-        CREATE_CARD = 'create_card'
-        UPDATE_NAME = 'update_name'
-        UPDATE_DESCRIPTION = 'update_description'
-        UPDATE_DUE_DATE = 'update_due_date'
-        UPDATE_STATUS = 'update_status'
-        UPDATE_COLOR = 'update_color'
-        UPDATE_TAGS = 'update_tags'
-        UPDATE_ASSIGNEES = 'update_assignees'
-        ADD_CHECKLIST_ITEM = 'add_checklist_item'
-        UPDATE_CHECKLIST_ITEM = 'update_checklist_item'
-        REMOVE_CHECKLIST_ITEM = 'remove_checklist_item'
-        ADD_COMMENT = 'add_comment'
-        UPDATE_COMMENT = 'update_comment'
-        REMOVE_COMMENT = 'remove_comment'
-        ADD_FILE = 'add_file'
-        REMOVE_FILE = 'remove_file'
-        START_TIMER = 'start_timer'
-        STOP_TIMER = 'stop_timer'
+        CREATE_CARD = 'create_card', _('%(user)s created card')
+        UPDATE_NAME = 'update_name', _('%(user)s updated card name')
+        UPDATE_DESCRIPTION = 'update_description', _('%(user)s updated card description')
+        UPDATE_DUE_DATE = 'update_due_date', _('%(user)s updated card due date from %(old)s to %(new)s')
+        UPDATE_STATUS = 'update_status', _('%(user)s updated card status from %(old)s to %(new)s')
+        UPDATE_COLOR = 'update_color', _('%(user)s updated card color from %(old)s to %(new)s')
+        UPDATE_TAGS = 'update_tags', _('%(user)s updated card tags from %(old)s to %(new)s')
+        UPDATE_ASSIGNEES = 'update_assignees', _('%(user)s updated card assignees from %(old)s to %(new)s')
+        ADD_CHECKLIST_ITEM = 'add_checklist_item', _('%(user)s added checklist item %(item)s')
+        UPDATE_CHECKLIST_ITEM = 'update_checklist_item', _('%(user)s updated checklist item from %(old)s to %(new)s')
+        REMOVE_CHECKLIST_ITEM = 'remove_checklist_item', _('%(user)s removed checklist item %(item)s')
+        ADD_COMMENT = 'add_comment', _('%(user)s added comment')
+        UPDATE_COMMENT = 'update_comment', _('%(user)s updated comment')
+        REMOVE_COMMENT = 'remove_comment', _('%(user)s removed comment')
+        ADD_FILE = 'add_file', _('%(user)s added a file')
+        REMOVE_FILE = 'remove_file', _('%(user)s removed a file')
+        START_TIMER = 'start_timer', _('%(user)s started timer')
+        STOP_TIMER = 'stop_timer', _('%(user)s stopped timer')
 
     card = models.ForeignKey('Card', on_delete=models.CASCADE, related_name='activities')
     action = models.CharField(max_length=100, null=False, blank=False, choices=Action.choices)
@@ -354,7 +354,7 @@ class Activity(models.Model):
         ordering = ['-created_by']
 
     def __str__(self) -> str:
-        return f'User {self.created_by.username} {self.action} {self.target}'
+        return self.action
 
     @classmethod
     @transaction.atomic()
@@ -404,6 +404,26 @@ class Activity(models.Model):
                 'time_entry_id': time_entry.id
             },
         )
+
+    @property
+    def verbose_text(self):
+        from django.contrib.humanize.templatetags.humanize import (
+            NaturalTimeFormatter,
+        )
+        context = self.context
+        if context is None:
+            context = {}
+        context['user'] = self.created_by.username
+        text = ''
+        try:
+            text = self.get_action_display() % context
+        except TypeError:
+            text = self.get_action_display()
+        natural_time = NaturalTimeFormatter.string_for(self.created_at)
+        return _('%(executed_action)s %(natural_time)s') % {
+            'executed_action': text,
+            'natural_time': natural_time,
+        }
 
 
 class Card(PublicIDMixin, BaseModel):

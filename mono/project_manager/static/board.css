@@ -6,6 +6,33 @@
     color: white;
 }
 
+.ui.inverted.modal>.header, .ui.inverted.modal>.actions {
+    background-color: rgba(255, 255, 255, .05) !important;
+}
+
+.checklist-item {
+    padding: .5em 0;
+    margin-left: .25em;
+}
+.checklist-item:first-child {
+    padding-top: 0 !important;
+}
+.checklist-item:last-child {
+    padding-bottom: 1em !important;
+}
+.checklist-item input {
+    padding: .4em !important;
+    margin-left: .5em !important;
+    transition: .5s !important;
+    border-color: rgba(255,255,255,0) !important;
+}
+
+.checklist-item:hover input,
+.checklist-item input:focus {
+    /* padding: 1em; */
+    /* margin: 0; */
+    border-color: rgba(255,255,255,.1) !important;
+}
 
 .ui.inverted.card.bucket-el {
     border: 1px solid #404040 !important;
@@ -107,6 +134,12 @@ img.img-card-file {
     border: 1px solid #404040 !important;
 }
 
+.ui.loading.inverted.card:before {
+    background: rgba(0, 0, 0, .0) !important;
+    backdrop-filter: blur(0.1em);
+    -webkit-backdrop-filter: blur(0.1em);
+}
+
 .ui.basic.inverted.button, .ui.basic.inverted.buttons .button {
     border: 1px solid #404040 !important;
     box-shadow: none;
@@ -116,7 +149,8 @@ img.img-card-file {
     box-shadow: 0 0 1em rgba(0, 0, 0, .4) !important;
 }
 .inverted.card.card-el:hover {
-    box-shadow: 0 0 1em rgba(240, 240, 240, 1) !important;
+    /* box-shadow: 0 0 1em rgba(255, 255, 255, .5) !important; */
+    box-shadow: 0 0 1em rgba(0, 0, 0, 1) !important;
 }
 
 .completed.card .card-name:hover {
@@ -152,6 +186,7 @@ img.img-card-file {
 .delete-item.button {
     transition: .5s;
     opacity: 0;
+    margin-left: 1em;
 }
 
 .checklist-item:hover .delete-item.button {
