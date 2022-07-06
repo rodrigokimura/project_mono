@@ -1,3 +1,9 @@
+## 6.0.5 (2022-07-06)
+
+### Refactor
+
+- **project_manager**: improve styles
+
 ## 6.0.4 (2022-07-05)
 
 ### Refactor
