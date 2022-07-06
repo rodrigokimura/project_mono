@@ -1,3 +1,9 @@
+## 6.1.0 (2022-07-06)
+
+### Feat
+
+- **project_manager**: add activity logging
+
 ## 6.0.5 (2022-07-06)
 
 ### Refactor
