@@ -4,6 +4,7 @@ import os
 
 from __mono.utils import validate_file_size
 from accounts.serializers import UserSerializer
+from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.serializers import (
@@ -11,8 +12,8 @@ from rest_framework.serializers import (
 )
 
 from .models import (
-    Board, Bucket, Card, CardFile, Comment, Configuration, Icon, Invite, Item,
-    Project, Space, Tag, Theme, TimeEntry, User,
+    Activity, Board, Bucket, Card, CardFile, Comment, Configuration, Icon,
+    Invite, Item, Project, Space, Tag, Theme, TimeEntry, User,
 )
 
 
@@ -227,6 +228,18 @@ class CardFileSerializer(ModelSerializer):
         return instance
 
 
+class ActivitySerializer(ModelSerializer):
+    """Serializer for card activities"""
+
+    verbose_text = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Activity
+        fields = [
+            'verbose_text',
+        ]
+
+
 class CardSerializer(ModelSerializer):
     """Serializer for card"""
     is_running = serializers.ReadOnlyField()
@@ -336,6 +349,7 @@ class CardSerializer(ModelSerializer):
         instance.assigned_to.set(assignees)
         return instance
 
+    @transaction.atomic()
     def update(self, instance, validated_data):
         """Process update"""
         instance.bucket.touch()
@@ -365,8 +379,20 @@ class CardSerializer(ModelSerializer):
         self._apply_status(instance, status)
 
         if requested_tags is not None:
+            Activity.create_activity_for_assigned_tags(
+                instance,
+                self.context['request'].user,
+                set(instance.tag.all()),
+                set(tags),
+            )
             instance.tag.set(tags)
         if requested_assignees is not None:
+            Activity.create_activity_for_assigned_users(
+                instance,
+                self.context['request'].user,
+                set(instance.assigned_to.all()),
+                set(assignees)
+            )
             instance.assigned_to.set(assignees)
         return instance
 

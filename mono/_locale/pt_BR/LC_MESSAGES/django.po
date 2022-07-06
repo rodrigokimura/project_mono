@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-06 12:15+0000\n"
+"POT-Creation-Date: 2022-07-06 21:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,65 +70,233 @@ msgstr "Watcher"
 msgid "Healthcheck"
 msgstr "Healthcheck"
 
-#: mono/__mono/settings.py:213
+#: mono/__mono/settings.py:215
 msgid "American English"
 msgstr "Inglês americano"
 
-#: mono/__mono/settings.py:214
+#: mono/__mono/settings.py:216
 msgid "Brasilian Portuguese"
 msgstr "Português brasileiro"
 
-#: mono/__mono/utils.py:27
+#: mono/__mono/utils.py:32
 msgid "Red"
 msgstr "Vermelho"
 
-#: mono/__mono/utils.py:28
+#: mono/__mono/utils.py:33
 msgid "Orange"
 msgstr "Laranja"
 
-#: mono/__mono/utils.py:29
+#: mono/__mono/utils.py:34
 msgid "Yellow"
 msgstr "Amarelo"
 
-#: mono/__mono/utils.py:30
+#: mono/__mono/utils.py:35
 msgid "Olive"
 msgstr "Verde-oliva"
 
-#: mono/__mono/utils.py:31
+#: mono/__mono/utils.py:36
 msgid "Green"
 msgstr "Verde"
 
-#: mono/__mono/utils.py:32
+#: mono/__mono/utils.py:37
 msgid "Teal"
 msgstr "Verde-azulado"
 
-#: mono/__mono/utils.py:33
+#: mono/__mono/utils.py:38
 msgid "Blue"
 msgstr "Azul"
 
-#: mono/__mono/utils.py:34
+#: mono/__mono/utils.py:39
 msgid "Violet"
 msgstr "Violeta"
 
-#: mono/__mono/utils.py:35
+#: mono/__mono/utils.py:40
 msgid "Purple"
 msgstr "Roxo"
 
-#: mono/__mono/utils.py:36
+#: mono/__mono/utils.py:41
 msgid "Pink"
 msgstr "Rosa"
 
-#: mono/__mono/utils.py:37
+#: mono/__mono/utils.py:42
 msgid "Brown"
 msgstr "Marrom"
 
-#: mono/__mono/utils.py:38
+#: mono/__mono/utils.py:43
 msgid "Grey"
 msgstr "Cinza"
 
-#: mono/__mono/utils.py:39
+#: mono/__mono/utils.py:44
 msgid "Black"
 msgstr "Preto"
+
+#. Translators: delta will contain a string like '2 months' or '1 month, 2 weeks'
+#: mono/__mono/utils.py:50
+#, python-format
+msgid "%(delta)s ago"
+msgstr "%(delta)s atrás"
+
+#. Translators: please keep a non-breaking space (U+00A0) between count
+#. and time unit.
+#: mono/__mono/utils.py:53
+#, python-format
+msgid "an hour ago"
+msgid_plural "%(count)s hours ago"
+msgstr[0] "uma hora atrás"
+msgstr[1] "%(count)s horas ago"
+
+#. Translators: please keep a non-breaking space (U+00A0) between count
+#. and time unit.
+#: mono/__mono/utils.py:56
+#, python-format
+msgid "a minute ago"
+msgid_plural "%(count)s minutes ago"
+msgstr[0] "um minuto atrás"
+msgstr[1] "%(count)s minutos atrás"
+
+#. Translators: please keep a non-breaking space (U+00A0) between count
+#. and time unit.
+#: mono/__mono/utils.py:59
+#, python-format
+msgid "a second ago"
+msgid_plural "%(count)s seconds ago"
+msgstr[0] "um segundo atrás"
+msgstr[1] "%(count)s segundos atrás"
+
+#: mono/__mono/utils.py:60
+msgid "now"
+msgstr "agora"
+
+#. Translators: please keep a non-breaking space (U+00A0) between count
+#. and time unit.
+#: mono/__mono/utils.py:63
+#, python-format
+msgid "a second from now"
+msgid_plural "%(count)s seconds from now"
+msgstr[0] "daqui um segundo"
+msgstr[1] "daqui %(count)s segundos"
+
+#. Translators: please keep a non-breaking space (U+00A0) between count
+#. and time unit.
+#: mono/__mono/utils.py:66
+#, python-format
+msgid "a minute from now"
+msgid_plural "%(count)s minutes from now"
+msgstr[0] "daqui um minuto"
+msgstr[1] "daqui %(count)s minutos"
+
+#. Translators: please keep a non-breaking space (U+00A0) between count
+#. and time unit.
+#: mono/__mono/utils.py:69
+#, python-format
+msgid "an hour from now"
+msgid_plural "%(count)s hours from now"
+msgstr[0] "daqui uma hora"
+msgstr[1] "daqui %(count)s horas"
+
+#. Translators: delta will contain a string like '2 months' or '1 month, 2 weeks'
+#: mono/__mono/utils.py:71
+#, python-format
+msgid "%(delta)s from now"
+msgstr "daqui %(delta)s"
+
+#. Translators: 'naturaltime-past' strings will be included in '%(delta)s ago'
+#: mono/__mono/utils.py:75
+#, python-format
+msgctxt "naturaltime-past"
+msgid "%d year"
+msgid_plural "%d years"
+msgstr[0] "%d ano"
+msgstr[1] "%d years"
+
+#: mono/__mono/utils.py:76
+#, python-format
+msgctxt "naturaltime-past"
+msgid "%d month"
+msgid_plural "%d months"
+msgstr[0] "%d mês"
+msgstr[1] "%d meses"
+
+#: mono/__mono/utils.py:77
+#, python-format
+msgctxt "naturaltime-past"
+msgid "%d week"
+msgid_plural "%d weeks"
+msgstr[0] "%d semana"
+msgstr[1] "%d semanas"
+
+#: mono/__mono/utils.py:78
+#, python-format
+msgctxt "naturaltime-past"
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] "%d dia"
+msgstr[1] "%d dias"
+
+#: mono/__mono/utils.py:79
+#, python-format
+msgctxt "naturaltime-past"
+msgid "%d hour"
+msgid_plural "%d hours"
+msgstr[0] "%d hora"
+msgstr[1] "%d horas"
+
+#: mono/__mono/utils.py:80
+#, python-format
+msgctxt "naturaltime-past"
+msgid "%d minute"
+msgid_plural "%d minutes"
+msgstr[0] "%d minuto"
+msgstr[1] "%d minutos"
+
+#. Translators: 'naturaltime-future' strings will be included in '%(delta)s from now'
+#: mono/__mono/utils.py:84
+#, python-format
+msgctxt "naturaltime-future"
+msgid "%d year"
+msgid_plural "%d years"
+msgstr[0] "%d ano"
+msgstr[1] "%d ano"
+
+#: mono/__mono/utils.py:85
+#, python-format
+msgctxt "naturaltime-future"
+msgid "%d month"
+msgid_plural "%d months"
+msgstr[0] "%d mês"
+msgstr[1] "%d meses"
+
+#: mono/__mono/utils.py:86
+#, python-format
+msgctxt "naturaltime-future"
+msgid "%d week"
+msgid_plural "%d weeks"
+msgstr[0] "%d semana"
+msgstr[1] "%d semanas"
+
+#: mono/__mono/utils.py:87
+#, python-format
+msgctxt "naturaltime-future"
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] "%d dia"
+msgstr[1] "%d dias"
+
+#: mono/__mono/utils.py:88
+#, python-format
+msgctxt "naturaltime-future"
+msgid "%d hour"
+msgid_plural "%d hours"
+msgstr[0] "%d hora"
+msgstr[1] "%d horas"
+
+#: mono/__mono/utils.py:89
+#, python-format
+msgctxt "naturaltime-future"
+msgid "%d minute"
+msgid_plural "%d minutes"
+msgstr[0] "%d minuto"
+msgstr[1] "%d minutos"
 
 #: mono/_templates/500.html:36
 msgid "Sorry! Unexpected error."
@@ -1115,11 +1283,11 @@ msgstr "conta origem"
 msgid "to account"
 msgstr "conta destino"
 
-#: mono/finance/models.py:380 mono/project_manager/models.py:884
+#: mono/finance/models.py:380 mono/project_manager/models.py:1049
 msgid "icon"
 msgstr "ícone"
 
-#: mono/finance/models.py:381 mono/project_manager/models.py:885
+#: mono/finance/models.py:381 mono/project_manager/models.py:1050
 msgid "icons"
 msgstr "ícones"
 
@@ -1180,7 +1348,7 @@ msgid "end date"
 msgstr "data final"
 
 #: mono/finance/models.py:827 mono/finance/models.py:1060
-#: mono/project_manager/models.py:226
+#: mono/project_manager/models.py:229
 msgid "configuration"
 msgstr "configuração"
 
@@ -1192,15 +1360,15 @@ msgstr "orçamento"
 msgid "budgets"
 msgstr "orçamentos"
 
-#: mono/finance/models.py:948 mono/project_manager/models.py:912
+#: mono/finance/models.py:948 mono/project_manager/models.py:1077
 msgid "invite"
 msgstr "convite"
 
-#: mono/finance/models.py:949 mono/project_manager/models.py:913
+#: mono/finance/models.py:949 mono/project_manager/models.py:1078
 msgid "invites"
 msgstr "convites"
 
-#: mono/finance/models.py:996 mono/project_manager/models.py:960
+#: mono/finance/models.py:996 mono/project_manager/models.py:1125
 msgid "Invite"
 msgstr "Convite"
 
@@ -1229,7 +1397,7 @@ msgstr "Orçamentos"
 msgid "Wallet"
 msgstr "Carteira"
 
-#: mono/finance/models.py:1061 mono/project_manager/models.py:227
+#: mono/finance/models.py:1061 mono/project_manager/models.py:230
 msgid "configurations"
 msgstr "configurações"
 
@@ -1838,7 +2006,7 @@ msgstr "anotação"
 msgid "notes"
 msgstr "anotações"
 
-#: mono/notes/models.py:69 mono/project_manager/models.py:850
+#: mono/notes/models.py:69 mono/project_manager/models.py:1015
 msgid "name"
 msgstr "nome"
 
@@ -1921,207 +2089,238 @@ msgstr "Baixar como arquivo Javascript"
 msgid "Download as HTML file"
 msgstr "Baixar como arquivo HTML"
 
-#: mono/project_manager/models.py:246
+#: mono/project_manager/models.py:249
 msgid "No automatic status"
 msgstr "Nenhum status automático"
 
-#: mono/project_manager/models.py:247 mono/project_manager/models.py:441
+#: mono/project_manager/models.py:250 mono/project_manager/models.py:606
 #: mono/project_manager/templates/project_manager/project_list.html:140
 #: mono/project_manager/templates/project_manager/project_list.html:142
 #: mono/project_manager/templates/project_manager/project_list.html:144
 msgid "Not started"
 msgstr "Não iniciado"
 
-#: mono/project_manager/models.py:248 mono/project_manager/models.py:442
+#: mono/project_manager/models.py:251 mono/project_manager/models.py:607
 #: mono/project_manager/templates/project_manager/project_list.html:130
 #: mono/project_manager/templates/project_manager/project_list.html:132
 #: mono/project_manager/templates/project_manager/project_list.html:134
 msgid "In progress"
 msgstr "Em andamento"
 
-#: mono/project_manager/models.py:249 mono/project_manager/models.py:443
+#: mono/project_manager/models.py:252 mono/project_manager/models.py:608
 #: mono/project_manager/templates/project_manager/project_list.html:120
 #: mono/project_manager/templates/project_manager/project_list.html:122
 #: mono/project_manager/templates/project_manager/project_list.html:124
 msgid "Completed"
 msgstr "Concluído"
 
-#: mono/project_manager/models.py:252
+#: mono/project_manager/models.py:255
 msgid "To do"
 msgstr "Para fazer"
 
-#: mono/project_manager/models.py:252
+#: mono/project_manager/models.py:255
 msgid "Stuff to do"
 msgstr "Coisas para se fazer"
 
-#: mono/project_manager/models.py:253
+#: mono/project_manager/models.py:256
 msgid "Doing"
 msgstr "Fazendo"
 
-#: mono/project_manager/models.py:253
+#: mono/project_manager/models.py:256
 msgid "Stuff being done"
 msgstr "Coisas sendo feitas"
 
-#: mono/project_manager/models.py:254
+#: mono/project_manager/models.py:257
 msgid "Done"
 msgstr "Feito"
 
-#: mono/project_manager/models.py:254
+#: mono/project_manager/models.py:257
 msgid "Stuff already finished"
 msgstr "Coisas já finalizadas"
 
-#: mono/project_manager/models.py:259 mono/project_manager/models.py:455
+#: mono/project_manager/models.py:262 mono/project_manager/models.py:620
 msgid "status"
 msgstr "Status"
 
-#: mono/project_manager/models.py:326
+#: mono/project_manager/models.py:329
 #, python-format
 msgid "%(user)s created card"
 msgstr "%(user)s criou o card"
 
-#: mono/project_manager/models.py:327
+#: mono/project_manager/models.py:330
 #, python-format
-msgid "%(user)s updated card name"
-msgstr "%(user)s atualizou o nome do card"
+msgid "%(user)s updated card name from %(old)s to %(new)s"
+msgstr "%(user)s atualizou o nome do card de %(old)s para %(new)s"
 
-#: mono/project_manager/models.py:328
+#: mono/project_manager/models.py:331
 #, python-format
 msgid "%(user)s updated card description"
 msgstr "%(user)s atualizou a descrição do card"
 
-#: mono/project_manager/models.py:329
+#: mono/project_manager/models.py:332
 #, python-format
 msgid "%(user)s updated card due date from %(old)s to %(new)s"
 msgstr "%(user)s atualizou o prazo do card de %(old)s para %(new)s"
 
-#: mono/project_manager/models.py:330
+#: mono/project_manager/models.py:333
 #, python-format
 msgid "%(user)s updated card status from %(old)s to %(new)s"
 msgstr "%(user)s atualizou o status do card de %(old)s para %(new)s"
 
-#: mono/project_manager/models.py:331
+#: mono/project_manager/models.py:334
 #, python-format
 msgid "%(user)s updated card color from %(old)s to %(new)s"
 msgstr "%(user)s atualizou a cor do card de %(old)s para %(new)s"
 
-#: mono/project_manager/models.py:332
+#: mono/project_manager/models.py:335
 #, python-format
-msgid "%(user)s updated card tags from %(old)s to %(new)s"
-msgstr "%(user)s atualizou as tags do card de %(old)s para %(new)s"
+msgid "%(user)s added tag %(tag)s"
+msgstr "%(user)s adicionou a tag %(tag)s"
 
-#: mono/project_manager/models.py:333
+#: mono/project_manager/models.py:336
 #, python-format
-msgid "%(user)s updated card assignees from %(old)s to %(new)s"
-msgstr "%(user)s atualizou os responsáveis do card de %(old)s para %(new)s"
+msgid "%(user)s removed tag %(tag)s"
+msgstr "%(user)s removeu a tag %(tag)s"
 
-#: mono/project_manager/models.py:334
+#: mono/project_manager/models.py:337
+#, python-format
+msgid "%(user)s assigned %(assignee)s to card"
+msgstr "%(user)s atribui o card a %(assignee)s"
+
+#: mono/project_manager/models.py:338
+#, python-format
+msgid "%(user)s removed %(assignee)s from card's assigned users"
+msgstr "%(user)s removeu %(assignee)s dos usuários atribuidos"
+
+#: mono/project_manager/models.py:339
 #, python-format
 msgid "%(user)s added checklist item %(item)s"
 msgstr "%(user)s adicionou o item %(item)s na lista de verificação"
 
-#: mono/project_manager/models.py:335
+#: mono/project_manager/models.py:340
 #, python-format
 msgid "%(user)s updated checklist item from %(old)s to %(new)s"
 msgstr "%(user)s atualizou o item %(old)s para %(new)s"
 
-#: mono/project_manager/models.py:336
+#: mono/project_manager/models.py:341
 #, python-format
 msgid "%(user)s removed checklist item %(item)s"
 msgstr "%(user)s removeu o item %(item)s da lista de verificação"
 
-#: mono/project_manager/models.py:337
+#: mono/project_manager/models.py:342
 #, python-format
 msgid "%(user)s added comment"
 msgstr "%(user)s adicionou um comentário"
 
-#: mono/project_manager/models.py:338
+#: mono/project_manager/models.py:343
 #, python-format
 msgid "%(user)s updated comment"
 msgstr "%(user)s atualizou um comentário"
 
-#: mono/project_manager/models.py:339
+#: mono/project_manager/models.py:344
 #, python-format
 msgid "%(user)s removed comment"
 msgstr "%(user)s removeu um comentário"
 
-#: mono/project_manager/models.py:340
+#: mono/project_manager/models.py:345
 #, python-format
 msgid "%(user)s added a file"
 msgstr "%(user)s adicionou um arquivo"
 
-#: mono/project_manager/models.py:341
+#: mono/project_manager/models.py:346
 #, python-format
 msgid "%(user)s removed a file"
 msgstr "%(user)s removeu um arquivo"
 
-#: mono/project_manager/models.py:342
+#: mono/project_manager/models.py:347
 #, python-format
 msgid "%(user)s started timer"
 msgstr "%(user)s iniciou o cronômetro"
 
-#: mono/project_manager/models.py:343
+#: mono/project_manager/models.py:348
 #, python-format
-msgid "%(user)s stopped timer"
-msgstr "%(user)s parou o cronômetro"
+msgid "%(user)s stopped timer (logged duration: %(duration)s)"
+msgstr "%(user)s parou o cronômetro (duração registrada: %(duration)s)"
 
-#: mono/project_manager/models.py:352
+#: mono/project_manager/models.py:349
+#, python-format
+msgid ""
+"%(user)s updated a time entry (duration changed from %(old)s to %(new)s)"
+msgstr ""
+"%(user)s alterou um registro de tempo (duração alterada de %(old)s para "
+"%(new)s)"
+
+#: mono/project_manager/models.py:350
+#, python-format
+msgid "%(user)s deleted a time entry"
+msgstr "%(user)s excluiu um registro de tempo"
+
+#: mono/project_manager/models.py:359
 msgid "activity"
 msgstr "atividade"
 
-#: mono/project_manager/models.py:353
+#: mono/project_manager/models.py:360
 msgid "activities"
 msgstr "atividades"
 
-#: mono/project_manager/models.py:421
+#: mono/project_manager/models.py:539
+msgid "no color"
+msgstr "sem cor"
+
+#: mono/project_manager/models.py:547
+msgid "no date"
+msgstr "sem data"
+
+#: mono/project_manager/models.py:586
 #, python-format
 msgid "%(executed_action)s %(natural_time)s"
 msgstr "%(executed_action)s %(natural_time)s"
 
-#: mono/project_manager/models.py:750 mono/project_manager/models.py:786
+#: mono/project_manager/models.py:915 mono/project_manager/models.py:951
 msgid "Comment"
 msgstr "Comentário"
 
-#: mono/project_manager/models.py:761 mono/project_manager/models.py:799
+#: mono/project_manager/models.py:926 mono/project_manager/models.py:964
 msgid "Comment on card"
 msgstr "Comentar no card"
 
-#: mono/project_manager/models.py:762
+#: mono/project_manager/models.py:927
 msgid "Someone commented on a card and mentioned you."
 msgstr "Alguém comentou em um card e mencionou você."
 
-#: mono/project_manager/models.py:800
+#: mono/project_manager/models.py:965
 msgid "Someone commented on a card assigned to you."
 msgstr "Alguém comentou em um card atribuído a você."
 
-#: mono/project_manager/models.py:815
+#: mono/project_manager/models.py:980
 msgid "time entry"
 msgstr "entrada de tempo"
 
-#: mono/project_manager/models.py:816
+#: mono/project_manager/models.py:981
 msgid "time entries"
 msgstr "entradas de tempo"
 
-#: mono/project_manager/models.py:851
+#: mono/project_manager/models.py:1016
 msgid "primary"
 msgstr "primário"
 
-#: mono/project_manager/models.py:852
+#: mono/project_manager/models.py:1017
 msgid "dark"
 msgstr "escuro"
 
-#: mono/project_manager/models.py:853
+#: mono/project_manager/models.py:1018
 msgid "light"
 msgstr "claro"
 
-#: mono/project_manager/models.py:968
+#: mono/project_manager/models.py:1133
 msgid "Project invitation"
 msgstr "Convite para projeto"
 
-#: mono/project_manager/models.py:969
+#: mono/project_manager/models.py:1134
 msgid "You were invited to be part of a project."
 msgstr "Você foi convidade para fazer parte de um projeto."
 
-#: mono/project_manager/serializers.py:70
+#: mono/project_manager/serializers.py:71
 msgid "You've already invited this email for this project."
 msgstr "Você já convidou este e-mail para este projeto."
 
@@ -2493,34 +2692,33 @@ msgstr "Convite aceito."
 #: mono/project_manager/views.py:407 mono/project_manager/views.py:417
 #: mono/project_manager/views.py:430 mono/project_manager/views.py:449
 #: mono/project_manager/views.py:473 mono/project_manager/views.py:483
-#: mono/project_manager/views.py:502 mono/project_manager/views.py:517
-#: mono/project_manager/views.py:530 mono/project_manager/views.py:544
-#: mono/project_manager/views.py:564 mono/project_manager/views.py:581
-#: mono/project_manager/views.py:612 mono/project_manager/views.py:622
-#: mono/project_manager/views.py:650 mono/project_manager/views.py:672
-#: mono/project_manager/views.py:684 mono/project_manager/views.py:701
-#: mono/project_manager/views.py:729 mono/project_manager/views.py:747
-#: mono/project_manager/views.py:767 mono/project_manager/views.py:779
-#: mono/project_manager/views.py:801 mono/project_manager/views.py:830
-#: mono/project_manager/views.py:846 mono/project_manager/views.py:870
-#: mono/project_manager/views.py:887 mono/project_manager/views.py:900
-#: mono/project_manager/views.py:924 mono/project_manager/views.py:944
-#: mono/project_manager/views.py:964 mono/project_manager/views.py:981
-#: mono/project_manager/views.py:998 mono/project_manager/views.py:1012
-#: mono/project_manager/views.py:1036 mono/project_manager/views.py:1052
-#: mono/project_manager/views.py:1072 mono/project_manager/views.py:1096
-#: mono/project_manager/views.py:1114 mono/project_manager/views.py:1134
-#: mono/project_manager/views.py:1151 mono/project_manager/views.py:1168
-#: mono/project_manager/views.py:1182 mono/project_manager/views.py:1210
-#: mono/project_manager/views.py:1228 mono/project_manager/views.py:1248
-#: mono/project_manager/views.py:1265 mono/project_manager/views.py:1279
-#: mono/project_manager/views.py:1297 mono/project_manager/views.py:1374
-#: mono/project_manager/views.py:1395 mono/project_manager/views.py:1408
-#: mono/project_manager/views.py:1425 mono/project_manager/views.py:1439
-#: mono/project_manager/views.py:1452 mono/project_manager/views.py:1472
-#: mono/project_manager/views.py:1489 mono/project_manager/views.py:1504
-#: mono/project_manager/views.py:1521 mono/project_manager/views.py:1535
-#: mono/project_manager/views.py:1549 mono/project_manager/views.py:1560
+#: mono/project_manager/views.py:502 mono/project_manager/views.py:518
+#: mono/project_manager/views.py:538 mono/project_manager/views.py:558
+#: mono/project_manager/views.py:575 mono/project_manager/views.py:606
+#: mono/project_manager/views.py:616 mono/project_manager/views.py:644
+#: mono/project_manager/views.py:666 mono/project_manager/views.py:678
+#: mono/project_manager/views.py:695 mono/project_manager/views.py:723
+#: mono/project_manager/views.py:741 mono/project_manager/views.py:761
+#: mono/project_manager/views.py:773 mono/project_manager/views.py:795
+#: mono/project_manager/views.py:824 mono/project_manager/views.py:840
+#: mono/project_manager/views.py:872 mono/project_manager/views.py:891
+#: mono/project_manager/views.py:904 mono/project_manager/views.py:928
+#: mono/project_manager/views.py:949 mono/project_manager/views.py:969
+#: mono/project_manager/views.py:989 mono/project_manager/views.py:1009
+#: mono/project_manager/views.py:1033 mono/project_manager/views.py:1051
+#: mono/project_manager/views.py:1073 mono/project_manager/views.py:1097
+#: mono/project_manager/views.py:1115 mono/project_manager/views.py:1135
+#: mono/project_manager/views.py:1161 mono/project_manager/views.py:1190
+#: mono/project_manager/views.py:1220 mono/project_manager/views.py:1240
+#: mono/project_manager/views.py:1260 mono/project_manager/views.py:1279
+#: mono/project_manager/views.py:1295 mono/project_manager/views.py:1313
+#: mono/project_manager/views.py:1390 mono/project_manager/views.py:1411
+#: mono/project_manager/views.py:1424 mono/project_manager/views.py:1441
+#: mono/project_manager/views.py:1455 mono/project_manager/views.py:1468
+#: mono/project_manager/views.py:1488 mono/project_manager/views.py:1505
+#: mono/project_manager/views.py:1520 mono/project_manager/views.py:1537
+#: mono/project_manager/views.py:1551 mono/project_manager/views.py:1565
+#: mono/project_manager/views.py:1576
 msgid "User not allowed"
 msgstr "Usuário não permitido"
 
@@ -2585,15 +2783,3 @@ msgstr "Resolver"
 #: mono/watcher/templates/watcher/issue_detail.html:178
 msgid "Ignore"
 msgstr "Ignorar"
-
-#~ msgid "Created"
-#~ msgstr "Criado"
-
-#~ msgid "Updated"
-#~ msgstr "Atualizado"
-
-#~ msgid "Deleted"
-#~ msgstr "Excluído"
-
-#~ msgid "Card"
-#~ msgstr "Card"

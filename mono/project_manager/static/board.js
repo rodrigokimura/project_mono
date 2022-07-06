@@ -891,6 +891,7 @@ function renderComments(containerSelector, comments, bucketId, cardId) {
     $(containerSelector).empty()
     comments.forEach(comment => {
         text = insertLinksAndMentions(comment.text)
+        console.log(comment.created_at)
         if (comment.created_by.username === USERNAME) {
             $(containerSelector).append(`
                 <div class="${dark ? 'inverted' : ''} comment">
