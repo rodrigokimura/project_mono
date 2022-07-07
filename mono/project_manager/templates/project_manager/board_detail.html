@@ -533,7 +533,7 @@
     <div class="ui tags tiny card modal">
         <i class="close icon"></i>
         <div class="header">{% translate 'Managing tags' %}</div>
-        <div class="content ui basic segment"></div>
+        <div class="content"></div>
         <div class="actions">
             <div class="ui black close button">
                 <i class="remove icon"></i>
@@ -558,7 +558,11 @@
         </div>
     </div>
 
-    <script src="{% static 'board.js' %}"></script>
+    <script src="{% static 'project_manager/board_detail/utils.js' %}"></script>
+    <script src="{% static 'project_manager/board_detail/initializers.js' %}"></script>
+    <script src="{% static 'project_manager/board_detail/modals.js' %}"></script>
+    <script src="{% static 'project_manager/board_detail/html.js' %}"></script>
+    <script src="{% static 'project_manager/board_detail/main.js' %}"></script>
 
     <script>
         $(document).ready(e => {
@@ -586,6 +590,6 @@
             startAutoRefresh()
             initializeSearchCardsDropdown()
             initializeColorDropdown()
-        });
+        })
     </script>
 {% endblock main %}
