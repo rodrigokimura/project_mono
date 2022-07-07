@@ -794,7 +794,7 @@ class CardListAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
-    @transaction.atomic()
+    @transaction.atomic
     def post(self, request, **kwargs):
         """
         Create new card
@@ -927,7 +927,7 @@ class ItemListAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
-    @transaction.atomic()
+    @transaction.atomic
     def post(self, request, **kwargs):
         """
         Create new card item
@@ -969,7 +969,7 @@ class ItemDetailAPIView(LoginRequiredMixin, APIView):
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
     @staticmethod
-    @transaction.atomic()
+    @transaction.atomic
     def edit(request, pk, partial, **kwargs):
         """
         Edit card item
@@ -1032,7 +1032,7 @@ class CardFileListAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
-    @transaction.atomic()
+    @transaction.atomic
     def post(self, request, **kwargs):
         """
         Create new card file
@@ -1056,7 +1056,7 @@ class CardFileDetailAPIView(LoginRequiredMixin, APIView):
     Retrieve, update or delete an card file instance.
     """
 
-    @transaction.atomic()
+    @transaction.atomic
     def delete(self, request, pk, **kwargs):
         """
         Delete card file
@@ -1160,14 +1160,14 @@ class TimeEntryDetailAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
-    @transaction.atomic()
+    @transaction.atomic
     def put(self, request, pk, **kwargs):
         """
         Edit time entry.
         """
         return self.edit(request, pk, False, **kwargs)
 
-    @transaction.atomic()
+    @transaction.atomic
     def patch(self, request, pk, **kwargs):
         """
         Edit time entry partially.
@@ -1217,7 +1217,7 @@ class CommentListAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
-    @transaction.atomic()
+    @transaction.atomic
     def post(self, request, **kwargs):
         """
         Create new comment.
@@ -1257,7 +1257,7 @@ class CommentDetailAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
-    @transaction.atomic()
+    @transaction.atomic
     def patch(self, request, pk, **kwargs):
         """
         Edit comment
@@ -1276,7 +1276,7 @@ class CommentDetailAPIView(LoginRequiredMixin, APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(_('User not allowed'), status=status.HTTP_403_FORBIDDEN)
 
-    @transaction.atomic()
+    @transaction.atomic
     def delete(self, request, pk, **kwargs):
         """
         Delete comment.

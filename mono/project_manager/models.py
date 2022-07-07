@@ -44,7 +44,7 @@ class BaseModel(models.Model):
         abstract = True
 
 
-class Project(PublicIDMixin, BaseModel):
+class Project(BaseModel):
     """
     Project that holds boards
     """
@@ -112,12 +112,12 @@ class Project(PublicIDMixin, BaseModel):
             board.save()
 
 
-class Space(PublicIDMixin, BaseModel):
+class Space(BaseModel):
     order = models.PositiveIntegerField()
     project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name="spaces")
 
 
-class Board(PublicIDMixin, BaseModel):
+class Board(BaseModel):
     """
     Board that holds buckets
     """
@@ -189,7 +189,7 @@ class Board(PublicIDMixin, BaseModel):
             'not_started': [not_started, not_started_perc],
         }
 
-    @transaction.atomic
+    # @transaction.atomic
     def set_order_and_space(self, order: int, space: Optional[Space] = None) -> None:
         """
         Set board order and/or move it to a space
@@ -236,7 +236,7 @@ class Configuration(models.Model):
         }
 
 
-class Bucket(PublicIDMixin, BaseModel):
+class Bucket(BaseModel):
     """
     Bucket that holds cards
     """
@@ -269,7 +269,7 @@ class Bucket(PublicIDMixin, BaseModel):
             "order",
         ]
 
-    @transaction.atomic
+    # @transaction.atomic
     def set_order(self, order):
         """
         Set bucket order
@@ -295,7 +295,7 @@ class Bucket(PublicIDMixin, BaseModel):
     def touch(self):
         self.save()
 
-    @transaction.atomic
+    # @transaction.atomic
     def sort(self):
         """Fix card order"""
         for index, card in enumerate(self.card_set.all()):
@@ -303,7 +303,7 @@ class Bucket(PublicIDMixin, BaseModel):
             card.save()
 
 
-class Tag(PublicIDMixin, BaseModel):
+class Tag(BaseModel):
     """
     Tag for generic information and filtering
     """
@@ -362,7 +362,7 @@ class Activity(models.Model):
         return self.action
 
     @classmethod
-    @transaction.atomic()
+    # @transaction.atomic
     def create_activities_for_fields(cls, card, user, data: Optional[Dict[str, Any]] = None):
         if data is None:
             cls.objects.create(
@@ -588,7 +588,7 @@ class Activity(models.Model):
         }
 
 
-class Card(PublicIDMixin, BaseModel):
+class Card(BaseModel):
     """
     Card, main entity, holds information about tasks
     """
@@ -631,7 +631,7 @@ class Card(PublicIDMixin, BaseModel):
     color = models.ForeignKey('Theme', on_delete=models.CASCADE, blank=True, null=True, default=None)
     tag = models.ManyToManyField(Tag, blank=True, default=None)
 
-    @transaction.atomic
+    # @transaction.atomic
     def set_order(self, bucket, order):
         """
         Set card order
@@ -703,7 +703,7 @@ class Card(PublicIDMixin, BaseModel):
         running_entries_duration = sum([timezone.now() - entry.started_at for entry in running_entries], timedelta())
         return stopped_entries_duration + running_entries_duration
 
-    @transaction.atomic()
+    # @transaction.atomic
     def start_timer(self, user):
         """
         Create new time entry if no running entry is found.
@@ -721,7 +721,7 @@ class Card(PublicIDMixin, BaseModel):
         Activity.create_activity_for_timer(self, user)
         return {'action': self.TimerActions.START}
 
-    @transaction.atomic()
+    # @transaction.atomic
     def stop_timer(self, user):
         """
         Stop any running time entry.
@@ -776,7 +776,7 @@ class Card(PublicIDMixin, BaseModel):
         ]
 
 
-class CardFile(PublicIDMixin, models.Model):
+class CardFile(models.Model):
     """File stored in card"""
 
     def _card_directory_path(self, filename):
@@ -814,7 +814,7 @@ class CardFile(PublicIDMixin, models.Model):
         return extension
 
 
-class Item(PublicIDMixin, BaseModel):
+class Item(BaseModel):
     """
     Checklist item in a card
     """
@@ -856,7 +856,7 @@ class Item(PublicIDMixin, BaseModel):
         self.save()
 
 
-class Comment(PublicIDMixin, models.Model):
+class Comment(models.Model):
     """Comment in a card"""
     text = models.TextField(max_length=1000, null=False, blank=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="card_comments")
@@ -968,7 +968,7 @@ class Comment(PublicIDMixin, models.Model):
             )
 
 
-class TimeEntry(PublicIDMixin, BaseModel):
+class TimeEntry(BaseModel):
     """Time entry in a card"""
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
     started_at = models.DateTimeField(default=timezone.now)
@@ -992,7 +992,7 @@ class TimeEntry(PublicIDMixin, BaseModel):
         return self.card.bucket.board.allowed_users
 
 
-class Theme(PublicIDMixin, models.Model):
+class Theme(models.Model):
     """
     Color theme of cards or boards
     """
@@ -1029,7 +1029,7 @@ class Theme(PublicIDMixin, models.Model):
         cls.objects.bulk_create(themes, ignore_conflicts=True)
 
 
-class Icon(PublicIDMixin, models.Model):
+class Icon(models.Model):
     """
     Icon used for tags
     """
@@ -1049,7 +1049,7 @@ class Icon(PublicIDMixin, models.Model):
         verbose_name_plural = _("icons")
 
 
-class Invite(PublicIDMixin, models.Model):
+class Invite(models.Model):
     """Invite to assign user to project"""
     email = models.EmailField(max_length=1000, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)

@@ -171,7 +171,7 @@ class Task(models.Model):
             if _due_date > now():
                 return _due_date
 
-    @transaction.atomic()
+    @transaction.atomic
     def create_next_task(self):
         """
         Create next task for recurrent task
