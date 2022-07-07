@@ -2,12 +2,14 @@
 import imghdr
 import os
 import re
-from datetime import timedelta
-from typing import Optional
+from datetime import date, datetime, timedelta
+from typing import Any, Dict, Optional
 
+from __mono.mixins import PublicIDMixin
 from accounts.models import Notification
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.humanize.templatetags.humanize import NaturalTimeFormatter
 from django.core.mail import EmailMultiAlternatives
 from django.core.signing import TimestampSigner
 from django.db import models, transaction
@@ -18,6 +20,7 @@ from django.db.models.functions import Coalesce
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 
 from .icons import DEFAULT_ICONS
@@ -125,10 +128,6 @@ class Board(BaseModel):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     assigned_to = models.ManyToManyField(User, related_name="assigned_boards", blank=True)
     order = models.IntegerField(default=1)
-    fullscreen = models.BooleanField(default=False)
-    compact = models.BooleanField(default=False)
-    dark = models.BooleanField(default=False)
-    bucket_width = models.IntegerField(default=300)
     updated_at = models.DateTimeField(auto_now=True)
     background_image = models.ImageField(upload_to=_background_image_path, blank=True, null=True)
     space = models.ForeignKey('Space', on_delete=models.SET_NULL, null=True, blank=True, default=None)
@@ -190,14 +189,17 @@ class Board(BaseModel):
             'not_started': [not_started, not_started_perc],
         }
 
-    @transaction.atomic
+    # @transaction.atomic
     def set_order_and_space(self, order: int, space: Optional[Space] = None) -> None:
+        """
+        Set board order and/or move it to a space
+        """
         original_space = self.space
         target_space = space
         spaces = [original_space, target_space]
 
-        for s in spaces:
-            boards = Board.objects.filter(project=self.project, space=s).exclude(id=self.id)
+        for _space in spaces:
+            boards = Board.objects.filter(project=self.project, space=_space).exclude(id=self.id)
             for i, board in enumerate(boards):
                 if i + 1 < order:
                     board.order = i + 1
@@ -209,6 +211,29 @@ class Board(BaseModel):
         self.space = space
         self.save()
         self.project.touch()
+
+
+class Configuration(models.Model):
+    """
+    User configuration
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='project_manager_config')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    compact = models.BooleanField(default=False)
+    dark = models.BooleanField(default=False)
+    bucket_width = models.IntegerField(default=300)
+
+    class Meta:
+        verbose_name = _('configuration')
+        verbose_name_plural = _('configurations')
+
+    def as_dict(self):
+        return {
+            'compact': self.compact,
+            'dark': self.dark,
+            'bucket_width': self.bucket_width,
+        }
 
 
 class Bucket(BaseModel):
@@ -244,8 +269,11 @@ class Bucket(BaseModel):
             "order",
         ]
 
-    @transaction.atomic
+    # @transaction.atomic
     def set_order(self, order):
+        """
+        Set bucket order
+        """
         buckets = Bucket.objects.filter(board=self.board).exclude(id=self.id)
         for i, bucket in enumerate(buckets):
             if i + 1 < order:
@@ -267,7 +295,7 @@ class Bucket(BaseModel):
     def touch(self):
         self.save()
 
-    @transaction.atomic
+    # @transaction.atomic
     def sort(self):
         """Fix card order"""
         for index, card in enumerate(self.card_set.all()):
@@ -289,6 +317,277 @@ class Tag(BaseModel):
         ]
 
 
+class Activity(models.Model):
+    """
+    Store actions executed for a card to be displayed as history timeline.
+    """
+    class Action(models.TextChoices):
+        """
+        Actions to be logged
+        """
+        CREATE_CARD = 'create_card', _('%(user)s created card')
+        UPDATE_NAME = 'update_name', _('%(user)s updated card name from %(old)s to %(new)s')
+        UPDATE_DESCRIPTION = 'update_description', _('%(user)s updated card description')
+        UPDATE_DUE_DATE = 'update_due_date', _('%(user)s updated card due date from %(old)s to %(new)s')
+        UPDATE_STATUS = 'update_status', _('%(user)s updated card status from %(old)s to %(new)s')
+        UPDATE_COLOR = 'update_color', _('%(user)s updated card color from %(old)s to %(new)s')
+        ADD_TAG = 'add_tags', _('%(user)s added tag %(tag)s')
+        REMOVE_TAG = 'remove_tags', _('%(user)s removed tag %(tag)s')
+        ADD_ASSIGNED_USER = 'add_assigned_user', _('%(user)s assigned %(assignee)s to card')
+        REMOVE_ASSIGNED_USER = 'remove_assigned_user', _("%(user)s removed %(assignee)s from card's assigned users")
+        ADD_CHECKLIST_ITEM = 'add_checklist_item', _('%(user)s added checklist item %(item)s')
+        UPDATE_CHECKLIST_ITEM = 'update_checklist_item', _('%(user)s updated checklist item from %(old)s to %(new)s')
+        REMOVE_CHECKLIST_ITEM = 'remove_checklist_item', _('%(user)s removed checklist item %(item)s')
+        ADD_COMMENT = 'add_comment', _('%(user)s added comment')
+        UPDATE_COMMENT = 'update_comment', _('%(user)s updated comment')
+        REMOVE_COMMENT = 'remove_comment', _('%(user)s removed comment')
+        ADD_FILE = 'add_file', _('%(user)s added a file')
+        REMOVE_FILE = 'remove_file', _('%(user)s removed a file')
+        START_TIMER = 'start_timer', _('%(user)s started timer')
+        STOP_TIMER = 'stop_timer', _('%(user)s stopped timer (logged duration: %(duration)s)')
+        UPDATE_TIME_ENTRY = 'update_time_entry', _('%(user)s updated a time entry (duration changed from %(old)s to %(new)s)')
+        DELETE_TIME_ENTRY = 'delete_time_entry', _('%(user)s deleted a time entry')
+
+    card = models.ForeignKey('Card', on_delete=models.CASCADE, related_name='activities')
+    action = models.CharField(max_length=100, null=False, blank=False, choices=Action.choices)
+    context = models.JSONField(null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("activity")
+        verbose_name_plural = _("activities")
+
+    def __str__(self) -> str:
+        return self.action
+
+    @classmethod
+    # @transaction.atomic
+    def create_activities_for_fields(cls, card, user, data: Optional[Dict[str, Any]] = None):
+        if data is None:
+            cls.objects.create(
+                action=cls.Action.CREATE_CARD,
+                created_by=user,
+                card=card,
+            )
+            return
+        field_action_mapping = {
+            'name': cls.Action.UPDATE_NAME.value,
+            'description': cls.Action.UPDATE_DESCRIPTION.value,
+            'due_date': cls.Action.UPDATE_DUE_DATE.value,
+            'status': cls.Action.UPDATE_STATUS.value,
+        }
+        for field, action in field_action_mapping.items():
+            if field in data:
+                old_value = getattr(card, field)
+                new_value = data[field]
+                if str(new_value) != str(old_value):
+                    cls.create_activity_for_update(card, action, user, old_value, new_value)
+
+    @classmethod
+    def create_activity_for_update(cls, card, action, user, old_value, new_value):
+        if isinstance(old_value, date):
+            old_value = str(old_value)
+        context = None
+        if action != cls.Action.UPDATE_DESCRIPTION:
+            context = {
+                'old': old_value,
+                'new': new_value,
+            }
+        Activity.objects.create(
+            action=action,
+            created_by=user,
+            card=card,
+            context=context,
+        )
+
+    @classmethod
+    def create_activity_for_assigned_tags(cls, card, user, old_tags, new_tags):
+        added_tags = new_tags.difference(old_tags)
+        removed_tags = old_tags.difference(new_tags)
+        for action, tags in {
+            cls.Action.ADD_TAG: added_tags,
+            cls.Action.REMOVE_TAG: removed_tags,
+        }.items():
+            for tag in tags:
+                Activity.objects.create(
+                    action=action,
+                    created_by=user,
+                    card=card,
+                    context={
+                        'tag': tag.name
+                    }
+                )
+
+    @classmethod
+    def create_activity_for_assigned_users(cls, card, user, old_users, new_users):
+        added_users = new_users.difference(old_users)
+        removed_users = old_users.difference(new_users)
+        for action, users in {
+            cls.Action.ADD_ASSIGNED_USER: added_users,
+            cls.Action.REMOVE_ASSIGNED_USER: removed_users,
+        }.items():
+            for user in users:
+                Activity.objects.create(
+                    action=action,
+                    created_by=user,
+                    card=card,
+                    context={
+                        'assignee': user.username
+                    }
+                )
+
+    @classmethod
+    def create_activity_for_timer(cls, card, user, start=True, duration=None):
+        action = Activity.Action.START_TIMER if start else Activity.Action.STOP_TIMER
+        activity = Activity(
+            action=action,
+            created_by=user,
+            card=card,
+        )
+        if start is False:
+            activity.context = {'duration': str(duration)}
+        activity.save()
+
+    @classmethod
+    def create_activity_for_time_entry(cls, card, user, update=True, old=None, new=None):
+        action = cls.Action.UPDATE_TIME_ENTRY if update else cls.Action.DELETE_TIME_ENTRY
+        activity = Activity(
+            action=action,
+            created_by=user,
+            card=card,
+        )
+        if update:
+            if str(old) == str(new):
+                return
+            activity.context = {
+                'old': str(old),
+                'new': str(new),
+            }
+        activity.save()
+
+    @classmethod
+    def create_activity_for_comment(cls, card, user, action):
+        if action not in ('add', 'update', 'remove'):
+            raise ValueError('Invalid action')
+        if action == 'add':
+            action = cls.Action.ADD_COMMENT
+        if action == 'update':
+            action = cls.Action.UPDATE_COMMENT
+        if action == 'remove':
+            action = cls.Action.REMOVE_COMMENT
+        Activity.objects.create(
+            action=action,
+            created_by=user,
+            card=card,
+        )
+
+    @classmethod
+    def create_activity_for_file(cls, card, user, add=True):
+        Activity.objects.create(
+            action=cls.Action.ADD_FILE if add else cls.Action.REMOVE_FILE,
+            created_by=user,
+            card=card,
+        )
+
+    @classmethod
+    def create_activity_for_checklist(cls, card, user, action, value=None, new_value=None):
+        if action not in ('add', 'update', 'remove'):
+            raise ValueError('Invalid action')
+        if action == 'add':
+            action = cls.Action.ADD_CHECKLIST_ITEM
+            context = {
+                'item': value,
+            }
+        if action == 'update':
+            if value == new_value:
+                return
+            action = cls.Action.UPDATE_CHECKLIST_ITEM
+            context = {
+                'old': value,
+                'new': new_value,
+            }
+        if action == 'remove':
+            action = cls.Action.REMOVE_CHECKLIST_ITEM
+            context = {
+                'item': value,
+            }
+        Activity.objects.create(
+            action=action,
+            created_by=user,
+            card=card,
+            context=context
+        )
+
+    @classmethod
+    def create_activity_for_color(cls, card, user, old_value, new_value):
+        if old_value == new_value:
+            return
+        Activity.objects.create(
+            action=cls.Action.UPDATE_COLOR,
+            created_by=user,
+            card=card,
+            context={
+                'old': old_value,
+                'new': new_value,
+            }
+        )
+
+    @staticmethod
+    def process_color(value: str) -> str:
+        return _(value).lower() if value is not None else _('no color')
+
+    @staticmethod
+    def process_date(value: str) -> str:  # pylint: disable=inconsistent-return-statements
+        if value is not None:
+            date_obj = datetime.strptime(value, '%Y-%m-%d')
+            date_str = date_format(date_obj, format='SHORT_DATE_FORMAT', use_l10n=True)
+        else:
+            date_str = _('no date')
+        return date_str
+
+    @staticmethod
+    def process_status(value: str) -> str:
+        for _value, text in Card.Status.choices:
+            if value == _value:
+                return _(text)
+        return None
+
+    @staticmethod
+    def noop(value: str) -> str:
+        return value
+
+    @property
+    def verbose_text(self):
+        """Human readable text describing the executed action"""
+        context = self.context
+        if context is None:
+            context = {}
+        text = ''
+        if self.action == Activity.Action.UPDATE_COLOR:
+            func = Activity.process_color
+        elif self.action == Activity.Action.UPDATE_DUE_DATE:
+            func = Activity.process_date
+        elif self.action == Activity.Action.UPDATE_STATUS:
+            func = Activity.process_status
+        else:
+            func = Activity.noop
+        context = {
+            k: func(v)
+            for k, v in context.items()
+        }
+        context['user'] = self.created_by.username
+        try:
+            text = self.get_action_display() % context
+        except TypeError:
+            text = self.get_action_display()
+        natural_time = NaturalTimeFormatter.string_for(self.created_at)
+        return _('%(executed_action)s %(natural_time)s') % {
+            'executed_action': text,
+            'natural_time': natural_time,
+        }
+
+
 class Card(BaseModel):
     """
     Card, main entity, holds information about tasks
@@ -299,17 +598,25 @@ class Card(BaseModel):
         p_id = self.bucket.board.project.id
         return f'project_{p_id}/{filename}'
 
-    STATUSES = [
-        (Bucket.NOT_STARTED, _('Not started')),
-        (Bucket.IN_PROGRESS, _('In progress')),
-        (Bucket.COMPLETED, _('Completed')),
-    ]
+    class Status(models.TextChoices):
+        """
+        Status choices for card
+        """
+        NOT_STARTED = Bucket.NOT_STARTED, _('Not started')
+        IN_PROGRESS = Bucket.IN_PROGRESS, _('In progress')
+        COMPLETED = Bucket.COMPLETED, _('Completed')
+
+    class TimerActions(models.TextChoices):
+        """Timer actions"""
+        START = 'start'
+        STOP = 'stop'
+        NONE = 'none'
 
     bucket = models.ForeignKey(Bucket, on_delete=models.CASCADE)
     order = models.IntegerField()
     assigned_to = models.ManyToManyField(User, related_name="assigned_cards", blank=True)
     description = models.TextField(max_length=1000, blank=True, null=True)
-    status = models.CharField(_("status"), max_length=2, choices=STATUSES, default=Bucket.NOT_STARTED)
+    status = models.CharField(_("status"), max_length=2, choices=Status.choices, default=Bucket.NOT_STARTED)
     due_date = models.DateField(blank=True, null=True, default=None)
     started_at = models.DateTimeField(blank=True, null=True)
     started_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="started_cards", blank=True, null=True)
@@ -324,8 +631,11 @@ class Card(BaseModel):
     color = models.ForeignKey('Theme', on_delete=models.CASCADE, blank=True, null=True, default=None)
     tag = models.ManyToManyField(Tag, blank=True, default=None)
 
-    @transaction.atomic
+    # @transaction.atomic
     def set_order(self, bucket, order):
+        """
+        Set card order
+        """
         same_bucket = self.bucket == bucket
         if not same_bucket:
             _bucket = self.bucket
@@ -393,13 +703,14 @@ class Card(BaseModel):
         running_entries_duration = sum([timezone.now() - entry.started_at for entry in running_entries], timedelta())
         return stopped_entries_duration + running_entries_duration
 
+    # @transaction.atomic
     def start_timer(self, user):
         """
         Create new time entry if no running entry is found.
         """
         running_time_entries = self.timeentry_set.filter(stopped_at__isnull=True)
         if running_time_entries.exists():
-            return {'action': 'none'}
+            return {'action': self.TimerActions.NONE}
         time_entry = TimeEntry.objects.create(
             name="Time entry",
             card=self,
@@ -407,9 +718,11 @@ class Card(BaseModel):
             created_by=user
         )
         time_entry.card.bucket.touch()
-        return {'action': 'start'}
+        Activity.create_activity_for_timer(self, user)
+        return {'action': self.TimerActions.START}
 
-    def stop_timer(self):
+    # @transaction.atomic
+    def stop_timer(self, user):
         """
         Stop any running time entry.
         """
@@ -419,28 +732,18 @@ class Card(BaseModel):
                 time_entry.stopped_at = timezone.now()
                 time_entry.save()
                 time_entry.card.bucket.touch()
-            return {'action': 'stop'}
-        return {'action': 'none'}
+                Activity.create_activity_for_timer(self, user, False, time_entry.duration)
+            return {'action': self.TimerActions.STOP}
+        return {'action': self.TimerActions.NONE}
 
     def start_stop_timer(self, user):
         """
         Toggle timer
         """
-        running_time_entries = self.timeentry_set.filter(stopped_at__isnull=True)
-        if running_time_entries.exists():
-            for time_entry in running_time_entries:
-                time_entry.stopped_at = timezone.now()
-                time_entry.save()
-                time_entry.card.bucket.touch()
-            return {'action': 'stop'}
-        time_entry = TimeEntry.objects.create(
-            name="Time entry",
-            card=self,
-            started_at=timezone.now(),
-            created_by=user
-        )
-        time_entry.card.bucket.touch()
-        return {'action': 'start'}
+        result = self.stop_timer(user)
+        if result['action'] != self.TimerActions.NONE:
+            return result
+        return self.start_timer(user)
 
     @property
     def max_order(self):

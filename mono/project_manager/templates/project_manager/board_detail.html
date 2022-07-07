@@ -257,7 +257,7 @@
                     colorsForDropdown = [
                         {% for color in colors %}
                         {
-                        "name": "{{ color.name }}",
+                        "name": "{% translate color.name %}",
                         "value": {{ color.id }},
                         "icon": "{{ color.name|lower }} circle",
                         },
@@ -366,7 +366,8 @@
             {% endif %}
         </div>
         <div class="actions">
-            <div class="ui black deny icon labeled button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
+            <div class="ui left floated icon right labeled button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
+            <div class="ui deny icon labeled button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
             <div class="ui positive icon labeled button"><i class="save icon"></i>{% translate 'Save' %}</div>
         </div>
     </form>
@@ -493,7 +494,7 @@
         });
     </script>
 
-    <div class="ui delete confirmation tiny modal">
+    <div class="ui delete confirmation tiny card modal">
         <div class="header"></div>
         <div class="content"></div>
         <div class="actions">
@@ -508,7 +509,7 @@
         </div>
     </div>
 
-    <div class="ui comment-edit tiny modal">
+    <div class="ui comment-edit tiny card modal">
         <div class="header">{% translate 'Comment edit' %}</div>
         <div class="content">
             <div class="ui reply form">
@@ -529,23 +530,23 @@
         </div>
     </div>
 
-    <div class="ui tags tiny modal">
+    <div class="ui tags tiny card modal">
         <i class="close icon"></i>
         <div class="header">{% translate 'Managing tags' %}</div>
         <div class="content"></div>
         <div class="actions">
-            <div class="ui black cancel button">
+            <div class="ui black close button">
                 <i class="remove icon"></i>
                 {% translate 'Close'%}
             </div>
-            <div class="ui green ok button">
+            <div class="ui green save button">
                 <i class="checkmark icon"></i>
                 {% translate 'Save' %}
             </div>
         </div>
     </div>
 
-    <div class="ui top aligned tiny modal" id="time-entries">
+    <div class="ui top aligned tiny card modal" id="time-entries">
         <i class="close icon"></i>
         <div class="header">{% translate 'Editing time entries' %}</div>
         <div class="content"></div>
@@ -557,47 +558,38 @@
         </div>
     </div>
 
-    <script src="{% static 'board.js' %}"></script>
+    <script src="{% static 'project_manager/board_detail/utils.js' %}"></script>
+    <script src="{% static 'project_manager/board_detail/initializers.js' %}"></script>
+    <script src="{% static 'project_manager/board_detail/modals.js' %}"></script>
+    <script src="{% static 'project_manager/board_detail/html.js' %}"></script>
+    <script src="{% static 'project_manager/board_detail/main.js' %}"></script>
 
     <script>
         $(document).ready(e => {
+            initializeBucketDragAndDrop()
+            initializeCardDragAndDrop()
             $('.ui.left.sidebar')
                 .sidebar('setting', 'transition', 'overlay')
                 .sidebar('setting', 'mobileTransition', 'overlay')
                 .sidebar('attach events', '.left-sidebar.item')
-                .find('#manage-tags').click(showManageTagsModal);
+                .find('#manage-tags').click(showManageTagsModal)
             $('.ui.right.sidebar')
                 .sidebar('setting', 'transition', 'overlay')
                 .sidebar('setting', 'mobileTransition', 'overlay')
                 .sidebar('attach events', '.right-sidebar.item')
-                .find('#manage-tags').click(showManageTagsModal);
-            $('.board-compact.checkbox').checkbox({
-                onChecked: () => { setCompact(true); },
-                onUnchecked: () => { setCompact(false); },
-            });
-            $('.board-dark.checkbox').checkbox({
-                onChecked: () => { setDarkMode(true); },
-                onUnchecked: () => { setDarkMode(false); },
-            });
-            $('.ui.width.slider').slider({ 
-                min: 100, 
-                max: 500, 
-                step: 100,
-                onChange: value => {
-                    changeBucketWidth(value);
-                },
-            });
-            $('.ui.width.slider').slider('set value', {{ object.bucket_width }}, false);
-            
+                .find('#manage-tags').click(showManageTagsModal)
+            initializeCompactModeCheckbox()
+            initializeDarkModeCheckbox()
+            initializeBucketWidthSlider()
             $('.refresh.item').click(() => { 
-                loadBoard();
-            });
+                loadBoard()
+            })
             {% if object.compact %}$('.board-compact.checkbox').checkbox('set checked');{% endif %}
             {% if object.dark %}$('.board-dark.checkbox').checkbox('set checked');{% endif %}
-            loadBoard();
-            startAutoRefresh();
-            initializeSearchCardsDropdown();
-            initializeColorDropdown();
-        });
+            loadBoard()
+            startAutoRefresh()
+            initializeSearchCardsDropdown()
+            initializeColorDropdown()
+        })
     </script>
 {% endblock main %}

@@ -178,7 +178,3 @@ class ConfigurationSerializer(serializers.ModelSerializer):
             'updated_at',
             'created_by',
         ]
-
-
-class TaskRecurrenceSerializer(serializers.Serializer):
-    recurrence = 1
