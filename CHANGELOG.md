@@ -1,3 +1,9 @@
+## 6.1.4 (2022-07-07)
+
+### Refactor
+
+- **project_manager**: remove public_id fields
+
 ## 6.1.3 (2022-07-07)
 
 ### Refactor
