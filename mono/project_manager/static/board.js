@@ -1239,21 +1239,21 @@ function getTimeEntries(bucketId, cardId) {
 
 function getTags() {
     let tags = sessionStorage.getItem('tags')
-    if (tags !== undefined) {
+    if (tags != null) {
         tags = JSON.parse(tags)
         return tags
     }
     $.ajax({
         on: 'now',
+        method: 'GET',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
         async: false,
         throttleFirstRequest: false,
-        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
-        method: 'GET',
         cache: false,
     })
     .done(r => {
         tags = r
-        tags = sessionStorage.setItem('tags', JSON.stringify(tags))
+        sessionStorage.setItem('tags', JSON.stringify(tags))
     })
     return tags
 }
@@ -1838,9 +1838,9 @@ function renderTagForms(containerElement, tag) {
     }
     $(`input[type=text][data-tag-id=${tag.id}]`).val(tag.name)
     $(`.delete.button[data-tag-id=${tag.id}]`).click(() => {
-        $('body').modal({
+        confirmationModal = $('body').modal({
             title: gettext('Deletion confirmation'),
-            class: 'mini',
+            class: 'mini' + getDarkMode() ? ' inverted' : '',
             closeIcon: true,
             inverted: false,
             blurring: true,
@@ -1849,26 +1849,29 @@ function renderTagForms(containerElement, tag) {
             allowMultiple: true,
             actions: [
                 {
-                    text: gettext('Yes'),
-                    class: 'positive'
+                    text: gettext('Cancel'),
+                    icon: 'close',
+                    click() {}
                 },
                 {
-                    text: gettext('Cancel'),
-                    class: 'deny'
+                    text: gettext('Yes'),
+                    class: 'green',
+                    icon: 'save',
+                    click() {
+                        $.api({
+                            on: 'now',
+                            method: 'DELETE',
+                            url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${tag.id}`,
+                            onSuccess(r) {
+                                $(`form[data-tag-id=${tag.id}]`).remove()
+                                loadBoard()
+                            }
+                        })
+                    }
                 },
             ],
-            onApprove: () => {
-                $.api({
-                    on: 'now',
-                    method: 'DELETE',
-                    url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${tag.id}`,
-                    onSuccess(r) {
-                        $(`form[data-tag-id=${tag.id}]`).remove()
-                        loadBoard()
-                    }
-                })
-            }
-        }).modal('show')
+        })
+        confirmationModal.modal('show')
     })
 }
 
