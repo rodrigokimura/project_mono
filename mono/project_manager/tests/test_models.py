@@ -206,7 +206,7 @@ class CardTests(TestCase):
     def test_stop_timer(self):
         response = self.card.start_timer(self.user)
         self.assertEqual(response['action'], 'start')
-        response = self.card.stop_timer()
+        response = self.card.stop_timer(self.user)
         self.assertEqual(response['action'], 'stop')
 
 

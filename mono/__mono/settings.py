@@ -12,7 +12,7 @@ load_dotenv()
 
 APP_ENV = os.getenv('APP_ENV', 'PRD')
 
-APP_VERSION = "5.24.7"
+APP_VERSION = "6.1.4"
 
 if APP_ENV in ['DEV', 'TEST']:
     GITHUB_SECRET = 'GITHUB_SECRET'
@@ -206,6 +206,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+USE_THOUSAND_SEPARATOR = True
 
 LOCALE_PATHS = [os.path.join(BASE_DIR, "_locale")]
 

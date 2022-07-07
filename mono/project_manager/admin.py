@@ -180,3 +180,16 @@ class SpaceAdmin(admin.ModelAdmin):
     list_display = ['name', 'order', 'created_by', 'created_at', 'active']
     list_filter = ('name', 'created_by', 'created_at', 'active')
     search_fields = ['name']
+
+
+@admin.register(models.Activity)
+class ActivityAdmin(admin.ModelAdmin):
+    list_display = [
+        'verbose_text',
+        'card',
+        'action',
+        'context',
+        'created_by',
+        'created_at',
+    ]
+    list_filter = ['action', 'created_by', 'created_at']

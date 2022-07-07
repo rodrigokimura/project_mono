@@ -1,3 +1,383 @@
+## 6.1.4 (2022-07-07)
+
+### Refactor
+
+- **project_manager**: remove public_id fields
+
+## 6.1.3 (2022-07-07)
+
+### Refactor
+
+- **project_manager**: organize js files
+
+## 6.1.2 (2022-07-07)
+
+### Refactor
+
+- **project_manager**: adjust function calls
+
+## 6.1.1 (2022-07-07)
+
+### Refactor
+
+- **project_manager**: improve chained modals
+
+## 6.1.0 (2022-07-06)
+
+### Feat
+
+- **project_manager**: add activity logging
+
+## 6.0.5 (2022-07-06)
+
+### Refactor
+
+- **project_manager**: improve styles
+
+## 6.0.4 (2022-07-05)
+
+### Refactor
+
+- **project_manager**: change activity model
+
+## 6.0.3 (2022-07-05)
+
+### Fix
+
+- **project_manager**: adjust storage parsing
+
+## 6.0.2 (2022-07-05)
+
+### Fix
+
+- **project_manager**: adjust class
+
+## 6.0.1 (2022-07-04)
+
+### Refactor
+
+- **project_manager**: add public id fields
+
+## 6.0.0 (2022-07-04)
+
+### Refactor
+
+- **project_manager**: change field name
+- **project_manager**: extract board attributes to new model
+
+### Feat
+
+- **project_manager**: increase top menu size
+
+## 5.26.1 (2022-07-01)
+
+### Refactor
+
+- **project_manager**: improve js functions
+
+## 5.26.0 (2022-07-01)
+
+### Feat
+
+- **project_manager**: improve dark mode
+
+## 5.25.2 (2022-07-01)
+
+### Refactor
+
+- **project_manager**: improve js functions
+
+## 5.25.1 (2022-06-30)
+
+### Refactor
+
+- **project_manager**: improve js functions
+
+## 5.25.0 (2022-06-27)
+
+### Feat
+
+- **project_manager**: add activity model
+
+## 5.24.7 (2022-06-22)
+
+### Fix
+
+- **project_manager**: adjust logic to disable board
+
+## 5.24.6 (2022-06-22)
+
+### Refactor
+
+- **restricted_area**: move login_as view to restricted_area app
+
+## 5.24.5 (2022-06-22)
+
+### Refactor
+
+- **project_manager**: change style for not assigned boards
+
+## 5.24.4 (2022-06-22)
+
+### Fix
+
+- **project_manager**: adjust boards filtered in api view
+
+## 5.24.3 (2022-06-18)
+
+### Fix
+
+- **project_mamagem**: adjust drag and drop
+
+## 5.24.2 (2022-06-13)
+
+### Fix
+
+- **project_manager**: create migration
+
+## 5.24.1 (2022-06-13)
+
+### Fix
+
+- **project_manager**: adjust layout
+
+## 5.24.0 (2022-06-13)
+
+### Fix
+
+- **mono**: adjust translation
+
+### Feat
+
+- **project_manager**: finish spaces feature
+
+## 5.23.0 (2022-06-01)
+
+### Feat
+
+- **checklists**: improve ui
+- **project_manager**: change space via model method
+
+## 5.22.0 (2022-05-27)
+
+### Feat
+
+- **checklists**: improve translation
+
+## 5.21.0 (2022-05-26)
+
+### Feat
+
+- **checklists**: allow task recurrence removal
+
+## 5.20.0 (2022-05-26)
+
+### Feat
+
+- **checklists**: add task recurrence
+
+## 5.19.0 (2022-05-24)
+
+### Fix
+
+- **checklists**: app missing function call
+
+### Feat
+
+- **checklists**: add more sorting features
+
+## 5.18.0 (2022-05-24)
+
+### Feat
+
+- **project_manager**: add spaces api
+
+## 5.17.2 (2022-05-20)
+
+### Refactor
+
+- **checklists**: move change order logic to models
+
+## 5.17.1 (2022-05-19)
+
+### Refactor
+
+- **project_manager**: improve ordered models
+
+## 5.17.0 (2022-05-18)
+
+### Feat
+
+- **project_manager**: add board ordering
+
+## 5.16.2 (2022-05-17)
+
+### Refactor
+
+- **project_manager**: add style
+
+## 5.16.1 (2022-05-17)
+
+### Refactor
+
+- **project_manager**: use api views to render board listing page
+
+## 5.16.0 (2022-05-16)
+
+### Feat
+
+- **project_manager**: add spaces
+
+## 5.15.1 (2022-05-16)
+
+### Fix
+
+- **project_manager**: adjust javascript initialization functions
+
+## 5.15.0 (2022-05-16)
+
+### Feat
+
+- **checklists**: render due date and reminder labels
+
+## 5.14.1 (2022-05-16)
+
+### Refactor
+
+- **checklists**: allow minutes in reminders
+
+## 5.14.0 (2022-05-16)
+
+### Feat
+
+- **checklists**: add background task to create reminders
+
+## 5.13.1 (2022-05-16)
+
+### Refactor
+
+- **checklists**: add logs to command
+
+## 5.13.0 (2022-05-13)
+
+### Feat
+
+- **checklists**: add reminder and due date features
+
+## 5.12.0 (2022-05-12)
+
+### Feat
+
+- **checklists**: add feature to change checklists and tasks order
+
+## 5.11.3 (2022-05-12)
+
+### Refactor
+
+- **mono**: improve translation
+
+## 5.11.2 (2022-05-11)
+
+### Refactor
+
+- **project_manager**: improve translation
+
+## 5.11.1 (2022-05-11)
+
+### Fix
+
+- **mono**: adjust translation
+
+## 5.11.0 (2022-05-11)
+
+### Feat
+
+- **project_manager**: improve translation
+
+## 5.10.0 (2022-05-10)
+
+### Feat
+
+- **feedback**: send email when feedback is received
+
+## 5.9.2 (2022-05-10)
+
+### Fix
+
+- **watcher**: adjust query param
+
+## 5.9.1 (2022-05-10)
+
+### Fix
+
+- **watcher**: adjust request query param
+
+## 5.9.0 (2022-05-10)
+
+### Feat
+
+- **watcher**: add comments feature
+
+## 5.8.3 (2022-05-09)
+
+### Fix
+
+- **mono**: improve translation
+
+## 5.8.2 (2022-05-08)
+
+### Refactor
+
+- **mono**: improve templates
+
+## 5.8.1 (2022-05-08)
+
+### Fix
+
+- **mono**: adjust sidebar animation
+
+## 5.8.0 (2022-05-06)
+
+### Feat
+
+- **project_manager**: improve translation
+
+## 5.27.0 (2022-07-03)
+
+### Feat
+
+- **project_manager**: increase top menu size
+
+## 5.26.1 (2022-07-01)
+
+### Refactor
+
+- **project_manager**: improve js functions
+
+## 5.26.0 (2022-07-01)
+
+### Feat
+
+- **project_manager**: improve dark mode
+
+## 5.25.2 (2022-07-01)
+
+### Refactor
+
+- **project_manager**: improve js functions
+
+## 5.25.1 (2022-06-30)
+
+### Refactor
+
+- **project_manager**: improve js functions
+
+## 5.25.0 (2022-06-27)
+
+### Feat
+
+- **project_manager**: add activity model
+
 ## 5.24.7 (2022-06-22)
 
 ### Fix

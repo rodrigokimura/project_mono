@@ -28,6 +28,9 @@ class Feedback(models.Model):
     public = models.BooleanField(_("public"), default=False)
 
     def notify_admins(self):
+        """
+        Send email notification to admins
+        """
 
         template_html = 'email/alert.html'
         template_text = 'email/alert.txt'

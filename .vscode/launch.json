@@ -15,10 +15,10 @@
                 "127.0.0.42:8080"
             ],
             "django": true,
-            "serverReadyAction": {
-                "pattern": "Starting development server at (https?://\\S+|[0-9]+)",
-                "uriFormat": "%s",
-            }
+            // "serverReadyAction": {
+            //     "pattern": "Starting development server at (https?://\\S+|[0-9]+)",
+            //     "uriFormat": "%s",
+            // },
         },
         {
             "name": "[MONO] Process Background Tasks",

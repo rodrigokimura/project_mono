@@ -4,6 +4,7 @@ import os
 
 from __mono.utils import validate_file_size
 from accounts.serializers import UserSerializer
+from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.serializers import (
@@ -11,8 +12,8 @@ from rest_framework.serializers import (
 )
 
 from .models import (
-    Board, Bucket, Card, CardFile, Comment, Icon, Invite, Item, Project, Space,
-    Tag, Theme, TimeEntry, User,
+    Activity, Board, Bucket, Card, CardFile, Comment, Configuration, Icon,
+    Invite, Item, Project, Space, Tag, Theme, TimeEntry, User,
 )
 
 
@@ -97,10 +98,6 @@ class BoardSerializer(ModelSerializer):
             'created_at',
             'project',
             'assigned_to',
-            'fullscreen',
-            'compact',
-            'dark',
-            'bucket_width',
             'allowed_users',
             'background_image',
             'card_count',
@@ -112,8 +109,6 @@ class BoardSerializer(ModelSerializer):
             'card_count': {'read_only': True},
             'progress': {'read_only': True},
         }
-
-    # def create()
 
     def update(self, instance, validated_data):
         """Handle background image deletion upon update"""
@@ -233,6 +228,18 @@ class CardFileSerializer(ModelSerializer):
         return instance
 
 
+class ActivitySerializer(ModelSerializer):
+    """Serializer for card activities"""
+
+    verbose_text = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Activity
+        fields = [
+            'verbose_text',
+        ]
+
+
 class CardSerializer(ModelSerializer):
     """Serializer for card"""
     is_running = serializers.ReadOnlyField()
@@ -342,6 +349,7 @@ class CardSerializer(ModelSerializer):
         instance.assigned_to.set(assignees)
         return instance
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         """Process update"""
         instance.bucket.touch()
@@ -371,8 +379,20 @@ class CardSerializer(ModelSerializer):
         self._apply_status(instance, status)
 
         if requested_tags is not None:
+            Activity.create_activity_for_assigned_tags(
+                instance,
+                self.context['request'].user,
+                set(instance.tag.all()),
+                set(tags),
+            )
             instance.tag.set(tags)
         if requested_assignees is not None:
+            Activity.create_activity_for_assigned_users(
+                instance,
+                self.context['request'].user,
+                set(instance.assigned_to.all()),
+                set(assignees)
+            )
             instance.assigned_to.set(assignees)
         return instance
 
@@ -509,7 +529,7 @@ class CardMoveSerializer(Serializer):
         target_bucket = Bucket.objects.get(
             id=self.validated_data['target_bucket']
         )
-        card = Card.objects.get(
+        card: Card = Card.objects.get(
             id=self.validated_data['card']
         )
         order = self.validated_data['order']
@@ -520,9 +540,9 @@ class CardMoveSerializer(Serializer):
             auto_status = target_bucket.auto_status
             if auto_status != Bucket.NONE:
                 if auto_status in [Bucket.COMPLETED, Bucket.NOT_STARTED]:
-                    timer_action = card.stop_timer().get('action', 'none')
+                    timer_action = card.stop_timer(self.context['request'].user).get('action', Card.TimerActions.NONE)
                 elif auto_status == Bucket.IN_PROGRESS:
-                    timer_action = card.start_timer(self.context['request'].user).get('action', 'none')
+                    timer_action = card.start_timer(self.context['request'].user).get('action', Card.TimerActions.NONE)
                 card.status = auto_status
                 card.save()
                 status_changed = True
@@ -690,3 +710,28 @@ class SpaceSerializer(ModelSerializer):
         instance = super().update(instance, validated_data)
         instance.project = validated_data['project']
         return instance
+
+
+class ConfigurationSerializer(ModelSerializer):
+    """
+    Configuration serializer
+    """
+    user = HiddenField(
+        default=CurrentUserDefault()
+    )
+
+    class Meta:
+        model = Configuration
+        fields = [
+            'user',
+            'created_at',
+            'updated_at',
+            'compact',
+            'dark',
+            'bucket_width',
+        ]
+        read_only_fields = [
+            'user',
+            'created_at',
+            'updated_at',
+        ]

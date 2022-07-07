@@ -24,6 +24,7 @@ urlpatterns = [
     path('invites/accept/', views.InviteAcceptanceView.as_view(), name='invite_acceptance'),
 
     # API Routes
+    path('api/config/', views.ConfigurationAPIView.as_view()),
     path('api/projects/', views.ProjectListAPIView.as_view()),
     path('api/projects/<int:pk>/', views.ProjectDetailAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/', views.BoardListAPIView.as_view()),
@@ -45,6 +46,7 @@ urlpatterns = [
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/comments/<int:pk>/', views.CommentDetailAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/time-entries/', views.TimeEntryListAPIView.as_view()),
     path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/time-entries/<int:pk>/', views.TimeEntryDetailAPIView.as_view()),
+    path('api/projects/<int:project_pk>/boards/<int:board_pk>/buckets/<int:bucket_pk>/cards/<int:card_pk>/activities/', views.ActivityAPIView.as_view()),
     path('api/card-move/', views.CardMoveApiView.as_view()),
     path('api/bucket-move/', views.BucketMoveApiView.as_view()),
     path('api/board-move/', views.BoardMoveApiView.as_view()),

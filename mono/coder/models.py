@@ -1,6 +1,7 @@
 """Coder's models"""
 import uuid
 
+from __mono.utils import Color
 from django.contrib.auth import get_user_model
 from django.db import models
 from ordered_model.models import OrderedModel
@@ -29,22 +30,6 @@ class BaseModel(models.Model):
 
 class Tag(BaseModel, OrderedModel):
     """Store tags"""
-
-    class Color(models.TextChoices):
-        """Color choices"""
-        RED = 'red', 'Red'
-        ORANGE = 'orange', 'Orange'
-        YELLOW = 'yellow', 'Yellow'
-        OLIVE = 'olive', 'Olive'
-        GREEN = 'green', 'Green'
-        TEAL = 'teal', 'Teal'
-        BLUE = 'blue', 'Blue'
-        VIOLET = 'violet', 'Violet'
-        PURPLE = 'purple', 'Purple'
-        PINK = 'pink', 'Pink'
-        BROWN = 'brown', 'Brown'
-        GREY = 'grey', 'Grey'
-        BLACK = 'black', 'Black'
 
     name = models.CharField(max_length=100, blank=True, default='')
     color = models.CharField(choices=Color.choices, default=Color.BLUE.value, max_length=100)

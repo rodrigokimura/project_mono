@@ -53,6 +53,9 @@ class RootView(UserPassesTestMixin, TemplateView):
 
 
 class IssueDetailView(UserPassesTestMixin, DetailView):
+    """
+    View to display issues details
+    """
     model = Issue
 
     def test_func(self):

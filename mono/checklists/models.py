@@ -40,6 +40,9 @@ class Checklist(models.Model):
 
     @transaction.atomic
     def set_order(self, order):
+        """
+        Set checklist order
+        """
         checklists = Checklist.objects.filter(created_by=self.created_by).exclude(id=self.id)
         for i, checklist in enumerate(checklists):
             if i + 1 < order:
@@ -89,6 +92,9 @@ class Task(models.Model):
 
     @transaction.atomic
     def set_order(self, order):
+        """
+        Set task order
+        """
         tasks = Task.objects.filter(checklist=self.checklist).exclude(id=self.id)
         for i, task in enumerate(tasks):
             if i + 1 < order:
@@ -101,6 +107,9 @@ class Task(models.Model):
         self.save()
 
     def schedule_reminder(self):
+        """
+        Schedule task for reminder
+        """
         BackgroundTask.objects.drop_task(task_name='checklists.tasks.remind', args=[self.id])
         if self.reminder is not None and not self.reminded:
             remind(self.id, schedule=self.reminder)
@@ -139,6 +148,9 @@ class Task(models.Model):
             create_next_task(self.pk, schedule=run_at, creator=self)
 
     def get_next_due_date(self):
+        """
+        Get next due date for a recurrent task
+        """
         if self.recurrence == self.Recurrence.DAILY:
             increment = timedelta(days=1)
         elif self.recurrence == self.Recurrence.WEEKLY:
@@ -151,16 +163,19 @@ class Task(models.Model):
             return None
         else:
             raise NotImplementedError('Invalid task recurrence')
-        d = self.due_date
-        if d is None:
+        _due_date = self.due_date
+        if _due_date is None:
             return None
         while True:
-            d += increment
-            if d > now():
-                return d
+            _due_date += increment
+            if _due_date > now():
+                return _due_date
 
-    @transaction.atomic()
+    @transaction.atomic
     def create_next_task(self):
+        """
+        Create next task for recurrent task
+        """
         if self.recurrence is None:
             return
         checklist: Checklist = self.checklist
