@@ -349,7 +349,7 @@ class CardSerializer(ModelSerializer):
         instance.assigned_to.set(assignees)
         return instance
 
-    @transaction.atomic()
+    @transaction.atomic
     def update(self, instance, validated_data):
         """Process update"""
         instance.bucket.touch()
