@@ -1,3 +1,9 @@
+## 6.1.2 (2022-07-07)
+
+### Refactor
+
+- **project_manager**: adjust function calls
+
 ## 6.1.1 (2022-07-07)
 
 ### Refactor
