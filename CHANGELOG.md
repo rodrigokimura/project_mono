@@ -1,3 +1,9 @@
+## 6.1.3 (2022-07-07)
+
+### Refactor
+
+- **project_manager**: organize js files
+
 ## 6.1.2 (2022-07-07)
 
 ### Refactor
