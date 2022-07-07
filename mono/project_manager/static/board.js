@@ -325,6 +325,17 @@ function loadBoard() {
     setWallpaper()
 }
 
+async function getActivities(bucketId, cardId) {
+    $.api({
+        on: 'now',
+        method: 'GET',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/activities/`,
+        onSuccess(r) {
+            console.table(r)
+        },
+    })
+}
+
 async function renderBuckets(containerSelector, buckets) {
     let dark = getDarkMode()
     let compact = getCompactMode()
@@ -384,6 +395,8 @@ async function renderBuckets(containerSelector, buckets) {
 
 function setBoardDarkMode(containerSelector, bool) {
     if (bool) {
+        $('html').addClass('dark')
+        $('body').addClass('dark')
         $('.form').addClass('inverted')
         $('.modal').addClass('inverted')
         $('.dropdown').addClass('inverted')
@@ -391,6 +404,8 @@ function setBoardDarkMode(containerSelector, bool) {
         $(containerSelector).parents().first().addClass('dark')
         
     } else {
+        $('body').removeClass('dark')
+        $('html').removeClass('dark')
         $('.form').removeClass('inverted')
         $('.modal').removeClass('inverted')
         $('.dropdown').removeClass('inverted')
@@ -1160,7 +1175,7 @@ async function getCards(bucketId) {
         method: 'GET',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/`,
         stateContext: `.bucket-el[data-bucket-id=${bucketId}]`,
-        onSuccess: r => {
+        onSuccess(r) {
             updateBucketTimetamp(bucketId)
             renderCards(
                 containerSelector = `#bucket-${bucketId}`,
@@ -1223,7 +1238,11 @@ function getTimeEntries(bucketId, cardId) {
 }
 
 function getTags() {
-    var tags = []
+    let tags = sessionStorage.getItem('tags')
+    if (tags !== undefined) {
+        tags = JSON.parse(tags)
+        return tags
+    }
     $.ajax({
         on: 'now',
         async: false,
@@ -1232,7 +1251,10 @@ function getTags() {
         method: 'GET',
         cache: false,
     })
-        .done(r => { tags = r })
+    .done(r => {
+        tags = r
+        tags = sessionStorage.setItem('tags', JSON.stringify(tags))
+    })
     return tags
 }
 
@@ -1284,7 +1306,7 @@ function generateAvatar(text, foregroundColor = "white", backgroundColor = "blac
     return canvas.toDataURL("image/png")
 }
 
-async function initializeTagsDropdown(dropdown, card = undefined) {
+function initializeTagsDropdown(dropdown, card = undefined) {
     var tags = getTags().map(tag => {
         if (tag.icon === null) {
             return {
@@ -1307,13 +1329,13 @@ async function initializeTagsDropdown(dropdown, card = undefined) {
         }
     })
     dropdown.dropdown('refresh').dropdown({
-        placeholder: gettext('Select tags to for card'),
+        placeholder: gettext('Select tags for card'),
         values: tags,
         clearable: true,
         allowAdditions: false,
         forceSelection: false,
         inverted: true, 
-        onLabelCreate: (value, text) => {
+        onLabelCreate(value, text) {
             var el = $(text)
             el.append('<i class="delete icon"></i>')
             return el
@@ -1378,6 +1400,7 @@ async function populateModal(modal, card) {
 function showCardModal(card = null, bucketId) {
     let create = card === null
     let dark = getDarkMode()
+    hideManageTagsModal()
     const modal = $('.ui.card-form.modal')
     modal.off().form('reset')
     modal.find('.card-files').val('')
@@ -1404,10 +1427,12 @@ function showCardModal(card = null, bucketId) {
 
     modal.modal({
         restoreFocus: false,
-        autofocus: false,
+        autofocus: true,
         transition: 'scale',
         duration: 400,
-        onShow: () => {
+        allowMultiple: true,
+        blurring: true,
+        onShow() {
             cardEdited = false
             modal.find('.scrolling.content').animate({ scrollTop: 0 })
             modal.find('.ui.card-due-date.calendar').calendar({
@@ -1421,13 +1446,14 @@ function showCardModal(card = null, bucketId) {
                     }
                 }
             })
+            if (card !== null) { getActivities(bucketId, card.id) }
         },
-        onHidden: () => {
+        onHidden() {
             if (cardEdited) { getCards(bucketId) }
             $('.checklist-drake').empty()
             clearModal(modal)
         },
-        onApprove: el => {
+        onApprove() {
             modal.form('validate form')
             if (!modal.form('is valid')) {
                 return false
@@ -1502,7 +1528,6 @@ function showCardModal(card = null, bucketId) {
     modal.find('.manage-tags').off().on('click', e => {
         selectedTags = modal.find('.ui.tags.dropdown').dropdown('get value').split(',')
         showManageTagsModal(
-            true,
             true,
             () => {
                 initializeTagsDropdown(modal.find('.ui.tags.dropdown'))
@@ -1746,66 +1771,52 @@ function startStopTimer(cardId, bucketId) {
 }
 
 function addNewTagInput(containerElement) {
-    el = containerElement.append(`
-        <form class="ui unstackable form" data-tag-id="" style="width: 100%; margin-bottom: .5em;">
-            <div class="" style="display: flex; flex-flow: row nowrap;">
-                <input type="hidden" name="id" value="">
-                <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
-                    <select class="ui tag-icon new-tag clearable compact two column mini dropdown" data-tag-id="">
-                    </select>
-                </div>
-                <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
-                    <select class="ui tag-color new-tag clearable compact two column mini dropdown" data-tag-id="">
-                    </select>
-                </div>
-                <div class="ui mini input" style="flex: 1 1 auto; margin-right: .5em;">
-                    <input class="tag-name" type="text" placeholder="${gettext('Name')}" data-tag-id="">
-                </div>
-                <div style="">
-                    <div class="ui icon red delete new-tag mini button"><i class="delete icon"></i></div>
-                </div>
+    el = $(getTagFormHTML())
+    el.ready(() => {
+        let iconDropdown = el.find(`.tag-icon.dropdown`)
+        iconDropdown.dropdown({
+            placeholder: gettext('Icon'),
+            values: ICON_VALUES,
+            context: '.tags.modal .content',
+        })
+        let colorDropdown = el.find(`.tag-color.dropdown`)
+        colorDropdown.dropdown({
+            placeholder: gettext('Color'),
+            values: COLOR_VALUES,
+            context: '.tags.modal .content',
+        })
+        el.find('.delete.button').off().click(e => {
+            $(e.target).closest('form').remove()
+        })
+    })
+    containerElement.append(el)
+}
+
+function getTagFormHTML(tagId = '') {
+    let dark = getDarkMode()
+    return `<form class="ui unstackable inverted form" data-tag-id="${tagId}" style="width: 100%; margin-bottom: .5em;">
+        <div class="" style="display: flex; flex-flow: row nowrap;">
+            <input type="hidden" name="id" value="${tagId}">
+            <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
+                <select class="ui tag-icon clearable compact two column mini ${dark ? 'inverted' : ''} dropdown" data-tag-id="${tagId}">
+                </select>
             </div>
-        </form>
-    `)
-    let iconDropdown = $(`.tag-icon.new-tag.dropdown`)
-    iconDropdown.dropdown({
-        placeholder: gettext('Icon'),
-        values: ICON_VALUES,
-        context: '.tags.modal .content',
-    })
-    let colorDropdown = $(`.tag-color.new-tag.dropdown`)
-    colorDropdown.dropdown({
-        placeholder: gettext('Color'),
-        values: COLOR_VALUES,
-        context: '.tags.modal .content',
-    })
-    el.find('.delete.button.new-tag').off().click(e => {
-        $(e.target).closest('form').remove()
-    })
+            <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
+                <select class="ui tag-color clearable compact two column mini ${dark ? 'inverted' : ''} dropdown" data-tag-id="${tagId}">
+                </select>
+            </div>
+            <div style="flex: 1 1 auto; margin-right: .5em;" class="ui mini ${dark ? 'inverted' : ''} input">
+                <input class="tag-name" type="text" placeholder="${gettext('Name')}" data-tag-id="${tagId}">
+            </div>
+            <div style="">
+                <div class="ui icon red delete mini button" data-content="${gettext('Delete tag')}" data-tag-id="${tagId}"><i class="delete icon"></i></div>
+            </div>
+        </div>
+    </form>`
 }
 
 function renderTagForms(containerElement, tag) {
-    containerElement.append(`
-        <form class="ui unstackable form" data-tag-id="${tag.id}" style="width: 100%; margin-bottom: .5em;">
-            <div class="" style="display: flex; flex-flow: row nowrap;">
-                <input type="hidden" name="id" value="${tag.id}">
-                <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
-                    <select class="ui tag-icon clearable compact two column mini dropdown" data-tag-id="${tag.id}">
-                    </select>
-                </div>
-                <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
-                    <select class="ui tag-color clearable compact two column mini dropdown" data-tag-id="${tag.id}">
-                    </select>
-                </div>
-                <div style="flex: 1 1 auto; margin-right: .5em;" class="ui mini input">
-                    <input class="tag-name" type="text" placeholder="${gettext('Name')}" data-tag-id="${tag.id}">
-                </div>
-                <div style="">
-                    <div class="ui icon red delete mini button" data-content="${gettext('Delete tag')}" data-tag-id="${tag.id}"><i class="delete icon"></i></div>
-                </div>
-            </div>
-        </form>
-    `)
+    containerElement.append(getTagFormHTML(tag.id))
     $(`.delete.button[data-tag-id=${tag.id}]`).popup()
     let iconDropdown = $(`.tag-icon.dropdown[data-tag-id=${tag.id}]`)
     iconDropdown.dropdown({
@@ -1831,6 +1842,9 @@ function renderTagForms(containerElement, tag) {
             title: gettext('Deletion confirmation'),
             class: 'mini',
             closeIcon: true,
+            inverted: false,
+            blurring: true,
+            context: '.tags.modal',
             content: interpolate(gettext('Are you sure yo want to delete tag %s?'), [tag.name]),
             allowMultiple: true,
             actions: [
@@ -1858,14 +1872,65 @@ function renderTagForms(containerElement, tag) {
     })
 }
 
+async function hideManageTagsModal() {
+    $('.ui.tags.modal').modal('hide')
+}
+
+function saveTagsOnManageTagsModal(tagsModal, callback) {
+    var el = tagsModal.find('.content')
+    el.find('.ui.form').each((index, form) => {
+        id = $(form).find('input[name=id]').val()
+        if (id == '') {
+            method = 'POST'
+            url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`
+        } else {
+            method = 'PUT'
+            url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${id}/`
+        }
+        $.api({
+            on: 'now',
+            url: url,
+            method: method,
+            data: {
+                icon: $(form).find('.tag-icon').dropdown('get value'),
+                color: $(form).find('.tag-color').dropdown('get value'),
+                name: $(form).find('.tag-name').val(),
+            },
+            onSuccess(r) {
+                if (callback) {
+                    callback()
+                }
+            }
+        })
+    })
+    loadBoard()
+    hideManageTagsModal()
+}
+
 async function showManageTagsModal(allowMultiple = false, fromCardModal = false, callback = undefined) {
     $('.ui.sidebar').sidebar('hide')
+    let dark = getDarkMode()
     let tagsModal = $('.ui.tags.modal')
+    if (dark) {
+        tagsModal.find('.ui.basic.segment').addClass('inverted')
+    } else {
+        tagsModal.find('.ui.basic.segment').removeClass('inverted')
+    }
     tagsModal.modal({
         autofocus: false,
-        allowMultiple: false,
+        allowMultiple: allowMultiple,
+        inverted: false,
+        closable: true,
+        blurring: true,
+        context: fromCardModal ? '.card-form' : 'body',
         onShow() {
-            var el = tagsModal.find('.content')
+            let el = tagsModal.find('.content')
+            tagsModal.find('.close.button').off().click(hideManageTagsModal)
+            tagsModal.find('.save.button').off().click(
+                () => {
+                    saveTagsOnManageTagsModal(tagsModal, callback)
+                }
+            )
             el.empty()
             el.append(`
                 <div class="ui new-tag icon labeled green button" style="margin-bottom: 1em;">
@@ -1880,39 +1945,13 @@ async function showManageTagsModal(allowMultiple = false, fromCardModal = false,
                 on: 'now',
                 method: 'GET',
                 url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
+                stateContext: '.tags.modal .ui.basic.segment',
                 onSuccess(r) {
                     for (tag of r) {
                         renderTagForms(el, tag)
                     }
                 }
             })
-        },
-        onApprove() {
-            var el = tagsModal.find('.content')
-            el.find('.ui.form').each((index, form) => {
-                id = $(form).find('input[name=id]').val()
-                if (id == '') {
-                    method = 'POST'
-                    url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`
-                } else {
-                    method = 'PUT'
-                    url = `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${id}/`
-                }
-                $.api({
-                    on: 'now',
-                    url: url,
-                    method: method,
-                    data: {
-                        icon: $(form).find('.tag-icon').dropdown('get value'),
-                        color: $(form).find('.tag-color').dropdown('get value'),
-                        name: $(form).find('.tag-name').val(),
-                    }
-                })
-            })
-            if (fromCardModal) {
-                callback()
-            }
-            loadBoard()
         },
     })
     tagsModal.modal('show')
