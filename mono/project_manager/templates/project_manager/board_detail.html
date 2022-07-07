@@ -366,7 +366,8 @@
             {% endif %}
         </div>
         <div class="actions">
-            <div class="ui black deny icon labeled button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
+            <div class="ui left floated icon right labeled button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
+            <div class="ui deny icon labeled button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
             <div class="ui positive icon labeled button"><i class="save icon"></i>{% translate 'Save' %}</div>
         </div>
     </form>
@@ -532,13 +533,13 @@
     <div class="ui tags tiny card modal">
         <i class="close icon"></i>
         <div class="header">{% translate 'Managing tags' %}</div>
-        <div class="content"></div>
+        <div class="content ui basic segment"></div>
         <div class="actions">
-            <div class="ui black cancel button">
+            <div class="ui black close button">
                 <i class="remove icon"></i>
                 {% translate 'Close'%}
             </div>
-            <div class="ui green ok button">
+            <div class="ui green save button">
                 <i class="checkmark icon"></i>
                 {% translate 'Save' %}
             </div>

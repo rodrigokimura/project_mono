@@ -5,6 +5,14 @@
     background-color: #121213;
     color: white;
 }
+html.dark {
+    background-color: #121213;
+    color: white;
+}
+body.dark {
+    background-color: #121213;
+    color: white;
+}
 
 .ui.inverted.modal>.header, .ui.inverted.modal>.actions {
     background-color: rgba(255, 255, 255, .05) !important;
