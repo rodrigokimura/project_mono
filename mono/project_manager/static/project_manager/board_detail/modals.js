@@ -6,6 +6,7 @@ function showCardModal(card = null, bucketId) {
     modal.off().form('reset')
     modal.find('.card-files').val('')
     modal.find('.files-container').empty()
+    
 
     if (dark) {
         modal.find('.comments-segment.segment').addClass('inverted')
@@ -47,7 +48,7 @@ function showCardModal(card = null, bucketId) {
                     }
                 }
             })
-            if (card !== null) { getActivities(bucketId, card.id) }
+            if (card !== null) { setActiveCard(card.id, bucketId) }
         },
         onHidden() {
             if (cardEdited) { getCards(bucketId) }

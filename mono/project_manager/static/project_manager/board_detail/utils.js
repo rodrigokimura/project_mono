@@ -169,3 +169,21 @@ function generateAvatar(text, foregroundColor = "white", backgroundColor = "blac
 
     return canvas.toDataURL("image/png")
 }
+
+function getActiveCard() {
+    let result = sessionStorage.getItem('activeCard')
+    if (result === null) return null
+    return JSON.parse(result)
+}
+
+function setActiveCard(cardId, bucketId) {
+    sessionStorage.setItem(
+        'activeCard',
+        JSON.stringify(
+            {
+                card: cardId,
+                bucket: bucketId,
+            }
+        )
+    )
+}
