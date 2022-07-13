@@ -191,7 +191,10 @@ function loadBoard() {
     setWallpaper()
 }
 
-async function getActivities(bucketId, cardId) {
+async function getActivities() {
+    let card = getActiveCard()
+    let cardId = card['card']
+    let bucketId = card['bucket']
     $.api({
         on: 'now',
         method: 'GET',
