@@ -228,183 +228,160 @@
             </div>
         </div>
         <div class="scrolling content">
-            <input type="hidden" name="id">
-            <input type="hidden" name="order">
-            <div class="field">
-                <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
-                <textarea name="description" placeholder="{% translate 'Description' %}" rows="4"></textarea>
+            <div class="ui pointing secondary menu" id="card-tab-menu">
+                <a class="item active" data-tab="details">Details</a>
+                <a class="item" data-tab="history">
+                    <i class="history icon"></i>
+                    History
+                </a>
             </div>
-            <div class="three fields">
-                {% if object.tags_feature %}
+            <div class="ui tab active" data-tab="details">
+                <input type="hidden" name="id">
+                <input type="hidden" name="order">
                 <div class="field">
-                    <label><i class="tags icon"></i>{% translate 'Tags' %}</label>
-                    <div class="ui action input">
-                        <div class="ui tags search multiple selection fluid dropdown">
+                    <label><i class="file alternate icon"></i>{% translate 'Description' %}</label>
+                    <textarea name="description" placeholder="{% translate 'Description' %}" rows="4"></textarea>
+                </div>
+                <div class="three fields">
+                    {% if object.tags_feature %}
+                    <div class="field">
+                        <label><i class="tags icon"></i>{% translate 'Tags' %}</label>
+                        <div class="ui action input">
+                            <div class="ui tags search multiple selection fluid dropdown">
+                                <div class="text"></div>
+                                <i class="dropdown icon"></i>
+                            </div>
+                            <div class="ui icon manage-tags button" data-content="Manage tags"><i class="tags icon"></i></div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if object.color_feature %}
+                    <div class="field">
+                        <label><i class="palette icon"></i>{% translate 'Color' %}</label>
+                        <select class="ui card-color selection dropdown">
+                        </select>
+                    </div>
+                    <script>
+                        colorsForDropdown = [
+                            {% for color in colors %}
+                            {
+                            "name": "{% translate color.name %}",
+                            "value": {{ color.id }},
+                            "icon": "{{ color.name|lower }} circle",
+                            },
+                            {% endfor %}
+                        ];
+                    </script>
+                    {% endif %}
+                    {% if object.due_date_feature %}
+                    <div class="field">
+                        <label><i class="calendar day icon"></i>{% translate 'Due date' %}</label>
+                        <div class="ui card-due-date calendar">
+                            <div class="ui input left icon">
+                                <i class="calendar icon"></i>
+                                <input type="text" placeholder="{% translate 'Pick a due date' %}">
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="two fields">
+                    {% if object.status_feature %}
+                    <div class="field">
+                        <label><i class="spinner icon"></i>{% translate 'Status' %}</label>
+                        <div class="ui status selection dropdown">
                             <div class="text"></div>
                             <i class="dropdown icon"></i>
                         </div>
-                        <div class="ui icon manage-tags button" data-content="Manage tags"><i class="tags icon"></i></div>
                     </div>
-                </div>
-                {% endif %}
-                {% if object.color_feature %}
-                <div class="field">
-                    <label><i class="palette icon"></i>{% translate 'Color' %}</label>
-                    <select class="ui card-color selection dropdown">
-                    </select>
-                </div>
-                <script>
-                    colorsForDropdown = [
-                        {% for color in colors %}
-                        {
-                        "name": "{% translate color.name %}",
-                        "value": {{ color.id }},
-                        "icon": "{{ color.name|lower }} circle",
-                        },
-                        {% endfor %}
-                    ];
-                </script>
-                {% endif %}
-                {% if object.due_date_feature %}
-                <div class="field">
-                    <label><i class="calendar day icon"></i>{% translate 'Due date' %}</label>
-                    <div class="ui card-due-date calendar">
-                        <div class="ui input left icon">
-                            <i class="calendar icon"></i>
-                            <input type="text" placeholder="{% translate 'Pick a due date' %}">
+                    <script>
+                        $('.ui.status.dropdown').dropdown({
+                            values: [
+                                {% for icon, value, text in card_statuses %}
+                                {
+                                value: "{{ value }}",
+                                name: "{{ text }}",
+                                icon: "{{ icon }}",
+                                },
+                                {% endfor %}
+                            ]
+                        });
+                    </script>
+                    {% endif %}
+                    {% if object.assignees_feature %}
+                    <div class="field">
+                        <label><i class="user circle icon"></i>{% translate 'Assigned to' %}</label>
+                        <div class="ui assigned_to search multiple selection dropdown">
+                            <div class="text"></div>
+                            <i class="dropdown icon"></i>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-            </div>
-            <div class="two fields">
-                {% if object.status_feature %}
-                <div class="field">
-                    <label><i class="spinner icon"></i>{% translate 'Status' %}</label>
-                    <div class="ui status selection dropdown">
-                        <div class="text"></div>
-                        <i class="dropdown icon"></i>
-                    </div>
-                </div>
-                <script>
-                    $('.ui.status.dropdown').dropdown({
-                        values: [
-                            {% for icon, value, text in card_statuses %}
-                            {
-                            value: "{{ value }}",
-                            name: "{{ text }}",
-                            icon: "{{ icon }}",
-                            },
-                            {% endfor %}
-                        ]
-                    });
-                </script>
-                {% endif %}
-                {% if object.assignees_feature %}
-                <div class="field">
-                    <label><i class="user circle icon"></i>{% translate 'Assigned to' %}</label>
-                    <div class="ui assigned_to search multiple selection dropdown">
-                        <div class="text"></div>
-                        <i class="dropdown icon"></i>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-            <div class="ui error message"></div>
-            {% if object.checklist_feature %}
-            <div class="extra content">
-                <div class="ui inverted item">
-                    <div class="ui checklist segment">
-                        <h4 class="ui dividing header"><i class="tasks icon"></i>{% translate 'Checklist' %}</h4>
-                        <div class="content">
-                            <div class="checklist-drake"></div>
-                            <div class="ui fluid icon add-item input">
-                                <i class="add icon"></i>
-                                <input type="text" placeholder="{% translate 'Insert new item to checklist' %}">
+                <div class="ui error message"></div>
+                {% if object.checklist_feature %}
+                <div class="extra content">
+                    <div class="ui inverted item">
+                        <div class="ui checklist segment">
+                            <h4 class="ui dividing header"><i class="tasks icon"></i>{% translate 'Checklist' %}</h4>
+                            <div class="content">
+                                <div class="checklist-drake"></div>
+                                <div class="ui fluid icon add-item input">
+                                    <i class="add icon"></i>
+                                    <input type="text" placeholder="{% translate 'Insert new item to checklist' %}">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            {% endif %}
-            {% if object.files_feature %}
-            <div class="ui files segment">
-                <h4 class="ui dividing header"><i class="file icon"></i></i>{% translate 'Files' %}</h4>
-                <div class="files-container ui special cards"></div>
-                <div class="ui left icon fluid input">
-                    <i class="file alternate outline icon"></i>
-                    <input class="card-files" type="file" placeholder="{% translate 'Attach files' %}" multiple="">
-                </div>
-            </div>
-            {% endif %}
-            {% if object.comments_feature %}
-            <div class="ui comments-segment segment">
-                <h4 class="ui dividing header"><i class="comments icon"></i>{% translate 'Comments' %}</h4>
-                <div class="ui comments" id="card-comments" style="max-width: 100%;"></div>
-                <div class="ui reply form">
-                    <div class="field">
-                        <textarea id="suggest-comment" class="add-reply" rows="2" placeholder="{% translate 'Type a new comment' %}"></textarea>
-                    </div>
-                    <div id="suggest" style="display:none;"></div>
-                    <script>
-                        document.getElementById('suggest-comment').addEventListener('input', function () {
-                            var caret = getCaretCoordinates(this, this.selectionEnd);
-                            var fontSize = $('#suggest').css('font-size').replace('px', '');
-                            scrollHeight = document.getElementById('suggest-comment').scrollTop
-                            $('#suggest').css({
-                                top: caret.top - scrollHeight + caret.height, 
-                                left: caret.left, 
-                                position: 'absolute'
-                            });
-                        })
-                    </script>
-                    <div class="ui blue labeled add-reply submit icon button">
-                        <i class="icon edit"></i> {% translate 'Add comment' %}
+                {% endif %}
+                {% if object.files_feature %}
+                <div class="ui files segment">
+                    <h4 class="ui dividing header"><i class="file icon"></i></i>{% translate 'Files' %}</h4>
+                    <div class="files-container ui special cards"></div>
+                    <div class="ui left icon fluid input">
+                        <i class="file alternate outline icon"></i>
+                        <input class="card-files" type="file" placeholder="{% translate 'Attach files' %}" multiple="">
                     </div>
                 </div>
+                {% endif %}
+                {% if object.comments_feature %}
+                <div class="ui comments-segment segment">
+                    <h4 class="ui dividing header"><i class="comments icon"></i>{% translate 'Comments' %}</h4>
+                    <div class="ui comments" id="card-comments" style="max-width: 100%;"></div>
+                    <div class="ui reply form">
+                        <div class="field">
+                            <textarea id="suggest-comment" class="add-reply" rows="2" placeholder="{% translate 'Type a new comment' %}"></textarea>
+                        </div>
+                        <div id="suggest" style="display:none;"></div>
+                        <script>
+                            document.getElementById('suggest-comment').addEventListener('input', function () {
+                                var caret = getCaretCoordinates(this, this.selectionEnd);
+                                var fontSize = $('#suggest').css('font-size').replace('px', '');
+                                scrollHeight = document.getElementById('suggest-comment').scrollTop
+                                $('#suggest').css({
+                                    top: caret.top - scrollHeight + caret.height, 
+                                    left: caret.left, 
+                                    position: 'absolute'
+                                });
+                            })
+                        </script>
+                        <div class="ui blue labeled add-reply submit icon button">
+                            <i class="icon edit"></i> {% translate 'Add comment' %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
+            <div class="ui tab" data-tab="history">
+                <div id="history-segment"></div>
+            </div>
         </div>
         <div class="actions">
-            <div class="ui left floated icon right labeled button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
             <div class="ui deny icon labeled button"><i class="delete icon"></i>{% translate 'Cancel' %}</div>
             <div class="ui positive icon labeled button"><i class="save icon"></i>{% translate 'Save' %}</div>
         </div>
     </form>
-    <script>
-        $('form.card.modal').form({
-            fields: {
-                name: {
-                    identifier: 'name',
-                    rules: [
-                        {
-                            type   : 'empty',
-                            prompt : `{% translate "Please, enter a name for your card." %}`
-                        },
-                        {
-                            type   : 'maxLength[50]',
-                            prompt : `{% translate "Card's name must have less than 50 characters." %}`
-                        }
-                    ]
-                },
-                description: {
-                    identifier: 'description',
-                    rules: [
-                        {
-                            type   : 'maxLength[1000]',
-                            prompt : `{% translate "Card's description must have less than 1000 characters." %}`
-                        }
-                    ]
-                },
-            }
-        });
-        $('form.card.modal').find('input[name=name]').on('keypress', e => {
-            if (e.which == 13) {
-                e.preventDefault();
-                $('form.card.modal').find('.positive.button').click();
-            }
-        });
-    </script>
 
     <form class="ui bucket-form top aligned card modal form">
         <i class="close icon"></i>
@@ -438,20 +415,6 @@
                 <select class="ui bucket color selection dropdown">
                 </select>
             </div>
-            <script>
-                $('.ui.bucket.color.dropdown').dropdown({
-                    clearable: true,
-                    values: [
-                        {% for color in colors %}
-                        {
-                        "name": "{{ color.name }}",
-                        "value": {{ color.id }},
-                        "icon": "{{ color.name|lower }} circle",
-                        },
-                        {% endfor %}
-                    ],
-                });
-            </script>
             <div class="ui error message"></div>
         </div>
         <div class="actions">
@@ -459,40 +422,6 @@
             <div class="ui positive icon labeled button"><i class="save icon"></i>{% translate 'Save' %}</div>
         </div>
     </form>
-    <script>
-        $('form.bucket.modal').form({
-            fields: {
-                name: {
-                identifier: 'name',
-                rules: [
-                    {
-                        type   : 'empty',
-                        prompt : `{% translate "Please, enter a name for your bucket." %}`
-                    },
-                    {
-                        type   : 'maxLength[50]',
-                        prompt : `{% translate "Bucket's name must have less than 50 characters." %}`
-                    }
-                ]
-                },
-                description: {
-                    identifier: 'description',
-                    rules: [
-                        {
-                        type   : 'maxLength[255]',
-                        prompt : `{% translate "Bucket's description must have less than 255 characters." %}`
-                        }
-                    ]
-                },
-            }
-        });
-        $('form.bucket.modal').find('input[name=name]').on('keypress', e => {
-            if (e.which == 13) {
-                e.preventDefault();
-                $('form.bucket.modal').find('.positive.button').click();
-            }
-        });
-    </script>
 
     <div class="ui delete confirmation tiny card modal">
         <div class="header"></div>
@@ -566,8 +495,12 @@
 
     <script>
         $(document).ready(e => {
+            initializeCardForm()
+            initializeBucketForm()
+            initializeBucketColorDropdown()
             initializeBucketDragAndDrop()
             initializeCardDragAndDrop()
+            initializeCardTabMenu()
             $('.ui.left.sidebar')
                 .sidebar('setting', 'transition', 'overlay')
                 .sidebar('setting', 'mobileTransition', 'overlay')

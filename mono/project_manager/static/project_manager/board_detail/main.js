@@ -191,13 +191,18 @@ function loadBoard() {
     setWallpaper()
 }
 
-async function getActivities(bucketId, cardId) {
+async function getActivities() {
+    let card = getActiveCard()
+    let cardId = card['card']
+    let bucketId = card['bucket']
     $.api({
         on: 'now',
         method: 'GET',
         url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/buckets/${bucketId}/cards/${cardId}/activities/`,
+        stateContext: '.ui.tab[data-tab=history] .segment',
         onSuccess(r) {
             console.table(r)
+            renderActivities('#history-segment', r)
         },
     })
 }
@@ -230,23 +235,35 @@ async function renderBuckets(containerSelector, buckets) {
 }
 
 function setBoardDarkMode(containerSelector, bool) {
+    const modal = $('.ui.card-form.modal')
+    let elements = [
+        $('html'),
+        $('body'),
+        $('.form'),
+        $('.modal'),
+        $('.dropdown'),
+        $('.calendar'),
+        $(containerSelector).parents().first(),
+        modal.find('.comments-segment.segment'),
+        modal.find('#card-comments'),
+        modal.find('.checklist.segment'),
+        modal.find('.files.segment'),
+        modal.find('.add-item.input'),
+        modal.find('.add-item.input'),
+        modal.find('.ui.dividing.header'),
+        modal.find('#card-tab-menu'),
+        modal.find('.ui.tab[data-tab=history] .ui.segment'),
+    ]
     if (bool) {
-        $('html').addClass('dark')
-        $('body').addClass('dark')
-        $('.form').addClass('inverted')
-        $('.modal').addClass('inverted')
-        $('.dropdown').addClass('inverted')
-        $('.calendar').addClass('inverted')
-        $(containerSelector).parents().first().addClass('dark')
-        
+        elements.forEach(e => {
+            e.addClass('dark')
+            e.addClass('inverted')
+        })
     } else {
-        $('body').removeClass('dark')
-        $('html').removeClass('dark')
-        $('.form').removeClass('inverted')
-        $('.modal').removeClass('inverted')
-        $('.dropdown').removeClass('inverted')
-        $('.calendar').removeClass('inverted')
-        $(containerSelector).parents().first().removeClass('dark')
+        elements.forEach(e => {
+            e.removeClass('dark')
+            e.removeClass('inverted')
+        })
     }
 }
 
@@ -1018,6 +1035,16 @@ function renderTagForms(containerElement, tag) {
     }
     $(`input[type=text][data-tag-id=${tag.id}]`).val(tag.name)
     $(`.delete.button[data-tag-id=${tag.id}]`).click(deleteTag)
+}
+
+async function renderActivities(containerSelector, activities) {
+    let dark = getDarkMode()
+    $(containerSelector).empty()
+    activities.forEach(activity => {
+        $(containerSelector).append(
+            getActivityHTML(activity, dark)
+        )
+    })
 }
 
 function deleteTag() {

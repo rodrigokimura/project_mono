@@ -265,3 +265,94 @@ async function initializeSuggest() {
         }
     )
 }
+
+async function initializeBucketForm() {
+    let bucketForm = $('.bucket-form.ui.form')
+    bucketForm.form({
+        fields: {
+            name: {
+            identifier: 'name',
+            rules: [
+                {
+                    type   : 'empty',
+                    prompt : gettext("Please, enter a name for your bucket.")
+                },
+                {
+                    type   : 'maxLength[50]',
+                    prompt : gettext("Bucket's name must have less than 50 characters.")
+                }
+            ]
+            },
+            description: {
+                identifier: 'description',
+                rules: [
+                    {
+                        type   : 'maxLength[255]',
+                        prompt : gettext("Bucket's description must have less than 255 characters.")
+                    }
+                ]
+            },
+        }
+    })
+    bucketForm.find('input[name=name]').on('keypress', e => {
+        if (e.which == 13) {
+            e.preventDefault()
+            bucketForm.find('.positive.button').click()
+        }
+    })
+}
+
+async function initializeBucketColorDropdown() {
+    $('.ui.bucket.color.dropdown').dropdown({
+        clearable: true,
+        values: COLOR_VALUES,
+    })
+}
+
+async function initializeCardForm() {
+    let cardForm = $('.card-form.ui.form')
+    cardForm.form({
+        fields: {
+            name: {
+                identifier: 'name',
+                rules: [
+                    {
+                        type   : 'empty',
+                        prompt : gettext("Please, enter a name for your card."),
+                    },
+                    {
+                        type   : 'maxLength[50]',
+                        prompt : gettext("Card's name must have less than 50 characters."),
+                    }
+                ]
+            },
+            description: {
+                identifier: 'description',
+                rules: [
+                    {
+                        type   : 'maxLength[1000]',
+                        prompt : gettext("Card's description must have less than 1000 characters."),
+                    }
+                ]
+            },
+        }
+    })
+    cardForm.find('input[name=name]').on('keypress', e => {
+        if (e.which == 13) {
+            e.preventDefault()
+            cardForm.find('.positive.button').click()
+        }
+    })
+}
+
+async function initializeCardTabMenu() {
+    $('#card-tab-menu .item').tab({
+        onLoad(tabPath, parameterArray, historyEvent) {
+            switch (tabPath) {
+                case 'history':
+                    getActivities()
+                    break
+            }
+        }
+    })
+}
