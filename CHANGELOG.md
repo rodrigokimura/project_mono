@@ -1,3 +1,9 @@
+## 6.3.0 (2022-07-14)
+
+### Feat
+
+- **project_manager**: render card activities
+
 ## 6.2.0 (2022-07-13)
 
 ### Feat
