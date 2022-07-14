@@ -7,23 +7,6 @@ function showCardModal(card = null, bucketId) {
     modal.find('.card-files').val('')
     modal.find('.files-container').empty()
 
-    if (dark) {
-        modal.find('.comments-segment.segment').addClass('inverted')
-        modal.find('#card-comments').addClass('inverted')
-        modal.find('.checklist.segment').addClass('inverted')
-        modal.find('.files.segment').addClass('inverted')
-        modal.find('.add-item.input').addClass('inverted')
-        modal.find('.add-item.input').addClass('inverted')
-        modal.find('.ui.dividing.header').addClass('inverted')
-    } else {
-        modal.find('.comments-segment.segment').removeClass('inverted')
-        modal.find('#card-comments').removeClass('inverted')
-        modal.find('.checklist.segment').removeClass('inverted')
-        modal.find('.files.segment').removeClass('inverted')
-        modal.find('.add-item.input').removeClass('inverted')
-        modal.find('.ui.dividing.header').removeClass('inverted')
-    }
-
     if (card) { populateModal(modal, card) }
 
     modal.modal({
@@ -47,7 +30,12 @@ function showCardModal(card = null, bucketId) {
                     }
                 }
             })
-            if (card !== null) { getActivities(bucketId, card.id) }
+            if (card !== null) {
+                if (card.id != getActiveCard()?.card) {
+                    $('#card-tab-menu .item').tab('change tab', 'details')
+                }
+                setActiveCard(card.id, bucketId)
+            } else { $('#card-tab-menu .item').tab('change tab', 'details') }
         },
         onHidden() {
             if (cardEdited) { getCards(bucketId) }

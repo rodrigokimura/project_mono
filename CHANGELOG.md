@@ -1,3 +1,15 @@
+## 6.3.0 (2022-07-14)
+
+### Feat
+
+- **project_manager**: render card activities
+
+## 6.2.0 (2022-07-13)
+
+### Feat
+
+- **project_manager**: add js function to get active card
+
 ## 6.1.4 (2022-07-07)
 
 ### Refactor
