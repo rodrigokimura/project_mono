@@ -277,3 +277,9 @@ function getTagFormHTML(tagId, dark) {
         </div>
     </form>`
 }
+
+function getActivityHTML(activity, dark) {
+    return `<div class="ui ${dark ? 'inverted': ''} segment">
+        ${activity.verbose_text}
+    </div>`
+}
