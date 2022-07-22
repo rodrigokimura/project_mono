@@ -1,3 +1,9 @@
+## 6.4.3 (2022-07-22)
+
+### Refactor
+
+- **accounts**: change signed message to uuid4
+
 ## 6.4.2 (2022-07-22)
 
 ### Refactor
