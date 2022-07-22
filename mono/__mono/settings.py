@@ -264,6 +264,8 @@ STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_ENDPOINT_SECRET')
 STRIPE_TIMEZONE = os.getenv('STRIPE_TIMEZONE')
 
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+
 TEST_RUNNER = os.getenv(
     'TEST_RUNNER',
     'xmlrunner.extra.djangotestrunner.XMLTestRunner'
