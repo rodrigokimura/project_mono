@@ -641,7 +641,7 @@ class TelegramWebhookView(View):
             token: str = text.split(' ')[-1]
             if token == '/start':
                 # no token provided
-                return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+                return HttpResponse(status=status.HTTP_400_BAD_REQUEST, content=body)
             # find user by token
             signer = TimestampSigner(salt="user_deeplink_token")
             user_id = signer.unsign_object(
@@ -656,4 +656,4 @@ class TelegramWebhookView(View):
             )
             text = 'Telegram notification was configured successfullly!'
             send_message(chat_id, text)
-        return HttpResponse(status=status.HTTP_204_NO_CONTENT)
+        return HttpResponse(status=status.HTTP_200_OK, content=body)
