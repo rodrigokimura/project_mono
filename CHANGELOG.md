@@ -1,3 +1,9 @@
+## 6.4.2 (2022-07-22)
+
+### Refactor
+
+- **accounts**: add body to response in webhook
+
 ## 6.4.1 (2022-07-22)
 
 ### Fix
