@@ -1,3 +1,9 @@
+## 6.5.0 (2022-07-22)
+
+### Feat
+
+- **accounts**: add admin command
+
 ## 6.4.3 (2022-07-22)
 
 ### Refactor
