@@ -1,3 +1,9 @@
+## 6.4.1 (2022-07-22)
+
+### Fix
+
+- **accounts**: adjust webhook response
+
 ## 6.4.0 (2022-07-22)
 
 ### Feat
