@@ -1,5 +1,6 @@
 """Finance's models"""
 import random
+import uuid
 from datetime import datetime, timedelta
 from typing import Tuple
 from xml.sax.saxutils import escape as xml_escape
@@ -13,7 +14,6 @@ from django.contrib.auth import get_user_model
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
 from django.core.mail import EmailMultiAlternatives
-from django.core.signing import TimestampSigner
 from django.db import models
 from django.db.models.fields import DateTimeField
 from django.template.loader import get_template
@@ -78,6 +78,7 @@ class UserProfile(models.Model):
         default=None,
     )
     verified_at = DateTimeField(null=True, blank=True, default=None)
+    telegram_user_token = models.UUIDField(null=True, blank=True, default=None)
     telegram_chat_id = models.BigIntegerField(null=True, blank=True, default=None)
 
     def __str__(self):
@@ -186,12 +187,11 @@ class UserProfile(models.Model):
         except OSError:
             pass
 
-    def generate_token_for_deeplink(self):
-        signer = TimestampSigner(salt="user_deeplink_token")
-        token = signer.sign_object({
-            "id": self.user.id,
-        })
-        return token.replace(':', '_')
+    def get_telegram_user_token(self):
+        if self.telegram_user_token is None:
+            self.telegram_user_token = uuid.uuid4()
+            self.save()
+        return str(self.telegram_user_token)
 
 
 class Plan(models.Model):

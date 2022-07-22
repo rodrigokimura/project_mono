@@ -19,7 +19,6 @@ from django.contrib.auth.views import (
 )
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import BadRequest, PermissionDenied
-from django.core.signing import TimestampSigner
 from django.db.models import QuerySet
 from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -209,7 +208,7 @@ class ConfigView(LoginRequiredMixin, TemplateView):
         context['twitter_login'] = twitter_login
         context['facebook_login'] = facebook_login
         context['can_disconnect'] = can_disconnect
-        context['user_deeplink_token'] = profile.generate_token_for_deeplink()
+        context['telegram_user_token'] = profile.get_telegram_user_token()
         return context
 
 
@@ -641,19 +640,16 @@ class TelegramWebhookView(View):
             token: str = text.split(' ')[-1]
             if token == '/start':
                 # no token provided
-                return HttpResponse(status=status.HTTP_400_BAD_REQUEST, content=body)
-            # find user by token
-            signer = TimestampSigner(salt="user_deeplink_token")
-            user_id = signer.unsign_object(
-                token.replace('_', ':'),
-                max_age=24 * 60 * 60 * 60
-            )['id']
-            UserProfile.objects.update_or_create(
-                user_id=user_id,
-                defaults={
-                    'telegram_chat_id': chat_id
-                }
-            )
-            text = 'Telegram notification was configured successfullly!'
-            send_message(chat_id, text)
+                return HttpResponse(status=status.HTTP_200_OK, content=body)
+            try:
+                UserProfile.objects.update_or_create(
+                    telegram_user_token=token,
+                    defaults={
+                        'telegram_chat_id': chat_id
+                    }
+                )
+                text = 'Telegram notification was configured successfullly!'
+                send_message(chat_id, text)
+            except (UserProfile.DoesNotExist):
+                return HttpResponse(status=status.HTTP_200_OK, content=body)
         return HttpResponse(status=status.HTTP_200_OK, content=body)
