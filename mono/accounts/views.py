@@ -19,6 +19,7 @@ from django.contrib.auth.views import (
 )
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import BadRequest, PermissionDenied
+from django.core.signing import TimestampSigner
 from django.db.models import QuerySet
 from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -47,6 +48,7 @@ from .stripe import (
     get_or_create_customer, get_or_create_subscription, get_payment_methods,
     get_products,
 )
+from .telegram import send_message
 
 
 class SignUp(SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
@@ -207,6 +209,7 @@ class ConfigView(LoginRequiredMixin, TemplateView):
         context['twitter_login'] = twitter_login
         context['facebook_login'] = facebook_login
         context['can_disconnect'] = can_disconnect
+        context['user_deeplink_token'] = profile.generate_token_for_deeplink()
         return context
 
 
@@ -623,3 +626,34 @@ class StripeWebhookView(View):
             Subscription.objects.filter(user=user).delete()
 
         return HttpResponse(status=200)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class TelegramWebhookView(View):
+    """Receive Telegram webhooks."""
+
+    def post(self, request):
+        body = json.loads(request.body)
+        text = body['message']['text']
+        chat_id = body['message']['chat']['id']
+        if text.split(' ')[0] == '/start':
+            # valid command
+            token: str = text.split(' ')[-1]
+            if token == '/start':
+                # no token provided
+                return HttpResponse(status=200, content=token)
+            # find user by token
+            signer = TimestampSigner(salt="user_deeplink_token")
+            user_id = signer.unsign_object(
+                token.replace('_', ':'),
+                max_age=24 * 60 * 60 * 60
+            )['id']
+            UserProfile.objects.update_or_create(
+                user_id=user_id,
+                defaults={
+                    'telegram_chat_id': chat_id
+                }
+            )
+            text = 'Telegram notification was configured successfullly!'
+            send_message(chat_id, text)
+        return HttpResponse(status=200, content=token)

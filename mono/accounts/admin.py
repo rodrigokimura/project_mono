@@ -64,6 +64,11 @@ class NotificationAdmin(admin.ModelAdmin):
             notification.pk = None
             notification.save()
 
+    def send_to_telegram(self, request, queryset: QuerySet[Notification]):  # pylint: disable=no-self-use
+        """Send notifications to telegram"""
+        for notification in queryset:
+            notification.send_to_telegram()
+
     read.short_description = "Mark notification as read"
     duplicate.short_description = "Clone notifications"
 
