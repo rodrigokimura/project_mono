@@ -265,8 +265,8 @@ check:  ## Show state and checks of last pull request
 					format = "${CYAN}%-7s${RESET} %s\n"; \
 				} \
 				{ \
-					if 			($$1 ~ /state/ && $$2 ~ /MERGED/) 	{ value = "${PURPLE}MERGED ✓${RESET}"; } \
-					else if 	($$1 ~ /state/ && $$2 ~ /OPEN/) 	{ value = "${GREEN}OPEN ↺${RESET}"; } \
+					if 			($$1 ~ /state/ && $$2 ~ /MERGED/) 	{ value = "${PURPLE}MERGED ✅${RESET}"; } \
+					else if 	($$1 ~ /state/ && $$2 ~ /OPEN/) 	{ value = "${GREEN}OPEN ❇️${RESET}"; } \
 					else { value = $$2; } \
 					printf format, $$1, value \
 				}' \
@@ -278,9 +278,9 @@ check:  ## Show state and checks of last pull request
 					format = "${CYAN}%-7s${RESET} %s %7s ${DIM}%s${RESET}\n"; \
 				} \
 				{ \
-					if 			($$2 ~ /pass/) 		{ status = "${GREEN}pass ✓     ${RESET}"; } \
-					else if 	($$2 ~ /pending/) 	{ status = "${ORANGE}pending *  ${RESET}"; } \
-					else if 	($$2 ~ /fail/) 		{ status = "${RED}fail ✗     ${RESET}"; } \
+					if 			($$2 ~ /pass/) 		{ status = "${GREEN}pass ✅     ${RESET}"; } \
+					else if 	($$2 ~ /pending/) 	{ status = "${ORANGE}pending ⏳  ${RESET}"; } \
+					else if 	($$2 ~ /fail/) 		{ status = "${RED}fail 🛑     ${RESET}"; } \
 					else 							{ status = $$2; } \
 					printf format, $$1, status, $$3, $$4; \
 				}'
