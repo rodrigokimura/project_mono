@@ -13,12 +13,15 @@ from django.contrib.auth import get_user_model
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
 from django.core.mail import EmailMultiAlternatives
+from django.core.signing import TimestampSigner
 from django.db import models
 from django.db.models.fields import DateTimeField
 from django.template.loader import get_template
 from django.urls.base import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+
+from .telegram import send_message
 
 User = get_user_model()
 
@@ -58,6 +61,12 @@ class Notification(models.Model):
         self.read_at = None
         self.save()
 
+    def send_to_telegram(self):
+        if self.to.profile:
+            profile = self.to.profile
+            if profile.telegram_chat_id:
+                send_message(profile.telegram_chat_id, self.message)
+
 
 class UserProfile(models.Model):
     """User profile stores extra information about the user"""
@@ -69,6 +78,7 @@ class UserProfile(models.Model):
         default=None,
     )
     verified_at = DateTimeField(null=True, blank=True, default=None)
+    telegram_chat_id = models.BigIntegerField(null=True, blank=True, default=None)
 
     def __str__(self):
         return str(self.user)
@@ -175,6 +185,13 @@ class UserProfile(models.Model):
             )
         except OSError:
             pass
+
+    def generate_token_for_deeplink(self):
+        signer = TimestampSigner(salt="user_deeplink_token")
+        token = signer.sign_object({
+            "id": self.user.id,
+        })
+        return token.replace(':', '_')
 
 
 class Plan(models.Model):

@@ -1,3 +1,9 @@
+## 6.4.0 (2022-07-22)
+
+### Feat
+
+- **accounts**: add telegram notification
+
 ## 6.3.0 (2022-07-14)
 
 ### Feat
