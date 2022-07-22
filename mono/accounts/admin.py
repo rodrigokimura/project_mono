@@ -71,6 +71,7 @@ class NotificationAdmin(admin.ModelAdmin):
 
     read.short_description = "Mark notification as read"
     duplicate.short_description = "Clone notifications"
+    send_to_telegram.short_description = "Send notifications to telegram"
 
     list_display = [
         'title',
@@ -88,7 +89,7 @@ class NotificationAdmin(admin.ModelAdmin):
         'read_at',
         'action_url',
     ]
-    actions = [read, duplicate]
+    actions = [read, duplicate, send_to_telegram]
 
 
 @admin.register(Plan)
