@@ -1,3 +1,9 @@
+## 6.5.1 (2022-07-27)
+
+### Fix
+
+- **checklists**: allow field to be blank
+
 ## 6.5.0 (2022-07-22)
 
 ### Feat
