@@ -1,3 +1,9 @@
+## 6.6.1 (2022-07-27)
+
+### Fix
+
+- **checklists**: change order to consider max
+
 ## 6.6.0 (2022-07-27)
 
 ### Feat
