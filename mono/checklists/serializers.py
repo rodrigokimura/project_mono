@@ -67,13 +67,6 @@ class TaskSerializer(ModelSerializer):
             'get_recurrence_display',
         ]
 
-    @transaction.atomic
-    def create(self, validated_data):
-        task = super().create(validated_data)
-        task.order = Task.objects.filter(checklist=task.checklist).count()
-        task.save()
-        return task
-
 
 class ChecklistMoveSerializer(Serializer):
     """Serializer to apply checklist movement"""
