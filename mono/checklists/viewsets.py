@@ -1,6 +1,7 @@
 """Checklists viewsets"""
 from __mono.permissions import IsCreator
 from django.db import transaction
+from django_filters import rest_framework as filters
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -44,15 +45,21 @@ class ChecklistViewSet(ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class TaskFilter(filters.FilterSet):
+    checked = filters.BooleanFilter(field_name="checked_at", lookup_expr='isnull', exclude=True)
+
+    class Meta:
+        model = Task
+        fields = ['checklist__id']
+
+
 class TaskViewSet(ModelViewSet):
     """Task viewset"""
 
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_classes = [IsCreator]
-    filterset_fields = {
-        'checklist__id': ['exact'],
-    }
+    filterset_class = TaskFilter
 
     def get_queryset(self):
         qs = super().get_queryset()
