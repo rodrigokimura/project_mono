@@ -1,3 +1,9 @@
+## 6.6.0 (2022-07-27)
+
+### Feat
+
+- **checklists**: add filter to checked status
+
 ## 6.5.1 (2022-07-27)
 
 ### Fix
