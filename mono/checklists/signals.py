@@ -1,4 +1,6 @@
 """Checklists signals"""
+from django.db.models import Max, Value
+from django.db.models.functions import Coalesce
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
@@ -31,3 +33,10 @@ def schedule_recurrent_task(sender, instance: Task, **kwargs):
             previous.recurrence != instance.recurrence or previous.due_date != instance.due_date
         ):
             instance.schedule_recurrent_task()
+
+
+@receiver(pre_save, sender=Task, dispatch_uid="auto_order")
+def auto_order(sender, instance: Task, **kwargs):
+    """Auto order tasks"""
+    if instance.id is None:
+        instance.order = Task.objects.filter(checklist=instance.checklist).aggregate(o=Coalesce(Max('order'), Value(0)))['o'] + 1
