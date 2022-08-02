@@ -1,3 +1,9 @@
+## 6.6.2 (2022-08-02)
+
+### Fix
+
+- **project_manager**: adjust function call args
+
 ## 6.6.1 (2022-07-27)
 
 ### Fix
