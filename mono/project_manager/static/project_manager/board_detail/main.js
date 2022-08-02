@@ -185,6 +185,7 @@ function stopElementScroll(intID) {
 
 function loadBoard() {
     boardTimestamp = new Date()
+    sessionStorage.removeItem('tags')
     clearIntervals()
     getBuckets()
     enableProximityScroll()
@@ -1014,7 +1015,7 @@ function addNewTagInput(containerElement) {
 function renderTagForms(containerElement, tag) {
     let dark = getDarkMode()
     containerElement.append(getTagFormHTML(tag.id, dark))
-    $(`.delete.button[data-tag-id=${tag.id}]`).popup()
+    $(`.button[data-tag-id=${tag.id}]`).popup()
     let iconDropdown = $(`.tag-icon.dropdown[data-tag-id=${tag.id}]`)
     iconDropdown.dropdown({
         placeholder: gettext('Icon'),
@@ -1034,7 +1035,9 @@ function renderTagForms(containerElement, tag) {
         colorDropdown.dropdown('set selected', tag.color.id)
     }
     $(`input[type=text][data-tag-id=${tag.id}]`).val(tag.name)
-    $(`.delete.button[data-tag-id=${tag.id}]`).click(deleteTag)
+    $(`.delete.button[data-tag-id=${tag.id}]`).click(
+        () => deleteTag(tag)
+    )
 }
 
 async function renderActivities(containerSelector, activities) {
@@ -1047,41 +1050,16 @@ async function renderActivities(containerSelector, activities) {
     })
 }
 
-function deleteTag() {
-    confirmationModal = $('body').modal({
-        title: gettext('Deletion confirmation'),
-        class: 'mini' + getDarkMode() ? ' inverted' : '',
-        closeIcon: true,
-        inverted: false,
-        blurring: true,
-        context: '.tags.modal',
-        content: interpolate(gettext('Are you sure yo want to delete tag %s?'), [tag.name]),
-        allowMultiple: true,
-        actions: [
-            {
-                text: gettext('Cancel'),
-                icon: 'close',
-                click() {}
-            },
-            {
-                text: gettext('Yes'),
-                class: 'green',
-                icon: 'save',
-                click() {
-                    $.api({
-                        on: 'now',
-                        method: 'DELETE',
-                        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${tag.id}`,
-                        onSuccess(r) {
-                            $(`form[data-tag-id=${tag.id}]`).remove()
-                            loadBoard()
-                        }
-                    })
-                }
-            },
-        ],
+function deleteTag(tag) {
+    $.api({
+        on: 'now',
+        method: 'DELETE',
+        url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/${tag.id}`,
+        onSuccess(r) {
+            $(`form[data-tag-id=${tag.id}]`).remove()
+            loadBoard()
+        }
     })
-    confirmationModal.modal('show')
 }
 
 async function hideManageTagsModal() {
