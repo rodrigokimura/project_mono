@@ -117,6 +117,7 @@ function showCardModal(card = null, bucketId) {
     modal.find('.manage-tags').off().on('click', e => {
         selectedTags = modal.find('.ui.tags.dropdown').dropdown('get value').split(',')
         showManageTagsModal(
+            false,
             true,
             () => {
                 initializeTagsDropdown(modal.find('.ui.tags.dropdown'))
@@ -156,6 +157,9 @@ async function showManageTagsModal(allowMultiple = false, fromCardModal = false,
         closable: true,
         blurring: true,
         context: fromCardModal ? '.card-form' : 'body',
+        onHidden() {
+            if (callback) { callback() }
+        },
         onShow() {
             let el = tagsModal.find('.content')
             tagsModal.find('.close.button').off().click(hideManageTagsModal)
@@ -174,17 +178,10 @@ async function showManageTagsModal(allowMultiple = false, fromCardModal = false,
             el.find('.new-tag').off().click(() => {
                 addNewTagInput(el)
             })
-            $.api({
-                on: 'now',
-                method: 'GET',
-                url: `/pm/api/projects/${PROJECT_ID}/boards/${BOARD_ID}/tags/`,
-                stateContext: '.tags.modal .ui.basic.segment',
-                onSuccess(r) {
-                    for (tag of r) {
-                        renderTagForms(el, tag)
-                    }
-                }
-            })
+            var tags = getTags()
+            for (tag of tags) {
+                renderTagForms(el, tag)
+            }
         },
     })
     tagsModal.modal('show')
