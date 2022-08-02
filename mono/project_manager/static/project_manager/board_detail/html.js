@@ -272,7 +272,11 @@ function getTagFormHTML(tagId, dark) {
                 <input class="tag-name" type="text" placeholder="${gettext('Name')}" data-tag-id="${tagId}">
             </div>
             <div style="">
-                <div class="ui icon red delete mini button" data-content="${gettext('Delete tag')}" data-tag-id="${tagId}"><i class="delete icon"></i></div>
+                <div class="ui icon red mini button" data-tag-id="${tagId}"><i class="delete icon"></i></div>
+                <div class="ui popup top right">
+                    <h4 class="ui header">${gettext('Delete tag?')}</h4>
+                    <div class="ui delete button" data-tag-id="${tagId}">${gettext('Yes')}</div>
+                </div>
             </div>
         </div>
     </form>`
