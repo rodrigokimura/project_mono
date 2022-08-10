@@ -24,6 +24,7 @@ urlpatterns = [
     path("notifications/mark-as-read/", views.MarkNotificationsAsReadView.as_view()),
     path("notifications/mark-as-unread/", views.MarkNotificationsAsUnreadView.as_view()),
 
+    path('api/fcm-token/', views.FCMTokenView.as_view(), name='api-fcm-token'),
     path('api/change-password/', views.ChangePasswordView.as_view(), name='api-change-password'),
     path('api-me/', views.ApiMeView.as_view(), name='api_me'),
     path('api-logout/', views.ApiLogoutView.as_view(), name='api_logout'),

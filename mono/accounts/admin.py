@@ -4,7 +4,8 @@ from django.db.models import QuerySet
 from django.db.models.signals import post_save
 
 from .models import (
-    Feature, Notification, Plan, Subscription, User, UserProfile,
+    Feature, FirebaseCloudMessagingToken, Notification, Plan, Subscription,
+    User, UserProfile,
 )
 
 
@@ -104,6 +105,20 @@ class PlanAdmin(admin.ModelAdmin):
         "type",
     ]
     ordering = ('order',)
+
+
+@admin.register(FirebaseCloudMessagingToken)
+class FirebaseCloudMessagingTokenAdmin(admin.ModelAdmin):
+    list_display = [
+        "user",
+        "token",
+        "created_at",
+    ]
+    list_filter = [
+        "user",
+        "created_at",
+    ]
+    ordering = ('-created_at',)
 
 
 @admin.register(Feature)

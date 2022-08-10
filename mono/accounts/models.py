@@ -81,6 +81,10 @@ class UserProfile(models.Model):
     telegram_user_token = models.UUIDField(null=True, blank=True, default=None)
     telegram_chat_id = models.BigIntegerField(null=True, blank=True, default=None)
 
+    class Meta:
+        verbose_name = _("profile")
+        verbose_name_plural = _("profiles")
+
     def __str__(self):
         return str(self.user)
 
@@ -318,3 +322,16 @@ class Subscription(models.Model):
     #     self.cancel_at = None
     #     self.plan = Plan.objects.get(type=Plan.FREE)
     #     self.save()
+
+
+class FirebaseCloudMessagingToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='fcm_tokens')
+    token = models.TextField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("firebase cloud messaging token")
+        verbose_name_plural = _("firebase cloud messaging tokens")
+
+    def __str__(self) -> str:
+        return self.token

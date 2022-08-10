@@ -32,16 +32,22 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView
 from rest_framework import authentication, permissions, status
 from rest_framework.authtoken.models import Token
-from rest_framework.generics import RetrieveAPIView, UpdateAPIView
+from rest_framework.generics import (
+    CreateAPIView, RetrieveAPIView, UpdateAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from social_django.models import UserSocialAuth
 
 from .forms import UserForm
-from .models import Notification, Plan, Subscription, User, UserProfile
+from .models import (
+    FirebaseCloudMessagingToken, Notification, Plan, Subscription, User,
+    UserProfile,
+)
 from .serializers import (
-    ChangePasswordSerializer, ProfileSerializer, UserSerializer,
+    ChangePasswordSerializer, FCMTokenSerializer, ProfileSerializer,
+    UserSerializer,
 )
 from .stripe import (
     get_or_create_customer, get_or_create_subscription, get_payment_methods,
@@ -210,6 +216,29 @@ class ConfigView(LoginRequiredMixin, TemplateView):
         context['can_disconnect'] = can_disconnect
         context['telegram_user_token'] = profile.get_telegram_user_token()
         return context
+
+
+class FCMTokenView(CreateAPIView):
+    model = User
+    serializer_class = FCMTokenSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def create(self, request, *args, **kwargs):
+        user = self.request.user
+        if not user.is_authenticated:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            _, created = FirebaseCloudMessagingToken.objects.get_or_create(
+                token=serializer.data.get('token'),
+                defaults={
+                    'user': user
+                }
+            )
+            if created:
+                return Response(status=status.HTTP_201_CREATED)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChangePasswordView(UpdateAPIView):

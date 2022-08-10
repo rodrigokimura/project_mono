@@ -31,6 +31,17 @@ class ChangePasswordSerializer(Serializer):
         raise NotImplementedError
 
 
+class FCMTokenSerializer(Serializer):
+    """Firebase Cloud Messaging Token"""
+    token = CharField(required=True)
+
+    def create(self, validated_data):
+        raise NotImplementedError
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError
+
+
 class UserSerializer(ModelSerializer):
     """User serializer"""
     profile = ProfileSerializer(many=False, read_only=True)

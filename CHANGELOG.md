@@ -1,3 +1,15 @@
+## 6.10.1 (2022-08-10)
+
+### Fix
+
+- **accounts**: add migrations
+
+## 6.10.0 (2022-08-10)
+
+### Feat
+
+- **accounts**: store FCM tokens
+
 ## 6.9.1 (2022-08-10)
 
 ### Fix
