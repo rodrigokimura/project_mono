@@ -232,11 +232,13 @@ class ActivitySerializer(ModelSerializer):
     """Serializer for card activities"""
 
     verbose_text = serializers.ReadOnlyField()
+    detailed_text = serializers.ReadOnlyField()
 
     class Meta:
         model = Activity
         fields = [
             'verbose_text',
+            'detailed_text',
         ]
 
 
