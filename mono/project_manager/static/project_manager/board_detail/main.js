@@ -1015,7 +1015,12 @@ function addNewTagInput(containerElement) {
 function renderTagForms(containerElement, tag) {
     let dark = getDarkMode()
     containerElement.append(getTagFormHTML(tag.id, dark))
-    $(`.button[data-tag-id=${tag.id}]`).popup()
+    $(`.button[data-tag-id=${tag.id}]`).popup({
+        on: 'click',
+        hoverable: true,
+        setFluidWidth: false,
+        position: 'top right',
+    })
     let iconDropdown = $(`.tag-icon.dropdown[data-tag-id=${tag.id}]`)
     iconDropdown.dropdown({
         placeholder: gettext('Icon'),
@@ -1043,9 +1048,9 @@ function renderTagForms(containerElement, tag) {
 async function renderActivities(containerSelector, activities) {
     let dark = getDarkMode()
     $(containerSelector).empty()
-    activities.forEach(activity => {
+    activities.forEach((activity, idx, arr) => {
         $(containerSelector).append(
-            getActivityHTML(activity, dark)
+            getActivityHTML(activity, dark, idx != arr.length - 1)
         )
     })
 }
