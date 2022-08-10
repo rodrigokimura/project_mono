@@ -283,8 +283,28 @@ function getTagFormHTML(tagId, dark) {
 }
 
 function getActivityHTML(activity, dark, drawVerticalLine) {
-    return `<div class="ui ${dark ? 'inverted': ''} segment activity">
-        ${activity.verbose_text}
+    let ctx = activity.detailed_text.context
+    let text = activity.detailed_text.text
+    let newCtx = {}
+    for (const item in ctx) {
+        newCtx[item] = getActivityContextHTML(item, ctx[item])
+    }
+    return `<div class="ui ${dark ? 'inverted ': ''}segment activity">
+        ${interpolate(text, newCtx, true)}
     </div>
     ${drawVerticalLine ? `<div class="${dark ? 'dark': ''} vertical-line"></div>` : ''}`
+}
+
+function getActivityContextHTML(key, value) {
+    switch (key) {
+        case 'natural_time':
+            return `<span style="opacity: 50%;">${value}</span>`
+        case 'user':
+            return `<span class="ui image label">
+                <img src="${value.pic}">
+                @${value.username}
+            </span>`
+        default:
+            return `<span class="ui label">${value}</span>`
+    }
 }
