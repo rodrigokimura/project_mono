@@ -1,3 +1,9 @@
+## 6.8.0 (2022-08-09)
+
+### Feat
+
+- **project_manager**: send notifications to telegram automatically
+
 ## 6.7.0 (2022-08-09)
 
 ### Feat
