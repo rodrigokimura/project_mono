@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-09 23:20+0000\n"
+"POT-Creation-Date: 2022-08-10 16:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -306,14 +306,14 @@ msgstr "Você tem certeza de que quer excluir o card %s?"
 #: mono/project_manager/static/board_calendar.js:1189
 #: mono/project_manager/static/board_calendar.js:1230
 #: mono/project_manager/static/project_manager/board_detail/main.js:998
-#: mono/project_manager/static/project_manager/board_detail/main.js:1025
+#: mono/project_manager/static/project_manager/board_detail/main.js:1026
 msgid "Icon"
 msgstr "Ícone"
 
 #: mono/project_manager/static/board_calendar.js:1195
 #: mono/project_manager/static/board_calendar.js:1239
 #: mono/project_manager/static/project_manager/board_detail/main.js:1004
-#: mono/project_manager/static/project_manager/board_detail/main.js:1034
+#: mono/project_manager/static/project_manager/board_detail/main.js:1035
 msgid "Color"
 msgstr "Cor"
 
@@ -431,7 +431,7 @@ msgstr "Por favor, digite um nome para o seu bucket."
 
 #: mono/project_manager/static/project_manager/board_detail/initializers.js:282
 msgid "Bucket's name must have less than 50 characters."
-msgstr ""
+msgstr "O nome do bucket deve ter menos de 50 caracteres."
 
 #: mono/project_manager/static/project_manager/board_detail/initializers.js:291
 msgid "Bucket's description must have less than 255 characters."
