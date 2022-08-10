@@ -1,3 +1,9 @@
+## 6.10.2 (2022-08-10)
+
+### Fix
+
+- **accounts**: add column max length
+
 ## 6.10.1 (2022-08-10)
 
 ### Fix
