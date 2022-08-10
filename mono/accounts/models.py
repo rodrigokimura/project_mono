@@ -326,7 +326,7 @@ class Subscription(models.Model):
 
 class FirebaseCloudMessagingToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='fcm_tokens')
-    token = models.TextField(unique=True)
+    token = models.TextField(unique=True, max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
