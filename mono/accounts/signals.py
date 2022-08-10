@@ -5,7 +5,7 @@ import os
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch.dispatcher import receiver
 
-from .models import User, UserProfile
+from .models import Notification, User, UserProfile
 
 
 @receiver(post_save, sender=User, dispatch_uid="initial_user_setup")
@@ -33,3 +33,9 @@ def delete_profile_picture(sender, instance: UserProfile, **kwargs):
             _delete_file(instance.avatar.path)
         except ValueError:
             logging.warning('No file found')
+
+
+@receiver(post_save, sender=Notification, dispatch_uid="send_notification")
+def send_notification(sender, instance: Notification, created, **kwargs):
+    if created and sender == Notification:
+        instance.send_to_telegram()
