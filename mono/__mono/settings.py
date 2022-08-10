@@ -12,7 +12,7 @@ load_dotenv()
 
 APP_ENV = os.getenv('APP_ENV', 'PRD')
 
-APP_VERSION = "6.9.0"
+APP_VERSION = "6.9.1"
 
 if APP_ENV in ['DEV', 'TEST']:
     GITHUB_SECRET = 'GITHUB_SECRET'
@@ -250,7 +250,7 @@ EMAIL_TIMEOUT = 60
 DEFAULT_FROM_EMAIL = 'no-reply@voitkemp.com'
 
 ADMINS = [('Rodrigo Eiti Kimura', 'rodrigoeitikimura@gmail.com')]
-SERVER_EMAIL = 'no-reply@voitkemp.com'
+SERVER_EMAIL = 'admin@monoproject.info'
 EMAIL_SUBJECT_PREFIX = '[MONO PROJECT] '
 EMAIL_USE_LOCALTIME = True
 
