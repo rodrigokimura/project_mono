@@ -1,3 +1,9 @@
+## 6.11.1 (2022-08-10)
+
+### Fix
+
+- **accounts**: change response to json
+
 ## 6.11.0 (2022-08-10)
 
 ### Feat

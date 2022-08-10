@@ -236,8 +236,8 @@ class FCMTokenView(CreateAPIView):
                 }
             )
             if created:
-                return Response(status=status.HTTP_201_CREATED)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+                return Response(status=status.HTTP_201_CREATED, data={'message': 'Token created'})
+            return Response(status=status.HTTP_200_OK, data={'message': 'Token already exists'})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

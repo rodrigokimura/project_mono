@@ -222,12 +222,7 @@ class ShowMigrationsView(UserPassesTestMixin, APIView):
                         title = plan_node[1]
                         if graph.nodes[plan_node].replaces:
                             title += " (%s squashed migrations)" % len(graph.nodes[plan_node].replaces)
-                        applied_migration = loader.applied_migrations.get(plan_node)
-                        # Mark it as applied/unapplied
-                        if applied_migration:
-                            apps_migrations.append((title, True))
-                        else:
-                            apps_migrations.append((title, False))
+                        apps_migrations.append((title, plan_node in loader.applied_migrations))
                         shown.add(plan_node)
             migrations[app_name] = apps_migrations
         return Response(migrations)
