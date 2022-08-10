@@ -11,7 +11,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.humanize.templatetags.humanize import NaturalTimeFormatter
 from django.core.mail import EmailMultiAlternatives
 from django.core.signing import TimestampSigner
-from django.db import models
+from django.db import models, transaction
 from django.db.models import DurationField, QuerySet, Sum, Value as V
 from django.db.models.aggregates import Count, Max
 from django.db.models.fields import IntegerField
@@ -268,7 +268,7 @@ class Bucket(BaseModel):
             "order",
         ]
 
-    # @transaction.atomic
+    @transaction.atomic
     def set_order(self, order):
         """
         Set bucket order
@@ -294,7 +294,7 @@ class Bucket(BaseModel):
     def touch(self):
         self.save()
 
-    # @transaction.atomic
+    @transaction.atomic
     def sort(self):
         """Fix card order"""
         for index, card in enumerate(self.card_set.all()):
@@ -361,7 +361,7 @@ class Activity(models.Model):
         return self.action
 
     @classmethod
-    # @transaction.atomic
+    @transaction.atomic
     def create_activities_for_fields(cls, card, user, data: Optional[Dict[str, Any]] = None):
         if data is None:
             cls.objects.create(
@@ -555,6 +555,36 @@ class Activity(models.Model):
     @staticmethod
     def noop(value: str) -> str:
         return value
+
+    @property
+    def detailed_text(self):
+        context = self.context
+        if context is None:
+            context = {}
+        text = ''
+        if self.action == Activity.Action.UPDATE_COLOR:
+            func = Activity.process_color
+        elif self.action == Activity.Action.UPDATE_DUE_DATE:
+            func = Activity.process_date
+        elif self.action == Activity.Action.UPDATE_STATUS:
+            func = Activity.process_status
+        else:
+            func = Activity.noop
+        context = {
+            k: func(v)
+            for k, v in context.items()
+        }
+        context['user'] = {
+            'username': self.created_by.username,
+            'pic': self.created_by.profile.avatar.url,
+        }
+        context['natural_time'] = NaturalTimeFormatter.string_for(self.created_at)
+        text = f'{self.get_action_display()} %(natural_time)s'
+        return {
+            'text': text,
+            'context': context
+        }
+
 
     @property
     def verbose_text(self):
