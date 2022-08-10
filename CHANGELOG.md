@@ -1,3 +1,9 @@
+## 6.11.0 (2022-08-10)
+
+### Feat
+
+- **healthcheck**: add migrations endpoint
+
 ## 6.10.2 (2022-08-10)
 
 ### Fix
