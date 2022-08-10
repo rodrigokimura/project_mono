@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-09 23:20+0000\n"
+"POT-Creation-Date: 2022-08-10 16:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -501,45 +501,65 @@ msgstr "notificação"
 msgid "notifications"
 msgstr "notificações"
 
-#: mono/accounts/models.py:209
+#: mono/accounts/models.py:85
+#, fuzzy
+#| msgid "Profile"
+msgid "profile"
+msgstr "Perfil"
+
+#: mono/accounts/models.py:86
+#, fuzzy
+#| msgid "Profile"
+msgid "profiles"
+msgstr "Perfil"
+
+#: mono/accounts/models.py:213
 msgid "Free"
 msgstr "Gratuito"
 
-#: mono/accounts/models.py:210
+#: mono/accounts/models.py:214
 msgid "Lifetime"
 msgstr "Vitalício"
 
-#: mono/accounts/models.py:211
+#: mono/accounts/models.py:215
 msgid "Default"
 msgstr "Padrão"
 
-#: mono/accounts/models.py:212
+#: mono/accounts/models.py:216
 msgid "Recommended"
 msgstr "Recomendado"
 
-#: mono/accounts/models.py:228
+#: mono/accounts/models.py:232
 msgid "plan"
 msgstr "plano"
 
-#: mono/accounts/models.py:229
+#: mono/accounts/models.py:233
 msgid "plans"
 msgstr "planos"
 
-#: mono/accounts/models.py:255
+#: mono/accounts/models.py:259
 msgid "feature"
 msgstr "característica"
 
-#: mono/accounts/models.py:256
+#: mono/accounts/models.py:260
 msgid "features"
 msgstr "características"
 
-#: mono/accounts/models.py:273
+#: mono/accounts/models.py:277
 msgid "subscription"
 msgstr "assinatura"
 
-#: mono/accounts/models.py:274
+#: mono/accounts/models.py:278
 msgid "subscriptions"
 msgstr "assinaturas"
+
+#: mono/accounts/models.py:333
+msgid "firebase cloud messaging token"
+msgstr "token do firebase cloud messaging"
+
+#: mono/accounts/models.py:334
+msgid "firebase cloud messaging tokens"
+msgstr "tokens do firebase cloud messaging"
 
 #: mono/accounts/templates/accounts/config.html:11
 #: mono/accounts/templates/accounts/config.html:22
@@ -648,27 +668,27 @@ msgstr "Inscrever-se"
 msgid "Already signed up? Login here instead."
 msgstr "Já se inscreveu? Então logue aqui."
 
-#: mono/accounts/views.py:96
+#: mono/accounts/views.py:102
 msgid "Password reset"
 msgstr "Recuperação de senha"
 
-#: mono/accounts/views.py:111
+#: mono/accounts/views.py:117
 msgid "Enter new password"
 msgstr "Digite a nova senha"
 
-#: mono/accounts/views.py:119
+#: mono/accounts/views.py:125
 msgid "Password reset sent"
 msgstr "E-mail recuperação de senha enviado"
 
-#: mono/accounts/views.py:127
+#: mono/accounts/views.py:133
 msgid "Password reset complete"
 msgstr "Recuperação de senha concluída"
 
-#: mono/accounts/views.py:233
+#: mono/accounts/views.py:262
 msgid "Wrong password."
 msgstr "Senha errada."
 
-#: mono/accounts/views.py:236
+#: mono/accounts/views.py:265
 msgid "The two new password fields didn't match."
 msgstr "Os dois campos de senha não coincidem."
 
@@ -1283,11 +1303,11 @@ msgstr "conta origem"
 msgid "to account"
 msgstr "conta destino"
 
-#: mono/finance/models.py:380 mono/project_manager/models.py:1047
+#: mono/finance/models.py:380 mono/project_manager/models.py:1077
 msgid "icon"
 msgstr "ícone"
 
-#: mono/finance/models.py:381 mono/project_manager/models.py:1048
+#: mono/finance/models.py:381 mono/project_manager/models.py:1078
 msgid "icons"
 msgstr "ícones"
 
@@ -1360,15 +1380,15 @@ msgstr "orçamento"
 msgid "budgets"
 msgstr "orçamentos"
 
-#: mono/finance/models.py:948 mono/project_manager/models.py:1075
+#: mono/finance/models.py:948 mono/project_manager/models.py:1105
 msgid "invite"
 msgstr "convite"
 
-#: mono/finance/models.py:949 mono/project_manager/models.py:1076
+#: mono/finance/models.py:949 mono/project_manager/models.py:1106
 msgid "invites"
 msgstr "convites"
 
-#: mono/finance/models.py:996 mono/project_manager/models.py:1123
+#: mono/finance/models.py:996 mono/project_manager/models.py:1153
 msgid "Invite"
 msgstr "Convite"
 
@@ -2006,7 +2026,7 @@ msgstr "anotação"
 msgid "notes"
 msgstr "anotações"
 
-#: mono/notes/models.py:69 mono/project_manager/models.py:1013
+#: mono/notes/models.py:69 mono/project_manager/models.py:1043
 msgid "name"
 msgstr "nome"
 
@@ -2093,21 +2113,21 @@ msgstr "Baixar como arquivo HTML"
 msgid "No automatic status"
 msgstr "Nenhum status automático"
 
-#: mono/project_manager/models.py:248 mono/project_manager/models.py:604
+#: mono/project_manager/models.py:248 mono/project_manager/models.py:634
 #: mono/project_manager/templates/project_manager/project_list.html:140
 #: mono/project_manager/templates/project_manager/project_list.html:142
 #: mono/project_manager/templates/project_manager/project_list.html:144
 msgid "Not started"
 msgstr "Não iniciado"
 
-#: mono/project_manager/models.py:249 mono/project_manager/models.py:605
+#: mono/project_manager/models.py:249 mono/project_manager/models.py:635
 #: mono/project_manager/templates/project_manager/project_list.html:130
 #: mono/project_manager/templates/project_manager/project_list.html:132
 #: mono/project_manager/templates/project_manager/project_list.html:134
 msgid "In progress"
 msgstr "Em andamento"
 
-#: mono/project_manager/models.py:250 mono/project_manager/models.py:606
+#: mono/project_manager/models.py:250 mono/project_manager/models.py:636
 #: mono/project_manager/templates/project_manager/project_list.html:120
 #: mono/project_manager/templates/project_manager/project_list.html:122
 #: mono/project_manager/templates/project_manager/project_list.html:124
@@ -2138,7 +2158,7 @@ msgstr "Feito"
 msgid "Stuff already finished"
 msgstr "Coisas já finalizadas"
 
-#: mono/project_manager/models.py:260 mono/project_manager/models.py:618
+#: mono/project_manager/models.py:260 mono/project_manager/models.py:648
 msgid "status"
 msgstr "Status"
 
@@ -2271,52 +2291,52 @@ msgstr "sem cor"
 msgid "no date"
 msgstr "sem data"
 
-#: mono/project_manager/models.py:584
+#: mono/project_manager/models.py:614
 #, python-format
 msgid "%(executed_action)s %(natural_time)s"
 msgstr "%(executed_action)s %(natural_time)s"
 
-#: mono/project_manager/models.py:913 mono/project_manager/models.py:949
+#: mono/project_manager/models.py:943 mono/project_manager/models.py:979
 msgid "Comment"
 msgstr "Comentário"
 
-#: mono/project_manager/models.py:924 mono/project_manager/models.py:962
+#: mono/project_manager/models.py:954 mono/project_manager/models.py:992
 msgid "Comment on card"
 msgstr "Comentar no card"
 
-#: mono/project_manager/models.py:925
+#: mono/project_manager/models.py:955
 msgid "Someone commented on a card and mentioned you."
 msgstr "Alguém comentou em um card e mencionou você."
 
-#: mono/project_manager/models.py:963
+#: mono/project_manager/models.py:993
 msgid "Someone commented on a card assigned to you."
 msgstr "Alguém comentou em um card atribuído a você."
 
-#: mono/project_manager/models.py:978
+#: mono/project_manager/models.py:1008
 msgid "time entry"
 msgstr "entrada de tempo"
 
-#: mono/project_manager/models.py:979
+#: mono/project_manager/models.py:1009
 msgid "time entries"
 msgstr "entradas de tempo"
 
-#: mono/project_manager/models.py:1014
+#: mono/project_manager/models.py:1044
 msgid "primary"
 msgstr "primário"
 
-#: mono/project_manager/models.py:1015
+#: mono/project_manager/models.py:1045
 msgid "dark"
 msgstr "escuro"
 
-#: mono/project_manager/models.py:1016
+#: mono/project_manager/models.py:1046
 msgid "light"
 msgstr "claro"
 
-#: mono/project_manager/models.py:1131
+#: mono/project_manager/models.py:1161
 msgid "Project invitation"
 msgstr "Convite para projeto"
 
-#: mono/project_manager/models.py:1132
+#: mono/project_manager/models.py:1162
 msgid "You were invited to be part of a project."
 msgstr "Você foi convidade para fazer parte de um projeto."
 
