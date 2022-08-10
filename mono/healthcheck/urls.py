@@ -14,6 +14,7 @@ router.register('coverage', views.CoverageReportViewSet, basename='coverage')
 
 urlpatterns = [
     path('', views.healthcheck, name='healthcheck'),
+    path('migrations/', views.ShowMigrationsView.as_view(), name='migrations'),
     path('home/', views.HealthcheckHomePage.as_view(), name='home'),
     path('update_app/', views.github_webhook, name='update_app'),
     path('deploy/', views.Deploy.as_view(), name='deploy'),
