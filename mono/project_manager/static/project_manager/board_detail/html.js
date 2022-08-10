@@ -265,14 +265,14 @@ function getTagFormHTML(tagId, dark) {
                 </select>
             </div>
             <div style="flex: 0 0 auto; width: 6em; display: flex; margin-right: .5em;">
-                <select class="ui tag-color clearable compact two column mini ${dark ? 'inverted' : ''} dropdown" data-tag-id="${tagId}">
+                <select class="ui tag-color clearable compact two column ${dark ? 'inverted' : ''} dropdown" data-tag-id="${tagId}">
                 </select>
             </div>
-            <div style="flex: 1 1 auto; margin-right: .5em;" class="ui mini ${dark ? 'inverted' : ''} input">
+            <div style="flex: 1 1 auto; margin-right: .5em;" class="ui ${dark ? 'inverted' : ''} input">
                 <input class="tag-name" type="text" placeholder="${gettext('Name')}" data-tag-id="${tagId}">
             </div>
             <div style="">
-                <div class="ui icon red mini button" data-tag-id="${tagId}"><i class="delete icon"></i></div>
+                <div class="ui icon red button" data-tag-id="${tagId}"><i class="delete icon"></i></div>
                 <div class="ui popup top right">
                     <h4 class="ui header">${gettext('Delete tag?')}</h4>
                     <div class="ui delete button" data-tag-id="${tagId}">${gettext('Yes')}</div>
@@ -282,8 +282,9 @@ function getTagFormHTML(tagId, dark) {
     </form>`
 }
 
-function getActivityHTML(activity, dark) {
-    return `<div class="ui ${dark ? 'inverted': ''} segment">
+function getActivityHTML(activity, dark, drawVerticalLine) {
+    return `<div class="ui ${dark ? 'inverted': ''} segment activity">
         ${activity.verbose_text}
-    </div>`
+    </div>
+    ${drawVerticalLine ? `<div class="${dark ? 'dark': ''} vertical-line"></div>` : ''}`
 }
