@@ -1,3 +1,9 @@
+## 6.9.0 (2022-08-10)
+
+### Feat
+
+- **project_manager**: render activities in detailed html
+
 ## 6.8.0 (2022-08-09)
 
 ### Feat
