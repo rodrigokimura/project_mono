@@ -4,6 +4,7 @@ import json
 import logging
 from datetime import datetime
 from hashlib import sha1
+from typing import Optional
 
 import pytz
 from django.conf import settings
@@ -195,6 +196,41 @@ class CommitsFormattedForHeatmapView(UserPassesTestMixin, APIView):
         """
         commits_context = get_commits_context()
         return Response(commits_context)
+
+
+class ShowMigrationsView(UserPassesTestMixin, APIView):
+
+    def test_func(self) -> Optional[bool]:
+        return self.request.user.is_superuser
+
+    def get(self, request, *args, **kwargs):
+        from django.db import DEFAULT_DB_ALIAS, connections
+        from django.db.migrations.loader import MigrationLoader
+
+        loader = MigrationLoader(connections[DEFAULT_DB_ALIAS], ignore_no_migrations=True)
+        graph = loader.graph
+        app_names = sorted(loader.migrated_apps)
+        migrations = {}
+        for app_name in app_names:
+            apps_migrations = []
+            # self.stdout.write(app_name, self.style.MIGRATE_LABEL)
+            shown = set()
+            for node in graph.leaf_nodes(app_name):
+                for plan_node in graph.forwards_plan(node):
+                    if plan_node not in shown and plan_node[0] == app_name:
+                        # Give it a nice title if it's a squashed one
+                        title = plan_node[1]
+                        if graph.nodes[plan_node].replaces:
+                            title += " (%s squashed migrations)" % len(graph.nodes[plan_node].replaces)
+                        applied_migration = loader.applied_migrations.get(plan_node)
+                        # Mark it as applied/unapplied
+                        if applied_migration:
+                            apps_migrations.append((title, True))
+                        else:
+                            apps_migrations.append((title, False))
+                        shown.add(plan_node)
+            migrations[app_name] = apps_migrations
+        return Response(migrations)
 
 
 class CommitsByDateView(UserPassesTestMixin, APIView):
