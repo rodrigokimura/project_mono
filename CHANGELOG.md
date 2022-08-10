@@ -1,3 +1,9 @@
+## 6.7.0 (2022-08-09)
+
+### Feat
+
+- **project_manager**: change style of activities in card
+
 ## 6.6.2 (2022-08-02)
 
 ### Fix
