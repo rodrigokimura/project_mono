@@ -1,3 +1,9 @@
+## 6.12.0 (2022-08-10)
+
+### Feat
+
+- **mono**: add firebase cloud messaging backend
+
 ## 6.11.1 (2022-08-10)
 
 ### Fix
