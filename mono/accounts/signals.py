@@ -39,3 +39,4 @@ def delete_profile_picture(sender, instance: UserProfile, **kwargs):
 def send_notification(sender, instance: Notification, created, **kwargs):
     if created and sender == Notification:
         instance.send_to_telegram()
+        instance.send_to_android()
