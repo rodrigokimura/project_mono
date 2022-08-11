@@ -35,6 +35,7 @@ redgreenunittest = "*"
 django-ordered-model = "*"
 lxml = "*"
 pygments = "*"
+firebase-admin = "*"
 
 [dev-packages]
 coverage = "*"
