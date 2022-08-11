@@ -70,9 +70,15 @@ class NotificationAdmin(admin.ModelAdmin):
         for notification in queryset:
             notification.send_to_telegram()
 
+    def send_to_android(self, request, queryset: QuerySet[Notification]):  # pylint: disable=no-self-use
+        """Send notifications to android devices"""
+        for notification in queryset:
+            notification.send_to_android()
+
     read.short_description = "Mark notification as read"
     duplicate.short_description = "Clone notifications"
     send_to_telegram.short_description = "Send notifications to telegram"
+    send_to_android.short_description = "Send notifications to android devices"
 
     list_display = [
         'title',
@@ -90,7 +96,7 @@ class NotificationAdmin(admin.ModelAdmin):
         'read_at',
         'action_url',
     ]
-    actions = [read, duplicate, send_to_telegram]
+    actions = [read, duplicate, send_to_telegram, send_to_android]
 
 
 @admin.register(Plan)

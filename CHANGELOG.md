@@ -1,3 +1,27 @@
+## 6.12.3 (2022-08-10)
+
+### Fix
+
+- **mono**: adjust implementation for tests
+
+## 6.12.2 (2022-08-10)
+
+### Fix
+
+- **mono**: handle non existent file
+
+## 6.12.1 (2022-08-10)
+
+### Fix
+
+- **mono**: adjust fallback value
+
+## 6.12.0 (2022-08-10)
+
+### Feat
+
+- **mono**: add firebase cloud messaging backend
+
 ## 6.11.1 (2022-08-10)
 
 ### Fix

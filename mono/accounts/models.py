@@ -1,4 +1,4 @@
-"""Finance's models"""
+"""Account's models"""
 import random
 import uuid
 from datetime import datetime, timedelta
@@ -20,6 +20,9 @@ from django.template.loader import get_template
 from django.urls.base import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from firebase_admin.messaging import (
+    MulticastMessage, Notification as FirebaseNotification, send_multicast,
+)
 
 from .telegram import send_message
 
@@ -66,6 +69,22 @@ class Notification(models.Model):
             profile = self.to.profile
             if profile.telegram_chat_id:
                 send_message(profile.telegram_chat_id, self.message)
+
+    def send_to_android(self):
+        firebase_notification = FirebaseNotification(title=self.title, body=self.message)
+        firebase_tokens = FirebaseCloudMessagingToken.objects.filter(
+            user=self.to
+        ).values_list('token', flat=True)
+        try:
+            send_multicast(
+                MulticastMessage(
+                    data={'title': self.title, 'message': self.message},
+                    notification=firebase_notification,
+                    tokens=list(firebase_tokens)
+                )
+            )
+        except ValueError:
+            pass
 
 
 class UserProfile(models.Model):

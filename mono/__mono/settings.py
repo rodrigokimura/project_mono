@@ -12,7 +12,7 @@ load_dotenv()
 
 APP_ENV = os.getenv('APP_ENV', 'PRD')
 
-APP_VERSION = "6.11.1"
+APP_VERSION = "6.12.3"
 
 if APP_ENV in ['DEV', 'TEST']:
     GITHUB_SECRET = 'GITHUB_SECRET'
@@ -286,6 +286,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
+
+FIREBASE_AUTH_FILE = BASE_DIR.parent / os.getenv("FIREBASE_AUTH_FILE", "firebase_auth.json")
 
 # SOCIAL LOGIN SECRETS
 SOCIAL_AUTH_GITHUB_KEY = os.getenv('SOCIAL_AUTH_GITHUB_KEY')
