@@ -1,3 +1,9 @@
+## 6.12.2 (2022-08-10)
+
+### Fix
+
+- **mono**: handle non existent file
+
 ## 6.12.1 (2022-08-10)
 
 ### Fix
