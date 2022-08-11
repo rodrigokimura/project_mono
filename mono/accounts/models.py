@@ -75,13 +75,16 @@ class Notification(models.Model):
         firebase_tokens = FirebaseCloudMessagingToken.objects.filter(
             user=self.to
         ).values_list('token', flat=True)
-        send_multicast(
-            MulticastMessage(
-                data={'title': self.title, 'message': self.message},
-                notification=firebase_notification,
-                tokens=list(firebase_tokens)
+        try:
+            send_multicast(
+                MulticastMessage(
+                    data={'title': self.title, 'message': self.message},
+                    notification=firebase_notification,
+                    tokens=list(firebase_tokens)
+                )
             )
-        )
+        except ValueError:
+            pass
 
 
 class UserProfile(models.Model):
