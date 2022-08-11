@@ -8,8 +8,7 @@ class MyAdminConfig(AdminConfig):
 
     def ready(self) -> None:
         from django.conf import settings
-        cred = credentials.Certificate(
-            str(settings.FIREBASE_AUTH_FILE)
-        )
-        initialize_app(cred)
+        if settings.FIREBASE_AUTH_FILE.exists():
+            cred = credentials.Certificate(str(settings.FIREBASE_AUTH_FILE))
+            initialize_app(cred)
         return super().ready()
