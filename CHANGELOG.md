@@ -1,3 +1,9 @@
+## 6.12.3 (2022-08-10)
+
+### Fix
+
+- **mono**: adjust implementation for tests
+
 ## 6.12.2 (2022-08-10)
 
 ### Fix
