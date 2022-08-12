@@ -129,14 +129,12 @@ class Task(models.Model):
     def remind(self):
         """Remind task"""
         if self.reminder and not self.reminded:
-            notification: Notification = Notification.objects.create(
+            Notification.objects.create(
                 title=_('Reminder for task'),
                 message=_('You have a task to do: %(description)s') % {'description': self.description},
                 to=self.created_by,
                 action_url=reverse('checklists:index'),
             )
-            notification.send_to_telegram()
-            notification.send_to_android()
             self.reminded = True
             self.save()
 

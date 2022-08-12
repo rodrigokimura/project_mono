@@ -44,7 +44,7 @@ def send_invite(sender, instance, created, **kwargs):  # pylint: disable=unused-
 
 
 @receiver(post_save, sender=Comment, dispatch_uid="send_email_on_comment")
-def send_email_on_comment(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
+def send_email_on_comment(sender, instance: Comment, created, **kwargs):  # pylint: disable=unused-argument
     """
     Send email when comment is created
     """
@@ -54,7 +54,7 @@ def send_email_on_comment(sender, instance, created, **kwargs):  # pylint: disab
 
 
 @receiver(pre_delete, sender=Board, dispatch_uid="delete_background_image")
-def delete_background_image(sender, instance, using, **kwargs):  # pylint: disable=unused-argument
+def delete_background_image(sender, instance: Board, using, **kwargs):  # pylint: disable=unused-argument
     """
     Delete background image when board is deleted
     """
