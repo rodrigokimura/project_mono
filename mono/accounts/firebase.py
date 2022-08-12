@@ -19,5 +19,5 @@ def send_notification(title, message, tokens):
                 tokens=tokens
             )
         )
-    except ValueError:
-        pass
+    except ValueError as exc:
+        print(exc)
