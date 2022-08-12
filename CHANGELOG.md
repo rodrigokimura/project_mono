@@ -1,3 +1,9 @@
+## 6.12.4 (2022-08-11)
+
+### Refactor
+
+- **accounts**: force notification to send
+
 ## 6.12.3 (2022-08-10)
 
 ### Fix
