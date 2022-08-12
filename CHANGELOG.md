@@ -1,3 +1,9 @@
+## 6.12.5 (2022-08-12)
+
+### Refactor
+
+- **accounts**: initialize firebase before sending messages
+
 ## 6.12.4 (2022-08-11)
 
 ### Refactor
