@@ -27,7 +27,8 @@
             "stopOnEntry": false,
             "program": "${workspaceFolder}/mono/manage.py",
             "args": [
-                "process_tasks",
+                "process_mono_tasks",
+                "--dev",
             ],
             "django": true
         },
