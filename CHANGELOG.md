@@ -1,3 +1,9 @@
+## 6.12.7 (2022-08-12)
+
+### Refactor
+
+- **mono**: override process_tasks command
+
 ## 6.12.6 (2022-08-12)
 
 ### Fix
