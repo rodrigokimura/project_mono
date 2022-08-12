@@ -20,10 +20,8 @@ from django.template.loader import get_template
 from django.urls.base import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from firebase_admin.messaging import (
-    MulticastMessage, Notification as FirebaseNotification, send_multicast,
-)
 
+from .firebase import send_notification
 from .telegram import send_message
 
 User = get_user_model()
@@ -71,20 +69,10 @@ class Notification(models.Model):
                 send_message(profile.telegram_chat_id, self.message)
 
     def send_to_android(self):
-        firebase_notification = FirebaseNotification(title=self.title, body=self.message)
         firebase_tokens = FirebaseCloudMessagingToken.objects.filter(
             user=self.to
         ).values_list('token', flat=True)
-        try:
-            send_multicast(
-                MulticastMessage(
-                    data={'title': self.title, 'message': self.message},
-                    notification=firebase_notification,
-                    tokens=list(firebase_tokens)
-                )
-            )
-        except ValueError:
-            pass
+        send_notification(self.title, self.message, list(firebase_tokens))
 
 
 class UserProfile(models.Model):
