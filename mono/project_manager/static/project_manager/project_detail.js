@@ -69,7 +69,6 @@ function renderBoards(boards) {
             $('.ui.progress').progress()
             $('.ui.progress').popup()
             $('.bar').popup()
-            $('.ui.avatar.image').popup()
             initializeDragAndDrop()
         })
     })
@@ -275,6 +274,7 @@ function renderBoard(board, boardsEl) {
             </div>
         </div>
     `)
+    $('.profile-pic').popup()
 }
 
 function initializeDeleteBoardButtons() {
@@ -308,7 +308,12 @@ function initializeDeleteBoardButtons() {
 function getUsersHtml(users) {
     html = ''
     users.forEach(u => {
-        html += `<img class="ui avatar image" src="${u.profile.avatar}" alt="" data-content="${u.username}">`
+        html += `
+            <div class="${u.has_timer_running ? 'loading' : ''} profile-pic" data-content="${u.username}">
+                <div class="loader"></div>
+                <img src="${u.profile.avatar}" alt="">
+            </div>
+        `
     })
     return html
 }
