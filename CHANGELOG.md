@@ -1,3 +1,9 @@
+## 6.13.0 (2022-08-16)
+
+### Feat
+
+- **project_manager**: display board's background image in listing page
+
 ## 6.12.7 (2022-08-12)
 
 ### Refactor
