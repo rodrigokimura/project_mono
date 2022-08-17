@@ -229,7 +229,7 @@ install:  ## Install dependencies
 update:  ## Update dependencies
 	@pipenv update
 
-##@ Dev worflow
+##@ Dev workflow
 
 pull: art  ## Pull changes
 	@git reset HEAD --hard
