@@ -242,7 +242,7 @@ function deleteSpace(id) {
 
 function renderBoard(board, boardsEl) {
     boardsEl.append(`
-        <div class="ui ${board.allowed_users.map(u => u.username).includes(USER) ? "" : "disabled"} card" data-board-id="${board.id}">
+        <div class="ui ${board.allowed_users.map(u => u.username).includes(USER) ? "" : "disabled"} card" data-board-id="${board.id}" ${board.background_image ? `style="background-image: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3)), url('${board.background_image}'); background-size: cover;"`: ""}>
             <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;">
                 <i class="grip lines icon"></i>
             </div>
