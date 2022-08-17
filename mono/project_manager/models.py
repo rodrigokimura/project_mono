@@ -12,7 +12,9 @@ from django.contrib.humanize.templatetags.humanize import NaturalTimeFormatter
 from django.core.mail import EmailMultiAlternatives
 from django.core.signing import TimestampSigner
 from django.db import models, transaction
-from django.db.models import DurationField, QuerySet, Sum, Value as V
+from django.db.models import (
+    DurationField, Exists, OuterRef, Q, QuerySet, Sum, Value as V,
+)
 from django.db.models.aggregates import Count, Max
 from django.db.models.fields import IntegerField
 from django.db.models.functions import Coalesce
@@ -143,7 +145,21 @@ class Board(BaseModel):
 
     @property
     def allowed_users(self):
-        return (User.objects.filter(id=self.created_by.id) | self.assigned_to.all()).distinct()
+        return (
+            User.objects.filter(
+                Q(id=self.created_by.id) | Q(id__in=self.assigned_to.all().values_list('id', flat=True))
+            )
+            .annotate(
+                has_timer_running=Exists(
+                    TimeEntry.objects.filter(
+                        card__bucket__board=self,
+                        stopped_at__isnull=True,
+                        created_by_id=OuterRef('id'),
+                    )
+                )
+            )
+            .distinct()
+        )
 
     @property
     def max_order(self):
@@ -344,7 +360,10 @@ class Activity(models.Model):
         REMOVE_FILE = 'remove_file', _('%(user)s removed a file')
         START_TIMER = 'start_timer', _('%(user)s started timer')
         STOP_TIMER = 'stop_timer', _('%(user)s stopped timer (logged duration: %(duration)s)')
-        UPDATE_TIME_ENTRY = 'update_time_entry', _('%(user)s updated a time entry (duration changed from %(old)s to %(new)s)')
+        UPDATE_TIME_ENTRY = (
+            'update_time_entry',
+            _('%(user)s updated a time entry (duration changed from %(old)s to %(new)s)'),
+        )
         DELETE_TIME_ENTRY = 'delete_time_entry', _('%(user)s deleted a time entry')
 
     card = models.ForeignKey('Card', on_delete=models.CASCADE, related_name='activities')
@@ -363,6 +382,9 @@ class Activity(models.Model):
     @classmethod
     @transaction.atomic
     def create_activities_for_fields(cls, card, user, data: Optional[Dict[str, Any]] = None):
+        """
+        Method to create activities when a card attribute is changed.
+        """
         if data is None:
             cls.objects.create(
                 action=cls.Action.CREATE_CARD,
@@ -385,6 +407,9 @@ class Activity(models.Model):
 
     @classmethod
     def create_activity_for_update(cls, card, action, user, old_value, new_value):
+        """
+        Method to create activities when a given card attribute is changed.
+        """
         if isinstance(old_value, date):
             old_value = str(old_value)
         context = None
@@ -401,7 +426,10 @@ class Activity(models.Model):
         )
 
     @classmethod
-    def create_activity_for_assigned_tags(cls, card, user, old_tags, new_tags):
+    def create_activity_for_tags(cls, card, user, old_tags, new_tags):
+        """
+        Method to create activities when tag set is changed.
+        """
         added_tags = new_tags.difference(old_tags)
         removed_tags = old_tags.difference(new_tags)
         for action, tags in {
@@ -420,24 +448,30 @@ class Activity(models.Model):
 
     @classmethod
     def create_activity_for_assigned_users(cls, card, user, old_users, new_users):
+        """
+        Method to create activities when assigned user set is changed.
+        """
         added_users = new_users.difference(old_users)
         removed_users = old_users.difference(new_users)
         for action, users in {
             cls.Action.ADD_ASSIGNED_USER: added_users,
             cls.Action.REMOVE_ASSIGNED_USER: removed_users,
         }.items():
-            for user in users:
+            for _user in users:
                 Activity.objects.create(
                     action=action,
                     created_by=user,
                     card=card,
                     context={
-                        'assignee': user.username
+                        'assignee': _user.username
                     }
                 )
 
     @classmethod
     def create_activity_for_timer(cls, card, user, start=True, duration=None):
+        """
+        Method to create activities when timer is started or stopped.
+        """
         action = Activity.Action.START_TIMER if start else Activity.Action.STOP_TIMER
         activity = Activity(
             action=action,
@@ -450,6 +484,9 @@ class Activity(models.Model):
 
     @classmethod
     def create_activity_for_time_entry(cls, card, user, update=True, old=None, new=None):
+        """
+        Method to create activities when time entries are updated or removed
+        """
         action = cls.Action.UPDATE_TIME_ENTRY if update else cls.Action.DELETE_TIME_ENTRY
         activity = Activity(
             action=action,
@@ -467,6 +504,9 @@ class Activity(models.Model):
 
     @classmethod
     def create_activity_for_comment(cls, card, user, action):
+        """
+        Method to create activities when comments are added, updated or removed.
+        """
         if action not in ('add', 'update', 'remove'):
             raise ValueError('Invalid action')
         if action == 'add':
@@ -483,6 +523,9 @@ class Activity(models.Model):
 
     @classmethod
     def create_activity_for_file(cls, card, user, add=True):
+        """
+        Method to create activities when files are added or removed
+        """
         Activity.objects.create(
             action=cls.Action.ADD_FILE if add else cls.Action.REMOVE_FILE,
             created_by=user,
@@ -491,6 +534,9 @@ class Activity(models.Model):
 
     @classmethod
     def create_activity_for_checklist(cls, card, user, action, value=None, new_value=None):
+        """
+        Method to create activities when checklist items are added, updated or removed
+        """
         if action not in ('add', 'update', 'remove'):
             raise ValueError('Invalid action')
         if action == 'add':
@@ -520,6 +566,9 @@ class Activity(models.Model):
 
     @classmethod
     def create_activity_for_color(cls, card, user, old_value, new_value):
+        """
+        Method to create activities when color is changed
+        """
         if old_value == new_value:
             return
         Activity.objects.create(
@@ -538,6 +587,7 @@ class Activity(models.Model):
 
     @staticmethod
     def process_date(value: str) -> str:  # pylint: disable=inconsistent-return-statements
+        """Convert dates from db format to localized"""
         if value is not None:
             date_obj = datetime.strptime(value, '%Y-%m-%d')
             date_str = date_format(date_obj, format='SHORT_DATE_FORMAT', use_l10n=True)
@@ -547,6 +597,7 @@ class Activity(models.Model):
 
     @staticmethod
     def process_status(value: str) -> str:
+        """Convert status choices from db values to human-readable"""
         for _value, text in Card.Status.choices:
             if value == _value:
                 return _(text)
@@ -558,6 +609,9 @@ class Activity(models.Model):
 
     @property
     def detailed_text(self):
+        """
+        Output detailed information of this activity
+        """
         context = self.context
         if context is None:
             context = {}
@@ -584,7 +638,6 @@ class Activity(models.Model):
             'text': text,
             'context': context
         }
-
 
     @property
     def verbose_text(self):
