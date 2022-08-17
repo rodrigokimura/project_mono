@@ -219,6 +219,9 @@ class ConfigView(LoginRequiredMixin, TemplateView):
 
 
 class FCMTokenView(CreateAPIView):
+    """
+    CBV to register FCM tokens
+    """
     model = User
     serializer_class = FCMTokenSerializer
     permission_classes = (IsAuthenticated,)
@@ -661,6 +664,7 @@ class TelegramWebhookView(View):
     """Receive Telegram webhooks."""
 
     def post(self, request):
+        """Receive Telegram webhooks."""
         body = json.loads(request.body)
         text = body['message']['text']
         chat_id = body['message']['chat']['id']
@@ -679,6 +683,6 @@ class TelegramWebhookView(View):
                 )
                 text = 'Telegram notification was configured successfullly!'
                 send_message(chat_id, text)
-            except (UserProfile.DoesNotExist):
+            except UserProfile.DoesNotExist:
                 return HttpResponse(status=status.HTTP_200_OK, content=body)
         return HttpResponse(status=status.HTTP_200_OK, content=body)

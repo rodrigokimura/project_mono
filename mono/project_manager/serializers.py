@@ -3,7 +3,7 @@ import json
 import os
 
 from __mono.utils import validate_file_size
-from accounts.serializers import UserSerializer
+from accounts.serializers import ProfileSerializer
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
@@ -21,6 +21,29 @@ def _delete_file(path):
     """ Deletes file from filesystem. """
     if os.path.isfile(path):
         os.remove(path)
+
+
+class UserSerializer(ModelSerializer):
+    """User serializer"""
+    profile = ProfileSerializer(many=False, read_only=True)
+    has_timer_running = serializers.BooleanField(required=False)
+
+    class Meta:
+        model = User
+
+        fields = [
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'profile',
+            'has_timer_running',
+        ]
+        extra_kwargs = {
+            'username': {'read_only': True},
+            'email': {'read_only': True},
+            'profile': {'read_only': True},
+        }
 
 
 class ThemeSerializer(ModelSerializer):
@@ -381,7 +404,7 @@ class CardSerializer(ModelSerializer):
         self._apply_status(instance, status)
 
         if requested_tags is not None:
-            Activity.create_activity_for_assigned_tags(
+            Activity.create_activity_for_tags(
                 instance,
                 self.context['request'].user,
                 set(instance.tag.all()),

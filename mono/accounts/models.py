@@ -63,12 +63,18 @@ class Notification(models.Model):
         self.save()
 
     def send_to_telegram(self):
+        """
+        Send notification as Telegram message
+        """
         if self.to.profile:
             profile = self.to.profile
             if profile.telegram_chat_id:
                 send_message(profile.telegram_chat_id, self.message)
 
     def send_to_android(self):
+        """
+        Send notification via FCM
+        """
         firebase_tokens = FirebaseCloudMessagingToken.objects.filter(
             user=self.to
         ).values_list('token', flat=True)
@@ -199,9 +205,12 @@ class UserProfile(models.Model):
             pass
 
     def get_telegram_user_token(self):
+        """
+        Generate a Telegram unique token for deeplink
+        """
         if self.telegram_user_token is None:
             self.telegram_user_token = uuid.uuid4()
-            self.save()
+            self.save(update_fields=['telegram_user_token'])
         return str(self.telegram_user_token)
 
 
@@ -332,6 +341,9 @@ class Subscription(models.Model):
 
 
 class FirebaseCloudMessagingToken(models.Model):
+    """
+    Store FCM tokens
+    """
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='fcm_tokens')
     token = models.CharField(unique=True, max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
