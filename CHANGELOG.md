@@ -1,3 +1,13 @@
+## 6.14.0 (2022-08-17)
+
+### Refactor
+
+- **mono**: apply pylint suggestions
+
+### Feat
+
+- **project_manager**: add loader when user has timer running
+
 ## 6.13.0 (2022-08-16)
 
 ### Feat
