@@ -17,7 +17,7 @@ async function setWallpaper() {
     if (wallpaper) {
         $('#board').css('background-image', `url('${wallpaper}')`)
     } else {
-        $('#board').css('background-image', '')
+        $('#board').css('background-image', 'none')
     }
 }
 
