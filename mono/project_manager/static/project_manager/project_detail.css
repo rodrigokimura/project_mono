@@ -1,3 +1,45 @@
+.profile-pic {
+    position: relative;
+    width: 2em;
+    height: 2em;
+    display: inline-block;
+}
+
+.profile-pic .loader {
+    height: 100%;
+    right: 0px;
+    position: absolute;
+    border: none;
+    border-radius: 50%;
+    width: 100%;
+}
+
+.loading.profile-pic .loader {
+    border: solid .2em #dadada;
+    border-top-color:  #4183c4;
+    transform: rotate(135deg);  
+    animation: spin 1.3s steps(2) .2s infinite;
+    -webkit-animation: spin 1.3s linear infinite;
+}
+
+.profile-pic img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+@-webkit-keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+}
+
 .space-name {
     font-size: large;
     font-style: italic;

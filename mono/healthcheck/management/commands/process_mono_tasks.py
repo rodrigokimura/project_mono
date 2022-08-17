@@ -1,3 +1,4 @@
+"""Override background_task's process_tasks command to change logging configs"""
 import logging
 
 from background_task.management.commands.process_tasks import (

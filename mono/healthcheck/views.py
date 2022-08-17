@@ -9,6 +9,8 @@ from typing import Optional
 import pytz
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db import DEFAULT_DB_ALIAS, connections
+from django.db.migrations.loader import MigrationLoader
 from django.db.models import Sum
 from django.db.models.expressions import Value
 from django.db.models.fields import IntegerField
@@ -199,14 +201,17 @@ class CommitsFormattedForHeatmapView(UserPassesTestMixin, APIView):
 
 
 class ShowMigrationsView(UserPassesTestMixin, APIView):
+    """
+    CBV to list migrations
+    """
 
     def test_func(self) -> Optional[bool]:
         return self.request.user.is_superuser
 
     def get(self, request, *args, **kwargs):
-        from django.db import DEFAULT_DB_ALIAS, connections
-        from django.db.migrations.loader import MigrationLoader
-
+        """
+        List migrations
+        """
         loader = MigrationLoader(connections[DEFAULT_DB_ALIAS], ignore_no_migrations=True)
         graph = loader.graph
         app_names = sorted(loader.migrated_apps)
@@ -221,7 +226,7 @@ class ShowMigrationsView(UserPassesTestMixin, APIView):
                         # Give it a nice title if it's a squashed one
                         title = plan_node[1]
                         if graph.nodes[plan_node].replaces:
-                            title += " (%s squashed migrations)" % len(graph.nodes[plan_node].replaces)
+                            title += f" ({len(graph.nodes[plan_node].replaces)} squashed migrations)"
                         apps_migrations.append((title, plan_node in loader.applied_migrations))
                         shown.add(plan_node)
             migrations[app_name] = apps_migrations
