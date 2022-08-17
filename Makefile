@@ -224,12 +224,12 @@ translate:  ## Compile messages in .po file to .mo file
 ##@ Pipenv
 
 install:  ## Install dependencies
-	@pipenv install
+	@pipenv install --skip-lock
 
 update:  ## Update dependencies
 	@pipenv update
 
-##@ Dev worflow
+##@ Dev workflow
 
 pull: art  ## Pull changes
 	@git reset HEAD --hard

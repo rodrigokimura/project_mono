@@ -19,3 +19,4 @@ mono/htmlcov
 mono/db.sqlite3
 mono/reports
 *.json
+Pipfile.lock
