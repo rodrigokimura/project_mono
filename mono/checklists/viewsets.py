@@ -46,6 +46,9 @@ class ChecklistViewSet(ModelViewSet):
 
 
 class TaskFilter(filters.FilterSet):
+    """
+    Task filter class
+    """
     checked = filters.BooleanFilter(field_name="checked_at", lookup_expr='isnull', exclude=True)
 
     class Meta:

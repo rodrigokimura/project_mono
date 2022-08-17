@@ -37,6 +37,7 @@ def delete_profile_picture(sender, instance: UserProfile, **kwargs):
 
 @receiver(post_save, sender=Notification, dispatch_uid="send_notification")
 def send_notification(sender, instance: Notification, created, **kwargs):
+    """Automatically send notification when it's created"""
     if created and sender == Notification:
         instance.send_to_telegram()
         instance.send_to_android()
