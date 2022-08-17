@@ -1,3 +1,4 @@
+"""Module to group firebase related code"""
 import logging
 
 from django.conf import settings
@@ -16,6 +17,9 @@ if settings.FIREBASE_AUTH_FILE.exists():
 
 
 def send_notification(title, message, tokens):
+    """
+    Send a simple notification via FCM
+    """
     firebase_notification = FirebaseNotification(title=str(title), body=message)
     try:
         result: BatchResponse = send_multicast(
@@ -25,6 +29,6 @@ def send_notification(title, message, tokens):
                 tokens=tokens
             )
         )
-        logger.info(f'Messages sent via FCM: {result.success_count}')
+        logger.info('Messages sent via FCM: %s', result.success_count)
     except ValueError as exc:
         logger.error(str(exc))

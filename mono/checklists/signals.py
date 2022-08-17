@@ -39,4 +39,11 @@ def schedule_recurrent_task(sender, instance: Task, **kwargs):
 def auto_order(sender, instance: Task, **kwargs):
     """Auto order tasks"""
     if instance.id is None:
-        instance.order = Task.objects.filter(checklist=instance.checklist).aggregate(o=Coalesce(Max('order'), Value(0)))['o'] + 1
+        instance.order = (
+            Task.objects.filter(
+                checklist=instance.checklist
+            )
+            .aggregate(
+                max_order=Coalesce(Max('order'), Value(0))
+            )['max_order'] + 1
+        )

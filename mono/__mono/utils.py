@@ -45,6 +45,9 @@ class Color(models.TextChoices):
 
 
 class NaturalTimeFormatter:
+    """
+    Simple class to format datetimes to human-readable timeintervals
+    """
     time_strings = {
         # Translators: delta will contain a string like '2 months' or '1 month, 2 weeks'
         'past-day': gettext_lazy('%(delta)s ago'),
