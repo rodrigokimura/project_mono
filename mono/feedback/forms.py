@@ -8,15 +8,14 @@ from .models import Feedback
 
 class FeedbackForm(forms.ModelForm):
     """Feedback form"""
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        self.fields['message'].widget.attrs.update(
-            {
-                'placeholder': _('Please, tell us what is on your mind.')
-            }
+        self.fields["message"].widget.attrs.update(
+            {"placeholder": _("Please, tell us what is on your mind.")}
         )
 
     def save(self, *args, **kwargs):
@@ -28,13 +27,11 @@ class FeedbackForm(forms.ModelForm):
 
     class Meta:
         model = Feedback
-        fields = ['feeling', 'message', 'public']
+        fields = ["feeling", "message", "public"]
         widgets = {
-            'feeling': IconButtonsWidget(choices=Feedback.FEELING_CHOICES),
-            'public': SliderWidget,
+            "feeling": IconButtonsWidget(choices=Feedback.FEELING_CHOICES),
+            "public": SliderWidget,
         }
         error_messages = {
-            'feeling': {
-                'invalid_choice': _("Please, select a valid option.")
-            }
+            "feeling": {"invalid_choice": _("Please, select a valid option.")}
         }

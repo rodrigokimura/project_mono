@@ -10,13 +10,14 @@ from .models import Ship
 
 class ShipView(TemplateView):
     """Root view"""
-    template_name = 'shipper/index.html'
+
+    template_name = "shipper/index.html"
 
     def get_context_data(self, **kwargs):
         """Add extra context"""
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Shipper'
-        context['description'] = 'A simple couple name generator'
+        context["title"] = "Shipper"
+        context["description"] = "A simple couple name generator"
         return context
 
 
@@ -26,11 +27,12 @@ class ShipDetailView(DetailView):
 
 class ShipCreateView(CreateView):
     """Create ship"""
+
     model = Ship
     form_class = ShipForm
 
     def get_success_url(self):
-        return reverse('shipper:ship_detail', kwargs={'pk': self.object.pk})
+        return reverse("shipper:ship_detail", kwargs={"pk": self.object.pk})
 
     def get_form_kwargs(self, *args, **kwargs):
         kwargs = super().get_form_kwargs(*args, **kwargs)

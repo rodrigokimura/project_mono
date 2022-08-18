@@ -8,7 +8,6 @@ from .views import FeedbackCreateView
 
 
 class FeedbackViewTests(TestCase):
-
     def setUp(self):
         Icon.create_defaults()
         self.user = User.objects.create(username="User")
@@ -25,7 +24,7 @@ class FeedbackViewTests(TestCase):
         self.assertIsNotNone(self.feedback)
 
     def test_feedback_view(self):
-        request = self.factory.get('/fb/')
+        request = self.factory.get("/fb/")
         request.user = self.user
 
         response = FeedbackCreateView.as_view()(request)
@@ -33,9 +32,12 @@ class FeedbackViewTests(TestCase):
 
         c = Client()
         c.force_login(self.user)
-        c.post('/fb/', {
-            'user': self.user,
-            'feeling': 1,
-            'message': "I'm angry",
-        })
+        c.post(
+            "/fb/",
+            {
+                "user": self.user,
+                "feeling": 1,
+                "message": "I'm angry",
+            },
+        )
         self.assertTrue(Feedback.objects.filter(message="I'm angry").exists())

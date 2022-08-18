@@ -6,7 +6,6 @@ from . import models
 
 @admin.register(models.Site)
 class SiteAdmin(admin.ModelAdmin):
-
     def flush_pings(self, request, queryset):  # pylint: disable=no-self-use
         for site in queryset:
             site.flush_pings()
@@ -19,12 +18,12 @@ class SiteAdmin(admin.ModelAdmin):
     undo_deletion.short_description = "Undo deletion"
 
     list_display = [
-        'id',
-        'host',
+        "id",
+        "host",
     ]
     list_filter = [
-        'id',
-        'host',
+        "id",
+        "host",
     ]
     actions = [flush_pings, undo_deletion]
 
@@ -33,25 +32,25 @@ class SiteAdmin(admin.ModelAdmin):
 class PingAdmin(admin.ModelAdmin):
 
     list_display = [
-        'user_id',
-        'event',
-        'document_location',
-        'referrer_location',
-        'timestamp',
-        'screen_resolution',
-        'viewport',
-        'document_title',
-        'browser_name',
-        'mobile_device',
-        'duration',
+        "user_id",
+        "event",
+        "document_location",
+        "referrer_location",
+        "timestamp",
+        "screen_resolution",
+        "viewport",
+        "document_title",
+        "browser_name",
+        "mobile_device",
+        "duration",
     ]
     list_filter = [
-        'site',
-        'user_id',
-        'event',
-        'timestamp',
-        'browser_name',
-        'mobile_device',
-        'document_title',
-        'openpixel_js_version',
+        "site",
+        "user_id",
+        "event",
+        "timestamp",
+        "browser_name",
+        "mobile_device",
+        "document_title",
+        "openpixel_js_version",
     ]

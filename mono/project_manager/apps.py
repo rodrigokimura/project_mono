@@ -5,7 +5,8 @@ from django.apps import AppConfig
 
 class ProjectManagerConfig(AppConfig):
     """Project manager's app config"""
-    name = 'project_manager'
+
+    name = "project_manager"
 
     def ready(self):
-        load_signals('project_manager')
+        load_signals("project_manager")

@@ -7,11 +7,11 @@ from .models import Site
 class SiteForm(forms.ModelForm):
     """Site registration form"""
 
-    error_css_class = 'error'
+    error_css_class = "error"
 
     class Meta:
         model = Site
-        fields = ['host']
+        fields = ["host"]
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")

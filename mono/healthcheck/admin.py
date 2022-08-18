@@ -52,9 +52,7 @@ class PytestResultAdmin(admin.ModelAdmin):
     list_filter = [
         "outcome",
     ]
-    search_fields = (
-        "node_id",
-    )
+    search_fields = ("node_id",)
 
 
 @admin.register(models.CoverageReport)
@@ -94,35 +92,33 @@ class CoverageResultAdmin(admin.ModelAdmin):
 @admin.register(models.PylintReport)
 class PylintReportAdmin(admin.ModelAdmin):
     list_display = (
-        'id',
-        'created_at',
-        'result_count',
+        "id",
+        "created_at",
+        "result_count",
     )
-    list_filter = (
-        'created_at',
-    )
+    list_filter = ("created_at",)
 
 
 @admin.register(models.PylintResult)
 class PylintResultAdmin(admin.ModelAdmin):
     list_display = (
-        'report',
-        'type',
-        'module',
-        'path',
-        'symbol',
-        'message',
-        'message_id',
+        "report",
+        "type",
+        "module",
+        "path",
+        "symbol",
+        "message",
+        "message_id",
     )
     list_filter = (
-        'type',
-        'symbol',
-        'message_id',
+        "type",
+        "symbol",
+        "message_id",
     )
     search_fields = (
-        'obj',
-        'path',
-        'symbol',
-        'message',
-        'message_id',
+        "obj",
+        "path",
+        "symbol",
+        "message",
+        "message_id",
     )

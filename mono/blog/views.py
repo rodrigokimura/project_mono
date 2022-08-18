@@ -12,9 +12,10 @@ from .models import Post
 
 class PostCreateView(UserPassesTestMixin, SuccessMessageMixin, CreateView):
     """Create blog post"""
+
     model = Post
     form_class = PostForm
-    success_url = reverse_lazy('blog:posts')
+    success_url = reverse_lazy("blog:posts")
     success_message = "%(title)s was created successfully"
 
     def test_func(self):
@@ -23,9 +24,10 @@ class PostCreateView(UserPassesTestMixin, SuccessMessageMixin, CreateView):
 
 class PostUpdateView(UserPassesTestMixin, SuccessMessageMixin, UpdateView):
     """Edit blog post"""
+
     model = Post
     form_class = PostForm
-    success_url = reverse_lazy('blog:posts')
+    success_url = reverse_lazy("blog:posts")
     success_message = "%(title)s was updated successfully"
 
     def test_func(self):
@@ -34,8 +36,9 @@ class PostUpdateView(UserPassesTestMixin, SuccessMessageMixin, UpdateView):
 
 class PostDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     """Delete blog post"""
+
     model = Post
-    success_url = reverse_lazy('blog:posts')
+    success_url = reverse_lazy("blog:posts")
     success_message = "Post was deleted successfully"
 
     def test_func(self):
@@ -48,6 +51,7 @@ class PostDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
 
 class PostListView(UserPassesTestMixin, ListView):
     """List blog posts"""
+
     model = Post
 
     def test_func(self):

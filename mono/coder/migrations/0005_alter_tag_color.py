@@ -6,13 +6,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('coder', '0004_auto_20220211_1424'),
+        ("coder", "0004_auto_20220211_1424"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='tag',
-            name='color',
-            field=models.CharField(choices=[('red', 'Red'), ('orange', 'Orange'), ('yellow', 'Yellow'), ('olive', 'Olive'), ('green', 'Green'), ('teal', 'Teal'), ('blue', 'Blue'), ('violet', 'Violet'), ('purple', 'Purple'), ('pink', 'Pink'), ('brown', 'Brown'), ('grey', 'Grey'), ('black', 'Black')], default='blue', max_length=100),
+            model_name="tag",
+            name="color",
+            field=models.CharField(
+                choices=[
+                    ("red", "Red"),
+                    ("orange", "Orange"),
+                    ("yellow", "Yellow"),
+                    ("olive", "Olive"),
+                    ("green", "Green"),
+                    ("teal", "Teal"),
+                    ("blue", "Blue"),
+                    ("violet", "Violet"),
+                    ("purple", "Purple"),
+                    ("pink", "Pink"),
+                    ("brown", "Brown"),
+                    ("grey", "Grey"),
+                    ("black", "Black"),
+                ],
+                default="blue",
+                max_length=100,
+            ),
         ),
     ]

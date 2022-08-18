@@ -5,7 +5,8 @@ from django.apps import AppConfig
 
 class FinanceConfig(AppConfig):
     """Finance's app config"""
-    name = 'finance'
+
+    name = "finance"
 
     def ready(self):
-        load_signals('finance')
+        load_signals("finance")

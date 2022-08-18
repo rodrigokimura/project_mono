@@ -4,17 +4,24 @@ from django.db.models import QuerySet
 from django.db.models.signals import post_save
 
 from .models import (
-    Feature, FirebaseCloudMessagingToken, Notification, Plan, Subscription,
-    User, UserProfile,
+    Feature,
+    FirebaseCloudMessagingToken,
+    Notification,
+    Plan,
+    Subscription,
+    User,
+    UserProfile,
 )
 
 
 class UserAdmin(admin.ModelAdmin):
     """User admin"""
 
-    actions = ['force_initial_setup']
+    actions = ["force_initial_setup"]
 
-    def force_initial_setup(self, request, queryset):  # pylint: disable=no-self-use
+    def force_initial_setup(
+        self, request, queryset
+    ):  # pylint: disable=no-self-use
         """Force initial setup for selected users"""
         for user in queryset:
             post_save.send(User, instance=user, created=True)
@@ -38,14 +45,14 @@ class UserProfileAdmin(admin.ModelAdmin):
     generate_avatar.short_description = "Generate avatar picture"
 
     list_display = [
-        'user',
-        'avatar',
-        'verified_at',
+        "user",
+        "avatar",
+        "verified_at",
     ]
     list_filter = [
-        'user',
-        'avatar',
-        'verified_at',
+        "user",
+        "avatar",
+        "verified_at",
     ]
     actions = [generate_avatar]
 
@@ -54,23 +61,31 @@ class UserProfileAdmin(admin.ModelAdmin):
 class NotificationAdmin(admin.ModelAdmin):
     """Notification admin"""
 
-    def read(self, request, queryset: QuerySet[Notification]):  # pylint: disable=no-self-use
+    def read(
+        self, request, queryset: QuerySet[Notification]
+    ):  # pylint: disable=no-self-use
         """Mark notifications as read"""
         for notification in queryset:
             notification.mark_as_read()
 
-    def duplicate(self, request, queryset: QuerySet[Notification]):  # pylint: disable=no-self-use
+    def duplicate(
+        self, request, queryset: QuerySet[Notification]
+    ):  # pylint: disable=no-self-use
         """Duplicate notifications"""
         for notification in queryset:
             notification.pk = None
             notification.save()
 
-    def send_to_telegram(self, request, queryset: QuerySet[Notification]):  # pylint: disable=no-self-use
+    def send_to_telegram(
+        self, request, queryset: QuerySet[Notification]
+    ):  # pylint: disable=no-self-use
         """Send notifications to telegram"""
         for notification in queryset:
             notification.send_to_telegram()
 
-    def send_to_android(self, request, queryset: QuerySet[Notification]):  # pylint: disable=no-self-use
+    def send_to_android(
+        self, request, queryset: QuerySet[Notification]
+    ):  # pylint: disable=no-self-use
         """Send notifications to android devices"""
         for notification in queryset:
             notification.send_to_android()
@@ -81,36 +96,31 @@ class NotificationAdmin(admin.ModelAdmin):
     send_to_android.short_description = "Send notifications to android devices"
 
     list_display = [
-        'title',
-        'to',
-        'created_at',
-        'icon',
-        'read_at',
-        'action_url',
+        "title",
+        "to",
+        "created_at",
+        "icon",
+        "read_at",
+        "action_url",
     ]
     list_filter = [
-        'title',
-        'to',
-        'created_at',
-        'icon',
-        'read_at',
-        'action_url',
+        "title",
+        "to",
+        "created_at",
+        "icon",
+        "read_at",
+        "action_url",
     ]
     actions = [read, duplicate, send_to_telegram, send_to_android]
 
 
 @admin.register(Plan)
 class PlanAdmin(admin.ModelAdmin):
-    list_display = [
-        "product_id",
-        "name",
-        "type",
-        "order"
-    ]
+    list_display = ["product_id", "name", "type", "order"]
     list_filter = [
         "type",
     ]
-    ordering = ('order',)
+    ordering = ("order",)
 
 
 @admin.register(FirebaseCloudMessagingToken)
@@ -124,7 +134,7 @@ class FirebaseCloudMessagingTokenAdmin(admin.ModelAdmin):
         "user",
         "created_at",
     ]
-    ordering = ('-created_at',)
+    ordering = ("-created_at",)
 
 
 @admin.register(Feature)
@@ -139,7 +149,7 @@ class FeatureAdmin(admin.ModelAdmin):
         "plan",
         "display",
     ]
-    ordering = ('plan',)
+    ordering = ("plan",)
 
 
 @admin.register(Subscription)

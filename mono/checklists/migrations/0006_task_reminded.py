@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('checklists', '0005_auto_20220513_1841'),
+        ("checklists", "0005_auto_20220513_1841"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='task',
-            name='reminded',
+            model_name="task",
+            name="reminded",
             field=models.BooleanField(default=False),
         ),
     ]

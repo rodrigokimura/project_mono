@@ -9,11 +9,14 @@ from .forms import FeedbackForm
 from .models import Feedback
 
 
-class FeedbackCreateView(PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+class FeedbackCreateView(
+    PassRequestToFormViewMixin, SuccessMessageMixin, CreateView
+):
     """Create feedback"""
+
     model = Feedback
     form_class = FeedbackForm
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy("home")
     success_message = _("Your feedback was sent! Thank you!")
 
     def get_context_data(self, **kwargs):

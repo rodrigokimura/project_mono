@@ -18,6 +18,7 @@ class RootView(UserPassesTestMixin, TemplateView):
     """
     Root view
     """
+
     template_name = "watcher/index.html"
 
     def test_func(self):
@@ -28,17 +29,23 @@ class RootView(UserPassesTestMixin, TemplateView):
         Add extra context
         """
         context = super().get_context_data(**kwargs)
-        context['unresolved_issues'] = Issue.objects.filter(resolved_at__isnull=True)
-        context['resolved_issues'] = Issue.objects.exclude(resolved_at__isnull=True)
-        context['requests'] = Request.objects.all()
+        context["unresolved_issues"] = Issue.objects.filter(
+            resolved_at__isnull=True
+        )
+        context["resolved_issues"] = Issue.objects.exclude(
+            resolved_at__isnull=True
+        )
+        context["requests"] = Request.objects.all()
         requests_by_app = [
             {
-                'app_name': result['app_name'],
-                'avg': round(result['avg'].total_seconds() * 1000, 2)
+                "app_name": result["app_name"],
+                "avg": round(result["avg"].total_seconds() * 1000, 2),
             }
-            for result in Request.objects.values('app_name').annotate(avg=Avg('duration'))
+            for result in Request.objects.values("app_name").annotate(
+                avg=Avg("duration")
+            )
         ]
-        context['requests_by_app'] = requests_by_app
+        context["requests_by_app"] = requests_by_app
         return context
 
     def dispatch(self, *args, **kwargs):
@@ -46,9 +53,9 @@ class RootView(UserPassesTestMixin, TemplateView):
         Add headers to avoid bf-cache
         """
         response = super().dispatch(*args, **kwargs)
-        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-        response['Pragma'] = 'no-cache'
-        response['Expires'] = '0'
+        response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response["Pragma"] = "no-cache"
+        response["Expires"] = "0"
         return response
 
 
@@ -56,6 +63,7 @@ class IssueDetailView(UserPassesTestMixin, DetailView):
     """
     View to display issues details
     """
+
     model = Issue
 
     def test_func(self):
@@ -76,12 +84,14 @@ class IssueResolveAPIView(LoginRequiredMixin, APIView):
         issue = get_object_or_404(Issue, pk=pk)
         serializer = IssueResolverSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        if serializer.data['resolved']:
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+        if serializer.data["resolved"]:
             issue.resolve(request.user)
         else:
             issue.unresolve()
-        return Response({'success': True})
+        return Response({"success": True})
 
 
 class IssueIgnoreAPIView(LoginRequiredMixin, APIView):
@@ -98,9 +108,11 @@ class IssueIgnoreAPIView(LoginRequiredMixin, APIView):
         issue = get_object_or_404(Issue, pk=pk)
         serializer = IssueIgnorerSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        if serializer.data['ignored']:
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+        if serializer.data["ignored"]:
             issue.ignore(request.user)
         else:
             issue.unignore()
-        return Response({'success': True})
+        return Response({"success": True})

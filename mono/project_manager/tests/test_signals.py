@@ -8,7 +8,7 @@ from ..signals import delete_background_image, delete_card_file
 
 class FakeImage:
     def __init__(self):
-        self.path = 'path'
+        self.path = "path"
 
 
 class FakeBucket:
@@ -33,20 +33,23 @@ class FakeCardFile:
 
 
 class SignalsTest(TestCase):
-
-    @patch('os.path.isfile')
-    @patch('os.remove')
-    def test_delete_background_image(self, mock_remove: MagicMock, mock_isfile: MagicMock):
+    @patch("os.path.isfile")
+    @patch("os.remove")
+    def test_delete_background_image(
+        self, mock_remove: MagicMock, mock_isfile: MagicMock
+    ):
         mock_isfile.return_value = True
         mock_remove.return_value = True
         delete_background_image(None, FakeObject(), None)
-        mock_remove.assert_called_once_with('path')
+        mock_remove.assert_called_once_with("path")
 
     @ignore_warnings
-    @patch('os.path.isfile')
-    @patch('os.remove')
-    def test_delete_card_file(self, mock_remove: MagicMock, mock_isfile: MagicMock):
+    @patch("os.path.isfile")
+    @patch("os.remove")
+    def test_delete_card_file(
+        self, mock_remove: MagicMock, mock_isfile: MagicMock
+    ):
         mock_isfile.return_value = True
-        mock_remove.side_effect = ValueError('test')
+        mock_remove.side_effect = ValueError("test")
         delete_card_file(None, FakeCardFile(), None)
-        mock_remove.assert_called_once_with('path')
+        mock_remove.assert_called_once_with("path")

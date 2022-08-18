@@ -13,7 +13,13 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.signing import TimestampSigner
 from django.db import models, transaction
 from django.db.models import (
-    DurationField, Exists, OuterRef, Q, QuerySet, Sum, Value as V,
+    DurationField,
+    Exists,
+    OuterRef,
+    Q,
+    QuerySet,
+    Sum,
+    Value as V,
 )
 from django.db.models.aggregates import Count, Max
 from django.db.models.fields import IntegerField
@@ -33,6 +39,7 @@ class BaseModel(models.Model):
     """
     Base model for this app
     """
+
     name = models.CharField(max_length=50, null=False, blank=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -49,8 +56,11 @@ class Project(BaseModel):
     """
     Project that holds boards
     """
+
     deadline = models.DateTimeField(null=True, blank=True)
-    assigned_to = models.ManyToManyField(User, related_name="assigned_projects", blank=True)
+    assigned_to = models.ManyToManyField(
+        User, related_name="assigned_projects", blank=True
+    )
     order = models.IntegerField(default=1)
 
     class Meta:
@@ -60,7 +70,9 @@ class Project(BaseModel):
 
     @property
     def allowed_users(self) -> QuerySet[User]:
-        return (User.objects.filter(id=self.created_by.id) | self.assigned_to.all()).distinct()
+        return (
+            User.objects.filter(id=self.created_by.id) | self.assigned_to.all()
+        ).distinct()
 
     @property
     def card_count(self):
@@ -73,9 +85,13 @@ class Project(BaseModel):
         """
         qs = Card.objects.filter(bucket__board__project=self.id)
         total_cards = qs.count()
-        not_started = qs.filter(status='NS').aggregate(count=Count('id'))['count']
-        in_progress = qs.filter(status='IP').aggregate(count=Count('id'))['count']
-        completed = qs.filter(status='C').aggregate(count=Count('id'))['count']
+        not_started = qs.filter(status="NS").aggregate(count=Count("id"))[
+            "count"
+        ]
+        in_progress = qs.filter(status="IP").aggregate(count=Count("id"))[
+            "count"
+        ]
+        completed = qs.filter(status="C").aggregate(count=Count("id"))["count"]
         if total_cards == 0:
             completed_perc = 0
             in_progress_perc = 0
@@ -86,9 +102,9 @@ class Project(BaseModel):
             not_started_perc = 100 - completed_perc - in_progress_perc
 
         return {
-            'completed': [completed, completed_perc],
-            'in_progress': [in_progress, in_progress_perc],
-            'not_started': [not_started, not_started_perc],
+            "completed": [completed, completed_perc],
+            "in_progress": [in_progress, in_progress_perc],
+            "not_started": [not_started, not_started_perc],
         }
 
     @property
@@ -115,7 +131,9 @@ class Project(BaseModel):
 
 class Space(BaseModel):
     order = models.PositiveIntegerField()
-    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name="spaces")
+    project = models.ForeignKey(
+        "Project", on_delete=models.CASCADE, related_name="spaces"
+    )
 
 
 class Board(BaseModel):
@@ -124,37 +142,62 @@ class Board(BaseModel):
     """
 
     def _background_image_path(self, filename):
-        return f'project_{self.project.id}/board_{self.id}/{filename}'
+        return f"project_{self.project.id}/board_{self.id}/{filename}"
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    assigned_to = models.ManyToManyField(User, related_name="assigned_boards", blank=True)
+    assigned_to = models.ManyToManyField(
+        User, related_name="assigned_boards", blank=True
+    )
     order = models.IntegerField(default=1)
     updated_at = models.DateTimeField(auto_now=True)
-    background_image = models.ImageField(upload_to=_background_image_path, blank=True, null=True)
-    space = models.ForeignKey('Space', on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    background_image = models.ImageField(
+        upload_to=_background_image_path, blank=True, null=True
+    )
+    space = models.ForeignKey(
+        "Space", on_delete=models.SET_NULL, null=True, blank=True, default=None
+    )
 
-    tags_feature = models.BooleanField(default=True, help_text='Enables tags on cards')
-    color_feature = models.BooleanField(default=True, help_text='Enables color on cards')
-    due_date_feature = models.BooleanField(default=True, help_text='Enables cards to have due dates')
-    status_feature = models.BooleanField(default=True, help_text='Enables status on cards')
-    assignees_feature = models.BooleanField(default=True, help_text='Enables assignees on cards')
-    checklist_feature = models.BooleanField(default=True, help_text='Enables checklist on cards')
-    files_feature = models.BooleanField(default=True, help_text='Enables file attachments on cards')
-    comments_feature = models.BooleanField(default=True, help_text='Enables users to comment on cards')
-    time_entries_feature = models.BooleanField(default=True, help_text='Enables users to track time spent on cards')
+    tags_feature = models.BooleanField(
+        default=True, help_text="Enables tags on cards"
+    )
+    color_feature = models.BooleanField(
+        default=True, help_text="Enables color on cards"
+    )
+    due_date_feature = models.BooleanField(
+        default=True, help_text="Enables cards to have due dates"
+    )
+    status_feature = models.BooleanField(
+        default=True, help_text="Enables status on cards"
+    )
+    assignees_feature = models.BooleanField(
+        default=True, help_text="Enables assignees on cards"
+    )
+    checklist_feature = models.BooleanField(
+        default=True, help_text="Enables checklist on cards"
+    )
+    files_feature = models.BooleanField(
+        default=True, help_text="Enables file attachments on cards"
+    )
+    comments_feature = models.BooleanField(
+        default=True, help_text="Enables users to comment on cards"
+    )
+    time_entries_feature = models.BooleanField(
+        default=True, help_text="Enables users to track time spent on cards"
+    )
 
     @property
     def allowed_users(self):
         return (
             User.objects.filter(
-                Q(id=self.created_by.id) | Q(id__in=self.assigned_to.all().values_list('id', flat=True))
+                Q(id=self.created_by.id)
+                | Q(id__in=self.assigned_to.all().values_list("id", flat=True))
             )
             .annotate(
                 has_timer_running=Exists(
                     TimeEntry.objects.filter(
                         card__bucket__board=self,
                         stopped_at__isnull=True,
-                        created_by_id=OuterRef('id'),
+                        created_by_id=OuterRef("id"),
                     )
                 )
             )
@@ -164,8 +207,8 @@ class Board(BaseModel):
     @property
     def max_order(self):
         return self.bucket_set.all().aggregate(
-            max_order=Coalesce(Max('order'), V(0), output_field=IntegerField())
-        )['max_order']
+            max_order=Coalesce(Max("order"), V(0), output_field=IntegerField())
+        )["max_order"]
 
     def touch(self):
         self.save()
@@ -186,9 +229,13 @@ class Board(BaseModel):
         """Display detailed information about board's progress"""
         qs = Card.objects.filter(bucket__board=self.id)
         total_cards = qs.count()
-        not_started = qs.filter(status='NS').aggregate(count=Count('id'))['count']
-        in_progress = qs.filter(status='IP').aggregate(count=Count('id'))['count']
-        completed = qs.filter(status='C').aggregate(count=Count('id'))['count']
+        not_started = qs.filter(status="NS").aggregate(count=Count("id"))[
+            "count"
+        ]
+        in_progress = qs.filter(status="IP").aggregate(count=Count("id"))[
+            "count"
+        ]
+        completed = qs.filter(status="C").aggregate(count=Count("id"))["count"]
         if total_cards == 0:
             completed_perc = 0
             in_progress_perc = 0
@@ -199,13 +246,15 @@ class Board(BaseModel):
             not_started_perc = 100 - completed_perc - in_progress_perc
 
         return {
-            'completed': [completed, completed_perc],
-            'in_progress': [in_progress, in_progress_perc],
-            'not_started': [not_started, not_started_perc],
+            "completed": [completed, completed_perc],
+            "in_progress": [in_progress, in_progress_perc],
+            "not_started": [not_started, not_started_perc],
         }
 
     # @transaction.atomic
-    def set_order_and_space(self, order: int, space: Optional[Space] = None) -> None:
+    def set_order_and_space(
+        self, order: int, space: Optional[Space] = None
+    ) -> None:
         """
         Set board order and/or move it to a space
         """
@@ -214,7 +263,9 @@ class Board(BaseModel):
         spaces = [original_space, target_space]
 
         for _space in spaces:
-            boards = Board.objects.filter(project=self.project, space=_space).exclude(id=self.id)
+            boards = Board.objects.filter(
+                project=self.project, space=_space
+            ).exclude(id=self.id)
             for i, board in enumerate(boards):
                 if i + 1 < order:
                     board.order = i + 1
@@ -232,7 +283,10 @@ class Configuration(models.Model):
     """
     User configuration
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='project_manager_config')
+
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="project_manager_config"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     compact = models.BooleanField(default=False)
@@ -240,14 +294,14 @@ class Configuration(models.Model):
     bucket_width = models.IntegerField(default=300)
 
     class Meta:
-        verbose_name = _('configuration')
-        verbose_name_plural = _('configurations')
+        verbose_name = _("configuration")
+        verbose_name_plural = _("configurations")
 
     def as_dict(self):
         return {
-            'compact': self.compact,
-            'dark': self.dark,
-            'bucket_width': self.bucket_width,
+            "compact": self.compact,
+            "dark": self.dark,
+            "bucket_width": self.bucket_width,
         }
 
 
@@ -255,26 +309,31 @@ class Bucket(BaseModel):
     """
     Bucket that holds cards
     """
-    NONE = 'N'
-    NOT_STARTED = 'NS'
-    IN_PROGRESS = 'IP'
-    COMPLETED = 'C'
+
+    NONE = "N"
+    NOT_STARTED = "NS"
+    IN_PROGRESS = "IP"
+    COMPLETED = "C"
     STATUSES = [
-        (NONE, _('No automatic status')),
-        (NOT_STARTED, _('Not started')),
-        (IN_PROGRESS, _('In progress')),
-        (COMPLETED, _('Completed')),
+        (NONE, _("No automatic status")),
+        (NOT_STARTED, _("Not started")),
+        (IN_PROGRESS, _("In progress")),
+        (COMPLETED, _("Completed")),
     ]
     DEFAULT_BUCKETS = [
-        (_('To do'), _('Stuff to do'), 1, NOT_STARTED),
-        (_('Doing'), _('Stuff being done'), 2, IN_PROGRESS),
-        (_('Done'), _('Stuff already finished'), 3, COMPLETED),
+        (_("To do"), _("Stuff to do"), 1, NOT_STARTED),
+        (_("Doing"), _("Stuff being done"), 2, IN_PROGRESS),
+        (_("Done"), _("Stuff already finished"), 3, COMPLETED),
     ]
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     order = models.IntegerField()
     description = models.TextField(max_length=255, blank=True, null=True)
-    auto_status = models.CharField(_("status"), max_length=2, choices=STATUSES, default=NONE)
-    color = models.ForeignKey('Theme', on_delete=models.CASCADE, blank=True, null=True, default=None)
+    auto_status = models.CharField(
+        _("status"), max_length=2, choices=STATUSES, default=NONE
+    )
+    color = models.ForeignKey(
+        "Theme", on_delete=models.CASCADE, blank=True, null=True, default=None
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -304,8 +363,8 @@ class Bucket(BaseModel):
     @property
     def max_order(self):
         return self.card_set.all().aggregate(
-            max_order=Coalesce(Max('order'), V(0), output_field=IntegerField())
-        )['max_order']
+            max_order=Coalesce(Max("order"), V(0), output_field=IntegerField())
+        )["max_order"]
 
     def touch(self):
         self.save()
@@ -322,13 +381,20 @@ class Tag(BaseModel):
     """
     Tag for generic information and filtering
     """
+
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
-    icon = models.ForeignKey('Icon', on_delete=models.SET_NULL, default=None, null=True, blank=True)
-    color = models.ForeignKey('Theme', on_delete=models.SET_NULL, default=None, null=True, blank=True)
+    icon = models.ForeignKey(
+        "Icon", on_delete=models.SET_NULL, default=None, null=True, blank=True
+    )
+    color = models.ForeignKey(
+        "Theme", on_delete=models.SET_NULL, default=None, null=True, blank=True
+    )
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['board', 'name'], name='unique_tag'),
+            models.UniqueConstraint(
+                fields=["board", "name"], name="unique_tag"
+            ),
         ]
 
 
@@ -336,38 +402,70 @@ class Activity(models.Model):
     """
     Store actions executed for a card to be displayed as history timeline.
     """
+
     class Action(models.TextChoices):
         """
         Actions to be logged
         """
-        CREATE_CARD = 'create_card', _('%(user)s created card')
-        UPDATE_NAME = 'update_name', _('%(user)s updated card name from %(old)s to %(new)s')
-        UPDATE_DESCRIPTION = 'update_description', _('%(user)s updated card description')
-        UPDATE_DUE_DATE = 'update_due_date', _('%(user)s updated card due date from %(old)s to %(new)s')
-        UPDATE_STATUS = 'update_status', _('%(user)s updated card status from %(old)s to %(new)s')
-        UPDATE_COLOR = 'update_color', _('%(user)s updated card color from %(old)s to %(new)s')
-        ADD_TAG = 'add_tags', _('%(user)s added tag %(tag)s')
-        REMOVE_TAG = 'remove_tags', _('%(user)s removed tag %(tag)s')
-        ADD_ASSIGNED_USER = 'add_assigned_user', _('%(user)s assigned %(assignee)s to card')
-        REMOVE_ASSIGNED_USER = 'remove_assigned_user', _("%(user)s removed %(assignee)s from card's assigned users")
-        ADD_CHECKLIST_ITEM = 'add_checklist_item', _('%(user)s added checklist item %(item)s')
-        UPDATE_CHECKLIST_ITEM = 'update_checklist_item', _('%(user)s updated checklist item from %(old)s to %(new)s')
-        REMOVE_CHECKLIST_ITEM = 'remove_checklist_item', _('%(user)s removed checklist item %(item)s')
-        ADD_COMMENT = 'add_comment', _('%(user)s added comment')
-        UPDATE_COMMENT = 'update_comment', _('%(user)s updated comment')
-        REMOVE_COMMENT = 'remove_comment', _('%(user)s removed comment')
-        ADD_FILE = 'add_file', _('%(user)s added a file')
-        REMOVE_FILE = 'remove_file', _('%(user)s removed a file')
-        START_TIMER = 'start_timer', _('%(user)s started timer')
-        STOP_TIMER = 'stop_timer', _('%(user)s stopped timer (logged duration: %(duration)s)')
-        UPDATE_TIME_ENTRY = (
-            'update_time_entry',
-            _('%(user)s updated a time entry (duration changed from %(old)s to %(new)s)'),
-        )
-        DELETE_TIME_ENTRY = 'delete_time_entry', _('%(user)s deleted a time entry')
 
-    card = models.ForeignKey('Card', on_delete=models.CASCADE, related_name='activities')
-    action = models.CharField(max_length=100, null=False, blank=False, choices=Action.choices)
+        CREATE_CARD = "create_card", _("%(user)s created card")
+        UPDATE_NAME = "update_name", _(
+            "%(user)s updated card name from %(old)s to %(new)s"
+        )
+        UPDATE_DESCRIPTION = "update_description", _(
+            "%(user)s updated card description"
+        )
+        UPDATE_DUE_DATE = "update_due_date", _(
+            "%(user)s updated card due date from %(old)s to %(new)s"
+        )
+        UPDATE_STATUS = "update_status", _(
+            "%(user)s updated card status from %(old)s to %(new)s"
+        )
+        UPDATE_COLOR = "update_color", _(
+            "%(user)s updated card color from %(old)s to %(new)s"
+        )
+        ADD_TAG = "add_tags", _("%(user)s added tag %(tag)s")
+        REMOVE_TAG = "remove_tags", _("%(user)s removed tag %(tag)s")
+        ADD_ASSIGNED_USER = "add_assigned_user", _(
+            "%(user)s assigned %(assignee)s to card"
+        )
+        REMOVE_ASSIGNED_USER = "remove_assigned_user", _(
+            "%(user)s removed %(assignee)s from card's assigned users"
+        )
+        ADD_CHECKLIST_ITEM = "add_checklist_item", _(
+            "%(user)s added checklist item %(item)s"
+        )
+        UPDATE_CHECKLIST_ITEM = "update_checklist_item", _(
+            "%(user)s updated checklist item from %(old)s to %(new)s"
+        )
+        REMOVE_CHECKLIST_ITEM = "remove_checklist_item", _(
+            "%(user)s removed checklist item %(item)s"
+        )
+        ADD_COMMENT = "add_comment", _("%(user)s added comment")
+        UPDATE_COMMENT = "update_comment", _("%(user)s updated comment")
+        REMOVE_COMMENT = "remove_comment", _("%(user)s removed comment")
+        ADD_FILE = "add_file", _("%(user)s added a file")
+        REMOVE_FILE = "remove_file", _("%(user)s removed a file")
+        START_TIMER = "start_timer", _("%(user)s started timer")
+        STOP_TIMER = "stop_timer", _(
+            "%(user)s stopped timer (logged duration: %(duration)s)"
+        )
+        UPDATE_TIME_ENTRY = (
+            "update_time_entry",
+            _(
+                "%(user)s updated a time entry (duration changed from %(old)s to %(new)s)"
+            ),
+        )
+        DELETE_TIME_ENTRY = "delete_time_entry", _(
+            "%(user)s deleted a time entry"
+        )
+
+    card = models.ForeignKey(
+        "Card", on_delete=models.CASCADE, related_name="activities"
+    )
+    action = models.CharField(
+        max_length=100, null=False, blank=False, choices=Action.choices
+    )
     context = models.JSONField(null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -381,7 +479,9 @@ class Activity(models.Model):
 
     @classmethod
     @transaction.atomic
-    def create_activities_for_fields(cls, card, user, data: Optional[Dict[str, Any]] = None):
+    def create_activities_for_fields(
+        cls, card, user, data: Optional[Dict[str, Any]] = None
+    ):
         """
         Method to create activities when a card attribute is changed.
         """
@@ -393,20 +493,24 @@ class Activity(models.Model):
             )
             return
         field_action_mapping = {
-            'name': cls.Action.UPDATE_NAME.value,
-            'description': cls.Action.UPDATE_DESCRIPTION.value,
-            'due_date': cls.Action.UPDATE_DUE_DATE.value,
-            'status': cls.Action.UPDATE_STATUS.value,
+            "name": cls.Action.UPDATE_NAME.value,
+            "description": cls.Action.UPDATE_DESCRIPTION.value,
+            "due_date": cls.Action.UPDATE_DUE_DATE.value,
+            "status": cls.Action.UPDATE_STATUS.value,
         }
         for field, action in field_action_mapping.items():
             if field in data:
                 old_value = getattr(card, field)
                 new_value = data[field]
                 if str(new_value) != str(old_value):
-                    cls.create_activity_for_update(card, action, user, old_value, new_value)
+                    cls.create_activity_for_update(
+                        card, action, user, old_value, new_value
+                    )
 
     @classmethod
-    def create_activity_for_update(cls, card, action, user, old_value, new_value):
+    def create_activity_for_update(
+        cls, card, action, user, old_value, new_value
+    ):
         """
         Method to create activities when a given card attribute is changed.
         """
@@ -415,8 +519,8 @@ class Activity(models.Model):
         context = None
         if action != cls.Action.UPDATE_DESCRIPTION:
             context = {
-                'old': old_value,
-                'new': new_value,
+                "old": old_value,
+                "new": new_value,
             }
         Activity.objects.create(
             action=action,
@@ -441,13 +545,13 @@ class Activity(models.Model):
                     action=action,
                     created_by=user,
                     card=card,
-                    context={
-                        'tag': tag.name
-                    }
+                    context={"tag": tag.name},
                 )
 
     @classmethod
-    def create_activity_for_assigned_users(cls, card, user, old_users, new_users):
+    def create_activity_for_assigned_users(
+        cls, card, user, old_users, new_users
+    ):
         """
         Method to create activities when assigned user set is changed.
         """
@@ -462,9 +566,7 @@ class Activity(models.Model):
                     action=action,
                     created_by=user,
                     card=card,
-                    context={
-                        'assignee': _user.username
-                    }
+                    context={"assignee": _user.username},
                 )
 
     @classmethod
@@ -472,22 +574,30 @@ class Activity(models.Model):
         """
         Method to create activities when timer is started or stopped.
         """
-        action = Activity.Action.START_TIMER if start else Activity.Action.STOP_TIMER
+        action = (
+            Activity.Action.START_TIMER if start else Activity.Action.STOP_TIMER
+        )
         activity = Activity(
             action=action,
             created_by=user,
             card=card,
         )
         if start is False:
-            activity.context = {'duration': str(duration)}
+            activity.context = {"duration": str(duration)}
         activity.save()
 
     @classmethod
-    def create_activity_for_time_entry(cls, card, user, update=True, old=None, new=None):
+    def create_activity_for_time_entry(
+        cls, card, user, update=True, old=None, new=None
+    ):
         """
         Method to create activities when time entries are updated or removed
         """
-        action = cls.Action.UPDATE_TIME_ENTRY if update else cls.Action.DELETE_TIME_ENTRY
+        action = (
+            cls.Action.UPDATE_TIME_ENTRY
+            if update
+            else cls.Action.DELETE_TIME_ENTRY
+        )
         activity = Activity(
             action=action,
             created_by=user,
@@ -497,8 +607,8 @@ class Activity(models.Model):
             if str(old) == str(new):
                 return
             activity.context = {
-                'old': str(old),
-                'new': str(new),
+                "old": str(old),
+                "new": str(new),
             }
         activity.save()
 
@@ -507,13 +617,13 @@ class Activity(models.Model):
         """
         Method to create activities when comments are added, updated or removed.
         """
-        if action not in ('add', 'update', 'remove'):
-            raise ValueError('Invalid action')
-        if action == 'add':
+        if action not in ("add", "update", "remove"):
+            raise ValueError("Invalid action")
+        if action == "add":
             action = cls.Action.ADD_COMMENT
-        if action == 'update':
+        if action == "update":
             action = cls.Action.UPDATE_COMMENT
-        if action == 'remove':
+        if action == "remove":
             action = cls.Action.REMOVE_COMMENT
         Activity.objects.create(
             action=action,
@@ -533,35 +643,34 @@ class Activity(models.Model):
         )
 
     @classmethod
-    def create_activity_for_checklist(cls, card, user, action, value=None, new_value=None):
+    def create_activity_for_checklist(
+        cls, card, user, action, value=None, new_value=None
+    ):
         """
         Method to create activities when checklist items are added, updated or removed
         """
-        if action not in ('add', 'update', 'remove'):
-            raise ValueError('Invalid action')
-        if action == 'add':
+        if action not in ("add", "update", "remove"):
+            raise ValueError("Invalid action")
+        if action == "add":
             action = cls.Action.ADD_CHECKLIST_ITEM
             context = {
-                'item': value,
+                "item": value,
             }
-        if action == 'update':
+        if action == "update":
             if value == new_value:
                 return
             action = cls.Action.UPDATE_CHECKLIST_ITEM
             context = {
-                'old': value,
-                'new': new_value,
+                "old": value,
+                "new": new_value,
             }
-        if action == 'remove':
+        if action == "remove":
             action = cls.Action.REMOVE_CHECKLIST_ITEM
             context = {
-                'item': value,
+                "item": value,
             }
         Activity.objects.create(
-            action=action,
-            created_by=user,
-            card=card,
-            context=context
+            action=action, created_by=user, card=card, context=context
         )
 
     @classmethod
@@ -576,23 +685,27 @@ class Activity(models.Model):
             created_by=user,
             card=card,
             context={
-                'old': old_value,
-                'new': new_value,
-            }
+                "old": old_value,
+                "new": new_value,
+            },
         )
 
     @staticmethod
     def process_color(value: str) -> str:
-        return _(value).lower() if value is not None else _('no color')
+        return _(value).lower() if value is not None else _("no color")
 
     @staticmethod
-    def process_date(value: str) -> str:  # pylint: disable=inconsistent-return-statements
+    def process_date(
+        value: str,
+    ) -> str:  # pylint: disable=inconsistent-return-statements
         """Convert dates from db format to localized"""
         if value is not None:
-            date_obj = datetime.strptime(value, '%Y-%m-%d')
-            date_str = date_format(date_obj, format='SHORT_DATE_FORMAT', use_l10n=True)
+            date_obj = datetime.strptime(value, "%Y-%m-%d")
+            date_str = date_format(
+                date_obj, format="SHORT_DATE_FORMAT", use_l10n=True
+            )
         else:
-            date_str = _('no date')
+            date_str = _("no date")
         return date_str
 
     @staticmethod
@@ -615,7 +728,7 @@ class Activity(models.Model):
         context = self.context
         if context is None:
             context = {}
-        text = ''
+        text = ""
         if self.action == Activity.Action.UPDATE_COLOR:
             func = Activity.process_color
         elif self.action == Activity.Action.UPDATE_DUE_DATE:
@@ -624,20 +737,16 @@ class Activity(models.Model):
             func = Activity.process_status
         else:
             func = Activity.noop
-        context = {
-            k: func(v)
-            for k, v in context.items()
+        context = {k: func(v) for k, v in context.items()}
+        context["user"] = {
+            "username": self.created_by.username,
+            "pic": self.created_by.profile.avatar.url,
         }
-        context['user'] = {
-            'username': self.created_by.username,
-            'pic': self.created_by.profile.avatar.url,
-        }
-        context['natural_time'] = NaturalTimeFormatter.string_for(self.created_at)
-        text = f'{self.get_action_display()} %(natural_time)s'
-        return {
-            'text': text,
-            'context': context
-        }
+        context["natural_time"] = NaturalTimeFormatter.string_for(
+            self.created_at
+        )
+        text = f"{self.get_action_display()} %(natural_time)s"
+        return {"text": text, "context": context}
 
     @property
     def verbose_text(self):
@@ -645,7 +754,7 @@ class Activity(models.Model):
         context = self.context
         if context is None:
             context = {}
-        text = ''
+        text = ""
         if self.action == Activity.Action.UPDATE_COLOR:
             func = Activity.process_color
         elif self.action == Activity.Action.UPDATE_DUE_DATE:
@@ -654,19 +763,16 @@ class Activity(models.Model):
             func = Activity.process_status
         else:
             func = Activity.noop
-        context = {
-            k: func(v)
-            for k, v in context.items()
-        }
-        context['user'] = self.created_by.username
+        context = {k: func(v) for k, v in context.items()}
+        context["user"] = self.created_by.username
         try:
             text = self.get_action_display() % context
         except TypeError:
             text = self.get_action_display()
         natural_time = NaturalTimeFormatter.string_for(self.created_at)
-        return _('%(executed_action)s %(natural_time)s') % {
-            'executed_action': text,
-            'natural_time': natural_time,
+        return _("%(executed_action)s %(natural_time)s") % {
+            "executed_action": text,
+            "natural_time": natural_time,
         }
 
 
@@ -678,39 +784,56 @@ class Card(BaseModel):
     def _card_directory_path(self, filename):
         """file will be uploaded to MEDIA_ROOT/project_<id>/<filename>"""
         p_id = self.bucket.board.project.id
-        return f'project_{p_id}/{filename}'
+        return f"project_{p_id}/{filename}"
 
     class Status(models.TextChoices):
         """
         Status choices for card
         """
-        NOT_STARTED = Bucket.NOT_STARTED, _('Not started')
-        IN_PROGRESS = Bucket.IN_PROGRESS, _('In progress')
-        COMPLETED = Bucket.COMPLETED, _('Completed')
+
+        NOT_STARTED = Bucket.NOT_STARTED, _("Not started")
+        IN_PROGRESS = Bucket.IN_PROGRESS, _("In progress")
+        COMPLETED = Bucket.COMPLETED, _("Completed")
 
     class TimerActions(models.TextChoices):
         """Timer actions"""
-        START = 'start'
-        STOP = 'stop'
-        NONE = 'none'
+
+        START = "start"
+        STOP = "stop"
+        NONE = "none"
 
     bucket = models.ForeignKey(Bucket, on_delete=models.CASCADE)
     order = models.IntegerField()
-    assigned_to = models.ManyToManyField(User, related_name="assigned_cards", blank=True)
+    assigned_to = models.ManyToManyField(
+        User, related_name="assigned_cards", blank=True
+    )
     description = models.TextField(max_length=1000, blank=True, null=True)
-    status = models.CharField(_("status"), max_length=2, choices=Status.choices, default=Bucket.NOT_STARTED)
+    status = models.CharField(
+        _("status"),
+        max_length=2,
+        choices=Status.choices,
+        default=Bucket.NOT_STARTED,
+    )
     due_date = models.DateField(blank=True, null=True, default=None)
     started_at = models.DateTimeField(blank=True, null=True)
-    started_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="started_cards", blank=True, null=True)
+    started_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="started_cards",
+        blank=True,
+        null=True,
+    )
     completed_at = models.DateTimeField(blank=True, null=True)
     completed_by = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="completed_cards",
         blank=True,
-        null=True
+        null=True,
     )
-    color = models.ForeignKey('Theme', on_delete=models.CASCADE, blank=True, null=True, default=None)
+    color = models.ForeignKey(
+        "Theme", on_delete=models.CASCADE, blank=True, null=True, default=None
+    )
     tag = models.ManyToManyField(Tag, blank=True, default=None)
 
     # @transaction.atomic
@@ -773,16 +896,17 @@ class Card(BaseModel):
     @property
     def total_time(self):
         """Total time tracked for this card"""
-        stopped_entries = self.timeentry_set.filter(
-            stopped_at__isnull=False
-        )
-        running_entries = self.timeentry_set.filter(
-            stopped_at__isnull=True
-        )
+        stopped_entries = self.timeentry_set.filter(stopped_at__isnull=False)
+        running_entries = self.timeentry_set.filter(stopped_at__isnull=True)
         stopped_entries_duration = stopped_entries.aggregate(
-            duration=Coalesce(Sum("duration"), V(0), output_field=DurationField())
-        )['duration']
-        running_entries_duration = sum([timezone.now() - entry.started_at for entry in running_entries], timedelta())
+            duration=Coalesce(
+                Sum("duration"), V(0), output_field=DurationField()
+            )
+        )["duration"]
+        running_entries_duration = sum(
+            [timezone.now() - entry.started_at for entry in running_entries],
+            timedelta(),
+        )
         return stopped_entries_duration + running_entries_duration
 
     # @transaction.atomic
@@ -790,48 +914,54 @@ class Card(BaseModel):
         """
         Create new time entry if no running entry is found.
         """
-        running_time_entries = self.timeentry_set.filter(stopped_at__isnull=True)
+        running_time_entries = self.timeentry_set.filter(
+            stopped_at__isnull=True
+        )
         if running_time_entries.exists():
-            return {'action': self.TimerActions.NONE}
+            return {"action": self.TimerActions.NONE}
         time_entry = TimeEntry.objects.create(
             name="Time entry",
             card=self,
             started_at=timezone.now(),
-            created_by=user
+            created_by=user,
         )
         time_entry.card.bucket.touch()
         Activity.create_activity_for_timer(self, user)
-        return {'action': self.TimerActions.START}
+        return {"action": self.TimerActions.START}
 
     # @transaction.atomic
     def stop_timer(self, user):
         """
         Stop any running time entry.
         """
-        running_time_entries = self.timeentry_set.filter(stopped_at__isnull=True)
+        running_time_entries = self.timeentry_set.filter(
+            stopped_at__isnull=True
+        )
         if running_time_entries.exists():
             for time_entry in running_time_entries:
                 time_entry.stopped_at = timezone.now()
                 time_entry.save()
                 time_entry.card.bucket.touch()
-                Activity.create_activity_for_timer(self, user, False, time_entry.duration)
-            return {'action': self.TimerActions.STOP}
-        return {'action': self.TimerActions.NONE}
+                Activity.create_activity_for_timer(
+                    self, user, False, time_entry.duration
+                )
+            return {"action": self.TimerActions.STOP}
+        return {"action": self.TimerActions.NONE}
 
     def start_stop_timer(self, user):
         """
         Toggle timer
         """
         result = self.stop_timer(user)
-        if result['action'] != self.TimerActions.NONE:
+        if result["action"] != self.TimerActions.NONE:
             return result
         return self.start_timer(user)
 
     @property
     def max_order(self):
         return self.item_set.all().aggregate(
-            max_order=Coalesce(Max('order'), V(0), output_field=IntegerField())
-        )['max_order']
+            max_order=Coalesce(Max("order"), V(0), output_field=IntegerField())
+        )["max_order"]
 
     @property
     def checked_items(self):
@@ -865,13 +995,12 @@ class CardFile(models.Model):
         """Format path to store card files"""
         p_id = self.card.bucket.board.project.id
         b_id = self.card.bucket.board.id
-        return f'project_{p_id}/board_{b_id}/{filename}'
+        return f"project_{p_id}/board_{b_id}/{filename}"
 
-    file = models.FileField(
-        upload_to=_card_directory_path,
-        max_length=1000
+    file = models.FileField(upload_to=_card_directory_path, max_length=1000)
+    card = models.ForeignKey(
+        Card, on_delete=models.CASCADE, related_name="files"
     )
-    card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='files')
 
     @property
     def image(self):
@@ -892,7 +1021,7 @@ class CardFile(models.Model):
         try:
             _, extension = os.path.splitext(self.file.name)
         except OSError:
-            extension = ''
+            extension = ""
         return extension
 
 
@@ -900,6 +1029,7 @@ class Item(BaseModel):
     """
     Checklist item in a card
     """
+
     order = models.IntegerField()
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
     checked_at = models.DateTimeField(null=True, blank=True, default=None)
@@ -909,7 +1039,7 @@ class Item(BaseModel):
         related_name="checked_items",
         default=None,
         null=True,
-        blank=True
+        blank=True,
     )
 
     class Meta:
@@ -940,8 +1070,11 @@ class Item(BaseModel):
 
 class Comment(models.Model):
     """Comment in a card"""
+
     text = models.TextField(max_length=1000, null=False, blank=False)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="card_comments")
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="card_comments"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
 
@@ -949,7 +1082,7 @@ class Comment(models.Model):
         return self.text
 
     class Meta:
-        ordering = ['created_at']
+        ordering = ["created_at"]
 
     @property
     def allowed_users(self):
@@ -959,16 +1092,16 @@ class Comment(models.Model):
     def mentioned_users(self):
         """Get users referenced in comment text"""
         users = []
-        for match in re.finditer('@', self.text):
-            space = self.text.find(' ', match.start() + 1)
+        for match in re.finditer("@", self.text):
+            space = self.text.find(" ", match.start() + 1)
             if match.start() > 0:
                 previous_char = self.text[match.start() - 1]
-                if previous_char not in [' ', '\n']:
+                if previous_char not in [" ", "\n"]:
                     continue
             if space != -1:
-                username = self.text[match.start() + 1:space]
+                username = self.text[match.start() + 1 : space]
             else:
-                username = self.text[match.start() + 1:]
+                username = self.text[match.start() + 1 :]
             try:
                 user = User.objects.get(username=username)
                 users.append(user)
@@ -978,29 +1111,30 @@ class Comment(models.Model):
 
     def notify_mentioned_users(self):
         """Send email to mentioned users"""
-        text = get_template('email/card_comment.txt')
-        html = get_template('email/card_comment.html')
+        text = get_template("email/card_comment.txt")
+        html = get_template("email/card_comment.html")
 
         site = settings.SITE
 
         full_link = f"{site}/card"
 
         context = {
-            'mention': True,
-            'card': self.card.name,
-            'author': self.created_by.username,
-            'comment': self.text,
-            'link': full_link,
+            "mention": True,
+            "card": self.card.name,
+            "author": self.created_by.username,
+            "comment": self.text,
+            "link": full_link,
         }
 
-        subject, from_email = _('Comment'), settings.EMAIL_HOST_USER
+        subject, from_email = _("Comment"), settings.EMAIL_HOST_USER
         for user in self.mentioned_users:
             msg = EmailMultiAlternatives(
                 subject=subject,
                 body=text.render(context),
                 from_email=from_email,
-                to=[user.email])
-            context['user'] = user.username
+                to=[user.email],
+            )
+            context["user"] = user.username
             msg.attach_alternative(html.render(context), "text/html")
             msg.send(fail_silently=False)
             Notification.objects.create(
@@ -1008,28 +1142,28 @@ class Comment(models.Model):
                 message=_("Someone commented on a card and mentioned you."),
                 icon="exclamation",
                 to=user,
-                action_url=full_link
+                action_url=full_link,
             )
 
     def notify_assignees(self):
         """Send email to assignee"""
 
-        text = get_template('email/card_comment.txt')
-        html = get_template('email/card_comment.html')
+        text = get_template("email/card_comment.txt")
+        html = get_template("email/card_comment.html")
 
         site = settings.SITE
 
         full_link = f"{site}/card"
 
         context = {
-            'mention': False,
-            'card': self.card.name,
-            'author': self.created_by.username,
-            'comment': self.text,
-            'link': full_link,
+            "mention": False,
+            "card": self.card.name,
+            "author": self.created_by.username,
+            "comment": self.text,
+            "link": full_link,
         }
 
-        subject, from_email = _('Comment'), settings.EMAIL_HOST_USER
+        subject, from_email = _("Comment"), settings.EMAIL_HOST_USER
         for user in self.card.assigned_to.exclude(id=self.created_by.id):
             if user in self.mentioned_users:
                 continue
@@ -1037,8 +1171,9 @@ class Comment(models.Model):
                 subject=subject,
                 body=text.render(context),
                 from_email=from_email,
-                to=[user.email])
-            context['user'] = user.username
+                to=[user.email],
+            )
+            context["user"] = user.username
             msg.attach_alternative(html.render(context), "text/html")
             msg.send(fail_silently=False)
             Notification.objects.create(
@@ -1046,12 +1181,13 @@ class Comment(models.Model):
                 message=_("Someone commented on a card assigned to you."),
                 icon="exclamation",
                 to=user,
-                action_url=full_link
+                action_url=full_link,
             )
 
 
 class TimeEntry(BaseModel):
     """Time entry in a card"""
+
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
     started_at = models.DateTimeField(default=timezone.now)
     stopped_at = models.DateTimeField(blank=True, null=True)
@@ -1078,25 +1214,26 @@ class Theme(models.Model):
     """
     Color theme of cards or boards
     """
+
     DEFAULT_THEMES = [
-        ('Red', '#f44336', '#b71c1c', '#ffebee'),
-        ('Orange', '#ff9800', '#e65100', '#fff3e0'),
-        ('Yellow', '#ffeb3b', '#f57f17', '#fffde7'),
-        ('Olive', '#cddc39', '#827717', '#f9fbe7'),
-        ('Green', '#4caf50', '#1b5e20', '#e8f5e9'),
-        ('Teal', '#009688', '#004d40', '#e0f2f1'),
-        ('Blue', '#2196f3', '#2185d0', '#e3f2fd'),
-        ('Violet', '#673ab7', '#311b92', '#ede7f6'),
-        ('Purple', '#9c27b0', '#a333c8', '#f3e5f5'),
-        ('Pink', '#e91e63', '#880e4f', '#fce4ec'),
-        ('Brown', '#795548', '#3e2723', '#efebe9'),
-        ('Grey', '#9e9e9e', '#212121', '#fafafa'),
-        ('Black', '#263238', '#000a12', '#eceff1'),
+        ("Red", "#f44336", "#b71c1c", "#ffebee"),
+        ("Orange", "#ff9800", "#e65100", "#fff3e0"),
+        ("Yellow", "#ffeb3b", "#f57f17", "#fffde7"),
+        ("Olive", "#cddc39", "#827717", "#f9fbe7"),
+        ("Green", "#4caf50", "#1b5e20", "#e8f5e9"),
+        ("Teal", "#009688", "#004d40", "#e0f2f1"),
+        ("Blue", "#2196f3", "#2185d0", "#e3f2fd"),
+        ("Violet", "#673ab7", "#311b92", "#ede7f6"),
+        ("Purple", "#9c27b0", "#a333c8", "#f3e5f5"),
+        ("Pink", "#e91e63", "#880e4f", "#fce4ec"),
+        ("Brown", "#795548", "#3e2723", "#efebe9"),
+        ("Grey", "#9e9e9e", "#212121", "#fafafa"),
+        ("Black", "#263238", "#000a12", "#eceff1"),
     ]
-    name = models.CharField(_('name'), max_length=50, unique=True)
-    primary = models.CharField(_('primary'), max_length=7)
-    dark = models.CharField(_('dark'), max_length=7)
-    light = models.CharField(_('light'), max_length=7)
+    name = models.CharField(_("name"), max_length=50, unique=True)
+    primary = models.CharField(_("primary"), max_length=7)
+    dark = models.CharField(_("dark"), max_length=7)
+    light = models.CharField(_("light"), max_length=7)
     active = models.BooleanField(default=True)
 
     def __str__(self) -> str:
@@ -1107,7 +1244,10 @@ class Theme(models.Model):
         """
         Create default themes
         """
-        themes = [cls(name=n, primary=p, dark=d, light=l) for n, p, d, l in cls.DEFAULT_THEMES]
+        themes = [
+            cls(name=n, primary=p, dark=d, light=l)
+            for n, p, d, l in cls.DEFAULT_THEMES
+        ]
         cls.objects.bulk_create(themes, ignore_conflicts=True)
 
 
@@ -1115,6 +1255,7 @@ class Icon(models.Model):
     """
     Icon used for tags
     """
+
     markup = models.CharField(max_length=50, unique=True)
 
     def __str__(self) -> str:
@@ -1133,6 +1274,7 @@ class Icon(models.Model):
 
 class Invite(models.Model):
     """Invite to assign user to project"""
+
     email = models.EmailField(max_length=1000, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
     created_by = models.ForeignKey(
@@ -1141,7 +1283,7 @@ class Invite(models.Model):
         default=None,
         null=True,
         blank=True,
-        related_name="created_project_invites"
+        related_name="created_project_invites",
     )
     created_at = models.DateTimeField(auto_now_add=True)
     accepted_by = models.ForeignKey(
@@ -1150,7 +1292,7 @@ class Invite(models.Model):
         default=None,
         null=True,
         blank=True,
-        related_name="accepted_project_invites"
+        related_name="accepted_project_invites",
     )
     accepted_at = models.DateTimeField(null=True, blank=True)
 
@@ -1176,7 +1318,9 @@ class Invite(models.Model):
             message=f"{user} accepted your invite.",
             icon="exclamation",
             to=self.created_by,
-            action_url=reverse("project_manager:project_detail", args=[project.id]),
+            action_url=reverse(
+                "project_manager:project_detail", args=[project.id]
+            ),
         )
 
     @property
@@ -1185,28 +1329,28 @@ class Invite(models.Model):
         Display valid link to accept invite
         """
         signer = TimestampSigner(salt="project_invite")
-        token = signer.sign_object({
-            "id": self.id,
-        })
+        token = signer.sign_object(
+            {
+                "id": self.id,
+            }
+        )
         return f"{settings.SITE}{reverse('project_manager:invite_acceptance')}?t={token}"
 
     def send(self):
         """
         Send invite via email
         """
-        text = get_template('email/invitation.txt')
-        html = get_template('email/invitation.html')
+        text = get_template("email/invitation.txt")
+        html = get_template("email/invitation.html")
 
-        context = {
-            'site': settings.SITE,
-            'link': self.link
-        }
+        context = {"site": settings.SITE, "link": self.link}
 
         msg = EmailMultiAlternatives(
-            subject=_('Invite'),
+            subject=_("Invite"),
             body=text.render(context),
             from_email=settings.EMAIL_HOST_USER,
-            to=[self.email])
+            to=[self.email],
+        )
         msg.attach_alternative(html.render(context), "text/html")
         msg.send(fail_silently=False)
         if User.objects.filter(email=self.email).exists():
@@ -1215,8 +1359,8 @@ class Invite(models.Model):
                 message=_("You were invited to be part of a project."),
                 icon="exclamation",
                 to=User.objects.get(email=self.email),
-                action_url=self.link
+                action_url=self.link,
             )
 
     def __str__(self) -> str:
-        return f'{str(self.project)} -> {self.email}'
+        return f"{str(self.project)} -> {self.email}"

@@ -25,14 +25,16 @@ def initial_user_setup(sender, instance, created, **kwargs):
 def delete_profile_picture(sender, instance: UserProfile, **kwargs):
     """Delete avatar file when profile is deleted"""
     if sender == UserProfile:
+
         def _delete_file(path):
-            """ Deletes file from filesystem. """
+            """Deletes file from filesystem."""
             if os.path.isfile(path):
                 os.remove(path)
+
         try:
             _delete_file(instance.avatar.path)
         except ValueError:
-            logging.warning('No file found')
+            logging.warning("No file found")
 
 
 @receiver(post_save, sender=Notification, dispatch_uid="send_notification")

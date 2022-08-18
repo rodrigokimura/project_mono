@@ -33,13 +33,13 @@ class Report:
         """
         Send report via email
         """
-        context = {'models': self.models}
+        context = {"models": self.models}
 
-        text_content = get_template('email/status_report.txt').render(context)
-        html_content = get_template('email/status_report.html').render(context)
+        text_content = get_template("email/status_report.txt").render(context)
+        html_content = get_template("email/status_report.html").render(context)
 
         mail_admins(
-            subject='STATUS REPORT',
+            subject="STATUS REPORT",
             message=text_content,
             html_message=html_content,
             fail_silently=False,

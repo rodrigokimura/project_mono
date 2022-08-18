@@ -6,73 +6,73 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('project_manager', '0015_auto_20220704_2303'),
+        ("project_manager", "0015_auto_20220704_2303"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='board',
-            name='public_id',
+            model_name="board",
+            name="public_id",
             field=models.UUIDField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name='bucket',
-            name='public_id',
+            model_name="bucket",
+            name="public_id",
             field=models.UUIDField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name='card',
-            name='public_id',
+            model_name="card",
+            name="public_id",
             field=models.UUIDField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name='cardfile',
-            name='public_id',
+            model_name="cardfile",
+            name="public_id",
             field=models.UUIDField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name='comment',
-            name='public_id',
+            model_name="comment",
+            name="public_id",
             field=models.UUIDField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name='icon',
-            name='public_id',
+            model_name="icon",
+            name="public_id",
             field=models.UUIDField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name='invite',
-            name='public_id',
+            model_name="invite",
+            name="public_id",
             field=models.UUIDField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name='item',
-            name='public_id',
+            model_name="item",
+            name="public_id",
             field=models.UUIDField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name='project',
-            name='public_id',
+            model_name="project",
+            name="public_id",
             field=models.UUIDField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name='space',
-            name='public_id',
+            model_name="space",
+            name="public_id",
             field=models.UUIDField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name='tag',
-            name='public_id',
+            model_name="tag",
+            name="public_id",
             field=models.UUIDField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name='theme',
-            name='public_id',
+            model_name="theme",
+            name="public_id",
             field=models.UUIDField(default=None, null=True),
         ),
         migrations.AddField(
-            model_name='timeentry',
-            name='public_id',
+            model_name="timeentry",
+            name="public_id",
             field=models.UUIDField(default=None, null=True),
         ),
     ]

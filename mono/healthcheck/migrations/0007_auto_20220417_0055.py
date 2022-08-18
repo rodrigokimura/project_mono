@@ -6,17 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('healthcheck', '0006_auto_20220417_0042'),
+        ("healthcheck", "0006_auto_20220417_0042"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='pytestresult',
-            options={'verbose_name': 'Pytest Result', 'verbose_name_plural': 'Pytest Results'},
+            name="pytestresult",
+            options={
+                "verbose_name": "Pytest Result",
+                "verbose_name_plural": "Pytest Results",
+            },
         ),
         migrations.AlterField(
-            model_name='pytestresult',
-            name='duration',
-            field=models.DurationField(help_text='Test duration.'),
+            model_name="pytestresult",
+            name="duration",
+            field=models.DurationField(help_text="Test duration."),
         ),
     ]

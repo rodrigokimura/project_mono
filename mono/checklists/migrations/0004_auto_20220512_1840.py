@@ -6,21 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('checklists', '0003_task_note'),
+        ("checklists", "0003_task_note"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='checklist',
-            options={'ordering': ['created_by', 'order']},
+            name="checklist",
+            options={"ordering": ["created_by", "order"]},
         ),
         migrations.AlterModelOptions(
-            name='task',
-            options={'ordering': ['checklist', 'order']},
+            name="task",
+            options={"ordering": ["checklist", "order"]},
         ),
         migrations.AddField(
-            model_name='checklist',
-            name='order',
+            model_name="checklist",
+            name="order",
             field=models.IntegerField(default=0),
         ),
     ]

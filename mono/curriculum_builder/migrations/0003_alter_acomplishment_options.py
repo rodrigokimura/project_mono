@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('curriculum_builder', '0002_auto_20220202_1628'),
+        ("curriculum_builder", "0002_auto_20220202_1628"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='acomplishment',
-            options={'ordering': ('work_experience', 'order')},
+            name="acomplishment",
+            options={"ordering": ("work_experience", "order")},
         ),
     ]

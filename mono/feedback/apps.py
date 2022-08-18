@@ -7,8 +7,9 @@ class FeedbackConfig(AppConfig):
     """
     Config for feedback app
     """
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'feedback'
+
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "feedback"
 
     def ready(self):
-        load_signals('feedback')
+        load_signals("feedback")

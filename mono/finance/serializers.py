@@ -2,21 +2,32 @@
 from rest_framework import fields, serializers
 
 from .models import (
-    Account, Category, Chart, Icon, Installment, RecurrentTransaction,
-    Transaction, Transference, User,
+    Account,
+    Category,
+    Chart,
+    Icon,
+    Installment,
+    RecurrentTransaction,
+    Transaction,
+    Transference,
+    User,
 )
 
 
 class UserSerializer(serializers.ModelSerializer):
     """User serializer"""
+
     class Meta:
         model = User
-        fields = ['username', 'email', 'is_staff']
+        fields = ["username", "email", "is_staff"]
 
 
 class AccountSerializer(serializers.ModelSerializer):
     """Account serializer"""
-    id = serializers.PrimaryKeyRelatedField(read_only=False, queryset=Account.objects.all())
+
+    id = serializers.PrimaryKeyRelatedField(
+        read_only=False, queryset=Account.objects.all()
+    )
 
     class Meta:
         model = Account
@@ -29,7 +40,7 @@ class AccountSerializer(serializers.ModelSerializer):
             "initial_balance",
             "credit_card",
             "settlement_date",
-            "due_date"
+            "due_date",
         ]
         read_only_fields = [
             "name",
@@ -39,12 +50,13 @@ class AccountSerializer(serializers.ModelSerializer):
             "initial_balance",
             "credit_card",
             "settlement_date",
-            "due_date"
+            "due_date",
         ]
 
 
 class IconSerializer(serializers.ModelSerializer):
     """Icon serializer"""
+
     class Meta:
         model = Icon
         fields = [
@@ -54,7 +66,10 @@ class IconSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     """Category serializer"""
-    id = serializers.PrimaryKeyRelatedField(read_only=False, queryset=Category.objects.all())
+
+    id = serializers.PrimaryKeyRelatedField(
+        read_only=False, queryset=Category.objects.all()
+    )
     icon = serializers.StringRelatedField(read_only=True)
 
     class Meta:
@@ -68,7 +83,7 @@ class CategorySerializer(serializers.ModelSerializer):
             "created_at",
             "group",
             "icon",
-            "active"
+            "active",
         ]
         read_only_fields = [
             "name",
@@ -78,12 +93,13 @@ class CategorySerializer(serializers.ModelSerializer):
             "created_at",
             "group",
             "icon",
-            "active"
+            "active",
         ]
 
 
 class TransactionSerializer(serializers.ModelSerializer):
     """Transaction serializer"""
+
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
@@ -93,33 +109,34 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = [
-            'description',
-            'account',
-            'category',
-            'created_by',
-            'timestamp',
-            'amount',
+            "description",
+            "account",
+            "category",
+            "created_by",
+            "timestamp",
+            "amount",
         ]
         read_only_fields = []
         depth = 1
 
     def create(self, validated_data):
         transaction = Transaction.objects.create(
-            account=validated_data.pop('account')['id'],
-            category=validated_data.pop('category')['id'],
+            account=validated_data.pop("account")["id"],
+            category=validated_data.pop("category")["id"],
             **validated_data,
         )
         return transaction
 
     def update(self, instance, validated_data):
-        instance.account = validated_data.pop('account')['id']
-        instance.category = validated_data.pop('category')['id']
+        instance.account = validated_data.pop("account")["id"]
+        instance.category = validated_data.pop("category")["id"]
         instance = super().update(instance, validated_data)
         return instance
 
 
 class RecurrentTransactionSerializer(serializers.ModelSerializer):
     """Recurrent transaction serializer"""
+
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
@@ -129,34 +146,35 @@ class RecurrentTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecurrentTransaction
         fields = [
-            'description',
-            'account',
-            'category',
-            'created_by',
-            'timestamp',
-            'amount',
-            'frequency',
+            "description",
+            "account",
+            "category",
+            "created_by",
+            "timestamp",
+            "amount",
+            "frequency",
         ]
         read_only_fields = []
         depth = 1
 
     def create(self, validated_data):
         transaction = RecurrentTransaction.objects.create(
-            account=validated_data.pop('account')['id'],
-            category=validated_data.pop('category')['id'],
+            account=validated_data.pop("account")["id"],
+            category=validated_data.pop("category")["id"],
             **validated_data,
         )
         return transaction
 
     def update(self, instance, validated_data):
-        instance.account = validated_data.pop('account')['id']
-        instance.category = validated_data.pop('category')['id']
+        instance.account = validated_data.pop("account")["id"]
+        instance.category = validated_data.pop("category")["id"]
         instance = super().update(instance, validated_data)
         return instance
 
 
 class InstallmentSerializer(serializers.ModelSerializer):
     """Installment serializer"""
+
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
@@ -166,35 +184,36 @@ class InstallmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Installment
         fields = [
-            'description',
-            'account',
-            'category',
-            'created_by',
-            'timestamp',
-            'total_amount',
-            'months',
-            'handle_remainder',
+            "description",
+            "account",
+            "category",
+            "created_by",
+            "timestamp",
+            "total_amount",
+            "months",
+            "handle_remainder",
         ]
         read_only_fields = []
         depth = 1
 
     def create(self, validated_data):
         transaction = Installment.objects.create(
-            account=validated_data.pop('account')['id'],
-            category=validated_data.pop('category')['id'],
+            account=validated_data.pop("account")["id"],
+            category=validated_data.pop("category")["id"],
             **validated_data,
         )
         return transaction
 
     def update(self, instance, validated_data):
-        instance.account = validated_data.pop('account')['id']
-        instance.category = validated_data.pop('category')['id']
+        instance.account = validated_data.pop("account")["id"]
+        instance.category = validated_data.pop("category")["id"]
         instance = super().update(instance, validated_data)
         return instance
 
 
 class TransferenceSerializer(serializers.ModelSerializer):
     """Transference serializer"""
+
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
@@ -202,27 +221,27 @@ class TransferenceSerializer(serializers.ModelSerializer):
     to_account = AccountSerializer()
 
     def validate(self, attrs):
-        if attrs['from_account'] == attrs['to_account']:
-            raise serializers.ValidationError('Accounts must be different')
+        if attrs["from_account"] == attrs["to_account"]:
+            raise serializers.ValidationError("Accounts must be different")
         return attrs
 
     class Meta:
         model = Transference
         fields = [
-            'description',
-            'to_account',
-            'from_account',
-            'created_by',
-            'timestamp',
-            'amount',
+            "description",
+            "to_account",
+            "from_account",
+            "created_by",
+            "timestamp",
+            "amount",
         ]
         read_only_fields = []
         depth = 1
 
     def create(self, validated_data):
         transaction = Transference.objects.create(
-            from_account=validated_data.pop('from_account')['id'],
-            to_account=validated_data.pop('to_account')['id'],
+            from_account=validated_data.pop("from_account")["id"],
+            to_account=validated_data.pop("to_account")["id"],
             **validated_data,
         )
         return transaction
@@ -230,6 +249,7 @@ class TransferenceSerializer(serializers.ModelSerializer):
 
 class ChartSerializer(serializers.ModelSerializer):
     """Chart serializer"""
+
     created_by = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
@@ -254,6 +274,7 @@ class ChartSerializer(serializers.ModelSerializer):
 
 class ChartMoveSerializer(serializers.Serializer):
     """Apply chart movement"""
+
     order = serializers.IntegerField()
     chart = serializers.IntegerField()
 
@@ -271,9 +292,8 @@ class ChartMoveSerializer(serializers.Serializer):
 
     def _change_other_charts_order(self, order):
         """Fix other charts order"""
-        other_charts = (
-            self.context['request'].user.charts
-            .exclude(id=self.validated_data['chart'])
+        other_charts = self.context["request"].user.charts.exclude(
+            id=self.validated_data["chart"]
         )
         for i, chart in enumerate(other_charts):
             if i + 1 < order:
@@ -285,14 +305,12 @@ class ChartMoveSerializer(serializers.Serializer):
 
     def move(self):
         """Apply chart movement"""
-        chart = Chart.objects.get(
-            id=self.validated_data['chart']
-        )
-        order = self.validated_data['order']
+        chart = Chart.objects.get(id=self.validated_data["chart"])
+        order = self.validated_data["order"]
         self._change_other_charts_order(order)
         chart.order = order
         chart.save()
-        return {'success': True}
+        return {"success": True}
 
     def create(self, validated_data):
         raise NotImplementedError

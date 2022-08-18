@@ -8,6 +8,7 @@ from background_task import background
 def remind(task_id):
     """Call remind method"""
     from .models import Task
+
     task: Task = Task.objects.get(pk=task_id)
     task.remind()
 
@@ -16,5 +17,6 @@ def remind(task_id):
 def create_next_task(task_id):
     """Call create_next_task method"""
     from .models import Task
+
     task: Task = Task.objects.get(pk=task_id)
     task.create_next_task()
