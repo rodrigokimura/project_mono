@@ -1,3 +1,9 @@
+## 6.14.1 (2022-08-17)
+
+### Refactor
+
+- **healthcheck**: show app version
+
 ## 6.14.0 (2022-08-17)
 
 ### Refactor
