@@ -289,15 +289,25 @@ check:  ## Show state and checks of last pull request
 					else 							{ status = $$2; } \
 					printf format, $$1, status, $$3, $$4; \
 				}' \
-		&& echo \
-		&& echo "Target version: " \
-		&& echo "$$(gh pr view $$LAST_PR | grep 'bump:' | grep -oP ' → .{0,255}' | cut -c 6-)" \
-		&& curl "https://www.monoproject.info/hc/"
+			&& echo \
+			&& echo "${DIM}Checking current version..." \
+			&& echo \
+			&& PROD_PR=$$(curl "https://www.monoproject.info/hc/" | python3 -c "import sys, json; print(json.load(sys.stdin)['pr'])") \
+			&& echo "${RESET}" \
+			&& if [ $$PROD_PR = $$LAST_PR ] ; \
+				then echo "${GREEN}Deployed!${RESET}"; \
+				else echo "${RED}Not deployed yet.${RESET}"; \
+			fi;
 		@echo
 
 prod-version:
 	@curl "https://www.monoproject.info/hc/"
 	@echo
+
+prod-pr:
+	@PROD_PR=$$(curl "https://www.monoproject.info/hc/" | python3 -c "import sys, json; print(json.load(sys.stdin)['pr'])") \
+	&& echo $$PROD_PR
+
 
 ssh: art  ## Connect to Production server
 	@ssh kimura@ssh.pythonanywhere.com || true
