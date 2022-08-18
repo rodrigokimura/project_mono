@@ -6,7 +6,9 @@ from .models import Feedback
 
 
 @receiver(post_save, sender=Feedback, dispatch_uid="send_feedback_to_admins")
-def send_feedback_to_admins(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
+def send_feedback_to_admins(
+    sender, instance, created, **kwargs
+):  # pylint: disable=unused-argument
     """
     Send feedbacks to admins
     """

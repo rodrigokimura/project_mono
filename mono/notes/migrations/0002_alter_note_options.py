@@ -6,12 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notes', '0001_squashed_0002_alter_tag_created_by'),
+        ("notes", "0001_squashed_0002_alter_tag_created_by"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='note',
-            options={'ordering': ('location', 'title'), 'verbose_name': 'note', 'verbose_name_plural': 'notes'},
+            name="note",
+            options={
+                "ordering": ("location", "title"),
+                "verbose_name": "note",
+                "verbose_name_plural": "notes",
+            },
         ),
     ]

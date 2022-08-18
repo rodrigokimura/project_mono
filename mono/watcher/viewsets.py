@@ -16,5 +16,5 @@ class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [IsCreator, IsAdminUser]
     filterset_fields = {
-        'issue__id': ['exact'],
+        "issue__id": ["exact"],
     }

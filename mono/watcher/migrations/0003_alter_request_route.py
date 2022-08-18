@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('watcher', '0002_request'),
+        ("watcher", "0002_request"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='request',
-            name='route',
-            field=models.CharField(blank=True, help_text='URL pattern', max_length=2000, null=True),
+            model_name="request",
+            name="route",
+            field=models.CharField(
+                blank=True, help_text="URL pattern", max_length=2000, null=True
+            ),
         ),
     ]

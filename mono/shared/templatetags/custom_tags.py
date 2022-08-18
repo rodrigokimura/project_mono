@@ -13,4 +13,4 @@ def default_image(image):
             return image.url
     except ValueError:
         pass
-    return settings.STATIC_URL + 'image/avatar.svg'
+    return settings.STATIC_URL + "image/avatar.svg"

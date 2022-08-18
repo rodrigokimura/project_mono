@@ -1,7 +1,10 @@
 """Watcher's serializers"""
 from accounts.serializers import UserSerializer
 from rest_framework.serializers import (
-    BooleanField, CurrentUserDefault, ModelSerializer, Serializer,
+    BooleanField,
+    CurrentUserDefault,
+    ModelSerializer,
+    Serializer,
 )
 
 from .models import Comment
@@ -43,13 +46,13 @@ class CommentSerializer(ModelSerializer):
     class Meta:
         model = Comment
         fields = [
-            'id',
-            'issue',
-            'text',
-            'created_by',
-            'created_at',
+            "id",
+            "issue",
+            "text",
+            "created_by",
+            "created_at",
         ]
         extra_kwargs = {
-            'created_by': {'read_only': True},
-            'created_at': {'read_only': True},
+            "created_by": {"read_only": True},
+            "created_at": {"read_only": True},
         }

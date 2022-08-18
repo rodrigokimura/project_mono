@@ -5,7 +5,7 @@ from ...report import Report
 
 
 class Command(BaseCommand):
-    help = 'Send report to admins'
+    help = "Send report to admins"
 
     def handle(self, *args, **options):
         try:

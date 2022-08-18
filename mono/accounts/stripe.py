@@ -14,9 +14,13 @@ def get_or_create_customer(email: str) -> Tuple[stripe.Customer, bool]:
     return customers[-1], False
 
 
-def get_payment_methods(customer: stripe.Customer) -> List[stripe.PaymentMethod]:
+def get_payment_methods(
+    customer: stripe.Customer,
+) -> List[stripe.PaymentMethod]:
     """Return a list of payment methods for the given customer."""
-    payment_methods = stripe.PaymentMethod.list(customer=customer.id, type="card", limit=100).data
+    payment_methods = stripe.PaymentMethod.list(
+        customer=customer.id, type="card", limit=100
+    ).data
     if len(payment_methods) == 100:
         next_page = True
         max_loops = 10
@@ -28,7 +32,7 @@ def get_payment_methods(customer: stripe.Customer) -> List[stripe.PaymentMethod]
                 customer=customer.id,
                 type="card",
                 limit=100,
-                starting_after=last_payment_method
+                starting_after=last_payment_method,
             ).data
             if len(new_payment_methods) == 100:
                 payment_methods.extend(new_payment_methods)
@@ -38,14 +42,18 @@ def get_payment_methods(customer: stripe.Customer) -> List[stripe.PaymentMethod]
     return payment_methods
 
 
-def get_or_create_subscription(customer: stripe.Customer, price_id: str) -> Tuple[stripe.Subscription, bool]:
+def get_or_create_subscription(
+    customer: stripe.Customer, price_id: str
+) -> Tuple[stripe.Subscription, bool]:
     """Check if customer has a subscription"""
     subscriptions = stripe.Subscription.list(customer=customer.id).data
     if len(subscriptions) == 0:
-        return stripe.Subscription.create(
-            customer=customer.id,
-            items=[{"price": price_id}]
-        ), True
+        return (
+            stripe.Subscription.create(
+                customer=customer.id, items=[{"price": price_id}]
+            ),
+            True,
+        )
     if len(subscriptions) == 1:
         return subscriptions[0], False
     return subscriptions[-1], False
@@ -61,7 +69,9 @@ def get_products():
         last_product = products[-1]
         while next_page and loop < max_loops:
             loop += 1
-            new_products = stripe.Product.list(limit=100, starting_after=last_product).data
+            new_products = stripe.Product.list(
+                limit=100, starting_after=last_product
+            ).data
             if len(new_products) == 100:
                 products.extend(new_products)
                 last_product = new_products[-1]
@@ -81,7 +91,9 @@ def get_all_customers():
         last_customer = customers[-1]
         while next_page and loop < max_loops:
             loop += 1
-            new_customers = stripe.Customer.list(limit=100, starting_after=last_customer).data
+            new_customers = stripe.Customer.list(
+                limit=100, starting_after=last_customer
+            ).data
             if len(new_customers) == 100:
                 customers.extend(new_customers)
                 last_customer = new_customers[-1]

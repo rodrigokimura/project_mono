@@ -6,32 +6,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('curriculum_builder', '0001_initial'),
+        ("curriculum_builder", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='company',
-            options={'verbose_name': 'company', 'verbose_name_plural': 'companies'},
+            name="company",
+            options={
+                "verbose_name": "company",
+                "verbose_name_plural": "companies",
+            },
         ),
         migrations.AlterModelOptions(
-            name='curriculum',
-            options={'verbose_name': 'curriculum', 'verbose_name_plural': 'curricula'},
+            name="curriculum",
+            options={
+                "verbose_name": "curriculum",
+                "verbose_name_plural": "curricula",
+            },
         ),
         migrations.AddField(
-            model_name='workexperience',
-            name='job_title',
-            field=models.TextField(default='', max_length=50),
+            model_name="workexperience",
+            name="job_title",
+            field=models.TextField(default="", max_length=50),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='company',
-            name='image',
-            field=models.ImageField(blank=True, null=True, upload_to=''),
+            model_name="company",
+            name="image",
+            field=models.ImageField(blank=True, null=True, upload_to=""),
         ),
         migrations.AlterField(
-            model_name='skill',
-            name='image',
-            field=models.ImageField(blank=True, null=True, upload_to=''),
+            model_name="skill",
+            name="image",
+            field=models.ImageField(blank=True, null=True, upload_to=""),
         ),
     ]

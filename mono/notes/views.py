@@ -22,14 +22,14 @@ from .forms import NoteForm
 from .models import Note
 from .serializers import NoteSerializer
 
-FILE_MARKER = '<files>'
+FILE_MARKER = "<files>"
 
 
 def attach(branch, trunk):
-    '''
+    """
     Insert a branch of directories on its trunk.
-    '''
-    parts = branch.split('/', 1)
+    """
+    parts = branch.split("/", 1)
     if len(parts) == 1:  # branch is a file
         trunk[FILE_MARKER].append(parts[0])
     else:
@@ -48,47 +48,60 @@ def generate_tree(tree):
         for mfile in files:
             if mfile != FILE_MARKER:
                 yield loader.render_to_string(
-                    'notes/p_folder.html',
+                    "notes/p_folder.html",
                     {
-                        'file': mfile,
-                        'subfiles': _index(files[mfile], level),
-                        'level': level - 1,
-                    }
+                        "file": mfile,
+                        "subfiles": _index(files[mfile], level),
+                        "level": level - 1,
+                    },
                 )
                 continue
             for file in files[mfile]:
-                file_id = file.split(':')[0]
-                title = file[len(file_id) + 1:]
+                file_id = file.split(":")[0]
+                title = file[len(file_id) + 1 :]
                 yield loader.render_to_string(
-                    'notes/p_file.html',
+                    "notes/p_file.html",
                     {
-                        'id': file_id,
-                        'title': title,
-                        'level': level,
-                    }
+                        "id": file_id,
+                        "title": title,
+                        "level": level,
+                    },
                 )
             level = level + 1
+
     return _index(tree, 0)
 
 
-class NoteCreateView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
+class NoteCreateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    PassRequestToFormViewMixin,
+    CreateView,
+):
     """
     Create note
     """
+
     form_class = NoteForm
-    template_name = 'notes/note_form.html'
-    success_url = reverse_lazy('notes:index')
+    template_name = "notes/note_form.html"
+    success_url = reverse_lazy("notes:index")
     success_message = _("%(title)s note created successfully")
 
 
-class NoteFormView(LoginRequiredMixin, SuccessMessageMixin, PassRequestToFormViewMixin, UpdateView):
+class NoteFormView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    PassRequestToFormViewMixin,
+    UpdateView,
+):
     """
     Edit note
     """
+
     model = Note
     form_class = NoteForm
-    template_name = 'notes/note_form.html'
-    success_url = reverse_lazy('notes:index')
+    template_name = "notes/note_form.html"
+    success_url = reverse_lazy("notes:index")
     success_message = _("%(title)s note updated successfully")
 
 
@@ -104,14 +117,14 @@ class NoteDetailApiView(LoginRequiredMixin, APIView):
         Detailed info about a note
         """
         note = get_object_or_404(Note, pk=pk)
-        request.session['note'] = pk
+        request.session["note"] = pk
         return JsonResponse(
             {
-                'id': pk,
-                'title': note.title,
-                'text': note.text,
-                'html': markdownify(note.text),
-                'url': note.get_absolute_url(),
+                "id": pk,
+                "title": note.title,
+                "text": note.text,
+                "html": markdownify(note.text),
+                "url": note.get_absolute_url(),
             }
         )
 
@@ -120,19 +133,23 @@ class NoteDetailApiView(LoginRequiredMixin, APIView):
         note = get_object_or_404(Note, pk=pk)
         serializer = NoteSerializer(note, data=request.data, partial=True)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
         serializer.save()
-        return Response({
-            'success': True,
-            'data': serializer.data,
-        })
+        return Response(
+            {
+                "success": True,
+                "data": serializer.data,
+            }
+        )
 
     def delete(self, request, pk):
         """Delete note"""
         note = get_object_or_404(Note, pk=pk)
         note.delete()
-        if request.session.get('note') == pk:
-            del request.session['note']
+        if request.session.get("note") == pk:
+            del request.session["note"]
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -140,12 +157,13 @@ class NoteListView(LoginRequiredMixin, ListView):
     """
     List all user's notes
     """
+
     model = Note
 
     def get_queryset(self):
-        qs = Note.objects.filter(
-            created_by=self.request.user
-        ).order_by('location')
+        qs = Note.objects.filter(created_by=self.request.user).order_by(
+            "location"
+        )
         return qs
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
@@ -153,5 +171,5 @@ class NoteListView(LoginRequiredMixin, ListView):
         main_dict = defaultdict(dict, ((FILE_MARKER, []),))
         for obj in self.get_queryset():
             attach(obj.full_path, main_dict)
-        context['subfiles'] = generate_tree(main_dict)
+        context["subfiles"] = generate_tree(main_dict)
         return context

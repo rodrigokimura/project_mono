@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0002_userprofile_telegram_chat_id'),
+        ("accounts", "0002_userprofile_telegram_chat_id"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='telegram_user_token',
+            model_name="userprofile",
+            name="telegram_user_token",
             field=models.UUIDField(blank=True, default=None, null=True),
         ),
     ]

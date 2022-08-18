@@ -20,17 +20,20 @@ def schedule_reminder(sender, instance: Task, **kwargs):
             instance.schedule_reminder()
 
 
-@receiver(post_save, sender=Task, dispatch_uid="schedule_recurrent_task_post_save")
+@receiver(
+    post_save, sender=Task, dispatch_uid="schedule_recurrent_task_post_save"
+)
 @receiver(pre_save, sender=Task, dispatch_uid="schedule_recurrent_task")
 def schedule_recurrent_task(sender, instance: Task, **kwargs):
     """Call async task to create recurrent task"""
-    if 'created' in kwargs:  # post_save
-        if kwargs['created']:
+    if "created" in kwargs:  # post_save
+        if kwargs["created"]:
             instance.schedule_recurrent_task()
     elif instance.id is not None:
         previous: Task = Task.objects.get(id=instance.id)
         if (
-            previous.recurrence != instance.recurrence or previous.due_date != instance.due_date
+            previous.recurrence != instance.recurrence
+            or previous.due_date != instance.due_date
         ):
             instance.schedule_recurrent_task()
 
@@ -40,10 +43,8 @@ def auto_order(sender, instance: Task, **kwargs):
     """Auto order tasks"""
     if instance.id is None:
         instance.order = (
-            Task.objects.filter(
-                checklist=instance.checklist
-            )
-            .aggregate(
-                max_order=Coalesce(Max('order'), Value(0))
-            )['max_order'] + 1
+            Task.objects.filter(checklist=instance.checklist).aggregate(
+                max_order=Coalesce(Max("order"), Value(0))
+            )["max_order"]
+            + 1
         )

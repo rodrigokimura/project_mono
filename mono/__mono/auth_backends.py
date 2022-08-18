@@ -24,7 +24,8 @@ class EmailOrUsernameModelBackend(ModelBackend):
         # possibly even for different users, so we'll query for all matching
         # records and test each one.
         users = user_model.objects.filter(
-            Q(**{user_model.USERNAME_FIELD: username}) | Q(email__iexact=username)
+            Q(**{user_model.USERNAME_FIELD: username})
+            | Q(email__iexact=username)
         )
 
         # Test whether any matched user has the provided password:

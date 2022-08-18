@@ -4,22 +4,26 @@ import uuid
 from django.db import models
 
 from .utils import (
-    CompoundWordPair, Portmanteau as _Portmanteau, PortmanteauConfig, Word,
+    CompoundWordPair,
+    Portmanteau as _Portmanteau,
+    PortmanteauConfig,
+    Word,
 )
 
 
 class Ship(models.Model):
     """Ship configuration"""
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name_1 = models.CharField(max_length=100)
     name_2 = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
     def __str__(self):
-        return f'{self.name_1} + {self.name_2}'
+        return f"{self.name_1} + {self.name_2}"
 
     def generate_portmanteaus(self):
         """Generate portmanteau instances"""
@@ -42,7 +46,10 @@ class Ship(models.Model):
 
 class Portmanteau(models.Model):
     """Ship name combined from two names"""
-    ship = models.ForeignKey(Ship, on_delete=models.CASCADE, related_name='portmanteaus')
+
+    ship = models.ForeignKey(
+        Ship, on_delete=models.CASCADE, related_name="portmanteaus"
+    )
     first_parent = models.CharField(max_length=100)
     first_index = models.SmallIntegerField()
     first_flag_onwards = models.BooleanField()
@@ -54,8 +61,16 @@ class Portmanteau(models.Model):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._portmanteau = _Portmanteau(
-            PortmanteauConfig(Word(self.first_parent), self.first_index, self.first_flag_onwards),
-            PortmanteauConfig(Word(self.second_parent), self.second_index, self.second_flag_onwards),
+            PortmanteauConfig(
+                Word(self.first_parent),
+                self.first_index,
+                self.first_flag_onwards,
+            ),
+            PortmanteauConfig(
+                Word(self.second_parent),
+                self.second_index,
+                self.second_flag_onwards,
+            ),
         )
 
     def __str__(self) -> str:

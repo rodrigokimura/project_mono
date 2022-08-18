@@ -6,7 +6,8 @@ from django.utils.safestring import mark_safe
 
 class CategoryWidget(Widget):
     """Dropdown widget with icons"""
-    template_name = 'widgets/ui_category.html'
+
+    template_name = "widgets/ui_category.html"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -14,11 +15,11 @@ class CategoryWidget(Widget):
 
     def get_context(self, name, value, attrs=None):
         return {
-            'widget': {
-                'name': name,
-                'value': value,
+            "widget": {
+                "name": name,
+                "value": value,
             },
-            'category_list': self.queryset
+            "category_list": self.queryset,
         }
 
     def render(self, name, value, attrs=None, renderer=None):

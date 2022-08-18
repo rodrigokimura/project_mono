@@ -17,13 +17,16 @@ User = get_user_model()
 
 class Checklist(models.Model):
     """Checklist"""
+
     name = models.CharField(max_length=50)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="checklists")
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="checklists"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     order = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ['created_by', 'order']
+        ordering = ["created_by", "order"]
 
     def __str__(self) -> str:
         return self.name
@@ -43,7 +46,9 @@ class Checklist(models.Model):
         """
         Set checklist order
         """
-        checklists = Checklist.objects.filter(created_by=self.created_by).exclude(id=self.id)
+        checklists = Checklist.objects.filter(
+            created_by=self.created_by
+        ).exclude(id=self.id)
         for i, checklist in enumerate(checklists):
             if i + 1 < order:
                 checklist.order = i + 1
@@ -60,32 +65,38 @@ class Task(models.Model):
 
     class Recurrence(models.TextChoices):
         """Frequency choices"""
-        DAILY = 'daily', _('Daily')
-        WEEKLY = 'weekly', _('Weekly')
-        MONTHLY = 'monthly', _('Monthly')
-        YEARLY = 'yearly', _('Yearly')
+
+        DAILY = "daily", _("Daily")
+        WEEKLY = "weekly", _("Weekly")
+        MONTHLY = "monthly", _("Monthly")
+        YEARLY = "yearly", _("Yearly")
 
     checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE)
     description = models.CharField(max_length=255)
-    note = models.TextField(default='', max_length=2000, blank=True)
+    note = models.TextField(default="", max_length=2000, blank=True)
     order = models.IntegerField(default=0)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_checklist_tasks")
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="created_checklist_tasks"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     checked_by = models.ForeignKey(
-        User, on_delete=models.CASCADE,
+        User,
+        on_delete=models.CASCADE,
         related_name="checked_checklist_tasks",
         null=True,
-        blank=True
+        blank=True,
     )
     checked_at = models.DateTimeField(null=True, blank=True)
     reminder = models.DateTimeField(null=True, blank=True, default=None)
     reminded = models.BooleanField(default=False)
     due_date = models.DateTimeField(null=True, blank=True, default=None)
-    recurrence = models.CharField(max_length=7, null=True, blank=True, choices=Recurrence.choices)
+    recurrence = models.CharField(
+        max_length=7, null=True, blank=True, choices=Recurrence.choices
+    )
     next_task_created = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ['checklist', 'order']
+        ordering = ["checklist", "order"]
 
     def __str__(self) -> str:
         return self.description
@@ -95,7 +106,9 @@ class Task(models.Model):
         """
         Set task order
         """
-        tasks = Task.objects.filter(checklist=self.checklist).exclude(id=self.id)
+        tasks = Task.objects.filter(checklist=self.checklist).exclude(
+            id=self.id
+        )
         for i, task in enumerate(tasks):
             if i + 1 < order:
                 task.order = i + 1
@@ -110,7 +123,9 @@ class Task(models.Model):
         """
         Schedule task for reminder
         """
-        BackgroundTask.objects.drop_task(task_name='checklists.tasks.remind', args=[self.id])
+        BackgroundTask.objects.drop_task(
+            task_name="checklists.tasks.remind", args=[self.id]
+        )
         if self.reminder is not None and not self.reminded:
             remind(self.id, schedule=self.reminder)
 
@@ -130,17 +145,20 @@ class Task(models.Model):
         """Remind task"""
         if self.reminder and not self.reminded:
             Notification.objects.create(
-                title=_('Reminder for task'),
-                message=_('You have a task to do: %(description)s') % {'description': self.description},
+                title=_("Reminder for task"),
+                message=_("You have a task to do: %(description)s")
+                % {"description": self.description},
                 to=self.created_by,
-                action_url=reverse('checklists:index'),
+                action_url=reverse("checklists:index"),
             )
             self.reminded = True
             self.save()
 
     def schedule_recurrent_task(self):
         """Schedule creation of next task"""
-        BackgroundTask.objects.drop_task(task_name='checklists.tasks.create_next_task', args=[self.id])
+        BackgroundTask.objects.drop_task(
+            task_name="checklists.tasks.create_next_task", args=[self.id]
+        )
         if self.recurrence is None:
             return
         run_at = self.get_next_due_date()
@@ -162,7 +180,7 @@ class Task(models.Model):
         elif not self.recurrence:
             return None
         else:
-            raise NotImplementedError('Invalid task recurrence')
+            raise NotImplementedError("Invalid task recurrence")
         _due_date = self.due_date
         if _due_date is None:
             return None
@@ -195,7 +213,10 @@ class Task(models.Model):
 
 class Configuration(models.Model):
     """Store user configuration"""
+
     show_completed_tasks = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.OneToOneField(User, on_delete=models.CASCADE, related_name="checklists_config")
+    created_by = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="checklists_config"
+    )
     updated_at = models.DateTimeField(auto_now=True)

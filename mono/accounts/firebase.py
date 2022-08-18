@@ -4,7 +4,9 @@ import logging
 from django.conf import settings
 from firebase_admin import credentials, initialize_app
 from firebase_admin.messaging import (
-    BatchResponse, MulticastMessage, Notification as FirebaseNotification,
+    BatchResponse,
+    MulticastMessage,
+    Notification as FirebaseNotification,
     send_multicast,
 )
 
@@ -24,11 +26,11 @@ def send_notification(title, message, tokens):
     try:
         result: BatchResponse = send_multicast(
             MulticastMessage(
-                data={'title': str(title), 'message': str(message)},
+                data={"title": str(title), "message": str(message)},
                 notification=firebase_notification,
-                tokens=tokens
+                tokens=tokens,
             )
         )
-        logger.info('Messages sent via FCM: %s', result.success_count)
+        logger.info("Messages sent via FCM: %s", result.success_count)
     except ValueError as exc:
         logger.error(str(exc))

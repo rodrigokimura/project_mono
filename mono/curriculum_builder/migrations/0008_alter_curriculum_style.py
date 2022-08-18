@@ -6,13 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('curriculum_builder', '0007_curriculum_style'),
+        ("curriculum_builder", "0007_curriculum_style"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='curriculum',
-            name='style',
-            field=models.CharField(choices=[('semantic', 'Semantic'), ('typewriter', 'Typewriter')], default='semantic', max_length=50),
+            model_name="curriculum",
+            name="style",
+            field=models.CharField(
+                choices=[
+                    ("semantic", "Semantic"),
+                    ("typewriter", "Typewriter"),
+                ],
+                default="semantic",
+                max_length=50,
+            ),
         ),
     ]

@@ -5,8 +5,9 @@ from django.apps import AppConfig
 
 class ShipperConfig(AppConfig):
     """Shipper's app config"""
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'shipper'
+
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "shipper"
 
     def ready(self):
-        load_signals('shipper')
+        load_signals("shipper")

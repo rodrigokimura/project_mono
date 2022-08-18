@@ -9,9 +9,12 @@ User = get_user_model()
 
 class Post(models.Model):
     """Blog post"""
+
     title = models.CharField(_("title"), max_length=100)
     content = HTMLField(_("content"))
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name=_("author"))
+    author = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, verbose_name=_("author")
+    )
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
@@ -22,9 +25,14 @@ class Post(models.Model):
 
 class Comment(models.Model):
     """Comment on a blog post"""
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name=_("post"))
+
+    post = models.ForeignKey(
+        Post, on_delete=models.CASCADE, verbose_name=_("post")
+    )
     description = models.TextField(_("description"), max_length=1000)
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name=_("author"))
+    author = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, verbose_name=_("author")
+    )
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 

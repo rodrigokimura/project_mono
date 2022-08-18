@@ -25,19 +25,20 @@ class ChecklistViewSet(ModelViewSet):
         return qs.filter(created_by=self.request.user)
 
     @transaction.atomic
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def sort(self, request, *args, **kwargs):
         """Sort checklist tasks"""
         checklist: Checklist = self.get_object()
         tasks = Task.objects.filter(checklist=checklist)
-        if request.data.get('field') not in ['description', 'created_at']:
+        if request.data.get("field") not in ["description", "created_at"]:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        is_ascending = request.data.get('direction', 'asc').lower() == 'asc'
+        is_ascending = request.data.get("direction", "asc").lower() == "asc"
 
         tasks = tasks.order_by(
-            request.data['field']
-            if is_ascending else '-' + request.data['field']
+            request.data["field"]
+            if is_ascending
+            else "-" + request.data["field"]
         )
         for index, task in enumerate(tasks):
             task.order = index
@@ -49,11 +50,14 @@ class TaskFilter(filters.FilterSet):
     """
     Task filter class
     """
-    checked = filters.BooleanFilter(field_name="checked_at", lookup_expr='isnull', exclude=True)
+
+    checked = filters.BooleanFilter(
+        field_name="checked_at", lookup_expr="isnull", exclude=True
+    )
 
     class Meta:
         model = Task
-        fields = ['checklist__id']
+        fields = ["checklist__id"]
 
 
 class TaskViewSet(ModelViewSet):
@@ -68,14 +72,14 @@ class TaskViewSet(ModelViewSet):
         qs = super().get_queryset()
         return qs.filter(created_by=self.request.user)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def check(self, request, *args, **kwargs):
         """Mark task as checked"""
         task: Task = self.get_object()
         task.mark_as_checked(request.user)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def uncheck(self, request, *args, **kwargs):
         """Mark task as unchecked"""
         task: Task = self.get_object()

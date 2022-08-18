@@ -5,7 +5,8 @@ from django.apps import AppConfig
 
 class AccountsConfig(AppConfig):
     """Accounts' app config"""
-    name = 'accounts'
+
+    name = "accounts"
 
     def ready(self):
-        load_signals('accounts')
+        load_signals("accounts")

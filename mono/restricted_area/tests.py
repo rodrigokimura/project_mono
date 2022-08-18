@@ -7,7 +7,6 @@ User = get_user_model()
 
 
 class RestrictedAreaViewTests(TestCase):
-
     def setUp(self):
         Icon.create_defaults()
         self.user = User.objects.create(
@@ -21,9 +20,11 @@ class RestrictedAreaViewTests(TestCase):
             email="super@test.com",
         )
         superuser.is_superuser = True
-        superuser.set_password('supersecret')
+        superuser.set_password("supersecret")
         superuser.save()
         c = Client()
-        c.login(username=superuser.username, password='supersecret')
-        r = c.post('/restricted-area/login-as/', {'user': superuser.id})
-        self.assertContains(r, f"Successfully logged in as {superuser.username}")
+        c.login(username=superuser.username, password="supersecret")
+        r = c.post("/restricted-area/login-as/", {"user": superuser.id})
+        self.assertContains(
+            r, f"Successfully logged in as {superuser.username}"
+        )
