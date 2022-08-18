@@ -288,8 +288,16 @@ check:  ## Show state and checks of last pull request
 					else if 	($$2 ~ /fail/) 		{ status = "${RED}fail 🛑     ${RESET}"; } \
 					else 							{ status = $$2; } \
 					printf format, $$1, status, $$3, $$4; \
-				}'
+				}' \
+		&& echo \
+		&& echo "Target version: " \
+		&& echo "$$(gh pr view $$LAST_PR | grep 'bump:' | grep -oP ' → .{0,255}' | cut -c 6-)" \
+		&& curl "https://www.monoproject.info/hc/"
 		@echo
+
+prod-version:
+	@curl "https://www.monoproject.info/hc/"
+	@echo
 
 ssh: art  ## Connect to Production server
 	@ssh kimura@ssh.pythonanywhere.com || true
