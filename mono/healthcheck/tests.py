@@ -184,15 +184,10 @@ class GithubWebhookView(TestCase):
 
 class HealthCheckView(TestCase):
     def test_get(self):
-        PullRequest.objects.create(
-            number=1,
-            merged_at=timezone.now(),
-            deployed_at=timezone.now(),
-        )
         c = Client()
         response = c.get("/hc/")
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "build_number")
+        self.assertEqual(response.json(), {"version": settings.APP_VERSION})
 
 
 class HomePageView(TestCase):
