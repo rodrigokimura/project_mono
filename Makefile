@@ -53,11 +53,13 @@ R_F8=reports/flake8
 R_PL=reports/pylint
 R_PT=reports/pytest
 
-black:
+black:  ## Run black
 	@pipenv run black mono
 
 isort:  ## Run isort
 	@pipenv run isort mono
+
+lint: art isort black  ## Run isort and black
 
 flake8:  ## Run flake8
 	@mkdir -p mono/$(R_F8)
