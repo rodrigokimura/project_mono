@@ -5,7 +5,7 @@ from ...models import BudgetConfiguration
 
 
 class Command(BaseCommand):
-    help = 'Command to create budgets from budget configurations (schedulers)'
+    help = "Command to create budgets from budget configurations (schedulers)"
 
     def handle(self, *args, **options):
         """Command to create budgets from budget configurations (schedulers)"""

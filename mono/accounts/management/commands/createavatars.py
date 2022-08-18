@@ -7,7 +7,8 @@ from ...models import UserProfile
 
 class Command(BaseCommand):
     """Command to create avatars for users without profile or avatar."""
-    help = 'Command to create avatars for users without profile or avatar.'
+
+    help = "Command to create avatars for users without profile or avatar."
 
     def handle(self, *args, **options):
         try:

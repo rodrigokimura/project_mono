@@ -24,23 +24,25 @@ def find_last_merge_commit():
 
 
 class Command(BaseCommand):
-    help = 'Command to deploy the app based on last pulled PR'
+    help = "Command to deploy the app based on last pulled PR"
 
     def handle(self, *args, **options):
         try:
             # repo = git.Repo(search_parent_directories=True)
             # sha = repo.head.object.hexsha
             sha = find_last_merge_commit()
-            qs = PullRequest.objects.filter(
-                last_commit_sha=sha
-            )
+            qs = PullRequest.objects.filter(last_commit_sha=sha)
 
             if not qs.exists():
-                raise PullRequest.DoesNotExist(f'No PR found with this SHA: {sha}')
+                raise PullRequest.DoesNotExist(
+                    f"No PR found with this SHA: {sha}"
+                )
             if qs.count() > 1:
-                raise PullRequest.MultipleObjectsReturned(f'Multiple PRs found with this SHA: {sha}')
+                raise PullRequest.MultipleObjectsReturned(
+                    f"Multiple PRs found with this SHA: {sha}"
+                )
 
-            pull_request: PullRequest = qs.latest('number')
+            pull_request: PullRequest = qs.latest("number")
             pull_request.pull()
             pull_request.deployed_at = timezone.now()
             pull_request.save()

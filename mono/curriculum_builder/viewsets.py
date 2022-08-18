@@ -3,12 +3,20 @@ from __mono.permissions import IsCreator
 from rest_framework.viewsets import ModelViewSet
 
 from .models import (
-    Acomplishment, Company, Curriculum, Skill, SocialMediaProfile,
+    Acomplishment,
+    Company,
+    Curriculum,
+    Skill,
+    SocialMediaProfile,
     WorkExperience,
 )
 from .serializers import (
-    AcomplishmentSerializer, CompanySerializer, CurriculumSerializer,
-    SkillSerializer, SocialMediaProfileSerializer, WorkExperienceSerializer,
+    AcomplishmentSerializer,
+    CompanySerializer,
+    CurriculumSerializer,
+    SkillSerializer,
+    SocialMediaProfileSerializer,
+    WorkExperienceSerializer,
 )
 
 # pylint: disable=too-many-ancestors
@@ -28,35 +36,41 @@ class BaseViewSet(ModelViewSet):
 
 class CompanyViewSet(BaseViewSet):
     """Company viewset"""
+
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
 
 
 class WorkExperienceViewSet(BaseViewSet):
     """WorkExperience viewset"""
+
     queryset = WorkExperience.objects.all()
     serializer_class = WorkExperienceSerializer
 
 
 class AcomplishmentViewSet(BaseViewSet):
     """Acomplishment viewset"""
+
     queryset = Acomplishment.objects.all()
     serializer_class = AcomplishmentSerializer
 
 
 class SkillViewSet(BaseViewSet):
     """Skill viewset"""
+
     queryset = Skill.objects.all()
     serializer_class = SkillSerializer
 
 
 class SocialMediaProfileViewSet(BaseViewSet):
     """SocialMediaProfile viewset"""
+
     queryset = SocialMediaProfile.objects.all()
     serializer_class = SocialMediaProfileSerializer
 
 
 class CurriculumViewSet(BaseViewSet):
     """Curriculum viewset"""
+
     queryset = Curriculum.objects.all()
     serializer_class = CurriculumSerializer

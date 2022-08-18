@@ -11,7 +11,8 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import (
-    LoginView, LogoutView,
+    LoginView,
+    LogoutView,
     PasswordResetCompleteView as _PasswordResetCompleteView,
     PasswordResetConfirmView as _PasswordResetConfirmView,
     PasswordResetDoneView as _PasswordResetDoneView,
@@ -33,7 +34,9 @@ from django.views.generic.edit import CreateView
 from rest_framework import authentication, permissions, status
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import (
-    CreateAPIView, RetrieveAPIView, UpdateAPIView,
+    CreateAPIView,
+    RetrieveAPIView,
+    UpdateAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -42,15 +45,23 @@ from social_django.models import UserSocialAuth
 
 from .forms import UserForm
 from .models import (
-    FirebaseCloudMessagingToken, Notification, Plan, Subscription, User,
+    FirebaseCloudMessagingToken,
+    Notification,
+    Plan,
+    Subscription,
+    User,
     UserProfile,
 )
 from .serializers import (
-    ChangePasswordSerializer, FCMTokenSerializer, ProfileSerializer,
+    ChangePasswordSerializer,
+    FCMTokenSerializer,
+    ProfileSerializer,
     UserSerializer,
 )
 from .stripe import (
-    get_or_create_customer, get_or_create_subscription, get_payment_methods,
+    get_or_create_customer,
+    get_or_create_subscription,
+    get_payment_methods,
     get_products,
 )
 from .telegram import send_message
@@ -60,9 +71,10 @@ class SignUp(SuccessMessageMixin, PassRequestToFormViewMixin, CreateView):
     """
     Sign up view.
     """
+
     form_class = UserForm
     template_name = "accounts/signup.html"
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy("home")
     success_message = "%(username)s user created successfully"
 
 
@@ -70,6 +82,7 @@ class Login(LoginView):
     """
     Login view.
     """
+
     template_name = "accounts/login.html"
 
     def form_valid(self, form):
@@ -91,18 +104,20 @@ class Logout(LogoutView):
     """
     Logout view.
     """
-    next_page = reverse_lazy('home')
+
+    next_page = reverse_lazy("home")
 
 
 class PasswordResetView(_PasswordResetView):
     """
     Password reset view.
     """
-    success_url = reverse_lazy('accounts:password_reset_done')
-    title = _('Password reset')
-    html_email_template_name = 'registration/password_reset_email.html'
-    subject_template_name = 'registration/password_reset_subject.txt'
-    template_name = 'registration/password_reset_form.html'
+
+    success_url = reverse_lazy("accounts:password_reset_done")
+    title = _("Password reset")
+    html_email_template_name = "registration/password_reset_email.html"
+    subject_template_name = "registration/password_reset_subject.txt"
+    template_name = "registration/password_reset_form.html"
     extra_email_context = {
         "expiration_time_hours": int(settings.PASSWORD_RESET_TIMEOUT / 60 / 60)
     }
@@ -112,54 +127,56 @@ class PasswordResetConfirmView(_PasswordResetConfirmView):
     """
     Password reset confirm view.
     """
-    success_url = reverse_lazy('accounts:password_reset_complete')
-    template_name = 'registration/password_reset_confirm.html'
-    title = _('Enter new password')
+
+    success_url = reverse_lazy("accounts:password_reset_complete")
+    template_name = "registration/password_reset_confirm.html"
+    title = _("Enter new password")
 
 
 class PasswordResetDoneView(_PasswordResetDoneView):
     """
     Password reset done view.
     """
-    template_name = 'registration/password_reset_done.html'
-    title = _('Password reset sent')
+
+    template_name = "registration/password_reset_done.html"
+    title = _("Password reset sent")
 
 
 class PasswordResetCompleteView(_PasswordResetCompleteView):
     """
     Password reset complete view.
     """
-    template_name = 'registration/password_reset_complete.html'
-    title = _('Password reset complete')
+
+    template_name = "registration/password_reset_complete.html"
+    title = _("Password reset complete")
 
 
 class AccountVerificationView(TemplateView):
     """
     Confirm account view.
     """
+
     template_name = "finance/invite_acceptance.html"
 
     def get(self, request, *args, **kwargs):
         """
         Handle GET request.
         """
-        token = request.GET.get('t', None)
+        token = request.GET.get("t", None)
 
-        if token is None or token == '':
+        if token is None or token == "":
             return HttpResponse("error")
 
-        payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=["HS256"]
-        )
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
 
-        user = get_object_or_404(User, pk=payload['user_id'])
+        user = get_object_or_404(User, pk=payload["user_id"])
         profile, _ = UserProfile.objects.get_or_create(user=user)
         profile.verify()
-        return self.render_to_response({
-            "accepted": True,
-        })
+        return self.render_to_response(
+            {
+                "accepted": True,
+            }
+        )
 
 
 class ConfigView(LoginRequiredMixin, TemplateView):
@@ -181,40 +198,55 @@ class ConfigView(LoginRequiredMixin, TemplateView):
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
-            customer = stripe.Customer.list(email=self.request.user.email).data[0]
-            payment_method = stripe.PaymentMethod.retrieve(customer.invoice_settings.default_payment_method)
-            context['payment_method'] = payment_method
+            customer = stripe.Customer.list(email=self.request.user.email).data[
+                0
+            ]
+            payment_method = stripe.PaymentMethod.retrieve(
+                customer.invoice_settings.default_payment_method
+            )
+            context["payment_method"] = payment_method
         except IndexError:
-            context['payment_method'] = None
+            context["payment_method"] = None
 
         notifications = self.request.user.notifications
-        context['notifications'] = {
-            'unread': notifications.filter(read_at__isnull=True).order_by('-created_at'),
-            'read': notifications.filter(read_at__isnull=False).order_by('-created_at'),
+        context["notifications"] = {
+            "unread": notifications.filter(read_at__isnull=True).order_by(
+                "-created_at"
+            ),
+            "read": notifications.filter(read_at__isnull=False).order_by(
+                "-created_at"
+            ),
         }
         # For social login controls
         try:
-            github_login = self.request.user.social_auth.get(provider='github')
+            github_login = self.request.user.social_auth.get(provider="github")
         except UserSocialAuth.DoesNotExist:
             github_login = None
 
         try:
-            twitter_login = self.request.user.social_auth.get(provider='twitter')
+            twitter_login = self.request.user.social_auth.get(
+                provider="twitter"
+            )
         except UserSocialAuth.DoesNotExist:
             twitter_login = None
 
         try:
-            facebook_login = self.request.user.social_auth.get(provider='facebook')
+            facebook_login = self.request.user.social_auth.get(
+                provider="facebook"
+            )
         except UserSocialAuth.DoesNotExist:
             facebook_login = None
 
-        can_disconnect = (self.request.user.social_auth.count() > 1 or self.request.user.has_usable_password())
+        can_disconnect = (
+            self.request.user.social_auth.count() > 1
+            or self.request.user.has_usable_password()
+        )
 
-        context['github_login'] = github_login
-        context['twitter_login'] = twitter_login
-        context['facebook_login'] = facebook_login
-        context['can_disconnect'] = can_disconnect
-        context['telegram_user_token'] = profile.get_telegram_user_token()
+        context["github_login"] = github_login
+        context["twitter_login"] = twitter_login
+        context["facebook_login"] = facebook_login
+        context["can_disconnect"] = can_disconnect
+        context["telegram_user_token"] = profile.get_telegram_user_token()
         return context
 
 
@@ -222,6 +254,7 @@ class FCMTokenView(CreateAPIView):
     """
     CBV to register FCM tokens
     """
+
     model = User
     serializer_class = FCMTokenSerializer
     permission_classes = (IsAuthenticated,)
@@ -233,14 +266,17 @@ class FCMTokenView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             _, created = FirebaseCloudMessagingToken.objects.get_or_create(
-                token=serializer.data.get('token'),
-                defaults={
-                    'user': user
-                }
+                token=serializer.data.get("token"), defaults={"user": user}
             )
             if created:
-                return Response(status=status.HTTP_201_CREATED, data={'message': 'Token created'})
-            return Response(status=status.HTTP_200_OK, data={'message': 'Token already exists'})
+                return Response(
+                    status=status.HTTP_201_CREATED,
+                    data={"message": "Token created"},
+                )
+            return Response(
+                status=status.HTTP_200_OK,
+                data={"message": "Token already exists"},
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -248,6 +284,7 @@ class ChangePasswordView(UpdateAPIView):
     """
     An endpoint for changing password.
     """
+
     serializer_class = ChangePasswordSerializer
     model = User
     permission_classes = (IsAuthenticated,)
@@ -262,15 +299,28 @@ class ChangePasswordView(UpdateAPIView):
 
         if serializer.is_valid():
             if not user.check_password(serializer.data.get("old_password")):
-                return Response({"old_password": [_("Wrong password.")]}, status=status.HTTP_400_BAD_REQUEST)
-            if serializer.data.get("new_password") != serializer.data.get("new_password_confirmation"):
                 return Response(
-                    {"new_password_confirmation": [_("The two new password fields didn't match.")]},
+                    {"old_password": [_("Wrong password.")]},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if serializer.data.get("new_password") != serializer.data.get(
+                "new_password_confirmation"
+            ):
+                return Response(
+                    {
+                        "new_password_confirmation": [
+                            _("The two new password fields didn't match.")
+                        ]
+                    },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             user.set_password(serializer.data.get("new_password"))
             user.save()
-            login(request, request.user, backend='__mono.auth_backends.EmailOrUsernameModelBackend')
+            login(
+                request,
+                request.user,
+                backend="__mono.auth_backends.EmailOrUsernameModelBackend",
+            )
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -280,6 +330,7 @@ class UserDetailAPIView(LoginRequiredMixin, APIView):
     """
     Retrieve or update a user instance.
     """
+
     permission_classes = (IsAuthenticated,)
 
     def patch(self, request, pk, **kwargs):
@@ -287,7 +338,10 @@ class UserDetailAPIView(LoginRequiredMixin, APIView):
         Update a user instance.
         """
         if request.user.id != pk:
-            return Response('You are trying to edit another user.', status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                "You are trying to edit another user.",
+                status=status.HTTP_403_FORBIDDEN,
+            )
         user = get_object_or_404(User, pk=pk)
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
@@ -311,8 +365,10 @@ class UserProfileDetailAPIView(LoginRequiredMixin, APIView):
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response('User not allowed', status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response("User not allowed", status=status.HTTP_403_FORBIDDEN)
 
 
 class NotificationCountView(LoginRequiredMixin, View):
@@ -333,11 +389,13 @@ class NotificationCountView(LoginRequiredMixin, View):
         else:
             count = 0
             timestamp = None
-        return JsonResponse({
-            'success': True,
-            'count': count,
-            'timestamp': timestamp,
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "count": count,
+                "timestamp": timestamp,
+            }
+        )
 
 
 class NotificationActionView(LoginRequiredMixin, SingleObjectMixin, View):
@@ -358,11 +416,11 @@ class NotificationActionView(LoginRequiredMixin, SingleObjectMixin, View):
             notification.mark_as_read()
             messages.success(
                 self.request,
-                'Notification marked as read.',
+                "Notification marked as read.",
             )
         if notification.action_url:
             return redirect(notification.action_url)
-        return redirect('/')
+        return redirect("/")
 
 
 class MarkNotificationsAsReadView(LoginRequiredMixin, View):
@@ -374,20 +432,24 @@ class MarkNotificationsAsReadView(LoginRequiredMixin, View):
         """
         Mark notifications as read.
         """
-        ids = json.loads(request.POST.get('ids', ''))
+        ids = json.loads(request.POST.get("ids", ""))
         if len(ids) == 0:
-            raise BadRequest('No notification ids were passed.')
-        notifications = Notification.objects.filter(to=request.user, read_at__isnull=True, id__in=ids)
+            raise BadRequest("No notification ids were passed.")
+        notifications = Notification.objects.filter(
+            to=request.user, read_at__isnull=True, id__in=ids
+        )
         for notification in notifications:
             notification.mark_as_read()
         messages.success(
             request,
             f'You marked {notifications.count()} notification{"s" if notifications.count() > 1 else ""} as read.',
         )
-        return JsonResponse({
-            'success': True,
-            'data': list(notifications.values_list('id', flat=True))
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "data": list(notifications.values_list("id", flat=True)),
+            }
+        )
 
 
 class MarkNotificationsAsUnreadView(LoginRequiredMixin, View):
@@ -399,20 +461,24 @@ class MarkNotificationsAsUnreadView(LoginRequiredMixin, View):
         """
         Mark notifications as unread.
         """
-        ids = json.loads(request.POST.get('ids', ''))
+        ids = json.loads(request.POST.get("ids", ""))
         if len(ids) == 0:
-            raise BadRequest('No notification ids were passed.')
-        notifications = Notification.objects.filter(to=request.user, read_at__isnull=False, id__in=ids)
+            raise BadRequest("No notification ids were passed.")
+        notifications = Notification.objects.filter(
+            to=request.user, read_at__isnull=False, id__in=ids
+        )
         for notification in notifications:
             notification.mark_as_unread()
         messages.success(
             request,
             f'You marked {notifications.count()} notification{"s" if notifications.count() > 1 else ""} as unread.',
         )
-        return JsonResponse({
-            'success': True,
-            'data': list(notifications.values_list('id', flat=True))
-        })
+        return JsonResponse(
+            {
+                "success": True,
+                "data": list(notifications.values_list("id", flat=True)),
+            }
+        )
 
 
 class ApiMeView(RetrieveAPIView):
@@ -420,7 +486,10 @@ class ApiMeView(RetrieveAPIView):
     Retrive the currently logged in user.
     """
 
-    authentication_classes = [authentication.TokenAuthentication, authentication.SessionAuthentication]
+    authentication_classes = [
+        authentication.TokenAuthentication,
+        authentication.SessionAuthentication,
+    ]
     permission_classes = [permissions.IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -435,7 +504,10 @@ class ApiLogoutView(APIView):
     Logout user.
     """
 
-    authentication_classes = [authentication.TokenAuthentication, authentication.SessionAuthentication]
+    authentication_classes = [
+        authentication.TokenAuthentication,
+        authentication.SessionAuthentication,
+    ]
     permission_classes = [permissions.IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -452,6 +524,7 @@ class ApiLogoutView(APIView):
 
 class PlansView(UserPassesTestMixin, TemplateView):
     """Show available plans."""
+
     template_name = "finance/plans.html"
 
     def test_func(self):
@@ -464,19 +537,20 @@ class PlansView(UserPassesTestMixin, TemplateView):
 
         product_ids = [product.id for product in get_products()]
 
-        context['plans'] = Plan.objects.filter(product_id__in=product_ids)
-        context['free_plan'] = Plan.objects.filter(
-            product_id__in=product_ids,
-            type=Plan.FREE
+        context["plans"] = Plan.objects.filter(product_id__in=product_ids)
+        context["free_plan"] = Plan.objects.filter(
+            product_id__in=product_ids, type=Plan.FREE
         ).first()
         if self.request.user.is_authenticated:
             if Subscription.objects.filter(user=self.request.user).exists():
-                user_plan = Subscription.objects.get(user=self.request.user).plan
+                user_plan = Subscription.objects.get(
+                    user=self.request.user
+                ).plan
             else:
                 user_plan = Plan.objects.get(type=Plan.FREE)
         else:
             user_plan = None
-        context['user_plan'] = user_plan
+        context["user_plan"] = user_plan
 
         return context
 
@@ -494,35 +568,38 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        if 'plan' not in self.request.GET:
+        if "plan" not in self.request.GET:
             raise BadRequest("This endpoint needs a query parameter 'plan'.")
 
-        plan = get_object_or_404(
-            Plan,
-            pk=self.request.GET.get('plan')
-        )
+        plan = get_object_or_404(Plan, pk=self.request.GET.get("plan"))
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
         product = stripe.Product.retrieve(plan.product_id)
 
-        currency = 'brl' if self.request.LANGUAGE_CODE == 'pt-br' else 'usd'
+        currency = "brl" if self.request.LANGUAGE_CODE == "pt-br" else "usd"
 
-        stripe_plans = stripe.Plan.list(product=product.id, active=True, currency=currency).data
+        stripe_plans = stripe.Plan.list(
+            product=product.id, active=True, currency=currency
+        ).data
 
         plans = []
 
         # Get monthly plan price
-        monthly_price = list(filter(lambda price: price.interval == 'month', stripe_plans))[0]
+        monthly_price = list(
+            filter(lambda price: price.interval == "month", stripe_plans)
+        )[0]
         plans.append(monthly_price)
 
         # Get yearly plan price
-        yearly_price = list(filter(lambda price: price.interval == 'year', stripe_plans))[0]
+        yearly_price = list(
+            filter(lambda price: price.interval == "year", stripe_plans)
+        )[0]
         plans.append(yearly_price)
 
-        context['stripe_pk'] = settings.STRIPE_PUBLIC_KEY
-        context['plan'] = plan
-        context['product'] = product
-        context['plans'] = plans
+        context["stripe_pk"] = settings.STRIPE_PUBLIC_KEY
+        context["plan"] = plan
+        context["product"] = product
+        context["plans"] = plans
 
         return context
 
@@ -535,16 +612,20 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
         if plan.type != Plan.FREE:
             return self.render_to_response(self.get_context_data())
         if Subscription.objects.filter(user=request.user).exists():
-            subscription: Subscription = Subscription.objects.get(user=request.user)
+            subscription: Subscription = Subscription.objects.get(
+                user=request.user
+            )
             success, message = subscription.cancel_at_period_end()
             messages.add_message(
                 request,
                 messages.SUCCESS if success else messages.ERROR,
-                message
+                message,
             )
         else:
-            messages.error(request, "You are already subscribed to the Free Plan.")
-        return redirect(to=reverse('accounts:plans'))
+            messages.error(
+                request, "You are already subscribed to the Free Plan."
+            )
+        return redirect(to=reverse("accounts:plans"))
 
     def post(self, request, *args, **kwargs):
         """
@@ -571,31 +652,35 @@ class CheckoutView(UserPassesTestMixin, TemplateView):
         # Set as default payment method
         customer.modify(
             customer.id,
-            invoice_settings={"default_payment_method": payment_method_id}
+            invoice_settings={"default_payment_method": payment_method_id},
         )
 
         subscription, created = get_or_create_subscription(customer, price_id)
-        msg = "You already have an active subscription." if not created else "Subscription was successfully created."
+        msg = (
+            "You already have an active subscription."
+            if not created
+            else "Subscription was successfully created."
+        )
         return JsonResponse(
             {
-                'success': True,
-                'message': msg,
-                'results': {
-                    'customer': customer.id,
-                    'subscription': subscription.id,
-                }
+                "success": True,
+                "message": msg,
+                "results": {
+                    "customer": customer.id,
+                    "subscription": subscription.id,
+                },
             }
         )
 
 
-@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name="dispatch")
 class StripeWebhookView(View):
     """Receive Stripe webhooks."""
 
     def post(self, request):
         """Receive Stripe webhooks."""
         payload = request.body
-        sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+        sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
         event = None
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -606,21 +691,19 @@ class StripeWebhookView(View):
             )
         except (ValueError, stripe.error.SignatureVerificationError):
             return HttpResponse(status=400)
-        if event['type'] == 'customer.subscription.created':
+        if event["type"] == "customer.subscription.created":
             user = User.objects.get(
                 email=stripe.Customer.retrieve(event.data.object.customer).email
             )
             plan: Plan = Plan.objects.get(
-                product_id=stripe.Price.retrieve(event.data.object['items'].data[0].price.id).product
+                product_id=stripe.Price.retrieve(
+                    event.data.object["items"].data[0].price.id
+                ).product
             )
             subscription, _ = Subscription.objects.update_or_create(
-                {
-                    'plan': plan,
-                    'event_id': event.id
-                },
-                user=user
+                {"plan": plan, "event_id": event.id}, user=user
             )
-        elif event['type'] == 'customer.subscription.updated':
+        elif event["type"] == "customer.subscription.updated":
 
             # Check for cancellation updates
             subscription = event.data.object
@@ -629,7 +712,7 @@ class StripeWebhookView(View):
             if subscription.cancel_at:
                 cancellation_timestamp = timezone.make_aware(
                     datetime.fromtimestamp(subscription.cancel_at),
-                    pytz.timezone(settings.STRIPE_TIMEZONE)
+                    pytz.timezone(settings.STRIPE_TIMEZONE),
                 )
             else:
                 cancellation_timestamp = None
@@ -639,18 +722,20 @@ class StripeWebhookView(View):
                 email=stripe.Customer.retrieve(event.data.object.customer).email
             )
             plan = Plan.objects.get(
-                product_id=stripe.Price.retrieve(event.data.object['items'].data[0].price.id).product
+                product_id=stripe.Price.retrieve(
+                    event.data.object["items"].data[0].price.id
+                ).product
             )
             subscription, _ = Subscription.objects.update_or_create(
                 {
-                    'plan': plan,
-                    'cancel_at': cancellation_timestamp,
-                    'event_id': event.id,
+                    "plan": plan,
+                    "cancel_at": cancellation_timestamp,
+                    "event_id": event.id,
                 },
-                user=user
+                user=user,
             )
 
-        elif event['type'] == 'customer.subscription.deleted':
+        elif event["type"] == "customer.subscription.deleted":
             user = User.objects.get(
                 email=stripe.Customer.retrieve(event.data.object.customer).email
             )
@@ -659,29 +744,27 @@ class StripeWebhookView(View):
         return HttpResponse(status=200)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name="dispatch")
 class TelegramWebhookView(View):
     """Receive Telegram webhooks."""
 
     def post(self, request):
         """Receive Telegram webhooks."""
         body = json.loads(request.body)
-        text = body['message']['text']
-        chat_id = body['message']['chat']['id']
-        if text.split(' ')[0] == '/start':
+        text = body["message"]["text"]
+        chat_id = body["message"]["chat"]["id"]
+        if text.split(" ")[0] == "/start":
             # valid command
-            token: str = text.split(' ')[-1]
-            if token == '/start':
+            token: str = text.split(" ")[-1]
+            if token == "/start":
                 # no token provided
                 return HttpResponse(status=status.HTTP_200_OK, content=body)
             try:
                 UserProfile.objects.update_or_create(
                     telegram_user_token=token,
-                    defaults={
-                        'telegram_chat_id': chat_id
-                    }
+                    defaults={"telegram_chat_id": chat_id},
                 )
-                text = 'Telegram notification was configured successfullly!'
+                text = "Telegram notification was configured successfullly!"
                 send_message(chat_id, text)
             except UserProfile.DoesNotExist:
                 return HttpResponse(status=status.HTTP_200_OK, content=body)

@@ -6,18 +6,18 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('healthcheck', '0007_auto_20220417_0055'),
+        ("healthcheck", "0007_auto_20220417_0055"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='pylintresult',
-            old_name='endColumn',
-            new_name='end_column',
+            model_name="pylintresult",
+            old_name="endColumn",
+            new_name="end_column",
         ),
         migrations.RenameField(
-            model_name='pylintresult',
-            old_name='endLine',
-            new_name='end_line',
+            model_name="pylintresult",
+            old_name="endLine",
+            new_name="end_line",
         ),
     ]

@@ -4,7 +4,6 @@ from django.core.exceptions import ValidationError
 
 
 class TestUtils:
-
     class FakeFile:
         size: int
 

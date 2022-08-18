@@ -6,7 +6,11 @@ from typing import Dict, List
 
 import pytz
 from __mono.widgets import (
-    ButtonsWidget, CalendarWidget, IconWidget, RadioWidget, ToggleWidget,
+    ButtonsWidget,
+    CalendarWidget,
+    IconWidget,
+    RadioWidget,
+    ToggleWidget,
 )
 from django import forms
 from django.contrib import messages
@@ -19,8 +23,16 @@ from faker import Faker
 from faker.providers import lorem
 
 from .models import (
-    Account, Budget, BudgetConfiguration, Category, Goal, Group, Icon,
-    Installment, RecurrentTransaction, Transaction,
+    Account,
+    Budget,
+    BudgetConfiguration,
+    Category,
+    Goal,
+    Group,
+    Icon,
+    Installment,
+    RecurrentTransaction,
+    Transaction,
 )
 from .widgets import CategoryWidget
 
@@ -33,8 +45,11 @@ class AccountForm(forms.ModelForm):
     """
     Account form
     """
-    error_css_class = 'error'
-    current_balance = forms.FloatField(required=False, label=_('Current balance'))
+
+    error_css_class = "error"
+    current_balance = forms.FloatField(
+        required=False, label=_("Current balance")
+    )
     credit_card = forms.BooleanField(
         required=False,
         label=_("Credit card"),
@@ -44,30 +59,42 @@ class AccountForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        self.fields['name'].widget.attrs.update({'placeholder': _('Description')})
-        self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['credit_card'].widget.attrs.update({'class': 'ui radio checkbox'})
+        self.fields["name"].widget.attrs.update(
+            {"placeholder": _("Description")}
+        )
+        self.fields["group"].widget.attrs.update({"class": "ui dropdown"})
+        self.fields["credit_card"].widget.attrs.update(
+            {"class": "ui radio checkbox"}
+        )
         if self.instance.pk:
             if self.instance.owned_by != self.request.user:
-                self.fields['group'].widget.attrs.update({'class': 'ui disabled dropdown'})
+                self.fields["group"].widget.attrs.update(
+                    {"class": "ui disabled dropdown"}
+                )
 
-        self.fields['group'].queryset = Group.objects.filter(members=self.request.user)
-        self.fields['initial_balance'].widget.attrs.update({'placeholder': _('Initial balance')})
+        self.fields["group"].queryset = Group.objects.filter(
+            members=self.request.user
+        )
+        self.fields["initial_balance"].widget.attrs.update(
+            {"placeholder": _("Initial balance")}
+        )
         if self.instance.pk is None:
-            self.fields['current_balance'].widget = forms.HiddenInput()
+            self.fields["current_balance"].widget = forms.HiddenInput()
         else:
-            self.fields['current_balance'].widget.attrs.update(
+            self.fields["current_balance"].widget.attrs.update(
                 {
-                    'value': self.instance.current_balance,
-                    'placeholder': _('Current balance')
+                    "value": self.instance.current_balance,
+                    "placeholder": _("Current balance"),
                 }
             )
 
     def clean(self):
         if self.instance.pk is not None:
             if self.instance.owned_by != self.request.user:
-                if self.instance.group != self.cleaned_data['group']:
-                    raise ValidationError(_("You don't have permission to change the group."))
+                if self.instance.group != self.cleaned_data["group"]:
+                    raise ValidationError(
+                        _("You don't have permission to change the group.")
+                    )
         return self.cleaned_data
 
     def save(self, *args, **kwargs):
@@ -75,7 +102,7 @@ class AccountForm(forms.ModelForm):
         if account.pk is None:
             account.created_by = self.request.user
             account.owned_by = self.request.user
-        current_balance = self.cleaned_data['current_balance']
+        current_balance = self.cleaned_data["current_balance"]
         if current_balance is not None:
             account.adjust_balance(current_balance, self.request.user)
         return super().save(*args, **kwargs)
@@ -83,12 +110,12 @@ class AccountForm(forms.ModelForm):
     class Meta:
         model = Account
         fields = [
-            'name',
-            'group',
-            'initial_balance',
-            'credit_card',
-            'settlement_date',
-            'due_date',
+            "name",
+            "group",
+            "initial_balance",
+            "credit_card",
+            "settlement_date",
+            "due_date",
         ]
 
 
@@ -98,7 +125,8 @@ class UniversalTransactionForm(forms.Form):
     Installment,
     Recurrent transaction form
     """
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     transaction_types = Category.TRANSACTION_TYPES.copy()
     transaction_types.append(("TRF", _("Transfer")))
@@ -138,7 +166,7 @@ class UniversalTransactionForm(forms.Form):
     frequency = forms.ChoiceField(
         label=_("Frequency"),
         choices=RecurrentTransaction.FREQUENCY,
-        initial=RecurrentTransaction.MONTHLY
+        initial=RecurrentTransaction.MONTHLY,
     )
     months = forms.IntegerField(
         label=_("Months"),
@@ -167,40 +195,47 @@ class UniversalTransactionForm(forms.Form):
     )
     # For transference
     from_account = forms.ModelChoiceField(
-        label=_("From account"),
-        required=False,
-        queryset=Account.objects.all()
+        label=_("From account"), required=False, queryset=Account.objects.all()
     )
     to_account = forms.ModelChoiceField(
-        label=_("To account"),
-        required=False,
-        queryset=Account.objects.all()
+        label=_("To account"), required=False, queryset=Account.objects.all()
     )
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
         owned_accounts = Account.objects.filter(owned_by=self.request.user)
-        shared_accounts = Account.objects.filter(group__members=self.request.user)
-        self.fields['description'].widget.attrs.update({'placeholder': _('Description')})
-        self.fields['amount'].widget.attrs.update({'placeholder': _('Amount')})
-        self.fields['category'].widget.queryset = Category.objects.filter(
-            created_by=self.request.user,
-            internal_type=Category.DEFAULT
+        shared_accounts = Account.objects.filter(
+            group__members=self.request.user
         )
-        self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
-        self.fields['from_account'].queryset = (owned_accounts | shared_accounts).distinct()
-        self.fields['to_account'].queryset = (owned_accounts | shared_accounts).distinct()
-        self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['from_account'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['to_account'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['frequency'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['recurrent_or_installment'].widget.attrs.update({'class': 'ui radio checkbox'})
+        self.fields["description"].widget.attrs.update(
+            {"placeholder": _("Description")}
+        )
+        self.fields["amount"].widget.attrs.update({"placeholder": _("Amount")})
+        self.fields["category"].widget.queryset = Category.objects.filter(
+            created_by=self.request.user, internal_type=Category.DEFAULT
+        )
+        self.fields["account"].queryset = (
+            owned_accounts | shared_accounts
+        ).distinct()
+        self.fields["from_account"].queryset = (
+            owned_accounts | shared_accounts
+        ).distinct()
+        self.fields["to_account"].queryset = (
+            owned_accounts | shared_accounts
+        ).distinct()
+        self.fields["account"].widget.attrs.update({"class": "ui dropdown"})
+        self.fields["from_account"].widget.attrs.update(
+            {"class": "ui dropdown"}
+        )
+        self.fields["to_account"].widget.attrs.update({"class": "ui dropdown"})
+        self.fields["frequency"].widget.attrs.update({"class": "ui dropdown"})
+        self.fields["recurrent_or_installment"].widget.attrs.update(
+            {"class": "ui radio checkbox"}
+        )
 
     def _validate_required_fields(
-            self,
-            errors: Dict[str, ValidationError],
-            required_fields: List[str]
+        self, errors: Dict[str, ValidationError], required_fields: List[str]
     ) -> Dict[str, ValidationError]:
         """
         Validate if fields are missing
@@ -211,20 +246,28 @@ class UniversalTransactionForm(forms.Form):
         return errors
 
     def clean(self):
-        transaction_type = self.cleaned_data['type']
+        transaction_type = self.cleaned_data["type"]
         errors = {}
-        if transaction_type == 'TRF':
+        if transaction_type == "TRF":
             # if Transfer, from and to accounts are required
-            errors = self._validate_required_fields(errors, ['from_account', 'to_account'])
-        elif self.cleaned_data['is_recurrent_or_installment']:
+            errors = self._validate_required_fields(
+                errors, ["from_account", "to_account"]
+            )
+        elif self.cleaned_data["is_recurrent_or_installment"]:
             # if Recurrent, Installment or Transaction, account and category are required
-            errors = self._validate_required_fields(errors, ['account', 'category'])
-            if self.cleaned_data.get('recurrent_or_installment') == "R":
-                errors = self._validate_required_fields(errors, ['frequency'])
-            elif self.cleaned_data.get('recurrent_or_installment') == "I":
-                errors = self._validate_required_fields(errors, ['months', 'handle_remainder'])
-            elif self.cleaned_data.get('recurrent_or_installment') == "":
-                errors = self._validate_required_fields(errors, ['recurrent_or_installment'])
+            errors = self._validate_required_fields(
+                errors, ["account", "category"]
+            )
+            if self.cleaned_data.get("recurrent_or_installment") == "R":
+                errors = self._validate_required_fields(errors, ["frequency"])
+            elif self.cleaned_data.get("recurrent_or_installment") == "I":
+                errors = self._validate_required_fields(
+                    errors, ["months", "handle_remainder"]
+                )
+            elif self.cleaned_data.get("recurrent_or_installment") == "":
+                errors = self._validate_required_fields(
+                    errors, ["recurrent_or_installment"]
+                )
         if len(errors) > 0:
             raise ValidationError(errors)
 
@@ -233,28 +276,35 @@ class TransactionForm(forms.ModelForm):
     """
     Transaction form
     """
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     type = forms.CharField(
-        widget=ButtonsWidget(choices=Category.TRANSACTION_TYPES))
+        widget=ButtonsWidget(choices=Category.TRANSACTION_TYPES)
+    )
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
         owned_accounts = Account.objects.filter(owned_by=self.request.user)
-        shared_accounts = Account.objects.filter(group__members=self.request.user)
-        self.fields['description'].widget.attrs.update({'placeholder': _('Description')})
-        self.fields['amount'].widget.attrs.update({'placeholder': _('Amount')})
-        self.fields['category'].widget.queryset = Category.objects.filter(
-            created_by=self.request.user,
-            internal_type=Category.DEFAULT
+        shared_accounts = Account.objects.filter(
+            group__members=self.request.user
         )
-        self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
-        self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields["description"].widget.attrs.update(
+            {"placeholder": _("Description")}
+        )
+        self.fields["amount"].widget.attrs.update({"placeholder": _("Amount")})
+        self.fields["category"].widget.queryset = Category.objects.filter(
+            created_by=self.request.user, internal_type=Category.DEFAULT
+        )
+        self.fields["account"].queryset = (
+            owned_accounts | shared_accounts
+        ).distinct()
+        self.fields["account"].widget.attrs.update({"class": "ui dropdown"})
         if self.instance.pk is not None:
-            self.fields['type'].initial = self.instance.category.type
+            self.fields["type"].initial = self.instance.category.type
         else:
-            self.fields['type'].initial = Category.EXPENSE
+            self.fields["type"].initial = Category.EXPENSE
 
     class Meta:
         model = Transaction
@@ -268,9 +318,9 @@ class TransactionForm(forms.ModelForm):
             "active",
         ]
         widgets = {
-            'category': CategoryWidget,
-            'timestamp': CalendarWidget,
-            'active': ToggleWidget,
+            "category": CategoryWidget,
+            "timestamp": CalendarWidget,
+            "active": ToggleWidget,
         }
 
     def save(self, *args, **kwargs):
@@ -284,7 +334,8 @@ class RecurrentTransactionForm(forms.ModelForm):
     """
     Recurrent transaction form
     """
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     type = forms.CharField(
         widget=ButtonsWidget(choices=Category.TRANSACTION_TYPES)
@@ -294,20 +345,25 @@ class RecurrentTransactionForm(forms.ModelForm):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
         owned_accounts = Account.objects.filter(owned_by=self.request.user)
-        shared_accounts = Account.objects.filter(group__members=self.request.user)
-        self.fields['description'].widget.attrs.update({'placeholder': _('Description')})
-        self.fields['amount'].widget.attrs.update({'placeholder': _('Amount')})
-        self.fields['category'].widget.queryset = Category.objects.filter(
-            created_by=self.request.user,
-            internal_type=Category.DEFAULT
+        shared_accounts = Account.objects.filter(
+            group__members=self.request.user
         )
-        self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
-        self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['frequency'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields["description"].widget.attrs.update(
+            {"placeholder": _("Description")}
+        )
+        self.fields["amount"].widget.attrs.update({"placeholder": _("Amount")})
+        self.fields["category"].widget.queryset = Category.objects.filter(
+            created_by=self.request.user, internal_type=Category.DEFAULT
+        )
+        self.fields["account"].queryset = (
+            owned_accounts | shared_accounts
+        ).distinct()
+        self.fields["account"].widget.attrs.update({"class": "ui dropdown"})
+        self.fields["frequency"].widget.attrs.update({"class": "ui dropdown"})
         if self.instance.pk is not None:
-            self.fields['type'].initial = self.instance.category.type
+            self.fields["type"].initial = self.instance.category.type
         else:
-            self.fields['type'].initial = Category.EXPENSE
+            self.fields["type"].initial = Category.EXPENSE
 
     class Meta:
         model = RecurrentTransaction
@@ -322,9 +378,9 @@ class RecurrentTransactionForm(forms.ModelForm):
             "frequency",
         ]
         widgets = {
-            'category': CategoryWidget,
-            'timestamp': CalendarWidget,
-            'active': ToggleWidget,
+            "category": CategoryWidget,
+            "timestamp": CalendarWidget,
+            "active": ToggleWidget,
         }
 
     def save(self, *args, **kwargs):
@@ -338,29 +394,40 @@ class InstallmentForm(forms.ModelForm):
     """
     Installment form
     """
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     type = forms.CharField(
-        widget=ButtonsWidget(choices=Category.TRANSACTION_TYPES))
+        widget=ButtonsWidget(choices=Category.TRANSACTION_TYPES)
+    )
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
         owned_accounts = Account.objects.filter(owned_by=self.request.user)
-        shared_accounts = Account.objects.filter(group__members=self.request.user)
-        self.fields['description'].widget.attrs.update({'placeholder': _('Description')})
-        self.fields['total_amount'].widget.attrs.update({'placeholder': _('Total amount')})
-        self.fields['category'].widget.queryset = Category.objects.filter(
-            created_by=self.request.user,
-            internal_type=Category.DEFAULT
+        shared_accounts = Account.objects.filter(
+            group__members=self.request.user
         )
-        self.fields['account'].queryset = (owned_accounts | shared_accounts).distinct()
-        self.fields['account'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['handle_remainder'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields["description"].widget.attrs.update(
+            {"placeholder": _("Description")}
+        )
+        self.fields["total_amount"].widget.attrs.update(
+            {"placeholder": _("Total amount")}
+        )
+        self.fields["category"].widget.queryset = Category.objects.filter(
+            created_by=self.request.user, internal_type=Category.DEFAULT
+        )
+        self.fields["account"].queryset = (
+            owned_accounts | shared_accounts
+        ).distinct()
+        self.fields["account"].widget.attrs.update({"class": "ui dropdown"})
+        self.fields["handle_remainder"].widget.attrs.update(
+            {"class": "ui dropdown"}
+        )
         if self.instance.pk is not None:
-            self.fields['type'].initial = self.instance.category.type
+            self.fields["type"].initial = self.instance.category.type
         else:
-            self.fields['type'].initial = Category.EXPENSE
+            self.fields["type"].initial = Category.EXPENSE
 
     class Meta:
         model = Installment
@@ -375,8 +442,8 @@ class InstallmentForm(forms.ModelForm):
             "handle_remainder",
         ]
         widgets = {
-            'category': CategoryWidget,
-            'timestamp': CalendarWidget,
+            "category": CategoryWidget,
+            "timestamp": CalendarWidget,
         }
 
     def save(self, *args, **kwargs):
@@ -390,16 +457,17 @@ class GroupForm(forms.ModelForm):
     """
     Group form
     """
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        self.fields['name'].widget.attrs.update({'placeholder': 'Name'})
+        self.fields["name"].widget.attrs.update({"placeholder": "Name"})
 
     class Meta:
         model = Group
-        fields = ['name']
+        fields = ["name"]
 
     def save(self, *args, **kwargs):
         user = self.request.user
@@ -416,31 +484,31 @@ class CategoryForm(forms.ModelForm):
     """
     Category form
     """
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     class Meta:
         model = Category
         fields = [
-            'name',
-            'description',
-            'type',
-            'group',
-            'icon',
-            'active',
+            "name",
+            "description",
+            "type",
+            "group",
+            "icon",
+            "active",
         ]
-        widgets = {
-            'icon': IconWidget(entity_type=Icon),
-            'active': ToggleWidget
-        }
+        widgets = {"icon": IconWidget(entity_type=Icon), "active": ToggleWidget}
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        self.fields['name'].widget.attrs.update({'placeholder': 'Name'})
-        self.fields['description'].widget.attrs.update({'rows': 3})
-        self.fields['description'].widget.attrs.update({'placeholder': 'Description'})
-        self.fields['type'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields["name"].widget.attrs.update({"placeholder": "Name"})
+        self.fields["description"].widget.attrs.update({"rows": 3})
+        self.fields["description"].widget.attrs.update(
+            {"placeholder": "Description"}
+        )
+        self.fields["type"].widget.attrs.update({"class": "ui dropdown"})
+        self.fields["group"].widget.attrs.update({"class": "ui dropdown"})
 
     def save(self, *args, **kwargs):
         category = self.instance
@@ -453,11 +521,12 @@ class IconForm(forms.ModelForm):
     """
     Icon form
     """
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     class Meta:
         model = Icon
-        fields = ['markup']
+        fields = ["markup"]
 
     def save(self, *args, **kwargs):
         icon = self.instance
@@ -470,33 +539,36 @@ class GoalForm(forms.ModelForm):
     """
     Goal form
     """
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     class Meta:
         model = Goal
         fields = [
-            'name',
-            'start_date',
-            'target_date',
-            'target_amount',
-            'group',
-            'progression_mode',
+            "name",
+            "start_date",
+            "target_date",
+            "target_amount",
+            "group",
+            "progression_mode",
         ]
         widgets = {
-            'start_date': CalendarWidget,
-            'target_date': CalendarWidget,
+            "start_date": CalendarWidget,
+            "target_date": CalendarWidget,
         }
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        self.fields['start_date'].widget.type = 'date'
-        self.fields['start_date'].widget.format = 'n/d/Y'
-        self.fields['target_date'].widget.type = 'date'
-        self.fields['target_date'].widget.format = 'n/d/Y'
-        self.fields['name'].widget.attrs.update({'placeholder': 'Name'})
-        self.fields['group'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['progression_mode'].widget.attrs.update({'class': 'ui dropdown'})
+        self.fields["start_date"].widget.type = "date"
+        self.fields["start_date"].widget.format = "n/d/Y"
+        self.fields["target_date"].widget.type = "date"
+        self.fields["target_date"].widget.format = "n/d/Y"
+        self.fields["name"].widget.attrs.update({"placeholder": "Name"})
+        self.fields["group"].widget.attrs.update({"class": "ui dropdown"})
+        self.fields["progression_mode"].widget.attrs.update(
+            {"class": "ui dropdown"}
+        )
 
     def save(self, *args, **kwargs):
         goal = self.instance
@@ -510,33 +582,45 @@ class BudgetForm(forms.ModelForm):
     """
     Budget form
     """
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        shared_accounts = Account.objects.filter(group__members=self.request.user)
-        owned_accounts = Account.objects.filter(owned_by=self.request.user, group=None)
-        self.fields['accounts'].queryset = (shared_accounts | owned_accounts).distinct()
-        self.fields['accounts'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['start_date'].widget.type = 'date'
-        self.fields['end_date'].widget.type = 'date'
+        shared_accounts = Account.objects.filter(
+            group__members=self.request.user
+        )
+        owned_accounts = Account.objects.filter(
+            owned_by=self.request.user, group=None
+        )
+        self.fields["accounts"].queryset = (
+            shared_accounts | owned_accounts
+        ).distinct()
+        self.fields["accounts"].widget.attrs.update({"class": "ui dropdown"})
+        self.fields["start_date"].widget.type = "date"
+        self.fields["end_date"].widget.type = "date"
         created_categories = Category.objects.filter(
             created_by=self.request.user,
             internal_type=Category.DEFAULT,
             group=None,
-            type=Category.EXPENSE)
+            type=Category.EXPENSE,
+        )
         shared_categories = Category.objects.filter(
-            group__members=self.request.user,
-            type=Category.EXPENSE)
-        self.fields['categories'].queryset = (shared_categories | created_categories).distinct()
-        self.fields['categories'].widget.attrs.update({'class': 'ui dropdown'})
+            group__members=self.request.user, type=Category.EXPENSE
+        )
+        self.fields["categories"].queryset = (
+            shared_categories | created_categories
+        ).distinct()
+        self.fields["categories"].widget.attrs.update({"class": "ui dropdown"})
 
     def clean(self):
-        start_date = self.cleaned_data.get('start_date')
-        end_date = self.cleaned_data.get('end_date')
+        start_date = self.cleaned_data.get("start_date")
+        end_date = self.cleaned_data.get("end_date")
         if start_date > end_date:
-            raise ValidationError(_("Your end date must be after your start date."))
+            raise ValidationError(
+                _("Your end date must be after your start date.")
+            )
         return self.cleaned_data
 
     def save(self, *args, **kwargs):
@@ -549,19 +633,19 @@ class BudgetForm(forms.ModelForm):
     class Meta:
         model = Budget
         fields = [
-            'amount',
-            'start_date',
-            'end_date',
-            'accounts',
-            'categories',
-            'all_accounts',
-            'all_categories',
+            "amount",
+            "start_date",
+            "end_date",
+            "accounts",
+            "categories",
+            "all_accounts",
+            "all_categories",
         ]
         widgets = {
-            'start_date': CalendarWidget,
-            'end_date': CalendarWidget,
-            'all_accounts': ToggleWidget,
-            'all_categories': ToggleWidget,
+            "start_date": CalendarWidget,
+            "end_date": CalendarWidget,
+            "all_accounts": ToggleWidget,
+            "all_categories": ToggleWidget,
         }
 
 
@@ -569,28 +653,38 @@ class BudgetConfigurationForm(forms.ModelForm):
     """
     Budget configuration form
     """
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super().__init__(*args, **kwargs)
-        shared_accounts = Account.objects.filter(group__members=self.request.user)
-        owned_accounts = Account.objects.filter(owned_by=self.request.user, group=None)
-        self.fields['accounts'].queryset = (shared_accounts | owned_accounts).distinct()
-        self.fields['accounts'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['frequency'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['start_date'].widget.type = 'date'
-        self.fields['start_date'].widget.format = 'n/d/Y'
+        shared_accounts = Account.objects.filter(
+            group__members=self.request.user
+        )
+        owned_accounts = Account.objects.filter(
+            owned_by=self.request.user, group=None
+        )
+        self.fields["accounts"].queryset = (
+            shared_accounts | owned_accounts
+        ).distinct()
+        self.fields["accounts"].widget.attrs.update({"class": "ui dropdown"})
+        self.fields["frequency"].widget.attrs.update({"class": "ui dropdown"})
+        self.fields["start_date"].widget.type = "date"
+        self.fields["start_date"].widget.format = "n/d/Y"
         created_categories = Category.objects.filter(
             created_by=self.request.user,
             internal_type=Category.DEFAULT,
             group=None,
-            type=Category.EXPENSE)
+            type=Category.EXPENSE,
+        )
         shared_categories = Category.objects.filter(
-            group__members=self.request.user,
-            type=Category.EXPENSE)
-        self.fields['categories'].queryset = (shared_categories | created_categories).distinct()
-        self.fields['categories'].widget.attrs.update({'class': 'ui dropdown'})
+            group__members=self.request.user, type=Category.EXPENSE
+        )
+        self.fields["categories"].queryset = (
+            shared_categories | created_categories
+        ).distinct()
+        self.fields["categories"].widget.attrs.update({"class": "ui dropdown"})
 
     def save(self, *args, **kwargs):
         budget = self.instance
@@ -601,20 +695,20 @@ class BudgetConfigurationForm(forms.ModelForm):
     class Meta:
         model = BudgetConfiguration
         fields = [
-            'amount',
-            'start_date',
-            'frequency',
-            'accounts',
-            'categories',
-            'all_accounts',
-            'all_categories',
-            'active',
+            "amount",
+            "start_date",
+            "frequency",
+            "accounts",
+            "categories",
+            "all_accounts",
+            "all_categories",
+            "active",
         ]
         widgets = {
-            'active': ToggleWidget,
-            'start_date': CalendarWidget,
-            'all_accounts': ToggleWidget,
-            'all_categories': ToggleWidget,
+            "active": ToggleWidget,
+            "start_date": CalendarWidget,
+            "all_accounts": ToggleWidget,
+            "all_categories": ToggleWidget,
         }
 
 
@@ -629,7 +723,9 @@ class FakerForm(forms.Form):
         def label_from_instance(self, obj):
             return obj.model
 
-    model = ContentTypeModelChoiceField(queryset=ContentType.objects.filter(app_label='finance'))
+    model = ContentTypeModelChoiceField(
+        queryset=ContentType.objects.filter(app_label="finance")
+    )
     batch_amount = forms.IntegerField(max_value=100)
     target_user = forms.ModelChoiceField(User.objects.all())
     range_start = forms.DateField(required=False, widget=CalendarWidget)
@@ -637,14 +733,18 @@ class FakerForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['model'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['target_user'].widget.attrs.update({'class': 'ui dropdown'})
-        self.fields['range_start'].widget.type = 'date'
-        self.fields['range_start'].widget.format = 'n/d/Y'
-        self.fields['range_start'].widget.attrs.update({'placeholder': 'Range Start'})
-        self.fields['range_end'].widget.type = 'date'
-        self.fields['range_end'].widget.format = 'n/d/Y'
-        self.fields['range_end'].widget.attrs.update({'placeholder': 'Range End'})
+        self.fields["model"].widget.attrs.update({"class": "ui dropdown"})
+        self.fields["target_user"].widget.attrs.update({"class": "ui dropdown"})
+        self.fields["range_start"].widget.type = "date"
+        self.fields["range_start"].widget.format = "n/d/Y"
+        self.fields["range_start"].widget.attrs.update(
+            {"placeholder": "Range Start"}
+        )
+        self.fields["range_end"].widget.type = "date"
+        self.fields["range_end"].widget.format = "n/d/Y"
+        self.fields["range_end"].widget.attrs.update(
+            {"placeholder": "Range End"}
+        )
 
     def create_fake_instances(self):
         """
@@ -653,22 +753,26 @@ class FakerForm(forms.Form):
         fake = Faker()
         fake.add_provider(lorem)
 
-        batch_amount = self.cleaned_data['batch_amount']
-        model = self.cleaned_data['model'].model
-        target_user = self.cleaned_data['target_user']
+        batch_amount = self.cleaned_data["batch_amount"]
+        model = self.cleaned_data["model"].model
+        target_user = self.cleaned_data["target_user"]
 
-        if self.cleaned_data['range_start'] is not None:
+        if self.cleaned_data["range_start"] is not None:
             range_start = timezone.make_aware(
-                datetime.combine(self.cleaned_data['range_start'], datetime.min.time()),
-                pytz.timezone('UTC')
+                datetime.combine(
+                    self.cleaned_data["range_start"], datetime.min.time()
+                ),
+                pytz.timezone("UTC"),
             )
         else:
             range_start = None
 
-        if self.cleaned_data['range_end'] is not None:
+        if self.cleaned_data["range_end"] is not None:
             range_end = timezone.make_aware(
-                datetime.combine(self.cleaned_data['range_end'], datetime.min.time()),
-                pytz.timezone('UTC')
+                datetime.combine(
+                    self.cleaned_data["range_end"], datetime.min.time()
+                ),
+                pytz.timezone("UTC"),
             )
         else:
             range_end = None
@@ -683,9 +787,9 @@ class FakerForm(forms.Form):
             random_second = randrange(int_delta)
             return start + timedelta(seconds=random_second)
 
-        if model == 'transaction':
+        if model == "transaction":
             for i in range(batch_amount):
-                logger.info('Creating fake transaction #%s', i)
+                logger.info("Creating fake transaction #%s", i)
 
                 if range_start is not None and range_end is not None:
                     timestamp = random_date(range_start, range_end)
@@ -699,19 +803,25 @@ class FakerForm(forms.Form):
                     category=Category.objects.filter(
                         created_by=target_user,
                         group=None,
-                        internal_type=Category.DEFAULT
-                    ).order_by("?").first(),
-                    account=Account.objects.filter(owned_by=target_user, group=None).order_by("?").first(),
+                        internal_type=Category.DEFAULT,
+                    )
+                    .order_by("?")
+                    .first(),
+                    account=Account.objects.filter(
+                        owned_by=target_user, group=None
+                    )
+                    .order_by("?")
+                    .first(),
                 )
 
             success, message = True, {
                 "level": messages.SUCCESS,
-                "message": f"Successfully created {batch_amount} fake instances of model {model}"
+                "message": f"Successfully created {batch_amount} fake instances of model {model}",
             }
             return success, message
 
         success, message = True, {
             "level": messages.ERROR,
-            "message": f"No fake generator implemented for model {model}"
+            "message": f"No fake generator implemented for model {model}",
         }
         return success, message

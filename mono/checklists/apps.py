@@ -5,7 +5,8 @@ from django.apps import AppConfig
 
 class TodoListsConfig(AppConfig):
     """Checklists app config"""
-    name = 'checklists'
+
+    name = "checklists"
 
     def ready(self):
-        load_signals('checklists')
+        load_signals("checklists")

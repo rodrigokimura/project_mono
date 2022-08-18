@@ -22,7 +22,12 @@ class Feedback(models.Model):
         (7, "heart_eyes"),
     ]
 
-    user = models.ForeignKey(get_user_model(), verbose_name=_("user"), on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(
+        get_user_model(),
+        verbose_name=_("user"),
+        on_delete=models.SET_NULL,
+        null=True,
+    )
     feeling = models.IntegerField(_("feeling"), choices=FEELING_CHOICES)
     message = models.TextField(_("message"), max_length=1000)
     public = models.BooleanField(_("public"), default=False)
@@ -32,24 +37,26 @@ class Feedback(models.Model):
         Send email notification to admins
         """
 
-        template_html = 'email/alert.html'
-        template_text = 'email/alert.txt'
+        template_html = "email/alert.html"
+        template_text = "email/alert.txt"
 
         text = get_template(template_text)
         html = get_template(template_html)
 
         site = settings.SITE
 
-        full_link = site + reverse('admin:feedback_feedback_change', args=[self.id])
+        full_link = site + reverse(
+            "admin:feedback_feedback_change", args=[self.id]
+        )
 
         context = {
-            'warning_message': 'Feedback received',
-            'first_line': f'Feedback received: {self.message}',
-            'button_text': 'View feedback',
-            'button_link': full_link,
+            "warning_message": "Feedback received",
+            "first_line": f"Feedback received: {self.message}",
+            "button_text": "View feedback",
+            "button_link": full_link,
         }
         mail_admins(
-            subject='Feedback',
+            subject="Feedback",
             message=text.render(context),
             html_message=html.render(context),
         )
@@ -57,7 +64,7 @@ class Feedback(models.Model):
             Notification.objects.create(
                 title="Feedback received",
                 message="A feedback has just been received.",
-                icon='exclamation',
+                icon="exclamation",
                 to=user,
                 action_url=full_link,
             )

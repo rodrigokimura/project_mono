@@ -8,96 +8,96 @@ from . import models
 @admin.register(models.Curriculum)
 class CurriculumAdmin(admin.ModelAdmin):
     list_display = (
-        'first_name',
-        'last_name',
+        "first_name",
+        "last_name",
     )
     list_filter = (
-        'first_name',
-        'last_name',
+        "first_name",
+        "last_name",
     )
     search_fields = (
-        'first_name',
-        'last_name',
+        "first_name",
+        "last_name",
     )
 
 
 @admin.register(models.SocialMediaProfile)
 class SocialMediaProfileAdmin(admin.ModelAdmin):
     list_display = (
-        'platform',
-        'link',
+        "platform",
+        "link",
     )
     list_filter = (
-        'platform',
-        'link',
+        "platform",
+        "link",
     )
     search_fields = (
-        'platform',
-        'link',
+        "platform",
+        "link",
     )
 
 
 @admin.register(models.Skill)
 class SkillAdmin(admin.ModelAdmin):
     list_display = (
-        'name',
-        'description',
+        "name",
+        "description",
     )
     list_filter = (
-        'name',
-        'description',
+        "name",
+        "description",
     )
     search_fields = (
-        'name',
-        'description',
+        "name",
+        "description",
     )
 
 
 @admin.register(models.WorkExperience)
 class WorkExperienceAdmin(admin.ModelAdmin):
     list_display = (
-        'company',
-        'description',
+        "company",
+        "description",
     )
     list_filter = (
-        'company',
-        'description',
+        "company",
+        "description",
     )
     search_fields = (
-        'company',
-        'description',
+        "company",
+        "description",
     )
 
 
 @admin.register(models.Company)
 class CompanyAdmin(admin.ModelAdmin):
     list_display = (
-        'name',
-        'description',
+        "name",
+        "description",
     )
     list_filter = (
-        'name',
-        'description',
+        "name",
+        "description",
     )
     search_fields = (
-        'name',
-        'description',
+        "name",
+        "description",
     )
 
 
 @admin.register(models.Acomplishment)
 class AcomplishmentAdmin(OrderedModelAdmin):
     list_display = (
-        'title',
-        'description',
-        'work_experience',
-        'order',
+        "title",
+        "description",
+        "work_experience",
+        "order",
     )
     list_filter = (
-        'title',
-        'description',
+        "title",
+        "description",
     )
     search_fields = (
-        'title',
-        'description',
+        "title",
+        "description",
     )

@@ -5,7 +5,7 @@ from ...models import Transaction
 
 
 class Command(BaseCommand):
-    help = 'Command to round all transactions'
+    help = "Command to round all transactions"
 
     def handle(self, *args, **options):
         try:

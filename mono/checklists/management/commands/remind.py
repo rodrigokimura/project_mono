@@ -7,7 +7,7 @@ from ...tasks import remind
 
 
 class Command(BaseCommand):
-    help = 'Command to create notification for task reminders'
+    help = "Command to create notification for task reminders"
 
     def handle(self, *args, **options):
         """Command to create notification for task reminders"""

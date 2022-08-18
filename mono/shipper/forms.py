@@ -6,9 +6,10 @@ from .models import Ship
 
 class ShipForm(forms.ModelForm):
     """Ship form"""
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     class Meta:
         model = Ship
-        fields = ['name_1', 'name_2']
+        fields = ["name_1", "name_2"]
         widgets = {}

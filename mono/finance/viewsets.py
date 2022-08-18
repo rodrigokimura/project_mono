@@ -3,13 +3,22 @@ from __mono.permissions import IsCreator
 from rest_framework.viewsets import ModelViewSet
 
 from .models import (
-    Account, Category, Installment, RecurrentTransaction, Transaction,
-    Transference, User,
+    Account,
+    Category,
+    Installment,
+    RecurrentTransaction,
+    Transaction,
+    Transference,
+    User,
 )
 from .serializers import (
-    AccountSerializer, CategorySerializer, InstallmentSerializer,
-    RecurrentTransactionSerializer, TransactionSerializer,
-    TransferenceSerializer, UserSerializer,
+    AccountSerializer,
+    CategorySerializer,
+    InstallmentSerializer,
+    RecurrentTransactionSerializer,
+    TransactionSerializer,
+    TransferenceSerializer,
+    UserSerializer,
 )
 
 # pylint: disable=too-many-ancestors
@@ -25,7 +34,7 @@ class UserViewSet(ModelViewSet):
 class CategoryViewSet(ModelViewSet):
     """Category viewset"""
 
-    queryset = Category.objects.order_by('id').all()
+    queryset = Category.objects.order_by("id").all()
     serializer_class = CategorySerializer
     permission_classes = [IsCreator]
 
@@ -40,7 +49,7 @@ class CategoryViewSet(ModelViewSet):
 class AccountViewSet(ModelViewSet):
     """Account viewset"""
 
-    queryset = Account.objects.order_by('id').all()
+    queryset = Account.objects.order_by("id").all()
     serializer_class = AccountSerializer
     permission_classes = [IsCreator]
 
@@ -52,7 +61,7 @@ class AccountViewSet(ModelViewSet):
 class TransactionViewSet(ModelViewSet):
     """Transaction viewset"""
 
-    queryset = Transaction.objects.order_by('id').all()
+    queryset = Transaction.objects.order_by("id").all()
     serializer_class = TransactionSerializer
     permission_classes = [IsCreator]
 
@@ -64,7 +73,7 @@ class TransactionViewSet(ModelViewSet):
 class RecurrentTransactionViewSet(ModelViewSet):
     """Recurrent transaction viewset"""
 
-    queryset = RecurrentTransaction.objects.order_by('id').all()
+    queryset = RecurrentTransaction.objects.order_by("id").all()
     serializer_class = RecurrentTransactionSerializer
     permission_classes = [IsCreator]
 
@@ -76,7 +85,7 @@ class RecurrentTransactionViewSet(ModelViewSet):
 class InstallmentViewSet(ModelViewSet):
     """Installment viewset"""
 
-    queryset = Installment.objects.order_by('id').all()
+    queryset = Installment.objects.order_by("id").all()
     serializer_class = InstallmentSerializer
     permission_classes = [IsCreator]
 
@@ -88,7 +97,7 @@ class InstallmentViewSet(ModelViewSet):
 class TransferenceViewSet(ModelViewSet):
     """Transference viewset"""
 
-    queryset = Transference.objects.order_by('id').all()
+    queryset = Transference.objects.order_by("id").all()
     serializer_class = TransferenceSerializer
     permission_classes = [IsCreator]
 

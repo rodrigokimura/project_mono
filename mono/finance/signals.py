@@ -3,8 +3,16 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 from .models import (
-    Account, Category, Configuration, Group, Icon, Installment,
-    RecurrentTransaction, Transaction, Transference, User,
+    Account,
+    Category,
+    Configuration,
+    Group,
+    Icon,
+    Installment,
+    RecurrentTransaction,
+    Transaction,
+    Transference,
+    User,
 )
 
 
@@ -13,8 +21,12 @@ def initial_setup(sender, instance, created, **kwargs):
     """Create initial accounts and categories"""
     if created and sender == User:
         # Initial accounts
-        Account.objects.get_or_create(name="Wallet", owned_by=instance, created_by=instance)
-        Account.objects.get_or_create(name="Bank", owned_by=instance, created_by=instance)
+        Account.objects.get_or_create(
+            name="Wallet", owned_by=instance, created_by=instance
+        )
+        Account.objects.get_or_create(
+            name="Bank", owned_by=instance, created_by=instance
+        )
 
         # Initial categories
         for category in Category.INITIAL_CATEGORIES:
@@ -35,7 +47,7 @@ def initial_setup(sender, instance, created, **kwargs):
 
         # Initial configuration
         config, created = Configuration.objects.get_or_create(user=instance)
-        config.cards = '1,2,3'
+        config.cards = "1,2,3"
         config.save()
 
 
@@ -76,7 +88,11 @@ def installments_creation(sender, instance, created, **kwargs):
             instance.create_transactions()
 
 
-@receiver(post_save, sender=RecurrentTransaction, dispatch_uid="recurrent_transaction_creation")
+@receiver(
+    post_save,
+    sender=RecurrentTransaction,
+    dispatch_uid="recurrent_transaction_creation",
+)
 def recurrent_transaction_creation(sender, instance, created, **kwargs):
     """
     Create transactions from the past

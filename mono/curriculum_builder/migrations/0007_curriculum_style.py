@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('curriculum_builder', '0006_auto_20220228_1642'),
+        ("curriculum_builder", "0006_auto_20220228_1642"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='curriculum',
-            name='style',
-            field=models.CharField(choices=[('typewriter', 'Typewriter')], default='typewriter', max_length=50),
+            model_name="curriculum",
+            name="style",
+            field=models.CharField(
+                choices=[("typewriter", "Typewriter")],
+                default="typewriter",
+                max_length=50,
+            ),
         ),
     ]

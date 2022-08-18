@@ -9,7 +9,9 @@ from .models import Board, Bucket, CardFile, Comment, Invite, TimeEntry
 
 
 @receiver(pre_save, sender=TimeEntry, dispatch_uid="calculate_duration")
-def calculate_duration(sender, instance, **kwargs):  # pylint: disable=unused-argument
+def calculate_duration(
+    sender, instance, **kwargs
+):  # pylint: disable=unused-argument
     """
     Calculate duration of time entry
     """
@@ -18,7 +20,9 @@ def calculate_duration(sender, instance, **kwargs):  # pylint: disable=unused-ar
 
 
 @receiver(post_save, sender=Board, dispatch_uid="create_default_buckets")
-def create_default_buckets(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
+def create_default_buckets(
+    sender, instance, created, **kwargs
+):  # pylint: disable=unused-argument
     """
     Create default buckets on board creation
     """
@@ -35,7 +39,9 @@ def create_default_buckets(sender, instance, created, **kwargs):  # pylint: disa
 
 
 @receiver(post_save, sender=Invite, dispatch_uid="send_project_invite")
-def send_invite(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
+def send_invite(
+    sender, instance, created, **kwargs
+):  # pylint: disable=unused-argument
     """
     Send email when invite is created
     """
@@ -44,7 +50,9 @@ def send_invite(sender, instance, created, **kwargs):  # pylint: disable=unused-
 
 
 @receiver(post_save, sender=Comment, dispatch_uid="send_email_on_comment")
-def send_email_on_comment(sender, instance: Comment, created, **kwargs):  # pylint: disable=unused-argument
+def send_email_on_comment(
+    sender, instance: Comment, created, **kwargs
+):  # pylint: disable=unused-argument
     """
     Send email when comment is created
     """
@@ -54,27 +62,34 @@ def send_email_on_comment(sender, instance: Comment, created, **kwargs):  # pyli
 
 
 @receiver(pre_delete, sender=Board, dispatch_uid="delete_background_image")
-def delete_background_image(sender, instance: Board, using, **kwargs):  # pylint: disable=unused-argument
+def delete_background_image(
+    sender, instance: Board, using, **kwargs
+):  # pylint: disable=unused-argument
     """
     Delete background image when board is deleted
     """
+
     def _delete_file(path):
-        """ Deletes file from filesystem. """
+        """Deletes file from filesystem."""
         if os.path.isfile(path):
             os.remove(path)
+
     try:
         _delete_file(instance.background_image.path)
     except ValueError:
-        logging.warning('No file found')
+        logging.warning("No file found")
 
 
 @receiver(pre_delete, sender=CardFile, dispatch_uid="delete_card_file")
-def delete_card_file(sender, instance, using, **kwargs):  # pylint: disable=unused-argument
+def delete_card_file(
+    sender, instance, using, **kwargs
+):  # pylint: disable=unused-argument
     """
     Delete card files when card is deleted
     """
+
     def _delete_file(path):
-        """ Deletes file from filesystem. """
+        """Deletes file from filesystem."""
         if os.path.isfile(path):
             os.remove(path)
 
@@ -82,4 +97,4 @@ def delete_card_file(sender, instance, using, **kwargs):  # pylint: disable=unus
     try:
         _delete_file(instance.file.path)
     except ValueError:
-        logging.warning('No file found')
+        logging.warning("No file found")
