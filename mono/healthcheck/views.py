@@ -56,7 +56,13 @@ def string_to_localized_datetime(dt_string):
 
 
 def healthcheck(request):
-    return JsonResponse({"version": settings.APP_VERSION})
+    pr = (
+        PullRequest.objects.filter(deployed_at__isnull=False)
+        .values("number")
+        .latest("number")
+        .get("number")
+    )
+    return JsonResponse({"version": settings.APP_VERSION, "pr": pr})
 
 
 @csrf_exempt
