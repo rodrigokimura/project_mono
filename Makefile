@@ -53,6 +53,9 @@ R_F8=reports/flake8
 R_PL=reports/pylint
 R_PT=reports/pytest
 
+black:
+	@pipenv run black mono
+
 isort:  ## Run isort
 	@pipenv run isort mono
 

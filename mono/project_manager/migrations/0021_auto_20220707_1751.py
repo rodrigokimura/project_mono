@@ -6,60 +6,60 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('project_manager', '0020_auto_20220707_1734'),
+        ("project_manager", "0020_auto_20220707_1734"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='board',
-            name='public_id',
+            model_name="board",
+            name="public_id",
         ),
         migrations.RemoveField(
-            model_name='bucket',
-            name='public_id',
+            model_name="bucket",
+            name="public_id",
         ),
         migrations.RemoveField(
-            model_name='card',
-            name='public_id',
+            model_name="card",
+            name="public_id",
         ),
         migrations.RemoveField(
-            model_name='cardfile',
-            name='public_id',
+            model_name="cardfile",
+            name="public_id",
         ),
         migrations.RemoveField(
-            model_name='comment',
-            name='public_id',
+            model_name="comment",
+            name="public_id",
         ),
         migrations.RemoveField(
-            model_name='icon',
-            name='public_id',
+            model_name="icon",
+            name="public_id",
         ),
         migrations.RemoveField(
-            model_name='invite',
-            name='public_id',
+            model_name="invite",
+            name="public_id",
         ),
         migrations.RemoveField(
-            model_name='item',
-            name='public_id',
+            model_name="item",
+            name="public_id",
         ),
         migrations.RemoveField(
-            model_name='project',
-            name='public_id',
+            model_name="project",
+            name="public_id",
         ),
         migrations.RemoveField(
-            model_name='space',
-            name='public_id',
+            model_name="space",
+            name="public_id",
         ),
         migrations.RemoveField(
-            model_name='tag',
-            name='public_id',
+            model_name="tag",
+            name="public_id",
         ),
         migrations.RemoveField(
-            model_name='theme',
-            name='public_id',
+            model_name="theme",
+            name="public_id",
         ),
         migrations.RemoveField(
-            model_name='timeentry',
-            name='public_id',
+            model_name="timeentry",
+            name="public_id",
         ),
     ]

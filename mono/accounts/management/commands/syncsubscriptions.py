@@ -12,7 +12,7 @@ from ...stripe import get_all_customers
 
 
 class Command(BaseCommand):
-    help = 'Command to sync subscriptions from Stripe'
+    help = "Command to sync subscriptions from Stripe"
 
     def handle(self, *args, **options):
         """Command to sync subscriptions from Stripe"""
@@ -26,23 +26,44 @@ class Command(BaseCommand):
             for customer in customers:
                 print(f"Fetching customer {customer.id}")
 
-                subscriptions = stripe.Subscription.list(customer=customer.id).data
+                subscriptions = stripe.Subscription.list(
+                    customer=customer.id
+                ).data
 
                 if len(subscriptions) > 0:
-                    stripe_subscription = stripe.Subscription.list(customer=customer.id).data[0]
-                    stripe_plan = Plan.objects.get(product_id=stripe_subscription['items'].data[0].price.product)
+                    stripe_subscription = stripe.Subscription.list(
+                        customer=customer.id
+                    ).data[0]
+                    stripe_plan = Plan.objects.get(
+                        product_id=stripe_subscription["items"]
+                        .data[0]
+                        .price.product
+                    )
                     if stripe_subscription.cancel_at is not None:
                         stripe_cancel_at = timezone.make_aware(
-                            datetime.fromtimestamp(stripe_subscription.cancel_at),
-                            pytz.timezone(settings.STRIPE_TIMEZONE)
+                            datetime.fromtimestamp(
+                                stripe_subscription.cancel_at
+                            ),
+                            pytz.timezone(settings.STRIPE_TIMEZONE),
                         )
                     else:
                         stripe_cancel_at = None
 
-                    if Subscription.objects.filter(user=User.objects.get(email=customer.email)).exists():
-                        user_subscription = Subscription.objects.get(user=User.objects.get(email=customer.email))
-                        # If subscription is not the one stored, updates the user's subscription
-                        if (user_subscription.plan, user_subscription.cancel_at) != (stripe_plan, stripe_cancel_at):
+                    if Subscription.objects.filter(
+                        user=User.objects.get(email=customer.email)
+                    ).exists():
+                        user_subscription = Subscription.objects.get(
+                            user=User.objects.get(email=customer.email)
+                        )
+                        # If subscription is not the one stored,
+                        # updates the user's subscription
+                        if (
+                            user_subscription.plan,
+                            user_subscription.cancel_at,
+                        ) != (
+                            stripe_plan,
+                            stripe_cancel_at,
+                        ):
                             print(f"Updating customer {customer.id}")
                             user_subscription.plan = stripe_plan
                             user_subscription.cancel_at = stripe_cancel_at
@@ -57,10 +78,16 @@ class Command(BaseCommand):
                         )
                         print("Subscription created.")
                 else:
-                    if Subscription.objects.filter(user=User.objects.get(email=customer.email)).exists():
-                        Subscription.objects.get(user=User.objects.get(email=customer.email)).delete()
+                    if Subscription.objects.filter(
+                        user=User.objects.get(email=customer.email)
+                    ).exists():
+                        Subscription.objects.get(
+                            user=User.objects.get(email=customer.email)
+                        ).delete()
                         print(f"Updating customer {customer.id}")
                     else:
-                        print(f"Customer {customer.id} has no subscriptions (FREE PLAN).")
+                        print(
+                            f"Customer {customer.id} has no subscriptions (FREE PLAN)."
+                        )
         except Exception as any_exception:  # pylint: disable=broad-except
             raise CommandError(repr(any_exception)) from any_exception

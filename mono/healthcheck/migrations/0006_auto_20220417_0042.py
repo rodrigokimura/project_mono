@@ -6,32 +6,47 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('healthcheck', '0005_pylintreport_pylintresult'),
+        ("healthcheck", "0005_pylintreport_pylintresult"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='PytestTestResult',
-            new_name='PytestResult',
+            old_name="PytestTestResult",
+            new_name="PytestResult",
         ),
         migrations.AlterModelOptions(
-            name='coveragereport',
-            options={'verbose_name': 'Coverage Report', 'verbose_name_plural': 'Coverage Reports'},
+            name="coveragereport",
+            options={
+                "verbose_name": "Coverage Report",
+                "verbose_name_plural": "Coverage Reports",
+            },
         ),
         migrations.AlterModelOptions(
-            name='coverageresult',
-            options={'verbose_name': 'Coverage Result', 'verbose_name_plural': 'Coverage Results'},
+            name="coverageresult",
+            options={
+                "verbose_name": "Coverage Result",
+                "verbose_name_plural": "Coverage Results",
+            },
         ),
         migrations.AlterModelOptions(
-            name='pylintreport',
-            options={'verbose_name': 'Pylint Report', 'verbose_name_plural': 'Pylint Reports'},
+            name="pylintreport",
+            options={
+                "verbose_name": "Pylint Report",
+                "verbose_name_plural": "Pylint Reports",
+            },
         ),
         migrations.AlterModelOptions(
-            name='pylintresult',
-            options={'verbose_name': 'Pylint Result', 'verbose_name_plural': 'Pylint Results'},
+            name="pylintresult",
+            options={
+                "verbose_name": "Pylint Result",
+                "verbose_name_plural": "Pylint Results",
+            },
         ),
         migrations.AlterModelOptions(
-            name='pytestreport',
-            options={'verbose_name': 'Pytest Report', 'verbose_name_plural': 'Pytest Reports'},
+            name="pytestreport",
+            options={
+                "verbose_name": "Pytest Report",
+                "verbose_name_plural": "Pytest Reports",
+            },
         ),
     ]

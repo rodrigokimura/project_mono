@@ -13,6 +13,6 @@ def unread_notification_count(request):
         count = 0
         timestamp = None
     return {
-        'unread_notification_count': count,
-        'unread_notification_timestamp': timestamp,
+        "unread_notification_count": count,
+        "unread_notification_timestamp": timestamp,
     }

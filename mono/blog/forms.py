@@ -7,7 +7,8 @@ from .models import Post
 
 class PostForm(forms.ModelForm):
     """Form for creating and updating posts"""
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     class Meta:
         model = Post
@@ -19,8 +20,8 @@ class PostForm(forms.ModelForm):
         widgets = {
             "content": TinyMCE(
                 attrs={
-                    'cols': 80,
-                    'rows': 30,
+                    "cols": 80,
+                    "rows": 30,
                 },
             )
         }

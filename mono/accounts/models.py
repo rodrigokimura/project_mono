@@ -29,23 +29,28 @@ User = get_user_model()
 
 def user_directory_path(instance, filename):
     """file will be uploaded to MEDIA_ROOT/user_<id>/<filename>"""
-    return f'user_{instance.user.id}/{filename}'
+    return f"user_{instance.user.id}/{filename}"
 
 
 class Notification(models.Model):
     """Notification model"""
+
     title = models.CharField(max_length=50)
     message = models.CharField(max_length=255)
-    to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    to = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="notifications"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
-    icon = models.CharField(max_length=50, default='bell')
+    icon = models.CharField(max_length=50, default="bell")
     read_at = models.DateTimeField(blank=True, null=True, default=None)
-    action_url = models.CharField(max_length=1000, blank=True, null=True, default=None)
+    action_url = models.CharField(
+        max_length=1000, blank=True, null=True, default=None
+    )
 
     class Meta:
         verbose_name = _("notification")
         verbose_name_plural = _("notifications")
-        ordering = ['created_at']
+        ordering = ["created_at"]
 
     def __str__(self) -> str:
         return self.title
@@ -77,13 +82,16 @@ class Notification(models.Model):
         """
         firebase_tokens = FirebaseCloudMessagingToken.objects.filter(
             user=self.to
-        ).values_list('token', flat=True)
+        ).values_list("token", flat=True)
         send_notification(self.title, self.message, list(firebase_tokens))
 
 
 class UserProfile(models.Model):
     """User profile stores extra information about the user"""
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="profile"
+    )
     avatar = models.ImageField(
         upload_to=user_directory_path,
         blank=True,
@@ -92,7 +100,9 @@ class UserProfile(models.Model):
     )
     verified_at = DateTimeField(null=True, blank=True, default=None)
     telegram_user_token = models.UUIDField(null=True, blank=True, default=None)
-    telegram_chat_id = models.BigIntegerField(null=True, blank=True, default=None)
+    telegram_chat_id = models.BigIntegerField(
+        null=True, blank=True, default=None
+    )
 
     class Meta:
         verbose_name = _("profile")
@@ -108,8 +118,8 @@ class UserProfile(models.Model):
         Notification.objects.create(
             title="Account verification",
             message="Your account was successfully verified.",
-            icon='exclamation',
-            to=self.user
+            icon="exclamation",
+            to=self.user,
         )
 
     def send_verification_email(self):
@@ -118,14 +128,14 @@ class UserProfile(models.Model):
         token = jwt.encode(
             {
                 "exp": timezone.now() + timedelta(days=30),
-                "user_id": self.user.id
+                "user_id": self.user.id,
             },
             settings.SECRET_KEY,
-            algorithm="HS256"
+            algorithm="HS256",
         )
 
-        template_html = 'email/alert.html'
-        template_text = 'email/alert.txt'
+        template_html = "email/alert.html"
+        template_text = "email/alert.txt"
 
         text = get_template(template_text)
         html = get_template(template_html)
@@ -135,38 +145,39 @@ class UserProfile(models.Model):
         full_link = site + f"{reverse('accounts:verify')}?t={token}"
 
         context = {
-            'warning_message': 'Account verification',
-            'first_line': 'We need to verify your account. Please click the button below.',
-            'button_text': 'Verify',
-            'button_link': full_link,
+            "warning_message": "Account verification",
+            "first_line": "We need to verify your account. Please click the button below.",
+            "button_text": "Verify",
+            "button_link": full_link,
         }
 
         msg = EmailMultiAlternatives(
-            subject='Invite',
+            subject="Invite",
             body=text.render(context),
             from_email=settings.EMAIL_HOST_USER,
-            to=[self.user.email])
+            to=[self.user.email],
+        )
         msg.attach_alternative(html.render(context), "text/html")
         msg.send(fail_silently=False)
 
         Notification.objects.create(
             title="Account verification",
             message="We've sent you an email to verify your account.",
-            icon='exclamation',
+            icon="exclamation",
             to=self.user,
         )
 
     def generate_initials_avatar(self):
         """Generate an avatar in SVG format from the user's initials"""
         colors = [
-            ['#DF7FD7', '#DF7FD7', '#591854'],
-            ['#E3CAC8', '#DF8A82', '#5E3A37'],
-            ['#E6845E', '#E05118', '#61230B'],
-            ['#E0B050', '#E6CB97', '#614C23'],
-            ['#9878AD', '#492661', '#C59BE0'],
-            ['#787BAD', '#141961', '#9B9FE0'],
-            ['#78A2AD', '#104F61', '#9BD1E0'],
-            ['#78AD8A', '#0A6129', '#9BE0B3'],
+            ["#DF7FD7", "#DF7FD7", "#591854"],
+            ["#E3CAC8", "#DF8A82", "#5E3A37"],
+            ["#E6845E", "#E05118", "#61230B"],
+            ["#E0B050", "#E6CB97", "#614C23"],
+            ["#9878AD", "#492661", "#C59BE0"],
+            ["#787BAD", "#141961", "#9B9FE0"],
+            ["#78A2AD", "#104F61", "#9BD1E0"],
+            ["#78AD8A", "#0A6129", "#9BE0B3"],
         ]
         initials_svg_template = """
             <svg xmlns="http://www.w3.org/2000/svg"
@@ -186,14 +197,16 @@ class UserProfile(models.Model):
         """.strip()
         initials = self.user.username[0]
         random_color = random.choice(colors)
-        svg_avatar = initials_svg_template.format(**{
-            'color1': random_color[0],
-            'color2': random_color[1],
-            'text_color': random_color[2],
-            'text': xml_escape(initials.upper()),
-        }).replace('\n', '')
+        svg_avatar = initials_svg_template.format(
+            **{
+                "color1": random_color[0],
+                "color2": random_color[1],
+                "text_color": random_color[2],
+                "text": xml_escape(initials.upper()),
+            }
+        ).replace("\n", "")
         img_temp = NamedTemporaryFile(delete=True)
-        img_temp.write(svg_avatar.encode('UTF-8'))
+        img_temp.write(svg_avatar.encode("UTF-8"))
         img_temp.flush()
         try:
             self.avatar.save(
@@ -210,7 +223,7 @@ class UserProfile(models.Model):
         """
         if self.telegram_user_token is None:
             self.telegram_user_token = uuid.uuid4()
-            self.save(update_fields=['telegram_user_token'])
+            self.save(update_fields=["telegram_user_token"])
         return str(self.telegram_user_token)
 
 
@@ -220,29 +233,39 @@ class Plan(models.Model):
     This models has data used to populate the checkout page.
     Those are related to Stripe products."""
 
-    FREE = 'FR'
-    LIFETIME = 'LT'
-    DEFAULT = 'DF'
-    RECOMMENDED = 'RC'
+    FREE = "FR"
+    LIFETIME = "LT"
+    DEFAULT = "DF"
+    RECOMMENDED = "RC"
 
     TYPE_CHOICES = [
-        (FREE, _('Free')),
-        (LIFETIME, _('Lifetime')),
-        (DEFAULT, _('Default')),
-        (RECOMMENDED, _('Recommended')),
+        (FREE, _("Free")),
+        (LIFETIME, _("Lifetime")),
+        (DEFAULT, _("Default")),
+        (RECOMMENDED, _("Recommended")),
     ]
 
-    product_id = models.CharField(max_length=100, help_text="Stores the stripe unique identifiers")
-    name = models.CharField(max_length=100, help_text="Display name used on the template")
-    description = models.TextField(max_length=500, help_text="Description text used on the template")
-    icon = models.CharField(max_length=50, help_text="Icon rendered in the template")
+    product_id = models.CharField(
+        max_length=100, help_text="Stores the stripe unique identifiers"
+    )
+    name = models.CharField(
+        max_length=100, help_text="Display name used on the template"
+    )
+    description = models.TextField(
+        max_length=500, help_text="Description text used on the template"
+    )
+    icon = models.CharField(
+        max_length=50, help_text="Icon rendered in the template"
+    )
     type = models.CharField(
         max_length=2,
         choices=TYPE_CHOICES,
         help_text="Used to customize the template based on this field."
-        "For instance, the basic plan will be muted and the recommended one is highlighted."
+        "For instance, the basic plan will be muted and the recommended one is highlighted.",
     )
-    order = models.IntegerField(unique=True, help_text="Used to sort plans on the template.")
+    order = models.IntegerField(
+        unique=True, help_text="Used to sort plans on the template."
+    )
 
     class Meta:
         verbose_name = _("plan")
@@ -258,8 +281,11 @@ class Feature(models.Model):
     Stores features related to the plans user can subscribe to.
     This models is used to populate the checkout page.
     Those are related to plans that are related to Stripe products."""
+
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
-    icon = models.CharField(max_length=50, help_text="Icon rendered in the template")
+    icon = models.CharField(
+        max_length=50, help_text="Icon rendered in the template"
+    )
     short_description = models.CharField(max_length=30)
     full_description = models.TextField(max_length=200)
     internal_description = models.TextField(
@@ -267,9 +293,12 @@ class Feature(models.Model):
         null=True,
         blank=True,
         default=None,
-        help_text="This is used by staff and is not displayed to user in the template."
+        help_text="This is used by staff and is not displayed to user in the template.",
     )
-    display = models.BooleanField(help_text="Controls wether feature is shown on the template", default=True)
+    display = models.BooleanField(
+        help_text="Controls wether feature is shown on the template",
+        default=True,
+    )
 
     class Meta:
         verbose_name = _("feature")
@@ -282,6 +311,7 @@ class Feature(models.Model):
 class Subscription(models.Model):
     """
     Stores subscriptions made by users. This is used to provide plan features and limitations to user."""
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -311,15 +341,20 @@ class Subscription(models.Model):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         customer = stripe.Customer.list(email=self.user.email).data[0]
         subscription = stripe.Subscription.list(customer=customer.id).data[0]
-        subscription = stripe.Subscription.modify(subscription.id, cancel_at_period_end=True)
+        subscription = stripe.Subscription.modify(
+            subscription.id, cancel_at_period_end=True
+        )
 
         # Update model
         self.cancel_at = timezone.make_aware(
             datetime.fromtimestamp(subscription.cancel_at),
-            pytz.timezone(settings.STRIPE_TIMEZONE)
+            pytz.timezone(settings.STRIPE_TIMEZONE),
         )
         self.save()
-        return (True, "Your subscription has been scheduled to be cancelled at the end of your renewal date.")
+        return (
+            True,
+            "Your subscription has been scheduled to be cancelled at the end of your renewal date.",
+        )
 
     def abort_cancellation(self):
         """Abort the cancellation of the Stripe subscription."""
@@ -327,8 +362,12 @@ class Subscription(models.Model):
             # Update Stripe
             stripe.api_key = settings.STRIPE_SECRET_KEY
             customer = stripe.Customer.list(email=self.user.email).data[0]
-            subscription = stripe.Subscription.list(customer=customer.id).data[0]
-            subscription = stripe.Subscription.modify(subscription.id, cancel_at_period_end=False)
+            subscription = stripe.Subscription.list(customer=customer.id).data[
+                0
+            ]
+            subscription = stripe.Subscription.modify(
+                subscription.id, cancel_at_period_end=False
+            )
 
             # Update model
             self.cancel_at = None
@@ -344,7 +383,10 @@ class FirebaseCloudMessagingToken(models.Model):
     """
     Store FCM tokens
     """
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='fcm_tokens')
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="fcm_tokens"
+    )
     token = models.CharField(unique=True, max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -9,7 +9,8 @@ User = get_user_model()
 
 class NoteForm(forms.ModelForm):
     """Note form"""
-    error_css_class = 'error'
+
+    error_css_class = "error"
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
@@ -27,7 +28,7 @@ class NoteForm(forms.ModelForm):
     class Meta:
         model = Note
         fields = [
-            'title',
-            'location',
-            'text',
+            "title",
+            "location",
+            "text",
         ]

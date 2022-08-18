@@ -16,7 +16,7 @@ class IndexView(UserPassesTestMixin, TemplateView):
     Root view
     """
 
-    template_name = 'restricted_area/index.html'
+    template_name = "restricted_area/index.html"
 
     def test_func(self):
         return self.request.user.is_superuser
@@ -35,7 +35,7 @@ class ForceError500View(UserPassesTestMixin, View):
 class ViewError500View(UserPassesTestMixin, TemplateView):
     """Display error page"""
 
-    template_name = '500.html'
+    template_name = "500.html"
 
     def test_func(self):
         return self.request.user.is_superuser
@@ -44,14 +44,14 @@ class ViewError500View(UserPassesTestMixin, TemplateView):
 class ReportView(UserPassesTestMixin, TemplateView):
     """Show report of models"""
 
-    template_name = 'restricted_area/report.html'
+    template_name = "restricted_area/report.html"
 
     def test_func(self):
         return self.request.user.is_superuser
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['models'] = Report().get_models()
+        context["models"] = Report().get_models()
         return context
 
 
@@ -67,12 +67,12 @@ class LoginAsView(UserPassesTestMixin, View):
         """
         Search users
         """
-        query = request.GET.get('query')
-        fields_to_search = ['username', 'email', 'first_name', 'last_name']
+        query = request.GET.get("query")
+        fields_to_search = ["username", "email", "first_name", "last_name"]
         users = get_user_model().objects.filter(
             reduce(
                 lambda x, y: x | y,
-                (Q(**{f'{f}__icontains': query}) for f in fields_to_search)
+                (Q(**{f"{f}__icontains": query}) for f in fields_to_search),
             )
         )
         return JsonResponse(
@@ -85,7 +85,9 @@ class LoginAsView(UserPassesTestMixin, View):
                         "email": user.email,
                         "first_name": user.first_name,
                         "last_name": user.last_name,
-                        "profile_picture": user.profile.avatar.url if user.profile.avatar else None,
+                        "profile_picture": user.profile.avatar.url
+                        if user.profile.avatar
+                        else None,
                     }
                     for user in users
                 ],
@@ -96,8 +98,12 @@ class LoginAsView(UserPassesTestMixin, View):
         """
         Sign in as another user.
         """
-        user = get_object_or_404(get_user_model(), id=request.POST.get('user'))
-        login(request, user, backend='__mono.auth_backends.EmailOrUsernameModelBackend')
+        user = get_object_or_404(get_user_model(), id=request.POST.get("user"))
+        login(
+            request,
+            user,
+            backend="__mono.auth_backends.EmailOrUsernameModelBackend",
+        )
         return JsonResponse(
             {
                 "success": True,

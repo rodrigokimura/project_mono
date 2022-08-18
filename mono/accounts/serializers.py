@@ -10,9 +10,7 @@ class ProfileSerializer(ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = [
-            'avatar'
-        ]
+        fields = ["avatar"]
 
     def validate_avatar(self, file):  # pylint: disable=no-self-use
         return validate_file_size(file, 10)
@@ -20,6 +18,7 @@ class ProfileSerializer(ModelSerializer):
 
 class ChangePasswordSerializer(Serializer):
     """Change password serializer"""
+
     old_password = CharField(required=True)
     new_password = CharField(required=True)
     new_password_confirmation = CharField(required=True)
@@ -33,6 +32,7 @@ class ChangePasswordSerializer(Serializer):
 
 class FCMTokenSerializer(Serializer):
     """Firebase Cloud Messaging Token"""
+
     token = CharField(required=True)
 
     def create(self, validated_data):
@@ -44,26 +44,27 @@ class FCMTokenSerializer(Serializer):
 
 class UserSerializer(ModelSerializer):
     """User serializer"""
+
     profile = ProfileSerializer(many=False, read_only=True)
 
     class Meta:
         model = User
 
         fields = [
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-            'profile',
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "profile",
         ]
         extra_kwargs = {
-            'username': {'read_only': True},
-            'email': {'read_only': True},
-            'profile': {'read_only': True},
+            "username": {"read_only": True},
+            "email": {"read_only": True},
+            "profile": {"read_only": True},
         }
 
     def create(self, validated_data):
-        avatar = validated_data.get('avatar')
+        avatar = validated_data.get("avatar")
         instance = super().create(validated_data)
         profile = instance.profile
         profile.avatar = avatar
@@ -71,8 +72,8 @@ class UserSerializer(ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
-        if 'avatar' in validated_data:
+        if "avatar" in validated_data:
             profile = instance.profile
-            profile.avatar = validated_data['avatar']
+            profile.avatar = validated_data["avatar"]
             profile.save()
         return super().update(instance, validated_data)

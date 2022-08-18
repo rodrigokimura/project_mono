@@ -11,25 +11,19 @@ from ..views import AccountCreateView
 
 
 class TestTransactionModel:
-
     def test_signed_amount_with_income(self):
         category = Category(type=Category.INCOME)
-        income = Transaction(
-            amount=10,
-            category=category)
+        income = Transaction(amount=10, category=category)
         assert income.signed_amount > 0
 
     def test_signed_amount_with_expense(self):
         category = Category(type=Category.EXPENSE)
-        expense = Transaction(
-            amount=10,
-            category=category)
+        expense = Transaction(amount=10, category=category)
         assert expense.signed_amount < 0
 
 
 @pytest.mark.django_db
 class TestUserModel:
-
     def test_user_created(self, user):
         assert user is not None
 
@@ -41,11 +35,9 @@ class TestUserModel:
 
 
 class AccountModelTests(TestCase):
-
     def setUp(self):
         Icon.create_defaults()
-        self.user = User.objects.create(
-            username="teste")
+        self.user = User.objects.create(username="teste")
         self.factory = RequestFactory()
 
     def test_adjust_balance(self):
@@ -60,24 +52,23 @@ class AccountModelTests(TestCase):
 
 
 class AccountFormTests(TestCase):
-
     def setUp(self):
         Icon.create_defaults()
         self.user = User.objects.create(username="teste")
         self.factory = RequestFactory()
 
     def test_get(self):
-        request = self.factory.get('/fn/account/')
+        request = self.factory.get("/fn/account/")
         request.user = self.user
         response = AccountCreateView.as_view()(request)
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_post(self):
         request = self.factory.post(
-            path='/fn/account/',
+            path="/fn/account/",
             data={
                 "name": "Teste",
-            }
+            },
         )
         request.user = self.user
         response = AccountCreateView.as_view()(request)
@@ -85,15 +76,12 @@ class AccountFormTests(TestCase):
 
 
 class UserCreationTests(TestCase):
-
     def setUp(self):
         Icon.create_defaults()
         self.user_1 = User.objects.create(username="User_1")
         self.user_2 = User.objects.create(username="User_2")
         self.group = Group.objects.create(
-            name="Group",
-            owned_by=self.user_1,
-            created_by=self.user_1
+            name="Group", owned_by=self.user_1, created_by=self.user_1
         )
         self.assertIsNotNone(self.group)
         self.group.members.add(self.user_1)
@@ -116,9 +104,9 @@ class UserCreationTests(TestCase):
             created_by=self.user_1,
             category=Category.objects.filter(
                 created_by=self.user_1, type=Category.EXPENSE
-            ).first()
+            ).first(),
         )
-        request = self.factory.get(f'/fn/transaction/{transaction.pk}/delete/')
+        request = self.factory.get(f"/fn/transaction/{transaction.pk}/delete/")
         request.user = self.user_1
 
 
@@ -129,7 +117,9 @@ class StripeTests(TestCase):
         Icon.create_defaults()
         self.user = User.objects.create(username="user")
         products = stripe.Product.list(limit=100, active=True).data
-        self.products = [product for product in products if product.metadata.app == 'finance']
+        self.products = [
+            product for product in products if product.metadata.app == "finance"
+        ]
 
     def test_stripe_products(self):
         self.assertGreater(len(self.products), 0)

@@ -11,7 +11,9 @@ from rest_framework.views import APIView
 
 from .models import Configuration, Task
 from .serializers import (
-    ChecklistMoveSerializer, ConfigurationSerializer, TaskMoveSerializer,
+    ChecklistMoveSerializer,
+    ConfigurationSerializer,
+    TaskMoveSerializer,
 )
 
 
@@ -24,7 +26,7 @@ class HomePageView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context['task_recurrence_choices'] = Task.Recurrence
+        context["task_recurrence_choices"] = Task.Recurrence
         return context
 
 
@@ -37,7 +39,9 @@ class ChecklistMoveApiView(LoginRequiredMixin, APIView):
         """
         Apply checklist movement.
         """
-        serializer = ChecklistMoveSerializer(data=request.data, context={'request': request})
+        serializer = ChecklistMoveSerializer(
+            data=request.data, context={"request": request}
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
@@ -53,7 +57,9 @@ class TaskMoveApiView(LoginRequiredMixin, APIView):
         """
         Apply task movement.
         """
-        serializer = TaskMoveSerializer(data=request.data, context={'request': request})
+        serializer = TaskMoveSerializer(
+            data=request.data, context={"request": request}
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
@@ -67,4 +73,6 @@ class ConfigAPIView(RetrieveUpdateAPIView):
     permission_classes = [IsCreator]
 
     def get_object(self):
-        return Configuration.objects.get_or_create(created_by=self.request.user)[0]
+        return Configuration.objects.get_or_create(
+            created_by=self.request.user
+        )[0]

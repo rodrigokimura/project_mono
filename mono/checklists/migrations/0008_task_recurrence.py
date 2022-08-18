@@ -6,13 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('checklists', '0007_configuration'),
+        ("checklists", "0007_configuration"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='task',
-            name='recurrence',
-            field=models.CharField(blank=True, choices=[('daily', 'Daily'), ('weekly', 'Weekly'), ('monthly', 'Monthly'), ('yearly', 'Yearly')], max_length=7, null=True),
+            model_name="task",
+            name="recurrence",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("daily", "Daily"),
+                    ("weekly", "Weekly"),
+                    ("monthly", "Monthly"),
+                    ("yearly", "Yearly"),
+                ],
+                max_length=7,
+                null=True,
+            ),
         ),
     ]

@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('checklists', '0004_auto_20220512_1840'),
+        ("checklists", "0004_auto_20220512_1840"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='task',
-            name='due_date',
+            model_name="task",
+            name="due_date",
             field=models.DateField(blank=True, default=None, null=True),
         ),
         migrations.AddField(
-            model_name='task',
-            name='reminder',
+            model_name="task",
+            name="reminder",
             field=models.DateTimeField(blank=True, default=None, null=True),
         ),
     ]

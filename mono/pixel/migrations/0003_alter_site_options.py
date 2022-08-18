@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pixel', '0002_auto_20220125_1646'),
+        ("pixel", "0002_auto_20220125_1646"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='site',
-            options={'ordering': ['created_at']},
+            name="site",
+            options={"ordering": ["created_at"]},
         ),
     ]

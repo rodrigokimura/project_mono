@@ -22,7 +22,10 @@ from django.views.generic.base import TemplateView
 from django.views.generic.dates import MonthArchiveView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import (
-    CreateView, DeleteView, FormView, UpdateView,
+    CreateView,
+    DeleteView,
+    FormView,
+    UpdateView,
 )
 from django.views.generic.list import ListView
 from rest_framework import status
@@ -30,14 +33,35 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .forms import (
-    AccountForm, BudgetConfigurationForm, BudgetForm, CategoryForm, FakerForm,
-    GoalForm, GroupForm, IconForm, InstallmentForm, RecurrentTransactionForm,
-    TransactionForm, UniversalTransactionForm,
+    AccountForm,
+    BudgetConfigurationForm,
+    BudgetForm,
+    CategoryForm,
+    FakerForm,
+    GoalForm,
+    GroupForm,
+    IconForm,
+    InstallmentForm,
+    RecurrentTransactionForm,
+    TransactionForm,
+    UniversalTransactionForm,
 )
 from .models import (
-    Account, Budget, BudgetConfiguration, Category, Chart, Configuration, Goal,
-    Group, Icon, Installment, Invite, RecurrentTransaction, Transaction,
-    Transference, User,
+    Account,
+    Budget,
+    BudgetConfiguration,
+    Category,
+    Chart,
+    Configuration,
+    Goal,
+    Group,
+    Icon,
+    Installment,
+    Invite,
+    RecurrentTransaction,
+    Transaction,
+    Transference,
+    User,
 )
 from .serializers import ChartMoveSerializer, ChartSerializer
 
@@ -47,7 +71,7 @@ class BaseDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     Base class used for all (non API) delete views.
     """
 
-    template_name: str = 'finance/_confirm_delete.html'
+    template_name: str = "finance/_confirm_delete.html"
 
     def test_func(self):
         return self.get_object().created_by == self.request.user
@@ -55,23 +79,29 @@ class BaseDeleteView(UserPassesTestMixin, SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(
             self.request,
-            _("%(model_name)s deletion successfully executed") % {'model_name': self.model._meta.verbose_name.title()},
+            _("%(model_name)s deletion successfully executed")
+            % {"model_name": self.model._meta.verbose_name.title()},
         )
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
-        return reverse_lazy(f'finance:{self.model._meta.model_name}_list')
+        return reverse_lazy(f"finance:{self.model._meta.model_name}_list")
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context['message'] = _("Delete %(model_name)s?") % {'model_name': self.model._meta.verbose_name}
-        cancel_url_name = f'finance:{self.model._meta.model_name}_update'
-        context['cancel_url'] = reverse_lazy(cancel_url_name, kwargs={'pk': self.get_object().pk})
+        context["message"] = _("Delete %(model_name)s?") % {
+            "model_name": self.model._meta.verbose_name
+        }
+        cancel_url_name = f"finance:{self.model._meta.model_name}_update"
+        context["cancel_url"] = reverse_lazy(
+            cancel_url_name, kwargs={"pk": self.get_object().pk}
+        )
         return context
 
 
 class HomePageView(LoginRequiredMixin, TemplateView):
     """Root view"""
+
     template_name = "finance/index.html"
 
     def get_context_data(self, **kwargs):
@@ -88,40 +118,47 @@ class HomePageView(LoginRequiredMixin, TemplateView):
             created_by=self.request.user,
             timestamp__range=[
                 timezone.now() + relativedelta(months=-1),
-                timezone.now()
+                timezone.now(),
             ],
         )
         transactions_last_month = Transaction.objects.filter(
             created_by=self.request.user,
             timestamp__range=[
                 timezone.now() + relativedelta(months=-2),
-                timezone.now() + relativedelta(months=-1)
-            ]
+                timezone.now() + relativedelta(months=-1),
+            ],
         )
 
         expenses_this_month = transactions_this_month.filter(
             category__type=Category.EXPENSE
-        ).aggregate(sum=Coalesce(Sum("amount"), V(0), output_field=FloatField()))
+        ).aggregate(
+            sum=Coalesce(Sum("amount"), V(0), output_field=FloatField())
+        )
         incomes_this_month = transactions_this_month.filter(
             category__type=Category.INCOME
-        ).aggregate(sum=Coalesce(Sum("amount"), V(0), output_field=FloatField()))
+        ).aggregate(
+            sum=Coalesce(Sum("amount"), V(0), output_field=FloatField())
+        )
         expenses_last_month = transactions_last_month.filter(
             category__type=Category.EXPENSE
-        ).aggregate(sum=Coalesce(Sum("amount"), V(0), output_field=FloatField()))
+        ).aggregate(
+            sum=Coalesce(Sum("amount"), V(0), output_field=FloatField())
+        )
         incomes_last_month = transactions_last_month.filter(
             category__type=Category.INCOME
-        ).aggregate(sum=Coalesce(Sum("amount"), V(0), output_field=FloatField()))
-        context["expenses_this_month"] = round(expenses_this_month['sum'], 2)
-        context["incomes_this_month"] = round(incomes_this_month['sum'], 2)
-        context["expenses_last_month"] = round(expenses_last_month['sum'], 2)
-        context["incomes_last_month"] = round(incomes_last_month['sum'], 2)
+        ).aggregate(
+            sum=Coalesce(Sum("amount"), V(0), output_field=FloatField())
+        )
+        context["expenses_this_month"] = round(expenses_this_month["sum"], 2)
+        context["incomes_this_month"] = round(incomes_this_month["sum"], 2)
+        context["expenses_last_month"] = round(expenses_last_month["sum"], 2)
+        context["incomes_last_month"] = round(incomes_last_month["sum"], 2)
 
         closed_budgets = Budget.objects.filter(
             created_by=self.request.user,
             end_date__lt=datetime.combine(
-                timezone.now().date(),
-                datetime.min.time()
-            )
+                timezone.now().date(), datetime.min.time()
+            ),
         )
         open_budgets = Budget.objects.filter(
             created_by=self.request.user,
@@ -142,6 +179,7 @@ class HomePageView(LoginRequiredMixin, TemplateView):
 
 class CardOrderView(LoginRequiredMixin, TemplateView):
     """Apply card movement"""
+
     template_name = "finance/card_order.html"
 
     def get_context_data(self, **kwargs):
@@ -157,27 +195,33 @@ class CardOrderView(LoginRequiredMixin, TemplateView):
         if user_cards:
             for card in user_cards:
                 cards.append(
-                    (card, [name for value, name in available_cards if value == card][0], True)
+                    (
+                        card,
+                        [
+                            name
+                            for value, name in available_cards
+                            if value == card
+                        ][0],
+                        True,
+                    )
                 )
         for value, name in available_cards:
             if value not in [val for val, _, _ in cards]:
-                cards.append(
-                    (value, name, False)
-                )
+                cards.append((value, name, False))
 
-        context['cards'] = cards
+        context["cards"] = cards
 
         return context
 
     def post(self, request):
         """Apply card movement"""
-        cards = request.POST.get('cards')
+        cards = request.POST.get("cards")
         configuration = request.user.configuration
         configuration.cards = cards
         configuration.save()
         return JsonResponse(
             {
-                'success': True,
+                "success": True,
             }
         )
 
@@ -197,26 +241,27 @@ class TransactionListView(LoginRequiredMixin, ListView):
 
     :template:`finance/transaction_list.html`
     """
+
     model = Transaction
     paginate_by = 20
-    template_name = 'finance/transaction_list.html'
+    template_name = "finance/transaction_list.html"
 
     def get_queryset(self):
-        qs = Transaction.objects.filter(
-            created_by=self.request.user
-        ).annotate(
-            date=TruncDay('timestamp')
-        ).order_by('-timestamp')
+        qs = (
+            Transaction.objects.filter(created_by=self.request.user)
+            .annotate(date=TruncDay("timestamp"))
+            .order_by("-timestamp")
+        )
 
-        category = self.request.GET.get('category', None)
+        category = self.request.GET.get("category", None)
         if category not in [None, ""]:
-            qs = qs.filter(category__in=category.split(','))
+            qs = qs.filter(category__in=category.split(","))
 
-        account = self.request.GET.get('account', None)
+        account = self.request.GET.get("account", None)
         if account not in [None, ""]:
-            qs = qs.filter(account__in=account.split(','))
+            qs = qs.filter(account__in=account.split(","))
 
-        future = self.request.GET.get('future', None)
+        future = self.request.GET.get("future", None)
         if future in [None, ""]:
             qs = qs.filter(timestamp__date__lte=timezone.now().date())
 
@@ -224,63 +269,65 @@ class TransactionListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()
+        context["now"] = timezone.now()
 
-        context['categories'] = Category.objects.filter(
-            created_by=self.request.user, internal_type=Category.DEFAULT)
-        category = self.request.GET.get('category', None)
+        context["categories"] = Category.objects.filter(
+            created_by=self.request.user, internal_type=Category.DEFAULT
+        )
+        category = self.request.GET.get("category", None)
         if category not in [None, ""]:
-            context['filtered_categories'] = category.split(',')
+            context["filtered_categories"] = category.split(",")
 
-        context['accounts'] = Account.objects.filter(
-            owned_by=self.request.user)
-        account = self.request.GET.get('account', None)
+        context["accounts"] = Account.objects.filter(owned_by=self.request.user)
+        account = self.request.GET.get("account", None)
         if account not in [None, ""]:
-            context['filtered_accounts'] = account.split(',')
+            context["filtered_accounts"] = account.split(",")
 
         qs = self.get_queryset()
-        qs = qs.annotate(
-            date=TruncDay('timestamp')
-        ).values('date')
+        qs = qs.annotate(date=TruncDay("timestamp")).values("date")
         qs = qs.annotate(
             total_expense=Coalesce(
-                Sum(
-                    'amount',
-                    filter=Q(category__type='EXP')
-                ), V(0), output_field=FloatField()
+                Sum("amount", filter=Q(category__type="EXP")),
+                V(0),
+                output_field=FloatField(),
             ),
             total_income=Coalesce(
-                Sum(
-                    'amount',
-                    filter=Q(category__type='INC')
-                ), V(0), output_field=FloatField()
-            )
+                Sum("amount", filter=Q(category__type="INC")),
+                V(0),
+                output_field=FloatField(),
+            ),
         )
-        qs = qs.order_by('-date')
+        qs = qs.order_by("-date")
 
-        context['daily_grouped'] = qs
+        context["daily_grouped"] = qs
 
         query_string = self.request.GET.copy()
         if "page" in query_string:
-            query_string.pop('page')
+            query_string.pop("page")
 
-        context['query_string'] = query_string.urlencode()
+        context["query_string"] = query_string.urlencode()
 
         transaction_types = Category.TRANSACTION_TYPES.copy()
         transaction_types.append(("TRF", _("Transfer")))
-        context['transaction_types'] = transaction_types
+        context["transaction_types"] = transaction_types
 
-        context['frequency'] = RecurrentTransaction.FREQUENCY
-        context['remainder'] = Installment.HANDLE_REMAINDER
+        context["frequency"] = RecurrentTransaction.FREQUENCY
+        context["remainder"] = Installment.HANDLE_REMAINDER
 
         return context
 
 
-class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, FormView):
+class TransactionCreateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    FormView,
+):
     """Create transaction"""
+
     template_name = "finance/universal_transaction_form.html"
     form_class = UniversalTransactionForm
-    success_url = reverse_lazy('finance:transaction_list')
+    success_url = reverse_lazy("finance:transaction_list")
     success_message = "%(description)s was created successfully"
 
     def form_valid(self, form):
@@ -289,11 +336,11 @@ class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
         recurrent_or_installment = data.pop("recurrent_or_installment")
         data["created_by"] = self.request.user
 
-        if data['type'] == "TRF":
+        if data["type"] == "TRF":
             # For Transference
             del data["frequency"]
             del data["months"]
-            del data['handle_remainder']
+            del data["handle_remainder"]
             del data["account"]
             del data["category"]
             del data["type"]
@@ -302,19 +349,19 @@ class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
             transference.save()
         else:
             del data["type"]
-            del data['from_account']
-            del data['to_account']
+            del data["from_account"]
+            del data["to_account"]
             if is_recurrent_or_installment:
                 if recurrent_or_installment == "R":
                     # For Recurrent Transaction
-                    del data['months']
-                    del data['handle_remainder']
+                    del data["months"]
+                    del data["handle_remainder"]
                     recurrent_transaction = RecurrentTransaction(**data)
                     recurrent_transaction.save()
                 elif recurrent_or_installment == "I":
                     # For Installment
-                    del data['frequency']
-                    del data['active']
+                    del data["frequency"]
+                    del data["active"]
                     data["total_amount"] = data.pop("amount")
                     installment = Installment(**data)
                     installment.save()
@@ -322,28 +369,38 @@ class TransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, Succ
                 # For Transaction
                 del data["frequency"]
                 del data["months"]
-                del data['handle_remainder']
+                del data["handle_remainder"]
                 transaction = Transaction(**data)
                 transaction.save()
 
         return super().form_valid(form)
 
 
-class TransactionUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+class TransactionUpdateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    UpdateView,
+):
     """Update transaction"""
+
     model = Transaction
     form_class = TransactionForm
-    success_url = reverse_lazy('finance:transaction_list')
+    success_url = reverse_lazy("finance:transaction_list")
     success_message = "%(description)s was updated successfully"
 
 
 class TransactionDeleteView(BaseDeleteView):
     """Delete transaction"""
+
     model = Transaction
 
 
-class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):  # pylint: disable=too-many-ancestors
+class TransactionMonthArchiveView(
+    LoginRequiredMixin, MonthArchiveView
+):  # pylint: disable=too-many-ancestors
     """List transactions monthly"""
+
     queryset = Transaction.objects.all()
     date_field = "timestamp"
     allow_future = True
@@ -353,148 +410,181 @@ class TransactionMonthArchiveView(LoginRequiredMixin, MonthArchiveView):  # pyli
         """Apply filters"""
         qs = Transaction.objects.filter(created_by=self.request.user)
 
-        category = self.request.GET.get('category', '')
-        if category != '':
-            qs = qs.filter(category__in=category.split(','))
+        category = self.request.GET.get("category", "")
+        if category != "":
+            qs = qs.filter(category__in=category.split(","))
 
-        account = self.request.GET.get('account', '')
-        if account != '':
-            qs = qs.filter(account__in=account.split(','))
+        account = self.request.GET.get("account", "")
+        if account != "":
+            qs = qs.filter(account__in=account.split(","))
 
         return qs
 
     def get_context_data(self, **kwargs):
         """Add eextra context"""
         context = super().get_context_data(**kwargs)
-        context['weekday'] = context['month'].isoweekday()
-        context['weekday_range'] = range(context['month'].isoweekday())
-        context['month_range'] = range((context['next_month'] - context['month']).days)
+        context["weekday"] = context["month"].isoweekday()
+        context["weekday_range"] = range(context["month"].isoweekday())
+        context["month_range"] = range(
+            (context["next_month"] - context["month"]).days
+        )
 
-        context['categories'] = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
-        category = self.request.GET.get('category', '')
-        if category != '':
-            context['filtered_categories'] = category.split(',')
+        context["categories"] = Category.objects.filter(
+            created_by=self.request.user, internal_type=Category.DEFAULT
+        )
+        category = self.request.GET.get("category", "")
+        if category != "":
+            context["filtered_categories"] = category.split(",")
 
-        context['accounts'] = Account.objects.filter(owned_by=self.request.user)
-        account = self.request.GET.get('account', '')
-        if account != '':
-            context['filtered_accounts'] = account.split(',')
+        context["accounts"] = Account.objects.filter(owned_by=self.request.user)
+        account = self.request.GET.get("account", "")
+        if account != "":
+            context["filtered_accounts"] = account.split(",")
 
-        qs = context['object_list']
-        qs = qs.annotate(
-            date=TruncDay('timestamp')
-        ).values('date')
+        qs = context["object_list"]
+        qs = qs.annotate(date=TruncDay("timestamp")).values("date")
         qs = qs.annotate(
             total_expense=Coalesce(
-                Sum(
-                    'amount',
-                    filter=Q(category__type='EXP')
-                ), V(0), output_field=FloatField()
+                Sum("amount", filter=Q(category__type="EXP")),
+                V(0),
+                output_field=FloatField(),
             ),
             total_income=Coalesce(
-                Sum(
-                    'amount',
-                    filter=Q(category__type='INC')
-                ), V(0), output_field=FloatField()
-            )
+                Sum("amount", filter=Q(category__type="INC")),
+                V(0),
+                output_field=FloatField(),
+            ),
         )
-        qs = qs.order_by('-date')
-        context['daily_grouped'] = qs
+        qs = qs.order_by("-date")
+        context["daily_grouped"] = qs
         return context
 
 
 class RecurrentTransactionListView(LoginRequiredMixin, ListView):
     """List recurrent transactions"""
+
     model = RecurrentTransaction
 
     def get_queryset(self):
         return RecurrentTransaction.objects.filter(
             created_by=self.request.user
-        ).order_by('-timestamp')
+        ).order_by("-timestamp")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['frequencies'] = RecurrentTransaction.FREQUENCY
+        context["frequencies"] = RecurrentTransaction.FREQUENCY
         return context
 
 
-class RecurrentTransactionCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+class RecurrentTransactionCreateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    CreateView,
+):
     """Create recurrent transaction"""
+
     model = RecurrentTransaction
     form_class = RecurrentTransactionForm
-    success_url = reverse_lazy('finance:recurrenttransaction_list')
+    success_url = reverse_lazy("finance:recurrenttransaction_list")
     success_message = "%(description)s was created successfully"
 
 
-class RecurrentTransactionUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+class RecurrentTransactionUpdateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    UpdateView,
+):
     """Edit recurrent transaction"""
+
     model = RecurrentTransaction
     form_class = RecurrentTransactionForm
-    success_url = reverse_lazy('finance:recurrenttransaction_list')
+    success_url = reverse_lazy("finance:recurrenttransaction_list")
     success_message = "%(description)s was updated successfully"
 
 
 class RecurrentTransactionDeleteView(BaseDeleteView):
     """Delete recurrent transaction"""
+
     model = RecurrentTransaction
 
 
 class InstallmentListView(LoginRequiredMixin, ListView):
     """List installments"""
+
     model = Installment
 
     def get_queryset(self):
         return Installment.objects.filter(
             created_by=self.request.user
-        ).order_by('-timestamp')
+        ).order_by("-timestamp")
 
 
-class InstallmentCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+class InstallmentCreateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    CreateView,
+):
     """Create installment"""
+
     model = Installment
     form_class = InstallmentForm
-    success_url = reverse_lazy('finance:installment_list')
+    success_url = reverse_lazy("finance:installment_list")
     success_message = "%(description)s was created successfully"
 
 
-class InstallmentUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+class InstallmentUpdateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    UpdateView,
+):
     """Edit installment"""
+
     model = Installment
     form_class = InstallmentForm
-    success_url = reverse_lazy('finance:installment_list')
+    success_url = reverse_lazy("finance:installment_list")
     success_message = "%(description)s was updated successfully"
 
 
 class InstallmentDeleteView(BaseDeleteView):
     """Delete installment"""
+
     model = Installment
 
 
 class AccountListView(LoginRequiredMixin, ListView):
     """List accounts"""
+
     model = Account
 
     def get_context_data(self, **kwargs):
         """Add extra context"""
         context = super().get_context_data(**kwargs)
         groups = self.request.user.shared_groupset.all()
-        context['groups'] = groups
+        context["groups"] = groups
         members = [m.id for g in groups for m in g.members.all()]
-        context['members'] = User.objects.filter(id__in=members).exclude(id=self.request.user.id)
+        context["members"] = User.objects.filter(id__in=members).exclude(
+            id=self.request.user.id
+        )
         return context
 
     def get_queryset(self):
         """Apply filters"""
         owned_accounts = self.request.user.owned_accountset.all()
-        shared_accounts = Account.objects.filter(group__members=self.request.user)
+        shared_accounts = Account.objects.filter(
+            group__members=self.request.user
+        )
         qs = (owned_accounts | shared_accounts).distinct()
 
-        group = self.request.GET.get('group', '')
-        if group != '':
+        group = self.request.GET.get("group", "")
+        if group != "":
             qs = qs.filter(group=group)
 
-        member = self.request.GET.get('member', '')
-        if member != '':
+        member = self.request.GET.get("member", "")
+        if member != "":
             qs = qs.filter(group__members=member)
 
         return qs
@@ -502,22 +592,35 @@ class AccountListView(LoginRequiredMixin, ListView):
 
 class AccountDetailView(LoginRequiredMixin, DetailView):
     """Retrieve account"""
+
     model = Account
 
 
-class AccountCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+class AccountCreateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    CreateView,
+):
     """Create account"""
+
     model = Account
     form_class = AccountForm
-    success_url = reverse_lazy('finance:account_list')
+    success_url = reverse_lazy("finance:account_list")
     success_message = "%(name)s was created successfully"
 
 
-class AccountUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+class AccountUpdateView(
+    UserPassesTestMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    UpdateView,
+):
     """Edit account"""
+
     model = Account
     form_class = AccountForm
-    success_url = reverse_lazy('finance:account_list')
+    success_url = reverse_lazy("finance:account_list")
     success_message = "%(name)s was updated successfully"
 
     def test_func(self):
@@ -526,6 +629,7 @@ class AccountUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, Success
 
 class AccountDeleteView(BaseDeleteView):
     """Delete account"""
+
     model = Account
 
     def test_func(self):
@@ -534,6 +638,7 @@ class AccountDeleteView(BaseDeleteView):
 
 class GroupListView(LoginRequiredMixin, ListView):
     """List groups"""
+
     model = Group
 
     def get_context_data(self, **kwargs):
@@ -541,38 +646,53 @@ class GroupListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         groups = Group.objects.filter(members=self.request.user)
         members = [m.id for g in groups for m in g.members.all()]
-        context['members'] = User.objects.filter(id__in=members).exclude(id=self.request.user.id)
+        context["members"] = User.objects.filter(id__in=members).exclude(
+            id=self.request.user.id
+        )
         return context
 
     def get_queryset(self):
         """Apply filters"""
         qs = Group.objects.filter(members=self.request.user)
 
-        member = self.request.GET.get('member', '')
-        if member != '':
+        member = self.request.GET.get("member", "")
+        if member != "":
             qs = qs.filter(members=member)
 
         return qs
 
 
-class GroupCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+class GroupCreateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    CreateView,
+):
     """Create group"""
+
     model = Group
     form_class = GroupForm
-    success_url = reverse_lazy('finance:group_list')
+    success_url = reverse_lazy("finance:group_list")
     success_message = "%(name)s was created successfully"
 
 
-class GroupUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+class GroupUpdateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    UpdateView,
+):
     """Update group"""
+
     model = Group
     form_class = GroupForm
-    success_url = reverse_lazy('finance:group_list')
+    success_url = reverse_lazy("finance:group_list")
     success_message = "%(name)s was updated successfully"
 
 
 class GroupDeleteView(BaseDeleteView):
     """Delete group"""
+
     model = Group
 
     def test_func(self):
@@ -581,22 +701,22 @@ class GroupDeleteView(BaseDeleteView):
 
 class CategoryListView(LoginRequiredMixin, ListView):
     """List categories"""
+
     model = Category
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['types'] = Category.TRANSACTION_TYPES
+        context["types"] = Category.TRANSACTION_TYPES
         return context
 
     def get_queryset(self):
         """Apply filters"""
         qs = Category.objects.filter(
-            created_by=self.request.user,
-            internal_type=Category.DEFAULT
+            created_by=self.request.user, internal_type=Category.DEFAULT
         )
 
-        category_type = self.request.GET.get('type', '')
-        if category_type != '':
+        category_type = self.request.GET.get("type", "")
+        if category_type != "":
             qs = qs.filter(type=category_type)
 
         return qs
@@ -607,66 +727,80 @@ class CategoryListApi(View):
 
     def get(self, request):
         """List categories"""
-        category_type = request.GET.get("type", '')
-        account = request.GET.get("account", '')
-        if category_type != '':
+        category_type = request.GET.get("type", "")
+        account = request.GET.get("account", "")
+        if category_type != "":
             qs = Category.objects.filter(
                 created_by=request.user,
                 type=category_type,
-                internal_type=Category.DEFAULT
+                internal_type=Category.DEFAULT,
             )
         else:
             qs = Category.objects.none()
             return JsonResponse(
                 {
-                    'success': True,
-                    'message': 'Categories retrived from database.',
-                    'results': list(qs),
+                    "success": True,
+                    "message": "Categories retrived from database.",
+                    "results": list(qs),
                 }
             )
 
-        if account != '':
+        if account != "":
             account = Account.objects.get(id=int(account))
             qs = qs.filter(group=account.group)
         else:
             qs = qs.filter(group=None)
 
-        qs = qs.values('name').annotate(
-            value=F('id'),
-            icon=F('icon__markup'),
+        qs = qs.values("name").annotate(
+            value=F("id"),
+            icon=F("icon__markup"),
         )
         return JsonResponse(
             {
-                'success': True,
-                'message': 'Categories retrived from database.',
-                'results': list(qs),
+                "success": True,
+                "message": "Categories retrived from database.",
+                "results": list(qs),
             }
         )
 
 
-class CategoryCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+class CategoryCreateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    CreateView,
+):
     """Create category"""
+
     model = Category
     form_class = CategoryForm
-    success_url = reverse_lazy('finance:category_list')
+    success_url = reverse_lazy("finance:category_list")
     success_message = "%(name)s was created successfully"
 
 
-class CategoryUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+class CategoryUpdateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    UpdateView,
+):
     """Update category"""
+
     model = Category
     form_class = CategoryForm
-    success_url = reverse_lazy('finance:category_list')
+    success_url = reverse_lazy("finance:category_list")
     success_message = "%(name)s was updated successfully"
 
 
 class CategoryDeleteView(BaseDeleteView):
     """Delete category"""
+
     model = Category
 
 
 class IconListView(UserPassesTestMixin, ListView):
     """List icons"""
+
     model = Icon
 
     def test_func(self):
@@ -679,9 +813,10 @@ class IconListView(UserPassesTestMixin, ListView):
 
 class IconCreateView(UserPassesTestMixin, SuccessMessageMixin, CreateView):
     """Create icon"""
+
     model = Icon
     form_class = IconForm
-    success_url = reverse_lazy('finance:icon_list')
+    success_url = reverse_lazy("finance:icon_list")
     success_message = "%(markup)s was created successfully"
 
     def test_func(self):
@@ -690,9 +825,10 @@ class IconCreateView(UserPassesTestMixin, SuccessMessageMixin, CreateView):
 
 class IconUpdateView(UserPassesTestMixin, SuccessMessageMixin, UpdateView):
     """Update icon"""
+
     model = Icon
     form_class = IconForm
-    success_url = reverse_lazy('finance:icon_list')
+    success_url = reverse_lazy("finance:icon_list")
     success_message = "%(markup)s was updated successfully"
 
     def test_func(self):
@@ -701,6 +837,7 @@ class IconUpdateView(UserPassesTestMixin, SuccessMessageMixin, UpdateView):
 
 class IconDeleteView(BaseDeleteView):
     """Delete icon"""
+
     model = Icon
 
     def test_func(self):
@@ -709,6 +846,7 @@ class IconDeleteView(BaseDeleteView):
 
 class GoalListView(LoginRequiredMixin, ListView):
     """List goals"""
+
     model = Goal
 
     def get_queryset(self):
@@ -716,24 +854,37 @@ class GoalListView(LoginRequiredMixin, ListView):
         return qs
 
 
-class GoalCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+class GoalCreateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    CreateView,
+):
     """Create goal"""
+
     model = Goal
     form_class = GoalForm
-    success_url = reverse_lazy('finance:goal_list')
+    success_url = reverse_lazy("finance:goal_list")
     success_message = "%(name)s was created successfully"
 
 
-class GoalUpdateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+class GoalUpdateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    UpdateView,
+):
     """Update goal"""
+
     model = Goal
     form_class = GoalForm
-    success_url = reverse_lazy('finance:goal_list')
+    success_url = reverse_lazy("finance:goal_list")
     success_message = "%(name)s was updated successfully"
 
 
 class GoalDeleteView(BaseDeleteView):
     """Delete goal"""
+
     model = Goal
 
 
@@ -749,26 +900,19 @@ class InviteApi(LoginRequiredMixin, View):
 
         if Invite.objects.filter(email=email, group=group).exists():
             response = {
-                'success': True,
-                'message': f"You've already invited {email} to this group."
+                "success": True,
+                "message": f"You've already invited {email} to this group.",
             }
-        elif email == '':
-            response = {
-                'success': False,
-                'message': 'Email cannot be empty.'
-            }
+        elif email == "":
+            response = {"success": False, "message": "Email cannot be empty."}
         else:
-            invite = Invite(
-                group=group,
-                email=email,
-                created_by=user
-            )
+            invite = Invite(group=group, email=email, created_by=user)
             invite.save()
             invite.send(request)
             response = {
-                'success': True,
-                'message': 'Invite created.',
-                'results': invite.pk,
+                "success": True,
+                "message": "Invite created.",
+                "results": invite.pk,
             }
         return JsonResponse(response)
 
@@ -781,98 +925,111 @@ class InviteListApiView(View):
         group_id = request.GET.get("group")
         group = Group.objects.get(id=int(group_id))
 
-        qs = Invite.objects.filter(group=group, accepted=False).values('email')
+        qs = Invite.objects.filter(group=group, accepted=False).values("email")
 
         if qs.count() == 0:
             response = {
-                'success': True,
-                'message': "No invites found.",
-                'results': None
+                "success": True,
+                "message": "No invites found.",
+                "results": None,
             }
         else:
             response = {
-                'success': True,
-                'message': "List of invites.",
-                'results': list(qs)
+                "success": True,
+                "message": "List of invites.",
+                "results": list(qs),
             }
         return JsonResponse(response)
 
 
 class InviteAcceptanceView(LoginRequiredMixin, TemplateView):
     """Accept invitation"""
+
     template_name = "finance/invite_acceptance.html"
 
     def get(self, request, *args, **kwargs):
         """Accept invitation"""
-        token = request.GET.get('t', None)
+        token = request.GET.get("t", None)
 
         if token is None:
             return HttpResponse("error")
 
-        payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=["HS256"]
-        )
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
 
-        invite = get_object_or_404(Invite, pk=payload['id'])
+        invite = get_object_or_404(Invite, pk=payload["id"])
         user_already_member = request.user in invite.group.members.all()
         if not invite.accepted and not user_already_member:
             invite.accept(request.user)
             invite.save()
-        return self.render_to_response({
-            "accepted": invite.accepted,
-            "user_already_member": user_already_member,
-        })
+        return self.render_to_response(
+            {
+                "accepted": invite.accepted,
+                "user_already_member": user_already_member,
+            }
+        )
 
 
 class BudgetListView(LoginRequiredMixin, ListView):
     """
     List budgets
     """
+
     model = Budget
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
-        context['accounts'] = Account.objects.filter(owned_by=self.request.user)
+        context["categories"] = Category.objects.filter(
+            created_by=self.request.user, internal_type=Category.DEFAULT
+        )
+        context["accounts"] = Account.objects.filter(owned_by=self.request.user)
         return context
 
     def get_queryset(self):
         """Apply filters"""
         qs = Budget.objects.filter(
-            created_by=self.request.user,
-            start_date__lte=timezone.now().date()
+            created_by=self.request.user, start_date__lte=timezone.now().date()
         )
 
-        category = self.request.GET.get('category', '')
-        if category != '':
+        category = self.request.GET.get("category", "")
+        if category != "":
             qs = qs.filter(categories=category)
 
-        account = self.request.GET.get('account', '')
-        if account != '':
+        account = self.request.GET.get("account", "")
+        if account != "":
             qs = qs.filter(accounts=account)
 
         return qs
 
 
-class BudgetCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+class BudgetCreateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    CreateView,
+):
     """
     Create budget
     """
+
     model = Budget
     form_class = BudgetForm
-    success_url = reverse_lazy('finance:budget_list')
+    success_url = reverse_lazy("finance:budget_list")
     success_message = "Budget was created successfully"
 
 
-class BudgetUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+class BudgetUpdateView(
+    UserPassesTestMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    UpdateView,
+):
     """
     Update budget
     """
+
     model = Budget
     form_class = BudgetForm
-    success_url = reverse_lazy('finance:budget_list')
+    success_url = reverse_lazy("finance:budget_list")
     success_message = "Budget was updated successfully"
 
     def test_func(self):
@@ -883,6 +1040,7 @@ class BudgetDeleteView(BaseDeleteView):
     """
     Delete budget
     """
+
     model = Budget
 
 
@@ -890,46 +1048,61 @@ class BudgetConfigurationListView(LoginRequiredMixin, ListView):
     """
     List BudgetConfiguration
     """
+
     model = BudgetConfiguration
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.filter(created_by=self.request.user, internal_type=Category.DEFAULT)
-        context['accounts'] = Account.objects.filter(owned_by=self.request.user)
+        context["categories"] = Category.objects.filter(
+            created_by=self.request.user, internal_type=Category.DEFAULT
+        )
+        context["accounts"] = Account.objects.filter(owned_by=self.request.user)
         return context
 
     def get_queryset(self):
         """Apply filters"""
         qs = BudgetConfiguration.objects.filter(created_by=self.request.user)
 
-        category = self.request.GET.get('category', '')
-        if category != '':
+        category = self.request.GET.get("category", "")
+        if category != "":
             qs = qs.filter(categories=category)
 
-        account = self.request.GET.get('account', '')
-        if account != '':
+        account = self.request.GET.get("account", "")
+        if account != "":
             qs = qs.filter(accounts=account)
 
         return qs
 
 
-class BudgetConfigurationCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, SuccessMessageMixin, CreateView):
+class BudgetConfigurationCreateView(
+    LoginRequiredMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    CreateView,
+):
     """
     Create BudgetConfiguration
     """
+
     model = BudgetConfiguration
     form_class = BudgetConfigurationForm
-    success_url = reverse_lazy('finance:budgetconfiguration_list')
+    success_url = reverse_lazy("finance:budgetconfiguration_list")
     success_message = "BudgetConfiguration was created successfully"
 
 
-class BudgetConfigurationUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, SuccessMessageMixin, UpdateView):
+class BudgetConfigurationUpdateView(
+    UserPassesTestMixin,
+    PassRequestToFormViewMixin,
+    SuccessMessageMixin,
+    UpdateView,
+):
     """
     Update BudgetConfiguration
     """
+
     model = BudgetConfiguration
     form_class = BudgetConfigurationForm
-    success_url = reverse_lazy('finance:budgetconfiguration_list')
+    success_url = reverse_lazy("finance:budgetconfiguration_list")
     success_message = "BudgetConfiguration was updated successfully"
 
     def test_func(self):
@@ -940,6 +1113,7 @@ class BudgetConfigurationDeleteView(BaseDeleteView):
     """
     Delete BudgetConfiguration
     """
+
     model = BudgetConfiguration
 
 
@@ -947,6 +1121,7 @@ class FakerView(UserPassesTestMixin, FormView):
     """
     Create fake instances
     """
+
     template_name = "finance/faker.html"
     form_class = FakerForm
     success_url = "/fn/faker/"
@@ -959,11 +1134,7 @@ class FakerView(UserPassesTestMixin, FormView):
         Create fake instances
         """
         _, message = form.create_fake_instances()
-        messages.add_message(
-            self.request,
-            message['level'],
-            message['message']
-        )
+        messages.add_message(self.request, message["level"], message["message"])
         return super().form_valid(form)
 
 
@@ -971,28 +1142,30 @@ class RestrictedAreaView(LoginRequiredMixin, TemplateView):
     """
     Restricted area
     """
+
     template_name = "finance/restricted_area.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['users'] = User.objects.filter(
-            is_active=True).exclude(
-                id=self.request.user.id)
+        context["users"] = User.objects.filter(is_active=True).exclude(
+            id=self.request.user.id
+        )
         return context
 
 
 class ChartsView(LoginRequiredMixin, TemplateView):
     """View all charts"""
+
     template_name = "finance/charts.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['chart_types'] = Chart.TYPE_CHOICES
-        context['chart_metrics'] = Chart.METRIC_CHOICES
-        context['chart_fields'] = Chart.FIELD_CHOICES
-        context['chart_axes'] = Chart.AXIS_CHOICES
-        context['chart_categories'] = Chart.CATEGORY_CHOICES
-        context['chart_filters'] = Chart.FILTER_CHOICES
+        context["chart_types"] = Chart.TYPE_CHOICES
+        context["chart_metrics"] = Chart.METRIC_CHOICES
+        context["chart_fields"] = Chart.FIELD_CHOICES
+        context["chart_axes"] = Chart.AXIS_CHOICES
+        context["chart_categories"] = Chart.CATEGORY_CHOICES
+        context["chart_filters"] = Chart.FILTER_CHOICES
         return context
 
 
@@ -1007,52 +1180,64 @@ class ChartDataApiView(LoginRequiredMixin, APIView):
         """Retrieve chart data"""
         chart = get_object_or_404(Chart, pk=pk)
         data = chart.get_queryset(request.user)
-        return Response({
-            'success': True,
-            'data': {
-                'data_points': data,
-                'field_display': chart.get_field_display(),
-                'title': chart.title,
-                'type': chart.type,
-                'metric': chart.metric,
-                'field': chart.field,
-                'axis': chart.axis,
-                'category': chart.category,
-                'filters': chart.filters,
-            },
-        })
+        return Response(
+            {
+                "success": True,
+                "data": {
+                    "data_points": data,
+                    "field_display": chart.get_field_display(),
+                    "title": chart.title,
+                    "type": chart.type,
+                    "metric": chart.metric,
+                    "field": chart.field,
+                    "axis": chart.axis,
+                    "category": chart.category,
+                    "filters": chart.filters,
+                },
+            }
+        )
 
     def put(self, request, pk):
         """Edit chart"""
         chart = get_object_or_404(Chart, pk=pk)
         serializer = ChartSerializer(chart, data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
         serializer.save()
-        return Response({
-            'success': True,
-            'data': serializer.data,
-        })
+        return Response(
+            {
+                "success": True,
+                "data": serializer.data,
+            }
+        )
 
     def patch(self, request, pk):
         """Edit chart"""
         chart = get_object_or_404(Chart, pk=pk)
         serializer = ChartSerializer(chart, data=request.data, partial=True)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
         serializer.save()
-        return Response({
-            'success': True,
-            'data': serializer.data,
-        })
+        return Response(
+            {
+                "success": True,
+                "data": serializer.data,
+            }
+        )
 
     def delete(self, request, pk):
         """Delete a chart"""
         chart = get_object_or_404(Chart, pk=pk)
         chart.delete()
-        return Response({
-            'success': True,
-        })
+        return Response(
+            {
+                "success": True,
+            }
+        )
 
 
 class ChartListApiView(LoginRequiredMixin, APIView):
@@ -1063,32 +1248,38 @@ class ChartListApiView(LoginRequiredMixin, APIView):
     def get(self, request):
         """List all user's charts"""
         charts = request.user.charts.all()
-        return Response({
-            'success': True,
-            'data': [c.id for c in charts]
-        })
+        return Response({"success": True, "data": [c.id for c in charts]})
 
     def post(self, request):
         """Create new chart"""
-        serializer = ChartSerializer(data=request.data, context={"request": request})
+        serializer = ChartSerializer(
+            data=request.data, context={"request": request}
+        )
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
         serializer.save()
-        return Response({
-            'success': True,
-            'data': serializer.data,
-        })
+        return Response(
+            {
+                "success": True,
+                "data": serializer.data,
+            }
+        )
 
 
 class ChartMoveApiView(LoginRequiredMixin, APIView):
     """
     Apply chart movement
     """
+
     def post(self, request):
         """
         Apply chart movement
         """
-        serializer = ChartMoveSerializer(data=request.data, context={'request': request})
+        serializer = ChartMoveSerializer(
+            data=request.data, context={"request": request}
+        )
         if serializer.is_valid():
             result = serializer.move()
             return Response(result)

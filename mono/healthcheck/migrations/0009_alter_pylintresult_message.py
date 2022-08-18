@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('healthcheck', '0008_auto_20220417_1825'),
+        ("healthcheck", "0008_auto_20220417_1825"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='pylintresult',
-            name='message',
-            field=models.TextField(help_text='Text of the message.'),
+            model_name="pylintresult",
+            name="message",
+            field=models.TextField(help_text="Text of the message."),
         ),
     ]

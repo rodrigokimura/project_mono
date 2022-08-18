@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('coder', '0005_alter_tag_color'),
+        ("coder", "0005_alter_tag_color"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='snippet',
-            name='tags',
-            field=models.ManyToManyField(blank=True, to='coder.Tag'),
+            model_name="snippet",
+            name="tags",
+            field=models.ManyToManyField(blank=True, to="coder.Tag"),
         ),
     ]

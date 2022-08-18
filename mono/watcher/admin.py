@@ -11,15 +11,15 @@ class IssueAdmin(admin.ModelAdmin):
     """
 
     list_display = [
-        'id',
-        'name',
-        'description',
-        'created_at',
+        "id",
+        "name",
+        "description",
+        "created_at",
     ]
     list_filter = [
-        'name',
-        'description',
-        'created_at',
+        "name",
+        "description",
+        "created_at",
     ]
 
 
@@ -30,13 +30,13 @@ class EventAdmin(admin.ModelAdmin):
     """
 
     list_display = [
-        'id',
-        'timestamp',
-        'user',
+        "id",
+        "timestamp",
+        "user",
     ]
     list_filter = [
-        'timestamp',
-        'user',
+        "timestamp",
+        "user",
     ]
 
 
@@ -47,19 +47,19 @@ class TracebackAdmin(admin.ModelAdmin):
     """
 
     list_display = [
-        'issue',
-        'order',
-        'file_name',
-        'function_name',
-        'line_number',
-        'variables',
+        "issue",
+        "order",
+        "file_name",
+        "function_name",
+        "line_number",
+        "variables",
     ]
     list_filter = [
-        'issue',
-        'order',
-        'file_name',
-        'function_name',
-        'line_number',
+        "issue",
+        "order",
+        "file_name",
+        "function_name",
+        "line_number",
     ]
 
 
@@ -70,15 +70,15 @@ class RequestAdmin(admin.ModelAdmin):
     """
 
     list_display = [
-        'id',
-        'app_name',
-        'url_name',
-        'route',
-        'started_at',
-        'duration',
+        "id",
+        "app_name",
+        "url_name",
+        "route",
+        "started_at",
+        "duration",
     ]
     list_filter = [
-        'started_at',
+        "started_at",
     ]
 
 
@@ -89,13 +89,13 @@ class CommentAdmin(admin.ModelAdmin):
     """
 
     list_display = [
-        'id',
-        'text',
-        'created_by',
-        'created_at',
+        "id",
+        "text",
+        "created_by",
+        "created_at",
     ]
     list_filter = [
-        'text',
-        'created_by',
-        'created_at',
+        "text",
+        "created_by",
+        "created_at",
     ]

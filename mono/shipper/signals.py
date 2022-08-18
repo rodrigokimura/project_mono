@@ -6,7 +6,9 @@ from .models import Ship
 
 
 @receiver(post_save, sender=Ship, dispatch_uid="generate_portmanteaus")
-def generate_portmanteaus(sender, instance: Ship, created, **kwargs):  # pylint: disable=unused-argument
+def generate_portmanteaus(
+    sender, instance: Ship, created, **kwargs
+):  # pylint: disable=unused-argument
     """
     Create portmanteau instances when ship is created
     """
