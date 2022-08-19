@@ -9,4 +9,4 @@ class AccountsConfig(AppConfig):
     name = "accounts"
 
     def ready(self):
-        load_signals("accounts")
+        load_signals(self.name)

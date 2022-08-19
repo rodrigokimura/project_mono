@@ -10,4 +10,4 @@ class PixelConfig(AppConfig):
     name = "pixel"
 
     def ready(self):
-        load_signals("pixel")
+        load_signals(self.name)

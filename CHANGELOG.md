@@ -1,3 +1,13 @@
+## 7.0.0 (2022-08-19)
+
+### BREAKING CHANGE
+
+- major bump django 3 to 4
+
+### Feat
+
+- **background_task**: absorb and adapt third party app to django 4
+
 ## 6.14.2 (2022-08-18)
 
 ### Refactor

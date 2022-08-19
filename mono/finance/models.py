@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta
 
 import jwt
+from __mono.fields import MultiSelectField
 from accounts.models import Notification
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
@@ -19,7 +20,6 @@ from django.template.loader import get_template
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from multiselectfield import MultiSelectField
 
 from .icons import DEFAULT_ICONS
 

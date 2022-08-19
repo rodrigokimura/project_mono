@@ -3,7 +3,7 @@
 import django.core.validators
 import django.db.models.deletion
 import django.utils.timezone
-import multiselectfield.db.fields
+from __mono.fields import MultiSelectField
 from django.conf import settings
 from django.db import migrations, models
 
@@ -986,7 +986,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "filters",
-                    multiselectfield.db.fields.MultiSelectField(
+                    MultiSelectField(
                         blank=True,
                         choices=[
                             ("expenses", "Expenses"),
