@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 def stripe_exception_handler(func):
     """Gracefully handle Stripe exceptions"""
 
-    def wrapper(
+    def wrapper(  # pylint: disable=inconsistent-return-statements
         *args, **kwargs
-    ):  # pylint: disable=inconsistent-return-statements
+    ):
         try:
             return func(*args, **kwargs)
         except stripe.error.CardError as card_error:
