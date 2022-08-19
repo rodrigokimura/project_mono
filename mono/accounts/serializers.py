@@ -12,7 +12,7 @@ class ProfileSerializer(ModelSerializer):
         model = UserProfile
         fields = ["avatar"]
 
-    def validate_avatar(self, file):  # pylint: disable=no-self-use
+    def validate_avatar(self, file):
         return validate_file_size(file, 10)
 
 

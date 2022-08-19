@@ -3,6 +3,9 @@ from rest_framework import serializers
 
 from .models import Configuration, Snippet, Tag
 
+#  pylint: disable=cyclic-import
+#  false positive pylint error
+
 
 class ConfigurationSerializer(serializers.ModelSerializer):
     """Configuration serializer"""

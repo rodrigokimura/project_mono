@@ -72,7 +72,7 @@ pylint:  ## Run pylint
 	@touch mono/$(R_PL)/report.json
 	@cat /dev/null > mono/$(R_PL)/report.json
 	@pipenv run pylint mono \
-		--rcfile=.pylintrc \
+		--rcfile=pyproject.toml \
 		--output-format=json:mono/$(R_PL)/report.json,colorized
 
 pylint-no-color:
@@ -80,7 +80,7 @@ pylint-no-color:
 	@touch mono/$(R_PL)/report.json
 	@cat /dev/null > mono/$(R_PL)/report.json
 	@pipenv run pylint mono \
-		--rcfile=.pylintrc \
+		--rcfile=pyproject.toml \
 		--output-format=json:mono/$(R_PL)/report.json
 
 pylint-app: list-apps  ## Run pylint on given app

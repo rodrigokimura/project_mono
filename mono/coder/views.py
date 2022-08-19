@@ -6,8 +6,8 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
 from pygments import highlight
-from pygments.formatters import (
-    HtmlFormatter,  # pylint: disable=no-name-in-module
+from pygments.formatters import (  # pylint: disable=no-name-in-module
+    HtmlFormatter,
 )
 from pygments.lexers import get_lexer_by_name
 from rest_framework.generics import RetrieveUpdateAPIView
