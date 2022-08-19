@@ -1,12 +1,12 @@
 """Utility functions for the application."""
 import logging
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from importlib import import_module
 
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.template import defaultfilters
-from django.utils.timezone import is_aware, utc
+from django.utils.timezone import is_aware
 from django.utils.translation import gettext_lazy, ngettext_lazy, npgettext_lazy
 
 logger = logging.getLogger(__name__)
@@ -112,7 +112,7 @@ class NaturalTimeFormatter:
         if not isinstance(value, date):  # datetime is a subclass of date
             return value
 
-        now = datetime.now(utc if is_aware(value) else None)
+        now = datetime.now(timezone.utc if is_aware(value) else None)
         is_past = value < now
         if is_past:
             delta = now - value

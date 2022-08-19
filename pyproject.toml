@@ -257,6 +257,9 @@ overgeneral-exceptions = [
 DJANGO_SETTINGS_MODULE = "__mono.settings"
 python_files = "tests.py test_*.py *_tests.py"
 pythonpath = "mono"
+filterwarnings = [
+    "ignore::django.views.generic.edit.DeleteViewCustomDeleteWarning",
+]
 
 [tool.commitizen]
 name = "cz_conventional_commits"

@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from django.views.i18n import JavaScriptCatalog
+from markdownx.views import ImageUploadView, MarkdownifyView
 from rest_framework.authtoken import views
 
 from .ascii_arts import ASCII_ART
@@ -45,7 +46,15 @@ urlpatterns = [
     path("cd/", include("coder.urls")),
     # path('__debug__/', include(debug_toolbar.urls)),
     path("i18n/", include("django.conf.urls.i18n")),
-    path("markdownx/", include("markdownx.urls")),
+    # path("markdownx/", include("markdownx.urls")),
+    path(
+        "markdownx/upload/", ImageUploadView.as_view(), name="markdownx_upload"
+    ),
+    path(
+        "markdownx/markdownify/",
+        MarkdownifyView.as_view(),
+        name="markdownx_markdownify",
+    ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Aesthetics-only
