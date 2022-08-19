@@ -6,8 +6,8 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from ordered_model.models import OrderedModel
 from pygments import highlight
-from pygments.formatters import (
-    HtmlFormatter,  # pylint: disable=no-name-in-module
+from pygments.formatters import (  # pylint: disable=no-name-in-module
+    HtmlFormatter,
 )
 from pygments.lexers import get_all_lexers, get_lexer_by_name
 from pygments.styles import get_all_styles

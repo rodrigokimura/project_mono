@@ -6,13 +6,13 @@ from . import models
 
 @admin.register(models.Site)
 class SiteAdmin(admin.ModelAdmin):
-    def flush_pings(self, request, queryset):  # pylint: disable=no-self-use
+    def flush_pings(self, request, queryset):
         for site in queryset:
             site.flush_pings()
 
     flush_pings.short_description = "Delete all pings"
 
-    def undo_deletion(self, request, queryset):  # pylint: disable=no-self-use
+    def undo_deletion(self, request, queryset):
         queryset.update(deleted_at=None)
 
     undo_deletion.short_description = "Undo deletion"
