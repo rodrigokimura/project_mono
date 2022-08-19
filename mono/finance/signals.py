@@ -33,14 +33,14 @@ def initial_setup(sender, instance, created, **kwargs):
             Category.objects.get_or_create(
                 name=category[0],
                 type=category[1],
-                icon=Icon.objects.get(markup=category[2]),
+                icon=Icon.objects.get_or_create(markup=category[2])[0],
                 created_by=instance,
             )
         for category in Category.SPECIAL_CATEGORIES:
             Category.objects.get_or_create(
                 name=category[0],
                 type=category[1],
-                icon=Icon.objects.get(markup=category[2]),
+                icon=Icon.objects.get_or_create(markup=category[2])[0],
                 internal_type=category[3],
                 created_by=instance,
             )

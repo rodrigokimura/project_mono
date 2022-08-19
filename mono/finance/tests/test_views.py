@@ -1,3 +1,4 @@
+from __mono.decorators import ignore_warnings
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http.response import JsonResponse
@@ -193,6 +194,7 @@ class TransactionListViewTests(TestCase):
         response = view.form_valid(form)
         self.assertEqual(response.status_code, 302)
 
+    @ignore_warnings
     def test_transaction_create_view_recurrent(self):
         c = Client()
         c.force_login(self.user)
@@ -202,7 +204,7 @@ class TransactionListViewTests(TestCase):
             "description": "test",
             "account": Account.objects.filter(created_by=self.user).first(),
             "category": self.category,
-            "timestamp": timezone.now(),
+            "timestamp": timezone.now().isoformat(),
             "active": "on",
             "frequency": RecurrentTransaction.MONTHLY,
             "months": "12",
@@ -301,6 +303,7 @@ class TransactionListViewTests(TestCase):
         response = c.get("/fn/recurrent-transactions/")
         self.assertEqual(response.status_code, 200)
 
+    @ignore_warnings
     def test_recurrenttransaction_delete_view(self):
         recurrent_transaction = RecurrentTransaction.objects.create(
             description="test",
@@ -321,7 +324,7 @@ class TransactionListViewTests(TestCase):
             ).exists()
         )
 
-    def test_recurrent_isntallment_list_view(self):
+    def test_installment_list_view(self):
         c = Client()
         c.force_login(self.user)
         response = c.get("/fn/installments/")

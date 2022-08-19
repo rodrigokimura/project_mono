@@ -34,5 +34,6 @@ jobs:
         env:
           MONO_URL: "https://www.monoproject.info"
           MONO_TOKEN: ${{ secrets.MONO_TOKEN }}
+          TERM: dumb
         run: |
           make upload-reports

@@ -45,8 +45,6 @@ art:
 
 ##@ Code quality
 
-BADGE=pipenv run genbadge
-# BADGE=pipenv run anybadge
 COV=pipenv run coverage
 R_COV=reports/coverage
 R_F8=reports/flake8
@@ -61,12 +59,6 @@ isort:  ## Run isort
 
 lint: art isort black  ## Run isort and black
 
-flake8:  ## Run flake8
-	@mkdir -p mono/$(R_F8)
-	@cat /dev/null > mono/$(R_F8)/flake8stats.txt
-	@export APP_ENV=TEST && cd mono \
-		&& pipenv run flake8 --statistics --tee --output-file $(R_F8)/flake8stats.txt --exit-zero
-
 pylint:  ## Run pylint
 	@mkdir -p mono/$(R_PL)
 	@touch mono/$(R_PL)/report.json
@@ -74,14 +66,6 @@ pylint:  ## Run pylint
 	@pipenv run pylint mono \
 		--rcfile=pyproject.toml \
 		--output-format=json:mono/$(R_PL)/report.json,colorized
-
-pylint-no-color:
-	@mkdir -p mono/$(R_PL)
-	@touch mono/$(R_PL)/report.json
-	@cat /dev/null > mono/$(R_PL)/report.json
-	@pipenv run pylint mono \
-		--rcfile=pyproject.toml \
-		--output-format=json:mono/$(R_PL)/report.json
 
 pylint-app: list-apps  ## Run pylint on given app
 	@echo 'Choose app from above:' \
@@ -151,13 +135,7 @@ diagrams:
 		done \
 		&& mv *.mmd ../diagrams/
 
-# pylint: _pylint  ## Run pylint and generate badge
-# 	@export score=$$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' mono/$(R_PL)pylint.txt) \
-# 		&& echo "Pylint score was $$score" \
-# 		&& pipenv run anybadge --value=$$score --file=mono/$(R_PL)pylint-badge.svg --label pylint -o
-
-qa: art isort flake8 pylint coverage  ## Run all quality checks, generating reports and badges
-qa-no-color: art isort flake8 pylint-no-color coverage  ## Run all quality checks, generating reports and badges
+qa: pylint coverage  ## Run all quality checks, generating reports
 
 upload-reports: _upload-pylint-report _upload-coverage-report _upload-pytest-report
 

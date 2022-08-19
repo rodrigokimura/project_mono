@@ -9,4 +9,4 @@ class TodoListsConfig(AppConfig):
     name = "checklists"
 
     def ready(self):
-        load_signals("checklists")
+        load_signals(self.name)

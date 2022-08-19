@@ -9,4 +9,4 @@ class ProjectManagerConfig(AppConfig):
     name = "project_manager"
 
     def ready(self):
-        load_signals("project_manager")
+        load_signals(self.name)

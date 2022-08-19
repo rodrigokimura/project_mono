@@ -34,7 +34,7 @@ class TagViewSet(BaseViewSet):
 class SnippetViewSet(BaseViewSet):
     """Snippet viewset"""
 
-    queryset = Snippet.objects.all()
+    queryset = Snippet.objects.all().order_by("id")
     serializer_class = SnippetSerializer
     filterset_fields = {
         "language": ["exact"],

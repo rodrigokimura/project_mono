@@ -9,4 +9,4 @@ class FinanceConfig(AppConfig):
     name = "finance"
 
     def ready(self):
-        load_signals("finance")
+        load_signals(self.name)
