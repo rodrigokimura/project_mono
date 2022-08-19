@@ -311,7 +311,7 @@ build:  ## Execute commands to build app in production
 	@git checkout master
 	@git reset HEAD --hard
 	@git pull
-	@pipenv install
+	@pipenv install --deploy
 	@pipenv run python mono/manage.py collectstatic --noinput
 	@pipenv run python mono/manage.py makemigrations
 	@pipenv run python mono/manage.py migrate
