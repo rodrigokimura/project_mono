@@ -1,4 +1,10 @@
 [tool]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "__mono.settings"
+python_files = "tests.py test_*.py *_tests.py"
+pythonpath = "mono"
+
 [tool.commitizen]
 name = "cz_conventional_commits"
 version = "6.14.2"
@@ -6,7 +12,6 @@ tag_format = "$version"
 version_files = [
     "mono/__mono/settings.py",
     "pyproject.toml:version",
-    "VERSION",
 ]
 style = [
     ["qmark", "fg:#ff9d00 bold"],
