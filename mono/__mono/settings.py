@@ -12,7 +12,7 @@ load_dotenv()
 
 APP_ENV = os.getenv("APP_ENV", "PRD")
 
-APP_VERSION = "6.14.2"
+APP_VERSION = "7.0.0"
 
 if APP_ENV in ["DEV", "TEST"]:
     GITHUB_SECRET = "GITHUB_SECRET"
@@ -66,7 +66,6 @@ INSTALLED_APPS = [
     "django_filters",
     "social_django",
     "markdownx",
-    "multiselectfield",
     "captcha",
     "background_task",
     "feedback",
@@ -269,13 +268,6 @@ STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_ENDPOINT_SECRET")
 STRIPE_TIMEZONE = os.getenv("STRIPE_TIMEZONE")
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-
-TEST_RUNNER = os.getenv(
-    "TEST_RUNNER", "xmlrunner.extra.djangotestrunner.XMLTestRunner"
-)
-TEST_OUTPUT_VERBOSE = int(os.getenv("TEST_OUTPUT_VERBOSE", "1"))
-TEST_OUTPUT_DIR = os.path.join(BASE_DIR, "reports", "junit")
-TEST_OUTPUT_FILE_NAME = "junit.xml"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [

@@ -10,4 +10,4 @@ class ShipperConfig(AppConfig):
     name = "shipper"
 
     def ready(self):
-        load_signals("shipper")
+        load_signals(self.name)

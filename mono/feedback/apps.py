@@ -12,4 +12,4 @@ class FeedbackConfig(AppConfig):
     name = "feedback"
 
     def ready(self):
-        load_signals("feedback")
+        load_signals(self.name)
