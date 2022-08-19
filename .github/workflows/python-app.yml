@@ -26,6 +26,8 @@ jobs:
         env:
           APP_ENV: TEST
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          PYTEST_ADDOPTS: "--color=yes"
+          TERM: dumb
         run: |
           make qa
       - name: Upload report files
