@@ -1,5 +1,258 @@
 [tool]
 
+[tool.pylint.main]
+
+extension-pkg-allow-list = []
+extension-pkg-whitelist = []
+fail-on = []
+fail-under = 9.0
+ignore = [
+    "migrations",
+    "tests",
+    "tests.py"
+]
+ignore-paths = []
+ignore-patterns = []
+jobs = 0
+limit-inference-results=100
+load-plugins = "pylint_django"
+persistent = true
+py-version = 3.9
+suggestion-mode = true
+unsafe-load-any-extension = false
+
+
+[tool.pylint.messages_control]
+
+confidence = []
+disable=[
+    "raw-checker-failed",
+    "bad-inline-option",
+    "locally-disabled",
+    "file-ignored",
+    "suppressed-message",
+    "useless-suppression",
+    "deprecated-pragma",
+    "use-symbolic-message-instead",
+]
+enable="c-extension-no-member"
+
+
+[tool.pylint.reports]
+
+evaluation = "10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)"
+output-format = "text"
+reports = false
+score = true
+
+
+[tool.pylint.refactoring]
+
+max-nested-blocks = 5
+never-returning-functions = [
+    "sys.exit",
+    "argparse.parse_error",
+]
+
+
+[tool.pylint.format]
+
+expected-line-ending-format = []
+ignore-long-lines = '^\s*(# )?<?https?://\S+>?$'
+indent-after-paren = 4
+indent-string = '    '
+max-line-length = 120
+max-module-lines = 1000
+single-line-class-stmt = false
+single-line-if-stmt = false
+
+
+[tool.pylint.string]
+
+check-quote-consistency = false
+check-str-concat-over-line-jumps = false
+
+
+[tool.pylint.miscellaneous]
+
+notes = [
+    "FIXME",
+    "XXX",
+    "TODO",
+]
+
+
+[tool.pylint.typecheck]
+
+contextmanager-decorators = "contextlib.contextmanager"
+
+generated-members = []
+ignore-mixin-members = true
+ignore-none = true
+ignore-on-opaque-inference = true
+ignored-classes = [
+    "optparse.Values",
+    "thread._local",
+    "_thread._local",
+]
+ignored-modules = []
+missing-member-hint = true
+missing-member-hint-distance = 1
+missing-member-max-choices = 1
+mixin-class-rgx = '.*[Mm]ixin'
+signature-mutators = []
+
+
+[tool.pylint.spelling]
+
+max-spelling-suggestions = 4
+spelling-dict = []
+spelling-ignore-comment-directives = [
+    "fmt: on",
+    "fmt: off",
+    "noqa:",
+    "noqa",
+    "nosec",
+    "isort:skip",
+    "mypy:"
+]
+spelling-ignore-words = []
+spelling-private-dict-file = []
+spelling-store-unknown-words = false
+
+
+[tool.pylint.variables]
+
+additional-builtins = []
+allow-global-unused-variables = true
+allowed-redefined-builtins = []
+callbacks = ["cb_", "_cb"]
+dummy-variables-rgx = '_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_'
+ignored-argument-names = '_.*|^ignored_|^unused_'
+init-import = false
+redefining-builtins-modules = [
+    "six.moves",
+    "past.builtins",
+    "future.builtins",
+    "builtins",
+    "io",
+]
+
+
+[tool.pylint.similarities]
+
+ignore-comments = true
+ignore-docstrings = true
+ignore-imports = true
+ignore-signatures = false
+min-similarity-lines = 10
+
+
+[tool.pylint.logging]
+
+logging-format-style = "old"
+logging-modules = "logging"
+
+
+[tool.pylint.basic]
+
+argument-naming-style = "snake_case"
+attr-naming-style = "snake_case"
+bad-names = [
+    "foo",
+    "bar",
+    "baz",
+    "toto",
+    "tutu",
+    "tata",
+]
+
+bad-names-rgxs = []
+class-attribute-naming-style = "any"
+class-const-naming-style = "UPPER_CASE"
+class-naming-style = "PascalCase"
+const-naming-style = "UPPER_CASE"
+docstring-min-length = 3
+function-naming-style = "snake_case"
+good-names = [
+    "i",
+    "j",
+    "k",
+    "ex",
+    "Run",
+    "_",
+    "pk",
+    "qs",
+]
+good-names-rgxs = ''
+include-naming-hint = false
+inlinevar-naming-style = "any"
+method-naming-style = "snake_case"
+module-naming-style = "snake_case"
+name-group = []
+no-docstring-rgx = 'Command|__init__|.*Admin|Meta'
+property-classes = "abc.abstractproperty"
+variable-naming-style = "snake_case"
+
+
+[tool.pylint.imports]
+
+allow-any-import-level = []
+allow-wildcard-with-all = false
+analyse-fallback-blocks = false
+deprecated-modules = []
+ext-import-graph = []
+import-graph = []
+int-import-graph = []
+known-standard-library = []
+known-third-party = "enchant"
+preferred-modules = []
+
+
+[tool.pylint.design]
+
+exclude-too-few-public-methods = []
+ignored-parents = []
+max-args = 5
+max-attributes = 7
+max-bool-expr = 5
+max-branches = 12
+max-locals = 15
+max-parents = 10
+max-public-methods = 20
+max-returns = 6
+max-statements = 50
+min-public-methods = 2
+
+
+[tool.pylint.classes]
+
+check-protected-access-in-special-methods = false
+defining-attr-methods = [
+    "__init__",
+    "__new__",
+    "setUp",
+    "__post_init__",
+]
+exclude-protected = [
+    "_asdict",
+    "_fields",
+    "_replace",
+    "_source",
+    "_make",
+]
+valid-classmethod-first-arg = "cls"
+valid-metaclass-classmethod-first-arg = "cls"
+
+
+[tool.pylint.exceptions]
+
+overgeneral-exceptions = [
+    "BaseException",
+    "Exception",
+]
+
+
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "__mono.settings"
 python_files = "tests.py test_*.py *_tests.py"

@@ -23,7 +23,7 @@ class TaskAdmin(admin.ModelAdmin):
     actions = ("remind",)
 
     @admin.action(description="Notify users of task reminders")
-    def remind(self, request, queryset):  # pylint: disable=no-self-use
+    def remind(self, request, queryset):
         """Notify users of task reminders"""
         for task in queryset:
             task.remind()
@@ -45,7 +45,7 @@ class ChecklistAdmin(admin.ModelAdmin):
     actions = ("sort",)
 
     @admin.action(description="Sort tasks")
-    def sort(self, request, queryset):  # pylint: disable=no-self-use
+    def sort(self, request, queryset):
         """Reset task order"""
         for checklist in queryset:
             checklist.sort()

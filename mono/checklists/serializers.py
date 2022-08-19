@@ -77,13 +77,13 @@ class ChecklistMoveSerializer(Serializer):
     checklist = serializers.IntegerField()
     order = serializers.IntegerField()
 
-    def validate_task(self, value):  # pylint: disable=no-self-use
+    def validate_task(self, value):
         """Checklist needs to exist"""
         if Checklist.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid checklist")
 
-    def validate_order(self, value):  # pylint: disable=no-self-use
+    def validate_order(self, value):
         """Order needs to be positive"""
         if value > 0:
             return value
@@ -120,13 +120,13 @@ class TaskMoveSerializer(Serializer):
     task = serializers.IntegerField()
     order = serializers.IntegerField()
 
-    def validate_task(self, value):  # pylint: disable=no-self-use
+    def validate_task(self, value):
         """Task needs to exist"""
         if Task.objects.filter(id=value).exists():
             return value
         raise serializers.ValidationError("Invalid task")
 
-    def validate_order(self, value):  # pylint: disable=no-self-use
+    def validate_order(self, value):
         """Order needs to be positive"""
         if value > 0:
             return value

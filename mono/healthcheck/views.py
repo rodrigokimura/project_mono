@@ -56,13 +56,16 @@ def string_to_localized_datetime(dt_string):
 
 
 def healthcheck(request):
-    pr = (
+    """
+    Simple view to output version information and healthcheck status.
+    """
+    pr_number = (
         PullRequest.objects.filter(deployed_at__isnull=False)
         .values("number")
         .latest("number")
         .get("number")
     )
-    return JsonResponse({"version": settings.APP_VERSION, "pr": pr})
+    return JsonResponse({"version": settings.APP_VERSION, "pr": pr_number})
 
 
 @csrf_exempt
@@ -303,7 +306,7 @@ class PytestReportViewSet(ViewSet):
     serializer_class = ReportSerializer
     permission_classes = (IsAdminUser,)
 
-    def list(self, request):  # pylint: disable=no-self-use
+    def list(self, request):
         """Show results of last uploaded and parsed report file"""
         last_report = PytestReport.objects.last()
         if last_report is None:
@@ -324,7 +327,7 @@ class PytestReportViewSet(ViewSet):
             }
         )
 
-    def create(self, request):  # pylint: disable=no-self-use
+    def create(self, request):
         """Upload and parse report file"""
         report_file = request.FILES.get("report_file")
         result = PytestReport.process_file(report_file)
@@ -339,7 +342,7 @@ class CoverageReportViewSet(ViewSet):
     serializer_class = ReportSerializer
     permission_classes = (IsAdminUser,)
 
-    def list(self, request):  # pylint: disable=no-self-use
+    def list(self, request):
         """Show results of last uploaded and parsed report file"""
         last_report = CoverageReport.objects.last()
         if last_report is None:
@@ -354,7 +357,7 @@ class CoverageReportViewSet(ViewSet):
             )
         return Response({"success": True, "results": results})
 
-    def create(self, request):  # pylint: disable=no-self-use
+    def create(self, request):
         """Upload and parse report file"""
         report_file = request.FILES.get("report_file")
         result = CoverageReport.process_file(report_file)
@@ -369,7 +372,7 @@ class PylintReportViewSet(ViewSet):
     serializer_class = ReportSerializer
     permission_classes = (IsAdminUser,)
 
-    def list(self, request):  # pylint: disable=no-self-use
+    def list(self, request):
         """Show results of last uploaded and parsed report file"""
         last_report = PylintReport.objects.last()
         if last_report is None:
@@ -390,7 +393,7 @@ class PylintReportViewSet(ViewSet):
             )
         return Response({"success": True, "results": results})
 
-    def create(self, request):  # pylint: disable=no-self-use
+    def create(self, request):
         """Upload and parse report file"""
         report_file = request.FILES.get("report_file")
         result = PylintReport.process_file(report_file)

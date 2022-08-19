@@ -42,8 +42,8 @@ def handle_traceback(traceback: TracebackType, issue):
     """
     Create traceback model instance from python's traceback
     """
-    from watcher.models import (
-        Traceback,  # pylint: disable=import-outside-toplevel
+    from watcher.models import (  # pylint: disable=import-outside-toplevel
+        Traceback,
     )
 
     order = 1

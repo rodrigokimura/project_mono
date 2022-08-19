@@ -19,9 +19,7 @@ class UserAdmin(admin.ModelAdmin):
 
     actions = ["force_initial_setup"]
 
-    def force_initial_setup(
-        self, request, queryset
-    ):  # pylint: disable=no-self-use
+    def force_initial_setup(self, request, queryset):
         """Force initial setup for selected users"""
         for user in queryset:
             post_save.send(User, instance=user, created=True)
@@ -37,7 +35,7 @@ admin.site.register(User, UserAdmin)
 class UserProfileAdmin(admin.ModelAdmin):
     """UserProfile admin"""
 
-    def generate_avatar(self, request, queryset):  # pylint: disable=no-self-use
+    def generate_avatar(self, request, queryset):
         """Generate avatar for selected users"""
         for profile in queryset:
             profile.generate_initials_avatar()
@@ -61,31 +59,23 @@ class UserProfileAdmin(admin.ModelAdmin):
 class NotificationAdmin(admin.ModelAdmin):
     """Notification admin"""
 
-    def read(
-        self, request, queryset: QuerySet[Notification]
-    ):  # pylint: disable=no-self-use
+    def read(self, request, queryset: QuerySet[Notification]):
         """Mark notifications as read"""
         for notification in queryset:
             notification.mark_as_read()
 
-    def duplicate(
-        self, request, queryset: QuerySet[Notification]
-    ):  # pylint: disable=no-self-use
+    def duplicate(self, request, queryset: QuerySet[Notification]):
         """Duplicate notifications"""
         for notification in queryset:
             notification.pk = None
             notification.save()
 
-    def send_to_telegram(
-        self, request, queryset: QuerySet[Notification]
-    ):  # pylint: disable=no-self-use
+    def send_to_telegram(self, request, queryset: QuerySet[Notification]):
         """Send notifications to telegram"""
         for notification in queryset:
             notification.send_to_telegram()
 
-    def send_to_android(
-        self, request, queryset: QuerySet[Notification]
-    ):  # pylint: disable=no-self-use
+    def send_to_android(self, request, queryset: QuerySet[Notification]):
         """Send notifications to android devices"""
         for notification in queryset:
             notification.send_to_android()
