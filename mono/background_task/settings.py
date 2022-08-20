@@ -1,16 +1,18 @@
-# -*- coding: utf-8 -*-
+"""Background task settings."""
 import multiprocessing
 
 from django.conf import settings
 
+# pylint: disable=invalid-name
+
 try:
-    cpu_count = multiprocessing.cpu_count()
-except Exception:
-    cpu_count = 1
+    CPU_COUNT = multiprocessing.cpu_count()
+except Exception:  # pylint: disable=broad-except
+    CPU_COUNT = 1
 
 
 class AppSettings:
-    """ """
+    """Config settings for this app"""
 
     @property
     def MAX_ATTEMPTS(self):
@@ -40,7 +42,7 @@ class AppSettings:
     @property
     def BACKGROUND_TASK_ASYNC_THREADS(self):
         """Specify number of concurrent threads."""
-        return getattr(settings, "BACKGROUND_TASK_ASYNC_THREADS", cpu_count)
+        return getattr(settings, "BACKGROUND_TASK_ASYNC_THREADS", CPU_COUNT)
 
     @property
     def BACKGROUND_TASK_PRIORITY_ORDERING(self):
@@ -49,7 +51,9 @@ class AppSettings:
         Choose either `DESC` or `ASC`.
 
         https://en.m.wikipedia.org/wiki/Nice_(Unix)
-        A niceness of −20 is the highest priority and 19 is the lowest priority. The default niceness for processes is inherited from its parent process and is usually 0.
+        A niceness of -20 is the highest priority and 19 is the lowest priority.
+        The default niceness for processes is inherited from its parent process
+        and is usually 0.
         """
         order = getattr(settings, "BACKGROUND_TASK_PRIORITY_ORDERING", "DESC")
         if order == "ASC":
