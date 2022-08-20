@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-__version__ = "1.2.7"
-
-default_app_config = "background_task.apps.BackgroundTasksAppConfig"
+"""Set alias for main decorator"""
 
 
-def background(*arg, **kw):
+def background(*arg, **kwargs):
     from background_task.tasks import tasks
 
-    return tasks.background(*arg, **kw)
+    return tasks.background(*arg, **kwargs)

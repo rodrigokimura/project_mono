@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import logging
 import os
 import sys
@@ -14,7 +11,6 @@ from background_task.models import Task
 from background_task.settings import app_settings
 from django.db.utils import OperationalError
 from django.utils import timezone
-from six import python_2_unicode_compatible
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +23,8 @@ def bg_runner(  # pylint: disable=keyword-arg-before-vararg
 ):
     """
     Executes the function attached to task. Used to enable threads.
-    If a Task instance is provided, args and kwargs are ignored and retrieved from the Task itself.
+    If a Task instance is provided, args and kwargs are ignored
+    and retrieved from the Task itself.
     """
     signals.task_started.send(Task)
     try:
@@ -60,24 +57,29 @@ def bg_runner(  # pylint: disable=keyword-arg-before-vararg
             logger.info("Ran task and deleting %s", task)
 
     except Exception as ex:  # pylint: disable=broad-except
-        t, e, traceback = sys.exc_info()
+        _type, _value, traceback = sys.exc_info()
         if task:
-            logger.error("Rescheduling %s", task, exc_info=(t, e, traceback))
+            logger.error(
+                "Rescheduling %s",
+                task,
+                exc_info=(_type, _value, traceback),
+            )
             signals.task_error.send(sender=ex.__class__, task=task)
-            task.reschedule(t, e, traceback)
+            task.reschedule(_type, _value, traceback)
         del traceback
     signals.task_finished.send(Task)
 
 
-class PoolRunner:
-    def __init__(self, bg_runner, num_processes):
-        self._bg_runner = bg_runner
+class PoolRunner:  # pylint: disable=too-few-public-methods
+    def __init__(self, _bg_runner, num_processes):
+        self._bg_runner = _bg_runner
         self._num_processes = num_processes
 
     _pool_instance = None
 
     @property
     def _pool(self):
+        """Get thread pool"""
         if not self._pool_instance:
             self._pool_instance = ThreadPool(processes=self._num_processes)
         return self._pool_instance
@@ -92,7 +94,7 @@ class PoolRunner:
     __call__ = run
 
 
-class Tasks(object):
+class Tasks:
     def __init__(self):
         self._tasks = {}
         self._runner = DBTaskRunner()
@@ -113,27 +115,33 @@ class Tasks(object):
 
         # see if used as simple decorator
         # where first arg is the function to be decorated
-        fn = None
+        func = None
         if name and callable(name):
-            fn = name
+            func = name
             name = None
 
-        def _decorator(fn):
+        def _decorator(func):
             _name = name
             if not _name:
-                _name = "%s.%s" % (fn.__module__, fn.__name__)
+                _name = f"{func.__module__}.{func.__name__}"
             proxy = self._task_proxy_class(
-                _name, fn, schedule, queue, remove_existing_tasks, self._runner
+                _name,
+                func,
+                schedule,
+                queue,
+                remove_existing_tasks,
+                self._runner,
             )
             self._tasks[_name] = proxy
             return proxy
 
-        if fn:
-            return _decorator(fn)
+        if func:
+            return _decorator(func)
 
         return _decorator
 
     def run_task(self, task_name, args=None, kwargs=None):
+        """Execute task"""
         # task_name can be either the name of a task or a Task instance.
         if isinstance(task_name, Task):
             task = task_name
@@ -154,7 +162,7 @@ class Tasks(object):
         return self._runner.run_next_task(self, queue)
 
 
-class TaskSchedule(object):
+class TaskSchedule:
     SCHEDULE = 0
     RESCHEDULE_EXISTING = 1
     CHECK_EXISTING = 2
@@ -183,9 +191,10 @@ class TaskSchedule(object):
         return TaskSchedule(run_at=run_at, priority=priority, action=action)
 
     def merge(self, schedule):
+        """Create a new instance from protected attrs"""
         params = {}
         for name in ["run_at", "priority", "action"]:
-            attr_name = "_%s" % name
+            attr_name = f"_{name}"
             value = getattr(self, attr_name, None)
             if value is None:
                 params[name] = getattr(schedule, attr_name, None)
@@ -195,6 +204,7 @@ class TaskSchedule(object):
 
     @property
     def run_at(self):
+        """Convert _run_at to datetime"""
         run_at = self._run_at or timezone.now()
         if isinstance(run_at, int):
             run_at = timezone.now() + timedelta(seconds=run_at)
@@ -211,10 +221,7 @@ class TaskSchedule(object):
         return self._action or TaskSchedule.SCHEDULE
 
     def __repr__(self):
-        return "TaskSchedule(run_at=%s, priority=%s)" % (
-            self._run_at,
-            self._priority,
-        )
+        return f"TaskSchedule(run_at={self._run_at}, priority={self._priority})"
 
     def __eq__(self, other):
         return (
@@ -224,7 +231,7 @@ class TaskSchedule(object):
         )
 
 
-class DBTaskRunner(object):
+class DBTaskRunner:
     """
     Encapsulate the model related logic in here, in case
     we want to support different queues in the future
@@ -282,6 +289,7 @@ class DBTaskRunner(object):
         return task
 
     def get_task_to_run(self, tasks, queue=None):
+        """Get task to run from available tasks"""
         try:
             available_tasks = [
                 task
@@ -293,7 +301,6 @@ class DBTaskRunner(object):
                 locked_task = task.lock(self.worker_name)
                 if locked_task:
                     return locked_task
-            return None
         except OperationalError:
             logger.warning("Failed to retrieve tasks. Database unreachable.")
 
@@ -302,17 +309,18 @@ class DBTaskRunner(object):
         tasks.run_task(task)
 
     def run_next_task(self, tasks, queue=None):
+        """Run next task in queue"""
         task = self.get_task_to_run(tasks, queue)
         if task:
             self.run_task(tasks, task)
             return True
-        else:
-            return False
+        return False
 
 
-@python_2_unicode_compatible
-class TaskProxy(object):
-    def __init__(
+class TaskProxy:
+    """Proxy class to schedule tasks"""
+
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         name,
         task_function,
@@ -329,6 +337,7 @@ class TaskProxy(object):
         self.remove_existing_tasks = remove_existing_tasks
 
     def __call__(self, *args, **kwargs):
+        """Override call operation"""
         schedule = kwargs.pop("schedule", None)
         schedule = TaskSchedule.create(schedule).merge(self.schedule)
         run_at = schedule.run_at
@@ -359,7 +368,7 @@ class TaskProxy(object):
         )
 
     def __str__(self):
-        return "TaskProxy(%s)" % self.name
+        return f"TaskProxy{self.name}"
 
 
 tasks = Tasks()
@@ -369,18 +378,14 @@ def autodiscover():
     """
     Autodiscover tasks.py files in much the same way as admin app
     """
-    import imp
-
-    from django.conf import settings
+    from django.conf import settings  # pylint: disable=import-outside-toplevel
 
     for app in settings.INSTALLED_APPS:
         try:
-            app_path = import_module(app).__path__
+            import_module(app).__path__
         except (AttributeError, ImportError):
             continue
         try:
-            imp.find_module("tasks", app_path)
-        except ImportError:
+            import_module(f"{app}.tasks")
+        except ModuleNotFoundError:
             continue
-
-        import_module("%s.tasks" % app)

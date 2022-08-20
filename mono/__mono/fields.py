@@ -1,3 +1,4 @@
+"""Custom fields to use in models"""
 from django import forms
 from django.core import exceptions, validators
 from django.db import models
@@ -6,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 def get_max_length(choices, max_length, default=200):
+    """Get max length for the char field"""
     if max_length is None:
         if choices:
             return len(",".join([str(key) for key, label in choices]))
@@ -14,6 +16,8 @@ def get_max_length(choices, max_length, default=200):
 
 
 class MultiSelectFormField(forms.MultipleChoiceField):
+    """Render multi select field widget"""
+
     widget = forms.CheckboxSelectMultiple
 
     def __init__(self, *args, **kwargs):
@@ -30,6 +34,8 @@ class MultiSelectFormField(forms.MultipleChoiceField):
 
 
 class MaxValueMultiFieldValidator(validators.MaxLengthValidator):
+    """Validator for multi field"""
+
     code = "max_multifield_value"
 
     def clean(self, x):
@@ -37,16 +43,22 @@ class MaxValueMultiFieldValidator(validators.MaxLengthValidator):
 
 
 class MinChoicesValidator(validators.MinLengthValidator):
+    """Validator for multi field"""
+
     message = _("You must select a minimum of  %(limit_value)d choices.")
     code = "min_choices"
 
 
 class MaxChoicesValidator(validators.MaxLengthValidator):
+    """Validator for multi field"""
+
     message = _("You must select a maximum of  %(limit_value)d choices.")
     code = "max_choices"
 
 
 class MSFList(list):
+    """Custom list"""
+
     def __init__(self, choices, *args, **kwargs):
         self.choices = choices
         super().__init__(*args, **kwargs)
@@ -65,7 +77,7 @@ class MultiSelectField(models.CharField):
     def __init__(self, *args, **kwargs):
         self.min_choices = kwargs.pop("min_choices", None)
         self.max_choices = kwargs.pop("max_choices", None)
-        super(MultiSelectField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.max_length = get_max_length(self.choices, self.max_length)
         self.validators.insert(0, MaxValueMultiFieldValidator(self.max_length))
         if self.min_choices is not None:
@@ -74,12 +86,15 @@ class MultiSelectField(models.CharField):
             self.validators.append(MaxChoicesValidator(self.max_choices))
 
     def _get_flatchoices(self):
-        flat_choices = super(MultiSelectField, self)._get_flatchoices()
+        flat_choices = super()._get_flatchoices()
 
         class MSFFlatchoices(list):
-            # Used to trick django.contrib.admin.utils.display_for_field into
-            # not treating the list of values as a dictionary key (which errors
-            # out)
+            """
+            Used to trick django.contrib.admin.utils.display_for_field into
+            not treating the list of values as a dictionary key (which errors
+            out)
+            """
+
             def __bool__(self):
                 return False
 
@@ -93,6 +108,7 @@ class MultiSelectField(models.CharField):
         return self.get_choices(include_blank=False)
 
     def get_choices_selected(self, arr_choices):
+        """Get list of selected choices"""
         named_groups = arr_choices and isinstance(
             arr_choices[0][1], (list, tuple)
         )
@@ -114,6 +130,7 @@ class MultiSelectField(models.CharField):
         return self.get_prep_value(value)
 
     def validate(self, value, model_instance):
+        """Validate value for the field"""
         arr_choices = self.get_choices_selected(self.get_choices_default())
         for opt_select in value:
             if opt_select not in arr_choices:
@@ -164,7 +181,8 @@ class MultiSelectField(models.CharField):
                 return MSFList(choices, list(value))
         return MSFList(choices, [])
 
-    def from_db_value(self, value, expression, connection):
+    def from_db_value(self, value, *args, **kwargs):
+        """Convert value to python type"""
         if value is None:
             return value
         return self.to_python(value)
