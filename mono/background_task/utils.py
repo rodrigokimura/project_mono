@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+"""Background tasks utility functions"""
 import platform
 import signal
 

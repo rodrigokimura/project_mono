@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+"""Command to run the background tasks"""
 import logging
 import random
 import sys
@@ -15,13 +15,15 @@ logger = logging.getLogger(__name__)
 
 
 def _configure_log_std():
-    class StdOutWrapper(object):
-        def write(self, s):
-            logger.info(s)
+    """Configure logging to stdout"""
 
-    class StdErrWrapper(object):
-        def write(self, s):
-            logger.error(s)
+    class StdOutWrapper:
+        def write(self, message):
+            logger.info(message)
+
+    class StdErrWrapper:
+        def write(self, message):
+            logger.error(message)
 
     sys.stdout = StdOutWrapper()
     sys.stderr = StdErrWrapper()
@@ -89,6 +91,7 @@ class Command(BaseCommand):
         self._tasks = tasks
 
     def run(self, *args, **options):
+        """Run background task runner"""
         duration = options.get("duration", 0)
         sleep = options.get("sleep", 5.0)
         queue = options.get("queue", None)

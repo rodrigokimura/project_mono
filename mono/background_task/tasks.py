@@ -173,7 +173,7 @@ class TaskSchedule:
         self._action = action
 
     @classmethod
-    def create(self, schedule):
+    def create(cls, schedule):
         if isinstance(schedule, TaskSchedule):
             return schedule
         priority = None
@@ -368,7 +368,7 @@ class TaskProxy:
         )
 
     def __str__(self):
-        return f"TaskProxy{self.name}"
+        return f"TaskProxy({self.name})"
 
 
 tasks = Tasks()
