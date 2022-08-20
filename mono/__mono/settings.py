@@ -12,7 +12,7 @@ load_dotenv()
 
 APP_ENV = os.getenv("APP_ENV", "PRD")
 
-APP_VERSION = "7.0.1"
+APP_VERSION = "7.0.2"
 
 if APP_ENV in ["DEV", "TEST"]:
     GITHUB_SECRET = "GITHUB_SECRET"
@@ -45,7 +45,7 @@ else:
     )  # pragma: no cover
 
 if APP_ENV in ["DEV", "TEST"]:
-    SITE = "http://127.0.1.42:8080"
+    SITE = "http://127.0.2.42:8080"
 else:
     SITE = "https://www.monoproject.info"  # pragma: no cover
 
@@ -103,7 +103,7 @@ MIDDLEWARE = [
     "watcher.middlewares.StatisticsFinishMiddleware",
 ]
 
-# INTERNAL_IPS = ['127.0.1.1']
+# INTERNAL_IPS = ['127.0.2.1']
 
 # SHOW_TOOLBAR_CALLBACK = '.'
 # SHOW_COLLAPSED = True
