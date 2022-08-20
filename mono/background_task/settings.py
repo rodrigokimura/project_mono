@@ -9,7 +9,7 @@ except Exception:
     cpu_count = 1
 
 
-class AppSettings(object):
+class AppSettings:
     """ """
 
     @property

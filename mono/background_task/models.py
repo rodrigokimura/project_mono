@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
+"""Background tasks models"""
 import json
 import logging
 import os
-import traceback
+import traceback as _traceback
 from datetime import timedelta
 from hashlib import sha1
 from io import StringIO
@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 
 
 class TaskQuerySet(models.QuerySet):
+    """Custom queryset for tasks"""
+
     def created_by(self, creator):
         """
         :return: A Task queryset filtered by creator
@@ -33,6 +35,8 @@ class TaskQuerySet(models.QuerySet):
 
 
 class TaskManager(models.Manager):
+    """Custom manager for tasks"""
+
     def get_queryset(self):
         return TaskQuerySet(self.model, using=self._db)
 
@@ -40,13 +44,14 @@ class TaskManager(models.Manager):
         return self.get_queryset().created_by(creator)
 
     def find_available(self, queue=None):
+        """Get avaliable tasks"""
         now = timezone.now()
         qs = self.unlocked(now)
         if queue:
             qs = qs.filter(queue=queue)
         ready = qs.filter(run_at__lte=now, failed_at=None)
-        _priority_ordering = "{}priority".format(
-            app_settings.BACKGROUND_TASK_PRIORITY_ORDERING
+        _priority_ordering = (
+            app_settings.BACKGROUND_TASK_PRIORITY_ORDERING + "priority"
         )
         ready = ready.order_by(_priority_ordering, "run_at")
 
@@ -63,6 +68,7 @@ class TaskManager(models.Manager):
         return ready
 
     def unlocked(self, now):
+        """Get unlocked tasks"""
         max_run_time = app_settings.BACKGROUND_TASK_MAX_RUN_TIME
         qs = self.get_queryset()
         expires_at = now - timedelta(seconds=max_run_time)
@@ -70,6 +76,7 @@ class TaskManager(models.Manager):
         return qs.filter(unlocked)
 
     def locked(self, now):
+        """Get loacked tasks"""
         max_run_time = app_settings.BACKGROUND_TASK_MAX_RUN_TIME
         qs = self.get_queryset()
         expires_at = now - timedelta(seconds=max_run_time)
@@ -84,7 +91,7 @@ class TaskManager(models.Manager):
         qs = self.get_queryset()
         return qs.filter(failed_at__isnull=False)
 
-    def new_task(
+    def new_task(  # pylint: disable=too-many-arguments
         self,
         task_name,
         args=None,
@@ -107,8 +114,8 @@ class TaskManager(models.Manager):
         if run_at is None:
             run_at = timezone.now()
         task_params = json.dumps((args, kwargs), sort_keys=True)
-        s = "%s%s" % (task_name, task_params)
-        task_hash = sha1(s.encode("utf-8")).hexdigest()
+        task_identifier = f"{task_name}{task_params}"
+        task_hash = sha1(task_identifier.encode("utf-8")).hexdigest()
         if remove_existing_tasks:
             Task.objects.filter(
                 task_hash=task_hash, locked_at__isnull=True
@@ -127,11 +134,12 @@ class TaskManager(models.Manager):
         )
 
     def get_task(self, task_name, args=None, kwargs=None):
+        """Get tasks by name and parameters"""
         args = args or ()
         kwargs = kwargs or {}
         task_params = json.dumps((args, kwargs), sort_keys=True)
-        s = "%s%s" % (task_name, task_params)
-        task_hash = sha1(s.encode("utf-8")).hexdigest()
+        task_identifier = f"{task_name}{task_params}"
+        task_hash = sha1(task_identifier.encode("utf-8")).hexdigest()
         qs = self.get_queryset()
         return qs.filter(task_hash=task_hash)
 
@@ -141,6 +149,8 @@ class TaskManager(models.Manager):
 
 @python_2_unicode_compatible
 class Task(models.Model):
+    """Task to be executed"""
+
     # the "name" of the task/function to be run
     task_name = models.CharField(max_length=190, db_index=True)
     # the json encoded parameters to pass to the task
@@ -213,7 +223,7 @@ class Task(models.Model):
                 # won't kill the process. kill is a bad named system call
                 os.kill(int(self.locked_by), 0)
                 return True
-            except:
+            except:  # pylint: disable=bare-except
                 return False
         else:
             return None
@@ -229,12 +239,14 @@ class Task(models.Model):
     has_error.boolean = True
 
     def params(self):
+        """Load params from json"""
         args, kwargs = json.loads(self.task_params)
         # need to coerce kwargs keys to str
         kwargs = dict((str(k), v) for k, v in kwargs.items())
         return args, kwargs
 
     def lock(self, locked_by):
+        """Lock task"""
         now = timezone.now()
         unlocked = Task.objects.unlocked(now).filter(pk=self.pk)
         updated = unlocked.update(locked_by=locked_by, locked_at=now)
@@ -242,9 +254,10 @@ class Task(models.Model):
             return Task.objects.get(pk=self.pk)
         return None
 
-    def _extract_error(self, type, err, tb):
+    def _extract_error(self, exc_type, err, traceback):
+        """Extract error"""
         file = StringIO()
-        traceback.print_exception(type, err, tb, None, file)
+        _traceback.print_exception(exc_type, err, traceback, None, file)
         return file.getvalue()
 
     def increment_attempts(self):
@@ -258,12 +271,12 @@ class Task(models.Model):
     def is_repeating_task(self):
         return self.repeat > self.NEVER
 
-    def reschedule(self, type, err, traceback):
+    def reschedule(self, exc_type, err, traceback):
         """
         Set a new time to run the task in future, or create a CompletedTask and delete the Task
         if it has reached the maximum of allowed attempts
         """
-        self.last_error = self._extract_error(type, err, traceback)
+        self.last_error = self._extract_error(exc_type, err, traceback)
         self.increment_attempts()
         if self.has_reached_max_attempts() or isinstance(err, InvalidTaskError):
             self.failed_at = timezone.now()
@@ -345,16 +358,18 @@ class Task(models.Model):
     def save(self, *arg, **kw):
         # force NULL rather than empty string
         self.locked_by = self.locked_by or None
-        return super(Task, self).save(*arg, **kw)
+        return super().save(*arg, **kw)
 
     def __str__(self):
-        return "{}".format(self.verbose_name or self.task_name)
+        return f"{self.verbose_name or self.task_name}"
 
     class Meta:
         db_table = "background_task"
 
 
 class CompletedTaskQuerySet(models.QuerySet):
+    """Custom queryset for completed tasks"""
+
     def created_by(self, creator):
         """
         :return: A CompletedTask queryset filtered by creator
@@ -395,6 +410,8 @@ class CompletedTaskQuerySet(models.QuerySet):
 
 @python_2_unicode_compatible
 class CompletedTask(models.Model):
+    """Hold information of a completed task"""
+
     # the "name" of the task/function to be run
     task_name = models.CharField(max_length=190, db_index=True)
     # the json encoded parameters to pass to the task
@@ -453,7 +470,7 @@ class CompletedTask(models.Model):
                 # won't kill the process. kill is a bad named system call
                 os.kill(int(self.locked_by), 0)
                 return True
-            except:
+            except:  # pylint: disable=bare-except
                 return False
         else:
             return None
@@ -469,7 +486,4 @@ class CompletedTask(models.Model):
     has_error.boolean = True
 
     def __str__(self):
-        return "{} - {}".format(
-            self.verbose_name or self.task_name,
-            self.run_at,
-        )
+        return f"{self.verbose_name or self.task_name} - {self.run_at}"
