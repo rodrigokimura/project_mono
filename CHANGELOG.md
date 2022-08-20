@@ -1,3 +1,9 @@
+## 7.0.2 (2022-08-20)
+
+### Refactor
+
+- **background_tasks**: apply pylint suggestions
+
 ## 7.0.1 (2022-08-20)
 
 ### Refactor
