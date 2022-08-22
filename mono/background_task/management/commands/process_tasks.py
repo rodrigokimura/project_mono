@@ -4,7 +4,7 @@ import random
 import sys
 import time
 
-from background_task.tasks import autodiscover, tasks
+from background_task.tasks import all_tasks, autodiscover
 from background_task.utils import SignalManager
 from django import VERSION
 from django.core.management.base import BaseCommand
@@ -88,7 +88,7 @@ class Command(BaseCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sig_manager = None
-        self._tasks = tasks
+        self._tasks = all_tasks
 
     def run(self, *args, **options):
         """Run background task runner"""
