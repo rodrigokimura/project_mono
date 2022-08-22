@@ -1,9 +1,12 @@
-# -*- coding: utf-8 -*-
+"""Admin page for background tasks models"""
 from background_task.models import CompletedTask, Task
 from django.contrib import admin
 
+# pylint: disable=unused-argument
+
 
 def inc_priority(modeladmin, request, queryset):
+    """Increase task priority"""
     for obj in queryset:
         obj.priority += 1
         obj.save()
@@ -13,6 +16,7 @@ inc_priority.short_description = "priority += 1"
 
 
 def dec_priority(modeladmin, request, queryset):
+    """Decrease task priority"""
     for obj in queryset:
         obj.priority -= 1
         obj.save()

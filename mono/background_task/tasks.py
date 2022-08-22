@@ -1,3 +1,4 @@
+"""Main tasks responsible for running the background tasks"""
 import logging
 import os
 import sys
@@ -71,6 +72,8 @@ def bg_runner(  # pylint: disable=keyword-arg-before-vararg
 
 
 class PoolRunner:  # pylint: disable=too-few-public-methods
+    """Async task runner"""
+
     def __init__(self, _bg_runner, num_processes):
         self._bg_runner = _bg_runner
         self._num_processes = num_processes
@@ -84,7 +87,10 @@ class PoolRunner:  # pylint: disable=too-few-public-methods
             self._pool_instance = ThreadPool(processes=self._num_processes)
         return self._pool_instance
 
-    def run(self, proxy_task, task=None, *args, **kwargs):
+    def run(  # pylint: disable=keyword-arg-before-vararg
+        self, proxy_task, task=None, *args, **kwargs
+    ):
+        """Run task async"""
         self._pool.apply_async(
             func=self._bg_runner,
             args=(proxy_task, task) + tuple(args),
@@ -95,6 +101,8 @@ class PoolRunner:  # pylint: disable=too-few-public-methods
 
 
 class Tasks:
+    """Main class"""
+
     def __init__(self):
         self._tasks = {}
         self._runner = DBTaskRunner()
@@ -163,6 +171,8 @@ class Tasks:
 
 
 class TaskSchedule:
+    """Hold task scheduling information"""
+
     SCHEDULE = 0
     RESCHEDULE_EXISTING = 1
     CHECK_EXISTING = 2
@@ -174,6 +184,7 @@ class TaskSchedule:
 
     @classmethod
     def create(cls, schedule):
+        """Create task schedule isntance from int, timedelta or datetime"""
         if isinstance(schedule, TaskSchedule):
             return schedule
         priority = None
@@ -223,7 +234,7 @@ class TaskSchedule:
     def __repr__(self):
         return f"TaskSchedule(run_at={self._run_at}, priority={self._priority})"
 
-    def __eq__(self, other):
+    def __eq__(self, other: "TaskSchedule"):
         return (
             self._run_at == other._run_at
             and self._priority == other._priority
@@ -288,9 +299,10 @@ class DBTaskRunner:
         signals.task_created.send(sender=self.__class__, task=task)
         return task
 
-    def get_task_to_run(self, tasks, queue=None):
+    def get_task_to_run(self, tasks: Tasks, queue=None):
         """Get task to run from available tasks"""
         try:
+            locked_task = None
             available_tasks = [
                 task
                 for task in Task.objects.find_available(queue)
@@ -300,15 +312,16 @@ class DBTaskRunner:
                 # try to lock task
                 locked_task = task.lock(self.worker_name)
                 if locked_task:
-                    return locked_task
+                    break
+            return locked_task
         except OperationalError:
             logger.warning("Failed to retrieve tasks. Database unreachable.")
 
-    def run_task(self, tasks, task):
+    def run_task(self, tasks: Tasks, task):
         logger.info("Running %s", task)
         tasks.run_task(task)
 
-    def run_next_task(self, tasks, queue=None):
+    def run_next_task(self, tasks: Tasks, queue=None):
         """Run next task in queue"""
         task = self.get_task_to_run(tasks, queue)
         if task:
@@ -371,7 +384,7 @@ class TaskProxy:
         return f"TaskProxy({self.name})"
 
 
-tasks = Tasks()
+all_tasks = Tasks()
 
 
 def autodiscover():

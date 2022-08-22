@@ -7,7 +7,7 @@ from background_task import background
 from background_task.exceptions import InvalidTaskError
 from background_task.models import CompletedTask, Task
 from background_task.settings import app_settings
-from background_task.tasks import TaskProxy, TaskSchedule, tasks
+from background_task.tasks import TaskProxy, TaskSchedule, all_tasks as tasks
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.utils import OperationalError
