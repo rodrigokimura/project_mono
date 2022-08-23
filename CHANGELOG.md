@@ -1,3 +1,9 @@
+## 7.5.2 (2022-08-23)
+
+### Fix
+
+- **makefile**: adjust var interpolation
+
 ## 7.5.1 (2022-08-23)
 
 ### Refactor
