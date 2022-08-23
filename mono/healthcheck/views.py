@@ -376,7 +376,7 @@ class CoverageReportViewSet(ViewSet):
             report_file = request.FILES.get("report_file")
             pr_number = serializer.validated_data.get("pr_number")
             result = CoverageReport.process_file(report_file, pr_number)
-            return Response(f"Test results parsed: {len(result)}")
+            return Response(f"Coverage results parsed: {len(result)}")
         return Response(
             serializer.error_messages, status=status.HTTP_400_BAD_REQUEST
         )
