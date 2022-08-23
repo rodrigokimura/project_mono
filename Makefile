@@ -108,11 +108,11 @@ test:
 		&& pipenv run pytest --report-log=$(R_PT)/report.json
 
 _upload-pytest-report:
-	@curl $(MONO_URL)/hc/api/pytest/ \
+	curl $(MONO_URL)/hc/api/pytest/ \
 		-X POST \
-		-H 'Authorization: Token $(MONO_TOKEN)' \
-		-F 'report_file=@./mono/$(R_PT)/report.json' \
-		-F 'pr_number=$(PR_NUMBER)'
+		-H "Authorization: Token $(MONO_TOKEN)" \
+		-F "report_file=@./mono/$(R_PT)/report.json" \
+		-F "pr_number=$(PR_NUMBER)"
 
 coverage:
 	@mkdir -p mono/$(R_PT)
