@@ -1,3 +1,9 @@
+## 7.5.3 (2022-08-23)
+
+### Fix
+
+- **healthcheck**: try different approach in var interpolation
+
 ## 7.5.2 (2022-08-23)
 
 ### Fix
