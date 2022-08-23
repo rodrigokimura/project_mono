@@ -59,7 +59,7 @@
         <a class="item" data-tab="pytest">Pytest</a>
         <a class="item" data-tab="coverage">Coverage</a>
         <a class="item" data-tab="pylint">Pylint</a>
-        <a class="item" data-tab="diagrams">Diagrams</a>
+        {% comment %} <a class="item" data-tab="diagrams">Diagrams</a> {% endcomment %}
     </div>
     <div class="ui compact main tab grid" data-tab="repo">
         <div class="row">
@@ -153,6 +153,7 @@
     </div>
     <div class="ui compact main tab grid" data-tab="pylint">
         <div class="equal width row">
+            {% include 'healthcheck/_statistics_card.html' with label='Score' type='score' only %}
             {% include 'healthcheck/_statistics_card.html' with label='Convention' type='convention' only %}
             {% include 'healthcheck/_statistics_card.html' with label='Refactor' type='refactor' only %}
             {% include 'healthcheck/_statistics_card.html' with label='Warning' type='warning' only %}
@@ -182,8 +183,9 @@
             </div>
         </div>
     </div>
+    {% comment %}
     <div class="ui compact main tab grid" data-tab="diagrams">
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
         <script>
             mermaid.mermaidAPI.initialize({ startOnLoad:false })
             function teste(){ // Example of using the API var
@@ -203,6 +205,7 @@
             </div>
         </div>
     </div>
+    {% endcomment %}
     <script>
         async function toast(msg) {
             $('body').toast({
@@ -350,9 +353,6 @@
                             break
                         case 'pylint':
                             renderPylintReport()
-                            break
-                        case 'diagrams':
-                            teste()
                             break
                     }
                 },
