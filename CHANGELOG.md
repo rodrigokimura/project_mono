@@ -1,3 +1,9 @@
+## 7.5.1 (2022-08-23)
+
+### Refactor
+
+- **healthcheck**: add more reliable way to get or number
+
 ## 7.5.0 (2022-08-23)
 
 ### Feat
