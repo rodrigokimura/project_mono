@@ -1,8 +1,9 @@
-function summarizePylintResults(results) {
+function summarizePylintResults(score, results) {
+    $(`.card-statistic .value[data-type='score']`).text(score)
     types = ['convention', 'refactor', 'warning']
     summarizedResults = {}
     types.forEach(t => {
-        result = results.filter(r => r.type == t).length
+        let result = results.filter(r => r.type == t).length
         $(`.card-statistic .value[data-type='${t}']`).text(result)
     })
     result = results.filter(r => !types.includes(r.type)).length
@@ -26,9 +27,8 @@ async function renderPylintReport() {
                 toast(`${r.results.length} results found.`)
                 $('#pylint-table').show()
             }
-            results = r.results
-            summarizePylintResults(results)
-            results.forEach(result => {
+            summarizePylintResults(r.score, r.results)
+            r.results.forEach(result => {
                 el.append(`
                     <tr>
                         <td>${result.type}</td>
@@ -43,9 +43,6 @@ async function renderPylintReport() {
                     </tr>
                 `)
             })
-            for (var i = 0; i < r.results.length; i++) {
-                var result = r.results[i]
-            }
         }
     })
 }
