@@ -1,3 +1,9 @@
+## 7.5.0 (2022-08-23)
+
+### Feat
+
+- **healthcheck**: add endpoint to retrieve last pr number
+
 ## 7.4.0 (2022-08-23)
 
 ### Feat

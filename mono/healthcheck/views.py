@@ -63,13 +63,27 @@ def healthcheck(request):
     """
     Simple view to output version information and healthcheck status.
     """
-    pr_number = (
+    current_pr_number = (
         PullRequest.objects.filter(deployed_at__isnull=False)
         .values("number")
         .latest("number")
         .get("number")
     )
-    return JsonResponse({"version": settings.APP_VERSION, "pr": pr_number})
+    return JsonResponse(
+        {"version": settings.APP_VERSION, "pr": current_pr_number}
+    )
+
+
+class LastPrView(APIView):
+    """
+    Simple view to output last pr number.
+    """
+
+    def get(self, request):
+        last_pr_number = (
+            PullRequest.objects.values("number").latest("number").get("number")
+        )
+        return Response({"pr": last_pr_number})
 
 
 @csrf_exempt
