@@ -81,12 +81,14 @@ pylint-app: list-apps  ## Run pylint on given app
 		&& pipenv run pylint mono/$$APP --exit-zero
 
 _upload-pylint-report:
-	@PILINT_SCORE=$$(cat mono/$(R_PL)/score.txt) && echo $$PILINT_SCORE \
+	@PR=$$(curl "$(MONO_URL)/hc/" | python3 -c "import sys, json; print(json.load(sys.stdin)['pr'])") \
+	&& PYLINT_SCORE=$$(cat mono/$(R_PL)/score.txt) \
 	&& curl $(MONO_URL)/hc/api/pylint/ \
 		-X POST \
 		-H 'Authorization: Token $(MONO_TOKEN)' \
 		-F report_file=@./mono/$(R_PL)/report.json \
-		-F score=$$PILINT_SCORE
+		-F score=$$PYLINT_SCORE \
+		-F pr_number=$$PR
 
 test-app: list-apps  ## Run tests on given app
 	@echo && read -p 'Choose app from above: ${BOLD}${CYAN}' APP \
@@ -107,10 +109,12 @@ test:
 		&& pipenv run pytest --report-log=$(R_PT)/report.json
 
 _upload-pytest-report:
-	@curl $(MONO_URL)/hc/api/pytest/ \
+	@PR=$$(curl "$$MONO_URL/hc/" | python3 -c "import sys, json; print(json.load(sys.stdin)['pr'])") \
+	&& curl $(MONO_URL)/hc/api/pytest/ \
 		-X POST \
 		-H 'Authorization: Token $(MONO_TOKEN)' \
-		-F report_file=@./mono/$(R_PT)/report.json
+		-F report_file=@./mono/$(R_PT)/report.json \
+		-F pr_number=$$PR
 
 coverage:
 	@mkdir -p mono/$(R_PT)
@@ -124,10 +128,12 @@ coverage:
 		&& $(COV) json -o $(R_COV)/report.json
 
 _upload-coverage-report:
-	@curl $(MONO_URL)/hc/api/coverage/ \
+	@PR=$$(curl "$$MONO_URL/hc/" | python3 -c "import sys, json; print(json.load(sys.stdin)['pr'])") \
+	&& curl $(MONO_URL)/hc/api/coverage/ \
 		-X POST \
 		-H 'Authorization: Token $(MONO_TOKEN)' \
-		-F report_file=@./mono/$(R_COV)/report.json
+		-F report_file=@./mono/$(R_COV)/report.json \
+		-F pr_number=$$PR
 
 _open-coverage-report:
 	@export APP_ENV=TEST && cd mono \
@@ -295,6 +301,10 @@ prod-version:
 prod-pr:
 	@PROD_PR=$$(curl "https://www.monoproject.info/hc/" | python3 -c "import sys, json; print(json.load(sys.stdin)['pr'])") \
 	&& echo $$PROD_PR
+
+current-pr:
+	@PR=$$(curl "$$MONO_URL/hc/" | python3 -c "import sys, json; print(json.load(sys.stdin)['pr'])") \
+	&& echo $$PR
 
 
 ssh: art  ## Connect to Production server

@@ -9,11 +9,17 @@ function calculateCoverageSummary(results) {
     totalMissing = results.map(r => r.missing_lines).reduce((a, b) => a + b, 0)
     totalExcluded = results.map(r => r.excluded_lines).reduce((a, b) => a + b, 0)
     totalStatements = results.map(r => r.num_statements).reduce((a, b) => a + b, 0)
-    $('.card-statistic .value[data-type=total_covered]').text(totalCovered)
-    $('.card-statistic .value[data-type=total_missing]').text(totalMissing)
-    $('.card-statistic .value[data-type=total_excluded]').text(totalExcluded)
-    $('.card-statistic .value[data-type=total_statements]').text(totalStatements)
-    $('.card-statistic .value[data-type=total_coverage]').text(getCoverage(totalCovered, totalStatements))
+    $('.card-statistic .value[data-type=total_covered]').text(totalCovered.toLocaleString())
+    $('.card-statistic .value[data-type=total_missing]').text(totalMissing.toLocaleString())
+    $('.card-statistic .value[data-type=total_excluded]').text(totalExcluded.toLocaleString())
+    $('.card-statistic .value[data-type=total_statements]').text(totalStatements.toLocaleString())
+    coverage = getCoverage(totalCovered, totalStatements)
+    $('.card-statistic .value[data-type=total_coverage]').text(`${coverage.toLocaleString()}%`)
+    $('.card-statistic .value[data-type=total_coverage]').parent().parent().append(`
+        <div class="ui bottom attached progress" data-type="{{ type }}" data-percent="${coverage}">
+            <div class="bar"></div>
+        </div>
+    `)
 }
 function summarizeResultsByFirstLevelFolder(results) {
     function sumarizePropByFolder(results, folder, prop) {
@@ -73,10 +79,10 @@ async function renderCoverageReport() {
                             <td>
                                 ${resultByFolder.file}
                             </td>
-                            <td>${resultByFolder.covered_lines}</td>
-                            <td>${resultByFolder.missing_lines}</td>
-                            <td>${resultByFolder.excluded_lines}</td>
-                            <td>${resultByFolder.num_statements}</td>
+                            <td>${resultByFolder.covered_lines.toLocaleString()}</td>
+                            <td>${resultByFolder.missing_lines.toLocaleString()}</td>
+                            <td>${resultByFolder.excluded_lines.toLocaleString()}</td>
+                            <td>${resultByFolder.num_statements.toLocaleString()}</td>
                             <td>
                                 ${getProgressBar(resultByFolder.coverage, "standard")}
                             </td>
@@ -88,10 +94,10 @@ async function renderCoverageReport() {
                             <td>
                                 <strong><i class="caret down icon"></i>${resultByFolder.file}</strong>
                             </td>
-                            <td><strong>${resultByFolder.covered_lines}</strong></td>
-                            <td><strong>${resultByFolder.missing_lines}</strong></td>
-                            <td><strong>${resultByFolder.excluded_lines}</strong></td>
-                            <td><strong>${resultByFolder.num_statements}</strong></td>
+                            <td><strong>${resultByFolder.covered_lines.toLocaleString()}</strong></td>
+                            <td><strong>${resultByFolder.missing_lines.toLocaleString()}</strong></td>
+                            <td><strong>${resultByFolder.excluded_lines.toLocaleString()}</strong></td>
+                            <td><strong>${resultByFolder.num_statements.toLocaleString()}</strong></td>
                             <td>
                                 ${getProgressBar(resultByFolder.coverage, "standard")}
                             </td>

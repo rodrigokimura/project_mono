@@ -29,12 +29,14 @@ class PytestReportAdmin(admin.ModelAdmin):
 
     list_display = [
         "id",
+        "pull_request",
         "pytest_version",
         "created_at",
         "result_count",
         "duration",
     ]
     list_filter = [
+        "pull_request",
         "pytest_version",
         "created_at",
     ]
@@ -60,12 +62,14 @@ class CoverageReportAdmin(admin.ModelAdmin):
 
     list_display = (
         "id",
+        "pull_request",
         "coverage_version",
         "created_at",
         "result_count",
         "coverage_percentage",
     )
     list_filter = [
+        "pull_request",
         "coverage_version",
         "created_at",
     ]
@@ -93,10 +97,15 @@ class CoverageResultAdmin(admin.ModelAdmin):
 class PylintReportAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "pull_request",
         "created_at",
+        "score",
         "result_count",
     )
-    list_filter = ("created_at",)
+    list_filter = (
+        "created_at",
+        "pull_request",
+    )
 
 
 @admin.register(models.PylintResult)
