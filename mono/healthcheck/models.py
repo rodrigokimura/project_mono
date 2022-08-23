@@ -136,6 +136,9 @@ class PytestReport(models.Model):
     Pytest report
     """
 
+    pull_request = models.ForeignKey(
+        PullRequest, on_delete=models.CASCADE, null=True
+    )
     pytest_version = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -158,11 +161,12 @@ class PytestReport(models.Model):
 
     @classmethod
     @transaction.atomic
-    def process_file(cls, report_file):
+    def process_file(cls, report_file, pr_number):
         """Process report file"""
         lines = report_file.readlines()
         report = cls.objects.create(
-            pytest_version=json.loads(lines[0]).get("pytest_version")
+            pull_request=PullRequest.objects.filter(number=pr_number).first(),
+            pytest_version=json.loads(lines[0]).get("pytest_version"),
         )
         pytest_log_objects = list(
             filter(
@@ -224,6 +228,9 @@ class CoverageReport(models.Model):
     Stores groups of coverage results :model:`healthcheck.CoverageResult`.
     """
 
+    pull_request = models.ForeignKey(
+        PullRequest, on_delete=models.CASCADE, null=True
+    )
     coverage_version = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -264,11 +271,14 @@ class CoverageReport(models.Model):
 
     @classmethod
     @transaction.atomic
-    def process_file(cls, report_file):
+    def process_file(cls, report_file, pr_number):
         """Process report file"""
         data = json.loads(report_file.read())
         version = data.get("meta", {}).get("version")
-        report = cls.objects.create(coverage_version=version)
+        report = cls.objects.create(
+            pull_request=PullRequest.objects.filter(number=pr_number).first(),
+            coverage_version=version,
+        )
         files = data.get("files", {})
         results = [
             CoverageResult(
@@ -316,6 +326,9 @@ class PylintReport(models.Model):
     Stores groups of pylint results :model:`healthcheck.PylintResult`.
     """
 
+    pull_request = models.ForeignKey(
+        PullRequest, on_delete=models.CASCADE, null=True
+    )
     score = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -337,10 +350,11 @@ class PylintReport(models.Model):
 
     @classmethod
     @transaction.atomic
-    def process_file(cls, report_file, score):
+    def process_file(cls, report_file, score, pr_number):
         """Process report file"""
         data = json.loads(report_file.read())
         report = cls.objects.create(
+            pull_request=PullRequest.objects.filter(number=pr_number).first(),
             score=score,
         )
         results = [
