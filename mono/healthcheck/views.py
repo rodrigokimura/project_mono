@@ -378,7 +378,7 @@ class PylintReportViewSet(ViewSet):
 
     def list(self, request):
         """Show results of last uploaded and parsed report file"""
-        last_report = PylintReport.objects.last()
+        last_report: PylintReport = PylintReport.objects.last()
         if last_report is None:
             results = []
         else:
@@ -395,7 +395,9 @@ class PylintReportViewSet(ViewSet):
                 "message",
                 "message_id",
             )
-        return Response({"success": True, "results": results})
+        return Response(
+            {"success": True, "score": last_report.score, "results": results}
+        )
 
     def create(self, request):
         """Upload and parse report file"""
