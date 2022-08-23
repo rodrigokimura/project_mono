@@ -1,5 +1,11 @@
 function summarizePylintResults(score, results) {
-    $(`.card-statistic .value[data-type='score']`).text(score)
+    $(`.card-statistic .value[data-type='score']`).text(score.toLocaleString())
+    // render progress bar
+    $('.card-statistic .value[data-type=score]').parent().parent().append(`
+        <div class="ui bottom attached progress" data-percent="${score * 10}">
+            <div class="bar"></div>
+        </div>
+    `)
     types = ['convention', 'refactor', 'warning']
     summarizedResults = {}
     types.forEach(t => {
@@ -43,6 +49,7 @@ async function renderPylintReport() {
                     </tr>
                 `)
             })
+            $('.ui.progress').progress()
         }
     })
 }
