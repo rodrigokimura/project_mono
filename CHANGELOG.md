@@ -1,3 +1,9 @@
+## 7.4.0 (2022-08-23)
+
+### Feat
+
+- **healthcheck**: store pr number in qa reports
+
 ## 7.3.0 (2022-08-23)
 
 ### Feat
