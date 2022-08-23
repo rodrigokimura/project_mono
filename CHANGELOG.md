@@ -1,3 +1,9 @@
+## 7.0.4 (2022-08-22)
+
+### Fix
+
+- **mono**: change version info source file
+
 ## 7.0.3 (2022-08-22)
 
 ### Refactor
