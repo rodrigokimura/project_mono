@@ -1,3 +1,9 @@
+## 7.2.0 (2022-08-23)
+
+### Feat
+
+- **healthcheck**: add progress bars to coverage report page
+
 ## 7.1.0 (2022-08-23)
 
 ### Feat
