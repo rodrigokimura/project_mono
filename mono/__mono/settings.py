@@ -6,13 +6,15 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from dotenv import load_dotenv
 
+from .__version__ import VERSION
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 
 APP_ENV = os.getenv("APP_ENV", "PRD")
 
-APP_VERSION = "7.0.3"
+APP_VERSION = VERSION
 
 if APP_ENV in ["DEV", "TEST"]:
     GITHUB_SECRET = "GITHUB_SECRET"
@@ -45,7 +47,7 @@ else:
     )  # pragma: no cover
 
 if APP_ENV in ["DEV", "TEST"]:
-    SITE = "http://127.0.3.42:8080"
+    SITE = "http://127.0.0.42:8080"
 else:
     SITE = "https://www.monoproject.info"  # pragma: no cover
 
@@ -102,11 +104,6 @@ MIDDLEWARE = [
     "maintenance_mode.middleware.MaintenanceModeMiddleware",
     "watcher.middlewares.StatisticsFinishMiddleware",
 ]
-
-# INTERNAL_IPS = ['127.0.3.1']
-
-# SHOW_TOOLBAR_CALLBACK = '.'
-# SHOW_COLLAPSED = True
 
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
