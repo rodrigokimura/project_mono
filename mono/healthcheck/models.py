@@ -9,6 +9,7 @@ from pathlib import Path
 import git
 from django.conf import settings
 from django.core.mail import mail_admins
+from django.core.validators import MaxValueValidator
 from django.db import models, transaction
 from django.template.loader import get_template
 from django.utils import timezone
@@ -315,6 +316,12 @@ class PylintReport(models.Model):
     Stores groups of pylint results :model:`healthcheck.PylintResult`.
     """
 
+    score = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        validators=[MaxValueValidator(10)],
+        default=0,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -330,10 +337,12 @@ class PylintReport(models.Model):
 
     @classmethod
     @transaction.atomic
-    def process_file(cls, report_file):
+    def process_file(cls, report_file, score):
         """Process report file"""
         data = json.loads(report_file.read())
-        report = cls.objects.create()
+        report = cls.objects.create(
+            score=score,
+        )
         results = [
             PylintResult(
                 report=report,

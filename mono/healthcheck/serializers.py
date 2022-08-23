@@ -1,5 +1,10 @@
 """Healthcheck's serializers"""
-from rest_framework.serializers import DateField, FileField, Serializer
+from rest_framework.serializers import (
+    DateField,
+    DecimalField,
+    FileField,
+    Serializer,
+)
 
 
 class CommitsByDateSerializer(Serializer):
@@ -24,3 +29,13 @@ class ReportSerializer(Serializer):
 
     def update(self, instance, validated_data):
         raise NotImplementedError
+
+
+class PylintReportSerializer(ReportSerializer):
+    """Serializer to parse report file"""
+
+    score = DecimalField(
+        max_value=10,
+        decimal_places=2,
+        max_digits=4,
+    )

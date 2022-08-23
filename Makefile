@@ -62,10 +62,18 @@ lint: art isort black  ## Run isort and black
 pylint:  ## Run pylint
 	@mkdir -p mono/$(R_PL)
 	@touch mono/$(R_PL)/report.json
+	@touch mono/$(R_PL)/results.txt
+	@touch mono/$(R_PL)/score.txt
 	@cat /dev/null > mono/$(R_PL)/report.json
+	@cat /dev/null > mono/$(R_PL)/results.txt
+	@cat /dev/null > mono/$(R_PL)/score.txt
 	@pipenv run pylint mono \
+		--load-plugins pylint_django \
 		--rcfile=pyproject.toml \
-		--output-format=json:mono/$(R_PL)/report.json,colorized
+		--output-format=json:mono/$(R_PL)/report.json,colorized | tee mono/$(R_PL)/results.txt \
+			&& cat mono/$(R_PL)/results.txt \
+				| grep "Your code has been rated at " \
+				| sed -n '$$s/[^0-9]*\([0-9.]*\).*/\1/p' > mono/$(R_PL)/score.txt
 
 pylint-app: list-apps  ## Run pylint on given app
 	@echo 'Choose app from above:' \
@@ -73,10 +81,12 @@ pylint-app: list-apps  ## Run pylint on given app
 		&& pipenv run pylint mono/$$APP --exit-zero
 
 _upload-pylint-report:
-	@curl $(MONO_URL)/hc/api/pylint/ \
+	@PILINT_SCORE=$$(cat mono/$(R_PL)/score.txt) && echo $$PILINT_SCORE \
+	&& curl $(MONO_URL)/hc/api/pylint/ \
 		-X POST \
 		-H 'Authorization: Token $(MONO_TOKEN)' \
-		-F report_file=@./mono/$(R_PL)/report.json
+		-F report_file=@./mono/$(R_PL)/report.json \
+		-F score=$$PILINT_SCORE
 
 test-app: list-apps  ## Run tests on given app
 	@echo && read -p 'Choose app from above: ${BOLD}${CYAN}' APP \
