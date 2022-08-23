@@ -74,18 +74,6 @@ def healthcheck(request):
     )
 
 
-class LastPrView(APIView):
-    """
-    Simple view to output last pr number.
-    """
-
-    def get(self, request):
-        last_pr_number = (
-            PullRequest.objects.values("number").latest("number").get("number")
-        )
-        return Response({"pr": last_pr_number})
-
-
 @csrf_exempt
 def github_webhook(request):
     """
