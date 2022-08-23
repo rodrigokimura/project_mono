@@ -263,10 +263,10 @@ filterwarnings = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "7.0.0"
+version = "7.0.4"
 tag_format = "$version"
 version_files = [
-    "mono/__mono/settings.py",
+    "mono/__mono/__version__.py",
     "pyproject.toml:version",
 ]
 style = [

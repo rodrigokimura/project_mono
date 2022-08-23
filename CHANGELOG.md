@@ -1,3 +1,27 @@
+## 7.0.4 (2022-08-22)
+
+### Fix
+
+- **mono**: change version info source file
+
+## 7.0.3 (2022-08-22)
+
+### Refactor
+
+- **background_tasks**: apply pylint suggestions
+
+## 7.0.2 (2022-08-20)
+
+### Refactor
+
+- **background_tasks**: apply pylint suggestions
+
+## 7.0.1 (2022-08-20)
+
+### Refactor
+
+- **background_task**: apply pylint suggestions
+
 ## 7.0.0 (2022-08-19)
 
 ### BREAKING CHANGE
