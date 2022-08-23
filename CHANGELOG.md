@@ -1,3 +1,9 @@
+## 7.5.4 (2022-08-23)
+
+### Fix
+
+- **healthcheck**: try using double quotes
+
 ## 7.5.3 (2022-08-23)
 
 ### Fix
