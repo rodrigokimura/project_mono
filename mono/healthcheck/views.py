@@ -341,9 +341,7 @@ class PytestReportViewSet(ViewSet):
             pr_number = serializer.validated_data.get("pr_number")
             result = PytestReport.process_file(report_file, pr_number)
             return Response(f"Test results parsed: {len(result)}")
-        return Response(
-            serializer.error_messages, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CoverageReportViewSet(ViewSet):
@@ -377,9 +375,7 @@ class CoverageReportViewSet(ViewSet):
             pr_number = serializer.validated_data.get("pr_number")
             result = CoverageReport.process_file(report_file, pr_number)
             return Response(f"Coverage results parsed: {len(result)}")
-        return Response(
-            serializer.error_messages, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PylintReportViewSet(ViewSet):
@@ -422,6 +418,4 @@ class PylintReportViewSet(ViewSet):
             score = serializer.validated_data.get("score")
             result = PylintReport.process_file(report_file, score, pr_number)
             return Response(f"Pylint results parsed: {len(result)}")
-        return Response(
-            serializer.error_messages, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
