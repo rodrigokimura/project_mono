@@ -28,7 +28,11 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
 from .models import CoverageReport, PullRequest, PylintReport, PytestReport
-from .serializers import CommitsByDateSerializer, ReportSerializer
+from .serializers import (
+    CommitsByDateSerializer,
+    PylintReportSerializer,
+    ReportSerializer,
+)
 from .tasks import deploy_app
 from .utils import format_to_heatmap, get_commits_by_date, get_commits_context
 
@@ -369,12 +373,12 @@ class PylintReportViewSet(ViewSet):
     Upload and parse pylint report file
     """
 
-    serializer_class = ReportSerializer
+    serializer_class = PylintReportSerializer
     permission_classes = (IsAdminUser,)
 
     def list(self, request):
         """Show results of last uploaded and parsed report file"""
-        last_report = PylintReport.objects.last()
+        last_report: PylintReport = PylintReport.objects.last()
         if last_report is None:
             results = []
         else:
@@ -391,10 +395,16 @@ class PylintReportViewSet(ViewSet):
                 "message",
                 "message_id",
             )
-        return Response({"success": True, "results": results})
+        return Response(
+            {"success": True, "score": last_report.score, "results": results}
+        )
 
     def create(self, request):
         """Upload and parse report file"""
         report_file = request.FILES.get("report_file")
-        result = PylintReport.process_file(report_file)
-        return Response(f"Pylint results parsed: {len(result)}")
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            score = serializer.validated_data.get("score")
+            result = PylintReport.process_file(report_file, score)
+            return Response(f"Pylint results parsed: {len(result)}")
+        return Response("Invalid data", status=status.HTTP_400_BAD_REQUEST)
