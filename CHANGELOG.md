@@ -1,3 +1,9 @@
+## 7.1.0 (2022-08-23)
+
+### Feat
+
+- **healthcheck**: add pylint score to pipeline
+
 ## 7.0.4 (2022-08-22)
 
 ### Fix
