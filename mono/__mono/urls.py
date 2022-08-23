@@ -1,6 +1,4 @@
 """Django URL patterns for the mono app."""
-import logging
-
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -9,15 +7,7 @@ from django.views.i18n import JavaScriptCatalog
 from markdownx.views import ImageUploadView, MarkdownifyView
 from rest_framework.authtoken import views
 
-from .ascii_arts import ASCII_ART
-
-# from filebrowser.sites import site
-# import debug_toolbar
-
-
 urlpatterns = [
-    # path('admin/filebrowser/', site.urls),
-    # path('grappelli/', include('grappelli.urls')),
     path("tinymce/", include("tinymce.urls")),
     path("admin/doc/", include("django.contrib.admindocs.urls")),
     path("admin/", admin.site.urls),
@@ -44,9 +34,7 @@ urlpatterns = [
     path("shipper/", include("shipper.urls")),
     path("cb/", include("curriculum_builder.urls")),
     path("cd/", include("coder.urls")),
-    # path('__debug__/', include(debug_toolbar.urls)),
     path("i18n/", include("django.conf.urls.i18n")),
-    # path("markdownx/", include("markdownx.urls")),
     path(
         "markdownx/upload/", ImageUploadView.as_view(), name="markdownx_upload"
     ),
@@ -56,7 +44,3 @@ urlpatterns = [
         name="markdownx_markdownify",
     ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-# Aesthetics-only
-logger = logging.getLogger(__name__)
-logger.warning("\033[1;32m%s\033[0m", ASCII_ART)
