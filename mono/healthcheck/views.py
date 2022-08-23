@@ -333,9 +333,15 @@ class PytestReportViewSet(ViewSet):
 
     def create(self, request):
         """Upload and parse report file"""
-        report_file = request.FILES.get("report_file")
-        result = PytestReport.process_file(report_file)
-        return Response(f"Test results parsed: {len(result)}")
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            report_file = request.FILES.get("report_file")
+            pr_number = serializer.validated_data.get("pr_number")
+            result = PytestReport.process_file(report_file, pr_number)
+            return Response(f"Test results parsed: {len(result)}")
+        return Response(
+            serializer.error_messages, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class CoverageReportViewSet(ViewSet):
@@ -363,9 +369,15 @@ class CoverageReportViewSet(ViewSet):
 
     def create(self, request):
         """Upload and parse report file"""
-        report_file = request.FILES.get("report_file")
-        result = CoverageReport.process_file(report_file)
-        return Response(f"Coverage results parsed: {len(result)}")
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            report_file = request.FILES.get("report_file")
+            pr_number = serializer.validated_data.get("pr_number")
+            result = CoverageReport.process_file(report_file, pr_number)
+            return Response(f"Test results parsed: {len(result)}")
+        return Response(
+            serializer.error_messages, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class PylintReportViewSet(ViewSet):
@@ -401,10 +413,13 @@ class PylintReportViewSet(ViewSet):
 
     def create(self, request):
         """Upload and parse report file"""
-        report_file = request.FILES.get("report_file")
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
+            report_file = request.FILES.get("report_file")
+            pr_number = serializer.validated_data.get("pr_number")
             score = serializer.validated_data.get("score")
-            result = PylintReport.process_file(report_file, score)
+            result = PylintReport.process_file(report_file, score, pr_number)
             return Response(f"Pylint results parsed: {len(result)}")
-        return Response("Invalid data", status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            serializer.error_messages, status=status.HTTP_400_BAD_REQUEST
+        )
