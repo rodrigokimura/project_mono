@@ -16,7 +16,7 @@ function calculateCoverageSummary(results) {
     coverage = getCoverage(totalCovered, totalStatements)
     $('.card-statistic .value[data-type=total_coverage]').text(`${coverage.toLocaleString()}%`)
     $('.card-statistic .value[data-type=total_coverage]').parent().parent().append(`
-        <div class="ui bottom attached progress" data-type="{{ type }}" data-percent="${coverage}">
+        <div class="ui bottom attached progress" data-percent="${coverage}">
             <div class="bar"></div>
         </div>
     `)
