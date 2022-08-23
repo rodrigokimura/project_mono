@@ -1,3 +1,9 @@
+## 7.3.0 (2022-08-23)
+
+### Feat
+
+- **healthcheck**: show pylint score
+
 ## 7.2.0 (2022-08-23)
 
 ### Feat
