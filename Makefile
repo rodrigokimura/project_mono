@@ -110,9 +110,9 @@ test:
 _upload-pytest-report:
 	curl $(MONO_URL)/hc/api/pytest/ \
 		-X POST \
-		-H "Authorization: Token $(MONO_TOKEN)" \
-		-F report_file=@./mono/$(R_PT)/report.json \
-		-F "pr_number=$(PR_NUMBER)"
+		-H 'Authorization: Token $(MONO_TOKEN)' \
+		-F 'report_file=@./mono/$(R_PT)/report.json' \
+		-F 'pr_number=$(PR_NUMBER)'
 
 coverage:
 	@mkdir -p mono/$(R_PT)
@@ -128,9 +128,9 @@ coverage:
 _upload-coverage-report:
 	curl $(MONO_URL)/hc/api/coverage/ \
 		-X POST \
-		-H Authorization: Token $(MONO_TOKEN) \
-		-F report_file=@./mono/$(R_COV)/report.json \
-		-F pr_number=$(PR_NUMBER)
+		-H 'Authorization: Token $(MONO_TOKEN)' \
+		-F 'report_file=@./mono/$(R_COV)/report.json' \
+		-F 'pr_number=$(PR_NUMBER)'
 
 _open-coverage-report:
 	@export APP_ENV=TEST && cd mono \
