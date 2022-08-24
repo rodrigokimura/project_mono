@@ -1,3 +1,15 @@
+## 7.5.7 (2022-08-24)
+
+### Fix
+
+- **healthcheck**: add check for non existent pull requests
+
+## 7.5.6 (2022-08-23)
+
+### Fix
+
+- **healthcheck**: try different approach
+
 ## 7.5.5 (2022-08-23)
 
 ### Fix
