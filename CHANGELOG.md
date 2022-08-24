@@ -1,3 +1,9 @@
+## 7.5.8 (2022-08-24)
+
+### Fix
+
+- **healthcheck**: remove pr validation
+
 ## 7.5.7 (2022-08-24)
 
 ### Fix
