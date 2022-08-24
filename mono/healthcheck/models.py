@@ -165,7 +165,7 @@ class PytestReport(models.Model):
         """Process report file"""
         lines = report_file.readlines()
         report = cls.objects.create(
-            pull_request=PullRequest.objects.filter(number=pr_number).first(),
+            pull_request=PullRequest.objects.get_or_create(number=pr_number)[0],
             pytest_version=json.loads(lines[0]).get("pytest_version"),
         )
         pytest_log_objects = list(
@@ -276,7 +276,7 @@ class CoverageReport(models.Model):
         data = json.loads(report_file.read())
         version = data.get("meta", {}).get("version")
         report = cls.objects.create(
-            pull_request=PullRequest.objects.filter(number=pr_number).first(),
+            pull_request=PullRequest.objects.get_or_create(number=pr_number)[0],
             coverage_version=version,
         )
         files = data.get("files", {})
@@ -354,7 +354,7 @@ class PylintReport(models.Model):
         """Process report file"""
         data = json.loads(report_file.read())
         report = cls.objects.create(
-            pull_request=PullRequest.objects.filter(number=pr_number).first(),
+            pull_request=PullRequest.objects.get_or_create(number=pr_number)[0],
             score=score,
         )
         results = [
