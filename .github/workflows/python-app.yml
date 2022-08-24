@@ -30,11 +30,11 @@ jobs:
           TERM: dumb
         run: |
           make qa
-      - name: Upload report files
-        env:
-          MONO_URL: "https://www.monoproject.info"
-          MONO_TOKEN: ${{ secrets.MONO_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          TERM: dumb
-        run: |
-          make upload-reports
+      # - name: Upload report files
+      #   env:
+      #     MONO_URL: "https://www.monoproject.info"
+      #     MONO_TOKEN: ${{ secrets.MONO_TOKEN }}
+      #     PR_NUMBER: ${{ github.event.pull_request.number }}
+      #     TERM: dumb
+      #   run: |
+      #     make upload-reports
