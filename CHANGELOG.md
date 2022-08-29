@@ -1,3 +1,9 @@
+## 7.8.1 (2022-08-29)
+
+### Perf
+
+- **healthcheck**: remove redundant iterations
+
 ## 7.8.0 (2022-08-29)
 
 ### Feat
