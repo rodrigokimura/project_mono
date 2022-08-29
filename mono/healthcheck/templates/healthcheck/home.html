@@ -41,11 +41,12 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="{% static 'healthcheck/utils.js' %}"></script>
+    <script src="{% static 'healthcheck/summary.js' %}"></script>
     <script src="{% static 'healthcheck/repo.js' %}"></script>
+    <script src="{% static 'healthcheck/changelog.js' %}"></script>
     <script src="{% static 'healthcheck/coverage.js' %}"></script>
     <script src="{% static 'healthcheck/pytest.js' %}"></script>
     <script src="{% static 'healthcheck/pylint.js' %}"></script>
-    <script src="{% static 'healthcheck/summary.js' %}"></script>
 {% endblock head %}
 
 {% block main %}
@@ -56,12 +57,12 @@
                 <span style="padding-left: .5em;">Healthcheck</span>
             </div>
         </div>
+        <a class="item" data-tab="summary">Summary</a>
         <a class="item" data-tab="repo">Repository</a>
         <a class="item" data-tab="changelog">Changelog</a>
         <a class="item" data-tab="pytest">Pytest</a>
         <a class="item" data-tab="coverage">Coverage</a>
         <a class="item" data-tab="pylint">Pylint</a>
-        <a class="item" data-tab="summary">Summary</a>
     </div>
     {% include 'healthcheck/_tab_repo.html' %}
     {% include 'healthcheck/_tab_changelog.html' %}
@@ -70,40 +71,19 @@
     {% include 'healthcheck/_tab_pylint.html' %}
     {% include 'healthcheck/_tab_summary.html' %}
     <script>
-        async function renderChangelog() {
-            $.api({
-                on: 'now',
-                method: 'GET',
-                url: '/hc/api/changelog/',
-                stateContext: '#changelog',
-                onSuccess: r => {
-                    $('#changelog').html(r.html)
-                },
-            })
-        }
         function initializeTabs() {
+            let renderers = {
+                summary: renderSummary,
+                repo: renderHeatmap,
+                changelog: renderChangelog,
+                pytest: renderPytestReport,
+                coverage: renderCoverageReport,
+                pylint: renderPylintReport,
+            }
             $('.menu .item').tab({
-                onFirstLoad: (tabPath, parameterArray, historyEvent) => {
-                    switch (tabPath) {
-                        case 'repo':
-                            renderHeatmap()
-                            break
-                        case 'changelog':
-                            renderChangelog()
-                            break
-                        case 'pytest':
-                            renderPytestReport()
-                            break
-                        case 'coverage':
-                            renderCoverageReport()
-                            break
-                        case 'pylint':
-                            renderPylintReport()
-                            break
-                        case 'summary':
-                            renderSummary()
-                            break
-                    }
+                autoTabActivation: 'summary',
+                onFirstLoad(tabPath, parameterArray, historyEvent) {
+                    if (renderers[tabPath]) renderers[tabPath]()
                 },
             })
         }
