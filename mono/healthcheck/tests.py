@@ -258,41 +258,6 @@ class CommitsByDateView(TestCase):
         self.assertEqual(response.status_code, 403)
 
 
-class DeployView(TestCase):
-    def setUp(self) -> None:
-        Icon.create_defaults()
-        self.user = User.objects.create(
-            username="notsuperuser", email="test@test.com"
-        )
-        self.superuser = User.objects.create(
-            username="superuser", email="test@test.com"
-        )
-        self.superuser.is_superuser = True
-        self.superuser.save()
-        self.pull_request = PullRequest.objects.create(
-            number=1, merged_at=timezone.now()
-        )
-
-    @ignore_warnings
-    def test_invalid_user(self):
-        c = Client()
-        c.force_login(self.user)
-        response = c.get("/hc/deploy/")
-        self.assertEqual(response.status_code, 403)
-
-    def test_get(self):
-        c = Client()
-        c.force_login(self.superuser)
-        response = c.get("/hc/deploy/")
-        self.assertEqual(response.status_code, 200)
-
-    def test_post(self):
-        c = Client()
-        c.force_login(self.superuser)
-        response = c.post("/hc/deploy/", {"pk": 1})
-        self.assertEqual(response.status_code, 200)
-
-
 class ModelTests(TestCase):
     def setUp(self) -> None:
         self.pull_request: PullRequest = PullRequest.objects.create(
