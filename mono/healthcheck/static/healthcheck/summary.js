@@ -16,7 +16,15 @@ async function renderSummary() {
                 )
             $('.card-statistic .value[data-type=pull_requests]').text(r.results.length)
             $('.card-statistic .value[data-type=deploys_lw]').text(deploysLastWeek.length)
-            renderCharts(r.results)
+            let keysToFilter = ['pytest_tests', 'pytest_duration', 'cov_statements', 'cov_coverage', 'pylint_issues', 'pylint_score']
+            let results = r.results.filter(
+                r => {
+                    return keysToFilter.some(
+                        k => r[k] != null
+                    )
+                }
+            )
+            renderCharts(results)
         }
     })
 }
@@ -94,13 +102,13 @@ async function renderChart(element, title, categories, columnName, columnData, l
         yaxis: [
             {
                 labels: {
-                    formatter: v => v.toFixed(0),
+                    formatter: v => v?.toFixed(0),
                 }
             },
             {
                 opposite: true,
                 labels: {
-                    formatter: v => v.toFixed(2),
+                    formatter: v => v?.toFixed(2),
                 }
             },
         ],
