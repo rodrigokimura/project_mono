@@ -84,7 +84,7 @@ async function renderCoverageReport() {
                             <td>${resultByFolder.excluded_lines.toLocaleString()}</td>
                             <td>${resultByFolder.num_statements.toLocaleString()}</td>
                             <td>
-                                ${getProgressBar(resultByFolder.coverage, "standard")}
+                                ${getCoverageProgressBar(resultByFolder.coverage, "standard")}
                             </td>
                         </tr>
                     `)
@@ -99,7 +99,7 @@ async function renderCoverageReport() {
                             <td><strong>${resultByFolder.excluded_lines.toLocaleString()}</strong></td>
                             <td><strong>${resultByFolder.num_statements.toLocaleString()}</strong></td>
                             <td>
-                                ${getProgressBar(resultByFolder.coverage, "standard")}
+                                ${getCoverageProgressBar(resultByFolder.coverage, "standard")}
                             </td>
                         </tr>
                     `)
@@ -112,7 +112,7 @@ async function renderCoverageReport() {
                                 <td>${x.excluded_lines}</td>
                                 <td>${x.num_statements}</td>
                                 <td>
-                                    ${getProgressBar(getCoverage(x.covered_lines, x.num_statements))}
+                                    ${getCoverageProgressBar(getCoverage(x.covered_lines, x.num_statements))}
                                 </td>
                             </tr>
                         `)
@@ -132,22 +132,12 @@ async function renderCoverageReport() {
             $('.ui.progress').progress({
                 precision: 1
             })
-            collapseAll()
+            collapseAll('coverage-table')
         }
     })
 }
 
-function collapseAll() {
-    $('#coverage-table tbody tr[data-folder]').each((i, el) => {
-        let file = $(el).data('folder')
-        let caret = $(el).find('.caret.icon')
-
-        caret.removeClass('down').addClass('right')
-        $('#coverage-table tbody').find(`tr[data-parent='${file}']`).hide()
-    })
-}
-
-function getProgressBar(percent, size="small") {
+function getCoverageProgressBar(percent, size="small") {
     return `
         <div class="ui ${size} indicating progress" data-percent="${percent}" style="margin: 0;">
             <div class="bar">
