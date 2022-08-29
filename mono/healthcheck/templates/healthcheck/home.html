@@ -40,9 +40,12 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="{% static 'healthcheck/utils.js' %}"></script>
+    <script src="{% static 'healthcheck/repo.js' %}"></script>
     <script src="{% static 'healthcheck/coverage.js' %}"></script>
     <script src="{% static 'healthcheck/pytest.js' %}"></script>
     <script src="{% static 'healthcheck/pylint.js' %}"></script>
+    <script src="{% static 'healthcheck/summary.js' %}"></script>
 {% endblock head %}
 
 {% block main %}
@@ -59,248 +62,15 @@
         <a class="item" data-tab="pytest">Pytest</a>
         <a class="item" data-tab="coverage">Coverage</a>
         <a class="item" data-tab="pylint">Pylint</a>
-        {% comment %} <a class="item" data-tab="diagrams">Diagrams</a> {% endcomment %}
+        <a class="item" data-tab="summary">Summary</a>
     </div>
-    <div class="ui compact main tab grid" data-tab="repo">
-        <div class="row">
-            <div class="column">
-                <div class="chart" style="margin: auto; display: flex; justify-content: center;">
-                    <div class="ui segment" id="chart" style="flex: 0 0 auto; width: 1000px; height: 100%;"></div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="column">
-                <div class="ui basic segment">
-                    <table class="ui selectable striped celled hidden table" id="commits-table">
-                        <thead>
-                            <tr>
-                                <th>SHA</th>
-                                <th>Message</th>
-                                <th>Author</th>
-                            </tr>
-                        </thead>
-                        <tbody style="max-height: 80vh;">
-                        </tbody>
-                    </table>
-                </div>
-                <div style="overflow-y: auto; height: calc(100vh-3em);">
-                    <div class="ui hidden segments" id="commits"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="ui compact main tab grid" data-tab="changelog">
-        <div class="row">
-            <div class="column">
-                <div class="ui header">Changelog</div>
-                <div class="ui segment" id="changelog" style="height: calc(100vh - 7em); overflow-y: auto;"></div>
-            </div>
-        </div>
-    </div>
-    <div class="ui compact main tab grid" data-tab="pytest">
-        <div class="equal width row">
-            {% include 'healthcheck/_statistics_card.html' with label='Count' type='total_count' only %}
-            {% include 'healthcheck/_statistics_card.html' with label='Duration' type='total_duration' only %}
-        </div>
-        <div class="row">
-            <div class="column">
-                <div class="ui basic segment" id="pytest" style="height: calc(100vh - 12em); overflow-y: auto; padding: 0;">
-                    <table class="ui selectable fixed celled hidden table" id="pytest-table">
-                        <thead>
-                            <tr>
-                                <th class="ten wide">Test ID</th>
-                                <th class="two wide">Count</th>
-                                <th class="two wide">Duration</th>
-                                <th class="two wide">Result</th>
-                            </tr>
-                        </thead>
-                        <tbody style="max-height: 80vh;">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="ui compact main tab grid" data-tab="coverage">
-        <div class="equal width row">
-            {% include 'healthcheck/_statistics_card.html' with label='Covered Lines' type='total_covered' only %}
-            {% include 'healthcheck/_statistics_card.html' with label='Missing Lines' type='total_missing' only %}
-            {% include 'healthcheck/_statistics_card.html' with label='Excluded Lines' type='total_excluded' only %}
-            {% include 'healthcheck/_statistics_card.html' with label='Statements' type='total_statements' only %}
-            {% include 'healthcheck/_statistics_card.html' with label='Coverage' type='total_coverage' only %}
-        </div>
-        <div class="row">
-            <div class="column">
-                <div class="ui basic segment" id="coverage" style="height: calc(100vh - 12em); overflow-y: auto; padding: 0;">
-                    <table class="ui selectable fixed celled hidden table" id="coverage-table">
-                        <thead>
-                            <tr>
-                                <th class="six wide">Folder/File</th>
-                                <th class="two wide">Covered Lines</th>
-                                <th class="two wide">Missing Lines</th>
-                                <th class="two wide">Excluded Lines</th>
-                                <th class="two wide">Statements</th>
-                                <th class="two wide">Coverage</th>
-                            </tr>
-                        </thead>
-                        <tbody style="max-height: 80vh;">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="ui compact main tab grid" data-tab="pylint">
-        <div class="equal width row">
-            {% include 'healthcheck/_statistics_card.html' with label='Score' type='score' only %}
-            {% include 'healthcheck/_statistics_card.html' with label='Convention' type='convention' only %}
-            {% include 'healthcheck/_statistics_card.html' with label='Refactor' type='refactor' only %}
-            {% include 'healthcheck/_statistics_card.html' with label='Warning' type='warning' only %}
-            {% include 'healthcheck/_statistics_card.html' with label='Other' type='other' only %}
-        </div>
-        <div class="row">
-            <div class="column">
-                <div class="ui basic segment" id="pylint" style="height: calc(100vh - 12em); overflow-y: auto; padding: 0;">
-                    <table class="ui selectable celled hidden table" id="pylint-table">
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Module</th>
-                                <th>Object</th>
-                                <th>Line Number</th>
-                                <th>Column Number</th>
-                                <th>Path</th>
-                                <th>Symbol</th>
-                                <th>Message</th>
-                                <th>Message ID</th>
-                            </tr>
-                        </thead>
-                        <tbody style="max-height: 80vh;">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% comment %}
-    <div class="ui compact main tab grid" data-tab="diagrams">
-        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-        <script>
-            mermaid.mermaidAPI.initialize({ startOnLoad:false })
-            function teste(){ // Example of using the API var
-                element = document.querySelector("#graphDiv")
-                function insertSvg(svgCode, bindFunctions) {
-                    $('#diagram').html(svgCode)
-                    console.log(svgCode)
-                }; 
-                var graphDefinition = 'graph TB\na-->b'
-                var graph = mermaid.mermaidAPI.render('graphDiv', graphDefinition, insertSvg)
-            };
-        </script>
-        <div class="row">
-            <div class="column">
-                <div class="ui header">Pylint report</div>
-                <div id="diagram"></div>
-            </div>
-        </div>
-    </div>
-    {% endcomment %}
+    {% include 'healthcheck/_tab_repo.html' %}
+    {% include 'healthcheck/_tab_changelog.html' %}
+    {% include 'healthcheck/_tab_pytest.html' %}
+    {% include 'healthcheck/_tab_coverage.html' %}
+    {% include 'healthcheck/_tab_pylint.html' %}
+    {% include 'healthcheck/_tab_summary.html' %}
     <script>
-        async function toast(msg) {
-            $('body').toast({
-                title: msg,
-                class: 'black',
-                showProgress: 'bottom',
-                position: 'right bottom',
-            })
-        }
-        function getChartOptions(commitSeries, dateLabels) {
-            return {
-                series: commitSeries,
-                chart: {
-                    height: 180,
-                    type: 'heatmap',
-                    fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;",
-                    events: {
-                        dataPointSelection: function(event, chartContext, config) {
-                            date = dateLabels[6-config.seriesIndex][config.dataPointIndex]
-                            getCommitsByDate(date)
-                        }
-                    },
-                    toolbar: { show: false }
-                },
-                dataLabels: { enabled: false },
-                tooltip: {
-                    x: {
-                        formatter: (v, o) => dateLabels[6-o.seriesIndex][o.dataPointIndex],
-                    },
-                },
-                grid: {
-                    show: false,
-                    xaxis: { lines: { show: false } },                    
-                    yaxis: { lines: { show: false } },                    
-                },
-                plotOptions: {
-                    heatmap: {
-                        radius: 4,
-                        shadeIntensity: 1,
-                        useFillColorAsStroke: false,
-                        colorScale: {
-                            min: 0,
-                        },
-                    },
-                },
-                colors: [ "#008FFB" ],
-                title: { show: false },
-                xaxis: {
-                    labels: { show: false },
-                    axisBorder: { show: false },
-                },
-            }
-        }
-        async function getCommitsByDate(date) {
-            $.api({
-                on: 'now',
-                url: `/hc/api/commits/by-date/?date=${date}`,
-                method: 'GET',
-                stateContext: '.segment',
-                onSuccess: r => {
-                    renderCommits(r)
-                }
-            })
-        }
-        async function renderHeatmap() {
-            if ($('#chart').html()) { return }
-            $.api({
-                on: 'now',
-                method: 'GET',
-                url: '/hc/api/commits/for-heatmap/',
-                stateContext: '#chart',
-                onSuccess: r => {
-                    dateLabels = [
-                        r.data_0.map(d => d.d),
-                        r.data_1.map(d => d.d),
-                        r.data_2.map(d => d.d),
-                        r.data_3.map(d => d.d),
-                        r.data_4.map(d => d.d),
-                        r.data_5.map(d => d.d),
-                        r.data_6.map(d => d.d),
-                    ]
-                    commitSeries = [
-                        { name: 'S', data: r.data_0.map(d => d.c) },
-                        { name: 'M', data: r.data_1.map(d => d.c) },
-                        { name: 'T', data: r.data_2.map(d => d.c) },
-                        { name: 'W', data: r.data_3.map(d => d.c) },
-                        { name: 'T', data: r.data_4.map(d => d.c) },
-                        { name: 'F', data: r.data_5.map(d => d.c) },
-                        { name: 'S', data: r.data_6.map(d => d.c) },
-                    ].reverse()
-                    var chart = new ApexCharts($('#chart')[0], getChartOptions(commitSeries, dateLabels))
-                    chart.render()
-                },
-            })
-        }
         async function renderChangelog() {
             $.api({
                 on: 'now',
@@ -311,29 +81,6 @@
                     $('#changelog').html(r.html)
                 },
             })
-        }
-        async function renderCommits(commits) {
-            var el = $('#commits-table tbody')
-            el.empty()
-            if (commits.length == 0) {
-                toast('No commits found.')
-                $('#commits-table').hide()
-                return
-            } else {
-                toast(`${commits.length} commits found.`)
-                $('#commits-table').show()
-            }
-            for (var i = 0; i < commits.length; i++) {
-                var commit = commits[i]
-                var commitEl = $(`
-                    <tr>
-                        <td data-label="SHA">${commit.hexsha}</td>
-                        <td data-label="Message">${commit.message}</td>
-                        <td data-label="Author">${commit.author}</td>
-                    </tr>
-                `)
-                el.append(commitEl)
-            }
         }
         function initializeTabs() {
             $('.menu .item').tab({
@@ -353,6 +100,9 @@
                             break
                         case 'pylint':
                             renderPylintReport()
+                            break
+                        case 'summary':
+                            renderSummary()
                             break
                     }
                 },

@@ -1,0 +1,29 @@
+<div class="ui compact main tab grid" data-tab="coverage">
+    <div class="equal width row">
+        {% include 'healthcheck/_statistics_card.html' with label='Covered Lines' type='total_covered' only %}
+        {% include 'healthcheck/_statistics_card.html' with label='Missing Lines' type='total_missing' only %}
+        {% include 'healthcheck/_statistics_card.html' with label='Excluded Lines' type='total_excluded' only %}
+        {% include 'healthcheck/_statistics_card.html' with label='Statements' type='total_statements' only %}
+        {% include 'healthcheck/_statistics_card.html' with label='Coverage' type='total_coverage' only %}
+    </div>
+    <div class="row">
+        <div class="column">
+            <div class="ui basic segment" id="coverage" style="height: calc(100vh - 12em); overflow-y: auto; padding: 0;">
+                <table class="ui selectable fixed celled hidden table" id="coverage-table">
+                    <thead>
+                        <tr>
+                            <th class="six wide">Folder/File</th>
+                            <th class="two wide">Covered Lines</th>
+                            <th class="two wide">Missing Lines</th>
+                            <th class="two wide">Excluded Lines</th>
+                            <th class="two wide">Statements</th>
+                            <th class="two wide">Coverage</th>
+                        </tr>
+                    </thead>
+                    <tbody style="max-height: 80vh;">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
