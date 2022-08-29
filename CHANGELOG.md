@@ -1,3 +1,9 @@
+## 7.8.0 (2022-08-29)
+
+### Feat
+
+- **healthcheck**: filter non null results
+
 ## 7.7.1 (2022-08-29)
 
 ### Refactor
