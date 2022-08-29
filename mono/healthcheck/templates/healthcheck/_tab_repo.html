@@ -1,0 +1,29 @@
+<div class="ui compact main tab grid" data-tab="repo">
+    <div class="row">
+        <div class="column">
+            <div class="chart" style="margin: auto; display: flex; justify-content: center;">
+                <div class="ui segment" id="chart" style="flex: 0 0 auto; width: 1000px; height: 100%;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="column">
+            <div class="ui basic segment">
+                <table class="ui selectable striped celled hidden table" id="commits-table">
+                    <thead>
+                        <tr>
+                            <th>SHA</th>
+                            <th>Message</th>
+                            <th>Author</th>
+                        </tr>
+                    </thead>
+                    <tbody style="max-height: 80vh;">
+                    </tbody>
+                </table>
+            </div>
+            <div style="overflow-y: auto; height: calc(100vh-3em);">
+                <div class="ui hidden segments" id="commits"></div>
+            </div>
+        </div>
+    </div>
+</div>

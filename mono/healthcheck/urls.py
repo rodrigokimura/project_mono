@@ -29,5 +29,6 @@ urlpatterns = [
         name="commits_for_heatmap",
     ),
     path("api/changelog/", views.ChangelogView.as_view(), name="changelog"),
+    path("api/summary/", views.SummaryView.as_view(), name="summary"),
     path("api/", include(router.urls)),
 ]

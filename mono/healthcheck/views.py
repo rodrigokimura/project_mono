@@ -11,10 +11,10 @@ from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.migrations.loader import MigrationLoader
-from django.db.models import Sum
+from django.db.models import Count, FloatField, Sum
 from django.db.models.expressions import Value
 from django.db.models.fields import IntegerField
-from django.db.models.functions.comparison import Coalesce
+from django.db.models.functions import Cast, Coalesce
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import force_bytes
@@ -302,6 +302,66 @@ class ChangelogView(UserPassesTestMixin, APIView):
         with open(changelog_file, "r", encoding="utf-8") as file:
             file_content = file.read()
         return Response({"success": True, "html": markdownify(file_content)})
+
+
+class SummaryView(UserPassesTestMixin, APIView):
+    """Read changelog markdown file and convert to html"""
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get(self, request, *args, **kwargs):
+        """
+        Read changelog markdown file and convert to html
+        """
+        from django.db.models import OuterRef, Subquery
+
+        cov = (
+            CoverageReport.objects.filter(pull_request=OuterRef("pk"))
+            .annotate(
+                statements=Sum("results__num_statements")
+                + Sum("results__excluded_lines"),
+                coverage=Cast(Sum("results__covered_lines"), FloatField())
+                / Cast(Sum("results__num_statements"), FloatField()),
+            )
+            .order_by("-pull_request")
+        )
+
+        pylint = (
+            PylintReport.objects.filter(pull_request=OuterRef("pk"))
+            .annotate(
+                issues=Count("results__id"),
+            )
+            .order_by("-pull_request")
+        )
+
+        pytest = (
+            PytestReport.objects.filter(pull_request=OuterRef("pk"))
+            .annotate(
+                tests=Count("results__id"),
+                duration=Cast(Sum("results__duration"), FloatField()) / 10e5,
+            )
+            .order_by("-pull_request")
+        )
+
+        pull_requests = PullRequest.objects.annotate(
+            cov_statements=Subquery(cov.values("statements")[:1]),
+            cov_coverage=Subquery(cov.values("coverage")[:1]),
+            pylint_issues=Subquery(pylint.values("issues")[:1]),
+            pylint_score=Subquery(pylint.values("score")[:1]),
+            pytest_tests=Subquery(pytest.values("tests")[:1]),
+            pytest_duration=Subquery(pytest.values("duration")[:1]),
+        ).values(
+            "number",
+            "deployed_at",
+            "cov_statements",
+            "cov_coverage",
+            "pylint_issues",
+            "pylint_score",
+            "pytest_tests",
+            "pytest_duration",
+        )
+        return Response({"success": True, "results": pull_requests})
 
 
 class PytestReportViewSet(ViewSet):
