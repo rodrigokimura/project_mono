@@ -63,14 +63,15 @@ async function renderPytestReport() {
                 })
                 el.find(`tr[data-folder=${resultByFolder.node_id}]`).click(e => {
                     caret = el.find(`tr[data-folder='${resultByFolder.node_id}']`).find('.caret.icon')
-                    if (caret.hasClass('caret right')) {
-                        caret.removeClass('caret right').addClass('caret down')
-                    } else if (caret.hasClass('caret down')){
-                        caret.removeClass('caret down').addClass('caret right')
+                    if (caret.hasClass('right')) {
+                        caret.removeClass('right').addClass('down')
+                    } else if (caret.hasClass('down')){
+                        caret.removeClass('down').addClass('right')
                     }
                     el.find(`tr[data-parent=${resultByFolder.node_id}]`).toggle()
                 })
             })
+            collapseAll('pytest-table')
         }
     })
 }
