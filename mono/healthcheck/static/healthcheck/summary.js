@@ -5,7 +5,8 @@ async function renderSummary() {
         url: '/hc/api/summary/',
         stateContext: '#summary',
         onSuccess: r => {
-            console.table(r.results)
+            $('#summary').empty()
+            toast(`${r.results.length} results found.`)
             let now = new Date()
             let deploysLastWeek = r.results
                 .map(
