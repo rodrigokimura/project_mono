@@ -120,82 +120,6 @@ def github_webhook(request):
     return HttpResponse("ok")
 
 
-class Deploy(UserPassesTestMixin, TemplateView):
-    """Deploy app"""
-
-    template_name = "healthcheck/deploy.html"
-
-    def test_func(self):
-        return self.request.user.is_superuser
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["last_pr"] = PullRequest.objects.latest("number")
-        pull_requests = PullRequest.objects.all()
-        context["pull_requests"] = pull_requests
-
-        def _get_commits_by_date(pull_requests, date):
-            return pull_requests.filter(merged_at__date=date).aggregate(
-                sum=Coalesce(
-                    Sum("commits"), Value(0), output_field=IntegerField()
-                )
-            )["sum"]
-
-        context_data = format_to_heatmap(
-            pull_requests,
-            _get_commits_by_date,
-        )
-        context = {**context_data, **context}
-        return context
-
-    # def get_context_data(self, **kwargs):
-    #     def _get_diff_context(diff_index):
-    #         for i, d in enumerate(diff_index):
-    #             if d.change_type in ['M']:
-    #                 try:
-    #                     a = d.a_blob.data_stream.read().decode("utf-8").split("\n")
-    #                     b = d.b_blob.data_stream.read().decode("utf-8").split("\n")
-    #                     human_diff = []
-    #                     for line in difflib.context_diff(a, b):
-    #                         human_diff.append(line)
-    #                     yield (i, d.change_type, d.a_path, human_diff)
-    #                 except Exception:
-    #                     yield (i, d.change_type, d.a_path, None)
-    #             else:
-    #                 try:
-    #                     if d.a_blob is not None:
-    #                         file = d.a_blob.data_stream.read().decode("utf-8").split("\n")
-    #                     elif d.b_blob is not None:
-    #                         file = d.b_blob.data_stream.read().decode("utf-8").split("\n")
-    #                     yield (i, d.change_type, d.a_path, file)
-    #                 except Exception:
-    #                     yield (i, d.change_type, d.a_path, None)
-    #     context = super().get_context_data(**kwargs)
-    #     path = Path(settings.BASE_DIR).resolve().parent
-    #     repo = git.Repo(path)
-    #     local_master = repo.commit("master")
-    #     remote_master = repo.commit("origin/master")
-    #     diff_index = local_master.diff(remote_master)
-    #     context['diff_items'] = _get_diff_context(diff_index)
-    #     return context
-
-    def post(self, request):
-        """Deploy pull request"""
-        pull_request = get_object_or_404(
-            PullRequest, pk=request.POST.get("pk", None)
-        )
-        deploy_app(pull_request.number)
-        return JsonResponse(
-            {
-                "success": True,
-                "message": "Successfully scheduled deployment.",
-                "data": {
-                    "number": pull_request.number,
-                },
-            }
-        )
-
-
 class HealthcheckHomePage(UserPassesTestMixin, TemplateView):
     """
     Healthcheck homepage
@@ -274,17 +198,7 @@ class CommitsByDateView(UserPassesTestMixin, APIView):
         if serializer.is_valid():
             date = serializer.validated_data["date"]
             commits = get_commits_by_date(date=date)
-            return Response(
-                [
-                    {
-                        "hexsha": commit.hexsha,
-                        "author": commit.author.name,
-                        "date": commit.authored_date,
-                        "message": commit.message,
-                    }
-                    for commit in commits
-                ]
-            )
+            return Response(commits)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -64,22 +64,23 @@ async function renderHeatmap() {
         stateContext: '#chart',
         onSuccess: r => {
             dateLabels = [
-                r.data_0.map(d => d.d),
-                r.data_1.map(d => d.d),
-                r.data_2.map(d => d.d),
-                r.data_3.map(d => d.d),
-                r.data_4.map(d => d.d),
-                r.data_5.map(d => d.d),
-                r.data_6.map(d => d.d),
+                Object.keys(r.data_0),
+                Object.keys(r.data_1),
+                Object.keys(r.data_2),
+                Object.keys(r.data_3),
+                Object.keys(r.data_4),
+                Object.keys(r.data_5),
+                Object.keys(r.data_6),
             ]
             commitSeries = [
-                { name: 'S', data: r.data_0.map(d => d.c) },
-                { name: 'M', data: r.data_1.map(d => d.c) },
-                { name: 'T', data: r.data_2.map(d => d.c) },
-                { name: 'W', data: r.data_3.map(d => d.c) },
-                { name: 'T', data: r.data_4.map(d => d.c) },
-                { name: 'F', data: r.data_5.map(d => d.c) },
-                { name: 'S', data: r.data_6.map(d => d.c) },
+                
+                { name: 'S', data: Object.values(r.data_0) },
+                { name: 'M', data: Object.values(r.data_1) },
+                { name: 'T', data: Object.values(r.data_2) },
+                { name: 'W', data: Object.values(r.data_3) },
+                { name: 'T', data: Object.values(r.data_4) },
+                { name: 'F', data: Object.values(r.data_5) },
+                { name: 'S', data: Object.values(r.data_6) },
             ].reverse()
             var chart = new ApexCharts($('#chart')[0], getChartOptions(commitSeries, dateLabels))
             chart.render()
