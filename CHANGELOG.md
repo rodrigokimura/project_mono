@@ -1,3 +1,9 @@
+## 7.6.0 (2022-08-29)
+
+### Feat
+
+- **healthcheck**: add summary endpoint
+
 ## 7.5.8 (2022-08-24)
 
 ### Fix
