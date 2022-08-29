@@ -1,3 +1,15 @@
+## 7.7.1 (2022-08-29)
+
+### Refactor
+
+- **healthcheck**: reorder tabs
+
+## 7.7.0 (2022-08-29)
+
+### Feat
+
+- **healthcheck**: render summary charts
+
 ## 7.6.0 (2022-08-29)
 
 ### Feat
