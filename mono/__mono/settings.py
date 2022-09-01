@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     "shipper",
     "curriculum_builder",
     "coder",
+    "mind_maps",
     "django.forms",
 ]
 
