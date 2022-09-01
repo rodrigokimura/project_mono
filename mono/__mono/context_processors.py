@@ -46,5 +46,6 @@ def apps_menu(request):
             ),
             AppInfo(_("Watcher"), "/watcher/", "pager", True),
             AppInfo(_("Healthcheck"), "/hc/home/", "thermometer", True),
+            AppInfo(_("Mind Maps"), "/mm/", "thought_balloon", True),
         ]
     return {"apps_menu": apps}
