@@ -1,8 +1,12 @@
 """Mind maps app"""
+from __mono.utils import load_signals
 from django.apps import AppConfig
 
 
-class AccountsConfig(AppConfig):
+class MindMapsConfig(AppConfig):
     """Mind maps app config"""
 
     name = "mind_maps"
+
+    def ready(self):
+        load_signals(self.name)

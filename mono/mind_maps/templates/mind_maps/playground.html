@@ -20,9 +20,11 @@
     <div class="ui stackable grid container" style="padding: 5em 1em 0 1em;">
         <div class="row">
             <div class="three wide column">
-                {% for mm in mind_maps %}
-                    <a class="ui fluid button" href="{% url 'mind_maps:detail' pk=mm.id %}">{{ mm.name }}</a>
-                {% endfor %}
+                <a class="ui fluid button" onclick="swarm(16)">Command 1</a>
+                <a class="ui fluid button" onclick="createRoot()">Command 2</a>
+                <a class="ui fluid button" onclick="createChild()">Command 3</a>
+                {% comment %} <div class="ui vertical menu">
+                </div> {% endcomment %}
             </div>
             <div class="twelve wide column">
                 <div class="ui segment" style="height: calc(100vh - 6em);" id="container">
@@ -31,5 +33,9 @@
         </div>
     </div>
     <script>
+        $(document).ready(e => {
+            createPanel()
+        })
+
     </script>
 {% endblock %}
