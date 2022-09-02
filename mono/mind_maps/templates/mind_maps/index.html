@@ -9,6 +9,7 @@
         .ui.button { margin-bottom: 1em; }
     </style>
     <script src="{% static 'mind_maps/index.js' %}"></script>
+    <script src="{% static 'mind_maps/utils.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'mind_maps/index.css' %}">
 {% endblock head %}
 
@@ -16,16 +17,22 @@
     <div class="ui stackable grid container" style="padding: 5em 1em 0 1em;">
         <div class="row">
             <div class="three wide column">
-                <a class="ui fluid button" onclick="createNode()">Command 1</a>
-                <a class="ui fluid button">Command 2</a>
-                <a class="ui fluid button">Command 3</a>
+                <a class="ui fluid button" onclick="createPanel()">Command 1</a>
+                <a class="ui fluid button" onclick="script()">Command 2</a>
+                <a class="ui fluid button" onclick="createNode('Second child', nodes[0])">Command 3</a>
                 {% comment %} <div class="ui vertical menu">
                 </div> {% endcomment %}
             </div>
             <div class="twelve wide column">
-                <div class="ui segment" style="height: calc(100vh - 6em);" id="panel">
+                <div class="ui segment" style="height: calc(100vh - 6em);" id="container">
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        $(document).ready(e => {
+            createPanel()
+        })
+
+    </script>
 {% endblock %}

@@ -1,3 +1,5 @@
 .node {
     border: 3px dotted #666;
+    min-width: none;
+    min-height: 2em;
 }
