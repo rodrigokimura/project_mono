@@ -1,3 +1,9 @@
+## 7.13.0 (2022-09-02)
+
+### Feat
+
+- **mind_maps**: add models and views
+
 ## 7.12.0 (2022-09-02)
 
 ### Feat
