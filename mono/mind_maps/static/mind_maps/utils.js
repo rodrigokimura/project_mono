@@ -13,7 +13,7 @@ function getConfigAttr(config, attr, fallback) {
     try {
         return config[attr] || fallback
     }
-    catch(err) {
+    catch (err) {
         return fallback
     }
 }

@@ -1,5 +1,25 @@
 .node {
-    border: 3px dotted #666;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
     min-width: none;
     min-height: 2em;
+    z-index: 10;
+    background-color: white;
+}
+
+.connector {
+    display: inline;
+    position: absolute; 
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.node input {
+    text-align: center;
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+.node:focus-within {
+    border: 3px solid rgb(32, 155, 255);
 }
