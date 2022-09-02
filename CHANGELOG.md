@@ -1,3 +1,33 @@
+## 7.13.1 (2022-09-02)
+
+### Fix
+
+- **mind_maps**: add missing migrations
+
+## 7.13.0 (2022-09-02)
+
+### Feat
+
+- **mind_maps**: add models and views
+
+## 7.12.0 (2022-09-02)
+
+### Feat
+
+- **mind_maps**: add keyboard commands
+
+## 7.11.0 (2022-09-02)
+
+### Feat
+
+- **mind_maps**: add methods to draw elements
+
+## 7.10.0 (2022-09-01)
+
+### Feat
+
+- **mind_maps**: add js function to autoplace nodes
+
 ## 7.9.0 (2022-08-31)
 
 ### Feat
