@@ -1,3 +1,9 @@
+## 7.12.0 (2022-09-02)
+
+### Feat
+
+- **mind_maps**: add keyboard commands
+
 ## 7.11.0 (2022-09-02)
 
 ### Feat
