@@ -1,3 +1,9 @@
+## 7.13.1 (2022-09-02)
+
+### Fix
+
+- **mind_maps**: add missing migrations
+
 ## 7.13.0 (2022-09-02)
 
 ### Feat
