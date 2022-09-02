@@ -1,3 +1,9 @@
+## 7.10.0 (2022-09-01)
+
+### Feat
+
+- **mind_maps**: add js function to autoplace nodes
+
 ## 7.9.0 (2022-08-31)
 
 ### Feat
