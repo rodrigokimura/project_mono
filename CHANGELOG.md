@@ -1,3 +1,9 @@
+## 7.11.0 (2022-09-02)
+
+### Feat
+
+- **mind_maps**: add methods to draw elements
+
 ## 7.10.0 (2022-09-01)
 
 ### Feat
