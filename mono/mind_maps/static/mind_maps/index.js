@@ -32,6 +32,32 @@ function createNode(name, parent = null) {
     toast('Node', `Node ${node.name} created`)
 }
 
+function fullSync() {
+    let ns = nodes.map(
+        n => {
+            return {
+                'id': n.id,
+                'mind_map': MIND_MAP_ID,
+                'name': n.name,
+                'parent': n.parent ? n.parent.id : null,
+                'x': n.position[0],
+                'y': n.position[1],
+            }
+        }
+    )
+    console.log(ns)
+    $.api({
+        on: 'now',
+        method: 'POST',
+        url: `/mm/${MIND_MAP_ID}/sync/`,
+        data: JSON.stringify(ns),
+        contentType: 'application/json',
+        onSuccess(r) {
+            toast('Response', r)
+        }
+    })
+}
+
 function createRoot() {
     createNode('Root')
 }
