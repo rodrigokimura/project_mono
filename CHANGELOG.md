@@ -1,3 +1,9 @@
+## 7.14.0 (2022-09-02)
+
+### Feat
+
+- **mind_maps**: add endpoint to sync mind maps
+
 ## 7.13.1 (2022-09-02)
 
 ### Fix

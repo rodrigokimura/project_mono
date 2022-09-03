@@ -37,10 +37,13 @@ class NodeSerializer(ModelSerializer):
         fields = [
             "id",
             "name",
+            "parent",
             "mind_map",
             "created_by",
             "created_at",
         ]
         read_only_fields = [
+            "parent",
             "created_by",
+            "created_at",
         ]
