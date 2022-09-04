@@ -1,3 +1,9 @@
+## 7.15.0 (2022-09-03)
+
+### Feat
+
+- **mind_maps**: add selected state
+
 ## 7.14.0 (2022-09-02)
 
 ### Feat

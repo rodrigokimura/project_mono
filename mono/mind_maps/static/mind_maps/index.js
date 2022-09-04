@@ -45,7 +45,6 @@ function fullSync() {
             }
         }
     )
-    console.log(ns)
     $.api({
         on: 'now',
         method: 'POST',

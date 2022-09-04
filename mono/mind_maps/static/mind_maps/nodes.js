@@ -5,6 +5,7 @@ class Node {
         this.parent = parent
         this.position = [0, 0]
         this.size = [100, 30]
+        this.editMode = false
     }
     get width() { return this.size[0] }
     get height() { return this.size[1] }
@@ -39,23 +40,46 @@ class Node {
         `)
         $(PANEL).append(nodeEl)
         nodeEl.find('input').keydown(e => {
-            let commandMap = {
+            let editModeCommands = {
+                13: () => { this.leaveEditMode() },
+                9: () => { this.leaveEditMode() },
+                27: () => { this.leaveEditMode() },
+            }
+            let normalCommands = {
                 13: () => { this.createChild('', e.shiftKey).focus() },
                 9: () => { this.createSibling('', e.shiftKey).focus() },
                 46: () => { if (e.shiftKey) this.delete(!e.ctrlKey) },
-                37: () => { if (e.ctrlKey) this.focusNext('l') },
-                38: () => { if (e.ctrlKey) this.focusNext('u') },
-                39: () => { if (e.ctrlKey) this.focusNext('r') },
-                40: () => { if (e.ctrlKey) this.focusNext('d') },
+                37: () => { this.selectNext('l') },
+                38: () => { this.selectNext('u') },
+                39: () => { this.selectNext('r') },
+                40: () => { this.selectNext('d') },
+                27: () => { this.blur() },
+                113: () => { this.enterEditMode() },
             }
-            if (e.keyCode in commandMap) {
+            if (this.editMode) {
+                if (!e.keyCode in editModeCommands) return
+                editModeCommands[e.keyCode]()
+                return
+            } else {
+                if (!e.keyCode in normalCommands) return
+                e.stopPropagation()
                 e.preventDefault()
-                commandMap[e.keyCode]()
+                normalCommands[e.keyCode]()
+                return
             }
+        })
+        nodeEl.click(e => {
+            e.preventDefault()
+            e.stopPropagation()
+            this.select()
         })
         nodeEl.find('input').change(e => {
             this.name = e.target.value
-            toast('Node', `Node ${this.name} updated`)
+            toast(`Node ${this.name} updated`)
+        })
+        nodeEl.find('input').blur(e => {
+            if (!this.name) this.delete()
+            this.unselect()
         })
     }
     createNode(name, parent, reverseNext, reverseFirst) {
@@ -67,7 +91,7 @@ class Node {
             connector.draw()
             node.connector = connector
         }
-        toast('Node', `Node ${node.name} created`)
+        toast(`Node ${node.name} created`)
         return node
     }
     createChild(name, alt = false) {
@@ -76,17 +100,41 @@ class Node {
     createSibling(name, alt = false) {
         return this.createNode(name, this.parent, alt, false)
     }
+    enterEditMode() {
+        toast('Entering edit mode')
+        this.editMode = true
+        $(`#${this.id}`).removeClass('selected')
+        $(`#${this.id} input`).css('caret-color', 'black')
+        setCaretToPos($(`#${this.id} input`)[0], $(`#${this.id} input`).val().length)
+    }
+    leaveEditMode() {
+        toast('Leaving edit mode')
+        this.editMode = false
+        $(`#${this.id}`).addClass('selected')
+        $(`#${this.id} input`).css('caret-color', 'transparent')
+        setCaretToPos($(`#${this.id} input`)[0], $(`#${this.id} input`).val().length)
+    }
     focus() {
         $(`#${this.id} input`).focus()
     }
+    blur() {
+        $(`#${this.id} input`).blur()
+    }
+    select() {
+        $(`#${this.id}`).addClass('selected')
+        this.focus()
+    }
+    unselect() {
+        $(`#${this.id}`).removeClass('selected')
+    }
     delete(cascade = true) {
         if (this.isRoot()) {
-            toast('Error', 'Cannot delete root node')
+            toast('Cannot delete root node')
             return
         }
         $(`#${this.id}`).remove()
         nodes = nodes.filter(node => node.id !== this.id)
-        toast('Node', `Node ${this.name} deleted`)
+        toast(`Node ${this.name} deleted`)
         this.connector.delete()
         delete this.connector
         this.parent.focus()
@@ -107,7 +155,8 @@ class Node {
             Math.pow(this.position[1] - node.position[1], 2)
         ))
     }
-    focusNext(direction) {
+    selectNext(direction) {
+        this.unselect()
         var attrMap = {
             l: [0, 'width', (a, b) => a - b, (a, b) => a < b],
             r: [0, 'width', (a, b) => a + b, (a, b) => a > b],
@@ -122,13 +171,15 @@ class Node {
         var filteredNodes = nodes.filter(
             node => comparisonFunc(node.position[positionIndex], edge)
         )
-        if (filteredNodes.length === 0) return
+        if (filteredNodes.length === 0) this.select()
         if (filteredNodes.length === 1) {
-            filteredNodes[0].focus()
+            filteredNodes[0].select()
             return
         }
         // find the closest node
-        var closestNode = filteredNodes.sort((a, b) => this.distanceFrom(a) - this.distanceFrom(b))[0]
-        closestNode.focus()
+        var closestNode = filteredNodes.sort(
+            (a, b) => this.distanceFrom(a) - this.distanceFrom(b)
+        )[0]
+        closestNode.select()
     }
 }
