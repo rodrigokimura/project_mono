@@ -51,6 +51,10 @@ if APP_ENV in ["DEV", "TEST"]:
 else:
     SITE = "https://www.monoproject.info"  # pragma: no cover
 
+NOTIFICATION_CHECKER = (
+    str(os.getenv("NOTIFICATION_CHECKER", "True")).lower() == "true"
+)
+
 # Application definition
 INSTALLED_APPS = [
     "tinymce",

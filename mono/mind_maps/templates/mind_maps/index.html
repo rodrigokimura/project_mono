@@ -23,6 +23,7 @@
                 {% for mm in mind_maps %}
                     <a class="ui fluid button" href="{% url 'mind_maps:detail' pk=mm.id %}">{{ mm.name }}</a>
                 {% endfor %}
+                <a class="ui fluid button" href="{% url 'mind_maps:playground' %}">{{ mm.name }}</a>
             </div>
             <div class="twelve wide column">
                 <div class="ui segment" style="height: calc(100vh - 6em);" id="container">
