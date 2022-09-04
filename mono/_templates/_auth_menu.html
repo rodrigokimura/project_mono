@@ -115,5 +115,5 @@
         notificationsChecker = setInterval(checkNotifications, period);
     }
     checkNotifications()
-    startNotificationsChecker()
+    {% if NOTIFICATION_CHECKER %}startNotificationsChecker(){% endif %}
 </script>

@@ -18,6 +18,11 @@
     border: none;
     outline: none;
     background-color: transparent;
+    caret-color: transparent;
+}
+
+.selected.node {
+    border: 3px solid rgb(155, 32, 0) !important;
 }
 
 .node:focus-within {
