@@ -39,6 +39,9 @@ class Node {
             </div>
         `)
         $(PANEL).append(nodeEl)
+        this.attachEvents(nodeEl)
+    }
+    attachEvents(nodeEl) {
         nodeEl.find('input').keydown(e => {
             let editModeCommands = {
                 13: () => { this.leaveEditMode() },
