@@ -1,3 +1,9 @@
+## 7.19.0 (2022-09-05)
+
+### Feat
+
+- **mind_maps**: add auto-resize based on content
+
 ## 7.18.0 (2022-09-05)
 
 ### Feat
