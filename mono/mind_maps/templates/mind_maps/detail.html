@@ -4,35 +4,28 @@
 
 {% block head %}
     <style>
-        #app-name { font-size: 24pt !important; }
-        #app-name .sub.header { font-size: 18pt !important; }
         .ui.button { margin-bottom: 1em; }
+        body { overflow: hidden; }
     </style>
-    <script src="{% static 'mind_maps/index.js' %}"></script>
+    <script src="{% static 'mind_maps/mind_map_detail.js' %}"></script>
     <script src="{% static 'mind_maps/nodes.js' %}"></script>
     <script src="{% static 'mind_maps/connectors.js' %}"></script>
     <script src="{% static 'mind_maps/position.js' %}"></script>
     <script src="{% static 'mind_maps/utils.js' %}"></script>
+    <script src="{% static 'mind_maps/state.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'mind_maps/index.css' %}">
 {% endblock head %}
 
 {% block main %}
-    <div class="ui stackable grid container" style="padding: 5em 1em 0 1em;">
+    <div class="ui stackable grid" style="padding: 3em 0 0 0;">
         <div class="row">
-            <div class="three wide column">
-                <a class="ui fluid button" onclick="createNode('Root')">Create node</a>
-                <a class="ui fluid button" onclick="fullSync()">Full sync</a>
-            </div>
-            <div class="twelve wide column">
-                <div class="ui segment" style="height: calc(100vh - 6em);" id="container">
-                </div>
+            <div class="column">
+                <div class="ui fluid segment" style="height: calc(100vh - 3em);" id="container"></div>
             </div>
         </div>
     </div>
     <script>
         const MIND_MAP_ID = "{{ object.id }}"
-        $(document).ready(e => {
-            createPanel()
-        })
+        $(document).ready(init)
     </script>
 {% endblock %}
