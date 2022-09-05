@@ -1,3 +1,9 @@
+## 7.20.0 (2022-09-05)
+
+### Feat
+
+- **mind_maps**: remove endpoint restrictions
+
 ## 7.19.0 (2022-09-05)
 
 ### Feat
