@@ -6,6 +6,10 @@
     z-index: 10;
     background-color: white;
     cursor: move;
+    display: flex !important;
+    flex-flow: row nowrap;
+    position: absolute;
+    width: auto;
 }
 
 .connector {
@@ -23,6 +27,7 @@
     background-color: transparent;
     caret-color: transparent;
     cursor: move;
+    font: 14pt Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif;
 }
 
 .selected.node {

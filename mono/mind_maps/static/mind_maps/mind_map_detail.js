@@ -28,6 +28,7 @@ function renderNodes() {
     $(PANEL).empty()
     nodes.forEach(n => {
         n.draw()
+        // n.autoWidth(n.name)
         n.drawConnectors()
     })
     centralize()
