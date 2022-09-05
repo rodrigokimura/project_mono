@@ -33,6 +33,7 @@ def apps_menu(request):
         AppInfo(_("Pixel"), "/pixel/", "bar_chart", False),
         AppInfo(_("Shipper"), "/shipper/", "couple_with_heart", False),
         AppInfo(_("Coder"), "/cd/", "card_box", False),
+        AppInfo(_("Mind Maps"), "/mm/", "thought_balloon", False),
     ]
     if request.user.is_superuser:
         apps += [
@@ -46,6 +47,5 @@ def apps_menu(request):
             ),
             AppInfo(_("Watcher"), "/watcher/", "pager", True),
             AppInfo(_("Healthcheck"), "/hc/home/", "thermometer", True),
-            AppInfo(_("Mind Maps"), "/mm/", "thought_balloon", True),
         ]
     return {"apps_menu": apps}

@@ -1,5 +1,5 @@
 """Mind maps views"""
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
@@ -11,12 +11,9 @@ from .models import MindMap, Node
 from .serializers import NodeSerializer
 
 
-class IndexView(UserPassesTestMixin, TemplateView):
+class IndexView(LoginRequiredMixin, TemplateView):
 
     template_name = "mind_maps/index.html"
-
-    def test_func(self):
-        return self.request.user.is_superuser
 
     def get_context_data(self, **kwargs):
         mind_maps = MindMap.objects.filter(created_by=self.request.user)
@@ -25,37 +22,15 @@ class IndexView(UserPassesTestMixin, TemplateView):
         return context
 
 
-class MindMapListView(UserPassesTestMixin, TemplateView):
+class MindMapListView(LoginRequiredMixin, TemplateView):
 
     template_name = "mind_maps/mind_map_list.html"
 
-    def test_func(self):
-        return self.request.user.is_superuser
 
-
-class MindMapDetailView(UserPassesTestMixin, DetailView):
+class MindMapDetailView(LoginRequiredMixin, DetailView):
 
     template_name = "mind_maps/detail.html"
     model = MindMap
-
-    def test_func(self):
-        return self.request.user.is_superuser
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-
-class PlaygroundView(UserPassesTestMixin, TemplateView):
-
-    template_name = "mind_maps/playground.html"
-
-    def test_func(self):
-        return self.request.user.is_superuser
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
 
 
 class FullSyncView(APIView):
@@ -64,6 +39,8 @@ class FullSyncView(APIView):
         serializer = NodeSerializer(
             data=request.data, many=True, context={"request": request}
         )
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         if not serializer.is_valid():
             return Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
