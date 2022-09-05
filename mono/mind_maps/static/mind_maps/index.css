@@ -5,12 +5,15 @@
     min-height: 2em;
     z-index: 10;
     background-color: white;
+    cursor: move;
 }
 
 .connector {
     display: inline;
-    position: absolute; 
+    position: absolute;
     border: 1px solid rgba(0, 0, 0, 0.1);
+    transform-origin: 0% 0%;
+    height: 2px;
 }
 
 .node input {
@@ -19,6 +22,7 @@
     outline: none;
     background-color: transparent;
     caret-color: transparent;
+    cursor: move;
 }
 
 .selected.node {

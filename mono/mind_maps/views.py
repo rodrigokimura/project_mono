@@ -26,6 +26,20 @@ class IndexView(UserPassesTestMixin, TemplateView):
         return context
 
 
+class MindMapListView(UserPassesTestMixin, TemplateView):
+
+    template_name = "mind_maps/mind_map_list.html"
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get_context_data(self, **kwargs):
+        mind_maps = MindMap.objects.filter(created_by=self.request.user)
+        context = super().get_context_data(**kwargs)
+        context["mind_maps"] = mind_maps
+        return context
+
+
 class MindMapDetailView(UserPassesTestMixin, DetailView):
 
     template_name = "mind_maps/detail.html"
