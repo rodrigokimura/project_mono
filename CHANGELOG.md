@@ -1,3 +1,9 @@
+## 7.17.0 (2022-09-05)
+
+### Feat
+
+- **mind_maps**: add page to list mind maps
+
 ## 7.16.0 (2022-09-05)
 
 ### Feat
