@@ -20,9 +20,13 @@ class MindMapSerializer(ModelSerializer):
         fields = [
             "id",
             "name",
+            "created_at",
             "created_by",
         ]
-        read_only_fields = ["created_by"]
+        read_only_fields = [
+            "created_at",
+            "created_by",
+        ]
 
 
 class NodeSerializer(ModelSerializer):
