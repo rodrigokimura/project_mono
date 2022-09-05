@@ -24,6 +24,7 @@ function createPanel() {
 function createNode(name, parent = null) {
     let node = new Node(name, parent)
     nodes.push(node)
+    node.autoPosition()
     node.draw()
     if (parent) {
         connector = new Connector(node, parent)
