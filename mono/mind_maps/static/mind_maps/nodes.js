@@ -42,7 +42,8 @@ class Node {
         this.attachEvents(nodeEl)
     }
     attachEvents(nodeEl) {
-        nodeEl.find('input').keydown(e => {
+        let inputEl = nodeEl.find('input')
+        inputEl.keydown(e => {
             let editModeCommands = {
                 13: () => { this.leaveEditMode() },
                 9: () => { this.leaveEditMode() },
@@ -76,13 +77,16 @@ class Node {
             e.stopPropagation()
             this.select()
         })
-        nodeEl.find('input').change(e => {
+        inputEl.change(e => {
             this.name = e.target.value
             toast(`Node ${this.name} updated`)
         })
-        nodeEl.find('input').blur(e => {
+        inputEl.blur(e => {
             if (!this.name) this.delete()
             this.unselect()
+        })
+        nodeEl.on('dragstart', e => {
+            console.log(e)
         })
     }
     createNode(name, parent, reverseNext, reverseFirst) {
