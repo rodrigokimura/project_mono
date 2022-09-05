@@ -3,16 +3,13 @@
 {% load i18n %}
 
 {% block head %}
-    <style>
-        body { overflow: hidden; }
-    </style>
     <script src="{% static 'mind_maps/mind_map_detail.js' %}"></script>
     <script src="{% static 'mind_maps/nodes.js' %}"></script>
     <script src="{% static 'mind_maps/connectors.js' %}"></script>
     <script src="{% static 'mind_maps/position.js' %}"></script>
     <script src="{% static 'mind_maps/utils.js' %}"></script>
     <script src="{% static 'mind_maps/state.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'mind_maps/index.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'mind_maps/mind_map_detail.css' %}">
 {% endblock head %}
 
 {% block main %}

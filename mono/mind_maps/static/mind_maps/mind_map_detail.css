@@ -1,3 +1,7 @@
+body {
+    overflow: hidden;
+}
+
 .node {
     border: 3px solid rgba(0, 0, 0, 0.1);
     border-radius: 5px;
