@@ -1,3 +1,9 @@
+## 7.15.1 (2022-09-05)
+
+### Refactor
+
+- **mind_maps**: extract variable
+
 ## 7.15.0 (2022-09-03)
 
 ### Feat
