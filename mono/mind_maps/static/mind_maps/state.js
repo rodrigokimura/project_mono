@@ -1,3 +1,5 @@
+var syncer = null
+
 function fullSync() {
     let ns = nodes.map(
         n => {
@@ -20,7 +22,6 @@ function fullSync() {
         stateContext: '#save-button',
         onSuccess(r) {
             storeState()
-            toast('Saved!', r)
         }
     })
 }
@@ -52,5 +53,5 @@ function syncIfNecessary() {
 }
 
 function startSyncer() {
-    setInterval(syncIfNecessary, 5000)
+    syncer = setInterval(syncIfNecessary, 1000)
 }
