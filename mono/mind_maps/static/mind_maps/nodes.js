@@ -84,12 +84,15 @@ class Node {
         var x = this.position[0] - this.width / 2
         var y = this.position[1] - this.height / 2
         let nodeEl = $(`
-            <div id="${this.id}" draggable="true" class="node" style="display: inline; position: absolute; width: ${this.width}px; height: ${this.height}px; left: ${x}px; top: ${y}px;">
+            <div id="${this.id}" draggable="true" class="node" style="width: ${this.width}px; height: ${this.height}px; left: ${x}px; top: ${y}px;">
                 <input type="text" tabindex="-1"  placeholder="<No name>" value="${this.name}" style="width: 100%; height: 100%;">
             </div>
         `)
         $(PANEL).append(nodeEl)
         this.attachEvents(nodeEl)
+        if (this.name) {
+            this.autoWidth(this.name)
+        }
     }
     drawConnectors() {
         if (this.parent) {
@@ -116,6 +119,7 @@ class Node {
                 113: () => { this.enterEditMode() },
             }
             if (this.editMode) {
+                if (e.keyCode === 9) e.preventDefault()  // avoid tabbing out of the input
                 if (!(e.keyCode in editModeCommands)) return
                 editModeCommands[e.keyCode]()
                 return
@@ -135,8 +139,10 @@ class Node {
             this.name = e.target.value
             toast(`Node ${this.name} updated`)
         })
+        inputEl.on('input', e => {
+            this.autoWidth(e.target.value)
+        })
         inputEl.blur(e => {
-            console.log(e.target.value)
             if (!this.name) this.delete()
             this.unselect()
         })
@@ -172,6 +178,14 @@ class Node {
         for (let connector of connectors) {
             if (connector) connector.draw()
         }
+    }
+    autoWidth(text) {
+        const INTERNAL_PADDING = 10
+        let textWidth = getTextWidth(text, "14pt Lato,'Helvetica Neue',Arial,Helvetica,sans-serif")
+        let totalWidth = textWidth + 6 + INTERNAL_PADDING  // fix for border
+        this.size[0] = totalWidth
+        $(`#${this.id}`)[0].style.left = `${this.position[0] - totalWidth / 2}px`
+        $(`#${this.id} input`).parent()[0].style.width = `${totalWidth}px`
     }
     createNode(name, parent, reverseNext, reverseFirst) {
         let node = new Node(name, parent)
