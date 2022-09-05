@@ -13,12 +13,12 @@ class Connector {
 
         this.node1.connector = this
         $(PANEL).append(`
-            <div class="connector" data-node1="${this.node1.id}" data-node2="${this.node2.id}" style="width: ${length}px; left: ${x1}px; top: ${y1}px; transform: rotate(${angle}deg);">
+            <div class="connector" data-nodes="${this.node1.id}|${this.node2.id}" data-node2="${this.node2.id}" style="width: ${length}px; left: ${x1}px; top: ${y1}px; transform: rotate(${angle}deg);">
             </div>
         `)
     }
     erase() {
-        $(`.connector[data-node1='${this.node1.id}'],.connector[data-node2='${this.node1.id}']`).remove()
+        $(`.connector[data-nodes='${this.node1.id}|${this.node2.id}']`).remove()
     }
     delete() {
         this.erase()

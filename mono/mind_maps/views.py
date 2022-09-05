@@ -1,7 +1,6 @@
 """Mind maps views"""
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db import transaction
-from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from rest_framework import status
@@ -32,12 +31,6 @@ class MindMapListView(UserPassesTestMixin, TemplateView):
 
     def test_func(self):
         return self.request.user.is_superuser
-
-    def get_context_data(self, **kwargs):
-        mind_maps = MindMap.objects.filter(created_by=self.request.user)
-        context = super().get_context_data(**kwargs)
-        context["mind_maps"] = mind_maps
-        return context
 
 
 class MindMapDetailView(UserPassesTestMixin, DetailView):
@@ -78,6 +71,7 @@ class FullSyncView(APIView):
         for n in request.data:
             Node.objects.update_or_create(
                 id=n["id"],
+                created_by=request.user,
                 defaults={
                     "name": n.get("name"),
                     "mind_map": MindMap.objects.get(id=n.get("mind_map")),
@@ -92,6 +86,9 @@ class FullSyncView(APIView):
                     "created_by": request.user,
                 },
             )
+        Node.objects.filter(
+            created_by=request.user,
+        ).exclude(id__in=[n["id"] for n in request.data]).delete()
         return Response(
             status=status.HTTP_200_OK,
             data=request.data,
