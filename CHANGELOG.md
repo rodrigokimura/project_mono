@@ -1,3 +1,9 @@
+## 7.16.0 (2022-09-05)
+
+### Feat
+
+- **mind_maps**: add feat to drag nodes
+
 ## 7.15.1 (2022-09-05)
 
 ### Refactor
