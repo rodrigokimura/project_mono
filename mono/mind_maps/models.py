@@ -24,6 +24,10 @@ class MindMap(BaseModel):
     def __str__(self):
         return self.name
 
+    @property
+    def nodes(self):
+        return self.node_set.all()
+
 
 class Node(BaseModel):
     mind_map = models.ForeignKey(MindMap, on_delete=models.CASCADE)
@@ -34,3 +38,7 @@ class Node(BaseModel):
 
     def __str__(self):
         return self.name
+
+    @property
+    def position(self):
+        return [self.x, self.y]

@@ -1,3 +1,12 @@
+const CONTAINER = '#container'
+const PANEL = '#container .panel'
+
+var panel = {
+    height: 1200,
+    width: 2400,
+}
+var nodes = []
+
 class Node {
     constructor(name, parent = null) {
         this.id = self.crypto.randomUUID()
@@ -15,12 +24,29 @@ class Node {
         return nodes.filter(node => node.parent === this)
     }
     get inputConnectors() {
-        return [this.connector]
+        return this.connector ? [this.connector] : []
     }
     get outputConnectors() {
         return this.children.map(child => child.connector)
     }
-
+    get state() {
+        let state = {
+            id: this.id,
+            name: this.name,
+            parent: this.parent ? this.parent.id : null,
+            position: this.position,
+            size: this.size,
+        }
+        var st = JSON.stringify(state)
+        var hash = 0, i, chr;
+        if (st.length === 0) return hash
+        for (i = 0; i < st.length; i++) {
+            chr = st.charCodeAt(i)
+            hash = ((hash << 5) - hash) + chr
+            hash |= 0
+        }
+        return hash
+    }
     static get(id) {
         for (let node of nodes) {
             if (node.id === id) {
@@ -28,6 +54,17 @@ class Node {
             }
         }
         return null
+    }
+    static getOrCreate(id) {
+        let node = Node.get(id)
+        if (node) return node
+        node = (new Node(''))
+        node.id = id
+        nodes.push(node)
+        return node
+    }
+    static getRoot() {
+        return nodes.filter(node => node.isRoot())
     }
     isRoot() {
         return this.parent === null && this === nodes[0]
@@ -53,6 +90,11 @@ class Node {
         `)
         $(PANEL).append(nodeEl)
         this.attachEvents(nodeEl)
+    }
+    drawConnectors() {
+        if (this.parent) {
+            (new Connector(this, this.parent)).draw()
+        }
     }
     attachEvents(nodeEl) {
         let inputEl = nodeEl.find('input')
@@ -94,6 +136,7 @@ class Node {
             toast(`Node ${this.name} updated`)
         })
         inputEl.blur(e => {
+            console.log(e.target.value)
             if (!this.name) this.delete()
             this.unselect()
         })
@@ -116,7 +159,10 @@ class Node {
     }
     erase() {
         $(`#${this.id}`).remove()
-        if (this.connector) this.connector.erase()
+        let connectors = this.inputConnectors.concat(this.outputConnectors)
+        for (let connector of connectors) {
+            if (connector) connector.erase()
+        }
     }
     move(position) {
         this.position = position
@@ -124,7 +170,7 @@ class Node {
         this.draw()
         let connectors = this.inputConnectors.concat(this.outputConnectors)
         for (let connector of connectors) {
-            connector.draw()
+            if (connector) connector.draw()
         }
     }
     createNode(name, parent, reverseNext, reverseFirst) {
