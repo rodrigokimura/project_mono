@@ -1,0 +1,47 @@
+{% extends "mind_maps/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load custom_tags %}
+
+{% block head %}
+    <script src="{% static 'mind_maps/mind_map_list.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'mind_maps/mind_map_list.css' %}">
+{% endblock  %}
+
+{% block main %}
+<script src="{% static 'js/dragula.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
+
+<div class="pusher" style="padding-top: 3em;">
+    <div class="ui stackable grid container basic segment" style="padding: 0; min-height: 5em;" id="grid">
+        <div class="row">
+            <div class="column" id="page-content"></div>
+        </div>
+    </div>
+</div>
+
+<div class="ui small modal" id="mind-map-modal">
+    <i class="close icon"></i>
+    <div class="header">
+        {% translate "Create new mind map" %}
+    </div>
+    <div class="content">
+        <div class="ui fluid input">
+            <input type="text" name="name" placeholder="{% translate 'Type a name for you mind map' %}" id="mind-map-name">
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui black deny button">
+            {% translate "Close" %}
+        </div>
+        <div class="ui green approve icon labeled button">
+            <i class="save icon"></i>
+            {% translate "Save" %}
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(init)
+</script>
+{% endblock %}
