@@ -1,3 +1,15 @@
+## 7.22.0 (2022-09-05)
+
+### Feat
+
+- **mind_maps**: add support for touch inputs
+
+## 7.21.0 (2022-09-05)
+
+### Feat
+
+- **mind_maps**: add size limit on frontend layer
+
 ## 7.20.0 (2022-09-05)
 
 ### Feat
