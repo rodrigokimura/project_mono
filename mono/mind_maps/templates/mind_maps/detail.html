@@ -9,10 +9,13 @@
     <script src="{% static 'mind_maps/position.js' %}"></script>
     <script src="{% static 'mind_maps/utils.js' %}"></script>
     <script src="{% static 'mind_maps/state.js' %}"></script>
+    {% comment %} <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script> {% endcomment %}
     <link rel="stylesheet" type="text/css" href="{% static 'mind_maps/mind_map_detail.css' %}">
 {% endblock head %}
 
 {% block main %}
+    <script src="{% static 'js/dragula.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
     <div class="ui stackable grid" style="padding: 3em 0 0 0;">
         <div class="row">
             <div class="column">
