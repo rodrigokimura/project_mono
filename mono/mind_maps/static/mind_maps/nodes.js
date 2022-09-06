@@ -167,6 +167,29 @@ class Node {
             this.metadata = null
             this.move(position)
         })
+        nodeEl.on('touchstart', e => {
+            e.target.style.opacity = '0.4'
+            this.metadata = {
+                offsetX: e.targetTouches[0].screenX,
+                offsetY: e.targetTouches[0].screenY,
+            }
+        })
+        nodeEl.on('touchmove', e => {
+            e.preventDefault()
+            var touchLocation = e.targetTouches[0]
+            nodeEl[0].style.left = this.position[0] + touchLocation.screenX - this.metadata.offsetX - this.size[0] / 2 + 'px'
+            nodeEl[0].style.top = this.position[1] + touchLocation.screenY - this.metadata.offsetY - this.size[1] / 2 + 'px';
+        })
+        nodeEl.on('touchend', e => {
+            var t = e.currentTarget
+            e.target.style.opacity = '1'
+            let position = [
+                parseFloat(nodeEl[0].style.left.replace('px', '')),
+                parseFloat(nodeEl[0].style.top.replace('px', '')),
+            ]
+            this.metadata = null
+            this.move(position)
+        })
     }
     erase() {
         $(`#${this.id}`).remove()
