@@ -5,15 +5,10 @@ body {
 .node {
     border: 3px solid rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    min-width: none;
-    min-height: 2em;
     z-index: 10;
     background-color: white;
     cursor: move;
-    display: flex !important;
-    flex-flow: row nowrap;
     position: absolute;
-    width: auto;
 }
 
 .connector {
@@ -31,7 +26,7 @@ body {
     background-color: transparent;
     caret-color: transparent;
     cursor: move;
-    font: 14pt Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-family: 'Open Sans', sans-serif;
 }
 
 .selected.node {
@@ -40,4 +35,8 @@ body {
 
 .node:focus-within {
     border: 3px solid rgb(32, 155, 255);
+}
+
+.toolbar {
+    position: fixed !important;
 }

@@ -1,5 +1,5 @@
 const CONTAINER = '#container'
-const PANEL = '#container .panel'
+const PANEL = `${CONTAINER} .panel`
 
 var panel = {
     height: 1200,
@@ -13,22 +13,19 @@ class Node {
         this.name = name
         this.parent = parent
         this.position = [0, 0]
-        this.size = [100, 30]
+        this.size = [0, 30]
         this.editMode = false
         this.connector = null
         this.metadata = {}
+        this.fontSize = 14
+        this.padding = 10
     }
     get width() { return this.size[0] }
     get height() { return this.size[1] }
-    get children() {
-        return nodes.filter(node => node.parent === this)
-    }
-    get inputConnectors() {
-        return this.connector ? [this.connector] : []
-    }
-    get outputConnectors() {
-        return this.children.map(child => child.connector)
-    }
+    get children() { return nodes.filter(node => node.parent === this) }
+    get inputConnectors() { return this.connector ? [this.connector] : [] }
+    get outputConnectors() { return this.children.map(child => child.connector) }
+    get selected() { return this.el.hasClass('selected') }
     get state() {
         let state = {
             id: this.id,
@@ -36,6 +33,8 @@ class Node {
             parent: this.parent ? this.parent.id : null,
             position: this.position,
             size: this.size,
+            fontSize: this.fontSize,
+            padding: this.padding,
         }
         var st = JSON.stringify(state)
         var hash = 0, i, chr;
@@ -63,9 +62,13 @@ class Node {
         nodes.push(node)
         return node
     }
-    static getRoot() {
-        return nodes.filter(node => node.isRoot())
+    static getSelected() {
+        let f = nodes.filter(node => node.el.hasClass('selected'))
+        if (f.length > 0) return f[0]
+        return null
     }
+    static getRoot() { return nodes.filter(node => node.isRoot()) }
+    static deselectAll() { return nodes.map(node => node.deselect()) }
     isRoot() {
         return this.parent === null && this === nodes[0]
     }
@@ -84,23 +87,34 @@ class Node {
         var x = this.position[0] - this.width / 2
         var y = this.position[1] - this.height / 2
         let nodeEl = $(`
-            <div id="${this.id}" draggable="true" class="node" style="width: ${this.width}px; height: ${this.height}px; left: ${x}px; top: ${y}px;">
+            <div id="${this.id}" draggable="true" class="node" style="height: ${this.height}px; left: ${x}px; top: ${y}px; font-size: ${this.fontSize}pt">
                 <input type="text" tabindex="-1"  placeholder="<No name>" value="${this.name}" style="width: 100%; height: 100%;">
             </div>
         `)
+        this.el = nodeEl
         $(PANEL).append(nodeEl)
-        this.attachEvents(nodeEl)
-        if (this.name) {
-            this.autoWidth(this.name)
-        }
+        this.autoSize(this.name)
+        this.attachEvents()
     }
-    drawConnectors() {
+    redraw() {
+        let selected = this.selected
+        this.erase()
+        this.draw()
+        this.drawConnectors(true)
+        if (selected) this?.select()
+    }
+    drawConnectors(drawOutputConns = false) {
         if (this.parent) {
             (new Connector(this, this.parent)).draw()
         }
+        if (drawOutputConns) {
+            this.children.forEach(child => {
+                (new Connector(child, this)).draw()
+            })
+        }
     }
-    attachEvents(nodeEl) {
-        let inputEl = nodeEl.find('input')
+    attachEvents() {
+        let inputEl = this.el.find('input')
         inputEl.keydown(e => {
             let editModeCommands = {
                 13: () => { this.leaveEditMode() },
@@ -130,35 +144,32 @@ class Node {
                 return
             }
         })
-        nodeEl.click(e => {
+        this.el.click(e => {
             e.preventDefault()
             e.stopPropagation()
-            this.select()
+            this.deselectOthers()
+            this?.select()
         })
-        inputEl.change(e => {
+        inputEl.on('input', e => {
             if (e.target.value.length > 90) {
                 toast('Node name too long')
                 e.target.value = e.target.value.slice(0, 90)
-                this.autoWidth(e.target.value)
+                this.autoSize(e.target.value)
             }
             this.name = e.target.value
-            toast(`Node ${this.name} updated`)
-        })
-        inputEl.on('input', e => {
-            this.autoWidth(e.target.value)
+            this.autoSize(e.target.value)
         })
         inputEl.blur(e => {
             if (!this.name) this.delete()
-            this.unselect()
         })
-        nodeEl.on('dragstart', e => {
+        this.el.on('dragstart', e => {
             e.target.style.opacity = '0.4'
             this.metadata = {
                 offsetX: e.offsetX,
                 offsetY: e.offsetY,
             }
         })
-        nodeEl.on('dragend', e => {
+        this.el.on('dragend', e => {
             e.target.style.opacity = '1'
             let position = [
                 this.position[0] + e.offsetX - this.metadata.offsetX,
@@ -167,32 +178,30 @@ class Node {
             this.metadata = null
             this.move(position)
         })
-        nodeEl.on('touchstart', e => {
+        this.el.on('touchstart', e => {
             e.target.style.opacity = '0.4'
             this.metadata = {
                 offsetX: e.targetTouches[0].screenX,
                 offsetY: e.targetTouches[0].screenY,
             }
         })
-        nodeEl.on('touchmove', e => {
+        this.el.on('touchmove', e => {
             e.preventDefault()
-            var touchLocation = e.targetTouches[0]
-            nodeEl[0].style.left = this.position[0] + touchLocation.screenX - this.metadata.offsetX - this.size[0] / 2 + 'px'
-            nodeEl[0].style.top = this.position[1] + touchLocation.screenY - this.metadata.offsetY - this.size[1] / 2 + 'px';
+            this.el[0].style.left = this.position[0] + e.targetTouches[0].screenX - this.metadata.offsetX - this.size[0] / 2 + 'px'
+            this.el[0].style.top = this.position[1] + e.targetTouches[0].screenY - this.metadata.offsetY - this.size[1] / 2 + 'px'
         })
-        nodeEl.on('touchend', e => {
-            var t = e.currentTarget
+        this.el.on('touchend', e => {
             e.target.style.opacity = '1'
             let position = [
-                parseFloat(nodeEl[0].style.left.replace('px', '')) + this.size[0] / 2,
-                parseFloat(nodeEl[0].style.top.replace('px', '')) + this.size[1] / 2,
+                parseFloat(this.el[0].style.left.replace('px', '')) + this.size[0] / 2,
+                parseFloat(this.el[0].style.top.replace('px', '')) + this.size[1] / 2,
             ]
             this.metadata = null
             this.move(position)
         })
     }
     erase() {
-        $(`#${this.id}`).remove()
+        this.el.remove()
         let connectors = this.inputConnectors.concat(this.outputConnectors)
         for (let connector of connectors) {
             if (connector) connector.erase()
@@ -207,15 +216,19 @@ class Node {
             if (connector) connector.draw()
         }
     }
-    autoWidth(text) {
-        const INTERNAL_PADDING = 10
-        let textWidth = getTextWidth(text, "14pt Lato,'Helvetica Neue',Arial,Helvetica,sans-serif")
-        let totalWidth = textWidth + 6 + INTERNAL_PADDING  // fix for border
+    autoSize(text) {
+        let textWidth = getTextWidth(text, `${this.fontSize}pt 'Open Sans', sans-serif`)
+        console.log(textWidth)
+        let borderWidth = this.el.css("border-left-width").replace('px', '')
+        let totalWidth = textWidth + borderWidth * 2  // fix for border
+        totalWidth = totalWidth + this.padding * 2
         this.size[0] = totalWidth
-        $(`#${this.id}`)[0].style.left = `${this.position[0] - totalWidth / 2}px`
-        $(`#${this.id} input`).parent()[0].style.width = `${totalWidth}px`
+        this.el[0].style.left = `${this.position[0] - totalWidth / 2}px`
+        this.el.width(totalWidth)
+        this.el.height(`calc(1em + ${this.padding * 2}px)`)
     }
     createNode(name, parent, reverseNext, reverseFirst) {
+        this.deselect()
         let node = new Node(name, parent)
         nodes.push(node)
         node.autoPosition(reverseNext, reverseFirst)
@@ -234,27 +247,21 @@ class Node {
         return this.createNode(name, this.parent, alt, false)
     }
     enterEditMode() {
-        toast('Entering edit mode')
         this.editMode = true
-        $(`#${this.id}`).removeClass('selected')
-        $(`#${this.id} input`).css('caret-color', 'black')
-        setCaretToPos($(`#${this.id} input`)[0], $(`#${this.id} input`).val().length)
+        this.el.removeClass('selected')
+        this.el.find('input').css('caret-color', 'black')
+        setCaretToPos(this.el.find('input')[0], this.el.find('input').val().length)
         return this
     }
     leaveEditMode() {
-        toast('Leaving edit mode')
         this.editMode = false
-        $(`#${this.id}`).addClass('selected')
-        $(`#${this.id} input`).css('caret-color', 'transparent')
-        setCaretToPos($(`#${this.id} input`)[0], $(`#${this.id} input`).val().length)
-        return this
+        this.el.addClass('selected')
+        this.el.find('input').css('caret-color', 'transparent')
+        setCaretToPos(this.el.find('input')[0], this.el.find('input').val().length)
+        if (!this.name) this.delete()
     }
-    focus() {
-        $(`#${this.id} input`).focus()
-    }
-    blur() {
-        $(`#${this.id} input`).blur()
-    }
+    focus() { $(`#${this.id} input`).focus() }
+    blur() { $(`#${this.id} input`).blur() }
     printDetail() {
         console.log(`Node ${this.name} at (${this.position[0]}, ${this.position[1]})`)
         console.log(this)
@@ -262,10 +269,11 @@ class Node {
     select() {
         $(`#${this.id}`).addClass('selected')
         this.focus()
-        this.printDetail()
+        toolbar.show()
     }
-    unselect() {
-        $(`#${this.id}`).removeClass('selected')
+    deselect() { $(`#${this.id}`).removeClass('selected') }
+    deselectOthers() {
+        nodes.map(node => { if (node != this) node?.deselect() })
     }
     delete(cascade = true) {
         if (this.isRoot()) {
@@ -294,7 +302,7 @@ class Node {
         ))
     }
     selectNext(direction) {
-        this.unselect()
+        this.deselect()
         var attrMap = {
             l: [0, 'width', (a, b) => a - b, (a, b) => a < b],
             r: [0, 'width', (a, b) => a + b, (a, b) => a > b],
@@ -318,6 +326,10 @@ class Node {
         var closestNode = filteredNodes.sort(
             (a, b) => this.distanceFrom(a) - this.distanceFrom(b)
         )[0]
-        closestNode.select()
+        closestNode?.select()
     }
+    increaseFontSize() { this.fontSize += 5; this.redraw() }
+    decreaseFontSize() { this.fontSize -= 5; this.redraw() }
+    increasePadding() { this.padding += 5; this.redraw() }
+    decreasePadding() { this.padding -= 5; this.redraw() }
 }

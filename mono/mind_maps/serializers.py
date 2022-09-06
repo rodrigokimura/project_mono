@@ -23,6 +23,8 @@ class NodeSerializer(ModelSerializer):
             "parent",
             "mind_map",
             "position",
+            "font_size",
+            "padding",
             "created_by",
             "created_at",
         ]
