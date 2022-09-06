@@ -35,6 +35,8 @@ class Node(BaseModel):
     name = models.CharField(max_length=100)
     x = models.IntegerField(default=DEFAULT_PANEL_SIZE / 2)
     y = models.IntegerField(default=DEFAULT_PANEL_SIZE / 2)
+    font_size = models.IntegerField(default=14)
+    padding = models.IntegerField(default=10)
 
     def __str__(self):
         return self.name
