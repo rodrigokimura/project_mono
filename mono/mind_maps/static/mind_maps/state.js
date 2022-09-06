@@ -10,6 +10,8 @@ function fullSync() {
                 'parent': n.parent ? n.parent.id : null,
                 'x': n.position[0],
                 'y': n.position[1],
+                'font_size': n.fontSize,
+                'padding': n.padding,
             }
         }
     )

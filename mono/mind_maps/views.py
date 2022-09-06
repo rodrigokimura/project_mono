@@ -60,6 +60,8 @@ class FullSyncView(APIView):
                     else None,
                     "x": n.get("x"),
                     "y": n.get("y"),
+                    "font_size": n.get("font_size"),
+                    "padding": n.get("padding"),
                     "created_by": request.user,
                 },
             )

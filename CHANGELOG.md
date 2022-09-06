@@ -1,3 +1,9 @@
+## 7.23.0 (2022-09-06)
+
+### Feat
+
+- **mind_maps**: add toolbar to edit node
+
 ## 7.22.1 (2022-09-05)
 
 ### Fix
