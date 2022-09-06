@@ -184,8 +184,8 @@ class Node {
             var t = e.currentTarget
             e.target.style.opacity = '1'
             let position = [
-                parseFloat(nodeEl[0].style.left.replace('px', '')),
-                parseFloat(nodeEl[0].style.top.replace('px', '')),
+                parseFloat(nodeEl[0].style.left.replace('px', '')) + this.size[0] / 2,
+                parseFloat(nodeEl[0].style.top.replace('px', '')) + this.size[1] / 2,
             ]
             this.metadata = null
             this.move(position)
