@@ -19,6 +19,7 @@ function loadMindMap() {
                 newNode.name = n.name
                 newNode.position = n.position
                 newNode.fontSize = n.font_size
+                newNode.padding = n.padding
                 if (n.parent) {
                     newNode.parent = Node.getOrCreate(n.parent)
                 }
