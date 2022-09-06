@@ -1,3 +1,9 @@
+## 7.23.1 (2022-09-06)
+
+### Fix
+
+- **mind_maps**: read padding from db
+
 ## 7.23.0 (2022-09-06)
 
 ### Feat
