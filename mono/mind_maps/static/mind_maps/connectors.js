@@ -3,6 +3,9 @@ class Connector {
         this.node1 = node1
         this.node2 = node2
     }
+    static get() {
+        return $(`#${this.id} input`)[0], $(`#${this.id} input`)
+    }
     draw() {
         let x1 = this.node1.position[0]
         let y1 = this.node1.position[1]

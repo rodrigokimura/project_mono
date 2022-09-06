@@ -1,7 +1,10 @@
+var toolbar
+
 function init() {
     createPanel()
     loadMindMap()
     startSyncer()
+    initToolbar()
 }
 
 function loadMindMap() {
@@ -15,6 +18,7 @@ function loadMindMap() {
                 let newNode = Node.getOrCreate(n.id)
                 newNode.name = n.name
                 newNode.position = n.position
+                newNode.fontSize = n.font_size
                 if (n.parent) {
                     newNode.parent = Node.getOrCreate(n.parent)
                 }
@@ -25,12 +29,24 @@ function loadMindMap() {
 }
 
 function renderNodes() {
-    $(PANEL).empty()
+    $(PANEL).find('.node,.connector').remove()
     nodes.forEach(n => {
         n.draw()
-        // n.autoWidth(n.name)
         n.drawConnectors()
     })
     centralize()
     storeState()
+}
+
+function initToolbar() {
+    toolbar = new Toolbar()
+    toolbar.hide()
+}
+
+function hideToolbar() {
+    toolbar.hide()
+}
+
+function initializePanel() {
+
 }
