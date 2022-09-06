@@ -136,6 +136,11 @@ class Node {
             this.select()
         })
         inputEl.change(e => {
+            if (e.target.value.length > 90) {
+                toast('Node name too long')
+                e.target.value = e.target.value.slice(0, 90)
+                this.autoWidth(e.target.value)
+            }
             this.name = e.target.value
             toast(`Node ${this.name} updated`)
         })
