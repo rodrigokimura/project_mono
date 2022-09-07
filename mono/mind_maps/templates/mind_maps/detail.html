@@ -5,6 +5,7 @@
 {% block head %}
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="{% static 'mind_maps/panel.js' %}"></script>
     <script src="{% static 'mind_maps/nodes.js' %}"></script>
     <script src="{% static 'mind_maps/connectors.js' %}"></script>
     <script src="{% static 'mind_maps/position.js' %}"></script>
@@ -17,8 +18,7 @@
 {% endblock head %}
 
 {% block main %}
-    <script src="{% static 'js/dragula.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/dragula.min.css' %}">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <div class="ui stackable grid" style="padding: 3em 0 0 0;">
         <div class="row">
             <div class="column">
@@ -26,6 +26,7 @@
             </div>
         </div>
     </div>
+    {% include 'mind_maps/_toolbar.html' %}
     <script>
         const MIND_MAP_ID = "{{ object.id }}"
         $(document).ready(init)
