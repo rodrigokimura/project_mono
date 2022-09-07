@@ -7,12 +7,10 @@ function initializePanel() {
     $(CONTAINER).css('overflow', 'scroll')
     $(CONTAINER).empty()
     $(CONTAINER).append(`
-        <div class="panel" style="height: ${panel.height}px; width: ${panel.width}px;">
-        </div>
+        <div class="panel" style="height: ${panel.height}px; width: ${panel.width}px;"></div>
     `)
     $(PANEL).click(e => {
         if (!$(e.target).hasClass('panel')) return
-        new Toolbar().hide()
         Node.deselectAll()
     })
     $(CONTAINER).on('mousedown', mouseDownHandler);
@@ -20,7 +18,6 @@ function initializePanel() {
         e.preventDefault()
         e.stopPropagation()
     })
-
 }
 
 const mouseDownHandler = function (e) {
@@ -32,28 +29,28 @@ const mouseDownHandler = function (e) {
         // Get the current mouse position
         x: e.clientX,
         y: e.clientY,
-    };
-    $(CONTAINER)[0].style.cursor = 'grabbing';
-    $(CONTAINER)[0].style.userSelect = 'none';
+    }
+    $(CONTAINER)[0].style.cursor = 'grabbing'
+    $(CONTAINER)[0].style.userSelect = 'none'
 
-    document.addEventListener('mousemove', mouseMoveHandler);
-    document.addEventListener('mouseup', mouseUpHandler);
-};
+    document.addEventListener('mousemove', mouseMoveHandler)
+    document.addEventListener('mouseup', mouseUpHandler)
+}
 
 const mouseMoveHandler = function (e) {
     // How far the mouse has been moved
-    const dx = e.clientX - pos.x;
-    const dy = e.clientY - pos.y;
+    const dx = e.clientX - pos.x
+    const dy = e.clientY - pos.y
 
     // Scroll the element
-    $(CONTAINER)[0].scrollTop = pos.top - dy;
-    $(CONTAINER)[0].scrollLeft = pos.left - dx;
-};
+    $(CONTAINER)[0].scrollTop = pos.top - dy
+    $(CONTAINER)[0].scrollLeft = pos.left - dx
+}
 
 const mouseUpHandler = function () {
-    document.removeEventListener('mousemove', mouseMoveHandler);
-    document.removeEventListener('mouseup', mouseUpHandler);
+    document.removeEventListener('mousemove', mouseMoveHandler)
+    document.removeEventListener('mouseup', mouseUpHandler)
 
-    $(CONTAINER)[0].style.cursor = 'grab';
-    $(CONTAINER)[0].style.removeProperty('user-select');
-};
+    $(CONTAINER)[0].style.cursor = 'grab'
+    $(CONTAINER)[0].style.removeProperty('user-select')
+}

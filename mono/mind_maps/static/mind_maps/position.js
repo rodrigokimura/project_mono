@@ -7,8 +7,8 @@ class Positioner {
     }
 
     find() {
-        const INITIAL_OFFSET = 120
-        const BACKOFF = 10
+        const INITIAL_OFFSET = 120 / scale
+        const BACKOFF = 10 / scale
         const ANGLE = this.reverseNext ? 45 : -45
         const MAX_CHILDREN = 200
 
