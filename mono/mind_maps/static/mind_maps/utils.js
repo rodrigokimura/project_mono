@@ -7,10 +7,10 @@ async function toast(message) {
 }
 
 function centralize() {
-    let maxX = Math.max(...nodes.map(n => n.position[0]))
-    let minX = Math.min(...nodes.map(n => n.position[0]))
-    let maxY = Math.max(...nodes.map(n => n.position[1]))
-    let minY = Math.min(...nodes.map(n => n.position[1]))
+    let maxX = Math.max(...nodes.map(n => n.position[0] * scale))
+    let minX = Math.min(...nodes.map(n => n.position[0] * scale))
+    let maxY = Math.max(...nodes.map(n => n.position[1] * scale))
+    let minY = Math.min(...nodes.map(n => n.position[1] * scale))
     let dx = (maxX + minX) / 2 - panel.width / 2
     let dy = (maxY + minY) / 2 - panel.height / 2
     $(CONTAINER).animate({
@@ -52,7 +52,7 @@ function getTextSize(text, font) {
     const context = canvas.getContext("2d")
     context.font = font
     const metrics = context.measureText(text)
-    return [metrics.width, metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent]
+    return [metrics.width / scale, (metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent) / scale]
 }
 
 function getCssStyle(element, prop) {
@@ -64,4 +64,31 @@ function getCanvasFont(el = document.body) {
     const fontSize = getCssStyle(el, 'font-size') || '16px'
     const fontFamily = getCssStyle(el, 'font-family') || 'Times New Roman'
     return `${fontWeight} ${fontSize} ${fontFamily}`
+}
+
+function changeScale(s) {
+    $.api({
+        on: 'now',
+        method: 'PATCH',
+        url: `/mm/api/mind_maps/${MIND_MAP_ID}/`,
+        data: {
+            scale: s,
+        },
+        onSuccess(r) {
+            console.log(r)
+            scale = s
+            nodes.forEach(n => n.redraw())
+        }
+    })
+}
+
+function getScale() {
+    $.api({
+        on: 'now',
+        method: 'GET',
+        url: `/mm/api/mind_maps/${MIND_MAP_ID}/`,
+        onSuccess(r) {
+            scale = r.scale
+        }
+    })
 }

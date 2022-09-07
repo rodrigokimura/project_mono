@@ -1,4 +1,4 @@
-<div class="ui segment toolbar" id="toolbar" style="display: flex; flex-flow: column nowrap; gap: .5em; padding: .5em; margin: 0;">
+<div class="ui segment toolbar" id="toolbar">
     <div class="toolbar-row" style="display: flex; flex-flow: row nowrap; gap: .5em;">
         <div class="ui icon button" onclick="decreaseFontSize()" title="Decrease font size">
             <i class="text height icon"></i>
@@ -13,6 +13,19 @@
         </div>
         <div class="ui icon button" onclick="increasePadding()" title="Increase padding">
             <i class="expand icon"></i>
+        </div>
+    </div>
+    <div class="toolbar-row" style="display: flex; flex-flow: row nowrap; gap: .5em;">
+        <div class="ui icon button" onclick="decreaseZoom()" title="Decrease zoom">
+            <i class="search minus icon"></i>
+        </div>
+        <div class="ui icon button" onclick="increaseZoom()" title="Increase zoom">
+            <i class="search plus icon"></i>
+        </div>
+    </div>
+    <div class="toolbar-row" style="display: flex; flex-flow: row nowrap; gap: .5em;">
+        <div class="ui icon button" onclick="centralize()" title="Centralize">
+            <i class="crosshairs icon"></i>
         </div>
     </div>
 </div>
