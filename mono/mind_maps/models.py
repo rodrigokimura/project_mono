@@ -5,7 +5,10 @@ from django.db import models
 
 User = get_user_model()
 
-DEFAULT_PANEL_SIZE = 2000
+DEFAULT_PANEL_SIZE = {
+    "height": 240,
+    "width": 240,
+}
 
 
 class BaseModel(models.Model):
@@ -20,6 +23,7 @@ class BaseModel(models.Model):
 
 class MindMap(BaseModel):
     name = models.CharField(max_length=255)
+    scale = models.FloatField(default=10)
 
     def __str__(self):
         return self.name
@@ -31,10 +35,12 @@ class MindMap(BaseModel):
 
 class Node(BaseModel):
     mind_map = models.ForeignKey(MindMap, on_delete=models.CASCADE)
-    parent = models.ForeignKey("self", on_delete=models.SET_NULL, null=True)
+    parent = models.ForeignKey(
+        "self", on_delete=models.SET_NULL, null=True, blank=True
+    )
     name = models.CharField(max_length=100)
-    x = models.IntegerField(default=DEFAULT_PANEL_SIZE / 2)
-    y = models.IntegerField(default=DEFAULT_PANEL_SIZE / 2)
+    x = models.IntegerField(default=DEFAULT_PANEL_SIZE["width"] / 2)
+    y = models.IntegerField(default=DEFAULT_PANEL_SIZE["height"] / 2)
     font_size = models.IntegerField(default=14)
     padding = models.IntegerField(default=10)
 

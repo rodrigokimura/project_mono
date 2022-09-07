@@ -1,3 +1,9 @@
+## 7.25.0 (2022-09-07)
+
+### Feat
+
+- **mind_maps**: add zoom level control
+
 ## 7.24.0 (2022-09-07)
 
 ### Feat

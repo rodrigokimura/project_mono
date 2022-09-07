@@ -1,4 +1,6 @@
 """Mind maps views"""
+from typing import Any, Dict
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.views.generic.base import TemplateView
@@ -7,7 +9,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import MindMap, Node
+from .models import DEFAULT_PANEL_SIZE, MindMap, Node
 from .serializers import NodeSerializer
 
 
@@ -31,6 +33,12 @@ class MindMapDetailView(LoginRequiredMixin, DetailView):
 
     template_name = "mind_maps/detail.html"
     model = MindMap
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["PANEL_SIZE"] = DEFAULT_PANEL_SIZE
+        context["scale"] = self.get_object().scale
+        return context
 
 
 class FullSyncView(APIView):
