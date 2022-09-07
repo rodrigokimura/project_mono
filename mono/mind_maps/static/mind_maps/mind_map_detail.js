@@ -1,7 +1,7 @@
 var toolbar
 
 function init() {
-    createPanel()
+    initializePanel()
     loadMindMap()
     startSyncer()
     initToolbar()
@@ -46,8 +46,4 @@ function initToolbar() {
 
 function hideToolbar() {
     toolbar.hide()
-}
-
-function initializePanel() {
-
 }

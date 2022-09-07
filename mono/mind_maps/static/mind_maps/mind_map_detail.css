@@ -4,7 +4,6 @@ body {
 
 .node {
     border: 3px solid rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
     z-index: 10;
     background-color: white;
     cursor: move;
@@ -25,18 +24,25 @@ body {
     outline: none;
     background-color: transparent;
     caret-color: transparent;
-    cursor: move;
+    cursor: grab;
     font-family: 'Open Sans', sans-serif;
 }
 
 .selected.node {
-    border: 3px solid rgb(155, 32, 0) !important;
+    border: 3px solid rgb(32, 155, 255) !important;
 }
 
 .node:focus-within {
-    border: 3px solid rgb(32, 155, 255);
+    border: 3px solid black;
 }
 
 .toolbar {
     position: fixed !important;
+}
+
+.panel {
+    cursor: move;
+}
+.panel * {
+    cursor: default;
 }
