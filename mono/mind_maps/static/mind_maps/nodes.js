@@ -1,6 +1,3 @@
-const CONTAINER = '#container'
-const PANEL = `${CONTAINER} .panel`
-
 var panel = {
     height: 1200,
     width: 2400,
@@ -25,6 +22,7 @@ class Node {
     get children() { return nodes.filter(node => node.parent === this) }
     get inputConnectors() { return this.connector ? [this.connector] : [] }
     get outputConnectors() { return this.children.map(child => child.connector) }
+    get connectors() { return this.inputConnectors.concat(this.outputConnectors) }
     get selected() { return this.el.hasClass('selected') }
     get state() {
         let state = {
@@ -88,7 +86,7 @@ class Node {
         var y = this.position[1] - this.height / 2
         let nodeEl = $(`
             <div id="${this.id}" draggable="true" class="node" style="height: ${this.height}px; left: ${x}px; top: ${y}px; font-size: ${this.fontSize}pt">
-                <input type="text" tabindex="-1"  placeholder="<No name>" value="${this.name}" style="width: 100%; height: 100%;">
+                <input type="text" tabindex="-1" value="${this.name}" style="width: 100%; height: 100%;">
             </div>
         `)
         this.el = nodeEl
@@ -103,6 +101,8 @@ class Node {
         this.drawConnectors(true)
         if (selected) this?.select()
     }
+    unfade() { this.el[0].style.opacity = 1 }
+    fade() { this.el[0].style.opacity = 0.5 }
     drawConnectors(drawOutputConns = false) {
         if (this.parent) {
             (new Connector(this, this.parent)).draw()
@@ -117,13 +117,19 @@ class Node {
         let inputEl = this.el.find('input')
         inputEl.keydown(e => {
             let editModeCommands = {
-                13: () => { this.leaveEditMode() },
                 9: () => { this.leaveEditMode() },
+                13: () => { this.leaveEditMode() },
                 27: () => { this.leaveEditMode() },
             }
             let normalCommands = {
-                13: () => { this.createChild('', e.shiftKey).enterEditMode().focus() },
-                9: () => { this.createSibling('', e.shiftKey).enterEditMode().focus() },
+                9: () => { this.createChild('', e.shiftKey).enterEditMode().focus() },
+                13: () => {
+                    if (this.isRoot()) {
+                        this.createChild('', e.shiftKey).enterEditMode().focus()
+                    } else {
+                        this.createSibling('', e.shiftKey).enterEditMode().focus()
+                    }
+                },
                 46: () => { if (e.shiftKey) this.delete(!e.ctrlKey) },
                 37: () => { this.selectNext('l') },
                 38: () => { this.selectNext('u') },
@@ -163,35 +169,34 @@ class Node {
             if (!this.name) this.delete()
         })
         this.el.on('dragstart', e => {
-            e.target.style.opacity = '0.4'
             this.metadata = {
-                offsetX: e.offsetX,
-                offsetY: e.offsetY,
+                pageX: e.pageX,
+                pageY: e.pageY,
             }
-        })
-        this.el.on('dragend', e => {
-            e.target.style.opacity = '1'
-            let position = [
-                this.position[0] + e.offsetX - this.metadata.offsetX,
-                this.position[1] + e.offsetY - this.metadata.offsetY,
-            ]
-            this.metadata = null
-            this.move(position)
+            $(PANEL).on('drop', e => {
+                e.stopPropagation()
+                e.preventDefault()
+                let position = [
+                    this.position[0] + e.pageX - this.metadata.pageX,
+                    this.position[1] + e.pageY - this.metadata.pageY,
+                ]
+                this.metadata = null
+                this.move(position)
+                $(PANEL).off('drop')
+            })
         })
         this.el.on('touchstart', e => {
-            e.target.style.opacity = '0.4'
             this.metadata = {
-                offsetX: e.targetTouches[0].screenX,
-                offsetY: e.targetTouches[0].screenY,
+                pageX: e.targetTouches[0].screenX,
+                pageY: e.targetTouches[0].screenY,
             }
         })
         this.el.on('touchmove', e => {
             e.preventDefault()
-            this.el[0].style.left = this.position[0] + e.targetTouches[0].screenX - this.metadata.offsetX - this.size[0] / 2 + 'px'
-            this.el[0].style.top = this.position[1] + e.targetTouches[0].screenY - this.metadata.offsetY - this.size[1] / 2 + 'px'
+            this.el[0].style.left = this.position[0] + e.targetTouches[0].pageX - this.metadata.pageX - this.size[0] / 2 + 'px'
+            this.el[0].style.top = this.position[1] + e.targetTouches[0].pageY - this.metadata.pageY - this.size[1] / 2 + 'px'
         })
         this.el.on('touchend', e => {
-            e.target.style.opacity = '1'
             let position = [
                 parseFloat(this.el[0].style.left.replace('px', '')) + this.size[0] / 2,
                 parseFloat(this.el[0].style.top.replace('px', '')) + this.size[1] / 2,
@@ -209,23 +214,23 @@ class Node {
     }
     move(position) {
         this.position = position
-        this.erase()
-        this.draw()
-        let connectors = this.inputConnectors.concat(this.outputConnectors)
-        for (let connector of connectors) {
+        this.redraw()
+        for (let connector of this.connectors) {
             if (connector) connector.draw()
         }
     }
     autoSize(text) {
-        let textWidth = getTextWidth(text, `${this.fontSize}pt 'Open Sans', sans-serif`)
-        console.log(textWidth)
+        let textSize = getTextSize(text, `${this.fontSize}pt 'Open Sans', sans-serif`)
         let borderWidth = this.el.css("border-left-width").replace('px', '')
-        let totalWidth = textWidth + borderWidth * 2  // fix for border
-        totalWidth = totalWidth + this.padding * 2
+        let totalWidth = textSize[0] + borderWidth * 2 + this.padding * 2
+        let totalHeight = textSize[1] + borderWidth * 2 + this.padding * 2
         this.size[0] = totalWidth
+        this.size[1] = totalHeight
         this.el[0].style.left = `${this.position[0] - totalWidth / 2}px`
+        this.el[0].style.top = `${this.position[1] - totalHeight / 2}px`
         this.el.width(totalWidth)
-        this.el.height(`calc(1em + ${this.padding * 2}px)`)
+        this.el.height(totalHeight)
+        this.el.css('border-radius', totalHeight)
     }
     createNode(name, parent, reverseNext, reverseFirst) {
         this.deselect()
@@ -250,14 +255,14 @@ class Node {
         this.editMode = true
         this.el.removeClass('selected')
         this.el.find('input').css('caret-color', 'black')
-        setCaretToPos(this.el.find('input')[0], this.el.find('input').val().length)
+        setSelectionRange(this.el.find('input')[0], 0, this.el.find('input').val().length)
         return this
     }
     leaveEditMode() {
         this.editMode = false
         this.el.addClass('selected')
         this.el.find('input').css('caret-color', 'transparent')
-        setCaretToPos(this.el.find('input')[0], this.el.find('input').val().length)
+        setCaretToPos(this.el.find('input')[0], 0)  // reset caret position
         if (!this.name) this.delete()
     }
     focus() { $(`#${this.id} input`).focus() }
