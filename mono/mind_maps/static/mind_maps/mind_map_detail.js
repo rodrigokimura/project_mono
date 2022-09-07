@@ -41,7 +41,6 @@ function renderNodes() {
 
 function initToolbar() {
     toolbar = new Toolbar()
-    toolbar.hide()
 }
 
 function hideToolbar() {

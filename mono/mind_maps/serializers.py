@@ -49,6 +49,7 @@ class MindMapSerializer(ModelSerializer):
         fields = [
             "id",
             "name",
+            "scale",
             "created_at",
             "created_by",
             "nodes",

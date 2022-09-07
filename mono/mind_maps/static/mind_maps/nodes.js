@@ -1,7 +1,3 @@
-var panel = {
-    height: 1200,
-    width: 2400,
-}
 var nodes = []
 
 class Node {
@@ -10,12 +6,12 @@ class Node {
         this.name = name
         this.parent = parent
         this.position = [0, 0]
-        this.size = [0, 30]
+        this.size = [0, 3 * scale]
         this.editMode = false
         this.connector = null
         this.metadata = {}
-        this.fontSize = 14
-        this.padding = 10
+        this.fontSize = 1
+        this.padding = 1
     }
     get width() { return this.size[0] }
     get height() { return this.size[1] }
@@ -66,7 +62,14 @@ class Node {
         return null
     }
     static getRoot() { return nodes.filter(node => node.isRoot()) }
-    static deselectAll() { return nodes.map(node => node.deselect()) }
+    static deselectAll() {
+        nodes.map(
+            node => {
+                if (node.editMode) node.leaveEditMode()
+                node.deselect()
+            }
+        )
+    }
     isRoot() {
         return this.parent === null && this === nodes[0]
     }
@@ -85,11 +88,12 @@ class Node {
         var x = this.position[0] - this.width / 2
         var y = this.position[1] - this.height / 2
         let nodeEl = $(`
-            <div id="${this.id}" draggable="true" class="node" style="height: ${this.height}px; left: ${x}px; top: ${y}px; font-size: ${this.fontSize}pt">
+            <div id="${this.id}" draggable="true" class="node" style="border-width: ${.3 * scale}px; height: ${this.height * scale}px; left: ${x * scale}px; top: ${y * scale}px; font-size: ${this.fontSize * scale}pt">
                 <input type="text" tabindex="-1" value="${this.name}" style="width: 100%; height: 100%;">
             </div>
         `)
         this.el = nodeEl
+        this.el.find('input').css('caret-color', 'transparent')
         $(PANEL).append(nodeEl)
         this.autoSize(this.name)
         this.attachEvents()
@@ -177,8 +181,8 @@ class Node {
                 e.stopPropagation()
                 e.preventDefault()
                 let position = [
-                    this.position[0] + e.pageX - this.metadata.pageX,
-                    this.position[1] + e.pageY - this.metadata.pageY,
+                    this.position[0] * scale + e.pageX - this.metadata.pageX,
+                    this.position[1] * scale + e.pageY - this.metadata.pageY,
                 ]
                 this.metadata = null
                 this.move(position)
@@ -193,8 +197,8 @@ class Node {
         })
         this.el.on('touchmove', e => {
             e.preventDefault()
-            this.el[0].style.left = this.position[0] + e.targetTouches[0].pageX - this.metadata.pageX - this.size[0] / 2 + 'px'
-            this.el[0].style.top = this.position[1] + e.targetTouches[0].pageY - this.metadata.pageY - this.size[1] / 2 + 'px'
+            this.el[0].style.left = this.position[0] * scale + e.targetTouches[0].pageX - this.metadata.pageX - this.size[0] / 2 + 'px'
+            this.el[0].style.top = this.position[1] * scale + e.targetTouches[0].pageY - this.metadata.pageY - this.size[1] / 2 + 'px'
         })
         this.el.on('touchend', e => {
             let position = [
@@ -212,25 +216,25 @@ class Node {
             if (connector) connector.erase()
         }
     }
-    move(position) {
-        this.position = position
+    move(positionInPixels) {
+        this.position = [positionInPixels[0] / scale, positionInPixels[1] / scale]
         this.redraw()
         for (let connector of this.connectors) {
             if (connector) connector.draw()
         }
     }
     autoSize(text) {
-        let textSize = getTextSize(text, `${this.fontSize}pt 'Open Sans', sans-serif`)
-        let borderWidth = this.el.css("border-left-width").replace('px', '')
+        let textSize = getTextSize(text, `${this.fontSize * scale}pt 'Open Sans', sans-serif`)
+        let borderWidth = this.el.css("border-left-width").replace('px', '') / scale
         let totalWidth = textSize[0] + borderWidth * 2 + this.padding * 2
         let totalHeight = textSize[1] + borderWidth * 2 + this.padding * 2
         this.size[0] = totalWidth
         this.size[1] = totalHeight
-        this.el[0].style.left = `${this.position[0] - totalWidth / 2}px`
-        this.el[0].style.top = `${this.position[1] - totalHeight / 2}px`
-        this.el.width(totalWidth)
-        this.el.height(totalHeight)
-        this.el.css('border-radius', totalHeight)
+        this.el[0].style.left = `${(this.position[0] - totalWidth / 2) * scale}px`
+        this.el[0].style.top = `${(this.position[1] - totalHeight / 2) * scale}px`
+        this.el.width(totalWidth * scale)
+        this.el.height(totalHeight * scale)
+        this.el.css('border-radius', totalHeight * scale)
     }
     createNode(name, parent, reverseNext, reverseFirst) {
         this.deselect()
@@ -252,13 +256,23 @@ class Node {
         return this.createNode(name, this.parent, alt, false)
     }
     enterEditMode() {
+        var backdrop = $(`
+            <div class="backdrop" style="background-color: rgba(0, 0, 0, 0.2); z-index: 1000; width: 100%; height: 100%; position: relative;"></div>
+        `)
+        this.el.parent().append(backdrop)
+        backdrop.click(e => { this.leaveEditMode() })
+        $('.node').css('z-index', 20)
+        this.el.css('z-index', 200)
+        backdrop.css('z-index', 100)
         this.editMode = true
         this.el.removeClass('selected')
-        this.el.find('input').css('caret-color', 'black')
+        this.el.find('input').css('caret-color', '')
         setSelectionRange(this.el.find('input')[0], 0, this.el.find('input').val().length)
         return this
     }
     leaveEditMode() {
+        $('.backdrop').remove()
+        this.el.css('z-index', 20)
         this.editMode = false
         this.el.addClass('selected')
         this.el.find('input').css('caret-color', 'transparent')
