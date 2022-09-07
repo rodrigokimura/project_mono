@@ -1,3 +1,9 @@
+## 7.24.0 (2022-09-07)
+
+### Feat
+
+- **mind_maps**: add drag to scroll feature
+
 ## 7.23.1 (2022-09-06)
 
 ### Fix
