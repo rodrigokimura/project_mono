@@ -15,10 +15,11 @@ class Connector {
         let length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
 
         this.node1.connector = this
-        $(PANEL).append(`
+        this.el = $(`
             <div class="connector" data-nodes="${this.node1.id}|${this.node2.id}" data-node2="${this.node2.id}" style="width: ${length}px; left: ${x1}px; top: ${y1}px; transform: rotate(${angle}deg);">
             </div>
         `)
+        $(PANEL).append(this.el)
     }
     erase() {
         $(`.connector[data-nodes='${this.node1.id}|${this.node2.id}']`).remove()
@@ -26,4 +27,6 @@ class Connector {
     delete() {
         this.erase()
     }
+    show() { this.el.show() }
+    hide() { this.el.hide() }
 }

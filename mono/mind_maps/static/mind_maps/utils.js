@@ -6,20 +6,6 @@ async function toast(message) {
     })
 }
 
-function createPanel() {
-    $(CONTAINER).css('overflow', 'scroll')
-    $(CONTAINER).empty()
-    $(CONTAINER).append(`
-        <div class="panel" style="height: ${panel.height}px; width: ${panel.width}px;">
-        </div>
-    `)
-    $(PANEL).click(e => {
-        if (!$(e.target).hasClass('panel')) return
-        new Toolbar().hide()
-        Node.deselectAll()
-    })
-}
-
 function centralize() {
     let maxX = Math.max(...nodes.map(n => n.position[0]))
     let minX = Math.min(...nodes.map(n => n.position[0]))
@@ -60,13 +46,13 @@ function setCaretToPos(input, pos) {
     setSelectionRange(input, pos, pos)
 }
 
-function getTextWidth(text, font) {
+function getTextSize(text, font) {
     // re-use canvas object for better performance
-    const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"))
+    const canvas = getTextSize.canvas || (getTextSize.canvas = document.createElement("canvas"))
     const context = canvas.getContext("2d")
     context.font = font
     const metrics = context.measureText(text)
-    return metrics.width
+    return [metrics.width, metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent]
 }
 
 function getCssStyle(element, prop) {
