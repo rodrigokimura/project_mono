@@ -12,6 +12,12 @@ class Node {
         this.metadata = {}
         this.fontSize = 1
         this.padding = 1
+        this.textStyle = {
+            bold: false,
+            italic: false,
+            underline: false,
+            lineThrough: false,
+        }
     }
     get width() { return this.size[0] }
     get height() { return this.size[1] }
@@ -29,6 +35,7 @@ class Node {
             size: this.size,
             fontSize: this.fontSize,
             padding: this.padding,
+            textStyle: this.textStyle,
         }
         var st = JSON.stringify(state)
         var hash = 0, i, chr;
@@ -93,6 +100,7 @@ class Node {
             </div>
         `)
         this.el = nodeEl
+        this.applyTextStyle()
         this.el.find('input').css('caret-color', 'transparent')
         $(PANEL).append(nodeEl)
         this.autoSize(this.name)
@@ -104,6 +112,15 @@ class Node {
         this.draw()
         this.drawConnectors(true)
         if (selected) this?.select()
+    }
+    applyTextStyle() {
+        let input = this.el.find('input')
+        input.css('font-weight', this.textStyle.bold ? 'bold' : 'normal')
+        input.css('font-style', this.textStyle.italic ? 'italic' : 'normal')
+        let textDecoration = ''
+        if (this.textStyle.underline) textDecoration += 'underline '
+        if (this.textStyle.lineThrough) textDecoration += 'line-through '
+        input.css('text-decoration', textDecoration)
     }
     unfade() { this.el[0].style.opacity = 1 }
     fade() { this.el[0].style.opacity = 0.5 }
@@ -203,7 +220,7 @@ class Node {
         })
         this.el.on('touchend', e => {
             let position = [
-                parseFloat(this.el[0].style.left.replace('px', ''))+ this.size[0] * scale / 2,
+                parseFloat(this.el[0].style.left.replace('px', '')) + this.size[0] * scale / 2,
                 parseFloat(this.el[0].style.top.replace('px', '')) + this.size[1] * scale / 2,
             ]
             this.metadata = null
@@ -352,12 +369,17 @@ class Node {
     decreaseFontSize() {
         if (this.fontSize == 1) return
         this.fontSize--
-        this.redraw() 
+        this.redraw()
     }
     increasePadding() { this.padding++; this.redraw() }
     decreasePadding() {
         if (this.padding == 1) return
         this.padding--
+        this.redraw()
+    }
+    toggleTextStyle(attr) {
+        if (!this.textStyle.hasOwnProperty(attr)) return
+        this.textStyle[attr] = !this.textStyle[attr]
         this.redraw()
     }
 }

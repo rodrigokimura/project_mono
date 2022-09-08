@@ -43,6 +43,10 @@ class Node(BaseModel):
     y = models.IntegerField(default=DEFAULT_PANEL_SIZE["height"] / 2)
     font_size = models.IntegerField(default=1)
     padding = models.IntegerField(default=1)
+    bold = models.BooleanField(default=False)
+    italic = models.BooleanField(default=False)
+    underline = models.BooleanField(default=False)
+    line_through = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
