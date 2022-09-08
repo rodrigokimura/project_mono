@@ -39,10 +39,13 @@ class Node(BaseModel):
         "self", on_delete=models.SET_NULL, null=True, blank=True
     )
     name = models.CharField(max_length=100)
-    x = models.IntegerField(default=DEFAULT_PANEL_SIZE["width"] / 2)
-    y = models.IntegerField(default=DEFAULT_PANEL_SIZE["height"] / 2)
-    font_size = models.IntegerField(default=1)
-    padding = models.IntegerField(default=1)
+
+    x = models.FloatField(default=DEFAULT_PANEL_SIZE["width"] / 2)
+    y = models.FloatField(default=DEFAULT_PANEL_SIZE["height"] / 2)
+
+    font_size = models.FloatField(default=1)
+    padding = models.FloatField(default=1)
+
     bold = models.BooleanField(default=False)
     italic = models.BooleanField(default=False)
     underline = models.BooleanField(default=False)

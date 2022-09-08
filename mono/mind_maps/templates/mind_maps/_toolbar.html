@@ -1,4 +1,8 @@
 <div class="ui segment toolbar" id="toolbar">
+    <a class="floating ui circular icon basic label" onclick="closeToolbar()">
+        <i class="close icon"></i>
+    </a>
+
     <div class="toolbar-row" style="display: flex; flex-flow: row nowrap; gap: .5em;">
         <div class="ui icon button" onclick="decreaseFontSize()" title="Decrease font size">
             <i class="text height icon"></i>
@@ -15,6 +19,9 @@
             <i class="expand icon"></i>
         </div>
     </div>
+
+    <div class="ui divider"></div>
+
     <div class="toolbar-row" style="display: flex; flex-flow: row nowrap; gap: .5em;">
         <div class="ui icon button" onclick="decreaseZoom()" title="Decrease zoom">
             <i class="search minus icon"></i>
@@ -28,6 +35,9 @@
             <i class="crosshairs icon"></i>
         </div>
     </div>
+
+    <div class="ui divider"></div>
+
     <div class="toolbar-row" style="display: flex; flex-flow: row nowrap; gap: .5em;">
         <div class="ui icon button" onclick="toggleBold()" title="Toggle bold">
             <i class="bold icon"></i>
