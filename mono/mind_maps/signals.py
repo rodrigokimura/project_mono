@@ -24,7 +24,7 @@ def create_default_node(
     post_delete, sender=Node, dispatch_uid="create_default_node_post_delete"
 )
 def create_default_node_post_delete(
-    sender, instance: Node, created, **kwargs
+    sender, instance: Node, **kwargs
 ):  # pylint: disable=unused-argument
     """
     Create default node on mind map creation

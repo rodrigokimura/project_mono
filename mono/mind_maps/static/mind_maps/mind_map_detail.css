@@ -38,8 +38,8 @@ body {
 }
 
 .toolbar {
-    left: 1em;
-    top: 3em;
+    right: 1.5em;
+    top: 3.5em;
     display: flex;
     position: fixed !important;
     z-index: 2000;
@@ -47,12 +47,16 @@ body {
     gap: .5em;
     padding: .5em;
     margin: 0;
+    opacity: .7;
+    transition: opacity .2s;
+}
+.toolbar:hover {
+    opacity: 1;
 }
 
 .panel {
     background-color: rgba(0, 0, 0, 0.02);
     cursor: move;
-    transition: zoom .2s;
     height: 100%;
 }
 

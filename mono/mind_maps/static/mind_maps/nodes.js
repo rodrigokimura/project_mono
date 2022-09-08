@@ -365,18 +365,18 @@ class Node {
         )[0]
         closestNode?.select()
     }
-    increaseFontSize() { this.fontSize++; this.redraw() }
-    decreaseFontSize() {
-        if (this.fontSize == 1) return
-        this.fontSize--
+    _incrementAttr(attr, inc, positive) {
+        if (!this.hasOwnProperty(attr)) return
+        if (positive) {
+            this[attr] += inc
+        } else {
+            if (this[attr] <= inc) return
+            this[attr] -= inc
+        }
         this.redraw()
     }
-    increasePadding() { this.padding++; this.redraw() }
-    decreasePadding() {
-        if (this.padding == 1) return
-        this.padding--
-        this.redraw()
-    }
+    incrementFontSize(positive = true) { this._incrementAttr('fontSize', .5, positive) }
+    incrementPadding(positive = true) { this._incrementAttr('padding', 1, positive) }
     toggleTextStyle(attr) {
         if (!this.textStyle.hasOwnProperty(attr)) return
         this.textStyle[attr] = !this.textStyle[attr]
