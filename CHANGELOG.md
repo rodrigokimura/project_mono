@@ -1,3 +1,9 @@
+## 7.28.0 (2022-09-08)
+
+### Feat
+
+- **mind_maps**: move toolbar to the left
+
 ## 7.27.0 (2022-09-08)
 
 ### Feat

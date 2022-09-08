@@ -38,7 +38,7 @@ body {
 }
 
 .toolbar {
-    right: 1.5em;
+    left: 1.5em;
     top: 3.5em;
     display: flex;
     position: fixed !important;
@@ -50,12 +50,17 @@ body {
     opacity: .7;
     transition: opacity .2s;
 }
+
 .toolbar:hover {
     opacity: 1;
 }
 
+#container {
+    background-color: rgb(250, 250, 250);
+}
+
 .panel {
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: rgb(250, 250, 250);
     cursor: move;
     height: 100%;
 }
