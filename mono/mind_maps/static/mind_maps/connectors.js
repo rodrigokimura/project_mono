@@ -16,13 +16,17 @@ class Connector {
 
         this.node1.connector = this
         this.el = $(`
-            <div class="connector" data-nodes="${this.node1.id}|${this.node2.id}" data-node2="${this.node2.id}" style="width: ${length * scale}px; left: ${x1 * scale}px; top: ${y1 * scale}px; transform: rotate(${angle}deg); height: ${.2 * scale}px;">
+            <div class="connector" data-nodes="${this.node1.id}|${this.node2.id}" style="width: ${length * scale}px; left: ${x1 * scale}px; top: ${y1 * scale}px; transform: rotate(${angle}deg); height: ${.2 * scale}px;">
             </div>
         `)
         $(PANEL).append(this.el)
     }
+    redraw() {
+        this.erase()
+        this.draw()
+    }
     erase() {
-        $(`.connector[data-nodes='${this.node1.id}|${this.node2.id}']`).remove()
+        this.el.remove()
     }
     delete() {
         this.erase()

@@ -12,6 +12,12 @@ class Node {
         this.metadata = {}
         this.fontSize = 1
         this.padding = 1
+        this.textStyle = {
+            bold: false,
+            italic: false,
+            underline: false,
+            lineThrough: false,
+        }
     }
     get width() { return this.size[0] }
     get height() { return this.size[1] }
@@ -29,6 +35,7 @@ class Node {
             size: this.size,
             fontSize: this.fontSize,
             padding: this.padding,
+            textStyle: this.textStyle,
         }
         var st = JSON.stringify(state)
         var hash = 0, i, chr;
@@ -93,6 +100,7 @@ class Node {
             </div>
         `)
         this.el = nodeEl
+        this.applyTextStyle()
         this.el.find('input').css('caret-color', 'transparent')
         $(PANEL).append(nodeEl)
         this.autoSize(this.name)
@@ -104,6 +112,15 @@ class Node {
         this.draw()
         this.drawConnectors(true)
         if (selected) this?.select()
+    }
+    applyTextStyle() {
+        let input = this.el.find('input')
+        input.css('font-weight', this.textStyle.bold ? 'bold' : 'normal')
+        input.css('font-style', this.textStyle.italic ? 'italic' : 'normal')
+        let textDecoration = ''
+        if (this.textStyle.underline) textDecoration += 'underline '
+        if (this.textStyle.lineThrough) textDecoration += 'line-through '
+        input.css('text-decoration', textDecoration)
     }
     unfade() { this.el[0].style.opacity = 1 }
     fade() { this.el[0].style.opacity = 0.5 }
@@ -190,20 +207,21 @@ class Node {
             })
         })
         this.el.on('touchstart', e => {
+            this.connectors.forEach(c => c.erase())
             this.metadata = {
-                pageX: e.targetTouches[0].screenX,
-                pageY: e.targetTouches[0].screenY,
+                pageX: e.targetTouches[0].pageX,
+                pageY: e.targetTouches[0].pageY,
             }
         })
         this.el.on('touchmove', e => {
             e.preventDefault()
-            this.el[0].style.left = this.position[0] * scale + e.targetTouches[0].pageX - this.metadata.pageX - this.size[0] / 2 + 'px'
-            this.el[0].style.top = this.position[1] * scale + e.targetTouches[0].pageY - this.metadata.pageY - this.size[1] / 2 + 'px'
+            this.el[0].style.left = this.position[0] * scale + e.targetTouches[0].pageX - this.metadata.pageX - this.size[0] * scale / 2 + 'px'
+            this.el[0].style.top = this.position[1] * scale + e.targetTouches[0].pageY - this.metadata.pageY - this.size[1] * scale / 2 + 'px'
         })
         this.el.on('touchend', e => {
             let position = [
-                parseFloat(this.el[0].style.left.replace('px', '')) + this.size[0] / 2,
-                parseFloat(this.el[0].style.top.replace('px', '')) + this.size[1] / 2,
+                parseFloat(this.el[0].style.left.replace('px', '')) + this.size[0] * scale / 2,
+                parseFloat(this.el[0].style.top.replace('px', '')) + this.size[1] * scale / 2,
             ]
             this.metadata = null
             this.move(position)
@@ -220,7 +238,7 @@ class Node {
         this.position = [positionInPixels[0] / scale, positionInPixels[1] / scale]
         this.redraw()
         for (let connector of this.connectors) {
-            if (connector) connector.draw()
+            if (connector) connector.redraw()
         }
     }
     autoSize(text) {
@@ -347,8 +365,21 @@ class Node {
         )[0]
         closestNode?.select()
     }
-    increaseFontSize() { this.fontSize += 5; this.redraw() }
-    decreaseFontSize() { this.fontSize -= 5; this.redraw() }
-    increasePadding() { this.padding += 5; this.redraw() }
-    decreasePadding() { this.padding -= 5; this.redraw() }
+    _incrementAttr(attr, inc, positive) {
+        if (!this.hasOwnProperty(attr)) return
+        if (positive) {
+            this[attr] += inc
+        } else {
+            if (this[attr] <= inc) return
+            this[attr] -= inc
+        }
+        this.redraw()
+    }
+    incrementFontSize(positive = true) { this._incrementAttr('fontSize', .5, positive) }
+    incrementPadding(positive = true) { this._incrementAttr('padding', 1, positive) }
+    toggleTextStyle(attr) {
+        if (!this.textStyle.hasOwnProperty(attr)) return
+        this.textStyle[attr] = !this.textStyle[attr]
+        this.redraw()
+    }
 }
