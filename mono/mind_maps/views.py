@@ -68,9 +68,13 @@ class FullSyncView(APIView):
                     else None,
                     "x": n.get("x"),
                     "y": n.get("y"),
+                    "created_by": request.user,
                     "font_size": n.get("font_size"),
                     "padding": n.get("padding"),
-                    "created_by": request.user,
+                    "bold": n.get("bold"),
+                    "italic": n.get("italic"),
+                    "underline": n.get("underline"),
+                    "line_through": n.get("line_through"),
                 },
             )
         Node.objects.filter(

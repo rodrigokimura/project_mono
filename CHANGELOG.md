@@ -1,3 +1,21 @@
+## 7.27.0 (2022-09-08)
+
+### Feat
+
+- **mind_maps**: add icon to hide toolbar
+
+## 7.26.0 (2022-09-08)
+
+### Feat
+
+- **mind_maps**: add text styles
+
+## 7.25.1 (2022-09-07)
+
+### Fix
+
+- **mind_maps**: adjust touch coordinates
+
 ## 7.25.0 (2022-09-07)
 
 ### Feat

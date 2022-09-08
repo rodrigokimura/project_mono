@@ -6,13 +6,36 @@ class Toolbar {
         this.el = $('#toolbar')
         this.rendered = true
     }
-    hide() { this.el.hide() }
-    show() { this.el.show() }
+    hide() {
+        let icon = $(`
+            <a id="icon-toolbar" class="ui toolbar icon-toolbar segment" onclick="openToolbar()" style="display: none;">
+                <i class="bars icon"></i>
+            </a>
+        `)
+        this.el.parent().append(icon)
+        this.el.find('.floating.label').hide()
+        this.el.hide('swing')
+        icon.show('swing')
+    }
+    show() {
+        this.el.show('swing')
+        this.el.find('.floating.label').show()
+        $('.icon-toolbar').remove()
+    }
 }
 
-var increaseFontSize = () => Node.getSelected()?.increaseFontSize()
-var decreaseFontSize = () => Node.getSelected()?.decreaseFontSize()
-var increasePadding = () => Node.getSelected()?.increasePadding()
-var decreasePadding = () => Node.getSelected()?.decreasePadding()
-var increaseZoom = () => { scale += 1; changeScale(scale); centralize() }
-var decreaseZoom = () => { scale -= 1; changeScale(scale); centralize() }
+var closeToolbar = () => { (new Toolbar()).hide() }
+var openToolbar = () => { (new Toolbar()).show() }
+
+var increaseFontSize = () => Node.getSelected()?.incrementFontSize(true)
+var decreaseFontSize = () => Node.getSelected()?.incrementFontSize(false)
+var increasePadding = () => Node.getSelected()?.incrementPadding(true)
+var decreasePadding = () => Node.getSelected()?.incrementPadding(false)
+
+var increaseZoom = () => { scale++; changeScale(scale); centralize() }
+var decreaseZoom = () => { scale--; changeScale(scale); centralize() }
+
+var toggleBold = () => Node.getSelected()?.toggleTextStyle('bold')
+var toggleItalic = () => Node.getSelected()?.toggleTextStyle('italic')
+var toggleUnderline = () => Node.getSelected()?.toggleTextStyle('underline')
+var toggleLineThrough = () => Node.getSelected()?.toggleTextStyle('lineThrough')

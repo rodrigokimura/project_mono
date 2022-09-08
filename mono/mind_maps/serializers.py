@@ -27,6 +27,10 @@ class NodeSerializer(ModelSerializer):
             "padding",
             "created_by",
             "created_at",
+            "bold",
+            "italic",
+            "underline",
+            "line_through",
         ]
         read_only_fields = [
             "position",

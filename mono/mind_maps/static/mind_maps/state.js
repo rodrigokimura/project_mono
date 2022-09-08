@@ -12,6 +12,10 @@ function fullSync() {
                 'y': n.position[1],
                 'font_size': n.fontSize,
                 'padding': n.padding,
+                'bold': n.textStyle.bold,
+                'italic': n.textStyle.italic,
+                'underline': n.textStyle.underline,
+                'line_through': n.textStyle.lineThrough,
             }
         }
     )
