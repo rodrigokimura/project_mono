@@ -1,3 +1,9 @@
+## 7.25.1 (2022-09-07)
+
+### Fix
+
+- **mind_maps**: adjust touch coordinates
+
 ## 7.25.0 (2022-09-07)
 
 ### Feat
