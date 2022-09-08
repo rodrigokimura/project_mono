@@ -1,3 +1,9 @@
+## 7.27.0 (2022-09-08)
+
+### Feat
+
+- **mind_maps**: add icon to hide toolbar
+
 ## 7.26.0 (2022-09-08)
 
 ### Feat
