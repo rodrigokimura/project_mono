@@ -1,3 +1,9 @@
+## 7.29.0 (2022-09-10)
+
+### Feat
+
+- **mind_maps**: add auto center for panel
+
 ## 7.28.0 (2022-09-08)
 
 ### Feat
