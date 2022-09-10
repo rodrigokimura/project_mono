@@ -3,12 +3,12 @@ let pos = { top: 0, left: 0, x: 0, y: 0 };
 const CONTAINER = '#container'
 const PANEL = `${CONTAINER} .panel`
 
-function initializePanel() {
+function initializePanel(width, height) {
     $(CONTAINER).css('overflow', 'scroll')
     $(CONTAINER).empty()
-    $(CONTAINER).append(`
-        <div class="panel" style="height: ${panel.height}px; width: ${panel.width}px;"></div>
-    `)
+    $(CONTAINER).append(`<div class="panel"></div>`)
+    $(PANEL).css('height', height * scale)
+    $(PANEL).css('width', width * scale)
     $(PANEL).click(e => {
         if (!$(e.target).hasClass('panel')) return
         Node.deselectAll()

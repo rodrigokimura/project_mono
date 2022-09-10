@@ -71,11 +71,8 @@ function changeScale(s) {
         on: 'now',
         method: 'PATCH',
         url: `/mm/api/mind_maps/${MIND_MAP_ID}/`,
-        data: {
-            scale: s,
-        },
+        data: { scale: s },
         onSuccess(r) {
-            console.log(r)
             scale = s
             nodes.forEach(n => n.redraw())
         }
