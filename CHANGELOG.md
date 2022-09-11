@@ -1,3 +1,9 @@
+## 7.31.0 (2022-09-11)
+
+### Feat
+
+- **mind_maps**: expand panel on out-of-boundary node
+
 ## 7.30.0 (2022-09-10)
 
 ### Feat
