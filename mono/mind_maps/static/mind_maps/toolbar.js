@@ -32,8 +32,8 @@ var decreaseFontSize = () => Node.getSelected()?.incrementFontSize(false)
 var increasePadding = () => Node.getSelected()?.incrementPadding(true)
 var decreasePadding = () => Node.getSelected()?.incrementPadding(false)
 
-var increaseZoom = () => { scale++; changeScale(scale); centralize() }
-var decreaseZoom = () => { scale--; changeScale(scale); centralize() }
+var increaseZoom = () => { scale++; changeScale(scale) }
+var decreaseZoom = () => { scale--; changeScale(scale) }
 
 var toggleBold = () => Node.getSelected()?.toggleTextStyle('bold')
 var toggleItalic = () => Node.getSelected()?.toggleTextStyle('italic')
