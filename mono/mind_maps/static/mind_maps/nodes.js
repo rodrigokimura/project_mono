@@ -88,6 +88,14 @@ class Node {
             y >= (this.position[1] - this.height / 2),
         ].every(v => v === true)
     }
+    isOutOfBoundaries() {
+        return [
+            this.position[0] < 0,
+            this.position[0] * scale > $(PANEL).width(),
+            this.position[1] < 0,
+            this.position[1] * scale > $(PANEL).height(),
+        ].some(v => v === true)
+    }
     autoPosition(reverseNext, reverseFirst) {
         this.position = (new Positioner(this, reverseNext, reverseFirst)).find()
     }
@@ -236,9 +244,13 @@ class Node {
     }
     move(positionInPixels) {
         this.position = [positionInPixels[0] / scale, positionInPixels[1] / scale]
-        this.redraw()
-        for (let connector of this.connectors) {
-            if (connector) connector.redraw()
+        if (this.isOutOfBoundaries()) {
+            reposition(nodes)
+        } else {
+            this.redraw()
+            for (let connector of this.connectors) {
+                if (connector) connector.redraw()
+            }
         }
     }
     autoSize(text) {
