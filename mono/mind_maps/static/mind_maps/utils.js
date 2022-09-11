@@ -74,7 +74,8 @@ function changeScale(s) {
         data: { scale: s },
         onSuccess(r) {
             scale = s
-            nodes.forEach(n => n.redraw())
+            reposition(nodes)
+            centralize()
         }
     })
 }
