@@ -12,12 +12,18 @@ class Node {
         this.metadata = {}
         this.fontSize = 1
         this.padding = 1
+        this.borderSize = .3
         this.textStyle = {
             bold: false,
             italic: false,
             underline: false,
             lineThrough: false,
-        }
+        },
+            this.colors = {
+                background: '#ffffff',
+                border: '#000000',
+                font: '#000000',
+            }
     }
     get width() { return this.size[0] }
     get height() { return this.size[1] }
@@ -35,10 +41,12 @@ class Node {
             size: this.size,
             fontSize: this.fontSize,
             padding: this.padding,
+            borderSize: this.borderSize,
             textStyle: this.textStyle,
+            colors: this.colors,
         }
-        var st = JSON.stringify(state)
-        var hash = 0, i, chr;
+        let st = JSON.stringify(state)
+        let hash = 0, i, chr;
         if (st.length === 0) return hash
         for (i = 0; i < st.length; i++) {
             chr = st.charCodeAt(i)
@@ -46,6 +54,15 @@ class Node {
             hash |= 0
         }
         return hash
+    }
+    get level() {
+        let level = 0
+        let node = this
+        while (node.parent) {
+            node = node.parent
+            level++
+        }
+        return level
     }
     static get(id) {
         for (let node of nodes) {
@@ -100,14 +117,19 @@ class Node {
         this.position = (new Positioner(this, reverseNext, reverseFirst)).find()
     }
     draw() {
-        var x = this.position[0] - this.width / 2
-        var y = this.position[1] - this.height / 2
+        let x = this.position[0] - this.width / 2
+        let y = this.position[1] - this.height / 2
         let nodeEl = $(`
-            <div id="${this.id}" draggable="true" class="node" style="border-width: ${.3 * scale}px; height: ${this.height * scale}px; left: ${x * scale}px; top: ${y * scale}px; font-size: ${this.fontSize * scale}pt">
+            <div id="${this.id}" draggable="true" class="node" style="height: ${this.height * scale}px; left: ${x * scale}px; top: ${y * scale}px">
                 <input type="text" tabindex="-1" value="${this.name}" style="width: 100%; height: 100%;">
             </div>
         `)
         this.el = nodeEl
+        this.el.css('border-width', this.borderSize * scale)
+        this.el.css('font-size', `${this.fontSize * scale}pt`)
+        this.el.find('input').css('color', this.colors.font)
+        this.el.css('border-color', this.colors.border)
+        this.el.css('background-color', this.colors.background)
         this.applyTextStyle()
         this.el.find('input').css('caret-color', 'transparent')
         $(PANEL).append(nodeEl)
@@ -260,8 +282,8 @@ class Node {
         let totalHeight = textSize[1] + borderWidth * 2 + this.padding * 2
         this.size[0] = totalWidth
         this.size[1] = totalHeight
-        this.el[0].style.left = `${(this.position[0] - totalWidth / 2) * scale}px`
-        this.el[0].style.top = `${(this.position[1] - totalHeight / 2) * scale}px`
+        this.el[0].style.left = `${(this.position[0] - totalWidth / 2 - this.borderSize) * scale}px`
+        this.el[0].style.top = `${(this.position[1] - totalHeight / 2 - this.borderSize) * scale}px`
         this.el.width(totalWidth * scale)
         this.el.height(totalHeight * scale)
         this.el.css('border-radius', totalHeight * scale)
@@ -271,9 +293,10 @@ class Node {
         let node = new Node(name, parent)
         nodes.push(node)
         node.autoPosition(reverseNext, reverseFirst)
+        node.autoStyle()
         node.draw()
         if (parent) {
-            var connector = new Connector(node, parent)
+            let connector = new Connector(node, parent)
             connector.draw()
         }
         toast(`Node ${node.name} created`)
@@ -286,7 +309,7 @@ class Node {
         return this.createNode(name, this.parent, alt, false)
     }
     enterEditMode() {
-        var backdrop = $(`
+        let backdrop = $(`
             <div class="backdrop" style="background-color: rgba(0, 0, 0, 0.2); z-index: 1000; width: 100%; height: 100%; position: relative;"></div>
         `)
         this.el.parent().append(backdrop)
@@ -316,9 +339,10 @@ class Node {
         console.log(this)
     }
     select() {
-        $(`#${this.id}`).addClass('selected')
+        this.el.addClass('selected')
         this.focus()
         toolbar.show()
+        this.printDetail()
     }
     deselect() { $(`#${this.id}`).removeClass('selected') }
     deselectOthers() {
@@ -352,18 +376,18 @@ class Node {
     }
     selectNext(direction) {
         this.deselect()
-        var attrMap = {
+        let attrMap = {
             l: [0, 'width', (a, b) => a - b, (a, b) => a < b],
             r: [0, 'width', (a, b) => a + b, (a, b) => a > b],
             u: [1, 'height', (a, b) => a - b, (a, b) => a < b],
             d: [1, 'height', (a, b) => a + b, (a, b) => a > b],
         }
-        var positionIndex, attr, edgeFunc, comparisonFunc
+        let positionIndex, attr, edgeFunc, comparisonFunc
         [positionIndex, attr, edgeFunc, comparisonFunc] = attrMap[direction]
 
         // filter nodes after the edge of this node
-        var edge = edgeFunc(this.position[positionIndex], this[attr] / 2)
-        var filteredNodes = nodes.filter(
+        let edge = edgeFunc(this.position[positionIndex], this[attr] / 2)
+        let filteredNodes = nodes.filter(
             node => comparisonFunc(node.position[positionIndex], edge)
         )
         if (filteredNodes.length === 0) this.select()
@@ -372,7 +396,7 @@ class Node {
             return
         }
         // find the closest node
-        var closestNode = filteredNodes.sort(
+        let closestNode = filteredNodes.sort(
             (a, b) => this.distanceFrom(a) - this.distanceFrom(b)
         )[0]
         closestNode?.select()
@@ -389,9 +413,31 @@ class Node {
     }
     incrementFontSize(positive = true) { this._incrementAttr('fontSize', .5, positive) }
     incrementPadding(positive = true) { this._incrementAttr('padding', 1, positive) }
+    incrementBorder(positive = true) { this._incrementAttr('borderSize', .1, positive) }
     toggleTextStyle(attr) {
         if (!this.textStyle.hasOwnProperty(attr)) return
         this.textStyle[attr] = !this.textStyle[attr]
         this.redraw()
+    }
+    autoStyle() {
+        if (!self.style) {
+            if (this.level in STYLES) {
+                this._applyStyle(STYLES[this.level])
+            }
+        }
+        return this
+    }
+    _applyStyle(style) {
+        this.fontSize = style.fontSize
+        this.padding = style.padding
+        this.borderSize = style.borderSize
+        this.textStyle = style.textStyle
+    }
+    setColor(color) {
+        if (color in PRESET_COLORS) {
+            this.colors = PRESET_COLORS[color]
+            this.redraw()
+        }
+        return this
     }
 }

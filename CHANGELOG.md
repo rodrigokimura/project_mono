@@ -1,3 +1,15 @@
+## 7.32.0 (2022-09-12)
+
+### Feat
+
+- **mind_maps**: add color attributes
+
+## 7.31.1 (2022-09-12)
+
+### Fix
+
+- **mind_maps**: adjust positioning
+
 ## 7.31.0 (2022-09-11)
 
 ### Feat

@@ -7,6 +7,3 @@ class MindMapsConfig(AppConfig):
     """Mind maps app config"""
 
     name = "mind_maps"
-
-    def ready(self):
-        load_signals(self.name)

@@ -12,10 +12,14 @@ function fullSync() {
                 'y': n.position[1],
                 'font_size': n.fontSize,
                 'padding': n.padding,
+                'border_size': n.borderSize,
                 'bold': n.textStyle.bold,
                 'italic': n.textStyle.italic,
                 'underline': n.textStyle.underline,
                 'line_through': n.textStyle.lineThrough,
+                'font_color': n.colors.font,
+                'border_color': n.colors.border,
+                'background_color': n.colors.background,
             }
         }
     )
