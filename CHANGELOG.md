@@ -1,3 +1,9 @@
+## 7.34.2 (2022-09-12)
+
+### Fix
+
+- **mono**: apply pylint suggestions
+
 ## 7.34.1 (2022-09-12)
 
 ### Fix

@@ -6,6 +6,7 @@ from django.db import transaction
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from rest_framework import status
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -14,6 +15,7 @@ from .serializers import NodeSerializer
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
+    """Main view for Mind Maps app"""
 
     template_name = "mind_maps/index.html"
 
@@ -25,11 +27,13 @@ class IndexView(LoginRequiredMixin, TemplateView):
 
 
 class MindMapListView(LoginRequiredMixin, TemplateView):
+    """List view for Mind Maps app"""
 
     template_name = "mind_maps/mind_map_list.html"
 
 
 class MindMapDetailView(LoginRequiredMixin, DetailView):
+    """Detail view for Mind Maps app"""
 
     template_name = "mind_maps/detail.html"
     model = MindMap
@@ -43,7 +47,8 @@ class MindMapDetailView(LoginRequiredMixin, DetailView):
 
 class FullSyncView(APIView):
     @transaction.atomic()
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args, **kwargs):
+        """Full sync view"""
         serializer = NodeSerializer(
             data=request.data, many=True, context={"request": request}
         )
@@ -53,32 +58,32 @@ class FullSyncView(APIView):
             return Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
-        for n in request.data:
+        for node in request.data:
             Node.objects.update_or_create(
-                id=n["id"],
+                id=node["id"],
                 created_by=request.user,
                 defaults={
-                    "name": n.get("name"),
-                    "mind_map": MindMap.objects.get(id=n.get("mind_map")),
+                    "name": node.get("name"),
+                    "mind_map": MindMap.objects.get(id=node.get("mind_map")),
                     "parent": Node.objects.get_or_create(
-                        id=n.get("parent"),
+                        id=node.get("parent"),
                         defaults={"created_by": request.user},
                     )[0]
-                    if n.get("parent") is not None
+                    if node.get("parent") is not None
                     else None,
-                    "x": n.get("x"),
-                    "y": n.get("y"),
+                    "x": node.get("x"),
+                    "y": node.get("y"),
                     "created_by": request.user,
-                    "font_size": n.get("font_size"),
-                    "padding": n.get("padding"),
-                    "border_size": n.get("border_size"),
-                    "font_color": n.get("font_color"),
-                    "border_color": n.get("border_color"),
-                    "background_color": n.get("background_color"),
-                    "bold": n.get("bold"),
-                    "italic": n.get("italic"),
-                    "underline": n.get("underline"),
-                    "line_through": n.get("line_through"),
+                    "font_size": node.get("font_size"),
+                    "padding": node.get("padding"),
+                    "border_size": node.get("border_size"),
+                    "font_color": node.get("font_color"),
+                    "border_color": node.get("border_color"),
+                    "background_color": node.get("background_color"),
+                    "bold": node.get("bold"),
+                    "italic": node.get("italic"),
+                    "underline": node.get("underline"),
+                    "line_through": node.get("line_through"),
                 },
             )
         Node.objects.filter(
