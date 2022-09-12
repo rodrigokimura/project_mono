@@ -1,3 +1,15 @@
+## 7.34.0 (2022-09-12)
+
+### Feat
+
+- **mind_maps**: inherit colors
+
+## 7.33.0 (2022-09-12)
+
+### Feat
+
+- **mind_maps**: add colors
+
 ## 7.32.0 (2022-09-12)
 
 ### Feat

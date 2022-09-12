@@ -293,6 +293,7 @@ class Node {
         let node = new Node(name, parent)
         nodes.push(node)
         node.autoPosition(reverseNext, reverseFirst)
+        node.colors = this.colors
         node.autoStyle()
         node.draw()
         if (parent) {
