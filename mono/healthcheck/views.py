@@ -15,7 +15,7 @@ from django.db.models import Count, FloatField, Sum
 from django.db.models.expressions import Value
 from django.db.models.fields import IntegerField
 from django.db.models.functions import Cast, Coalesce
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import force_bytes
 from django.views.decorators.csrf import csrf_exempt
@@ -75,7 +75,7 @@ def healthcheck(request):
 
 
 @csrf_exempt
-def github_webhook(request):
+def github_webhook(request: HttpRequest):
     """
     This view receives a POST notification from a GitHub webhook
     everytime a Pull Request is successfully merged.
@@ -95,25 +95,24 @@ def github_webhook(request):
             logging.info("Invalid event.")
             return HttpResponse(status=403)
 
-        body = json.loads(request.body.decode("utf-8"))
-        ref = body["pull_request"]["base"]["ref"]
+        body: dict = json.loads(request.body.decode("utf-8"))
+        pull_request = body.get("pull_request", {})
         if (
-            body["action"] == "closed"
-            and body["pull_request"]["merged"]
-            and ref == "master"
+            body.get("action") == "closed"
+            and pull_request.get("merged_at")
+            and pull_request.get("base", {}).get("ref") == "master"
         ):
-            pull_request = body["pull_request"]
             PullRequest.objects.update_or_create(
-                number=pull_request["number"],
+                number=pull_request.get("number"),
                 defaults={
-                    "author": pull_request["user"]["login"],
-                    "last_commit_sha": pull_request["base"]["sha"],
-                    "commits": pull_request["commits"],
-                    "additions": pull_request["additions"],
-                    "deletions": pull_request["deletions"],
-                    "changed_files": pull_request["changed_files"],
+                    "author": pull_request.get("user", {}).get("login"),
+                    "last_commit_sha": pull_request.get("base", {}).get("sha"),
+                    "commits": pull_request.get("commits"),
+                    "additions": pull_request.get("additions"),
+                    "deletions": pull_request.get("deletions"),
+                    "changed_files": pull_request.get("changed_files"),
                     "merged_at": string_to_localized_datetime(
-                        pull_request["merged_at"]
+                        pull_request.get("merged_at")
                     ),
                 },
             )
