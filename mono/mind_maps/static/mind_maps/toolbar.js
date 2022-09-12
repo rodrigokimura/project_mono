@@ -39,3 +39,5 @@ var toggleBold = () => Node.getSelected()?.toggleTextStyle('bold')
 var toggleItalic = () => Node.getSelected()?.toggleTextStyle('italic')
 var toggleUnderline = () => Node.getSelected()?.toggleTextStyle('underline')
 var toggleLineThrough = () => Node.getSelected()?.toggleTextStyle('lineThrough')
+
+var autoStyle = () => {Node.getSelected()?.autoStyle(); Node.getSelected()?.redraw()}

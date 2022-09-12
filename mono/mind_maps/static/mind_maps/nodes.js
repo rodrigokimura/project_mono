@@ -37,8 +37,8 @@ class Node {
             padding: this.padding,
             textStyle: this.textStyle,
         }
-        var st = JSON.stringify(state)
-        var hash = 0, i, chr;
+        let st = JSON.stringify(state)
+        let hash = 0, i, chr;
         if (st.length === 0) return hash
         for (i = 0; i < st.length; i++) {
             chr = st.charCodeAt(i)
@@ -46,6 +46,15 @@ class Node {
             hash |= 0
         }
         return hash
+    }
+    get level() {
+        let level = 0
+        let node = this
+        while (node.parent) {
+            node = node.parent
+            level++
+        }
+        return level
     }
     static get(id) {
         for (let node of nodes) {
@@ -100,8 +109,9 @@ class Node {
         this.position = (new Positioner(this, reverseNext, reverseFirst)).find()
     }
     draw() {
-        var x = this.position[0] - this.width / 2
-        var y = this.position[1] - this.height / 2
+        let x = this.position[0] - this.width / 2
+        let y = this.position[1] - this.height / 2
+        this.autoStyle()
         let nodeEl = $(`
             <div id="${this.id}" draggable="true" class="node" style="border-width: ${.3 * scale}px; height: ${this.height * scale}px; left: ${x * scale}px; top: ${y * scale}px; font-size: ${this.fontSize * scale}pt">
                 <input type="text" tabindex="-1" value="${this.name}" style="width: 100%; height: 100%;">
@@ -273,7 +283,7 @@ class Node {
         node.autoPosition(reverseNext, reverseFirst)
         node.draw()
         if (parent) {
-            var connector = new Connector(node, parent)
+            let connector = new Connector(node, parent)
             connector.draw()
         }
         toast(`Node ${node.name} created`)
@@ -286,7 +296,7 @@ class Node {
         return this.createNode(name, this.parent, alt, false)
     }
     enterEditMode() {
-        var backdrop = $(`
+        let backdrop = $(`
             <div class="backdrop" style="background-color: rgba(0, 0, 0, 0.2); z-index: 1000; width: 100%; height: 100%; position: relative;"></div>
         `)
         this.el.parent().append(backdrop)
@@ -352,18 +362,18 @@ class Node {
     }
     selectNext(direction) {
         this.deselect()
-        var attrMap = {
+        let attrMap = {
             l: [0, 'width', (a, b) => a - b, (a, b) => a < b],
             r: [0, 'width', (a, b) => a + b, (a, b) => a > b],
             u: [1, 'height', (a, b) => a - b, (a, b) => a < b],
             d: [1, 'height', (a, b) => a + b, (a, b) => a > b],
         }
-        var positionIndex, attr, edgeFunc, comparisonFunc
+        let positionIndex, attr, edgeFunc, comparisonFunc
         [positionIndex, attr, edgeFunc, comparisonFunc] = attrMap[direction]
 
         // filter nodes after the edge of this node
-        var edge = edgeFunc(this.position[positionIndex], this[attr] / 2)
-        var filteredNodes = nodes.filter(
+        let edge = edgeFunc(this.position[positionIndex], this[attr] / 2)
+        let filteredNodes = nodes.filter(
             node => comparisonFunc(node.position[positionIndex], edge)
         )
         if (filteredNodes.length === 0) this.select()
@@ -372,7 +382,7 @@ class Node {
             return
         }
         // find the closest node
-        var closestNode = filteredNodes.sort(
+        let closestNode = filteredNodes.sort(
             (a, b) => this.distanceFrom(a) - this.distanceFrom(b)
         )[0]
         closestNode?.select()
@@ -393,5 +403,17 @@ class Node {
         if (!this.textStyle.hasOwnProperty(attr)) return
         this.textStyle[attr] = !this.textStyle[attr]
         this.redraw()
+    }
+    autoStyle() {
+        if (!self.style) {
+            if (this.level in STYLES) {
+                this._applyStyle(STYLES[this.level])
+            }
+        }
+    }
+    _applyStyle(style) {
+        this.fontSize = style.fontSize
+        this.padding = style.padding
+        this.textStyle = style.textStyle
     }
 }
