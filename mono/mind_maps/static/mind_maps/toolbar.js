@@ -45,3 +45,15 @@ var toggleLineThrough = () => Node.getSelected()?.toggleTextStyle('lineThrough')
 var autoStyle = () => { Node.getSelected()?.autoStyle().redraw() }
 
 var red = () => { Node.getSelected()?.setColor('red').redraw() }
+var orange = () => { Node.getSelected()?.setColor('orange').redraw() }
+var yellow = () => { Node.getSelected()?.setColor('yellow').redraw() }
+var olive = () => { Node.getSelected()?.setColor('olive').redraw() }
+var green = () => { Node.getSelected()?.setColor('green').redraw() }
+var teal = () => { Node.getSelected()?.setColor('teal').redraw() }
+var blue = () => { Node.getSelected()?.setColor('blue').redraw() }
+var violet = () => { Node.getSelected()?.setColor('violet').redraw() }
+var purple = () => { Node.getSelected()?.setColor('purple').redraw() }
+var pink = () => { Node.getSelected()?.setColor('pink').redraw() }
+var brown = () => { Node.getSelected()?.setColor('brown').redraw() }
+var grey = () => { Node.getSelected()?.setColor('grey').redraw() }
+var black = () => { Node.getSelected()?.setColor('black').redraw() }
