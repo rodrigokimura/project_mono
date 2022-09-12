@@ -45,6 +45,11 @@ class Node(BaseModel):
 
     font_size = models.FloatField(default=1)
     padding = models.FloatField(default=1)
+    border_size = models.FloatField(default=0.3)
+
+    font_color = models.CharField(max_length=7, default="#000000")
+    border_color = models.CharField(max_length=7, default="#ffffff")
+    background_color = models.CharField(max_length=7, default="#ffffff")
 
     bold = models.BooleanField(default=False)
     italic = models.BooleanField(default=False)

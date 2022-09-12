@@ -31,6 +31,8 @@ var increaseFontSize = () => Node.getSelected()?.incrementFontSize(true)
 var decreaseFontSize = () => Node.getSelected()?.incrementFontSize(false)
 var increasePadding = () => Node.getSelected()?.incrementPadding(true)
 var decreasePadding = () => Node.getSelected()?.incrementPadding(false)
+var increaseBorder = () => Node.getSelected()?.incrementBorder(true)
+var decreaseBorder = () => Node.getSelected()?.incrementBorder(false)
 
 var increaseZoom = () => { scale++; changeScale(scale) }
 var decreaseZoom = () => { scale--; changeScale(scale) }
@@ -40,4 +42,6 @@ var toggleItalic = () => Node.getSelected()?.toggleTextStyle('italic')
 var toggleUnderline = () => Node.getSelected()?.toggleTextStyle('underline')
 var toggleLineThrough = () => Node.getSelected()?.toggleTextStyle('lineThrough')
 
-var autoStyle = () => {Node.getSelected()?.autoStyle(); Node.getSelected()?.redraw()}
+var autoStyle = () => { Node.getSelected()?.autoStyle().redraw() }
+
+var red = () => { Node.getSelected()?.setColor('red').redraw() }

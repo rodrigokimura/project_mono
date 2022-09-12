@@ -13,17 +13,30 @@ function loadMindMap() {
         url: `/mm/api/mind_maps/${MIND_MAP_ID}/`,
         onSuccess(r) {
             nodes = []
+            if (!r.nodes.length) {
+                let node = new Node(MIND_MAP_NAME)
+                node.autoStyle()
+                nodes.push(node)
+                reposition(nodes)
+                centralize()
+            }
             r.nodes.forEach(n => {
                 let newNode = Node.getOrCreate(n.id)
                 newNode.name = n.name
                 newNode.position = n.position
                 newNode.fontSize = n.font_size
                 newNode.padding = n.padding
+                newNode.borderSize = n.border_size
                 newNode.textStyle = {
                     bold: n.bold,
                     italic: n.italic,
                     underline: n.underline,
                     lineThrough: n.line_through,
+                }
+                newNode.colors = {
+                    background: n.background_color,
+                    border: n.border_color,
+                    font: n.font_color,
                 }
                 if (n.parent) {
                     newNode.parent = Node.getOrCreate(n.parent)
