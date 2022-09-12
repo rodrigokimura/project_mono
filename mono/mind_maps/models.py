@@ -1,3 +1,4 @@
+"""Mind maps models"""
 import uuid
 
 from django.contrib.auth import get_user_model
@@ -12,6 +13,8 @@ DEFAULT_PANEL_SIZE = {
 
 
 class BaseModel(models.Model):
+    """Base model for Mind Maps app"""
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -22,6 +25,11 @@ class BaseModel(models.Model):
 
 
 class MindMap(BaseModel):
+    """
+    Mind map model
+    A group of related nodes
+    """
+
     name = models.CharField(max_length=255)
     scale = models.FloatField(default=10)
 
@@ -34,6 +42,11 @@ class MindMap(BaseModel):
 
 
 class Node(BaseModel):
+    """
+    Node model
+    An entity that can be linked to other nodes
+    """
+
     mind_map = models.ForeignKey(MindMap, on_delete=models.CASCADE)
     parent = models.ForeignKey(
         "self", on_delete=models.SET_NULL, null=True, blank=True
