@@ -11,22 +11,23 @@ class Positioner {
         const BACKOFF = 10 / scale
         const ANGLE = this.reverseNext ? 45 : -45
         const MAX_CHILDREN = 200
+        let x, y
 
-        var node = this.node
+        let node = this.node
         if (node.parent === null) {
-            var x = panel.width / 2
-            var y = panel.height / 2
+            x = panel.width / 2
+            y = panel.height / 2
             return [x, y]
         }
-        var distance = INITIAL_OFFSET
+        let distance = INITIAL_OFFSET
         const nodesByLayer = 360 / ANGLE
         for (i = 0; i < MAX_CHILDREN; i++) {
 
             if (i % nodesByLayer === 0) {
-                var referenceX, referenceY
+                let referenceX, referenceY
                 [referenceX, referenceY] = this.getReference(node, distance, this.reverseFirst)
-                var x = (node.parent.position[0] - referenceX) * ((i / 8) + 1) + node.parent.position[0]
-                var y = (node.parent.position[1] - referenceY) * ((i / 8) + 1) + node.parent.position[1]
+                x = (node.parent.position[0] - referenceX) * ((i / 8) + 1) + node.parent.position[0]
+                y = (node.parent.position[1] - referenceY) * ((i / 8) + 1) + node.parent.position[1]
                 // Decrease offset for next layer iteration
                 distance -= BACKOFF
                 // Add rotation every two layer iterations
@@ -47,20 +48,21 @@ class Positioner {
 
 function getReferenceForPositioningByOpposite(node, distance, reverseFirst) {
     // reverseFirst is invalid for this strategy
-    var parentHasParent = node.parent.parent !== null
+    let referenceX, referenceY
+    let parentHasParent = node.parent.parent !== null
     if (parentHasParent) {
-        var referenceX = node.parent.parent.position[0]
-        var referenceY = node.parent.parent.position[1]
+        referenceX = node.parent.parent.position[0]
+        referenceY = node.parent.parent.position[1]
     } else {
-        var referenceX = node.parent.position[0]
-        var referenceY = node.parent.position[1] - distance
+        referenceX = node.parent.position[0]
+        referenceY = node.parent.position[1] - distance
     }
     return [referenceX, referenceY]
 }
 
 function getReferenceForPositioningByAlwaysAbove(node, distance, reverseFirst) {
-    var referenceX = node.parent.position[0]
-    var referenceY = node.parent.position[1] - distance * (reverseFirst ? -1 : 1)
+    let referenceX = node.parent.position[0]
+    let referenceY = node.parent.position[1] - distance * (reverseFirst ? -1 : 1)
     return [referenceX, referenceY]
 }
 
@@ -77,12 +79,12 @@ function isPositionAvailable(node, x, y) {
 }
 
 function rotate(cx, cy, x, y, angle) {
-    var radians = (Math.PI / 180) * angle
-    var cos = Math.cos(radians)
-    var sin = Math.sin(radians)
-    var nx = (cos * (x - cx)) - (sin * (y - cy)) + cx
-    var ny = (cos * (y - cy)) + (sin * (x - cx)) + cy
-    return [Math.round(nx), Math.round(ny)]
+    let radians = (Math.PI / 180) * angle
+    let cos = Math.cos(radians)
+    let sin = Math.sin(radians)
+    let nx = (cos * (x - cx)) - (sin * (y - cy)) + cx
+    let ny = (cos * (y - cy)) + (sin * (x - cx)) + cy
+    return [nx, ny]
 }
 
 function getNextPosition(node, x, y, angle) {
