@@ -1,3 +1,9 @@
+## 7.32.0 (2022-09-12)
+
+### Feat
+
+- **mind_maps**: add color attributes
+
 ## 7.31.1 (2022-09-12)
 
 ### Fix
