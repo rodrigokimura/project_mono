@@ -19,6 +19,14 @@
             <i class="expand icon"></i>
         </div>
     </div>
+    <div class="toolbar-row" style="display: flex; flex-flow: row nowrap; gap: .5em;">
+        <div class="ui icon button" onclick="decreaseBorder()" title="Decrease border">
+            <i class="compress icon"></i>
+        </div>
+        <div class="ui icon button" onclick="increaseBorder()" title="Increase border">
+            <i class="expand icon"></i>
+        </div>
+    </div>
 
     <div class="ui divider"></div>
 
@@ -56,9 +64,17 @@
     </div>
     
     <div class="ui divider"></div>
+    
+    <div class="toolbar-row" style="display: flex; flex-flow: row nowrap; gap: .5em;">
+        <div class="ui icon button" onclick="autoStyle()" title="Reset style">
+            <i class="remove format icon"></i>
+        </div>
+    </div>
+    
+    <div class="ui divider"></div>
 
     <div class="toolbar-row" style="display: flex; flex-flow: row nowrap; gap: .5em;">
-        <div class="ui icon button" onclick="autoStyle()" title="Toggle underline">
+        <div class="ui icon button" onclick="red()" title="Reset style">
             <i class="remove format icon"></i>
         </div>
     </div>

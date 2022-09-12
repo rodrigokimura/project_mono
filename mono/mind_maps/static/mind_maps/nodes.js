@@ -12,12 +12,18 @@ class Node {
         this.metadata = {}
         this.fontSize = 1
         this.padding = 1
+        this.borderSize = .3
         this.textStyle = {
             bold: false,
             italic: false,
             underline: false,
             lineThrough: false,
-        }
+        },
+            this.colors = {
+                background: '#ffffff',
+                border: '#000000',
+                font: '#000000',
+            }
     }
     get width() { return this.size[0] }
     get height() { return this.size[1] }
@@ -35,7 +41,9 @@ class Node {
             size: this.size,
             fontSize: this.fontSize,
             padding: this.padding,
+            borderSize: this.borderSize,
             textStyle: this.textStyle,
+            colors: this.colors,
         }
         let st = JSON.stringify(state)
         let hash = 0, i, chr;
@@ -111,13 +119,17 @@ class Node {
     draw() {
         let x = this.position[0] - this.width / 2
         let y = this.position[1] - this.height / 2
-        this.autoStyle()
         let nodeEl = $(`
-            <div id="${this.id}" draggable="true" class="node" style="border-width: ${.3 * scale}px; height: ${this.height * scale}px; left: ${x * scale}px; top: ${y * scale}px; font-size: ${this.fontSize * scale}pt">
+            <div id="${this.id}" draggable="true" class="node" style="height: ${this.height * scale}px; left: ${x * scale}px; top: ${y * scale}px">
                 <input type="text" tabindex="-1" value="${this.name}" style="width: 100%; height: 100%;">
             </div>
         `)
         this.el = nodeEl
+        this.el.css('border-width', this.borderSize * scale)
+        this.el.css('font-size', `${this.fontSize * scale}pt`)
+        this.el.find('input').css('color', this.colors.font)
+        this.el.css('border-color', this.colors.border)
+        this.el.css('background-color', this.colors.background)
         this.applyTextStyle()
         this.el.find('input').css('caret-color', 'transparent')
         $(PANEL).append(nodeEl)
@@ -270,8 +282,8 @@ class Node {
         let totalHeight = textSize[1] + borderWidth * 2 + this.padding * 2
         this.size[0] = totalWidth
         this.size[1] = totalHeight
-        this.el[0].style.left = `${(this.position[0] - totalWidth / 2) * scale}px`
-        this.el[0].style.top = `${(this.position[1] - totalHeight / 2) * scale}px`
+        this.el[0].style.left = `${(this.position[0] - totalWidth / 2 - this.borderSize) * scale}px`
+        this.el[0].style.top = `${(this.position[1] - totalHeight / 2 - this.borderSize) * scale}px`
         this.el.width(totalWidth * scale)
         this.el.height(totalHeight * scale)
         this.el.css('border-radius', totalHeight * scale)
@@ -281,6 +293,7 @@ class Node {
         let node = new Node(name, parent)
         nodes.push(node)
         node.autoPosition(reverseNext, reverseFirst)
+        node.autoStyle()
         node.draw()
         if (parent) {
             let connector = new Connector(node, parent)
@@ -326,9 +339,10 @@ class Node {
         console.log(this)
     }
     select() {
-        $(`#${this.id}`).addClass('selected')
+        this.el.addClass('selected')
         this.focus()
         toolbar.show()
+        this.printDetail()
     }
     deselect() { $(`#${this.id}`).removeClass('selected') }
     deselectOthers() {
@@ -399,6 +413,7 @@ class Node {
     }
     incrementFontSize(positive = true) { this._incrementAttr('fontSize', .5, positive) }
     incrementPadding(positive = true) { this._incrementAttr('padding', 1, positive) }
+    incrementBorder(positive = true) { this._incrementAttr('borderSize', .1, positive) }
     toggleTextStyle(attr) {
         if (!this.textStyle.hasOwnProperty(attr)) return
         this.textStyle[attr] = !this.textStyle[attr]
@@ -410,10 +425,19 @@ class Node {
                 this._applyStyle(STYLES[this.level])
             }
         }
+        return this
     }
     _applyStyle(style) {
         this.fontSize = style.fontSize
         this.padding = style.padding
+        this.borderSize = style.borderSize
         this.textStyle = style.textStyle
+    }
+    setColor(color) {
+        if (color in PRESET_COLORS) {
+            this.colors = PRESET_COLORS[color]
+            this.redraw()
+        }
+        return this
     }
 }
