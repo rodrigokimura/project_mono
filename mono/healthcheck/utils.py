@@ -1,7 +1,7 @@
 """Utility functions for healthcheck."""
 import time
 from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, Iterable, List
+from typing import Any, Dict, Iterable, List
 
 from django.conf import settings
 from git import Commit, Repo

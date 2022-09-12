@@ -11,12 +11,9 @@ from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.migrations.loader import MigrationLoader
-from django.db.models import Count, FloatField, Sum
-from django.db.models.expressions import Value
-from django.db.models.fields import IntegerField
-from django.db.models.functions import Cast, Coalesce
+from django.db.models import Count, FloatField, OuterRef, Subquery, Sum
+from django.db.models.functions import Cast
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404
 from django.utils.encoding import force_bytes
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
@@ -33,8 +30,7 @@ from .serializers import (
     PylintReportSerializer,
     ReportSerializer,
 )
-from .tasks import deploy_app
-from .utils import format_to_heatmap, get_commits_by_date, get_commits_context
+from .utils import get_commits_by_date, get_commits_context
 
 
 def is_valid_signature(x_hub_signature, data):
@@ -227,8 +223,6 @@ class SummaryView(UserPassesTestMixin, APIView):
         """
         Read changelog markdown file and convert to html
         """
-        from django.db.models import OuterRef, Subquery
-
         cov = (
             CoverageReport.objects.filter(pull_request=OuterRef("pk"))
             .annotate(
