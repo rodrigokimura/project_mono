@@ -1,12 +1,10 @@
 """Healthcheck's serializers"""
-from healthcheck.models import PullRequest
 from rest_framework.serializers import (
     DateField,
     DecimalField,
     FileField,
     IntegerField,
     Serializer,
-    ValidationError,
 )
 
 
@@ -43,3 +41,9 @@ class PylintReportSerializer(ReportSerializer):
         decimal_places=2,
         max_digits=4,
     )
+
+    def create(self, validated_data):
+        raise NotImplementedError
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError
