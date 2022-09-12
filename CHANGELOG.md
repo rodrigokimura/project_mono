@@ -1,3 +1,9 @@
+## 7.34.1 (2022-09-12)
+
+### Fix
+
+- **healthcheck**: improve endpoint resilience
+
 ## 7.34.0 (2022-09-12)
 
 ### Feat
