@@ -15,22 +15,21 @@ body {
     box-shadow: 0 0 0.5em rgb(0 0 0 / 20%) !important;
 }
 
-.collapse-expand-nodes {
-    position: relative;
+.collapse-button:has(i.expand.icon) {
+    opacity: 1;
+}
+
+.node .button {
     opacity: 0;
     transition: opacity .2s;
     cursor: pointer !important;
 }
 
-.collapse-expand-nodes * {
+.node .button * {
     cursor: pointer !important;
 }
 
-.collapse-expand-nodes:has(i.plus.icon) {
-    opacity: 1;
-}
-
-.node:hover .collapse-expand-nodes {
+.node:hover .button {
     opacity: 1;
     box-shadow: 0 0 0.5em rgb(0 0 0 / 20%) !important;
 }
