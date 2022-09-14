@@ -38,6 +38,7 @@ function loadMindMap() {
                     border: n.border_color,
                     font: n.font_color,
                 }
+                newNode.collapsed = n.collapsed
                 if (n.parent) {
                     newNode.parent = Node.getOrCreate(n.parent)
                 }
@@ -75,6 +76,9 @@ function renderNodes() {
     nodes.forEach(n => {
         n.draw()
         n.drawConnectors()
+    })
+    nodes.forEach(n => {
+        if (n.collapsed) n.collapse()
     })
     storeState()
 }

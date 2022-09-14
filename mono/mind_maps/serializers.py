@@ -35,6 +35,7 @@ class NodeSerializer(ModelSerializer):
             "font_color",
             "border_color",
             "background_color",
+            "collapsed",
         ]
         read_only_fields = [
             "position",
