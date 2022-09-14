@@ -1,3 +1,9 @@
+## 7.36.1 (2022-09-14)
+
+### Fix
+
+- **mind_maps**: adjust navigation to consider visible nodes
+
 ## 7.36.0 (2022-09-14)
 
 ### Feat
