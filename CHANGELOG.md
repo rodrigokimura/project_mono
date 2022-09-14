@@ -1,3 +1,9 @@
+## 7.36.0 (2022-09-14)
+
+### Feat
+
+- **mind_maps**: add button to collapse
+
 ## 7.35.2 (2022-09-14)
 
 ### Fix
