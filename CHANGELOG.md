@@ -1,3 +1,9 @@
+## 7.35.1 (2022-09-13)
+
+### Fix
+
+- **mind_maps**: adjust cursor style
+
 ## 7.35.0 (2022-09-13)
 
 ### Feat
