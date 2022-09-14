@@ -8,6 +8,11 @@ body {
     cursor: move;
     position: absolute;
     z-index: 20;
+    transition: box-shadow 0.5s ease;
+}
+
+.node:hover {
+    box-shadow: 0 0 0.5em rgb(0 0 0 / 20%) !important;
 }
 
 .collapse-expand-nodes {
@@ -17,12 +22,17 @@ body {
     cursor: pointer !important;
 }
 
+.collapse-expand-nodes * {
+    cursor: pointer !important;
+}
+
 .collapse-expand-nodes:has(i.plus.icon) {
     opacity: 1;
 }
 
 .node:hover .collapse-expand-nodes {
     opacity: 1;
+    box-shadow: 0 0 0.5em rgb(0 0 0 / 20%) !important;
 }
 
 .connector {
