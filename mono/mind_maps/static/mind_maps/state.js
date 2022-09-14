@@ -64,5 +64,9 @@ function syncIfNecessary() {
 }
 
 function startSyncer() {
-    syncer = setInterval(syncIfNecessary, 1000)
+    syncer = setInterval(syncIfNecessary, 3000)
+    window.onbeforeunload = () => {
+        if (!compareState()) return "You have unsaved changes. Are you sure you want to leave?"
+        return null
+    }
 }
