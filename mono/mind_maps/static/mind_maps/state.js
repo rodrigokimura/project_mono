@@ -20,6 +20,7 @@ function fullSync() {
                 'font_color': n.colors.font,
                 'border_color': n.colors.border,
                 'background_color': n.colors.background,
+                'collapsed': n.collapsed,
             }
         }
     )

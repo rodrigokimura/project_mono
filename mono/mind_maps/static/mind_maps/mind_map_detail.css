@@ -10,6 +10,21 @@ body {
     z-index: 20;
 }
 
+.collapse-expand-nodes {
+    position: relative;
+    opacity: 0;
+    transition: opacity .2s;
+    cursor: pointer !important;
+}
+
+.collapse-expand-nodes:has(i.plus.icon) {
+    opacity: 1;
+}
+
+.node:hover .collapse-expand-nodes {
+    opacity: 1;
+}
+
 .connector {
     display: inline;
     position: absolute;
