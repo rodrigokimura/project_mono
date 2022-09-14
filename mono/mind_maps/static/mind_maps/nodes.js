@@ -24,9 +24,10 @@ class Node {
             border: '#000000',
             font: '#000000',
         }
-        this.buttonSize = 2
+        this.buttonSize = 2.5
         this.collapsed = false
     }
+    get visible() { return this.el.is(":visible") }
     get width() { return this.size[0] }
     get height() { return this.size[1] }
     get children() { return nodes.filter(node => node.parent === this) }
@@ -144,7 +145,7 @@ class Node {
     }
     _appendButton(className, icon, attrName, onClick) {
         this.el.find(className).remove()
-        let btn = $(`<div class="${className} button"><i class="${icon} icon" style="height: 100%; width: 100%;"></i></div>`)
+        let btn = $(`<div class="${className} button"><i class="${icon} icon"></i></div>`)
         this[attrName] = btn
         this.el.append(this[attrName])
         btn.css('position', 'absolute')
@@ -153,7 +154,6 @@ class Node {
         btn.css('height', this.buttonSize * scale)
         btn.css('width', this.buttonSize * scale)
         btn.css('outline-color', this.colors.border)
-        // btn.css('outline-width', this.borderSize * scale)
         btn.css('outline-width', .3 * scale)
         btn.css('outline-style', 'solid')
         btn.css('border-radius', this.buttonSize * scale)
@@ -393,7 +393,7 @@ class Node {
         return node
     }
     createChild(name, alt = false) {
-        this._appendCollapseButton()
+        if (!this.collapseButton) this._appendCollapseButton()
         this._updateCollapseButtonPosition()
         return this.createNode(name, this, false, alt)
     }
@@ -485,7 +485,7 @@ class Node {
 
         // filter nodes after the edge of this node
         let edge = edgeFunc(this.position[positionIndex], this[attr] / 2)
-        let filteredNodes = nodes.filter(
+        let filteredNodes = nodes.filter(n => n.visible === true).filter(
             node => comparisonFunc(node.position[positionIndex], edge)
         )
         if (filteredNodes.length === 0) this.select()
