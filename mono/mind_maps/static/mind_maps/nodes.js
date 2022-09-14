@@ -291,13 +291,13 @@ class Node {
         })
         this.el.on('touchmove', e => {
             e.preventDefault()
-            this.el[0].style.left = this.position[0] * scale + e.targetTouches[0].pageX - this.metadata.pageX - this.size[0] * scale / 2 + 'px'
-            this.el[0].style.top = this.position[1] * scale + e.targetTouches[0].pageY - this.metadata.pageY - this.size[1] * scale / 2 + 'px'
+            this.el[0].style.left = this.position[0] * scale + e.targetTouches[0].pageX - this.metadata.pageX - (this.size[0] / 2 + this.borderSize) * scale + 'px'
+            this.el[0].style.top = this.position[1] * scale + e.targetTouches[0].pageY - this.metadata.pageY - (this.size[1] / 2 + this.borderSize) * scale + 'px'
         })
         this.el.on('touchend', e => {
             let position = [
-                parseFloat(this.el[0].style.left.replace('px', '')) + this.size[0] * scale / 2,
-                parseFloat(this.el[0].style.top.replace('px', '')) + this.size[1] * scale / 2,
+                parseFloat(this.el[0].style.left.replace('px', '')) + (this.size[0] / 2 + this.borderSize) * scale,
+                parseFloat(this.el[0].style.top.replace('px', '')) + (this.size[1] / 2 + this.borderSize) * scale,
             ]
             this.metadata = null
             this.move(position)

@@ -1,3 +1,9 @@
+## 7.35.2 (2022-09-14)
+
+### Fix
+
+- **mind_maps**: adjust offset on dragging
+
 ## 7.35.1 (2022-09-13)
 
 ### Fix
