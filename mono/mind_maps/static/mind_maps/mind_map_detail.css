@@ -23,6 +23,13 @@ body {
     opacity: 0;
     transition: opacity .2s;
     cursor: pointer !important;
+    text-align: center;
+}
+
+.node .button i.icon {
+    vertical-align: baseline;
+    margin: auto;
+    line-height: 1.7;
 }
 
 .node .button * {
