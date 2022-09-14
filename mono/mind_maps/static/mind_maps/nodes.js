@@ -18,12 +18,14 @@ class Node {
             italic: false,
             underline: false,
             lineThrough: false,
-        },
-            this.colors = {
-                background: '#ffffff',
-                border: '#000000',
-                font: '#000000',
-            }
+        }
+        this.colors = {
+            background: '#ffffff',
+            border: '#000000',
+            font: '#000000',
+        }
+        this.buttonSize = 2
+        this.collapsed = false
     }
     get width() { return this.size[0] }
     get height() { return this.size[1] }
@@ -44,6 +46,7 @@ class Node {
             borderSize: this.borderSize,
             textStyle: this.textStyle,
             colors: this.colors,
+            collapsed: this.collapsed,
         }
         let st = JSON.stringify(state)
         let hash = 0, i, chr;
@@ -133,8 +136,29 @@ class Node {
         this.applyTextStyle()
         this.el.find('input').css('caret-color', 'transparent')
         $(PANEL).append(nodeEl)
+        if (this.children.length > 0) this._appendCollapseButton()
         this.autoSize(this.name)
         this.attachEvents()
+    }
+    _appendCollapseButton() {
+        this.el.find('.collapse-expand-nodes').remove()
+        let btn = $(`<div class="collapse-expand-nodes"><i class="minus icon" style="height: 100%; width: 100%;"></i></div>`)
+        this.collapseButton = btn
+        this.el.append(this.collapseButton)
+        this.collapseButton.css('font-size', .6 * this.buttonSize * scale)
+        this.collapseButton.css('color', this.colors.border)
+        this.collapseButton.css('height', this.buttonSize * scale)
+        this.collapseButton.css('width', this.buttonSize * scale)
+        this.collapseButton.css('outline-color', this.colors.border)
+        this.collapseButton.css('outline-width', this.borderSize * scale)
+        this.collapseButton.css('outline-style', 'solid')
+        this.collapseButton.css('border-radius', this.buttonSize * scale)
+        this.collapseButton.css('background-color', 'white')
+        this.collapseButton.click(this.collapse.bind(this))
+    }
+    _updateCollapseButtonPosition() {
+        this.collapseButton?.css('right', (- this.width + this.padding + this.buttonSize / 2) * scale)
+        this.collapseButton?.css('bottom', (this.height + this.borderSize / 2 + this.buttonSize / 2) * scale)
     }
     redraw() {
         let selected = this.selected
@@ -142,6 +166,28 @@ class Node {
         this.draw()
         this.drawConnectors(true)
         if (selected) this?.select()
+    }
+    collapse() {
+        if (this.children.length === 0) return
+        this.collapsed = true
+        this.children.forEach(child => {
+            child.el.hide()
+            child.connector?.hide()
+            child.collapse()
+        })
+        this.collapseButton.find('i').removeClass('minus').addClass('plus')
+        this.collapseButton.off().click(this.expand.bind(this))
+    }
+    expand() {
+        if (this.children.length === 0) return
+        this.collapsed = false
+        this.children.forEach(child => {
+            child.el.show()
+            child.connector?.show()
+            child.expand()
+        })
+        this.collapseButton.find('i').removeClass('plus').addClass('minus')
+        this.collapseButton.off().click(this.collapse.bind(this))
     }
     applyTextStyle() {
         let input = this.el.find('input')
@@ -287,6 +333,7 @@ class Node {
         this.el.width(totalWidth * scale)
         this.el.height(totalHeight * scale)
         this.el.css('border-radius', totalHeight * scale)
+        this._updateCollapseButtonPosition()
     }
     createNode(name, parent, reverseNext, reverseFirst) {
         this.deselect()
@@ -304,6 +351,8 @@ class Node {
         return node
     }
     createChild(name, alt = false) {
+        this._appendCollapseButton()
+        this._updateCollapseButtonPosition()
         return this.createNode(name, this, false, alt)
     }
     createSibling(name, alt = false) {
@@ -359,7 +408,13 @@ class Node {
         toast(`Node ${this.name} deleted`)
         this.connector.delete()
         delete this.connector
-        this.parent.focus()
+
+        // remove parent's collapse button if it has no children
+        if (this.parent.children.length == 0) {
+            this.parent.collapseButton.remove()
+            delete this.parent.collapseButton
+        }
+        this.parent.select()
         if (cascade) this.deleteChildren(cascade)
     }
     deleteChildren(cascade = true) {

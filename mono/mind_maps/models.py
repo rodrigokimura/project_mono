@@ -69,6 +69,8 @@ class Node(BaseModel):
     underline = models.BooleanField(default=False)
     line_through = models.BooleanField(default=False)
 
+    collapsed = models.BooleanField(default=False)
+
     def __str__(self):
         return self.name
 

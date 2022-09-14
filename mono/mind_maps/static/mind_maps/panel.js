@@ -22,6 +22,7 @@ function initializePanel(width, height) {
 
 const mouseDownHandler = function (e) {
     if (!$(e.target).hasClass('panel')) return
+    if (e.button !== 0) return  // only left click can drag
     pos = {
         // The current scroll
         left: $(CONTAINER)[0].scrollLeft,

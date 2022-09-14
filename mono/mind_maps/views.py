@@ -84,6 +84,7 @@ class FullSyncView(APIView):
                     "italic": node.get("italic"),
                     "underline": node.get("underline"),
                     "line_through": node.get("line_through"),
+                    "collapsed": node.get("collapsed"),
                 },
             )
         Node.objects.filter(
