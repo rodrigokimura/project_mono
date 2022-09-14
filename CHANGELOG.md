@@ -1,3 +1,9 @@
+## 7.35.0 (2022-09-13)
+
+### Feat
+
+- **mind_maps**: add button to collapse/expand nodes
+
 ## 7.34.2 (2022-09-12)
 
 ### Fix
