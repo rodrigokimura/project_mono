@@ -137,7 +137,7 @@ class Node {
         this.applyTextStyle()
         this.el.find('input').css('caret-color', 'transparent')
         $(PANEL).append(nodeEl)
-        if (this.children.length > 0) this._appendCollapseButton()
+        if (this.children.length > 0) this._appendCollapseButton(this.collapsed)
         this._appendDeleteButton()
         this._appendAddChildButton()
         this.autoSize(this.name)
@@ -169,8 +169,12 @@ class Node {
         this[attrName]?.css('left', (left - this.buttonSize / 2) * scale)
         this[attrName]?.css('top', (top - this.buttonSize / 2) * scale)
     }
-    _appendCollapseButton() {
-        this._appendButton('collapse-button', 'compress', 'collapseButton', this.collapse)
+    _appendCollapseButton(collapsed = false) {
+        if (!collapsed) {
+            this._appendButton('collapse-button', 'compress', 'collapseButton', this.collapse)
+        } else {
+            this._appendButton('collapse-button', 'expand', 'collapseButton', this.expand)
+        }
     }
     _appendDeleteButton() {
         this._appendButton('delete-button', 'delete', 'deleteButton', this.delete)
@@ -246,7 +250,9 @@ class Node {
         }
         if (drawOutputConns) {
             this.children.forEach(child => {
-                (new Connector(child, this)).draw()
+                let conn = new Connector(child, this)
+                conn.draw()
+                if (!child.visible) conn.hide()
             })
         }
     }
@@ -356,9 +362,6 @@ class Node {
             reposition(nodes)
         } else {
             this.redraw()
-            for (let connector of this.connectors) {
-                if (connector) connector.redraw()
-            }
         }
     }
     autoSize(text) {
@@ -448,12 +451,12 @@ class Node {
         this.erase()
         nodes = nodes.filter(node => node.id !== this.id)
         toast(`Node ${this.name} deleted`)
-        this.connector.delete()
+        this.connector?.delete()
         delete this.connector
 
         // remove parent's collapse button if it has no children
         if (this.parent.children.length == 0) {
-            this.parent.collapseButton.remove()
+            this.parent.collapseButton?.remove()
             delete this.parent.collapseButton
         }
         this.parent.select()
