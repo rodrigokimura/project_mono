@@ -1,3 +1,9 @@
+## 7.36.2 (2022-09-15)
+
+### Fix
+
+- **mind_maps**: adjust html rendering
+
 ## 7.36.1 (2022-09-14)
 
 ### Fix
