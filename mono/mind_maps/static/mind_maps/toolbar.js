@@ -57,3 +57,11 @@ var pink = () => { Node.getSelected()?.setColor('pink').redraw() }
 var brown = () => { Node.getSelected()?.setColor('brown').redraw() }
 var grey = () => { Node.getSelected()?.setColor('grey').redraw() }
 var black = () => { Node.getSelected()?.setColor('black').redraw() }
+
+function changeBackgroundColor() {
+    $(PANEL).css('background-color', this.toHEXAString())
+}
+
+jscolor.presets.default = {
+    previewElement: null, valueElement: null, required: false
+}
