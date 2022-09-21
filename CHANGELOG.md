@@ -1,3 +1,9 @@
+## 7.39.0 (2022-09-21)
+
+### Feat
+
+- **mind_maps**: add a color palette
+
 ## 7.38.0 (2022-09-21)
 
 ### Feat
