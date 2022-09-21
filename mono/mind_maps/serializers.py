@@ -59,6 +59,7 @@ class MindMapSerializer(ModelSerializer):
             "id",
             "name",
             "scale",
+            "color",
             "created_at",
             "created_by",
             "nodes",

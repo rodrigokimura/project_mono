@@ -157,7 +157,7 @@ class Node {
         btn.css('outline-width', .3 * scale)
         btn.css('outline-style', 'solid')
         btn.css('border-radius', this.buttonSize * scale)
-        btn.css('background-color', 'white')
+        btn.css('background-color', this.colors.background)
         btn.click(e => {
             e.stopPropagation()
             e.preventDefault()
@@ -357,12 +357,19 @@ class Node {
         }
     }
     move(positionInPixels) {
-        this.position = [positionInPixels[0] / scale, positionInPixels[1] / scale]
-        if (this.isOutOfBoundaries()) {
-            reposition(nodes)
-        } else {
-            this.redraw()
-        }
+        let deltaX = positionInPixels[0] - this.position[0] * scale
+        let deltaY = positionInPixels[1] - this.position[1] * scale
+        let nodes = [this]
+        nodes.push(...this.children)
+        nodes.forEach(node => {
+            node.position[0] += deltaX / scale
+            node.position[1] += deltaY / scale
+            if (this.isOutOfBoundaries()) {
+                reposition(nodes)
+            } else {
+                node.redraw()
+            }
+        })
     }
     autoSize(text) {
         let textSize = getTextSize(text, `${this.fontSize * scale}pt 'Open Sans', sans-serif`)
@@ -437,7 +444,7 @@ class Node {
         this.el.addClass('selected')
         this.focus()
         toolbar.show()
-        this.printDetail()
+        // this.printDetail()
     }
     deselect() { $(`#${this.id}`).removeClass('selected') }
     deselectOthers() {
@@ -539,6 +546,12 @@ class Node {
             this.colors = PRESET_COLORS[color]
             this.redraw()
         }
+        return this
+    }
+    setCustomColor(type, color) {
+        if (!['background', 'border', 'font'].includes(type)) return
+        this.colors[type] = color
+        this.redraw()
         return this
     }
 }

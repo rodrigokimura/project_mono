@@ -5,6 +5,18 @@ class Toolbar {
     _render() {
         this.el = $('#toolbar')
         this.rendered = true
+        initializeColorPicker(
+            'change-background-color',
+            function () {
+                showBackgroundColor(this.toHEXString())
+            },
+            function () {
+                changeBackgroundColor(this.toHEXString())
+            }
+        )
+        initializeNodeColorPicker('border')
+        initializeNodeColorPicker('background')
+        initializeNodeColorPicker('font')
     }
     hide() {
         let icon = $(`
@@ -44,24 +56,73 @@ var toggleLineThrough = () => Node.getSelected()?.toggleTextStyle('lineThrough')
 
 var autoStyle = () => { Node.getSelected()?.autoStyle().redraw() }
 
-var red = () => { Node.getSelected()?.setColor('red').redraw() }
-var orange = () => { Node.getSelected()?.setColor('orange').redraw() }
-var yellow = () => { Node.getSelected()?.setColor('yellow').redraw() }
-var olive = () => { Node.getSelected()?.setColor('olive').redraw() }
-var green = () => { Node.getSelected()?.setColor('green').redraw() }
-var teal = () => { Node.getSelected()?.setColor('teal').redraw() }
-var blue = () => { Node.getSelected()?.setColor('blue').redraw() }
-var violet = () => { Node.getSelected()?.setColor('violet').redraw() }
-var purple = () => { Node.getSelected()?.setColor('purple').redraw() }
-var pink = () => { Node.getSelected()?.setColor('pink').redraw() }
-var brown = () => { Node.getSelected()?.setColor('brown').redraw() }
-var grey = () => { Node.getSelected()?.setColor('grey').redraw() }
-var black = () => { Node.getSelected()?.setColor('black').redraw() }
+var red = () => { Node.getSelected()?.setColor('red') }
+var orange = () => { Node.getSelected()?.setColor('orange') }
+var yellow = () => { Node.getSelected()?.setColor('yellow') }
+var olive = () => { Node.getSelected()?.setColor('olive') }
+var green = () => { Node.getSelected()?.setColor('green') }
+var teal = () => { Node.getSelected()?.setColor('teal') }
+var blue = () => { Node.getSelected()?.setColor('blue') }
+var violet = () => { Node.getSelected()?.setColor('violet') }
+var purple = () => { Node.getSelected()?.setColor('purple') }
+var pink = () => { Node.getSelected()?.setColor('pink') }
+var brown = () => { Node.getSelected()?.setColor('brown') }
+var grey = () => { Node.getSelected()?.setColor('grey') }
+var black = () => { Node.getSelected()?.setColor('black') }
 
-function changeBackgroundColor() {
-    $(PANEL).css('background-color', this.toHEXAString())
+function showBackgroundColor(color) {
+    $(PANEL).css('background-color', color)
 }
 
-jscolor.presets.default = {
-    previewElement: null, valueElement: null, required: false
+function initializeColorPicker(id, onInput, onChange) {
+    $(`#${id}`).off().click(e => {
+        delete $(`#${id}`)[0].jscolor
+        let inputTimeout
+        let picker = new JSColor(
+            $(`#${id}`)[0],
+            {
+                onInput: function () {
+                    let t = this
+                    clearTimeout(inputTimeout)
+                    inputTimeout = setTimeout(function () {
+                        onInput.call(t)
+                    }, 100)
+                },
+                onChange: onChange,
+                previewElement: null,
+                valueElement: null,
+                required: false
+            },
+        )
+        picker.show()
+    })
+    $(`#${id} i.icon`).off().click(e => {
+        $(e.target).parent().click()
+    })
+}
+
+function initializeNodeColorPicker(type) {
+    initializeColorPicker(
+        `change-node-${type}-color`,
+        function () {
+            let node = Node.getSelected()
+            if (node) {
+                Node.getSelected()?.setCustomColor(type, this.toHEXString())
+            } else {
+                nodes.forEach(
+                    node => node.setCustomColor(type, this.toHEXString())
+                )
+            }
+        },
+        function () {
+            let node = Node.getSelected()
+            if (node) {
+                Node.getSelected()?.setCustomColor(type, this.toHEXString())
+            } else {
+                nodes.forEach(
+                    node => node.setCustomColor(type, this.toHEXString())
+                )
+            }
+        }
+    )
 }
