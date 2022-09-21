@@ -1,3 +1,9 @@
+## 7.38.0 (2022-09-21)
+
+### Feat
+
+- **mind_maps**: add buttons to change colors
+
 ## 7.37.0 (2022-09-16)
 
 ### Feat
