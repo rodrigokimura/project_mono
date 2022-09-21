@@ -32,6 +32,7 @@ class MindMap(BaseModel):
 
     name = models.CharField(max_length=255)
     scale = models.FloatField(default=10)
+    color = models.CharField(max_length=7, default="#000000")
 
     def __str__(self):
         return self.name

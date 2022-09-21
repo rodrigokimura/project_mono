@@ -8,7 +8,9 @@ body {
     cursor: move;
     position: absolute;
     z-index: 20;
-    transition: box-shadow 0.5s ease;
+    transition-property: box-shadow, color, border;
+    transition-duration: .2s;
+    transition-timing-function: ease;
 }
 
 .node:hover {
@@ -99,6 +101,7 @@ body {
     background-color: rgb(250, 250, 250);
     cursor: move;
     height: 100%;
+    transition: background-color 0.5s ease;
 }
 
 .panel * {

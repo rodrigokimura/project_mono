@@ -39,9 +39,14 @@ class MindMapDetailView(LoginRequiredMixin, DetailView):
     model = MindMap
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        mind_map: MindMap = self.get_object()
         context = super().get_context_data(**kwargs)
         context["PANEL_SIZE"] = DEFAULT_PANEL_SIZE
-        context["scale"] = self.get_object().scale
+        context["panel"] = {
+            **DEFAULT_PANEL_SIZE,
+            "color": mind_map.color,
+            "scale": mind_map.scale,
+        }
         return context
 
 

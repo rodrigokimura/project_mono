@@ -66,18 +66,33 @@ function getCanvasFont(el = document.body) {
     return `${fontWeight} ${fontSize} ${fontFamily}`
 }
 
-function changeScale(s) {
+function changeMindMapAttr(attr, value, callback) {
+    let data = {}
+    data[attr] = value
     $.api({
         on: 'now',
         method: 'PATCH',
         url: `/mm/api/mind_maps/${MIND_MAP_ID}/`,
-        data: { scale: s },
-        onSuccess(r) {
-            scale = s
-            reposition(nodes)
-            centralize()
-        }
+        data: data,
+        onSuccess: callback,
     })
+}
+
+
+function changeScale(s) {
+    callback = () => {
+        scale = s
+        reposition(nodes)
+        centralize()
+    }
+    changeMindMapAttr('scale', s, callback)
+}
+
+function changeBackgroundColor(color) {
+    callback = () => {
+        panel.color = color
+    }
+    changeMindMapAttr('color', color, callback)
 }
 
 function getScale() {
