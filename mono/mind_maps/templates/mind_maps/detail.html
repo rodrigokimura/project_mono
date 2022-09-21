@@ -23,15 +23,16 @@
 
 {% block main %}
     {% include 'mind_maps/_toolbar.html' %}
-    <div class="ui fluid segment" style="height: 100%; width: 100%; padding: 0; margin: 0;" id="container"></div>
+    <div class="ui fluid basic segment" style="height: 100%; width: 100%; padding: 0; margin: 0;" id="container"></div>
     {% localize off %}
     <script>
         const MIND_MAP_ID = "{{ object.id }}"
         const MIND_MAP_NAME = "{{ object.name }}"
-        var scale = {{ scale }}
+        var scale = {{ panel.scale }}
         var panel = {
-            height: {{ PANEL_SIZE.height }} * scale,
-            width: {{ PANEL_SIZE.width }} * scale,
+            height: {{ panel.height }} * scale,
+            width: {{ panel.width }} * scale,
+            color: '{{ panel.color }}',
         }
         $(document).ready(init)
     </script>

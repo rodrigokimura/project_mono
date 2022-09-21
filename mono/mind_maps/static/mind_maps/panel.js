@@ -9,6 +9,7 @@ function initializePanel(width, height) {
     $(CONTAINER).append(`<div class="panel"></div>`)
     $(PANEL).css('height', height * scale)
     $(PANEL).css('width', width * scale)
+    $(PANEL).css('background-color', panel.color)
     $(PANEL).click(e => {
         if (!$(e.target).hasClass('panel')) return
         Node.deselectAll()
