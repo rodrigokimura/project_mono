@@ -1,3 +1,9 @@
+## 7.40.0 (2022-09-22)
+
+### Feat
+
+- **mind_maps**: remove flat image effect when dragging
+
 ## 7.39.0 (2022-09-21)
 
 ### Feat
