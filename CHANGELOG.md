@@ -1,3 +1,9 @@
+## 7.41.0 (2022-09-23)
+
+### Feat
+
+- **mind_maps**: increase height in element
+
 ## 7.40.0 (2022-09-22)
 
 ### Feat
