@@ -312,10 +312,24 @@ class Node {
             if (!this.name) this.delete()
         })
         this.el.on('dragstart', e => {
+            let ghostNode = $(e.target).clone().addClass('ghost-node')
+
+            // HACK: prevent the browser from creating a ghost preview
+            let img = new Image()
+            img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
+            e.originalEvent.dataTransfer.setDragImage(img, 0, 0)
+
             this.metadata = {
                 pageX: e.pageX,
                 pageY: e.pageY,
             }
+
+            this.el.on('drag', e => {
+                ghostNode.appendTo($(e.target).parent())
+                ghostNode[0].style.left = this.position[0] * scale + e.pageX - this.metadata.pageX - (this.size[0] / 2 + this.borderSize) * scale + 'px'
+                ghostNode[0].style.top = this.position[1] * scale + e.pageY - this.metadata.pageY - (this.size[1] / 2 + this.borderSize) * scale + 'px'
+            })
+
             $(PANEL).on('drop', e => {
                 e.stopPropagation()
                 e.preventDefault()
@@ -326,6 +340,16 @@ class Node {
                 this.metadata = null
                 this.move(position)
                 $(PANEL).off('drop')
+                this.el.off('dragend')
+                $('.ghost-node').remove()
+            })
+            this.el.on('dragend', e => {
+                e.stopPropagation()
+                e.preventDefault()
+                this.metadata = null
+                $(PANEL).off('drop')
+                this.el.off('dragend')
+                $('.ghost-node').remove()
             })
         })
         this.el.on('touchstart', e => {
@@ -360,7 +384,12 @@ class Node {
         let deltaX = positionInPixels[0] - this.position[0] * scale
         let deltaY = positionInPixels[1] - this.position[1] * scale
         let nodes = [this]
-        nodes.push(...this.children)
+        // push all children
+        let children = this.children
+        while (children.length) {
+            nodes.push(...children)
+            children = children.flatMap(n => n.children)
+        }
         nodes.forEach(node => {
             node.position[0] += deltaX / scale
             node.position[1] += deltaY / scale
