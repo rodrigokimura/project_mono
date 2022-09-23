@@ -37,11 +37,14 @@
     color: rgba(0, 0, 0, .6);
 }
 
-.ui.card,
-.space.segments {
+.ui.card {
     border: 1px solid #ccc !important;
     transition: box-shadow .3s;
     box-shadow: 0 0 .5em rgba(0, 0, 0, .2) !important;
+}
+
+.ui.card .header {
+    min-height: 3em !important;
 }
 
 .ui.disabled.card {
