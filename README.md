@@ -45,6 +45,8 @@ classDiagram
 
 ### Project Manager
 
+App to manage projects using a kanban-style layout.
+
 #### Main models
 ```mermaid
 classDiagram
