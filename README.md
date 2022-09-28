@@ -65,6 +65,7 @@ classDiagram
 
 ### Notes
 
+App to write notes using markdown syntax.
 
 #### Main models
 ```mermaid
@@ -74,6 +75,8 @@ classDiagram
 
 ### Checklists
 
+Simple to-do app.
+
 #### Main models
 ```mermaid
 classDiagram
@@ -81,6 +84,8 @@ classDiagram
 ```
 
 ### Coder
+
+Store snippets of code.
 
 #### Main models
 ```mermaid
