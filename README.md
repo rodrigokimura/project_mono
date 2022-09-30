@@ -95,6 +95,8 @@ classDiagram
 
 ### Mind Maps
 
+Create simple mind maps.
+
 #### Main models
 ```mermaid
 classDiagram
@@ -102,6 +104,8 @@ classDiagram
 ```
 
 ### Pixel
+
+App to insert a pixel for usage analytics.
 
 #### Main models
 ```mermaid
