@@ -158,6 +158,7 @@ class Node {
         btn.css('outline-style', 'solid')
         btn.css('border-radius', this.buttonSize * scale)
         btn.css('background-color', this.colors.background)
+        btn.css('z-index', 40)
         btn.click(e => {
             e.stopPropagation()
             e.preventDefault()
@@ -461,6 +462,7 @@ class Node {
         this.el.addClass('selected')
         this.el.find('input').css('caret-color', 'transparent')
         setCaretToPos(this.el.find('input')[0], 0)  // reset caret position
+        this.redraw()
         if (!this.name) this.delete()
     }
     focus() { $(`#${this.id} input`).focus() }
