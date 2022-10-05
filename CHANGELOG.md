@@ -1,3 +1,9 @@
+## 7.45.0 (2022-10-04)
+
+### Feat
+
+- **mind_maps**: change svg from line to path to use bezier curves
+
 ## 7.44.0 (2022-10-04)
 
 ### Feat
