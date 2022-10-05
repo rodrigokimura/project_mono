@@ -4,7 +4,6 @@ body {
 
 .node {
     border-style: solid;
-    z-index: 10;
     cursor: move;
     position: absolute;
     z-index: 20;

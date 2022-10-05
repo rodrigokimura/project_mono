@@ -46,13 +46,42 @@ class SvgLinearConnector extends BaseConnector {
         let x2 = this.node2.position[0]
         let y2 = this.node2.position[1]
 
-        let width = Math.abs(x2 - x1) * scale
-        let height = Math.abs(y2 - y1) * scale
+        let _x = x1 - x2
+        let _y = y1 - y2
+
+        if (_x >= 0) {
+            if (_x >= Math.abs(_y)) {
+                console.log('right')
+                x2 = this.node2.position[0] + (this.node2.size[0] + this.node1.borderSize) / 2
+                x1 = this.node1.position[0] - (this.node1.size[0] + this.node1.borderSize) / 2
+            }
+        } else {
+            if (Math.abs(_x) >= Math.abs(_y)) {
+                console.log('left')
+                x2 = this.node2.position[0] - (this.node2.size[0] + this.node1.borderSize) / 2
+                x1 = this.node1.position[0] + (this.node1.size[0] + this.node1.borderSize) / 2
+            }
+        }
+        if (_y >= 0) {
+            if (_y >= Math.abs(_x)) {
+                console.log('bottom')
+                y2 = this.node2.position[1] + (this.node2.size[1] + this.node1.borderSize) / 2
+                y1 = this.node1.position[1] - (this.node1.size[1] + this.node1.borderSize) / 2
+            }
+        } else {
+            if (Math.abs(_y) >= Math.abs(_x)) {
+                console.log('top')
+                y2 = this.node2.position[1] - (this.node2.size[1] + this.node1.borderSize) / 2
+                y1 = this.node1.position[1] + (this.node1.size[1] + this.node1.borderSize) / 2
+            }
+        }
 
         this.node1.connector = this
         this.el = $(`
-            <svg class="connector" data-nodes="${this.node1.id}|${this.node2.id}" style="left: ${x2 * scale}px; top: ${y2 * scale}px; background-color: transparent;" width="${width}" height="${height}" overflow="visible" pointer-events="none" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <svg class="connector" data-nodes="${this.node1.id}|${this.node2.id}" style="left: ${x2 * scale}px; top: ${y2 * scale}px; background-color: transparent;" width="10" height="10" overflow="visible" pointer-events="none" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="0" cy="0" r="${this.node1.borderSize * scale * 1.5}"/>
                 <line x1="0" x2="${(x1 - x2) * scale}" y1="0" y2="${(y1 - y2) * scale}" stroke-width="${this.node1.borderSize * scale}"/>
+                <circle cx="${(x1 - x2) * scale}" cy="${(y1 - y2) * scale}" r="${this.node1.borderSize * scale * 1.5}"/>
             </svg>
         `)
         this.el.css('stroke', this.node1.colors.border)
