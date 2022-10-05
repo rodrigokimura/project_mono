@@ -1,3 +1,9 @@
+## 7.44.0 (2022-10-04)
+
+### Feat
+
+- **mind_maps**: start and end connector on the edges
+
 ## 7.43.0 (2022-10-04)
 
 ### Feat
