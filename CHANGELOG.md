@@ -1,3 +1,15 @@
+## 7.44.0 (2022-10-04)
+
+### Feat
+
+- **mind_maps**: start and end connector on the edges
+
+## 7.43.0 (2022-10-04)
+
+### Feat
+
+- **mind_maps**: change connector to use svg
+
 ## 7.42.0 (2022-09-27)
 
 ## 7.41.0 (2022-09-23)
