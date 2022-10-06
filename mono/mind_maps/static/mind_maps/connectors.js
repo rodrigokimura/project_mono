@@ -89,9 +89,9 @@ class SvgLinearConnector extends BaseConnector {
         this.node1.connector = this
         this.el = $(`
             <svg class="connector" data-nodes="${this.node1.id}|${this.node2.id}" style="left: ${x2 * scale}px; top: ${y2 * scale}px; background-color: transparent;" width="10" height="10" overflow="visible" pointer-events="none" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="0" cy="0" r="${this.node1.borderSize * scale * 1.5}"/>
+                <circle cx="0" cy="0" r="${this.node1.borderSize * scale * 1.5}" fill="${this.node1.colors.border}"/>
                 <path d="M 0 0 Q ${cx * scale} ${cy * scale} ${(x1 - x2) / 2 * scale} ${(y1 - y2) / 2 * scale} T ${(x1 - x2) * scale} ${(y1 - y2) * scale}" stroke-width="${this.node1.borderSize * scale}" fill="transparent"/>
-                <circle cx="${(x1 - x2) * scale}" cy="${(y1 - y2) * scale}" r="${this.node1.borderSize * scale * 1.5}"/>
+                <circle cx="${(x1 - x2) * scale}" cy="${(y1 - y2) * scale}" r="${this.node1.borderSize * scale * 1.5}" fill="${this.node1.colors.border}"/>
             </svg>
         `)
         this.el.css('stroke', this.node1.colors.border)
