@@ -41,52 +41,31 @@ class DivLinearConnector extends BaseConnector {
 
 class SvgLinearConnector extends BaseConnector {
     draw() {
-        let x1 = this.node1.position[0]
-        let y1 = this.node1.position[1]
-        let x2 = this.node2.position[0]
-        let y2 = this.node2.position[1]
 
-        let _x = x1 - x2
-        let _y = y1 - y2
-        let cx = 0
-        let cy = 0
-
+        let _x = this.node1.position[0] - this.node2.position[0]
+        let _y = this.node1.position[1] - this.node2.position[1]
+        let _sg, _p, _axis
+        let _points = {x1: this.node1.position[0], x2: this.node2.position[0], y1: this.node1.position[1], y2: this.node2.position[1]}
         if (Math.abs(_x) >= Math.abs(_y)) {
-            if (_x >= 0) {
-                console.log('right')
-                x2 = + (this.node2.size[0] + this.node1.borderSize) / 2 + this.node2.position[0]
-                x1 = - (this.node1.size[0] + this.node1.borderSize) / 2 + this.node1.position[0]
-                cx = +1 * (Math.abs(_x) >= Math.abs(_y) ? (Math.abs(_x) / 4) : 0)
-                cy = +1 * (Math.abs(_y) >= Math.abs(_x) ? (Math.abs(_y) / 4) : 0)
-            } else {
-                console.log('left')
-                x2 = - (this.node2.size[0] + this.node1.borderSize) / 2 + this.node2.position[0]
-                x1 = + (this.node1.size[0] + this.node1.borderSize) / 2 + this.node1.position[0]
-                cx = -1 * (Math.abs(_x) >= Math.abs(_y) ? (Math.abs(_x) / 4) : 0)
-                cy = -1 * (Math.abs(_y) >= Math.abs(_x) ? (Math.abs(_y) / 4) : 0)
-            }
+            _sg = _x >= 0 ? 1 : -1
+            _p = 0
+            _axis = 'x'
         } else {
-            if (_y >= 0) {
-                console.log('bottom')
-                y2 = + (this.node2.size[1] + this.node1.borderSize) / 2 + this.node2.position[1]
-                y1 = - (this.node1.size[1] + this.node1.borderSize) / 2 + this.node1.position[1]
-                cx = +1 * (Math.abs(_x) >= Math.abs(_y) ? (Math.abs(_x) / 4) : 0)
-                cy = +1 * (Math.abs(_y) >= Math.abs(_x) ? (Math.abs(_y) / 4) : 0)
-            } else {
-                console.log('top')
-                y2 = - (this.node2.size[1] + this.node1.borderSize) / 2 + this.node2.position[1]
-                y1 = + (this.node1.size[1] + this.node1.borderSize) / 2 + this.node1.position[1]
-                cx = -1 * (Math.abs(_x) >= Math.abs(_y) ? (Math.abs(_x) / 4) : 0)
-                cy = -1 * (Math.abs(_y) >= Math.abs(_x) ? (Math.abs(_y) / 4) : 0)
-            }
+            _sg = _y >= 0 ? 1 : -1
+            _p = 1
+            _axis = 'y'
         }
+        _points[`${_axis}1`] = _sg * -1 * (this.node1.size[_p] + this.node1.borderSize) / 2 + this.node1.position[_p]
+        _points[`${_axis}2`] = _sg * +1 * (this.node2.size[_p] + this.node1.borderSize) / 2 + this.node2.position[_p]
+        let cx = _sg * +1 * (Math.abs(_x) >= Math.abs(_y) ? (Math.abs(_x) / 4) : 0)
+        let cy = _sg * +1 * (Math.abs(_y) >= Math.abs(_x) ? (Math.abs(_y) / 4) : 0)
 
         this.node1.connector = this
         this.el = $(`
-            <svg class="connector" data-nodes="${this.node1.id}|${this.node2.id}" style="left: ${x2 * scale}px; top: ${y2 * scale}px; background-color: transparent;" width="10" height="10" overflow="visible" pointer-events="none" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <svg class="connector" data-nodes="${this.node1.id}|${this.node2.id}" style="left: ${_points.x2 * scale}px; top: ${_points.y2 * scale}px; background-color: transparent;" width="10" height="10" overflow="visible" pointer-events="none" version="1.1" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="0" cy="0" r="${this.node1.borderSize * scale * 1.5}" fill="${this.node1.colors.border}"/>
-                <path d="M 0 0 Q ${cx * scale} ${cy * scale} ${(x1 - x2) / 2 * scale} ${(y1 - y2) / 2 * scale} T ${(x1 - x2) * scale} ${(y1 - y2) * scale}" stroke-width="${this.node1.borderSize * scale}" fill="transparent"/>
-                <circle cx="${(x1 - x2) * scale}" cy="${(y1 - y2) * scale}" r="${this.node1.borderSize * scale * 1.5}" fill="${this.node1.colors.border}"/>
+                <path d="M 0 0 Q ${cx * scale} ${cy * scale} ${(_points.x1 - _points.x2) / 2 * scale} ${(_points.y1 - _points.y2) / 2 * scale} T ${(_points.x1 - _points.x2) * scale} ${(_points.y1 - _points.y2) * scale}" stroke-width="${this.node1.borderSize * scale}" fill="transparent"/>
+                <circle cx="${(_points.x1 - _points.x2) * scale}" cy="${(_points.y1 - _points.y2) * scale}" r="${this.node1.borderSize * scale * 1.5}" fill="${this.node1.colors.border}"/>
             </svg>
         `)
         this.el.css('stroke', this.node1.colors.border)
