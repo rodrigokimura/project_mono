@@ -51,38 +51,33 @@ class SvgLinearConnector extends BaseConnector {
         let cx = 0
         let cy = 0
 
-        if (_x >= 0) {
-            if (_x >= Math.abs(_y)) {
+        if (Math.abs(_x) >= Math.abs(_y)) {
+            if (_x >= 0) {
                 console.log('right')
-                x2 = this.node2.position[0] + (this.node2.size[0] + this.node1.borderSize) / 2
-                x1 = this.node1.position[0] - (this.node1.size[0] + this.node1.borderSize) / 2
-                cx = Math.abs(_x) / 4
-                cy = 0
-            }
-        } else {
-            if (Math.abs(_x) >= Math.abs(_y)) {
+                x2 = + (this.node2.size[0] + this.node1.borderSize) / 2 + this.node2.position[0]
+                x1 = - (this.node1.size[0] + this.node1.borderSize) / 2 + this.node1.position[0]
+                cx = +1 * (Math.abs(_x) >= Math.abs(_y) ? (Math.abs(_x) / 4) : 0)
+                cy = +1 * (Math.abs(_y) >= Math.abs(_x) ? (Math.abs(_y) / 4) : 0)
+            } else {
                 console.log('left')
-                x2 = this.node2.position[0] - (this.node2.size[0] + this.node1.borderSize) / 2
-                x1 = this.node1.position[0] + (this.node1.size[0] + this.node1.borderSize) / 2
-                cx = - Math.abs(_x) / 4
-                cy = 0
-            }
-        }
-        if (_y >= 0) {
-            if (_y >= Math.abs(_x)) {
-                console.log('bottom')
-                y2 = this.node2.position[1] + (this.node2.size[1] + this.node1.borderSize) / 2
-                y1 = this.node1.position[1] - (this.node1.size[1] + this.node1.borderSize) / 2
-                cx = 0
-                cy = Math.abs(_y) / 4
+                x2 = - (this.node2.size[0] + this.node1.borderSize) / 2 + this.node2.position[0]
+                x1 = + (this.node1.size[0] + this.node1.borderSize) / 2 + this.node1.position[0]
+                cx = -1 * (Math.abs(_x) >= Math.abs(_y) ? (Math.abs(_x) / 4) : 0)
+                cy = -1 * (Math.abs(_y) >= Math.abs(_x) ? (Math.abs(_y) / 4) : 0)
             }
         } else {
-            if (Math.abs(_y) >= Math.abs(_x)) {
+            if (_y >= 0) {
+                console.log('bottom')
+                y2 = + (this.node2.size[1] + this.node1.borderSize) / 2 + this.node2.position[1]
+                y1 = - (this.node1.size[1] + this.node1.borderSize) / 2 + this.node1.position[1]
+                cx = +1 * (Math.abs(_x) >= Math.abs(_y) ? (Math.abs(_x) / 4) : 0)
+                cy = +1 * (Math.abs(_y) >= Math.abs(_x) ? (Math.abs(_y) / 4) : 0)
+            } else {
                 console.log('top')
-                y2 = this.node2.position[1] - (this.node2.size[1] + this.node1.borderSize) / 2
-                y1 = this.node1.position[1] + (this.node1.size[1] + this.node1.borderSize) / 2
-                cx = 0
-                cy = - Math.abs(_y) / 4
+                y2 = - (this.node2.size[1] + this.node1.borderSize) / 2 + this.node2.position[1]
+                y1 = + (this.node1.size[1] + this.node1.borderSize) / 2 + this.node1.position[1]
+                cx = -1 * (Math.abs(_x) >= Math.abs(_y) ? (Math.abs(_x) / 4) : 0)
+                cy = -1 * (Math.abs(_y) >= Math.abs(_x) ? (Math.abs(_y) / 4) : 0)
             }
         }
 
