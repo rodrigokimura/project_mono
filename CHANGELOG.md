@@ -1,3 +1,15 @@
+## 7.46.2 (2022-10-07)
+
+### Refactor
+
+- **mind_maps**: reorder checks
+
+## 7.46.1 (2022-10-07)
+
+### Refactor
+
+- **mind_maps**: reuse var
+
 ## 7.46.0 (2022-10-05)
 
 ### Feat
