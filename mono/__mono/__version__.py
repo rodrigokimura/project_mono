@@ -1,2 +1,2 @@
 """Version information for mono."""
-VERSION = "7.46.0"
+VERSION = "7.46.2"
