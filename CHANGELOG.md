@@ -1,3 +1,9 @@
+## 7.46.4 (2022-10-08)
+
+### Refactor
+
+- **mind_maps**: reuse code
+
 ## 7.46.3 (2022-10-07)
 
 ### Refactor
