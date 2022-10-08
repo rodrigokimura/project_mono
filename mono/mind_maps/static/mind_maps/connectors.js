@@ -41,25 +41,16 @@ class DivLinearConnector extends BaseConnector {
 
 class SvgLinearConnector extends BaseConnector {
     draw() {
-
         let _x = this.node1.position[0] - this.node2.position[0]
         let _y = this.node1.position[1] - this.node2.position[1]
-        let _sg, _p, _axis
         let _points = {x1: this.node1.position[0], x2: this.node2.position[0], y1: this.node1.position[1], y2: this.node2.position[1]}
-        if (Math.abs(_x) >= Math.abs(_y)) {
-            _sg = _x >= 0 ? 1 : -1
-            _p = 0
-            _axis = 'x'
-        } else {
-            _sg = _y >= 0 ? 1 : -1
-            _p = 1
-            _axis = 'y'
-        }
-        _points[`${_axis}1`] = _sg * -1 * (this.node1.size[_p] + this.node1.borderSize) / 2 + this.node1.position[_p]
-        _points[`${_axis}2`] = _sg * +1 * (this.node2.size[_p] + this.node1.borderSize) / 2 + this.node2.position[_p]
-        let cx = _sg * +1 * (Math.abs(_x) >= Math.abs(_y) ? (Math.abs(_x) / 4) : 0)
-        let cy = _sg * +1 * (Math.abs(_y) >= Math.abs(_x) ? (Math.abs(_y) / 4) : 0)
-
+        let cond = Math.abs(_x) >= Math.abs(_y)
+        let _p = cond ? 0 : 1
+        let _sg = (cond ? _x : _y) >= 0 ? 1 : -1
+        let cx = _sg * (cond ? (Math.abs(_x) / 4) : 0)
+        let cy = _sg * (cond ? 0 : (Math.abs(_y) / 4))
+        _points[`${cond ? 'x' : 'y'}1`] = _sg * -1 * (this.node1.size[_p] + this.node1.borderSize) / 2 + this.node1.position[_p]
+        _points[`${cond ? 'x' : 'y'}2`] = _sg * +1 * (this.node2.size[_p] + this.node1.borderSize) / 2 + this.node2.position[_p]
         this.node1.connector = this
         this.el = $(`
             <svg class="connector" data-nodes="${this.node1.id}|${this.node2.id}" style="left: ${_points.x2 * scale}px; top: ${_points.y2 * scale}px; background-color: transparent;" width="10" height="10" overflow="visible" pointer-events="none" version="1.1" xmlns="http://www.w3.org/2000/svg">
