@@ -3,6 +3,10 @@ class BaseConnector {
         this.node1 = node1
         this.node2 = node2
     }
+    get relX() { return this.node1.x - this.node2.x }
+    get relY() { return this.node1.y - this.node2.y }
+    get color() { return this.node1.colors.border }
+    get borderSize() { return this.node1.borderSize }
     static get() {
         return $(`#${this.id} input`)[0], $(`#${this.id} input`)
     }
@@ -21,47 +25,45 @@ class BaseConnector {
 }
 class DivLinearConnector extends BaseConnector {
     draw() {
-        let x1 = this.node1.position[0]
-        let y1 = this.node1.position[1]
-        let x2 = this.node2.position[0]
-        let y2 = this.node2.position[1]
-        let angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI
-        let length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
-
+        let angle = Math.atan2(this.relY, this.relX) * 180 / Math.PI
+        let length = Math.sqrt(Math.pow(this.relX, 2) + Math.pow(this.relY, 2))
         this.node1.connector = this
         this.el = $(`
-            <div class="connector" data-nodes="${this.node1.id}|${this.node2.id}" style="width: ${length * scale}px; left: ${x1 * scale}px; top: ${y1 * scale}px; transform: rotate(${angle}deg);">
+            <div class="connector" data-nodes="${this.node1.id}|${this.node2.id}" style="width: ${length * scale}px; left: ${this.node2.x * scale}px; top: ${this.node2.y * scale}px; transform: rotate(${angle}deg);">
             </div>
         `)
-        this.el.height(this.node1.borderSize * scale)
-        this.el.css('background-color', this.node1.colors.border)
+        this.el.height(this.borderSize * scale)
+        this.el.css('background-color', this.color)
         $(PANEL).append(this.el)
     }
 }
 
-class SvgLinearConnector extends BaseConnector {
+class SvgCurvedConnector extends BaseConnector {
     draw() {
-        let _x = this.node1.position[0] - this.node2.position[0]
-        let _y = this.node1.position[1] - this.node2.position[1]
-        let _points = {x1: this.node1.position[0], x2: this.node2.position[0], y1: this.node1.position[1], y2: this.node2.position[1]}
-        let cond = Math.abs(_x) >= Math.abs(_y)
-        let _p = cond ? 0 : 1
-        let _sg = (cond ? _x : _y) >= 0 ? 1 : -1
-        let cx = _sg * (cond ? (Math.abs(_x) / 4) : 0)
-        let cy = _sg * (cond ? 0 : (Math.abs(_y) / 4))
-        _points[`${cond ? 'x' : 'y'}1`] = _sg * -1 * (this.node1.size[_p] + this.node1.borderSize) / 2 + this.node1.position[_p]
-        _points[`${cond ? 'x' : 'y'}2`] = _sg * +1 * (this.node2.size[_p] + this.node1.borderSize) / 2 + this.node2.position[_p]
+        let points = {
+            x1: this.node1.x,
+            y1: this.node1.y,
+            x2: this.node2.x,
+            y2: this.node2.y,
+        }
+        let cond = Math.abs(this.relX) >= Math.abs(this.relY)
+        let posIdx = cond ? 0 : 1
+        let sign = (cond ? this.relX : this.relY) >= 0 ? 1 : -1
+        let cx = sign * (cond ? (Math.abs(this.relX) / 4) : 0)
+        let cy = sign * (cond ? 0 : (Math.abs(this.relY) / 4))
+        points[`${cond ? 'x' : 'y'}1`] = sign * -1 * (this.node1.size[posIdx] + this.borderSize) / 2 + this.node1.position[posIdx]
+        points[`${cond ? 'x' : 'y'}2`] = sign * +1 * (this.node2.size[posIdx] + this.borderSize) / 2 + this.node2.position[posIdx]
         this.node1.connector = this
         this.el = $(`
-            <svg class="connector" data-nodes="${this.node1.id}|${this.node2.id}" style="left: ${_points.x2 * scale}px; top: ${_points.y2 * scale}px; background-color: transparent;" width="10" height="10" overflow="visible" pointer-events="none" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="0" cy="0" r="${this.node1.borderSize * scale * 1.5}" fill="${this.node1.colors.border}"/>
-                <path d="M 0 0 Q ${cx * scale} ${cy * scale} ${(_points.x1 - _points.x2) / 2 * scale} ${(_points.y1 - _points.y2) / 2 * scale} T ${(_points.x1 - _points.x2) * scale} ${(_points.y1 - _points.y2) * scale}" stroke-width="${this.node1.borderSize * scale}" fill="transparent"/>
-                <circle cx="${(_points.x1 - _points.x2) * scale}" cy="${(_points.y1 - _points.y2) * scale}" r="${this.node1.borderSize * scale * 1.5}" fill="${this.node1.colors.border}"/>
+            <svg class="connector" data-nodes="${this.node1.id}|${this.node2.id}" style="left: ${points.x2 * scale}px; top: ${points.y2 * scale}px; background-color: transparent;" width="10" height="10" overflow="visible" pointer-events="none" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="0" cy="0" r="${this.borderSize * scale * 1.5}" fill="${this.color}"/>
+                <path d="M 0 0 Q ${cx * scale} ${cy * scale} ${(points.x1 - points.x2) / 2 * scale} ${(points.y1 - points.y2) / 2 * scale} T ${(points.x1 - points.x2) * scale} ${(points.y1 - points.y2) * scale}" stroke-width="${this.borderSize * scale}" fill="transparent"/>
+                <circle cx="${(points.x1 - points.x2) * scale}" cy="${(points.y1 - points.y2) * scale}" r="${this.borderSize * scale * 1.5}" fill="${this.color}"/>
             </svg>
         `)
-        this.el.css('stroke', this.node1.colors.border)
+        this.el.css('stroke', this.color)
         $(PANEL).append(this.el)
     }
 }
 
-var Connector = SvgLinearConnector
+var Connector = SvgCurvedConnector
