@@ -1,3 +1,9 @@
+## 7.46.5 (2022-10-10)
+
+### Refactor
+
+- **mind_maps**: add and reuse properties
+
 ## 7.46.4 (2022-10-08)
 
 ### Refactor
