@@ -28,6 +28,8 @@ class Node {
         this.collapsed = false
     }
     get visible() { return this.el.is(":visible") }
+    get x() { return this.position[0] }
+    get y() { return this.position[1] }
     get width() { return this.size[0] }
     get height() { return this.size[1] }
     get children() { return nodes.filter(node => node.parent === this) }
