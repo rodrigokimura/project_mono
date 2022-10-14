@@ -20,3 +20,4 @@ mono/db.sqlite3
 mono/reports
 *.json
 .pytest_cache/
+cov.xml
