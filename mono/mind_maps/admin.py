@@ -1,4 +1,6 @@
 """Django admin config for Watcher"""
+from typing import Iterable
+
 from django.contrib import admin
 
 from . import models
@@ -9,6 +11,12 @@ class MindMapAdmin(admin.ModelAdmin):
     """
     Config for mind maps
     """
+
+    def copy(self, request, queryset: Iterable[models.MindMap]):
+        for mind_map in queryset:
+            mind_map.copy()
+
+    copy.short_description = "Copy mind map"
 
     list_display = [
         "id",
@@ -21,6 +29,7 @@ class MindMapAdmin(admin.ModelAdmin):
         "created_by",
         "created_at",
     ]
+    actions = [copy]
 
 
 @admin.register(models.Node)
