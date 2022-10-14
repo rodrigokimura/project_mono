@@ -1,3 +1,9 @@
+## 7.47.1 (2022-10-13)
+
+### Fix
+
+- **mind_maps**: copy nodes before assigning fks
+
 ## 7.47.0 (2022-10-13)
 
 ### Feat
