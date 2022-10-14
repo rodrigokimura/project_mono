@@ -88,6 +88,7 @@ function renderMindMap(mindMap) {
                         <div class="menu">
                             <a class="item" href="/mm/${mindMap.id}/"><i class="eye icon"></i>${gettext("Open")}</a>
                             <div class="item" onclick="showMindMapModal('${mindMap.id}')"><i class="edit icon"></i>${gettext("Edit")}</div>
+                            <div class="item" onclick="copyMindMap('${mindMap.id}')"><i class="copy icon"></i>${gettext("Duplicate")}</div>
                             <div class="divider"></div>
                             <a class="delete-board item" data-mind-map-id="${mindMap.id}"><i class="delete icon"></i>${gettext("Delete")}</a>
                         </div>
@@ -157,6 +158,29 @@ function initializeDeleteBoardButtons() {
             }
         }).modal('show');
     })
+}
+
+function copyMindMap(mindMapId) {
+    $('body').modal({
+        title: gettext('Confirm action'),
+        class: 'mini',
+        closeIcon: true,
+        content: gettext('Duplicate this mind map?'),
+        actions: [
+            { text: 'Cancel', class: 'secondary' },
+            { text: 'Duplicate', class: 'green approve' },
+        ],
+        onApprove: () => {
+            $.api({
+                on: 'now',
+                method: 'POST',
+                url: `/mm/api/mind_maps/${mindMapId}/copy/`,
+                onSuccess(r) { retrieveMindMaps() },
+                onFailure: (response, element, xhr) => { console.log("Something went wrong.") },
+                onError: (errorMessage, element, xhr) => { console.log(`Request error: ${errorMessage}`) },
+            })
+        }
+    }).modal('show')
 }
 
 function initializeCardMenuDropdown() {
