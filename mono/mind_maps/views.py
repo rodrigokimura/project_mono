@@ -94,6 +94,7 @@ class FullSyncView(APIView):
             )
         Node.objects.filter(
             created_by=request.user,
+            mind_map=request.data[0].get("mind_map"),
         ).exclude(id__in=[n["id"] for n in request.data]).delete()
         return Response(
             status=status.HTTP_200_OK,

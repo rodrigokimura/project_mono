@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 """Mind maps models"""
 import uuid
+from typing import Iterable, Optional, Union
 
 from django.contrib.auth import get_user_model
-from django.db import models
+from django.db import models, transaction
+from django.db.models import QuerySet
 
 User = get_user_model()
 
@@ -38,8 +42,27 @@ class MindMap(BaseModel):
         return self.name
 
     @property
-    def nodes(self):
+    def nodes(self) -> Union[QuerySet, Iterable[Node]]:
         return self.node_set.all()
+
+    @transaction.atomic()
+    def copy(self, new_name: Optional[str] = None) -> MindMap:
+        original_nodes = list(Node.objects.filter(mind_map=self))
+        distinct_ids = set(node.id for node in original_nodes)
+        new_ids = {id: uuid.uuid4() for id in distinct_ids}
+
+        self.pk = uuid.uuid4()
+        self.name = new_name or f"{self.name} (copy)"
+        self.save()
+        for node in original_nodes:
+            node.pk = new_ids[node.id]
+            if node.parent:
+                node.parent_id = new_ids[node.parent.id]
+            else:
+                node.parent_id = None
+            node.mind_map = self
+            node.save()
+        return self
 
 
 class Node(BaseModel):
