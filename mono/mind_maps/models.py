@@ -56,6 +56,8 @@ class MindMap(BaseModel):
         self.save()
         for node in original_nodes:
             node.pk = new_ids[node.id]
+            node.save()
+        for node in original_nodes:
             if node.parent:
                 node.parent_id = new_ids[node.parent.id]
             else:
