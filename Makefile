@@ -122,7 +122,7 @@ coverage:
 	@cat /dev/null > mono/$(R_PT)/report.json
 	@cat /dev/null > mono/$(R_COV)/report.json
 	@export APP_ENV=TEST && cd mono \
-		&& pipenv run pytest --cov=. --report-log=$(R_PT)/report.json \
+		&& pipenv run pytest --cov=. --report-log=$(R_PT)/report.json --cov-report xml:cov.xml\
 		&& $(COV) json -o $(R_COV)/report.json
 
 _upload-coverage-report:
