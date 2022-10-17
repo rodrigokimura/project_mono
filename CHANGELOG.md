@@ -1,3 +1,9 @@
+## 7.47.2 (2022-10-17)
+
+### Fix
+
+- **coder**: adjust query to group by language correctly
+
 ## 7.47.1 (2022-10-13)
 
 ### Fix
