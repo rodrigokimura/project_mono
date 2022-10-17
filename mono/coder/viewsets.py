@@ -51,7 +51,7 @@ class SnippetViewSet(BaseViewSet):
             .annotate(
                 count=Count("id", distinct=True),
             )
-            .distinct()
+            .order_by("-count")
         )
 
     @action(detail=False, methods=["get"])
