@@ -1,6 +1,6 @@
+"""Mind maps models"""
 from __future__ import annotations
 
-"""Mind maps models"""
 import uuid
 from typing import Iterable, Optional, Union
 
