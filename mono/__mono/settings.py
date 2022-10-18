@@ -252,7 +252,7 @@ EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = 60
 
-DEFAULT_FROM_EMAIL = "no-reply@voitkemp.com"
+DEFAULT_FROM_EMAIL = "admin@monoproject.info"
 
 ADMINS = [("Rodrigo Eiti Kimura", "rodrigoeitikimura@gmail.com")]
 SERVER_EMAIL = "admin@monoproject.info"
