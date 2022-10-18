@@ -1,3 +1,9 @@
+## 7.47.3 (2022-10-17)
+
+### Fix
+
+- **mono**: change default from email
+
 ## 7.47.2 (2022-10-17)
 
 ### Fix
