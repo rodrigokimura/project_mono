@@ -1,3 +1,9 @@
+## 7.48.0 (2022-10-18)
+
+### Feat
+
+- **watcher**: add api to list issues
+
 ## 7.47.3 (2022-10-17)
 
 ### Fix
