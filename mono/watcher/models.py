@@ -76,10 +76,6 @@ class Issue(models.Model):
     def ignored(self):
         return self.ignored_at is not None
 
-    @property
-    def users(self):
-        return self.event_set.values("user").distinct()
-
 
 class Event(models.Model):
     """
