@@ -47,11 +47,12 @@ def _store_request(request):
     except Resolver404:
         resolver_match = None
     Request.objects.create(
+        started_at=request.start_time,
         duration=timezone.now() - request.start_time,
         method=request.method,
         path=request.path,
         route=resolver_match.route if resolver_match else None,
         url_name=resolver_match.url_name if resolver_match else None,
-        app_name=resolver_match.app_name if resolver_match else None,
+        app_name=resolver_match.app_name if resolver_match else "",
         user=request.user if request.user.is_authenticated else None,
     )

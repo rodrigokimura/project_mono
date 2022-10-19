@@ -26,3 +26,24 @@ function getIssues() {
         }
     })
 }
+function getAvgRequestsByAppName() {
+    $.api({
+        url: '/watcher/api/requests/app_name/',
+        on: 'now',
+        successTest: function (response) { return true },
+        onSuccess: function (response) {
+            $(`#requests-by-app tbody`).empty()
+            response.forEach(i => {
+                $(`#requests-by-app tbody`).append(`
+                    <tr>
+                        <td data-label="App">${i.app_name}</td>
+                        <td data-label="Duration">${(parseFloat(i.avg_duration) * 1000).toFixed(3)}</td>
+                        <td data-label="Count">${i.total_count}</td>
+                    </tr>
+                `)
+            })
+            let total = response.reduce((acc, i) => acc + parseFloat(i.total_count), 0)
+            $('#total-request-count').text(total)
+        }
+    })
+}
