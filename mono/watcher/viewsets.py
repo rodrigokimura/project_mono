@@ -1,11 +1,13 @@
 """Watcher's viewsets"""
 from __mono.permissions import IsCreator
-from django.db.models import Count, DateTimeField, Max, Min, Sum
+from django.db.models import Avg, Count, DateTimeField, Max, Min
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from .models import Comment, Issue
-from .serializers import CommentSerializer, IssueSerializer
+from .models import Comment, Issue, Request
+from .serializers import CommentSerializer, IssueSerializer, RequestSerializer
 
 # pylint: disable=too-many-ancestors
 
@@ -35,3 +37,26 @@ class IssueViewSet(ModelViewSet):
     filterset_fields = {
         "resolved_at": ["isnull"],
     }
+
+
+class RequestViewSet(ModelViewSet):
+    """Request viewset"""
+
+    queryset = Request.objects.all().order_by("id")
+    serializer_class = RequestSerializer
+    permission_classes = [IsAdminUser]
+    filterset_fields = {
+        "app_name": ["exact"],
+    }
+
+    @action(detail=False, methods=["get"])
+    def app_name(self, *args, **kwargs):
+        """Avg duration of requests by app_name"""
+        return Response(
+            self.queryset.values("app_name")
+            .annotate(
+                avg_duration=Avg("duration"),
+                total_count=Count("id"),
+            )
+            .order_by()
+        )

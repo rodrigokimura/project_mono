@@ -24,24 +24,6 @@ class RootView(UserPassesTestMixin, TemplateView):
     def test_func(self):
         return self.request.user.is_superuser
 
-    def get_context_data(self, **kwargs):
-        """
-        Add extra context
-        """
-        context = super().get_context_data(**kwargs)
-        context["requests"] = Request.objects.all()
-        requests_by_app = [
-            {
-                "app_name": result["app_name"],
-                "avg": round(result["avg"].total_seconds() * 1000, 2),
-            }
-            for result in Request.objects.values("app_name").annotate(
-                avg=Avg("duration")
-            )
-        ]
-        context["requests_by_app"] = requests_by_app
-        return context
-
     def dispatch(self, *args, **kwargs):
         """
         Add headers to avoid bf-cache

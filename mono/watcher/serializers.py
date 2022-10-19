@@ -9,7 +9,7 @@ from rest_framework.serializers import (
     Serializer,
 )
 
-from .models import Comment, Issue
+from .models import Comment, Issue, Request
 
 
 class IssueResolverSerializer(Serializer):
@@ -91,3 +91,21 @@ class IssueSerializer(ModelSerializer):
             "first_event": {"read_only": True},
             "last_event": {"read_only": True},
         }
+
+
+class RequestSerializer(ModelSerializer):
+    """Serializer for request"""
+
+    class Meta:
+        model = Request
+        fields = [
+            "id",
+            "started_at",
+            "duration",
+            "method",
+            "path",
+            "route",
+            "url_name",
+            "app_name",
+            "user",
+        ]

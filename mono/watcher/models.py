@@ -134,7 +134,7 @@ class Request(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    started_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField()
     duration = models.DurationField()
     method = models.CharField(max_length=10)
     path = models.CharField(max_length=2000)
@@ -142,7 +142,9 @@ class Request(models.Model):
         max_length=2000, null=True, blank=True, help_text="URL pattern"
     )
     url_name = models.CharField(max_length=200, null=True, blank=True)
-    app_name = models.CharField(max_length=200, null=True, blank=True)
+    app_name = models.CharField(
+        max_length=200, default="", blank=True, db_index=True
+    )
     user = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, default=None
     )
