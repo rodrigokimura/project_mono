@@ -29,12 +29,6 @@ class RootView(UserPassesTestMixin, TemplateView):
         Add extra context
         """
         context = super().get_context_data(**kwargs)
-        context["unresolved_issues"] = Issue.objects.filter(
-            resolved_at__isnull=True
-        )
-        context["resolved_issues"] = Issue.objects.exclude(
-            resolved_at__isnull=True
-        )
         context["requests"] = Request.objects.all()
         requests_by_app = [
             {

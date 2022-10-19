@@ -5,6 +5,7 @@
 
 
 {% block head %}
+    <script src="{% static 'watcher/index.js' %}"></script>
 {% endblock head %}
 
 {% block main %}
@@ -27,7 +28,7 @@
                         </div>
                         <div class="active content">
                             <div style="overflow-y: auto;">
-                                <table class="ui celled unstackable striped table">
+                                <table class="ui celled unstackable striped table" id="unresolved-issues">
                                     <thead>
                                         <tr><th>ID</th>
                                         <th>Name</th>
@@ -38,17 +39,6 @@
                                         <th>Last event</th>
                                     </tr></thead>
                                     <tbody>
-                                        {% for issue in unresolved_issues %}
-                                        <tr>
-                                            <td data-label="ID">{{ issue.id }}</td>
-                                            <td data-label="Name"><a href="{% url 'watcher:issue_detail' pk=issue.id %}">{{ issue.name }}</a></td>
-                                            <td data-label="Description">{{ issue.description }}</td>
-                                            <td data-label="Events">{{ issue.event_set.all.count }}</td>
-                                            <td data-label="Users">{{ issue.users.count }}</td>
-                                            <td data-label="First event">{{ issue.event_set.first.timestamp|date:"SHORT_DATETIME_FORMAT" }}</td>
-                                            <td data-label="Last event">{{ issue.event_set.last.timestamp|date:"SHORT_DATETIME_FORMAT" }}</td>
-                                        </tr>
-                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
@@ -59,7 +49,7 @@
                         </div>
                         <div class="content">
                             <div style="overflow-y: auto;">
-                                <table class="ui celled unstackable table">
+                                <table class="ui celled unstackable table" id="resolved-issues">
                                     <thead>
                                         <tr><th>ID</th>
                                         <th>Name</th>
@@ -68,15 +58,6 @@
                                         <th>Users</th>
                                     </tr></thead>
                                     <tbody>
-                                        {% for issue in resolved_issues %}
-                                        <tr>
-                                            <td data-label="ID">{{ issue.id }}</td>
-                                            <td data-label="Name"><a href="{% url 'watcher:issue_detail' pk=issue.id %}">{{ issue.name }}</a></td>
-                                            <td data-label="Description">{{ issue.description }}</td>
-                                            <td data-label="Events">{{ issue.event_set.all.count }}</td>
-                                            <td data-label="Users">{{ issue.users.count }}</td>
-                                        </tr>
-                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
@@ -114,7 +95,10 @@
         </div>
     </div>
     <script>
-        $('.menu .item').tab();
-        $('.ui.accordion').accordion();
+        $('.menu .item').tab()
+        $('.ui.accordion').accordion()
+        $(document).ready(function() {
+            getIssues()
+        })
     </script>
 {% endblock %}
