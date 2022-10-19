@@ -3,13 +3,14 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from . import views
-from .viewsets import CommentViewSet, IssueViewSet
+from .viewsets import CommentViewSet, IssueViewSet, RequestViewSet
 
 app_name = "watcher"
 
 router = DefaultRouter()
 router.register("comments", CommentViewSet)
 router.register("issues", IssueViewSet)
+router.register("requests", RequestViewSet)
 
 urlpatterns = [
     path("", views.RootView.as_view(), name="index"),

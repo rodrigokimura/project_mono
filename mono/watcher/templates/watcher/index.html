@@ -12,13 +12,13 @@
     <div class="ui stackable grid container" style="padding-top: 5em;">
         <div class="four wide column">
             <div class="ui vertical fluid menu">
-                <a class="item active" data-tab="tab-1">{% translate "Issues" %}</a>
-                <a class="item" data-tab="tab-2">{% translate "Performance" %}</a>
+                <a class="item active" data-tab="issues">{% translate "Issues" %}</a>
+                <a class="item" data-tab="performance">{% translate "Performance" %}</a>
                 <a class="item" data-tab="tab-3">{% translate "Stats" %}</a>
             </div>
         </div>
         <div class="twelve wide stretched column">
-            <div class="ui tab" data-tab="tab-1">
+            <div class="ui tab" data-tab="issues">
                 <div class="ui segment">
                     <h1 class="ui dividing header">{% translate "Issues" %}</h1>
                     <div class="ui accordion">
@@ -30,13 +30,13 @@
                             <div style="overflow-y: auto;">
                                 <table class="ui celled unstackable striped table" id="unresolved-issues">
                                     <thead>
-                                        <tr><th>ID</th>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Events</th>
-                                        <th>Users</th>
-                                        <th>First event</th>
-                                        <th>Last event</th>
+                                        <tr><th>{% translate "ID" %}</th>
+                                        <th>{% translate "Name" %}</th>
+                                        <th>{% translate "Description" %}</th>
+                                        <th>{% translate "Events" %}</th>
+                                        <th>{% translate "Users" %}</th>
+                                        <th>{% translate "First event" %}</th>
+                                        <th>{% translate "Last event" %}</th>
                                     </tr></thead>
                                     <tbody>
                                     </tbody>
@@ -51,11 +51,11 @@
                             <div style="overflow-y: auto;">
                                 <table class="ui celled unstackable table" id="resolved-issues">
                                     <thead>
-                                        <tr><th>ID</th>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Events</th>
-                                        <th>Users</th>
+                                        <tr><th>{% translate "ID" %}</th>
+                                        <th>{% translate "Name" %}</th>
+                                        <th>{% translate "Description" %}</th>
+                                        <th>{% translate "Events" %}</th>
+                                        <th>{% translate "Users" %}</th>
                                     </tr></thead>
                                     <tbody>
                                     </tbody>
@@ -65,23 +65,18 @@
                     </div>
                 </div>
             </div>
-            <div class="ui tab" data-tab="tab-2">
+            <div class="ui tab" data-tab="performance">
                 <div class="ui segment">
                     <h1 class="ui dividing header">{% translate "Performance" %}</h1>
-                    <h3 class="ui header">{{ requests.count }} requests</h3>
+                    <h3 class="ui header"><span id="total-request-count"></span> requests</h3>
                     <div style="overflow-y: auto;">
-                        <table class="ui celled unstackable table">
+                        <table class="ui celled unstackable table" id="requests-by-app">
                             <thead>
-                                <tr><th>App</th>
-                                <th>Duration</th>
+                                <tr><th>{% translate "App" %}</th>
+                                <th>{% translate "Duration" %}</th>
+                                <th>{% translate "Count" %}</th>
                             </tr></thead>
                             <tbody>
-                                {% for result in requests_by_app %}
-                                <tr>
-                                    <td data-label="App">{{ result.app_name }}</td>
-                                    <td data-label="Duration">{{ result.avg }}</td>
-                                </tr>
-                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -95,10 +90,21 @@
         </div>
     </div>
     <script>
-        $('.menu .item').tab()
-        $('.ui.accordion').accordion()
-        $(document).ready(function() {
-            getIssues()
+        let renderers = {
+            issues: getIssues,
+            performance: getAvgRequestsByAppName,
+        }
+        function initializeTabs() {
+            $('.ui.accordion').accordion()
+            $('.menu .item').tab({
+                autoTabActivation: 'issues',
+                onFirstLoad(tabPath, parameterArray, historyEvent) {
+                    if (renderers[tabPath]) renderers[tabPath]()
+                }
+            })
+        }
+        $(document).ready(e => {
+            initializeTabs()
         })
     </script>
 {% endblock %}

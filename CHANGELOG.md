@@ -1,3 +1,9 @@
+## 7.49.0 (2022-10-19)
+
+### Feat
+
+- **watcher**: expose apis to use in frontend
+
 ## 7.48.0 (2022-10-18)
 
 ### Feat
