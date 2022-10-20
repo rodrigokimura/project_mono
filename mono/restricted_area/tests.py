@@ -1,30 +1,27 @@
+import pytest
 from django.contrib.auth import get_user_model
-from django.test import TestCase
 from django.test.client import Client
-from finance.models import Icon
+from django.urls import reverse
+from pytest_django.asserts import assertContains
 
 User = get_user_model()
 
 
-class RestrictedAreaViewTests(TestCase):
-    def setUp(self):
-        Icon.create_defaults()
-        self.user = User.objects.create(
-            username="test",
-            email="test.test@test.com",
+@pytest.mark.django_db
+class TestRestrictedAreaViews:
+    def test_login_as_view(self, admin_client: Client, admin_user):
+        response = admin_client.post(
+            reverse("restricted-area:login_as"), {"user": admin_user.id}
+        )
+        assertContains(
+            response, f"Successfully logged in as {admin_user.username}"
         )
 
-    def test_login_as_view(self):
-        superuser = User.objects.create(
-            username="super",
-            email="super@test.com",
-        )
-        superuser.is_superuser = True
-        superuser.set_password("supersecret")
-        superuser.save()
-        c = Client()
-        c.login(username=superuser.username, password="supersecret")
-        r = c.post("/restricted-area/login-as/", {"user": superuser.id})
-        self.assertContains(
-            r, f"Successfully logged in as {superuser.username}"
-        )
+    def test_force_error_500_should_raise_exception(
+        self, admin_client: Client, admin_user
+    ):
+        with pytest.raises(Exception):
+            response = admin_client.get(
+                reverse("restricted-area:force-error-500")
+            )
+            assert response.status_code == 500
