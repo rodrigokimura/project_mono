@@ -1,3 +1,9 @@
+## 7.50.0 (2022-10-20)
+
+### Feat
+
+- **watcher**: improve translation
+
 ## 7.49.0 (2022-10-19)
 
 ### Feat
