@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-10 16:01+0000\n"
+"POT-Creation-Date: 2022-10-20 11:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,43 +18,47 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: mono/__mono/context_processors.py:31
+#: mono/__mono/context_processors.py:29
 msgid "Finance"
 msgstr "Finanças"
 
-#: mono/__mono/context_processors.py:32
+#: mono/__mono/context_processors.py:30
 msgid "Project Manager"
 msgstr "Gerenciador de Projetos"
 
-#: mono/__mono/context_processors.py:33
+#: mono/__mono/context_processors.py:31
 #: mono/notes/templates/notes/note_list.html:93
 #: mono/notes/templates/notes/note_list.html:109
 msgid "Notes"
 msgstr "Anotações"
 
-#: mono/__mono/context_processors.py:34
+#: mono/__mono/context_processors.py:32
 #: mono/checklists/templates/checklists/home.html:21
 #: mono/checklists/templates/checklists/home.html:38
 msgid "Checklists"
 msgstr "Listas de verificação"
 
-#: mono/__mono/context_processors.py:35
+#: mono/__mono/context_processors.py:33
 msgid "Pixel"
 msgstr "Pixel"
 
-#: mono/__mono/context_processors.py:36
+#: mono/__mono/context_processors.py:34
 msgid "Shipper"
 msgstr "Shipper"
 
-#: mono/__mono/context_processors.py:37
+#: mono/__mono/context_processors.py:35
 msgid "Coder"
 msgstr "Coder"
 
-#: mono/__mono/context_processors.py:41
+#: mono/__mono/context_processors.py:36
+msgid "Mind Maps"
+msgstr "Mapas Mentais"
+
+#: mono/__mono/context_processors.py:40
 msgid "Curriculum builder"
 msgstr "Construtor de Currículos"
 
-#: mono/__mono/context_processors.py:42
+#: mono/__mono/context_processors.py:41
 msgid "Admin"
 msgstr "Administrativo"
 
@@ -62,132 +66,130 @@ msgstr "Administrativo"
 msgid "Restricted Area"
 msgstr "Área Restrita"
 
-#: mono/__mono/context_processors.py:44
+#: mono/__mono/context_processors.py:48
 msgid "Watcher"
 msgstr "Watcher"
 
-#: mono/__mono/context_processors.py:45
+#: mono/__mono/context_processors.py:49
 msgid "Healthcheck"
 msgstr "Healthcheck"
 
-#: mono/__mono/settings.py:215
+#: mono/__mono/fields.py:48
+#, python-format
+msgid "You must select a minimum of  %(limit_value)d choices."
+msgstr "Você deve selecionar no mínimo %(limit_value)d opções."
+
+#: mono/__mono/fields.py:55
+#, python-format
+msgid "You must select a maximum of  %(limit_value)d choices."
+msgstr "Você deve selecionar no máximo %(limit_value)d opções."
+
+#: mono/__mono/settings.py:218
 msgid "American English"
 msgstr "Inglês americano"
 
-#: mono/__mono/settings.py:216
+#: mono/__mono/settings.py:219
 msgid "Brasilian Portuguese"
 msgstr "Português brasileiro"
 
-#: mono/__mono/utils.py:32
+#: mono/__mono/utils.py:31
 msgid "Red"
 msgstr "Vermelho"
 
-#: mono/__mono/utils.py:33
+#: mono/__mono/utils.py:32
 msgid "Orange"
 msgstr "Laranja"
 
-#: mono/__mono/utils.py:34
+#: mono/__mono/utils.py:33
 msgid "Yellow"
 msgstr "Amarelo"
 
-#: mono/__mono/utils.py:35
+#: mono/__mono/utils.py:34
 msgid "Olive"
 msgstr "Verde-oliva"
 
-#: mono/__mono/utils.py:36
+#: mono/__mono/utils.py:35
 msgid "Green"
 msgstr "Verde"
 
-#: mono/__mono/utils.py:37
+#: mono/__mono/utils.py:36
 msgid "Teal"
 msgstr "Verde-azulado"
 
-#: mono/__mono/utils.py:38
+#: mono/__mono/utils.py:37
 msgid "Blue"
 msgstr "Azul"
 
-#: mono/__mono/utils.py:39
+#: mono/__mono/utils.py:38
 msgid "Violet"
 msgstr "Violeta"
 
-#: mono/__mono/utils.py:40
+#: mono/__mono/utils.py:39
 msgid "Purple"
 msgstr "Roxo"
 
-#: mono/__mono/utils.py:41
+#: mono/__mono/utils.py:40
 msgid "Pink"
 msgstr "Rosa"
 
-#: mono/__mono/utils.py:42
+#: mono/__mono/utils.py:41
 msgid "Brown"
 msgstr "Marrom"
 
-#: mono/__mono/utils.py:43
+#: mono/__mono/utils.py:42
 msgid "Grey"
 msgstr "Cinza"
 
-#: mono/__mono/utils.py:44
+#: mono/__mono/utils.py:43
 msgid "Black"
 msgstr "Preto"
 
 #. Translators: delta will contain a string like '2 months' or '1 month, 2 weeks'
-#: mono/__mono/utils.py:50
+#: mono/__mono/utils.py:53
 #, python-format
 msgid "%(delta)s ago"
 msgstr "%(delta)s atrás"
 
-#. Translators: please keep a non-breaking space (U+00A0) between count
-#. and time unit.
-#: mono/__mono/utils.py:53
+#: mono/__mono/utils.py:57
 #, python-format
 msgid "an hour ago"
 msgid_plural "%(count)s hours ago"
 msgstr[0] "uma hora atrás"
 msgstr[1] "%(count)s horas ago"
 
-#. Translators: please keep a non-breaking space (U+00A0) between count
-#. and time unit.
-#: mono/__mono/utils.py:56
+#: mono/__mono/utils.py:62
 #, python-format
 msgid "a minute ago"
 msgid_plural "%(count)s minutes ago"
 msgstr[0] "um minuto atrás"
 msgstr[1] "%(count)s minutos atrás"
 
-#. Translators: please keep a non-breaking space (U+00A0) between count
-#. and time unit.
-#: mono/__mono/utils.py:59
+#: mono/__mono/utils.py:67
 #, python-format
 msgid "a second ago"
 msgid_plural "%(count)s seconds ago"
 msgstr[0] "um segundo atrás"
 msgstr[1] "%(count)s segundos atrás"
 
-#: mono/__mono/utils.py:60
+#: mono/__mono/utils.py:69
 msgid "now"
 msgstr "agora"
 
-#. Translators: please keep a non-breaking space (U+00A0) between count
-#. and time unit.
-#: mono/__mono/utils.py:63
+#: mono/__mono/utils.py:73
 #, python-format
 msgid "a second from now"
 msgid_plural "%(count)s seconds from now"
 msgstr[0] "daqui um segundo"
 msgstr[1] "daqui %(count)s segundos"
 
-#. Translators: please keep a non-breaking space (U+00A0) between count
-#. and time unit.
-#: mono/__mono/utils.py:66
+#: mono/__mono/utils.py:78
 #, python-format
 msgid "a minute from now"
 msgid_plural "%(count)s minutes from now"
 msgstr[0] "daqui um minuto"
 msgstr[1] "daqui %(count)s minutos"
 
-#. Translators: please keep a non-breaking space (U+00A0) between count
-#. and time unit.
-#: mono/__mono/utils.py:69
+#: mono/__mono/utils.py:83
 #, python-format
 msgid "an hour from now"
 msgid_plural "%(count)s hours from now"
@@ -195,13 +197,13 @@ msgstr[0] "daqui uma hora"
 msgstr[1] "daqui %(count)s horas"
 
 #. Translators: delta will contain a string like '2 months' or '1 month, 2 weeks'
-#: mono/__mono/utils.py:71
+#: mono/__mono/utils.py:86
 #, python-format
 msgid "%(delta)s from now"
 msgstr "daqui %(delta)s"
 
 #. Translators: 'naturaltime-past' strings will be included in '%(delta)s ago'
-#: mono/__mono/utils.py:75
+#: mono/__mono/utils.py:90
 #, python-format
 msgctxt "naturaltime-past"
 msgid "%d year"
@@ -209,7 +211,7 @@ msgid_plural "%d years"
 msgstr[0] "%d ano"
 msgstr[1] "%d years"
 
-#: mono/__mono/utils.py:76
+#: mono/__mono/utils.py:91
 #, python-format
 msgctxt "naturaltime-past"
 msgid "%d month"
@@ -217,7 +219,7 @@ msgid_plural "%d months"
 msgstr[0] "%d mês"
 msgstr[1] "%d meses"
 
-#: mono/__mono/utils.py:77
+#: mono/__mono/utils.py:92
 #, python-format
 msgctxt "naturaltime-past"
 msgid "%d week"
@@ -225,7 +227,7 @@ msgid_plural "%d weeks"
 msgstr[0] "%d semana"
 msgstr[1] "%d semanas"
 
-#: mono/__mono/utils.py:78
+#: mono/__mono/utils.py:93
 #, python-format
 msgctxt "naturaltime-past"
 msgid "%d day"
@@ -233,7 +235,7 @@ msgid_plural "%d days"
 msgstr[0] "%d dia"
 msgstr[1] "%d dias"
 
-#: mono/__mono/utils.py:79
+#: mono/__mono/utils.py:94
 #, python-format
 msgctxt "naturaltime-past"
 msgid "%d hour"
@@ -241,7 +243,7 @@ msgid_plural "%d hours"
 msgstr[0] "%d hora"
 msgstr[1] "%d horas"
 
-#: mono/__mono/utils.py:80
+#: mono/__mono/utils.py:95
 #, python-format
 msgctxt "naturaltime-past"
 msgid "%d minute"
@@ -250,7 +252,7 @@ msgstr[0] "%d minuto"
 msgstr[1] "%d minutos"
 
 #. Translators: 'naturaltime-future' strings will be included in '%(delta)s from now'
-#: mono/__mono/utils.py:84
+#: mono/__mono/utils.py:99
 #, python-format
 msgctxt "naturaltime-future"
 msgid "%d year"
@@ -258,7 +260,7 @@ msgid_plural "%d years"
 msgstr[0] "%d ano"
 msgstr[1] "%d ano"
 
-#: mono/__mono/utils.py:85
+#: mono/__mono/utils.py:100
 #, python-format
 msgctxt "naturaltime-future"
 msgid "%d month"
@@ -266,7 +268,7 @@ msgid_plural "%d months"
 msgstr[0] "%d mês"
 msgstr[1] "%d meses"
 
-#: mono/__mono/utils.py:86
+#: mono/__mono/utils.py:101
 #, python-format
 msgctxt "naturaltime-future"
 msgid "%d week"
@@ -274,7 +276,7 @@ msgid_plural "%d weeks"
 msgstr[0] "%d semana"
 msgstr[1] "%d semanas"
 
-#: mono/__mono/utils.py:87
+#: mono/__mono/utils.py:102
 #, python-format
 msgctxt "naturaltime-future"
 msgid "%d day"
@@ -282,7 +284,7 @@ msgid_plural "%d days"
 msgstr[0] "%d dia"
 msgstr[1] "%d dias"
 
-#: mono/__mono/utils.py:88
+#: mono/__mono/utils.py:103
 #, python-format
 msgctxt "naturaltime-future"
 msgid "%d hour"
@@ -290,7 +292,7 @@ msgid_plural "%d hours"
 msgstr[0] "%d hora"
 msgstr[1] "%d horas"
 
-#: mono/__mono/utils.py:89
+#: mono/__mono/utils.py:105
 #, python-format
 msgctxt "naturaltime-future"
 msgid "%d minute"
@@ -484,80 +486,76 @@ msgstr "Equipe do Projeto Mono"
 msgid "Send"
 msgstr "Enviar"
 
-#: mono/accounts/forms.py:29
+#: mono/accounts/forms.py:34
 #: mono/project_manager/templates/project_manager/project_detail.html:64
 msgid "Email"
 msgstr "E-mail"
 
-#: mono/accounts/forms.py:37
+#: mono/accounts/forms.py:49
 msgid "Email already exists. Please use another one."
 msgstr "O e-mail já existe. Por favor, use outro."
 
-#: mono/accounts/models.py:45
+#: mono/accounts/models.py:51
 msgid "notification"
 msgstr "notificação"
 
-#: mono/accounts/models.py:46
+#: mono/accounts/models.py:52
 msgid "notifications"
 msgstr "notificações"
 
-#: mono/accounts/models.py:85
-#, fuzzy
-#| msgid "Profile"
+#: mono/accounts/models.py:108
 msgid "profile"
-msgstr "Perfil"
+msgstr "perfil"
 
-#: mono/accounts/models.py:86
-#, fuzzy
-#| msgid "Profile"
+#: mono/accounts/models.py:109
 msgid "profiles"
-msgstr "Perfil"
+msgstr "perfis"
 
-#: mono/accounts/models.py:213
+#: mono/accounts/models.py:242
 msgid "Free"
 msgstr "Gratuito"
 
-#: mono/accounts/models.py:214
+#: mono/accounts/models.py:243
 msgid "Lifetime"
 msgstr "Vitalício"
 
-#: mono/accounts/models.py:215
+#: mono/accounts/models.py:244
 msgid "Default"
 msgstr "Padrão"
 
-#: mono/accounts/models.py:216
+#: mono/accounts/models.py:245
 msgid "Recommended"
 msgstr "Recomendado"
 
-#: mono/accounts/models.py:232
+#: mono/accounts/models.py:271
 msgid "plan"
 msgstr "plano"
 
-#: mono/accounts/models.py:233
+#: mono/accounts/models.py:272
 msgid "plans"
 msgstr "planos"
 
-#: mono/accounts/models.py:259
+#: mono/accounts/models.py:304
 msgid "feature"
 msgstr "característica"
 
-#: mono/accounts/models.py:260
+#: mono/accounts/models.py:305
 msgid "features"
 msgstr "características"
 
-#: mono/accounts/models.py:277
+#: mono/accounts/models.py:323
 msgid "subscription"
 msgstr "assinatura"
 
-#: mono/accounts/models.py:278
+#: mono/accounts/models.py:324
 msgid "subscriptions"
 msgstr "assinaturas"
 
-#: mono/accounts/models.py:333
+#: mono/accounts/models.py:394
 msgid "firebase cloud messaging token"
 msgstr "token do firebase cloud messaging"
 
-#: mono/accounts/models.py:334
+#: mono/accounts/models.py:395
 msgid "firebase cloud messaging tokens"
 msgstr "tokens do firebase cloud messaging"
 
@@ -668,70 +666,70 @@ msgstr "Inscrever-se"
 msgid "Already signed up? Login here instead."
 msgstr "Já se inscreveu? Então logue aqui."
 
-#: mono/accounts/views.py:102
+#: mono/accounts/views.py:117
 msgid "Password reset"
 msgstr "Recuperação de senha"
 
-#: mono/accounts/views.py:117
+#: mono/accounts/views.py:133
 msgid "Enter new password"
 msgstr "Digite a nova senha"
 
-#: mono/accounts/views.py:125
+#: mono/accounts/views.py:142
 msgid "Password reset sent"
 msgstr "E-mail recuperação de senha enviado"
 
-#: mono/accounts/views.py:133
+#: mono/accounts/views.py:151
 msgid "Password reset complete"
 msgstr "Recuperação de senha concluída"
 
-#: mono/accounts/views.py:262
+#: mono/accounts/views.py:303
 msgid "Wrong password."
 msgstr "Senha errada."
 
-#: mono/accounts/views.py:265
+#: mono/accounts/views.py:312
 msgid "The two new password fields didn't match."
 msgstr "Os dois campos de senha não coincidem."
 
-#: mono/blog/models.py:12 mono/notes/models.py:21
+#: mono/blog/models.py:13 mono/notes/models.py:21
 msgid "title"
 msgstr "título"
 
-#: mono/blog/models.py:13
+#: mono/blog/models.py:14
 msgid "content"
 msgstr "conteúdo"
 
-#: mono/blog/models.py:14 mono/blog/models.py:27
+#: mono/blog/models.py:16 mono/blog/models.py:34
 msgid "author"
 msgstr "autor"
 
-#: mono/blog/models.py:15 mono/blog/models.py:28 mono/finance/models.py:56
-#: mono/notes/models.py:35 mono/notes/models.py:77
+#: mono/blog/models.py:18 mono/blog/models.py:36 mono/finance/models.py:54
+#: mono/notes/models.py:37 mono/notes/models.py:79
 msgid "created at"
 msgstr "criado em"
 
-#: mono/blog/models.py:16 mono/blog/models.py:29 mono/notes/models.py:38
+#: mono/blog/models.py:19 mono/blog/models.py:37 mono/notes/models.py:38
 #: mono/notes/models.py:80
 msgid "updated at"
 msgstr "atualizado em"
 
-#: mono/blog/models.py:19 mono/blog/models.py:25
+#: mono/blog/models.py:22 mono/blog/models.py:30
 msgid "post"
 msgstr "postagem"
 
-#: mono/blog/models.py:20
+#: mono/blog/models.py:23
 msgid "posts"
 msgstr "postagens"
 
-#: mono/blog/models.py:26 mono/finance/models.py:49 mono/finance/models.py:129
-#: mono/finance/models.py:255 mono/finance/models.py:315
+#: mono/blog/models.py:32 mono/finance/models.py:45 mono/finance/models.py:137
+#: mono/finance/models.py:285 mono/finance/models.py:364
 msgid "description"
 msgstr "descrição"
 
-#: mono/blog/models.py:32
+#: mono/blog/models.py:40
 msgid "comment"
 msgstr "comentário"
 
-#: mono/blog/models.py:33
+#: mono/blog/models.py:41
 msgid "comments"
 msgstr "comentários"
 
@@ -788,6 +786,7 @@ msgstr "Cancelar"
 #: mono/finance/templates/finance/transaction_form.html:21
 #: mono/finance/templates/finance/transaction_list.html:432
 #: mono/finance/templates/finance/universal_transaction_form.html:237
+#: mono/mind_maps/templates/mind_maps/mind_map_list.html:39
 #: mono/pixel/templates/pixel/site_form.html:21
 #: mono/project_manager/templates/project_manager/board_calendar.html:84
 #: mono/project_manager/templates/project_manager/board_calendar.html:372
@@ -822,34 +821,35 @@ msgstr "Salvar"
 msgid "Delete"
 msgstr "Excluir"
 
-#: mono/checklists/models.py:63
+#: mono/checklists/models.py:69
 msgid "Daily"
 msgstr "Diariamente"
 
-#: mono/checklists/models.py:64 mono/finance/models.py:121
+#: mono/checklists/models.py:70 mono/finance/models.py:129
 msgid "Weekly"
 msgstr "Semanalmente"
 
-#: mono/checklists/models.py:65 mono/finance/models.py:122
+#: mono/checklists/models.py:71 mono/finance/models.py:130
 #: mono/finance/templates/finance/checkout.html:122
 msgid "Monthly"
 msgstr "Mensalmente"
 
-#: mono/checklists/models.py:66 mono/finance/models.py:123
+#: mono/checklists/models.py:72 mono/finance/models.py:131
 #: mono/finance/templates/finance/checkout.html:124
 msgid "Yearly"
 msgstr "Anualmente"
 
-#: mono/checklists/models.py:133
+#: mono/checklists/models.py:148
 msgid "Reminder for task"
 msgstr "Lembrate de tarefa"
 
-#: mono/checklists/models.py:134
+#: mono/checklists/models.py:149
 #, python-format
 msgid "You have a task to do: %(description)s"
 msgstr "Você possui uma tarefa para fazer: %(description)s"
 
 #: mono/checklists/templates/checklists/_modal.html:12
+#: mono/mind_maps/templates/mind_maps/mind_map_list.html:35
 #: mono/project_manager/templates/project_manager/board_calendar.html:453
 #: mono/project_manager/templates/project_manager/board_calendar.html:469
 #: mono/project_manager/templates/project_manager/board_detail.html:470
@@ -932,23 +932,23 @@ msgstr "Nova tarefa"
 msgid "Please, tell us what is on your mind."
 msgstr "Por favor, nos conte o que está pensando."
 
-#: mono/feedback/forms.py:38
+#: mono/feedback/forms.py:36
 msgid "Please, select a valid option."
 msgstr "Por favor, selecione uma opção válida."
 
-#: mono/feedback/models.py:25
+#: mono/feedback/models.py:27
 msgid "user"
 msgstr "usuário"
 
-#: mono/feedback/models.py:26
+#: mono/feedback/models.py:31
 msgid "feeling"
 msgstr "sentimento"
 
-#: mono/feedback/models.py:27
+#: mono/feedback/models.py:32
 msgid "message"
 msgstr "mensagem"
 
-#: mono/feedback/models.py:28
+#: mono/feedback/models.py:33
 msgid "public"
 msgstr "público"
 
@@ -968,21 +968,21 @@ msgstr ""
 "Ao ligar esse botão, você concorda que seu comentário poderá ficar visível "
 "para outros usuários."
 
-#: mono/feedback/views.py:17
+#: mono/feedback/views.py:20
 msgid "Your feedback was sent! Thank you!"
 msgstr "Sua avaliação foi enviada! Muito obrigado!"
 
-#: mono/finance/forms.py:37 mono/finance/forms.py:62
+#: mono/finance/forms.py:51 mono/finance/forms.py:87
 msgid "Current balance"
 msgstr "Saldo atual"
 
-#: mono/finance/forms.py:40
+#: mono/finance/forms.py:55
 msgid "Credit card"
 msgstr "Cartão de crédito"
 
-#: mono/finance/forms.py:47 mono/finance/forms.py:112 mono/finance/forms.py:185
-#: mono/finance/forms.py:246 mono/finance/forms.py:298
-#: mono/finance/forms.py:351
+#: mono/finance/forms.py:63 mono/finance/forms.py:140 mono/finance/forms.py:212
+#: mono/finance/forms.py:294 mono/finance/forms.py:352
+#: mono/finance/forms.py:412
 #: mono/finance/templates/finance/transaction_list.html:280
 #: mono/finance/templates/finance/transaction_list.html:281
 #: mono/project_manager/templates/project_manager/board_calendar.html:236
@@ -991,36 +991,38 @@ msgstr "Cartão de crédito"
 #: mono/project_manager/templates/project_manager/board_detail.html:244
 #: mono/project_manager/templates/project_manager/board_detail.html:402
 #: mono/project_manager/templates/project_manager/board_detail.html:403
+#: mono/watcher/templates/watcher/index.html:35
+#: mono/watcher/templates/watcher/index.html:56
 #: mono/watcher/templates/watcher/issue_detail.html:46
 msgid "Description"
 msgstr "Descrição"
 
-#: mono/finance/forms.py:55
+#: mono/finance/forms.py:79
 msgid "Initial balance"
 msgstr "Saldo inicial"
 
-#: mono/finance/forms.py:70
+#: mono/finance/forms.py:96
 msgid "You don't have permission to change the group."
 msgstr "Você não possui permissão para alterar o grupo."
 
-#: mono/finance/forms.py:104 mono/finance/models.py:314
-#: mono/finance/views.py:270
+#: mono/finance/forms.py:132 mono/finance/models.py:363
+#: mono/finance/views.py:311
 msgid "Transfer"
 msgstr "Transferência"
 
-#: mono/finance/forms.py:107 mono/finance/models.py:1112
+#: mono/finance/forms.py:135 mono/finance/models.py:1228
 #: mono/finance/templates/finance/charts.html:51
 msgid "Type"
 msgstr "Tipo"
 
-#: mono/finance/forms.py:115
+#: mono/finance/forms.py:143
 #: mono/finance/templates/finance/transaction_list.html:355
 #: mono/finance/templates/finance/transaction_list.html:359
 #: mono/watcher/templates/watcher/issue_detail.html:119
 msgid "Timestamp"
 msgstr "Data/hora"
 
-#: mono/finance/forms.py:120
+#: mono/finance/forms.py:148
 #: mono/finance/templates/finance/budgetconfiguration_list.html:24
 #: mono/finance/templates/finance/installment_list.html:27
 #: mono/finance/templates/finance/recurrenttransaction_list.html:27
@@ -1030,14 +1032,14 @@ msgstr "Data/hora"
 msgid "Account"
 msgstr "Conta"
 
-#: mono/finance/forms.py:125 mono/finance/forms.py:186
-#: mono/finance/forms.py:247 mono/finance/forms.py:299
+#: mono/finance/forms.py:153 mono/finance/forms.py:214
+#: mono/finance/forms.py:296 mono/finance/forms.py:354
 #: mono/finance/templates/finance/transaction_list.html:275
 #: mono/finance/templates/finance/transaction_list.html:276
 msgid "Amount"
 msgstr "Quantidade"
 
-#: mono/finance/forms.py:128 mono/finance/models.py:1111
+#: mono/finance/forms.py:156 mono/finance/models.py:1227
 #: mono/finance/templates/finance/budgetconfiguration_list.html:16
 #: mono/finance/templates/finance/charts.html:82
 #: mono/finance/templates/finance/installment_list.html:19
@@ -1049,468 +1051,468 @@ msgstr "Quantidade"
 msgid "Category"
 msgstr "Categoria"
 
-#: mono/finance/forms.py:134
+#: mono/finance/forms.py:162
 msgid "Active"
 msgstr "Ativo"
 
-#: mono/finance/forms.py:139
+#: mono/finance/forms.py:167
 #: mono/finance/templates/finance/transaction_list.html:387
 #: mono/finance/templates/finance/transaction_list.html:396
 #: mono/finance/templates/finance/universal_transaction_form.html:182
 msgid "Frequency"
 msgstr "Frequência"
 
-#: mono/finance/forms.py:144
+#: mono/finance/forms.py:172
 #: mono/finance/templates/finance/transaction_list.html:402
 #: mono/finance/templates/finance/transaction_list.html:403
 #: mono/finance/templates/finance/universal_transaction_form.html:196
 msgid "Months"
 msgstr "Meses"
 
-#: mono/finance/forms.py:148
+#: mono/finance/forms.py:176
 #: mono/finance/templates/finance/transaction_list.html:365
 msgid "Recurrent or installment?"
 msgstr "Recorrente ou parcelado?"
 
-#: mono/finance/forms.py:154
+#: mono/finance/forms.py:182
 msgid "Recurrent or installment"
 msgstr "Recorrente ou parcelado"
 
-#: mono/finance/forms.py:158
+#: mono/finance/forms.py:186
 #: mono/finance/templates/finance/transaction_list.html:376
 msgid "Recurrent"
 msgstr "Recorrente"
 
-#: mono/finance/forms.py:159 mono/finance/models.py:1103
+#: mono/finance/forms.py:187 mono/finance/models.py:1219
 #: mono/finance/templates/finance/transaction_list.html:140
 #: mono/finance/templates/finance/transaction_list.html:382
 msgid "Installment"
 msgstr "Parcelamento"
 
-#: mono/finance/forms.py:164
+#: mono/finance/forms.py:192
 #: mono/finance/templates/finance/transaction_list.html:407
 #: mono/finance/templates/finance/transaction_list.html:416
 msgid "Handle remainder"
 msgstr "Resto da divisão"
 
-#: mono/finance/forms.py:170
+#: mono/finance/forms.py:198
 #: mono/finance/templates/finance/transaction_list.html:291
 #: mono/finance/templates/finance/transaction_list.html:302
 msgid "From account"
 msgstr "Conta origem"
 
-#: mono/finance/forms.py:175
+#: mono/finance/forms.py:201
 #: mono/finance/templates/finance/transaction_list.html:296
 #: mono/finance/templates/finance/transaction_list.html:325
 msgid "To account"
 msgstr "Conta destino"
 
-#: mono/finance/forms.py:210
+#: mono/finance/forms.py:245
 msgid "This field is required."
 msgstr "Este campo é obrigatório"
 
-#: mono/finance/forms.py:352
+#: mono/finance/forms.py:415
 msgid "Total amount"
 msgstr "Quantidade total"
 
-#: mono/finance/forms.py:539
+#: mono/finance/forms.py:622
 msgid "Your end date must be after your start date."
 msgstr "A data final deve ser maior que a data inicial."
 
-#: mono/finance/models.py:53 mono/finance/models.py:135
-#: mono/finance/models.py:261 mono/finance/models.py:332
-#: mono/notes/models.py:32 mono/notes/models.py:73
+#: mono/finance/models.py:51 mono/finance/models.py:143
+#: mono/finance/models.py:292 mono/finance/models.py:384
+#: mono/notes/models.py:34 mono/notes/models.py:75
 msgid "created by"
 msgstr "criado por"
 
-#: mono/finance/models.py:59 mono/finance/models.py:139
-#: mono/finance/models.py:263 mono/finance/models.py:335
+#: mono/finance/models.py:56 mono/finance/models.py:147
+#: mono/finance/models.py:295 mono/finance/models.py:388
 msgid "timestamp"
 msgstr "data/hora"
 
-#: mono/finance/models.py:62 mono/finance/models.py:144
-#: mono/finance/models.py:338 mono/finance/models.py:815
+#: mono/finance/models.py:61 mono/finance/models.py:152
+#: mono/finance/models.py:393 mono/finance/models.py:919
 msgid "amount"
 msgstr "quantidade"
 
-#: mono/finance/models.py:64 mono/finance/models.py:147
-#: mono/finance/models.py:271 mono/finance/models.py:440
+#: mono/finance/models.py:68 mono/finance/models.py:159
+#: mono/finance/models.py:307 mono/finance/models.py:506
 msgid "category"
 msgstr "categoria"
 
-#: mono/finance/models.py:65 mono/finance/models.py:148
-#: mono/finance/models.py:272 mono/finance/models.py:673
+#: mono/finance/models.py:71 mono/finance/models.py:162
+#: mono/finance/models.py:310 mono/finance/models.py:754
 msgid "account"
 msgstr "conta"
 
-#: mono/finance/models.py:66 mono/finance/models.py:149
+#: mono/finance/models.py:73 mono/finance/models.py:164
 msgid "active"
 msgstr "ativo"
 
-#: mono/finance/models.py:76 mono/finance/models.py:84
-#: mono/finance/models.py:304
+#: mono/finance/models.py:83 mono/finance/models.py:91
+#: mono/finance/models.py:352
 msgid "installment"
 msgstr "parcelamento"
 
-#: mono/finance/models.py:92
+#: mono/finance/models.py:99
 msgid "transaction"
 msgstr "transação"
 
-#: mono/finance/models.py:93
+#: mono/finance/models.py:100
 msgid "transactions"
 msgstr "transações"
 
-#: mono/finance/models.py:150
+#: mono/finance/models.py:166
 msgid "frequency"
 msgstr "frequência"
 
-#: mono/finance/models.py:172 mono/finance/models.py:746
+#: mono/finance/models.py:192 mono/finance/models.py:840
 msgid "Monday"
 msgstr "Segunda-feira"
 
-#: mono/finance/models.py:173 mono/finance/models.py:747
+#: mono/finance/models.py:193 mono/finance/models.py:841
 msgid "Tuesday"
 msgstr "Terça-feira"
 
-#: mono/finance/models.py:174 mono/finance/models.py:748
+#: mono/finance/models.py:194 mono/finance/models.py:842
 msgid "Wednesday"
 msgstr "Quarta-feira"
 
-#: mono/finance/models.py:175 mono/finance/models.py:749
+#: mono/finance/models.py:195 mono/finance/models.py:843
 msgid "Thursday"
 msgstr "Quinta-feira"
 
-#: mono/finance/models.py:176 mono/finance/models.py:750
+#: mono/finance/models.py:196 mono/finance/models.py:844
 msgid "Friday"
 msgstr "Sexta-feira"
 
-#: mono/finance/models.py:177 mono/finance/models.py:751
+#: mono/finance/models.py:197 mono/finance/models.py:845
 msgid "Saturday"
 msgstr "Sábado"
 
-#: mono/finance/models.py:178 mono/finance/models.py:752
+#: mono/finance/models.py:198 mono/finance/models.py:846
 msgid "Sunday"
 msgstr "Domingo"
 
-#: mono/finance/models.py:181 mono/finance/models.py:755
+#: mono/finance/models.py:201 mono/finance/models.py:849
 msgid "January"
 msgstr "Janeiro"
 
-#: mono/finance/models.py:182 mono/finance/models.py:756
+#: mono/finance/models.py:202 mono/finance/models.py:850
 msgid "February"
 msgstr "Fevereiro"
 
-#: mono/finance/models.py:183 mono/finance/models.py:757
+#: mono/finance/models.py:203 mono/finance/models.py:851
 msgid "March"
 msgstr "Março"
 
-#: mono/finance/models.py:184 mono/finance/models.py:758
+#: mono/finance/models.py:204 mono/finance/models.py:852
 msgid "April"
 msgstr "Abril"
 
-#: mono/finance/models.py:185 mono/finance/models.py:759
+#: mono/finance/models.py:205 mono/finance/models.py:853
 msgid "May"
 msgstr "Maio"
 
-#: mono/finance/models.py:186 mono/finance/models.py:760
+#: mono/finance/models.py:206 mono/finance/models.py:854
 msgid "June"
 msgstr "Junho"
 
-#: mono/finance/models.py:187 mono/finance/models.py:761
+#: mono/finance/models.py:207 mono/finance/models.py:855
 msgid "July"
 msgstr "Julho"
 
-#: mono/finance/models.py:188 mono/finance/models.py:762
+#: mono/finance/models.py:208 mono/finance/models.py:856
 msgid "August"
 msgstr "Agosto"
 
-#: mono/finance/models.py:189 mono/finance/models.py:763
+#: mono/finance/models.py:209 mono/finance/models.py:857
 msgid "September"
 msgstr "Setembro"
 
-#: mono/finance/models.py:190 mono/finance/models.py:764
+#: mono/finance/models.py:210 mono/finance/models.py:858
 msgid "October"
 msgstr "Outubro"
 
-#: mono/finance/models.py:191 mono/finance/models.py:765
+#: mono/finance/models.py:211 mono/finance/models.py:859
 msgid "November"
 msgstr "Novembro"
 
-#: mono/finance/models.py:192 mono/finance/models.py:766
+#: mono/finance/models.py:212 mono/finance/models.py:860
 msgid "December"
 msgstr "Dezembro"
 
-#: mono/finance/models.py:195 mono/finance/models.py:769
+#: mono/finance/models.py:215 mono/finance/models.py:863
 #, python-format
 msgid "Every %(d)s of each week."
 msgstr "A cada %(d)s de cada semana."
 
-#: mono/finance/models.py:197 mono/finance/models.py:771
+#: mono/finance/models.py:219 mono/finance/models.py:867
 #, python-format
 msgid "Every day %(d)s of each month."
 msgstr "A cada dia %(d)s de cada mês."
 
-#: mono/finance/models.py:200 mono/finance/models.py:774
+#: mono/finance/models.py:223 mono/finance/models.py:871
 #, python-format
 msgid "Every day %(d)s of %(m)s of each year."
 msgstr "A cada %(d)s de %(m)s de cada ano."
 
-#: mono/finance/models.py:222
+#: mono/finance/models.py:248
 msgid "Recurrent transaction"
 msgstr "Transação recorrente"
 
-#: mono/finance/models.py:223
+#: mono/finance/models.py:250
 msgid "A transaction was created based on a Recurrent Transaction"
 msgstr "A transação foi criada baseada na Transação Recorrente"
 
-#: mono/finance/models.py:241
+#: mono/finance/models.py:270
 msgid "recurrent transaction"
 msgstr "transação recorrente"
 
-#: mono/finance/models.py:242
+#: mono/finance/models.py:271
 msgid "recurrent transactions"
 msgstr "transações recorrentes"
 
-#: mono/finance/models.py:250
+#: mono/finance/models.py:280
 msgid "Add to first transaction"
 msgstr "Adicionar à primeira transação"
 
-#: mono/finance/models.py:251
+#: mono/finance/models.py:281
 msgid "Add to last transaction"
 msgstr "Adicionar à última transação"
 
-#: mono/finance/models.py:253
+#: mono/finance/models.py:283
 msgid "months"
 msgstr "meses"
 
-#: mono/finance/models.py:268
+#: mono/finance/models.py:300
 msgid "total amount"
 msgstr "quantidade total"
 
-#: mono/finance/models.py:273
+#: mono/finance/models.py:313
 msgid "handle remainder"
 msgstr "resto da divisão"
 
-#: mono/finance/models.py:305
+#: mono/finance/models.py:353
 msgid "installments"
 msgstr "parcelamentos"
 
-#: mono/finance/models.py:319
+#: mono/finance/models.py:369
 msgid "from account"
 msgstr "conta origem"
 
-#: mono/finance/models.py:325
+#: mono/finance/models.py:376
 msgid "to account"
 msgstr "conta destino"
 
-#: mono/finance/models.py:380 mono/project_manager/models.py:1077
+#: mono/finance/models.py:437 mono/project_manager/models.py:1271
 msgid "icon"
 msgstr "ícone"
 
-#: mono/finance/models.py:381 mono/project_manager/models.py:1078
+#: mono/finance/models.py:438 mono/project_manager/models.py:1272
 msgid "icons"
 msgstr "ícones"
 
-#: mono/finance/models.py:395
+#: mono/finance/models.py:453
 msgid "Expense"
 msgstr "Gasto"
 
-#: mono/finance/models.py:396
+#: mono/finance/models.py:454
 msgid "Income"
 msgstr "Entrada"
 
-#: mono/finance/models.py:441 mono/finance/models.py:819
+#: mono/finance/models.py:507 mono/finance/models.py:923
 msgid "categories"
 msgstr "categorias"
 
-#: mono/finance/models.py:471
+#: mono/finance/models.py:542
 msgid "group"
 msgstr "grupo"
 
-#: mono/finance/models.py:472
+#: mono/finance/models.py:543
 msgid "groups"
 msgstr "grupos"
 
-#: mono/finance/models.py:674 mono/finance/models.py:818
+#: mono/finance/models.py:755 mono/finance/models.py:922
 msgid "accounts"
 msgstr "contas"
 
-#: mono/finance/models.py:707
+#: mono/finance/models.py:795
 msgid "goal"
 msgstr "objetivo"
 
-#: mono/finance/models.py:708
+#: mono/finance/models.py:796
 msgid "goals"
 msgstr "objetivos"
 
-#: mono/finance/models.py:727 mono/finance/models.py:820
+#: mono/finance/models.py:818 mono/finance/models.py:924
 msgid "all accounts"
 msgstr "todas as contas"
 
-#: mono/finance/models.py:728 mono/finance/models.py:821
+#: mono/finance/models.py:819 mono/finance/models.py:925
 msgid "all categories"
 msgstr "todas as categorias"
 
-#: mono/finance/models.py:806
+#: mono/finance/models.py:909
 msgid "budget configuration"
 msgstr "configuração de orçamento"
 
-#: mono/finance/models.py:807
+#: mono/finance/models.py:910
 msgid "budget configurations"
 msgstr "configurações de orçamento"
 
-#: mono/finance/models.py:816
+#: mono/finance/models.py:920
 msgid "start date"
 msgstr "data inicial"
 
-#: mono/finance/models.py:817
+#: mono/finance/models.py:921
 msgid "end date"
 msgstr "data final"
 
-#: mono/finance/models.py:827 mono/finance/models.py:1060
-#: mono/project_manager/models.py:227
+#: mono/finance/models.py:931 mono/finance/models.py:1175
+#: mono/project_manager/models.py:297
 msgid "configuration"
 msgstr "configuração"
 
-#: mono/finance/models.py:831
+#: mono/finance/models.py:935
 msgid "budget"
 msgstr "orçamento"
 
-#: mono/finance/models.py:832
+#: mono/finance/models.py:936
 msgid "budgets"
 msgstr "orçamentos"
 
-#: mono/finance/models.py:948 mono/project_manager/models.py:1105
+#: mono/finance/models.py:1064 mono/project_manager/models.py:1300
 msgid "invite"
 msgstr "convite"
 
-#: mono/finance/models.py:949 mono/project_manager/models.py:1106
+#: mono/finance/models.py:1065 mono/project_manager/models.py:1301
 msgid "invites"
 msgstr "convites"
 
-#: mono/finance/models.py:996 mono/project_manager/models.py:1153
+#: mono/finance/models.py:1107 mono/project_manager/models.py:1349
 msgid "Invite"
 msgstr "Convite"
 
-#: mono/finance/models.py:1006
+#: mono/finance/models.py:1121
 msgid "Group invitation"
 msgstr "Convite para grupo"
 
-#: mono/finance/models.py:1007
+#: mono/finance/models.py:1122
 msgid "You were invited to be part of a group."
 msgstr "Você foi convidade para fazer parte de um grupo."
 
-#: mono/finance/models.py:1042 mono/finance/templates/finance/_card.html:10
+#: mono/finance/models.py:1157 mono/finance/templates/finance/_card.html:10
 msgid "Overview"
 msgstr "Resumo"
 
-#: mono/finance/models.py:1043 mono/finance/templates/finance/_card.html:30
+#: mono/finance/models.py:1158 mono/finance/templates/finance/_card.html:30
 msgid "Balance"
 msgstr "Saldo"
 
-#: mono/finance/models.py:1044 mono/finance/templates/finance/_card.html:43
+#: mono/finance/models.py:1159 mono/finance/templates/finance/_card.html:43
 #: mono/finance/templates/finance/base.html:40
 msgid "Budgets"
 msgstr "Orçamentos"
 
-#: mono/finance/models.py:1045 mono/finance/templates/finance/_card.html:77
+#: mono/finance/models.py:1160 mono/finance/templates/finance/_card.html:77
 msgid "Wallet"
 msgstr "Carteira"
 
-#: mono/finance/models.py:1061 mono/project_manager/models.py:228
+#: mono/finance/models.py:1176 mono/project_manager/models.py:298
 msgid "configurations"
 msgstr "configurações"
 
-#: mono/finance/models.py:1089
+#: mono/finance/models.py:1205
 msgid "Bar"
 msgstr "Barra"
 
-#: mono/finance/models.py:1090
+#: mono/finance/models.py:1206
 msgid "Line"
 msgstr "Linha"
 
-#: mono/finance/models.py:1091
+#: mono/finance/models.py:1207
 msgid "Column"
 msgstr "Coluna"
 
-#: mono/finance/models.py:1092
+#: mono/finance/models.py:1208
 msgid "Donut"
 msgstr "Rosquinha"
 
-#: mono/finance/models.py:1095
+#: mono/finance/models.py:1211 mono/watcher/templates/watcher/index.html:77
 msgid "Count"
 msgstr "Contagem"
 
-#: mono/finance/models.py:1096
+#: mono/finance/models.py:1212
 msgid "Sum"
 msgstr "Soma"
 
-#: mono/finance/models.py:1097
+#: mono/finance/models.py:1213
 msgid "Average"
 msgstr "Média"
 
-#: mono/finance/models.py:1100
+#: mono/finance/models.py:1216
 #: mono/finance/templates/finance/transaction_list.html:259
 msgid "Transaction"
 msgstr "Transação"
 
-#: mono/finance/models.py:1101
+#: mono/finance/models.py:1217
 msgid "Transference"
 msgstr "Transferência"
 
-#: mono/finance/models.py:1102
+#: mono/finance/models.py:1218
 msgid "Recurrent Transaction"
 msgstr "Transação recorrente"
 
-#: mono/finance/models.py:1106
+#: mono/finance/models.py:1222
 msgid "Year"
 msgstr "Ano"
 
-#: mono/finance/models.py:1107
+#: mono/finance/models.py:1223
 msgid "Month"
 msgstr "Mês"
 
-#: mono/finance/models.py:1108
+#: mono/finance/models.py:1224
 msgid "Week"
 msgstr "Semana"
 
-#: mono/finance/models.py:1115
+#: mono/finance/models.py:1231
 msgid "Expenses"
 msgstr "Gastos"
 
-#: mono/finance/models.py:1116
+#: mono/finance/models.py:1232
 msgid "Incomes"
 msgstr "Entradas"
 
-#: mono/finance/models.py:1117
+#: mono/finance/models.py:1233
 msgid "Balance adjustments"
 msgstr "Ajustes de saldo"
 
-#: mono/finance/models.py:1118
+#: mono/finance/models.py:1234
 msgid "Not balance adjustments"
 msgstr "Não ajustes de saldo"
 
-#: mono/finance/models.py:1119
+#: mono/finance/models.py:1235
 msgid "Transferences"
 msgstr "Transferências"
 
-#: mono/finance/models.py:1120
+#: mono/finance/models.py:1236
 msgid "Not transferences"
 msgstr "Não transferências"
 
-#: mono/finance/models.py:1121
+#: mono/finance/models.py:1237
 msgid "Current year"
 msgstr "Ano atual"
 
-#: mono/finance/models.py:1122
+#: mono/finance/models.py:1238
 msgid "Past year"
 msgstr "Ano passado"
 
-#: mono/finance/models.py:1123
+#: mono/finance/models.py:1239
 msgid "Current month"
 msgstr "Mês atual"
 
-#: mono/finance/models.py:1124
+#: mono/finance/models.py:1240
 msgid "Past month"
 msgstr "Mês passado"
 
@@ -1602,10 +1604,10 @@ msgstr "Contas compartilhadas"
 msgid "Add account"
 msgstr "Adicionar uma conta"
 
-#: mono/finance/templates/finance/base.html:37 mono/project_manager/views.py:72
-#: mono/project_manager/views.py:107 mono/project_manager/views.py:129
-#: mono/project_manager/views.py:157 mono/project_manager/views.py:296
-#: mono/project_manager/views.py:327
+#: mono/finance/templates/finance/base.html:37 mono/project_manager/views.py:98
+#: mono/project_manager/views.py:136 mono/project_manager/views.py:164
+#: mono/project_manager/views.py:200 mono/project_manager/views.py:354
+#: mono/project_manager/views.py:397
 msgid "Home"
 msgstr "Página Inicial"
 
@@ -1956,77 +1958,85 @@ msgstr "Selecione uma categoria"
 msgid "Select an account"
 msgstr "Selecione uma conta"
 
-#: mono/finance/views.py:58
+#: mono/finance/views.py:82
 #, python-format
 msgid "%(model_name)s deletion successfully executed"
 msgstr "Exclusão de %(model_name)s executada com sucesso"
 
-#: mono/finance/views.py:67
+#: mono/finance/views.py:92
 #, python-format
 msgid "Delete %(model_name)s?"
 msgstr "Excluir %(model_name)s?"
 
-#: mono/healthcheck/models.py:114
+#: mono/healthcheck/models.py:146
 msgid "Pytest Report"
 msgstr "Relatório do Pytest"
 
-#: mono/healthcheck/models.py:115
+#: mono/healthcheck/models.py:147
 msgid "Pytest Reports"
 msgstr "Relatórios do Pytest"
 
-#: mono/healthcheck/models.py:173
+#: mono/healthcheck/models.py:222
 msgid "Pytest Result"
 msgstr "Resultado do Pytest"
 
-#: mono/healthcheck/models.py:174
+#: mono/healthcheck/models.py:223
 msgid "Pytest Results"
 msgstr "Resultados do Pytest"
 
-#: mono/healthcheck/models.py:186
+#: mono/healthcheck/models.py:238
 msgid "Coverage Report"
 msgstr "Relatório de cobertura"
 
-#: mono/healthcheck/models.py:187
+#: mono/healthcheck/models.py:239
 msgid "Coverage Reports"
 msgstr "Relatórios de cobertura"
 
-#: mono/healthcheck/models.py:257
+#: mono/healthcheck/models.py:320
 msgid "Coverage Result"
 msgstr "Resultado de cobertura"
 
-#: mono/healthcheck/models.py:258
+#: mono/healthcheck/models.py:321
 msgid "Coverage Results"
 msgstr "Resultados de cobertura"
 
-#: mono/healthcheck/models.py:276
+#: mono/healthcheck/models.py:348
 msgid "Pylint Report"
 msgstr "Relatório do Pylint"
 
-#: mono/healthcheck/models.py:277
+#: mono/healthcheck/models.py:349
 msgid "Pylint Reports"
 msgstr "Relatórios do Pylint"
 
-#: mono/healthcheck/models.py:323
+#: mono/healthcheck/models.py:411
 msgid "Pylint Result"
 msgstr "Resultado do Pylint"
 
-#: mono/healthcheck/models.py:324
+#: mono/healthcheck/models.py:412
 msgid "Pylint Results"
 msgstr "Resultados do Pylint"
+
+#: mono/mind_maps/templates/mind_maps/mind_map_list.html:26
+msgid "Create new mind map"
+msgstr "Criar novo mapa mental"
+
+#: mono/mind_maps/templates/mind_maps/mind_map_list.html:30
+msgid "Type a name for you mind map"
+msgstr "Digite um nome para o seu mapa mental"
 
 #: mono/notes/models.py:27
 msgid "location"
 msgstr "localização"
 
-#: mono/notes/models.py:42
+#: mono/notes/models.py:41
 msgid "note"
 msgstr "anotação"
 
-#: mono/notes/models.py:43
+#: mono/notes/models.py:42
 msgid "notes"
 msgstr "anotações"
 
-#: mono/notes/models.py:69 mono/project_manager/models.py:1043
+#: mono/notes/models.py:70 mono/project_manager/models.py:1233
 msgid "name"
 msgstr "nome"
 
@@ -2048,12 +2058,12 @@ msgstr "Nova anotação"
 msgid "Dark mode"
 msgstr "Modo escuro"
 
-#: mono/notes/views.py:81
+#: mono/notes/views.py:88
 #, python-format
 msgid "%(title)s note created successfully"
 msgstr "Anotação %(title)s criada com sucesso"
 
-#: mono/notes/views.py:92
+#: mono/notes/views.py:105
 #, python-format
 msgid "%(title)s note updated successfully"
 msgstr "Anotação %(title)s atualizada com sucesso"
@@ -2109,160 +2119,160 @@ msgstr "Baixar como arquivo Javascript"
 msgid "Download as HTML file"
 msgstr "Baixar como arquivo HTML"
 
-#: mono/project_manager/models.py:247
+#: mono/project_manager/models.py:318
 msgid "No automatic status"
 msgstr "Nenhum status automático"
 
-#: mono/project_manager/models.py:248 mono/project_manager/models.py:634
+#: mono/project_manager/models.py:319 mono/project_manager/models.py:794
 #: mono/project_manager/templates/project_manager/project_list.html:140
 #: mono/project_manager/templates/project_manager/project_list.html:142
 #: mono/project_manager/templates/project_manager/project_list.html:144
 msgid "Not started"
 msgstr "Não iniciado"
 
-#: mono/project_manager/models.py:249 mono/project_manager/models.py:635
+#: mono/project_manager/models.py:320 mono/project_manager/models.py:795
 #: mono/project_manager/templates/project_manager/project_list.html:130
 #: mono/project_manager/templates/project_manager/project_list.html:132
 #: mono/project_manager/templates/project_manager/project_list.html:134
 msgid "In progress"
 msgstr "Em andamento"
 
-#: mono/project_manager/models.py:250 mono/project_manager/models.py:636
+#: mono/project_manager/models.py:321 mono/project_manager/models.py:796
 #: mono/project_manager/templates/project_manager/project_list.html:120
 #: mono/project_manager/templates/project_manager/project_list.html:122
 #: mono/project_manager/templates/project_manager/project_list.html:124
 msgid "Completed"
 msgstr "Concluído"
 
-#: mono/project_manager/models.py:253
+#: mono/project_manager/models.py:324
 msgid "To do"
 msgstr "Para fazer"
 
-#: mono/project_manager/models.py:253
+#: mono/project_manager/models.py:324
 msgid "Stuff to do"
 msgstr "Coisas para se fazer"
 
-#: mono/project_manager/models.py:254
+#: mono/project_manager/models.py:325
 msgid "Doing"
 msgstr "Fazendo"
 
-#: mono/project_manager/models.py:254
+#: mono/project_manager/models.py:325
 msgid "Stuff being done"
 msgstr "Coisas sendo feitas"
 
-#: mono/project_manager/models.py:255
+#: mono/project_manager/models.py:326
 msgid "Done"
 msgstr "Feito"
 
-#: mono/project_manager/models.py:255
+#: mono/project_manager/models.py:326
 msgid "Stuff already finished"
 msgstr "Coisas já finalizadas"
 
-#: mono/project_manager/models.py:260 mono/project_manager/models.py:648
+#: mono/project_manager/models.py:332 mono/project_manager/models.py:812
 msgid "status"
 msgstr "Status"
 
-#: mono/project_manager/models.py:327
+#: mono/project_manager/models.py:411
 #, python-format
 msgid "%(user)s created card"
 msgstr "%(user)s criou o card"
 
-#: mono/project_manager/models.py:328
+#: mono/project_manager/models.py:413
 #, python-format
 msgid "%(user)s updated card name from %(old)s to %(new)s"
 msgstr "%(user)s atualizou o nome do card de %(old)s para %(new)s"
 
-#: mono/project_manager/models.py:329
+#: mono/project_manager/models.py:416
 #, python-format
 msgid "%(user)s updated card description"
 msgstr "%(user)s atualizou a descrição do card"
 
-#: mono/project_manager/models.py:330
+#: mono/project_manager/models.py:419
 #, python-format
 msgid "%(user)s updated card due date from %(old)s to %(new)s"
 msgstr "%(user)s atualizou o prazo do card de %(old)s para %(new)s"
 
-#: mono/project_manager/models.py:331
+#: mono/project_manager/models.py:422
 #, python-format
 msgid "%(user)s updated card status from %(old)s to %(new)s"
 msgstr "%(user)s atualizou o status do card de %(old)s para %(new)s"
 
-#: mono/project_manager/models.py:332
+#: mono/project_manager/models.py:425
 #, python-format
 msgid "%(user)s updated card color from %(old)s to %(new)s"
 msgstr "%(user)s atualizou a cor do card de %(old)s para %(new)s"
 
-#: mono/project_manager/models.py:333
+#: mono/project_manager/models.py:427
 #, python-format
 msgid "%(user)s added tag %(tag)s"
 msgstr "%(user)s adicionou a tag %(tag)s"
 
-#: mono/project_manager/models.py:334
+#: mono/project_manager/models.py:428
 #, python-format
 msgid "%(user)s removed tag %(tag)s"
 msgstr "%(user)s removeu a tag %(tag)s"
 
-#: mono/project_manager/models.py:335
+#: mono/project_manager/models.py:430
 #, python-format
 msgid "%(user)s assigned %(assignee)s to card"
 msgstr "%(user)s atribui o card a %(assignee)s"
 
-#: mono/project_manager/models.py:336
+#: mono/project_manager/models.py:433
 #, python-format
 msgid "%(user)s removed %(assignee)s from card's assigned users"
 msgstr "%(user)s removeu %(assignee)s dos usuários atribuidos"
 
-#: mono/project_manager/models.py:337
+#: mono/project_manager/models.py:436
 #, python-format
 msgid "%(user)s added checklist item %(item)s"
 msgstr "%(user)s adicionou o item %(item)s na lista de verificação"
 
-#: mono/project_manager/models.py:338
+#: mono/project_manager/models.py:439
 #, python-format
 msgid "%(user)s updated checklist item from %(old)s to %(new)s"
 msgstr "%(user)s atualizou o item %(old)s para %(new)s"
 
-#: mono/project_manager/models.py:339
+#: mono/project_manager/models.py:442
 #, python-format
 msgid "%(user)s removed checklist item %(item)s"
 msgstr "%(user)s removeu o item %(item)s da lista de verificação"
 
-#: mono/project_manager/models.py:340
+#: mono/project_manager/models.py:444
 #, python-format
 msgid "%(user)s added comment"
 msgstr "%(user)s adicionou um comentário"
 
-#: mono/project_manager/models.py:341
+#: mono/project_manager/models.py:445
 #, python-format
 msgid "%(user)s updated comment"
 msgstr "%(user)s atualizou um comentário"
 
-#: mono/project_manager/models.py:342
+#: mono/project_manager/models.py:446
 #, python-format
 msgid "%(user)s removed comment"
 msgstr "%(user)s removeu um comentário"
 
-#: mono/project_manager/models.py:343
+#: mono/project_manager/models.py:447
 #, python-format
 msgid "%(user)s added a file"
 msgstr "%(user)s adicionou um arquivo"
 
-#: mono/project_manager/models.py:344
+#: mono/project_manager/models.py:448
 #, python-format
 msgid "%(user)s removed a file"
 msgstr "%(user)s removeu um arquivo"
 
-#: mono/project_manager/models.py:345
+#: mono/project_manager/models.py:449
 #, python-format
 msgid "%(user)s started timer"
 msgstr "%(user)s iniciou o cronômetro"
 
-#: mono/project_manager/models.py:346
+#: mono/project_manager/models.py:451
 #, python-format
 msgid "%(user)s stopped timer (logged duration: %(duration)s)"
 msgstr "%(user)s parou o cronômetro (duração registrada: %(duration)s)"
 
-#: mono/project_manager/models.py:347
+#: mono/project_manager/models.py:456
 #, python-format
 msgid ""
 "%(user)s updated a time entry (duration changed from %(old)s to %(new)s)"
@@ -2270,77 +2280,77 @@ msgstr ""
 "%(user)s alterou um registro de tempo (duração alterada de %(old)s para "
 "%(new)s)"
 
-#: mono/project_manager/models.py:348
+#: mono/project_manager/models.py:460
 #, python-format
 msgid "%(user)s deleted a time entry"
 msgstr "%(user)s excluiu um registro de tempo"
 
-#: mono/project_manager/models.py:357
+#: mono/project_manager/models.py:474
 msgid "activity"
 msgstr "atividade"
 
-#: mono/project_manager/models.py:358
+#: mono/project_manager/models.py:475
 msgid "activities"
 msgstr "atividades"
 
-#: mono/project_manager/models.py:537
+#: mono/project_manager/models.py:695
 msgid "no color"
 msgstr "sem cor"
 
-#: mono/project_manager/models.py:545
+#: mono/project_manager/models.py:708
 msgid "no date"
 msgstr "sem data"
 
-#: mono/project_manager/models.py:614
+#: mono/project_manager/models.py:773
 #, python-format
 msgid "%(executed_action)s %(natural_time)s"
 msgstr "%(executed_action)s %(natural_time)s"
 
-#: mono/project_manager/models.py:943 mono/project_manager/models.py:979
+#: mono/project_manager/models.py:1129 mono/project_manager/models.py:1166
 msgid "Comment"
 msgstr "Comentário"
 
-#: mono/project_manager/models.py:954 mono/project_manager/models.py:992
+#: mono/project_manager/models.py:1141 mono/project_manager/models.py:1180
 msgid "Comment on card"
 msgstr "Comentar no card"
 
-#: mono/project_manager/models.py:955
+#: mono/project_manager/models.py:1142
 msgid "Someone commented on a card and mentioned you."
 msgstr "Alguém comentou em um card e mencionou você."
 
-#: mono/project_manager/models.py:993
+#: mono/project_manager/models.py:1181
 msgid "Someone commented on a card assigned to you."
 msgstr "Alguém comentou em um card atribuído a você."
 
-#: mono/project_manager/models.py:1008
+#: mono/project_manager/models.py:1197
 msgid "time entry"
 msgstr "entrada de tempo"
 
-#: mono/project_manager/models.py:1009
+#: mono/project_manager/models.py:1198
 msgid "time entries"
 msgstr "entradas de tempo"
 
-#: mono/project_manager/models.py:1044
+#: mono/project_manager/models.py:1234
 msgid "primary"
 msgstr "primário"
 
-#: mono/project_manager/models.py:1045
+#: mono/project_manager/models.py:1235
 msgid "dark"
 msgstr "escuro"
 
-#: mono/project_manager/models.py:1046
+#: mono/project_manager/models.py:1236
 msgid "light"
 msgstr "claro"
 
-#: mono/project_manager/models.py:1161
+#: mono/project_manager/models.py:1358
 msgid "Project invitation"
 msgstr "Convite para projeto"
 
-#: mono/project_manager/models.py:1162
+#: mono/project_manager/models.py:1359
 msgid "You were invited to be part of a project."
 msgstr "Você foi convidade para fazer parte de um projeto."
 
-#: mono/project_manager/serializers.py:71
+#: mono/project_manager/serializers.py:115
 msgid "You've already invited this email for this project."
 msgstr "Você já convidou este e-mail para este projeto."
 
@@ -2479,6 +2489,8 @@ msgstr "Por favor, selecione um arquivo."
 #: mono/project_manager/templates/project_manager/board_detail.html:391
 #: mono/project_manager/templates/project_manager/project_detail.html:62
 #: mono/project_manager/templates/project_manager/project_list.html:55
+#: mono/watcher/templates/watcher/index.html:34
+#: mono/watcher/templates/watcher/index.html:55
 #: mono/watcher/templates/watcher/issue_detail.html:45
 msgid "Name"
 msgstr "Nome"
@@ -2652,78 +2664,78 @@ msgstr "Criar um novo projeto!"
 msgid "New project"
 msgstr "Novo projeto"
 
-#: mono/project_manager/views.py:220
+#: mono/project_manager/views.py:267
 msgid "You are not assigned to this board!"
 msgstr "Você não está atribuído a este quadro!"
 
-#: mono/project_manager/views.py:256
+#: mono/project_manager/views.py:307
 #, python-format
 msgid "Board %(name)s was created successfully"
 msgstr "Quadr %(name)s criado com sucesso"
 
-#: mono/project_manager/views.py:265
+#: mono/project_manager/views.py:320
 msgid "You don't have permission to create boards in this project."
 msgstr "Você não possui permissão para criar quadros neste projeto."
 
-#: mono/project_manager/views.py:299
+#: mono/project_manager/views.py:360
 msgid "Create board"
 msgstr "Criar quadro"
 
-#: mono/project_manager/views.py:311
+#: mono/project_manager/views.py:378
 #, python-format
 msgid "Board %(name)s was updated successfully"
 msgstr "Quadro %(name)s atualizado com sucesso"
 
-#: mono/project_manager/views.py:329
+#: mono/project_manager/views.py:399
 msgid "Board: edit"
 msgstr "Quadro: editar"
 
-#: mono/project_manager/views.py:347
+#: mono/project_manager/views.py:419
 msgid "No token provided."
 msgstr "Nenhum token fornecido."
 
-#: mono/project_manager/views.py:356
+#: mono/project_manager/views.py:429
 msgid "You've already accepted this invitation."
 msgstr "Você já aceitou este convite."
 
-#: mono/project_manager/views.py:360
+#: mono/project_manager/views.py:439
 msgid "You are already a member of this project."
 msgstr "Você já é membro deste projeto."
 
-#: mono/project_manager/views.py:365
+#: mono/project_manager/views.py:446
 msgid "Invite accepted."
 msgstr "Convite aceito."
 
-#: mono/project_manager/views.py:407 mono/project_manager/views.py:417
-#: mono/project_manager/views.py:430 mono/project_manager/views.py:449
-#: mono/project_manager/views.py:473 mono/project_manager/views.py:483
-#: mono/project_manager/views.py:502 mono/project_manager/views.py:518
-#: mono/project_manager/views.py:538 mono/project_manager/views.py:558
-#: mono/project_manager/views.py:575 mono/project_manager/views.py:606
-#: mono/project_manager/views.py:616 mono/project_manager/views.py:644
-#: mono/project_manager/views.py:666 mono/project_manager/views.py:678
-#: mono/project_manager/views.py:695 mono/project_manager/views.py:723
-#: mono/project_manager/views.py:741 mono/project_manager/views.py:761
-#: mono/project_manager/views.py:773 mono/project_manager/views.py:795
-#: mono/project_manager/views.py:824 mono/project_manager/views.py:840
-#: mono/project_manager/views.py:872 mono/project_manager/views.py:891
-#: mono/project_manager/views.py:904 mono/project_manager/views.py:928
-#: mono/project_manager/views.py:949 mono/project_manager/views.py:969
-#: mono/project_manager/views.py:989 mono/project_manager/views.py:1009
-#: mono/project_manager/views.py:1033 mono/project_manager/views.py:1051
-#: mono/project_manager/views.py:1073 mono/project_manager/views.py:1097
-#: mono/project_manager/views.py:1115 mono/project_manager/views.py:1135
-#: mono/project_manager/views.py:1161 mono/project_manager/views.py:1190
-#: mono/project_manager/views.py:1218 mono/project_manager/views.py:1238
-#: mono/project_manager/views.py:1258 mono/project_manager/views.py:1277
-#: mono/project_manager/views.py:1293 mono/project_manager/views.py:1311
-#: mono/project_manager/views.py:1388 mono/project_manager/views.py:1409
-#: mono/project_manager/views.py:1422 mono/project_manager/views.py:1439
-#: mono/project_manager/views.py:1453 mono/project_manager/views.py:1466
-#: mono/project_manager/views.py:1486 mono/project_manager/views.py:1503
-#: mono/project_manager/views.py:1518 mono/project_manager/views.py:1535
-#: mono/project_manager/views.py:1549 mono/project_manager/views.py:1563
-#: mono/project_manager/views.py:1574
+#: mono/project_manager/views.py:492 mono/project_manager/views.py:504
+#: mono/project_manager/views.py:519 mono/project_manager/views.py:539
+#: mono/project_manager/views.py:568 mono/project_manager/views.py:580
+#: mono/project_manager/views.py:601 mono/project_manager/views.py:620
+#: mono/project_manager/views.py:644 mono/project_manager/views.py:665
+#: mono/project_manager/views.py:683 mono/project_manager/views.py:717
+#: mono/project_manager/views.py:728 mono/project_manager/views.py:759
+#: mono/project_manager/views.py:783 mono/project_manager/views.py:795
+#: mono/project_manager/views.py:814 mono/project_manager/views.py:842
+#: mono/project_manager/views.py:860 mono/project_manager/views.py:884
+#: mono/project_manager/views.py:896 mono/project_manager/views.py:918
+#: mono/project_manager/views.py:951 mono/project_manager/views.py:967
+#: mono/project_manager/views.py:1008 mono/project_manager/views.py:1027
+#: mono/project_manager/views.py:1040 mono/project_manager/views.py:1064
+#: mono/project_manager/views.py:1091 mono/project_manager/views.py:1111
+#: mono/project_manager/views.py:1144 mono/project_manager/views.py:1164
+#: mono/project_manager/views.py:1188 mono/project_manager/views.py:1210
+#: mono/project_manager/views.py:1232 mono/project_manager/views.py:1256
+#: mono/project_manager/views.py:1278 mono/project_manager/views.py:1298
+#: mono/project_manager/views.py:1328 mono/project_manager/views.py:1357
+#: mono/project_manager/views.py:1385 mono/project_manager/views.py:1409
+#: mono/project_manager/views.py:1429 mono/project_manager/views.py:1457
+#: mono/project_manager/views.py:1473 mono/project_manager/views.py:1492
+#: mono/project_manager/views.py:1573 mono/project_manager/views.py:1594
+#: mono/project_manager/views.py:1611 mono/project_manager/views.py:1628
+#: mono/project_manager/views.py:1646 mono/project_manager/views.py:1662
+#: mono/project_manager/views.py:1685 mono/project_manager/views.py:1704
+#: mono/project_manager/views.py:1723 mono/project_manager/views.py:1740
+#: mono/project_manager/views.py:1758 mono/project_manager/views.py:1779
+#: mono/project_manager/views.py:1790
 msgid "User not allowed"
 msgstr "Usuário não permitido"
 
@@ -2731,28 +2743,61 @@ msgstr "Usuário não permitido"
 msgid "MAINTENANCE"
 msgstr "MANUTENÇÃO"
 
-#: mono/watcher/templates/watcher/index.html:14
-#: mono/watcher/templates/watcher/index.html:22
+#: mono/watcher/templates/watcher/index.html:15
+#: mono/watcher/templates/watcher/index.html:23
 msgid "Issues"
 msgstr "Problemas"
 
-#: mono/watcher/templates/watcher/index.html:15
-#: mono/watcher/templates/watcher/index.html:89
+#: mono/watcher/templates/watcher/index.html:16
+#: mono/watcher/templates/watcher/index.html:70
 msgid "Performance"
 msgstr "Performance"
 
-#: mono/watcher/templates/watcher/index.html:16
-#: mono/watcher/templates/watcher/index.html:111
+#: mono/watcher/templates/watcher/index.html:17
+#: mono/watcher/templates/watcher/index.html:87
 msgid "Stats"
 msgstr "Estatísticas"
 
-#: mono/watcher/templates/watcher/index.html:26
+#: mono/watcher/templates/watcher/index.html:27
 msgid "Unresolved"
 msgstr "Não resolvidos"
 
+#: mono/watcher/templates/watcher/index.html:33
+#: mono/watcher/templates/watcher/index.html:54
+msgid "ID"
+msgstr "ID"
+
+#: mono/watcher/templates/watcher/index.html:36
+#: mono/watcher/templates/watcher/index.html:57
+#: mono/watcher/templates/watcher/issue_detail.html:39
+#: mono/watcher/templates/watcher/issue_detail.html:115
+msgid "Events"
+msgstr "Eventos"
+
+#: mono/watcher/templates/watcher/index.html:37
 #: mono/watcher/templates/watcher/index.html:58
+msgid "Users"
+msgstr "Usuários"
+
+#: mono/watcher/templates/watcher/index.html:38
+msgid "First event"
+msgstr "Primeiro evento"
+
+#: mono/watcher/templates/watcher/index.html:39
+msgid "Last event"
+msgstr "Último evento"
+
+#: mono/watcher/templates/watcher/index.html:48
 msgid "Resolved"
 msgstr "Resolvidos"
+
+#: mono/watcher/templates/watcher/index.html:75
+msgid "App"
+msgstr "App"
+
+#: mono/watcher/templates/watcher/index.html:76
+msgid "Duration"
+msgstr "Duração"
 
 #: mono/watcher/templates/watcher/issue_detail.html:24
 msgid "Issue"
@@ -2767,11 +2812,6 @@ msgstr "Detalhe"
 #: mono/watcher/templates/watcher/issue_detail.html:63
 msgid "Traceback"
 msgstr "Traceback"
-
-#: mono/watcher/templates/watcher/issue_detail.html:39
-#: mono/watcher/templates/watcher/issue_detail.html:115
-msgid "Events"
-msgstr "Eventos"
 
 #: mono/watcher/templates/watcher/issue_detail.html:44
 msgid "Hash"
