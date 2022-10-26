@@ -51,6 +51,8 @@ class MindMapDetailView(LoginRequiredMixin, DetailView):
 
 
 class FullSyncView(APIView):
+    """Full sync view for Mind Maps app"""
+
     @transaction.atomic()
     def post(self, request: Request, *args, **kwargs):
         """Full sync view"""

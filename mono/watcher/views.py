@@ -1,7 +1,6 @@
 """Watcher's views"""
 from __mono.permissions import IsCreator
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
@@ -10,7 +9,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Issue, Request
+from .models import Issue
 from .serializers import IssueIgnorerSerializer, IssueResolverSerializer
 
 
