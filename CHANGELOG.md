@@ -1,3 +1,9 @@
+## 7.50.1 (2022-10-26)
+
+### Refactor
+
+- **mono**: add pylint suggestions
+
 ## 7.50.0 (2022-10-20)
 
 ### Feat
