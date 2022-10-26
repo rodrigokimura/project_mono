@@ -47,6 +47,7 @@ class MindMap(BaseModel):
 
     @transaction.atomic()
     def copy(self, new_name: Optional[str] = None) -> MindMap:
+        """Duplicate mind map"""
         original_nodes = list(Node.objects.filter(mind_map=self))
         distinct_ids = set(node.id for node in original_nodes)
         new_ids = {id: uuid.uuid4() for id in distinct_ids}
