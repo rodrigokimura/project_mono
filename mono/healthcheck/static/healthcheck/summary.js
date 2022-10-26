@@ -13,7 +13,7 @@ async function renderSummary() {
                     r => new Date(r.deployed_at)
                 )
                 .filter(
-                    d => d >= now.setDate(now.getDate() - 7)
+                    d => d && d >= now.setDate(now.getDate() - 7)
                 )
             $('.card-statistic .value[data-type=pull_requests]').text(r.results.length)
             $('.card-statistic .value[data-type=deploys_lw]').text(deploysLastWeek.length)
