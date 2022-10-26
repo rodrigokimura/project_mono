@@ -1,3 +1,9 @@
+## 7.50.2 (2022-10-26)
+
+### Fix
+
+- **healthcheck**: adjust filter when counting deployed prs
+
 ## 7.50.1 (2022-10-26)
 
 ### Refactor
