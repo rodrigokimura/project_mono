@@ -24,7 +24,7 @@ class MindMapViewSet(ModelViewSet):
         return qs.filter(created_by=self.request.user)
 
     @action(detail=True, methods=["post"])
-    def copy(self, request, pk):
+    def copy(self, *args, **kwargs):
         """Copy mind map"""
         mind_map: MindMap = self.get_object()
         mind_map.copy()
