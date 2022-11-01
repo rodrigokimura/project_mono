@@ -35,6 +35,11 @@
             width: {{ panel.width }} * scale,
             color: '{{ panel.color }}',
         }
+        var NODE_DEFAULTS = {
+            font: '{{ node_defaults.font_color }}',
+            border: '{{ node_defaults.border_color }}',
+            background: '{{ node_defaults.background_color }}',
+        }
         $(document).ready(init)
     </script>
     {% endlocalize %}
