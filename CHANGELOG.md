@@ -1,3 +1,9 @@
+## 7.51.0 (2022-11-01)
+
+### Feat
+
+- **mind_maps**: change defaults for node
+
 ## 7.50.2 (2022-10-26)
 
 ### Fix
