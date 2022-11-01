@@ -20,9 +20,9 @@ class Node {
             lineThrough: false,
         }
         this.colors = {
-            background: '#ffffff',
-            border: '#000000',
-            font: '#000000',
+            background: NODE_DEFAULTS.background,
+            border: NODE_DEFAULTS.border,
+            font: NODE_DEFAULTS.font,
         }
         this.buttonSize = 2.5
         this.collapsed = false
