@@ -36,7 +36,7 @@ class MindMap(BaseModel):
 
     name = models.CharField(max_length=255)
     scale = models.FloatField(default=10)
-    color = models.CharField(max_length=7, default="#000000")
+    color = models.CharField(max_length=7, default="#0F0F0F")
 
     def __str__(self):
         return self.name
@@ -87,9 +87,9 @@ class Node(BaseModel):
     padding = models.FloatField(default=1)
     border_size = models.FloatField(default=0.3)
 
-    font_color = models.CharField(max_length=7, default="#000000")
-    border_color = models.CharField(max_length=7, default="#ffffff")
-    background_color = models.CharField(max_length=7, default="#ffffff")
+    font_color = models.CharField(max_length=7, default="#E0E1E2")
+    border_color = models.CharField(max_length=7, default="#888888")
+    background_color = models.CharField(max_length=7, default="#303030")
 
     bold = models.BooleanField(default=False)
     italic = models.BooleanField(default=False)

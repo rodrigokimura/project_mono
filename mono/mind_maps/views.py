@@ -47,6 +47,13 @@ class MindMapDetailView(LoginRequiredMixin, DetailView):
             "color": mind_map.color,
             "scale": mind_map.scale,
         }
+        context["node_defaults"] = {
+            "font_color": Node._meta.get_field("font_color").get_default(),
+            "border_color": Node._meta.get_field("border_color").get_default(),
+            "background_color": Node._meta.get_field(
+                "background_color"
+            ).get_default(),
+        }
         return context
 
 
