@@ -1,3 +1,9 @@
+## 7.52.0 (2022-11-09)
+
+### Refactor
+
+- **finance**: make button selectable on tab press
+
 ## 7.51.0 (2022-11-01)
 
 ### Feat
