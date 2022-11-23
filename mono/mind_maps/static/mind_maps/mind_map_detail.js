@@ -45,6 +45,7 @@ function loadMindMap() {
             })
             reposition(nodes)
             centralize()
+            reposition(nodes)  // HACK: to fix the bug where node connectors are misplaced
         }
     })
 }
