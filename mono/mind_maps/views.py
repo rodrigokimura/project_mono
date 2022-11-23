@@ -19,12 +19,6 @@ class IndexView(LoginRequiredMixin, TemplateView):
 
     template_name = "mind_maps/index.html"
 
-    def get_context_data(self, **kwargs):
-        mind_maps = MindMap.objects.filter(created_by=self.request.user)
-        context = super().get_context_data(**kwargs)
-        context["mind_maps"] = mind_maps
-        return context
-
 
 class MindMapListView(LoginRequiredMixin, TemplateView):
     """List view for Mind Maps app"""
@@ -73,15 +67,19 @@ class FullSyncView(APIView):
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
         for node in request.data:
+            mind_map = MindMap.objects.get(id=node.get("mind_map"))
             Node.objects.update_or_create(
                 id=node["id"],
                 created_by=request.user,
                 defaults={
                     "name": node.get("name"),
-                    "mind_map": MindMap.objects.get(id=node.get("mind_map")),
+                    "mind_map": mind_map,
                     "parent": Node.objects.get_or_create(
                         id=node.get("parent"),
-                        defaults={"created_by": request.user},
+                        defaults={
+                            "mind_map": mind_map,
+                            "created_by": request.user,
+                        },
                     )[0]
                     if node.get("parent") is not None
                     else None,
