@@ -111,3 +111,7 @@ body {
     backdrop-filter: blur(2px);
     z-index: 100;
 }
+
+.align.center.icon.rotated {
+    transform: rotate(90deg);
+}

@@ -1,3 +1,9 @@
+## 7.53.0 (2022-11-29)
+
+### Feat
+
+- **mind_maps**: implement bulk operations
+
 ## 7.52.0 (2022-11-09)
 
 ### Refactor
