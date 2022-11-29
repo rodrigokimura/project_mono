@@ -39,36 +39,55 @@ class Toolbar {
 var closeToolbar = () => { (new Toolbar()).hide() }
 var openToolbar = () => { (new Toolbar()).show() }
 
-var increaseFontSize = () => Node.getSelected()?.incrementFontSize(true)
-var decreaseFontSize = () => Node.getSelected()?.incrementFontSize(false)
-var increasePadding = () => Node.getSelected()?.incrementPadding(true)
-var decreasePadding = () => Node.getSelected()?.incrementPadding(false)
-var increaseBorder = () => Node.getSelected()?.incrementBorder(true)
-var decreaseBorder = () => Node.getSelected()?.incrementBorder(false)
+var increaseFontSize = () => Node.getSelected()?.forEach(node => node.incrementFontSize(true))
+var decreaseFontSize = () => Node.getSelected()?.forEach(node => node.incrementFontSize(false))
+var increasePadding = () => Node.getSelected()?.forEach(node => node.incrementPadding(true))
+var decreasePadding = () => Node.getSelected()?.forEach(node => node.incrementPadding(false))
+var increaseBorder = () => Node.getSelected()?.forEach(node => node.incrementBorder(true))
+var decreaseBorder = () => Node.getSelected()?.forEach(node => node.incrementBorder(false))
 
 var increaseZoom = () => { scale++; changeScale(scale) }
 var decreaseZoom = () => { scale--; changeScale(scale) }
 
-var toggleBold = () => Node.getSelected()?.toggleTextStyle('bold')
-var toggleItalic = () => Node.getSelected()?.toggleTextStyle('italic')
-var toggleUnderline = () => Node.getSelected()?.toggleTextStyle('underline')
-var toggleLineThrough = () => Node.getSelected()?.toggleTextStyle('lineThrough')
+var toggleBold = () => Node.getSelected()?.forEach(node => node.toggleTextStyle('bold'))
+var toggleItalic = () => Node.getSelected()?.forEach(node => node.toggleTextStyle('italic'))
+var toggleUnderline = () => Node.getSelected()?.forEach(node => node.toggleTextStyle('underline'))
+var toggleLineThrough = () => Node.getSelected()?.forEach(node => node.toggleTextStyle('lineThrough'))
 
 var autoStyle = () => { Node.getSelected()?.autoStyle().redraw() }
 
-var red = () => { Node.getSelected()?.setColor('red') }
-var orange = () => { Node.getSelected()?.setColor('orange') }
-var yellow = () => { Node.getSelected()?.setColor('yellow') }
-var olive = () => { Node.getSelected()?.setColor('olive') }
-var green = () => { Node.getSelected()?.setColor('green') }
-var teal = () => { Node.getSelected()?.setColor('teal') }
-var blue = () => { Node.getSelected()?.setColor('blue') }
-var violet = () => { Node.getSelected()?.setColor('violet') }
-var purple = () => { Node.getSelected()?.setColor('purple') }
-var pink = () => { Node.getSelected()?.setColor('pink') }
-var brown = () => { Node.getSelected()?.setColor('brown') }
-var grey = () => { Node.getSelected()?.setColor('grey') }
-var black = () => { Node.getSelected()?.setColor('black') }
+var red = () => { Node.getSelected()?.forEach(node => node.setColor('red')) }
+var orange = () => { Node.getSelected()?.forEach(node => node.setColor('orange')) }
+var yellow = () => { Node.getSelected()?.forEach(node => node.setColor('yellow')) }
+var olive = () => { Node.getSelected()?.forEach(node => node.setColor('olive')) }
+var green = () => { Node.getSelected()?.forEach(node => node.setColor('green')) }
+var teal = () => { Node.getSelected()?.forEach(node => node.setColor('teal')) }
+var blue = () => { Node.getSelected()?.forEach(node => node.setColor('blue')) }
+var violet = () => { Node.getSelected()?.forEach(node => node.setColor('violet')) }
+var purple = () => { Node.getSelected()?.forEach(node => node.setColor('purple')) }
+var pink = () => { Node.getSelected()?.forEach(node => node.setColor('pink')) }
+var brown = () => { Node.getSelected()?.forEach(node => node.setColor('brown')) }
+var grey = () => { Node.getSelected()?.forEach(node => node.setColor('grey')) }
+var black = () => { Node.getSelected()?.forEach(node => node.setColor('black')) }
+
+function alignNode(horizontal = true) {
+    let idx = horizontal ? 1 : 0
+    let selectedNodes = Node.getSelected()
+    if (!selectedNodes | selectedNodes.length == 1) return
+
+    average = selectedNodes.reduce(
+        (a, b) => {
+            if (!a) return b.position[idx]
+            return a + b.position[idx]
+        },
+        0
+    ) / selectedNodes.length
+
+    selectedNodes.forEach(node => {
+        node.position[idx] = average
+        node.redraw()
+    })
+}
 
 function showBackgroundColor(color) {
     $(PANEL).css('background-color', color)
@@ -149,9 +168,11 @@ function initializeNodeColorPicker(type) {
     initializeColorPicker(
         `change-node-${type}-color`,
         function () {
-            let node = Node.getSelected()
-            if (node) {
-                Node.getSelected()?.setCustomColor(type, this.toHEXString())
+            let selectedNodes = Node.getSelected()
+            if (selectedNodes) {
+                selectedNodes.forEach(
+                    node => node.setCustomColor(type, this.toHEXString())
+                )
             } else {
                 nodes.forEach(
                     node => node.setCustomColor(type, this.toHEXString())
@@ -159,9 +180,11 @@ function initializeNodeColorPicker(type) {
             }
         },
         function () {
-            let node = Node.getSelected()
-            if (node) {
-                Node.getSelected()?.setCustomColor(type, this.toHEXString())
+            let selectedNodes = Node.getSelected()
+            if (selectedNodes) {
+                selectedNodes.forEach(
+                    node => node.setCustomColor(type, this.toHEXString())
+                )
             } else {
                 nodes.forEach(
                     node => node.setCustomColor(type, this.toHEXString())

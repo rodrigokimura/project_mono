@@ -88,7 +88,7 @@ class Node {
     }
     static getSelected() {
         let f = nodes.filter(node => node.el.hasClass('selected'))
-        if (f.length > 0) return f[0]
+        if (f.length > 0) return f
         return null
     }
     static getRoot() { return nodes.filter(node => node.isRoot()) }
@@ -276,7 +276,15 @@ class Node {
                         this.createSibling('', e.shiftKey).enterEditMode().focus()
                     }
                 },
-                46: () => { if (e.shiftKey) this.delete(!e.ctrlKey) },
+                46: () => {
+                    let selectedNodes = Node.getSelected()
+                    if (!selectedNodes) {
+                        selectedNodes = [this]
+                    }
+                    selectedNodes.forEach(node => {
+                        if (e.shiftKey) node.delete(!e.ctrlKey)
+                    })
+                },
                 37: () => { this.selectNext('l') },
                 38: () => { this.selectNext('u') },
                 39: () => { this.selectNext('r') },
@@ -299,7 +307,7 @@ class Node {
         this.el.click(e => {
             e.preventDefault()
             e.stopPropagation()
-            this.deselectOthers()
+            if (!e.ctrlKey) this.deselectOthers()
             this?.select()
         })
         inputEl.on('input', e => {
@@ -322,58 +330,102 @@ class Node {
             img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs='
             e.originalEvent.dataTransfer.setDragImage(img, 0, 0)
 
-            this.metadata = {
-                pageX: e.pageX,
-                pageY: e.pageY,
+            let selectedNodes = Node.getSelected()
+            if (!selectedNodes) {
+                selectedNodes = [this]
             }
 
-            this.el.on('drag', e => {
-                ghostNode.appendTo($(e.target).parent())
-                ghostNode[0].style.left = this.position[0] * scale + e.pageX - this.metadata.pageX - (this.size[0] / 2 + this.borderSize) * scale + 'px'
-                ghostNode[0].style.top = this.position[1] * scale + e.pageY - this.metadata.pageY - (this.size[1] / 2 + this.borderSize) * scale + 'px'
-            })
+            selectedNodes.forEach(node => {
+                node.metadata = {
+                    pageX: e.pageX,
+                    pageY: e.pageY,
+                }
+                node.el.on('drag', e => {
+                    ghostNode.appendTo($(e.target).parent())
+                    let selectedNodes = Node.getSelected()
+                    if (!selectedNodes) {
+                        selectedNodes = [this]
+                    }
+                    selectedNodes.forEach(_node => {
+                        ghostNode[0].style.left = _node.position[0] * scale + e.pageX - _node.metadata.pageX - (_node.size[0] / 2 + _node.borderSize) * scale + 'px'
+                        ghostNode[0].style.top = _node.position[1] * scale + e.pageY - _node.metadata.pageY - (_node.size[1] / 2 + _node.borderSize) * scale + 'px'
+                    })
+                })
 
-            $(PANEL).on('drop', e => {
-                e.stopPropagation()
-                e.preventDefault()
-                let position = [
-                    this.position[0] * scale + e.pageX - this.metadata.pageX,
-                    this.position[1] * scale + e.pageY - this.metadata.pageY,
-                ]
-                this.metadata = null
-                this.move(position)
-                $(PANEL).off('drop')
-                this.el.off('dragend')
-                $('.ghost-node').remove()
-            })
-            this.el.on('dragend', e => {
-                e.stopPropagation()
-                e.preventDefault()
-                this.metadata = null
-                $(PANEL).off('drop')
-                this.el.off('dragend')
-                $('.ghost-node').remove()
+                $(PANEL).on('drop', e => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    let selectedNodes = Node.getSelected()
+                    if (!selectedNodes) {
+                        selectedNodes = [this]
+                    }
+                    selectedNodes.forEach(_node => {
+                        if (_node.metadata === null) return
+                        let position = [
+                            _node.position[0] * scale + e.pageX - _node.metadata.pageX,
+                            _node.position[1] * scale + e.pageY - _node.metadata.pageY,
+                        ]
+                        _node.metadata = null
+                        _node.move(position, selectedNodes.length == 1)
+                        _node.el.off('dragend')
+                    })
+                    $(PANEL).off('drop')
+                    $('.ghost-node').remove()
+                })
+                node.el.on('dragend', e => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    let selectedNodes = Node.getSelected()
+                    if (!selectedNodes) {
+                        selectedNodes = [this]
+                    }
+                    selectedNodes.forEach(_node => {
+                        _node.metadata = null
+                        _node.el.off('dragend')
+                    })
+                    $(PANEL).off('drop')
+                    $('.ghost-node').remove()
+                })
             })
         })
         this.el.on('touchstart', e => {
-            this.connectors.forEach(c => c.erase())
-            this.metadata = {
-                pageX: e.targetTouches[0].pageX,
-                pageY: e.targetTouches[0].pageY,
+            let selectedNodes = Node.getSelected()
+            if (!selectedNodes) {
+                selectedNodes = [this]
             }
+            selectedNodes.forEach(node => {
+                node.connectors.forEach(c => c.erase())
+                node.metadata = {
+                    pageX: e.targetTouches[0].pageX,
+                    pageY: e.targetTouches[0].pageY,
+                }
+            })
         })
         this.el.on('touchmove', e => {
             e.preventDefault()
-            this.el[0].style.left = this.position[0] * scale + e.targetTouches[0].pageX - this.metadata.pageX - (this.size[0] / 2 + this.borderSize) * scale + 'px'
-            this.el[0].style.top = this.position[1] * scale + e.targetTouches[0].pageY - this.metadata.pageY - (this.size[1] / 2 + this.borderSize) * scale + 'px'
+            let selectedNodes = Node.getSelected()
+            if (!selectedNodes) {
+                selectedNodes = [this]
+            }
+            selectedNodes.forEach(node => {
+                node.connectors.forEach(c => c.erase())
+                node.el[0].style.left = node.position[0] * scale + e.targetTouches[0].pageX - node.metadata.pageX - (node.size[0] / 2 + node.borderSize) * scale + 'px'
+                node.el[0].style.top = node.position[1] * scale + e.targetTouches[0].pageY - node.metadata.pageY - (node.size[1] / 2 + node.borderSize) * scale + 'px'
+            })
         })
         this.el.on('touchend', e => {
-            let position = [
-                parseFloat(this.el[0].style.left.replace('px', '')) + (this.size[0] / 2 + this.borderSize) * scale,
-                parseFloat(this.el[0].style.top.replace('px', '')) + (this.size[1] / 2 + this.borderSize) * scale,
-            ]
-            this.metadata = null
-            this.move(position)
+            let selectedNodes = Node.getSelected()
+            if (!selectedNodes) {
+                selectedNodes = [this]
+            }
+            selectedNodes.forEach(node => {
+                let position = [
+                    parseFloat(node.el[0].style.left.replace('px', '')) + (node.size[0] / 2 + node.borderSize) * scale,
+                    parseFloat(node.el[0].style.top.replace('px', '')) + (node.size[1] / 2 + node.borderSize) * scale,
+                ]
+                node.metadata = null
+                node.move(position, selectedNodes.length == 1)
+            })
         })
     }
     erase() {
@@ -383,15 +435,17 @@ class Node {
             if (connector) connector.erase()
         }
     }
-    move(positionInPixels) {
+    move(positionInPixels, moveChildren = true) {
         let deltaX = positionInPixels[0] - this.position[0] * scale
         let deltaY = positionInPixels[1] - this.position[1] * scale
         let nodes = [this]
-        // push all children
-        let children = this.children
-        while (children.length) {
-            nodes.push(...children)
-            children = children.flatMap(n => n.children)
+
+        if (moveChildren) {
+            let children = this.children
+            while (children.length) {
+                nodes.push(...children)
+                children = children.flatMap(n => n.children)
+            }
         }
         nodes.forEach(node => {
             node.position[0] += deltaX / scale
@@ -477,7 +531,6 @@ class Node {
         this.el.addClass('selected')
         this.focus()
         toolbar.show()
-        // this.printDetail()
     }
     deselect() { $(`#${this.id}`).removeClass('selected') }
     deselectOthers() {
@@ -586,5 +639,23 @@ class Node {
         this.colors[type] = color
         this.redraw()
         return this
+    }
+}
+
+class NodeCollection {
+    constructor(nodes) {
+        this.nodes = nodes
+    }
+    incrementFontSize(node) {
+        this.nodes.forEach(node => node.incrementFontSize())
+    }
+    remove(node) {
+        this.nodes = this.nodes.filter(n => n.id !== node.id)
+    }
+    select(node) {
+        this.selectedNode = node
+    }
+    deselect(node) {
+        if (this.selectedNode === node) this.selectedNode = null
     }
 }
