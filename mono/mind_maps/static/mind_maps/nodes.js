@@ -308,7 +308,13 @@ class Node {
             e.preventDefault()
             e.stopPropagation()
             if (!e.ctrlKey) this.deselectOthers()
-            this?.select()
+
+            let selectedNodes = Node.getSelected()
+            if (selectedNodes?.map(node => node.id).includes(this.id)) {
+                this.deselect()
+            } else {
+                this?.select()
+            }
         })
         inputEl.on('input', e => {
             if (e.target.value.length > 90) {
@@ -323,7 +329,7 @@ class Node {
             if (!this.name) this.delete()
         })
         this.el.on('dragstart', e => {
-            let ghostNode = $(e.target).clone().addClass('ghost-node')
+            let ghostNodes = {}
 
             // HACK: prevent the browser from creating a ghost preview
             let img = new Image()
@@ -332,23 +338,31 @@ class Node {
 
             let selectedNodes = Node.getSelected()
             if (!selectedNodes) {
+                this.select()
+                selectedNodes = [this]
+            }
+            // Check if current node is being dragged
+            if (!selectedNodes.map(node => node.id).includes(this.id)) {
+                this.deselectOthers()
+                this.select()
                 selectedNodes = [this]
             }
 
             selectedNodes.forEach(node => {
+                ghostNodes[node.id] = $(node.el).clone().addClass('ghost-node')
                 node.metadata = {
                     pageX: e.pageX,
                     pageY: e.pageY,
                 }
                 node.el.on('drag', e => {
-                    ghostNode.appendTo($(e.target).parent())
                     let selectedNodes = Node.getSelected()
                     if (!selectedNodes) {
                         selectedNodes = [this]
                     }
                     selectedNodes.forEach(_node => {
-                        ghostNode[0].style.left = _node.position[0] * scale + e.pageX - _node.metadata.pageX - (_node.size[0] / 2 + _node.borderSize) * scale + 'px'
-                        ghostNode[0].style.top = _node.position[1] * scale + e.pageY - _node.metadata.pageY - (_node.size[1] / 2 + _node.borderSize) * scale + 'px'
+                        ghostNodes[_node.id][0].style.left = _node.position[0] * scale + e.pageX - _node.metadata.pageX - (_node.size[0] / 2 + _node.borderSize) * scale + 'px'
+                        ghostNodes[_node.id][0].style.top = _node.position[1] * scale + e.pageY - _node.metadata.pageY - (_node.size[1] / 2 + _node.borderSize) * scale + 'px'
+                        ghostNodes[_node.id].appendTo($(node.el).parent())
                     })
                 })
 
@@ -639,23 +653,5 @@ class Node {
         this.colors[type] = color
         this.redraw()
         return this
-    }
-}
-
-class NodeCollection {
-    constructor(nodes) {
-        this.nodes = nodes
-    }
-    incrementFontSize(node) {
-        this.nodes.forEach(node => node.incrementFontSize())
-    }
-    remove(node) {
-        this.nodes = this.nodes.filter(n => n.id !== node.id)
-    }
-    select(node) {
-        this.selectedNode = node
-    }
-    deselect(node) {
-        if (this.selectedNode === node) this.selectedNode = null
     }
 }
