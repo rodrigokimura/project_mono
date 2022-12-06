@@ -12,6 +12,16 @@ body {
     transition-timing-function: ease;
 }
 
+.selection-area {
+    border-style: solid;
+    cursor: move;
+    position: absolute;
+    z-index: 20;
+    transition-property: box-shadow, color, border;
+    transition-duration: .2s;
+    transition-timing-function: ease;
+}
+
 .node:hover {
     box-shadow: 0 0 0.5em rgb(0 0 0 / 20%) !important;
 }
