@@ -70,12 +70,12 @@ var brown = () => { Node.getSelected()?.forEach(node => node.setColor('brown')) 
 var grey = () => { Node.getSelected()?.forEach(node => node.setColor('grey')) }
 var black = () => { Node.getSelected()?.forEach(node => node.setColor('black')) }
 
-function alignNode(horizontal = true) {
+function alignNodeAvg(horizontal = true) {
     let idx = horizontal ? 1 : 0
     let selectedNodes = Node.getSelected()
     if (!selectedNodes | selectedNodes.length == 1) return
 
-    average = selectedNodes.reduce(
+    pos = selectedNodes.reduce(
         (a, b) => {
             if (!a) return b.position[idx]
             return a + b.position[idx]
@@ -84,7 +84,45 @@ function alignNode(horizontal = true) {
     ) / selectedNodes.length
 
     selectedNodes.forEach(node => {
-        node.position[idx] = average
+        node.position[idx] = pos
+        node.redraw()
+    })
+}
+
+function alignNodeMin(horizontal = true) {
+    let idx = horizontal ? 1 : 0
+    let selectedNodes = Node.getSelected()
+    if (!selectedNodes | selectedNodes.length == 1) return
+
+    pos = selectedNodes.reduce(
+        (a, b) => {
+            if (!a) return b.position[idx] - b.size[idx] / 2
+            return Math.min(a, b.position[idx] - b.size[idx] / 2)
+        },
+        0
+    )
+
+    selectedNodes.forEach(node => {
+        node.position[idx] = pos + node.size[idx] / 2
+        node.redraw()
+    })
+}
+
+function alignNodeMax(horizontal = true) {
+    let idx = horizontal ? 1 : 0
+    let selectedNodes = Node.getSelected()
+    if (!selectedNodes | selectedNodes.length == 1) return
+
+    pos = selectedNodes.reduce(
+        (a, b) => {
+            if (!a) return b.position[idx] + b.size[idx] / 2
+            return Math.max(a, b.position[idx] + b.size[idx] / 2)
+        },
+        0
+    )
+
+    selectedNodes.forEach(node => {
+        node.position[idx] = pos - node.size[idx] / 2
         node.redraw()
     })
 }

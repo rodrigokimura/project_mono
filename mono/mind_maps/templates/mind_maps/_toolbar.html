@@ -5,26 +5,44 @@
 
     <div class="toolbar-row">
         <div class="ui icon tiny button" onclick="decreaseFontSize()" title="Decrease font size">
-            <i class="text height icon"></i>
+            <i class="icons">
+                <i class="font icon"></i>
+                <i class="corner minus icon"></i>
+            </i>
         </div>
         <div class="ui icon tiny button" onclick="increaseFontSize()" title="Increase font size">
-            <i class="text height icon"></i>
+            <i class="icons">
+                <i class="font icon"></i>
+                <i class="corner add icon"></i>
+            </i>
         </div>
     </div>
     <div class="toolbar-row">
         <div class="ui icon tiny button" onclick="decreasePadding()" title="Decrease padding">
-            <i class="compress icon"></i>
+            <i class="icons">
+                <i class="expand icon"></i>
+                <i class="corner minus icon"></i>
+            </i>
         </div>
         <div class="ui icon tiny button" onclick="increasePadding()" title="Increase padding">
-            <i class="expand icon"></i>
+            <i class="icons">
+                <i class="expand icon"></i>
+                <i class="corner add icon"></i>
+            </i>
         </div>
     </div>
     <div class="toolbar-row">
         <div class="ui icon tiny button" onclick="decreaseBorder()" title="Decrease border">
-            <i class="compress icon"></i>
+            <i class="icons">
+                <i class="circle outline icon"></i>
+                <i class="corner minus icon"></i>
+            </i>
         </div>
         <div class="ui icon tiny button" onclick="increaseBorder()" title="Increase border">
-            <i class="expand icon"></i>
+            <i class="icons">
+                <i class="circle outline icon"></i>
+                <i class="corner add icon"></i>
+            </i>
         </div>
     </div>
 
@@ -131,29 +149,54 @@
     
     <div class="toolbar-row">
         <div id="change-background-color" class="ui icon tiny button" title="Change background color">
-            <i class="fill drip icon"></i>
+            <i class="paint roller icon"></i>
         </div>
         <div id="change-node-border-color" class="ui icon tiny button" title="Change border and connector colors">
-            <i class="fill drip icon"></i>
+            <i class="icons">
+                <i class="circle outline icon"></i>
+                <i class="red corner tint icon"></i>
+            </i>
         </div>
     </div>
     <div class="toolbar-row">
         <div id="change-node-background-color" class="ui icon tiny button" title="Change background color">
-            <i class="fill drip icon"></i>
+            <i class="icons">
+                <i class="circle icon"></i>
+                <i class="red corner tint icon"></i>
+            </i>
         </div>
         <div id="change-node-font-color" class="ui icon tiny button" title="Change font color">
-            <i class="fill drip icon"></i>
+            <i class="icons">
+                <i class="font icon"></i>
+                <i class="red corner tint icon"></i>
+            </i>
         </div>
     </div>
     
     <div class="ui divider"></div>
 
     <div class="toolbar-row">
-        <div class="ui icon tiny button" title="Align vertically" onclick="alignNode(false)">
+        <div class="ui icon tiny button" title="Align vertically" onclick="alignNodeAvg(false)">
             <i class="align center icon"></i>
         </div>
-        <div class="ui icon tiny button" title="Align horizontally" onclick="alignNode(true)">
-            <i class="align center icon rotated"></i>
+        <div class="ui icon tiny button" title="Align horizontally" onclick="alignNodeAvg(true)">
+            <i class="clockwise rotated align center icon"></i>
+        </div>
+    </div>
+    <div class="toolbar-row">
+        <div class="ui icon tiny button" title="Align vertically" onclick="alignNodeMin(false)">
+            <i class="align left icon"></i>
+        </div>
+        <div class="ui icon tiny button" title="Align horizontally" onclick="alignNodeMin(true)">
+            <i class="clockwise rotated align left icon"></i>
+        </div>
+    </div>
+    <div class="toolbar-row">
+        <div class="ui icon tiny button" title="Align vertically" onclick="alignNodeMax(false)">
+            <i class="align right icon"></i>
+        </div>
+        <div class="ui icon tiny button" title="Align horizontally" onclick="alignNodeMax(true)">
+            <i class="counterclockwise rotated align right icon"></i>
         </div>
     </div>
 
