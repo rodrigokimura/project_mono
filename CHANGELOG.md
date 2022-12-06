@@ -1,3 +1,9 @@
+## 7.55.0 (2022-12-06)
+
+### Feat
+
+- **mind_maps**: add more alignment options
+
 ## 7.54.0 (2022-12-05)
 
 ### Feat
