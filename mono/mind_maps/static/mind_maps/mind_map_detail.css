@@ -102,6 +102,16 @@ body {
     padding: 0 !important;
 }
 
+.toolbar .button {
+    width: 2.7em !important;
+}
+
+.toolbar i.corner.icon {
+    line-height: 1.7 !important;
+    font-size: .7em !important;
+    transform: translate(5px, 0px) !important;
+}
+
 #container {
     background-color: rgb(250, 250, 250);
 }
@@ -120,8 +130,4 @@ body {
 .backdrop {
     backdrop-filter: blur(2px);
     z-index: 100;
-}
-
-.align.center.icon.rotated {
-    transform: rotate(90deg);
 }
