@@ -1,3 +1,9 @@
+## 7.54.0 (2022-12-05)
+
+### Feat
+
+- **mind_maps**: implement selection area
+
 ## 7.53.0 (2022-11-29)
 
 ### Feat
