@@ -342,11 +342,12 @@ else:
         },
         "formatters": {
             "django.server": {
-                "()": "django.utils.log.ServerFormatter",
-                "format": "\033[1;34m[{asctime}]\033[0m {message}",
+                "()": "__mono.log.CustomServerFormatter",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
-                "style": "{",
-            }
+            },
+            "django.db.backends": {
+                "()": "__mono.log.CustomDatabaseFormatter",
+            },
         },
         "handlers": {
             "console": {
@@ -358,6 +359,11 @@ else:
                 "level": "INFO",
                 "class": "logging.StreamHandler",
                 "formatter": "django.server",
+            },
+            "django.db.backends": {
+                "level": "DEBUG",
+                "class": "logging.StreamHandler",
+                "formatter": "django.db.backends",
             },
             "mail_admins": {
                 "level": "ERROR",
@@ -377,8 +383,13 @@ else:
             },
             "django.server": {
                 "handlers": ["django.server"],
-                "level": "INFO",
                 "propagate": False,
+                "level": "INFO",
+            },
+            "django.db.backends": {
+                "handlers": ["django.db.backends"],
+                "propagate": False,
+                "level": "DEBUG",
             },
         },
     }

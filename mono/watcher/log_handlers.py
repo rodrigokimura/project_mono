@@ -7,6 +7,7 @@ from logging import LogRecord
 from types import TracebackType
 
 import pytz
+from django.db import transaction
 from django.http import HttpRequest
 
 
@@ -67,6 +68,7 @@ def handle_traceback(traceback: TracebackType, issue):
         order += 1
 
 
+@transaction.atomic()
 def store_log(record: LogRecord):
     """
     Store log record
