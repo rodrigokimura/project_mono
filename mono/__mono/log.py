@@ -51,7 +51,7 @@ class HttpMethodStyle:
 
     @classmethod
     def read(cls, method, url):
-        return cls.format(method, url, Fore.BLUE)
+        return cls.format(method, url, Fore.GREEN)
 
     @classmethod
     def edit(cls, method, url):
@@ -63,7 +63,7 @@ class HttpMethodStyle:
 
     @classmethod
     def other(cls, method, url):
-        return cls.format(method, url, Fore.GREEN)
+        return cls.format(method, url, Fore.BLUE)
 
 
 class CustomServerFormatter(logging.Formatter):
@@ -100,11 +100,15 @@ class CustomServerFormatter(logging.Formatter):
                 # Any 5XX, or any other status code
                 status_code = self.status_style.HTTP_SERVER_ERROR(status_code)
 
-        if method == HTTPMethod.GET:
+        if method == HTTPMethod.GET.value:
             endpoint = self.method_style.read(method, url)
-        elif method in (HTTPMethod.POST, HTTPMethod.PUT, HTTPMethod.PATCH):
+        elif method in (
+            HTTPMethod.POST.value,
+            HTTPMethod.PUT.value,
+            HTTPMethod.PATCH.value,
+        ):
             endpoint = self.method_style.edit(method, url)
-        elif method == HTTPMethod.DELETE:
+        elif method == HTTPMethod.DELETE.value:
             endpoint = self.method_style.delete(method, url)
         else:
             endpoint = self.method_style.other(method, url)
@@ -112,7 +116,7 @@ class CustomServerFormatter(logging.Formatter):
         if self.uses_server_time() and not hasattr(record, "server_time"):
             record.server_time = self.formatTime(record, self.datefmt)
 
-        record.msg = "%(endpoint)s %(status_code)s"
+        record.msg = "%(status_code)s %(endpoint)s"
         record.args = {"endpoint": endpoint, "status_code": status_code}
 
         formatter = logging.Formatter(
@@ -127,7 +131,8 @@ class CustomServerFormatter(logging.Formatter):
 class CustomDatabaseFormatter(logging.Formatter):
     def format(self, record):
         duration = record.args[0]
-        sql = pretty_sql(record.args[1])
+        sql = getattr(record, "sql", None)
+        sql = pretty_sql(sql)
 
         record.msg = (
             f"\n{Fore.CYAN}%(sql)s\n{Style.DIM}%(duration)s{Style.RESET_ALL}"
