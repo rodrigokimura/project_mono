@@ -46,6 +46,7 @@ pytest-django = "*"
 pytest-reportlog = "*"
 pytest-cov = "*"
 black = "*"
+colorama = "*"
 
 [scripts]
 collectstatic = "python mono/manage.py collectstatic --noinput"
