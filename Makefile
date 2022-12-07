@@ -180,6 +180,9 @@ empty-migrations: list-apps  ## Write empty migration file
 migrate:  ## Apply all migrations
 	@$(DJANGO) migrate
 
+showmigrations:  ## Show all migrations
+	@$(DJANGO) showmigrations
+
 rollback: list-apps  ## Rollback to specific migration
 	@echo && read -p 'Choose app from above: ${BOLD}${CYAN}' APP \
 		&& echo '${RESET}' \

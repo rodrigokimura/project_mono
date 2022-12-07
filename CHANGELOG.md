@@ -1,3 +1,9 @@
+## 7.57.0 (2022-12-07)
+
+### Fix
+
+- **mono**: adjust logs colorization
+
 ## 7.56.0 (2022-12-07)
 
 ### Feat
