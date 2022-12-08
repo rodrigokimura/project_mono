@@ -92,6 +92,7 @@ INSTALLED_APPS = [
     "curriculum_builder",
     "coder",
     "mind_maps",
+    "typer",
     "django.forms",
 ]
 
