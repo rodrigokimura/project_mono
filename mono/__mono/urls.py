@@ -35,6 +35,7 @@ urlpatterns = [
     path("cb/", include("curriculum_builder.urls")),
     path("cd/", include("coder.urls")),
     path("mm/", include("mind_maps.urls")),
+    path("tp/", include("typer.urls")),
     path("i18n/", include("django.conf.urls.i18n")),
     path(
         "markdownx/upload/", ImageUploadView.as_view(), name="markdownx_upload"

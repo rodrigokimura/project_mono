@@ -1,0 +1,15 @@
+{% extends "simple_base.html" %}
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+
+{% block head %}
+{% endblock head %}
+
+{% block main %}
+    <div class="ui fluid basic segment" style="height: 100%; width: 100%; padding: 0; margin: 0;" id="container"></div>
+    {% localize off %}
+    <script>
+    </script>
+    {% endlocalize %}
+{% endblock %}
