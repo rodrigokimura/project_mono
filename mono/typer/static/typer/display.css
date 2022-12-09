@@ -1,0 +1,12 @@
+span.display-char {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #757575;
+}
+span.display-char.correct {
+    color: #000000;
+}
+span.display-char.incorrect {
+    color: #c46666;
+}
