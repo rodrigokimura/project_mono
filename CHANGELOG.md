@@ -1,3 +1,9 @@
+## 7.59.0 (2022-12-08)
+
+### Feat
+
+- **typer**: implement logic in frontend
+
 ## 7.58.0 (2022-12-07)
 
 ### Feat
