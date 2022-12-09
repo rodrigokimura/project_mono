@@ -4,12 +4,31 @@
 {% load l10n %}
 
 {% block head %}
+    <link rel="stylesheet" href="{% static 'typer/display.css' %}">
+    <script src="{% static 'typer/display.js' %}"></script>
+    <script src="{% static 'typer/keyPress.js' %}"></script>
+    <script src="{% static 'typer/lesson.js' %}"></script>
+    <script src="{% static 'typer/detail.js' %}"></script>
 {% endblock head %}
 
 {% block main %}
-    <div class="ui fluid basic segment" style="height: 100%; width: 100%; padding: 0; margin: 0;" id="container"></div>
+    <div class="ui fluid basic segment" style="padding-top: 3em;">
+        <div class="ui segment">
+            <pre id="display"></pre>
+        </div>
+        <div class="ui segment">
+            <div class="ui huge fluid input">
+                <textarea id="input"></textarea>
+            </div>
+        </div>
+        <div class="ui segment">
+            <p></p>
+        </div>
+    </div>
     {% localize off %}
     <script>
+        var text = `{{ object.text }}`
+        $(document).ready(init)
     </script>
     {% endlocalize %}
 {% endblock %}
