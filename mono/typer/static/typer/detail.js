@@ -1,5 +1,5 @@
 var lesson = null
 
 function init() {
-    lesson = new Lesson(text, '#display', '#input')
+    lesson = new Lesson(text, '#display', '#input', '#keyboard')
 }
