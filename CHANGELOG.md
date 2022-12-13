@@ -1,3 +1,9 @@
+## 7.60.0 (2022-12-13)
+
+### Feat
+
+- **typer**: implement keyboard effects
+
 ## 7.59.0 (2022-12-08)
 
 ### Feat
