@@ -10,3 +10,30 @@ span.display-char.correct {
 span.display-char.incorrect {
     color: #c46666;
 }
+
+.kb-container {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+    /* justify-content: center; */
+}
+
+.kb-row {
+    display: flex;
+    flex-flow: row nowrap;
+    flex: 1 1 auto;
+}
+
+.kb-key {
+    flex: 0 0 auto;
+    height: 3em;
+    width: 3em;
+    margin: 0.5em;
+    padding: 0.5em;
+    border: 1px solid #000000;
+}
+
+.kb-key.pressed {
+    background-color: #000000;
+    color: #ffffff;
+}

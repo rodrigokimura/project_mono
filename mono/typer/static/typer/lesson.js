@@ -1,12 +1,14 @@
 class Lesson {
 
-    constructor(text, displayId, inputId) {
+    constructor(text, displayId, inputId, keyboardId) {
         this.inputId = inputId
         this.text = text
         this.display = new Display(displayId, text)
         this.initializeInput()
         this.keyPresses = []
         this.chars = ""
+        this.kb = new Keyboard(keyboardId)
+        this.kb.render()
     }
 
     initializeInput() {
@@ -14,6 +16,7 @@ class Lesson {
         INPUT.on('keydown', (event) => {
             let keyPress = new KeyPress(event.key, event.timeStamp)
             this.keyPresses.push(keyPress)
+            this.kb.press(keyPress.key)
 
             let curIndex = this.chars.length
             if (keyPress.key === "Backspace") {
@@ -35,6 +38,9 @@ class Lesson {
                 this.finish()
             }
         })
+        INPUT.on('keyup', (event) => {
+            this.kb.release(event.key)
+        })
         INPUT.focus()
     }
 
@@ -54,7 +60,7 @@ class Lesson {
         let stats = {
             "time": this.getTime(),
             "accuracy": this.getAccuracy(),
-            "wpm": this.getWPM()
+            "chars per minute": this.getCharsPerMinute()
         }
         return stats
     }
@@ -69,7 +75,7 @@ class Lesson {
         return this.keyPresses[this.keyPresses.length - 1].timestamp - this.keyPresses[0].timestamp
     }
 
-    getWPM() {
+    getCharsPerMinute() {
         return this.chars.length / this.getTime() * 1000 * 60
     }
 }

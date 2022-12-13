@@ -38,6 +38,7 @@ def apps_menu(request):
     if request.user.is_superuser:
         apps += [
             AppInfo(_("Curriculum builder"), "/cb/", "bookmark_tabs", True),
+            AppInfo(_("Typer"), "/tp/", "keyboard", True),
             AppInfo(_("Admin"), "/admin/", "control_knobs", True),
             AppInfo(
                 _("Restricted Area"),

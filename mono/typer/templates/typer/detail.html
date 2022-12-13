@@ -5,6 +5,7 @@
 
 {% block head %}
     <link rel="stylesheet" href="{% static 'typer/display.css' %}">
+    <script src="{% static 'typer/keyboard.js' %}"></script>
     <script src="{% static 'typer/display.js' %}"></script>
     <script src="{% static 'typer/keyPress.js' %}"></script>
     <script src="{% static 'typer/lesson.js' %}"></script>
@@ -21,8 +22,7 @@
                 <textarea id="input"></textarea>
             </div>
         </div>
-        <div class="ui segment">
-            <p></p>
+        <div class="ui segment" id="keyboard">
         </div>
     </div>
     {% localize off %}
