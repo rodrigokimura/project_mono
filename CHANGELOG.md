@@ -1,3 +1,9 @@
+## 7.61.0 (2022-12-13)
+
+### Feat
+
+- **typer**: show stats and scroll display
+
 ## 7.60.0 (2022-12-13)
 
 ### Feat
