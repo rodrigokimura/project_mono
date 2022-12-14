@@ -14,15 +14,15 @@
 
 {% block main %}
     <div class="ui fluid basic segment" style="padding-top: 3em;">
-        <div class="ui segment">
+        <div class="ui segment display-container">
             <pre id="display"></pre>
         </div>
-        <div class="ui segment">
+        <div class="ui segment" id="keyboard"></div>
+        <div class="ui segment" id="stats"></div>
+        <div class="ui segment" style="opacity: 0;">
             <div class="ui huge fluid input">
-                <textarea id="input"></textarea>
+                <textarea id="input" autofocus></textarea>
             </div>
-        </div>
-        <div class="ui segment" id="keyboard">
         </div>
     </div>
     {% localize off %}

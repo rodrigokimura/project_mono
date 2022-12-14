@@ -17,7 +17,8 @@ class StaggeredLayout {
             html += `<div class="kb-row">`
             html += `<div class="kb-stagger" style="width: ${this.staggering[i] * 3}em"></div>`
             row.forEach(key => {
-                html += `<div class="kb-key">${key}</div>`
+                key = key.toString()
+                html += `<div class="kb-key" data-key="${key}">${key.toUpperCase()}</div>`
             })
             html += `</div>`
         })
@@ -34,9 +35,14 @@ class Keyboard {
         (new StaggeredLayout(this.elementId)).render()
     }
     async press(key) {
-        $(`.kb-key:contains(${key})`).addClass("pressed")
+        key = key.toString().toLowerCase()
+        $(`.kb-key[data-key="${key}"]`).addClass("pressed")
     }
     async release(key) {
-        $(`.kb-key:contains(${key})`).removeClass("pressed")
+        key = key.toString().toLowerCase()
+        $(`.kb-key[data-key="${key}"]`).removeClass("pressed")
+    }
+    async releaseAll() {
+        $(`.kb-key`).removeClass("pressed")
     }
 }
