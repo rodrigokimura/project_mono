@@ -1,3 +1,27 @@
+## 7.61.0 (2022-12-13)
+
+### Feat
+
+- **typer**: show stats and scroll display
+
+## 7.60.0 (2022-12-13)
+
+### Feat
+
+- **typer**: implement keyboard effects
+
+## 7.59.0 (2022-12-08)
+
+### Feat
+
+- **typer**: implement logic in frontend
+
+## 7.58.0 (2022-12-07)
+
+### Feat
+
+- **typer**: create app structure
+
 ## 7.57.0 (2022-12-07)
 
 ### Fix
