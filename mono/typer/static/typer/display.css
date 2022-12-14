@@ -1,14 +1,28 @@
 span.display-char {
     font-family: "Courier New", Courier, monospace;
-    font-size: 1.2em;
+    font-size: 2em;
     font-weight: bold;
+    line-height: 1.2;
     color: #757575;
+}
+span.display-char.cursor {
+    border-left: black solid 0.1em;
 }
 span.display-char.correct {
     color: #000000;
 }
 span.display-char.incorrect {
     color: #c46666;
+}
+span.display-char.invisible.incorrect::before {
+    content: ".";
+}
+
+.display-container {
+    height: 5rem;
+    font-size: 2em;
+    overflow: hidden;
+    text-align: center;
 }
 
 .kb-container {
@@ -30,7 +44,8 @@ span.display-char.incorrect {
     width: 3em;
     margin: 0.5em;
     padding: 0.5em;
-    border: 1px solid #000000;
+    border: 1px solid #8b8b8b;
+    border-radius: .5em;
 }
 
 .kb-key.pressed {

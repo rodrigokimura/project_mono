@@ -13,6 +13,7 @@ class Lesson {
 
     initializeInput() {
         const INPUT = $(this.inputId)
+        $('#display').parent().click(() => INPUT.focus())
         INPUT.on('keydown', (event) => {
             let keyPress = new KeyPress(event.key, event.timeStamp)
             this.keyPresses.push(keyPress)
@@ -42,18 +43,30 @@ class Lesson {
             this.kb.release(event.key)
         })
         INPUT.focus()
+        this.startStatsUpdater()
     }
 
     finish() {
         console.log("Finished!")
-
-        // block input
-        // $(this.inputId).prop("disabled", true)
+        const INPUT = $(this.inputId)
+        this.kb.releaseAll()
+        INPUT.off()
+        this.stopStatsUpdater()
 
         // show stats
         let stats = this.calculateStats()
         console.table(stats)
         // save stats
+        $('body').modal({
+            title: 'Results',
+            class: 'mini',
+            closeIcon: true,
+            content: `You finished in ${stats.time}ms with ${stats.accuracy * 100}% accuracy and ${stats["chars per minute"]} chars per minute`,
+            actions: [{
+                text: 'Alright, got it',
+                class: 'green'
+            }]
+        }).modal('show');
     }
 
     calculateStats() {
@@ -72,10 +85,29 @@ class Lesson {
     }
 
     getTime() {
+        if (this.keyPresses.length === 0) {
+            return 0
+        }
         return this.keyPresses[this.keyPresses.length - 1].timestamp - this.keyPresses[0].timestamp
     }
 
     getCharsPerMinute() {
         return this.chars.length / this.getTime() * 1000 * 60
     }
+
+    startStatsUpdater() {
+        this.statsUpdaterTimer = setInterval(() => {
+            let stats = this.calculateStats()
+            const STATS = $('#stats')
+            STATS.empty()
+            STATS.append(`<p>Time: ${(stats.time / 1000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}s</p>`)
+            STATS.append(`<p>Accuracy: ${(stats.accuracy * 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</p>`)
+            STATS.append(`<p>Chars per minute: ${stats["chars per minute"].toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>`)
+        }, 1000)
+    }
+
+    stopStatsUpdater() {
+        clearInterval(this.statsUpdaterTimer)
+    }
+
 }
