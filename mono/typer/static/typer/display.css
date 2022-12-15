@@ -4,6 +4,7 @@ span.display-char {
     font-weight: bold;
     line-height: 1.2;
     color: #757575;
+    border-left: transparent solid 0.1em;
 }
 span.display-char.cursor {
     border-left: black solid 0.1em;
@@ -28,8 +29,13 @@ span.display-char.invisible.incorrect::before {
 .kb-container {
     display: flex;
     flex-flow: column nowrap;
+    align-items: center;
+}
+
+.kb-column {
+    display: flex;
+    flex-flow: column nowrap;
     align-items: flex-start;
-    /* justify-content: center; */
 }
 
 .kb-row {
