@@ -55,9 +55,9 @@ class Display {
         let scrollBottom = scrollTop + displayHeight
         let rowTop = rowHeight * (currentRow - 1)
         let rowBottom = rowHeight * currentRow
-        if (rowTop < scrollTop) {
+        if (rowTop - rowHeight < scrollTop) {
             displayContainer.scrollTop(rowTop - rowHeight)
-        } else if (rowBottom > scrollBottom) {
+        } else if (rowBottom + rowHeight > scrollBottom) {
             displayContainer.scrollTop(rowBottom - displayHeight + rowHeight)
         }
     }

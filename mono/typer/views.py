@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
+from rest_framework.views import APIView
 
 from .models import Lesson
 
