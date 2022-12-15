@@ -64,7 +64,10 @@ class Lesson {
             content: `You finished in ${stats.time}ms with ${stats.accuracy * 100}% accuracy and ${stats["chars per minute"]} chars per minute`,
             actions: [{
                 text: 'Alright, got it',
-                class: 'green'
+                class: 'green',
+                click: () => {
+                    this.submitResults()
+                }
             }]
         }).modal('show');
     }
@@ -110,4 +113,35 @@ class Lesson {
         clearInterval(this.statsUpdaterTimer)
     }
 
+    submitResults() {
+        const stats = this.calculateStats()
+        const data = {
+            "lesson": lessonId,
+            "accuracy": stats.accuracy,
+            "chars_per_minute": stats["chars per minute"],
+            "key_presses": this.keyPresses.map(kp => {
+                return {
+                    "character": kp.key,
+                    "milliseconds": Math.round(kp.timestamp),
+                    "correct": kp.correct,
+                }
+            })
+        }
+        $.api({
+            on: "now",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            url: "/tp/api/records/",
+            successTest: r => r,
+            onSuccess: function (data) {
+                console.log("Success")
+                console.log(data)
+            },
+            onFailure: function (errMsg) {
+                console.log("Failure")
+                console.log(errMsg)
+            }
+        });
+    }
 }

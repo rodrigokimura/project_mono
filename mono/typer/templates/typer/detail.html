@@ -27,7 +27,8 @@
     </div>
     {% localize off %}
     <script>
-        var text = `{{ object.text }}`
+        const text = `{{ object.text }}`
+        const lessonId = `{{ object.id }}`
         $(document).ready(init)
     </script>
     {% endlocalize %}

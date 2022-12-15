@@ -55,7 +55,7 @@ class KeyPressAdmin(admin.ModelAdmin):
         "id",
         "record",
         "character",
-        "miliseconds",
+        "milliseconds",
     ]
     list_filter = [
         "record",
