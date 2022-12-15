@@ -1,3 +1,9 @@
+## 7.62.0 (2022-12-14)
+
+### Feat
+
+- **typer**: allow results submission
+
 ## 7.61.0 (2022-12-13)
 
 ### Feat
