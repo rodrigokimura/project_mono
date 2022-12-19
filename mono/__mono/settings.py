@@ -47,7 +47,7 @@ else:
     )  # pragma: no cover
 
 if APP_ENV in ["DEV", "TEST"]:
-    SITE = "http://127.0.0.42:8080"
+    SITE = "http://127.0.0.1:8080"
 else:
     SITE = "https://www.monoproject.info"  # pragma: no cover
 

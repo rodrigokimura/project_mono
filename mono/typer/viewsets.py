@@ -1,5 +1,6 @@
 """Typer viewsets"""
 from __mono.permissions import IsCreator
+from django.db.models import Q
 from django_filters import rest_framework as filters
 from rest_framework.viewsets import ModelViewSet
 
@@ -18,7 +19,9 @@ class LessonViewSet(ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(created_by=self.request.user)
+        return qs.filter(
+            Q(created_by=self.request.user) | Q(created_by__isnull=True)
+        )
 
 
 class RecordFilter(filters.FilterSet):

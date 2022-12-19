@@ -1,3 +1,9 @@
+## 7.63.0 (2022-12-19)
+
+### Feat
+
+- **typer**: add page to list lessons
+
 ## 7.62.0 (2022-12-14)
 
 ### Feat
