@@ -4,7 +4,7 @@
 {% load custom_tags %}
 
 {% block head %}
-    {% comment %} <script src="{% static 'typer/lesson_list.js' %}"></script> {% endcomment %}
+    <script src="{% static 'typer/lesson_list.js' %}"></script>
     {% comment %} <link rel="stylesheet" href="{% static 'typer/lesson_list.css' %}"> {% endcomment %}
 {% endblock  %}
 
@@ -15,16 +15,12 @@
 <div class="pusher" style="padding-top: 3em;">
     <div class="ui stackable grid container basic segment" style="padding: 0; min-height: 5em;" id="grid">
         <div class="row">
-            <div class="column" id="page-content">
-                {% for lesson in lessons %}
-                <a href="{% url 'typer:detail' pk=lesson.id %}">{{ lesson.name }}</a>
-                {% endfor %}
-            </div>
+            <div class="column" id="page-content"></div>
         </div>
     </div>
 </div>
 
-<div class="ui small modal" id="mind-map-modal">
+<div class="ui small modal" id="lesson-modal">
     <i class="close icon"></i>
     <div class="header">
         {% translate "Create new lesson" %}
