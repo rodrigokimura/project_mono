@@ -22,7 +22,7 @@ class TestModels:
         assert str(key_press) == "a"
 
 
-class TestViews:
-    def test_get_lessons(self, client, user):
-        response = client.get("/lessons/")
-        assert response.status_code == 200
+# class TestViews:
+#     def test_get_lessons(self, client, user):
+#         response = client.get("/lessons/")
+#         assert response.status_code == 200
