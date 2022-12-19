@@ -458,4 +458,4 @@ window.onload = function () {
     }.bind(dataAttributes[i]));
   }
 };
-}(window, document, window["opix"], "opix", "http://127.0.0.42:8080/pixel/pixel.gif", 1));
+}(window, document, window["opix"], "opix", "http://127.0.0.1:8080/pixel/pixel.gif", 1));

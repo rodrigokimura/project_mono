@@ -160,7 +160,7 @@ superuser:  ## Create superuser
 	@$(DJANGO) createsuperuser
 
 devserver:  ## Run development server
-	@$(DJANGO) runserver 127.0.0.42:8080
+	@$(DJANGO) runserver 127.0.0.1:8080
 
 clean-db:  ## Delete sqlite database
 	@rm mono/db.sqlite3
