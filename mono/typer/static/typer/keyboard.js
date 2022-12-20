@@ -15,7 +15,7 @@ class StaggeredLayout {
         let html = ``
         this.rows.forEach((row, i) => {
             html += `<div class="kb-row">`
-            html += `<div class="kb-stagger" style="width: ${this.staggering[i] * 3}em"></div>`
+            html += `<div class="kb-stagger" data-row-index="${i}"></div>`
             row.forEach(key => {
                 key = key.toString()
                 html += `<div class="kb-key" data-key="${key}">${key.toUpperCase()}</div>`
@@ -29,6 +29,12 @@ class StaggeredLayout {
                 </div>
             </div>`
         )
+        let w = this.element.find(".kb-key").first().width()
+        this.element.find(".kb-stagger").each((i, e) => {
+            let row = $(e).data("row-index")
+            $(e).css("width", w * this.staggering[row])
+        })
+        console.log(w)
     }
 }
 
