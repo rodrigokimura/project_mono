@@ -1,0 +1,43 @@
+.text-sample {
+    padding: .5em 1em !important;
+}
+
+.text-sample pre {
+    font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.kb-container {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+}
+
+.kb-column {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+}
+
+.kb-row {
+    display: flex;
+    flex-flow: row nowrap;
+    flex: 1 1 auto;
+}
+
+.kb-key {
+    flex: 0 0 auto;
+    height: 1.7em;
+    width: 1.7em;
+    margin: 0.1em;
+    padding: 0.1em;
+    border: 1px solid #8b8b8b;
+    border-radius: .25em;
+    font-size: .8em;
+}
+
+.kb-key.pressed {
+    background-color: #000000;
+    color: #ffffff;
+}
