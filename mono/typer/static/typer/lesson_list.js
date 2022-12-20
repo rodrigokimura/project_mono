@@ -54,7 +54,7 @@ function renderLessons(lessons) {
         <div class="ui message">
             ${interpolate(ngettext('You have only %s lesson.', 'You have %s lessons.', lessons.length), [lessons.length])}
         </div>
-        <div class="ui four stackable cards" style="margin-top: .5em; padding-top: 0;" id="lessons"></div>
+        <div class="ui three stackable cards" style="margin-top: .5em; padding-top: 0;" id="lessons"></div>
     `)
     pageContent.ready(e => {
         let lessonsEl = $('#lessons')
@@ -72,10 +72,14 @@ function renderLessons(lessons) {
 }
 
 function renderLesson(lesson) {
-    const boardsEl = $('#lessons')
+    const lessonsEl = $('#lessons')
     const details = getDetails(lesson.text)
-    const textSample = lesson.text.split('\n').slice(0, 3).join('\n')
-    boardsEl.append(`
+    let textSample = lesson.text.split('\n').slice(0, 3).join('\n')
+    console.log(textSample)
+    if (lesson.text.split('\n').length > 3) {
+        textSample = textSample.trim() + ' …'
+    }
+    lessonsEl.append(`
         <div class="ui card" data-lesson-id="${lesson.id}">
             <div class="center aligned handle content" style="flex: 0 0 auto; display: flex; flex-flow: column nowrap; align-items: center; padding: 0; margin: 0; cursor: move;">
                 <i class="grip lines icon"></i>
@@ -100,26 +104,43 @@ function renderLesson(lesson) {
                 </div>
             </div>
             <div class="extra content">
-                <div class="ui message">
+                <div class="ui message text-sample" title="${lesson.text}">
                     <pre>${textSample}</pre>
                 </div>
-                ${details.lineCount} lines
-                ${details.wordCount} words
-                ${details.charCount} chars
+                <div class="ui bulleted list">
+                    <div class="item">${details.lineCount} lines</div>
+                    <div class="item">${details.wordCount} words</div>
+                    <div class="item">${details.charCount} chars</div>
+                    <div class="item">${details.distinctCharCount} unique chars</div>
+                    <div class="item">${details.distinctFingers} unique fingers</div>
+                </div>
             </div>
+            <div class="extra content keyboard-heatmap" data-lesson-id="${lesson.id}"></div>
         </div>
     `)
-    $('.profile-pic').popup()
+    new StaggeredLayout(`.keyboard-heatmap[data-lesson-id="${lesson.id}"]`).render()
 }
 
 function getDetails(text) {
+    text = text.replace(/\r/g, "");  // remove carriage returns
+
     const lineCount = text.split('\n').length
     const wordCount = text.split(' ').length
     const charCount = text.length
+    const uniqueChars = [...new Set(text)]
+    const handPosition = new HandPosition('qaz', 'wsx', 'edc', 'rfvtgb', ' ', ' ', 'yhnujm', 'ik,', 'ol.', 'çp;\n')
+
+    fingers = text.split('').map(char => handPosition.getFinger(char))
+
+    console.log(fingers)
+
+    console.log(uniqueChars)
     return {
         lineCount: lineCount,
         wordCount: wordCount,
         charCount: charCount,
+        distinctCharCount: uniqueChars.length,
+        distinctFingers: [...new Set(fingers)].length
     }
 }
 
@@ -154,6 +175,11 @@ function showLessonModal(lessonId = null) {
     }).modal('show')
 }
 
+function getFinger() {
+
+    return fingers
+}
+
 function initializeDeleteBoardButtons() {
     $('.delete-board').click(e => {
         let lessonId = $(e.target).attr('data-lesson-id');
@@ -172,7 +198,7 @@ function initializeDeleteBoardButtons() {
                     method: 'DELETE',
                     url: `/tp/api/lessons/${lessonId}/`,
                     onSuccess(r) { retrieveLessons() },
-                    onFailure: (response, element, xhr) => { 
+                    onFailure: (response, element, xhr) => {
                         $('body').toast({
                             class: 'error',
                             message: response.detail,
