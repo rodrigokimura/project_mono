@@ -1,3 +1,9 @@
+## 7.64.0 (2022-12-19)
+
+### Feat
+
+- **typer**: show detailed info about lessons
+
 ## 7.63.0 (2022-12-19)
 
 ### Feat
