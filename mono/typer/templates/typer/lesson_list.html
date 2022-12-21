@@ -4,14 +4,14 @@
 {% load custom_tags %}
 
 {% block head %}
+    <script src="{% static 'typer/finger.js' %}"></script>
+    <script src="{% static 'typer/keyboard.js' %}"></script>
     <script src="{% static 'typer/lesson_list.js' %}"></script>
     <link rel="stylesheet" href="{% static 'typer/lesson_list.css' %}">
 {% endblock  %}
 
 {% block main %}
 <script src="{% static 'js/dragula.min.js' %}"></script>
-<script src="{% static 'typer/finger.js' %}"></script>
-<script src="{% static 'typer/keyboard.js' %}"></script>
 {% comment %} <link rel="stylesheet" href="{% static 'css/dragula.min.css' %}"> {% endcomment %}
 
 <div class="pusher" style="padding-top: 3em;">

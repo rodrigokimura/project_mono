@@ -1,3 +1,21 @@
+## 7.68.0 (2022-12-20)
+
+### Feat
+
+- **typer**: change border
+
+## 7.67.0 (2022-12-20)
+
+### Feat
+
+- **typer**: add border
+
+## 7.66.0 (2022-12-20)
+
+### Feat
+
+- **typer**: add finger info to heatmap
+
 ## 7.65.0 (2022-12-20)
 
 ### Feat

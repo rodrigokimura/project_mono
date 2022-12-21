@@ -16,4 +16,14 @@ class HandPosition {
     getFinger(char) {
         return Object.keys(this.mapping).find(key => this.mapping[key].includes(char))
     }
+    // colorize(leftPinky, leftRing, leftMiddle, leftIndex, leftThumb, rightThumb, rightIndex, rightMiddle, rightRing, rightPinky) {
+    colorize() {
+        const fingers = Object.keys(this.mapping)
+        fingers.forEach(finger => {
+            this.mapping[finger].forEach(key => {
+                $(`.kb-key[data-key="${key}"]`).addClass(finger)
+                console.log(key)
+            })
+        })
+    }
 }
