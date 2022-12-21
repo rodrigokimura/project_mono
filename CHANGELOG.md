@@ -1,3 +1,9 @@
+## 7.66.0 (2022-12-20)
+
+### Feat
+
+- **typer**: add finger info to heatmap
+
 ## 7.65.0 (2022-12-20)
 
 ### Feat
