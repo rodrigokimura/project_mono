@@ -1,7 +1,3 @@
-function sleep(time) {
-    return new Promise((resolve) => setTimeout(resolve, time))
-}
-
 function init() {
     retrieveLessons()
 }
@@ -63,10 +59,6 @@ function renderLessons(lessons) {
         lessonsEl.ready(e => {
             initializeCardMenuDropdown()
             initializeDeleteBoardButtons()
-            $('.ui.progress').progress()
-            $('.ui.progress').popup()
-            $('.bar').popup()
-            initializeDragAndDrop()
         })
     })
 }
@@ -75,7 +67,6 @@ function renderLesson(lesson) {
     const lessonsEl = $('#lessons')
     const details = getDetails(lesson.text)
     let textSample = lesson.text.split('\n').slice(0, 3).join('\n')
-    console.log(textSample)
     if (lesson.text.split('\n').length > 3) {
         textSample = textSample.trim() + ' …'
     }
@@ -119,10 +110,11 @@ function renderLesson(lesson) {
         </div>
     `)
     new StaggeredLayout(`.keyboard-heatmap[data-lesson-id="${lesson.id}"]`).render()
+    renderHeatmap(lesson.text, lesson.id)
 }
 
 function getDetails(text) {
-    text = text.replace(/\r/g, "");  // remove carriage returns
+    text = text.replace(/\r/g, "")  // remove carriage returns
 
     const lineCount = text.split('\n').length
     const wordCount = text.split(' ').length
@@ -132,15 +124,43 @@ function getDetails(text) {
 
     fingers = text.split('').map(char => handPosition.getFinger(char))
 
-    console.log(fingers)
-
-    console.log(uniqueChars)
     return {
         lineCount: lineCount,
         wordCount: wordCount,
         charCount: charCount,
         distinctCharCount: uniqueChars.length,
         distinctFingers: [...new Set(fingers)].length
+    }
+}
+
+function renderHeatmap(text, lessonId, ignoreBlank = true) {
+    text = text.replace(/\r/g, "")
+
+    if (ignoreBlank) {
+        text = text.replace(/\s/g, "")
+    }
+
+    const chars = text.split('')
+
+    let charCount = {}
+    chars.forEach(char => {
+        if (charCount[char] === undefined) {
+            charCount[char] = 1
+        } else {
+            charCount[char]++
+        }
+    })
+
+    const maxCount = Math.max(...Object.values(charCount))
+    for (const char in charCount) {
+        const keyElement = $(`.keyboard-heatmap[data-lesson-id="${lessonId}"] .kb-key[data-key="${char}"]`)
+        const percent = charCount[char] / maxCount
+        keyElement.css('background-color', `rgba(65, 131, 196, ${percent})`)
+        keyElement.attr('title', interpolate(ngettext('%s key press', '%s key presses', charCount[char]), [charCount[char]]))
+        keyElement.popup()
+        if (percent > 0.5) {
+            keyElement.css('color', 'white')
+        }
     }
 }
 
