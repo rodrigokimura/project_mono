@@ -82,7 +82,7 @@ span.display-char.invisible.incorrect::before {
     width: 3em;
     margin: 0.5em;
     padding: 0.5em;
-    border: 1px solid #8b8b8b;
+    border: 2px solid #8b8b8b;
     border-radius: .5em;
 
     -webkit-touch-callout: none;
