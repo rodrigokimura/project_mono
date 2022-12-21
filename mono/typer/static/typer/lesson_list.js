@@ -1,3 +1,6 @@
+const handPosition = new HandPosition('qaz', 'wsx', 'edc', 'rfvtgb', ' ', ' ', 'yhnujm', 'ik,', 'ol.', 'çp;\n')
+
+
 function init() {
     retrieveLessons()
 }
@@ -102,8 +105,6 @@ function renderLesson(lesson) {
                     <div class="item">${details.lineCount} lines</div>
                     <div class="item">${details.wordCount} words</div>
                     <div class="item">${details.charCount} chars</div>
-                    <div class="item">${details.distinctCharCount} unique chars</div>
-                    <div class="item">${details.distinctFingers} unique fingers</div>
                 </div>
             </div>
             <div class="extra content keyboard-heatmap" data-lesson-id="${lesson.id}"></div>
@@ -111,6 +112,7 @@ function renderLesson(lesson) {
     `)
     new StaggeredLayout(`.keyboard-heatmap[data-lesson-id="${lesson.id}"]`).render()
     renderHeatmap(lesson.text, lesson.id)
+    handPosition.colorize()
 }
 
 function getDetails(text) {
@@ -120,7 +122,6 @@ function getDetails(text) {
     const wordCount = text.split(' ').length
     const charCount = text.length
     const uniqueChars = [...new Set(text)]
-    const handPosition = new HandPosition('qaz', 'wsx', 'edc', 'rfvtgb', ' ', ' ', 'yhnujm', 'ik,', 'ol.', 'çp;\n')
 
     fingers = text.split('').map(char => handPosition.getFinger(char))
 
