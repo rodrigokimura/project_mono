@@ -35,6 +35,13 @@
     border: 1px solid #8b8b8b;
     border-radius: .25em;
     font-size: .8em;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .kb-key.pressed {
