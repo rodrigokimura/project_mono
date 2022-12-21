@@ -1,3 +1,9 @@
+## 7.65.0 (2022-12-20)
+
+### Feat
+
+- **typer**: add heatmap rendering
+
 ## 7.64.0 (2022-12-19)
 
 ### Feat

@@ -34,7 +34,6 @@ class StaggeredLayout {
             let row = $(e).data("row-index")
             $(e).css("width", w * this.staggering[row])
         })
-        console.log(w)
     }
 }
 
