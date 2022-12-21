@@ -44,14 +44,53 @@ span.display-char.invisible.incorrect::before {
     flex: 1 1 auto;
 }
 
+
+.kb-key.leftPinky {
+    border-color: rgb(255 0 0)
+}
+.kb-key.leftRing {
+    border-color: rgb(255 127 0);
+}
+.kb-key.leftMiddle {
+    border-color: rgb(192 192 0);
+}
+.kb-key.leftIndex {
+    border-color: rgb(0 192 0)
+}
+.kb-key.leftThumb {
+    border-color: rgb(0 255 255);
+}
+.kb-key.rightThumb {
+    border-color: rgb(0 127 255);
+}
+.kb-key.rightIndex {
+    border-color: rgb(0 0 255);
+}
+.kb-key.rightMiddle {
+    border-color: rgb(127 0 255);
+}
+.kb-key.rightRing {
+    border-color: rgb(255 0 255);
+}
+.kb-key.rightPinky {
+    border-color: rgb(255 0 127);
+}
+
 .kb-key {
     flex: 0 0 auto;
     height: 3em;
     width: 3em;
     margin: 0.5em;
     padding: 0.5em;
-    border: 1px solid #8b8b8b;
+    border: 2px solid #8b8b8b;
     border-radius: .5em;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .kb-key.pressed {
