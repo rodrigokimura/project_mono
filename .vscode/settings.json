@@ -25,4 +25,16 @@
         "accounts",
         "coder"
     ],
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/node_modules": true,
+        "**/venv": true,
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+    }
 }
