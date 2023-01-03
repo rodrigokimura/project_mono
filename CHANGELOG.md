@@ -1,3 +1,9 @@
+## 8.0.1 (2023-01-03)
+
+### Fix
+
+- **coder**: write migrations
+
 ## 8.0.0 (2023-01-03)
 
 ### BREAKING CHANGE
