@@ -1,3 +1,414 @@
+## 8.0.1 (2023-01-03)
+
+### Fix
+
+- **coder**: write migrations
+
+## 8.0.0 (2023-01-03)
+
+### BREAKING CHANGE
+
+- major bump django 3 to 4
+- replace todo-lists app
+- new app and dependency
+- sensitive change, since it changes models on almost every app
+- new PR model field
+
+### Feat
+
+- **typer**: change border
+- **typer**: add border
+- **typer**: add finger info to heatmap
+- **typer**: add heatmap rendering
+- **typer**: show detailed info about lessons
+- **typer**: add page to list lessons
+- **typer**: allow results submission
+- **typer**: show stats and scroll display
+- **typer**: implement keyboard effects
+- **typer**: implement logic in frontend
+- **typer**: create app structure
+- **mono**: add sql logging
+- **mind_maps**: add more alignment options
+- **mind_maps**: implement selection area
+- **mind_maps**: implement bulk operations
+- **mind_maps**: change defaults for node
+- **watcher**: improve translation
+- **watcher**: expose apis to use in frontend
+- **watcher**: add api to list issues
+- **mind_maps**: add action to duplicate mindmap
+- **mind_maps**: fill circles
+- **mind_maps**: change svg from line to path to use bezier curves
+- **mind_maps**: start and end connector on the edges
+- **mind_maps**: change connector to use svg
+- **mind_maps**: increase height in element
+- **mind_maps**: remove flat image effect when dragging
+- **mind_maps**: add a color palette
+- **mind_maps**: add buttons to change colors
+- **mind_maps**: add color picker
+- **mind_maps**: add button to collapse
+- **mind_maps**: add button to collapse/expand nodes
+- **mind_maps**: inherit colors
+- **mind_maps**: add colors
+- **mind_maps**: add color attributes
+- **mind_maps**: expand panel on out-of-boundary node
+- **mind_maps**: expand panel on zoom
+- **mind_maps**: add auto center for panel
+- **mind_maps**: move toolbar to the left
+- **mind_maps**: add icon to hide toolbar
+- **mind_maps**: add text styles
+- **mind_maps**: add zoom level control
+- **mind_maps**: add drag to scroll feature
+- **mind_maps**: add toolbar to edit node
+- **mind_maps**: add support for touch inputs
+- **mind_maps**: add size limit on frontend layer
+- **mind_maps**: remove endpoint restrictions
+- **mind_maps**: add auto-resize based on content
+- **mind_maps**: add mind map detailed page
+- **mind_maps**: add page to list mind maps
+- **mind_maps**: add feat to drag nodes
+- **mind_maps**: add selected state
+- **mind_maps**: add endpoint to sync mind maps
+- **mind_maps**: add models and views
+- **mind_maps**: add keyboard commands
+- **mind_maps**: add methods to draw elements
+- **mind_maps**: add js function to autoplace nodes
+- **mind_maps**: add mind maps app
+- **healthcheck**: filter non null results
+- **healthcheck**: render summary charts
+- **healthcheck**: add summary endpoint
+- **healthcheck**: add endpoint to retrieve last pr number
+- **healthcheck**: store pr number in qa reports
+- **healthcheck**: show pylint score
+- **healthcheck**: add progress bars to coverage report page
+- **healthcheck**: add pylint score to pipeline
+- **background_task**: absorb and adapt third party app to django 4
+- **project_manager**: add loader when user has timer running
+- **project_manager**: display board's background image in listing page
+- **mono**: add firebase cloud messaging backend
+- **healthcheck**: add migrations endpoint
+- **accounts**: store FCM tokens
+- **project_manager**: render activities in detailed html
+- **project_manager**: send notifications to telegram automatically
+- **project_manager**: change style of activities in card
+- **checklists**: add filter to checked status
+- **accounts**: add admin command
+- **accounts**: add telegram notification
+- **project_manager**: render card activities
+- **project_manager**: add js function to get active card
+- **project_manager**: add activity logging
+- **project_manager**: increase top menu size
+- **project_manager**: improve dark mode
+- **project_manager**: add activity model
+- **project_manager**: finish spaces feature
+- **checklists**: improve ui
+- **project_manager**: change space via model method
+- **checklists**: improve translation
+- **checklists**: allow task recurrence removal
+- **checklists**: add task recurrence
+- **checklists**: add more sorting features
+- **project_manager**: add spaces api
+- **project_manager**: add board ordering
+- **project_manager**: add spaces
+- **checklists**: render due date and reminder labels
+- **checklists**: add background task to create reminders
+- **checklists**: add reminder and due date features
+- **checklists**: add feature to change checklists and tasks order
+- **project_manager**: improve translation
+- **feedback**: send email when feedback is received
+- **watcher**: add comments feature
+- **project_manager**: improve translation
+- **project_manager**: improve translation
+- **finance**: improve translation
+- **mono**: improve translations
+- **mono**: improve translations
+- **accounts**: add page to change password
+- **checklists**: add note field
+- **checklists**: refactor whole UI
+- **checklists**: add new app
+- **healthcheck**: improve pylint report page
+- **healthcheck**: improve statistics
+- **healthcheck**: add page to view pylint report
+- **healthcheck**: add pylint reporting
+- **healthcheck**: add page to view coverage report
+- **healthcheck**: add endpoint to upload coverage report files
+- **healthcheck**: add endpoint to upload pytest reports
+- **healthcheck**: add changelog view
+- **notes**: improve sidebar usability
+- **mono**: improve apps menu style
+- **notes**: improve layout
+- **notes**: implement horizontal line button
+- **notes**: improve layout
+- **notes**: implement more toolbar functions
+- **notes**: add toolbar
+- **notes**: add modal for note deletion
+- **notes**: add auto save
+- **notes**: change layout of notes list page
+- **project_manager**: add django admin action to sort boards
+- **project_manager**: change admin columns
+- **mono**: remove pace.js
+- **project_manager**: add fields order to models
+- **curriculum_builder**: change template
+- **curriculum_builder**: improve page layout
+- **curriculum_builder**: add style option
+- **curriculum_builder**: improve ui
+- **curriculum_builder**: implement functions to create, edit and delete acomplishments
+- **curriculum_builder**: add feature to add, update and delete work experiences
+- **curriculum_builder**: add functions to edit and delete company
+- **curriculum_builder**: implement function to add company
+- **coder**: improve home page
+- **coder**: implement style configuration
+- **coder**: add config api
+- **project_manager**: change progress bar order
+- **coder**: add all tag related operations
+- **coder**: add modal to manage tags
+- **coder**: add tag model
+- **coder**: implement sharing option
+- **coder**: Add button to copy public link
+- **coder**: change style of page
+- **coder**: add button to copy snippet
+- **coder**: implement update
+- **coder**: add buttons to create and delete snippets
+- **coder**: improve snippet list page
+- **coder**: add coder app
+- **curriculum_builder**: add curriculum detail view
+- **curriculum_builder**: add view to list curricula
+- **curriculum_builder**: add viewsets, serializers and urls
+- **curriculum_builder**: add new app
+- **watcher**: show duration in milliseconds
+- **watcher**: add request tracking
+- **watcher**: add timestamps to the main page
+- **shipper**: allow portmanteaus in same direction
+- **healthcheck**: add pull command to mark_as_deployed
+- **healthcheck**: save last commit's SHA to PR instance
+- **shipper**: add portmanteau model
+- **finance**: add data labels to donut chart
+- **finance**: :sparkles: add new card to finance homepage
+- **notes**: improve layout
+- **shipper**: simplify input
+- **shipper**: add form
+- **shipper**: :sparkles: add new app
+- **finance**: implement chart order
+- **finance**: add filter to show future transactions
+- **finance**: allow chart editing
+- **finance**: add option to delete chart
+- **finance**: add modal to create charts
+- **finance**: add endpoints to create, edit and delete charts
+- **finance**: add title and order fields
+- **finance**: add donut chart
+- **finance**: allow no category in chart
+- **finance**: add dynamic charts page
+- implement queryset generator for charts
+- **mono**: host twemoji
+- **restricted_area**: add reporting view and command
+- **project_manager**: :sparkles: add buttons to sort projects and boards
+
+### Fix
+
+- **mono**: adjust logs colorization
+- **healthcheck**: adjust filter when counting deployed prs
+- **mono**: change default from email
+- **coder**: adjust query to group by language correctly
+- **mind_maps**: copy nodes before assigning fks
+- **mind_maps**: adjust html rendering
+- **mind_maps**: adjust navigation to consider visible nodes
+- **mind_maps**: adjust offset on dragging
+- **mind_maps**: adjust cursor style
+- **mono**: apply pylint suggestions
+- **healthcheck**: improve endpoint resilience
+- **mind_maps**: adjust positioning
+- **mind_maps**: adjust touch coordinates
+- **mind_maps**: read padding from db
+- **mind_maps**: adjust position
+- **mind_maps**: add missing migrations
+- **healthcheck**: remove pr validation
+- **healthcheck**: add check for non existent pull requests
+- **healthcheck**: try different approach
+- **healthcheck**: show complete error messages
+- **healthcheck**: try using double quotes
+- **healthcheck**: try different approach in var interpolation
+- **makefile**: adjust var interpolation
+- **mono**: change version info source file
+- **accounts**: add log
+- **mono**: adjust implementation for tests
+- **mono**: handle non existent file
+- **mono**: adjust fallback value
+- **accounts**: change response to json
+- **accounts**: add column max length
+- **accounts**: add migrations
+- **mono**: change email alias
+- **project_manager**: adjust function call args
+- **checklists**: change order to consider max
+- **checklists**: allow field to be blank
+- **accounts**: adjust webhook response
+- **project_manager**: adjust storage parsing
+- **project_manager**: adjust class
+- **project_manager**: adjust logic to disable board
+- **project_manager**: adjust boards filtered in api view
+- **project_mamagem**: adjust drag and drop
+- **project_manager**: create migration
+- **project_manager**: adjust layout
+- **mono**: adjust translation
+- **checklists**: app missing function call
+- **project_manager**: adjust javascript initialization functions
+- **mono**: adjust translation
+- **watcher**: adjust query param
+- **watcher**: adjust request query param
+- **mono**: improve translation
+- **mono**: adjust sidebar animation
+- **finance**: adjust timezone in date
+- **checklists**: adjust mobile layout
+- **notes**: adjust mobile layout
+- **accounts**: adjust profile page
+- **accounts**: update url names
+- **checklists**: remove hardcoded text
+- **checklists**: adjust signature in viewset method
+- **mono**: apply pylint suggestions
+- **checklists**: dettach events before assigning new ones
+- **healthcheck**: adjust migration checker test
+- **healthcheck**: replace migration checker test
+- **checklists**: remove app from migration checker
+- **todo_lists**: flag app to be deprecated
+- **pixel**: adjust filters
+- **mono**: clean up repo
+- **mono**: resolve conflicts
+- **healthcheck**: change html element being toggled
+- **healthcheck**: standardize date format before API call
+- **notes**: adjust layout
+- **notes**: create migration
+- **notes**: change text selection in js command
+- **notes**: return 404 when note is not found
+- **notes**: remove deprecated model instance method
+- adjust page layout
+- **project_manager**: add migration
+- **feedback**: create subclass of widget customizing template
+- **finance**: remove uncorrect attribute from serializer
+- **finance**: remove uncorrect attribute from serializer
+- **project_manager**: change progress bar order
+- **project_manager**: change progress order
+- **coder**: create migrations
+- **accounts**: fix customer creation
+- **watcher**: localize timestamp
+- **finance**: round budget amount
+- **project_manager**: fix card toggle
+- **mono**: suppress warnings on tests
+- **shiper**: add comparison for sorting
+- **healthcheck**: fix syntax error
+- **mono**: adjust commit command in makefile
+- **shipper**: change coloring of portmanteaus
+- **shipper**: update test
+- **shipper**: make migrations
+- **finance**: fix api call
+- **finance**: adjust datetime creation
+- **finance**: handle no axis
+- **finance**: update description and action url for recurrent transaction notification
+- **finance**: make migrations
+- **finance**: create transaction on recurrent transaction in the past
+- **finance**: set proper model ordering
+- **finance**: fix chart queryset
+- **finance**: fix data in chart
+- **finance**: fix format
+- **finance**: fix wrong format
+- **finance**: fix card order template
+- **watcher**: prevent use of bfcache making the issues list always updated
+- **finance**: fix missing code
+- **finance**: :ambulance: fix wrong code
+
+### Refactor
+
+- **finance**: make button selectable on tab press
+- **mono**: add pylint suggestions
+- **mind_maps**: add and reuse properties
+- **mind_maps**: reuse code
+- **mind_maps**: reuse code
+- **mind_maps**: reorder checks
+- **mind_maps**: reuse var
+- **mind_maps**: extract variable
+- **mind_maps**: extract method
+- **healthcheck**: reorder tabs
+- **healthcheck**: add more reliable way to get or number
+- **background_tasks**: apply pylint suggestions
+- **background_tasks**: apply pylint suggestions
+- **background_task**: apply pylint suggestions
+- **healthcheck**: show pr number
+- **healthcheck**: show app version
+- **mono**: apply pylint suggestions
+- **mono**: override process_tasks command
+- **accounts**: initialize firebase before sending messages
+- **accounts**: force notification to send
+- **accounts**: change signed message to uuid4
+- **accounts**: add body to response in webhook
+- **project_manager**: remove public_id fields
+- **project_manager**: organize js files
+- **project_manager**: adjust function calls
+- **project_manager**: improve chained modals
+- **project_manager**: improve styles
+- **project_manager**: change activity model
+- **project_manager**: add public id fields
+- **project_manager**: change field name
+- **project_manager**: extract board attributes to new model
+- **project_manager**: improve js functions
+- **project_manager**: improve js functions
+- **project_manager**: improve js functions
+- **restricted_area**: move login_as view to restricted_area app
+- **project_manager**: change style for not assigned boards
+- **checklists**: move change order logic to models
+- **project_manager**: improve ordered models
+- **project_manager**: add style
+- **project_manager**: use api views to render board listing page
+- **checklists**: allow minutes in reminders
+- **checklists**: add logs to command
+- **mono**: improve translation
+- **project_manager**: improve translation
+- **mono**: improve templates
+- **finance**: reuse templates and views
+- **mono**: improve apps menu
+- **vs-code**: remove linter config
+- **checklists**: change layout
+- **mono**: write dummy comment
+- **mono**: remove fixture dependencies
+- **healthcheck**: remove char limit in column
+- **healthcheck**: implement async call
+- **notes**: improve admin
+- **mono**: change to pytest
+- **mono**: change folder structure
+- **curriculum_builder**: change modeling
+- **accounts**: bound checkout view to button in config page
+- **mono**: delete unnecessary files
+- **accounts**: remove nested block
+- **mono**: squash migrations
+- **mono**: apply pylint changes
+- **finance**: apply pylint changes
+- **finance**: apply pylint changes
+- **finance**: apply pylint changes
+- **healthcheck**: apply pylint changes
+- **notes**: apply pylint changes
+- **pixel**: apply pylint changes
+- **project_manager**: apply pylint changes
+- **project_manager**: apply pylint changes
+- **restricted_area**: apply pylint changes
+- **restricted_area**: apply pylint changes
+- **shipper**: apply pylint changes
+- **todo_lists**: apply pylint changes
+- **watcher**: apply pylint changes
+- **mono**: improve pylint score
+- **makefile**: add command to SSH into prod server
+- **healthcheck**: change way to retrieve last merge commit
+- **accounts**: move models, views and routes related to stripe
+- remove code dups
+- **mono**: change makefile
+- **mono**: change dependencies in pipfile
+- **mono**: move common widget from app to project level
+- **mono**: move common widgets to higher level
+- **project_manager**: remove code duplicate and minor quality issues
+- **mono**: add make command to run dev server
+- **mono**: remove duplicate code
+- **mono**: configure admin email
+
+### Perf
+
+- **healthcheck**: remove redundant iterations
+- **finance**: decrease complexity
+
 ## 7.68.0 (2022-12-20)
 
 ### Feat

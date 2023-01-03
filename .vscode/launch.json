@@ -15,6 +15,15 @@
                 "127.0.0.1:8080"
             ],
             "django": true,
+            "presentation": {
+                "hidden": true,
+            },
+            "internalConsoleOptions": "openOnSessionStart",
+            "serverReadyAction": {
+                "pattern": "Starting development server at (https?://\\S+|[0-9]+)",
+                "uriFormat": "%s",
+                "action": "openExternally",
+            }
         },
         {
             "name": "[MONO] Process Background Tasks",
@@ -26,16 +35,26 @@
                 "process_mono_tasks",
                 "--dev",
             ],
-            "django": true
+            "django": true,
+            "presentation": {
+                "hidden": true,
+            },
+            "internalConsoleOptions": "neverOpen",
         },
     ],
     "compounds": [
         {
-            "name": "Server/Tasks",
+            "name": "Web server/Background tasks",
             "configurations": [
                 "[MONO] Process Background Tasks",
                 "[MONO] Dev Server",
             ],
+            "presentation": {
+                "hidden": false,
+                "group": "",
+                "order": 1
+            },
+            "stopAll": true,
         }
     ]
 }
