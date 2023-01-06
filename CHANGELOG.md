@@ -1,3 +1,9 @@
+## 8.2.0 (2023-01-05)
+
+### Feat
+
+- **finance**: improve usability
+
 ## 8.1.0 (2023-01-05)
 
 ### Feat
