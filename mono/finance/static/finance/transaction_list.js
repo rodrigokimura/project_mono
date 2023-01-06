@@ -151,6 +151,7 @@ function showTransactionModal() {
         .modal({
             onShow: () => {
                 resetForm()
+                $('#transaction-type .item[data-value=EXP]').click()
                 initializeCalendar()
                 if ($('#timestamp').calendar('get date') == null) {
                     $('#timestamp').calendar('set date', new Date())

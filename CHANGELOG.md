@@ -1,3 +1,9 @@
+## 8.2.1 (2023-01-05)
+
+### Fix
+
+- **finance**: add missing button trigger
+
 ## 8.2.0 (2023-01-05)
 
 ### Feat
