@@ -28,12 +28,13 @@ function getObjectType() {
 
 function submitForm() {
     type = getObjectType()
+    const amount = Number($('[name="amount"]').val().replace(',', '').replace('.', '')) / 100
     if (type == "transaction") {
         if (getTransactionType() == 'TRF') {
             url = '/fn/api/transferences/'
             payload = JSON.stringify({
                 description: $('[name="description"]').val(),
-                amount: $('[name="amount"]').val(),
+                amount: amount,
                 from_account: {
                     id: $('#from-accounts-dropdown').dropdown('get value'),
                 },
@@ -45,7 +46,7 @@ function submitForm() {
         } else {
             url = '/fn/api/transactions/'
             payload = JSON.stringify({
-                amount: $('[name="amount"]').val(),
+                amount: amount,
                 description: $('[name="description"]').val(),
                 account: {
                     id: $('#accounts-dropdown').dropdown('get value'),
@@ -59,7 +60,7 @@ function submitForm() {
     } else if (type == "recurrent") {
         url = '/fn/api/recurrent-transactions/'
         payload = JSON.stringify({
-            amount: $('[name="amount"]').val(),
+            amount: amount,
             description: $('[name="description"]').val(),
             account: {
                 id: $('#accounts-dropdown').dropdown('get value'),
@@ -73,7 +74,7 @@ function submitForm() {
     } else if (type == "installment") {
         url = '/fn/api/installments/'
         payload = JSON.stringify({
-            total_amount: $('[name="amount"]').val(),
+            total_amount: amount,
             description: $('[name="description"]').val(),
             account: {
                 id: $('#accounts-dropdown').dropdown('get value'),
@@ -164,6 +165,16 @@ function showTransactionModal() {
         .modal('show')
 }
 
+function inputMaskAmount() {
+    let value = Number(document.activeElement.value.toString().replace(',', '').replace('.', ''))
+    if (isNaN(value)) {
+        document.activeElement.value = 0
+        return false
+    }
+    value = value / 100
+    document.activeElement.value = value.toLocaleString(LANGUAGE_CODE)
+}
+
 function getTransactionType() {
     return $('#transaction-type .item.active').attr('data-value')
 }
@@ -224,7 +235,19 @@ function initializeCategoryDropdown() {
     })
 }
 
-
+function initializeAmountInput() {
+    const el = $("input[name=amount]")
+    el.on('input', e => {
+        let value = Number(el.val().toString().replace(',', '').replace('.', ''))
+        value = value / 100
+        el.val(value.toLocaleString(LANGUAGE_CODE))
+    })
+    el.on('keypress', e => {
+        if (e.which < 48 || e.which > 57) {
+            e.preventDefault()
+        }
+    })
+}
 
 function onEnterTab() {
 
