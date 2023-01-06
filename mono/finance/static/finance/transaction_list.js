@@ -150,12 +150,11 @@ function showTransactionModal() {
     $('.ui.transaction.modal')
         .modal({
             onShow: () => {
-                clearForm()
-                $('#timestamp').calendar({
-                    on: 'focus',
-                    today: true,
-                    touchReadonly: false,
-                }).calendar('set date', new Date())
+                resetForm()
+                initializeCalendar()
+                if ($('#timestamp').calendar('get date') == null) {
+                    $('#timestamp').calendar('set date', new Date())
+                }
             },
             onApprove: () => {
                 submitForm()
@@ -198,8 +197,9 @@ function initializeAccountDropdown() {
                 }
             }
         },
-        forceSelection: false,
+        forceSelection: true,
         filterRemoteData: true,
+        selectOnKeydown: false,
         onChange: () => {
             $('#categories-dropdown').dropdown('show', true)
         },
@@ -229,9 +229,17 @@ function initializeCategoryDropdown() {
                 }
             },
         },
-        forceSelection: false,
+        forceSelection: true,
         filterRemoteData: true,
-        allowReselection: true,
+        selectOnKeydown: false,
+    })
+}
+
+function initializeCalendar() {
+    $('#timestamp').calendar({
+        on: 'focus',
+        today: true,
+        touchReadonly: true,
     })
 }
 
@@ -240,7 +248,7 @@ function initializeAmountInput() {
     el.on('input', e => {
         let value = Number(el.val().toString().replace(',', '').replace('.', ''))
         value = value / 100
-        el.val(value.toLocaleString(LANGUAGE_CODE))
+        el.val(value.toLocaleString(LANGUAGE_CODE, {minimumFractionDigits: 2}))
     })
     el.on('keypress', e => {
         if (e.which < 48 || e.which > 57) {
