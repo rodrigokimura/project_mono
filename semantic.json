@@ -1,0 +1,22 @@
+{
+  "base": "mono/",
+  "paths": {
+    "source": {
+      "config": "semantic/src/theme.config",
+      "definitions": "semantic/src/definitions/",
+      "site": "semantic/src/site/",
+      "themes": "semantic/src/themes/"
+    },
+    "output": {
+      "packaged": "shared/static/semantic/dist/",
+      "uncompressed": "shared/static/semantic/dist/components/",
+      "compressed": "shared/static/semantic/dist/components/",
+      "themes": "shared/static/semantic/dist/themes/"
+    },
+    "clean": "shared/static/semantic/dist/"
+  },
+  "permission": false,
+  "autoInstall": false,
+  "rtl": false,
+  "version": "2.9.0"
+}

@@ -344,3 +344,9 @@ copy-termux-shortcuts:
 
 list-apps:
 	@tree mono -dL 1 -I _*\|reports\|htmlcov --noreport
+
+build-semantic:
+	@npx gulp build -f mono/semantic/gulpfile.js
+
+update-semantic:
+	@npm update fomantic-ui

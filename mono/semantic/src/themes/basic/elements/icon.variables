@@ -1,0 +1,22 @@
+/*-------------------
+   Icon Variables
+--------------------*/
+
+@fontPath  : "../../themes/basic/assets/fonts";
+
+@fonts: {
+  @solid: {
+    font-family: @fontName;
+    src: url("@{fontPath}/@{fontName}.woff") format('woff');
+    font-style: normal;
+    font-weight: @normal;
+    font-variant: normal;
+    text-decoration: inherit;
+    text-transform: none;
+  };
+};
+@icon-deprecated-map: {};
+@icon-outline-map: {};
+@icon-outline-aliases-map: {};
+@icon-brand-map: {};
+@icon-brand-aliases-map: {};
