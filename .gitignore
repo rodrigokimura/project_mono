@@ -18,6 +18,6 @@ diagrams/
 mono/htmlcov
 mono/db.sqlite3
 mono/reports
-*.json
 .pytest_cache/
 cov.xml
+firebase-auth-file.json
