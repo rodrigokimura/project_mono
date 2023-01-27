@@ -1,3 +1,9 @@
+## 8.4.0 (2023-01-27)
+
+### Fix
+
+- **mono**: adjust semantic global config override
+
 ## 8.3.0 (2023-01-16)
 
 ### Feat
