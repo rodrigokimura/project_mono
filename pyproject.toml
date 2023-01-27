@@ -264,7 +264,7 @@ filterwarnings = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "8.3.0"
+version = "8.4.0"
 tag_format = "$version"
 version_files = [
     "mono/__mono/__version__.py",
