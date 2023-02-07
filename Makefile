@@ -125,6 +125,10 @@ coverage:
 		&& pipenv run pytest --cov=. --report-log=$(R_PT)/report.json --cov-report xml:cov.xml\
 		&& $(COV) json -o $(R_COV)/report.json
 
+html-coverage:
+	@export APP_ENV=TEST && cd mono \
+		&& pipenv run pytest --cov=. --cov-report=html
+
 _upload-coverage-report:
 	curl $(MONO_URL)/hc/api/coverage/ \
 		-X POST \

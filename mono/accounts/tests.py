@@ -1,5 +1,5 @@
 from datetime import timedelta
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, Mock
 
 import jwt
 import pytest
@@ -12,6 +12,39 @@ from finance.models import Icon
 from .context_processors import unread_notification_count
 from .forms import UserProfileForm
 from .models import Notification, User, UserProfile, user_directory_path
+from .telegram import send_message
+
+
+@pytest.fixture
+def mocked_post(monkeypatch):
+    my_mock = Mock()
+    monkeypatch.setattr("requests.post", my_mock)
+    return my_mock
+
+
+def test_telegram(mocked_post: Mock, settings):
+
+    chat_id = 123
+    text = "fake message"
+    token = 123
+    settings.TELEGRAM_BOT_TOKEN = token
+
+    send_message(chat_id, text)
+
+    mocked_post.assert_called_once_with(
+        f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={text}"
+    )
+
+
+def test_telegram_without_token_should_do_nothing(mocked_post: Mock, settings):
+
+    chat_id = 123
+    text = "fake message"
+    settings.TELEGRAM_BOT_TOKEN = None
+
+    send_message(chat_id, text)
+
+    mocked_post.assert_not_called()
 
 
 class TestUserProfileForm:
