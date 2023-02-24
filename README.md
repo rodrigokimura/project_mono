@@ -27,6 +27,50 @@ Other tools:
 - SQLite for development database
 - Fomantic-UI for frontend styling
 
+# Setup development environment
+
+## Install OS dependencies
+
+### Debian based
+
+```bash
+sudo apt update
+sudo apt upgrade
+sudo apt install mariadb-client python-pip
+```
+
+### Arch based
+
+```bash
+sudo pacman -Syu
+sudo pacman -S mariadb-client python-pip
+```
+
+## Install Pipenv (a Python dependency manager)
+
+```bash
+pip install pipenv
+```
+
+## Create local database
+
+```bash
+make clean-db
+make migrate
+```
+
+## Create local superuser
+
+```bash
+make superuser
+```
+
+## Run local server
+
+```bash
+make devserver
+```
+
 ## Main apps
 
 ### Finance

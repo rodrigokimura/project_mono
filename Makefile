@@ -223,7 +223,7 @@ translate:  ## Compile messages in .po file to .mo file
 ##@ Pipenv
 
 install:  ## Install dependencies
-	@pipenv install
+	@pipenv install --skip-lock --dev
 
 update:  ## Update dependencies
 	@pipenv update
