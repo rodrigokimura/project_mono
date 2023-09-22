@@ -30,7 +30,6 @@ class SiteAdmin(admin.ModelAdmin):
 
 @admin.register(models.Ping)
 class PingAdmin(admin.ModelAdmin):
-
     list_display = [
         "user_id",
         "event",

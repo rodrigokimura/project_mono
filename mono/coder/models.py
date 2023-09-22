@@ -28,6 +28,7 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ("created_by",)
 
 
 class Tag(BaseModel, OrderedModel):
@@ -40,8 +41,6 @@ class Tag(BaseModel, OrderedModel):
     created_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="coder_tags"
     )
-
-    order_with_respect_to = "created_by"
 
     def __str__(self) -> str:
         return f"#{self.name}"

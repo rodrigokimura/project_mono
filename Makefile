@@ -154,13 +154,16 @@ upload-reports: _upload-pylint-report _upload-coverage-report _upload-pytest-rep
 
 ##@ Django
 
-DJANGO=export APP_ENV=DEV && pipenv run python mono/manage.py
+DJANGO=pipenv run python mono/manage.py
 
 superuser:  ## Create superuser
 	@$(DJANGO) createsuperuser
 
 devserver:  ## Run development server
 	@$(DJANGO) runserver 127.0.0.1:8080
+
+run:
+	@cd mono && pipenv run gunicorn __mono.wsgi:application -b 0.0.0.0:8080 --certfile=ca.cert --keyfile=ca.key
 
 clean-db:  ## Delete sqlite database
 	@rm mono/db.sqlite3
@@ -286,7 +289,7 @@ check:  ## Show state and checks of last pull request
 			&& echo \
 			&& echo "${DIM}Checking current version..." \
 			&& echo \
-			&& PROD_PR=$$(curl "https://www.monoproject.info/hc/" | python3 -c "import sys, json; print(json.load(sys.stdin)['pr'])") \
+			&& PROD_PR=$$(curl "https://rodrigokimura.com/hc/" | python3 -c "import sys, json; print(json.load(sys.stdin)['pr'])") \
 			&& echo "${RESET}" \
 			&& if [ $$PROD_PR = $$LAST_PR ] ; \
 				then echo "${GREEN}Deployed!${RESET}"; \
@@ -295,11 +298,11 @@ check:  ## Show state and checks of last pull request
 		@echo
 
 prod-version:
-	@curl "https://www.monoproject.info/hc/"
+	@curl "https://rodrigokimura.com/hc/"
 	@echo
 
 prod-pr:
-	@PROD_PR=$$(curl "https://www.monoproject.info/hc/" | python3 -c "import sys, json; print(json.load(sys.stdin)['pr'])") \
+	@PROD_PR=$$(curl "https://rodrigokimura.com/hc/" | python3 -c "import sys, json; print(json.load(sys.stdin)['pr'])") \
 	&& echo $$PROD_PR
 
 current-pr:
@@ -316,7 +319,7 @@ deploy: art  ## Deploy app to Production server
 	|| echo "${RED}Failed!${RESET}"
 
 logs: art  ## Check logs for deployment messages
-	@ssh kimura@ssh.pythonanywhere.com "tail /var/log/www.monoproject.info.server.log -n 100 --follow | grep 'www_monoproject_info_wsgi.py has been touched' || true"
+	@ssh kimura@ssh.pythonanywhere.com "tail /var/log/rodrigokimura.com.server.log -n 100 --follow | grep 'www_monoproject_info_wsgi.py has been touched' || true"
 
 mark-as-deployed:
 	$(DJANGO) mark_as_deployed

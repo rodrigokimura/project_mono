@@ -6,4 +6,4 @@ python mono/manage.py makemigrations
 python mono/manage.py migrate
 python mono/manage.py mark_as_deployed
 touch /var/www/www_monoproject_info_wsgi.py
-tail /var/log/www.monoproject.info.server.log -n 100 --follow
+tail /var/log/rodrigokimura.com.server.log -n 100 --follow

@@ -900,7 +900,7 @@ class Card(BaseModel):
         running_entries = self.timeentry_set.filter(stopped_at__isnull=True)
         stopped_entries_duration = stopped_entries.aggregate(
             duration=Coalesce(
-                Sum("duration"), V(0), output_field=DurationField()
+                Sum("duration"), V(timedelta(0)), output_field=DurationField()
             )
         )["duration"]
         running_entries_duration = sum(

@@ -82,7 +82,7 @@ class Command(BaseCommand):
 
     # Used in Django >= 1.8
     def add_arguments(self, parser):
-        for (args, kwargs) in self.OPTIONS:
+        for args, kwargs in self.OPTIONS:
             parser.add_argument(*args, **kwargs)
 
     def __init__(self, *args, **kwargs):

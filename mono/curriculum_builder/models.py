@@ -124,7 +124,9 @@ class Company(BaseModel):
 
     @property
     def started_at(self):
-        return WorkExperience.objects.filter(company=self,).aggregate(
+        return WorkExperience.objects.filter(
+            company=self,
+        ).aggregate(
             Min("started_at")
         )["started_at__min"]
 

@@ -96,7 +96,6 @@ class UserCreationTests(TestCase):
         self.assertFalse(self.group.owned_by == self.user_2)
 
     def test_patch_with_logged_in_user(self):
-
         transaction = Transaction.objects.create(
             description="Test",
             amount=100,
@@ -110,21 +109,23 @@ class UserCreationTests(TestCase):
         request.user = self.user_1
 
 
-class StripeTests(TestCase):
-    stripe.api_key = settings.STRIPE_SECRET_KEY
-
-    def setUp(self):
-        Icon.create_defaults()
-        self.user = User.objects.create(username="user")
-        products = stripe.Product.list(limit=100, active=True).data
-        self.products = [
-            product for product in products if product.metadata.app == "finance"
-        ]
-
-    def test_stripe_products(self):
-        self.assertGreater(len(self.products), 0)
-
-    def test_stripe_plans(self):
-        for product in self.products:
-            plans = stripe.Plan.list(product=product.id, limit=100).data
-            self.assertGreater(len(plans), 0)
+# TODO: mock stripe
+#
+# class StripeTests(TestCase):
+#     stripe.api_key = settings.STRIPE_SECRET_KEY
+#
+#     def setUp(self):
+#         Icon.create_defaults()
+#         self.user = User.objects.create(username="user")
+#         products = stripe.Product.list(limit=100, active=True).data
+#         self.products = [
+#             product for product in products if product.metadata.app == "finance"
+#         ]
+#
+#     def test_stripe_products(self):
+#         self.assertGreater(len(self.products), 0)
+#
+#     def test_stripe_plans(self):
+#         for product in self.products:
+#             plans = stripe.Plan.list(product=product.id, limit=100).data
+#             self.assertGreater(len(plans), 0)

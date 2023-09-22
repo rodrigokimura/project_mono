@@ -310,7 +310,8 @@ class Feature(models.Model):
 
 class Subscription(models.Model):
     """
-    Stores subscriptions made by users. This is used to provide plan features and limitations to user."""
+    Stores subscriptions made by users. This is used to provide plan features and limitations to user.
+    """
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE)

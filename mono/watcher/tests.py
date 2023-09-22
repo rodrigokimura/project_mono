@@ -285,7 +285,10 @@ class TestWatcherViews:
         watcher_tracebacks = Traceback.objects.all()
         watcher_events = Event.objects.all()
         assert watcher_tracebacks.exists() is False
-        with patch("builtins.open", mock_open(read_data=code_file),), patch(
+        with patch(
+            "builtins.open",
+            mock_open(read_data=code_file),
+        ), patch(
             "watcher.log_handlers.store_log",
             lambda rec: rec,
         ) as mock_file:

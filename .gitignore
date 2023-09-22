@@ -3,6 +3,8 @@
 **/_media/*
 *.pyc
 *.pem
+*.key
+*.cert
 *.log
 /semantic
 /node_modules

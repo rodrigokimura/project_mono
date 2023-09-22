@@ -704,7 +704,6 @@ class StripeWebhookView(View):
                 {"plan": plan, "event_id": event.id}, user=user
             )
         elif event["type"] == "customer.subscription.updated":
-
             # Check for cancellation updates
             subscription = event.data.object
 

@@ -75,7 +75,6 @@ class CustomServerFormatter(logging.Formatter):
         super().__init__(*args, **kwargs)
 
     def format(self, record):
-
         method, url, protocol = record.args[0].split()
 
         endpoint = f"{method} {url}"

@@ -1,5 +1,6 @@
 """Django settings"""
 import os
+import sys
 from pathlib import Path
 
 from django.urls import reverse_lazy
@@ -12,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 
-APP_ENV = os.getenv("APP_ENV", "PRD")
+APP_ENV = "TEST" if "pytest" in sys.modules else os.getenv("APP_ENV", "PRD")
 
 APP_VERSION = VERSION
 
@@ -38,6 +39,8 @@ else:  # pragma: no cover
 DEBUG = APP_ENV in ["DEV", "TEST"]
 CSRF_COOKIE_SECURE = APP_ENV == "PRD"
 SESSION_COOKIE_SECURE = APP_ENV == "PRD"
+SECURE_SSL_REDIRECT = APP_ENV == "PRD"
+
 
 if APP_ENV in ["DEV", "TEST"]:
     ALLOWED_HOSTS = ["*"]
@@ -49,7 +52,7 @@ else:
 if APP_ENV in ["DEV", "TEST"]:
     SITE = "http://127.0.0.1:8080"
 else:
-    SITE = "https://www.monoproject.info"  # pragma: no cover
+    SITE = "https://rodrigokimura.com"  # pragma: no cover
 
 NOTIFICATION_CHECKER = (
     str(os.getenv("NOTIFICATION_CHECKER", "True")).lower() == "true"
@@ -99,6 +102,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "watcher.middlewares.StatisticsStartMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -158,19 +162,21 @@ if APP_ENV in ["DEV", "TEST"]:
 else:  # pragma: no cover
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.mysql",
+            "ENGINE": "django.db.backends.postgresql",
             "HOST": os.getenv("DB_ADDR"),
-            "PORT": "3306",
+            "PORT": "5432",
             "NAME": os.getenv("DB_NAME"),
             "USER": os.getenv("DB_USER"),
             "PASSWORD": os.getenv("DB_PASS"),
-            "OPTIONS": {
-                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-                "charset": "utf8mb4",
-                "use_unicode": True,
-            },
         }
     }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"redis://{os.getenv('REDIS_ADDR', 'localhost')}:{os.getenv('REDIS_PORT', 6379)}",
+    }
+}
 
 AUTHENTICATION_BACKENDS = [
     "social_core.backends.github.GithubOAuth2",
@@ -249,7 +255,7 @@ EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = 60
 
@@ -428,7 +434,6 @@ MARKDOWNX_MARKDOWN_EXTENSIONS = [
 ]
 
 if APP_ENV == "TEST":
-
     import warnings
 
     warnings.simplefilter("ignore", Warning)

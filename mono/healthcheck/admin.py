@@ -6,7 +6,6 @@ from . import models
 
 @admin.register(models.PullRequest)
 class PullRequestAdmin(admin.ModelAdmin):
-
     list_display = [
         "number",
         "author",
@@ -26,7 +25,6 @@ class PullRequestAdmin(admin.ModelAdmin):
 
 @admin.register(models.PytestReport)
 class PytestReportAdmin(admin.ModelAdmin):
-
     list_display = [
         "id",
         "pull_request",
@@ -44,7 +42,6 @@ class PytestReportAdmin(admin.ModelAdmin):
 
 @admin.register(models.PytestResult)
 class PytestResultAdmin(admin.ModelAdmin):
-
     list_display = [
         "report",
         "node_id",
@@ -59,7 +56,6 @@ class PytestResultAdmin(admin.ModelAdmin):
 
 @admin.register(models.CoverageReport)
 class CoverageReportAdmin(admin.ModelAdmin):
-
     list_display = (
         "id",
         "pull_request",
@@ -77,7 +73,6 @@ class CoverageReportAdmin(admin.ModelAdmin):
 
 @admin.register(models.CoverageResult)
 class CoverageResultAdmin(admin.ModelAdmin):
-
     list_display = [
         "report",
         "file",

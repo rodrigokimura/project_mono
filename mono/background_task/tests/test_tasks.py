@@ -261,7 +261,6 @@ class TestSchedulingTasks(TransactionTestCase):
         self.assertEqual("[[1], {}]", task.task_params)
 
     def test_reschedule_existing(self):
-
         reschedule_existing = TaskSchedule.RESCHEDULE_EXISTING
 
         @tasks.background(
@@ -287,7 +286,6 @@ class TestSchedulingTasks(TransactionTestCase):
         self.assertTrue(now + timedelta(seconds=91) > task.run_at)
 
     def test_check_existing(self):
-
         check_existing = TaskSchedule.CHECK_EXISTING
 
         @tasks.background(

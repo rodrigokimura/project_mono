@@ -10,7 +10,7 @@
 /*--------------
     Path
 ---------------*/
-@emojiPath: "https://www.monoproject.info/static/twemoji/svg/";
+@emojiPath: "https://rodrigokimura.com/static/twemoji/svg/";
 @emojiFileType: "svg";
 
 /*--------------
